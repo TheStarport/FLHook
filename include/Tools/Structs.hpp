@@ -273,16 +273,7 @@ struct Light
 };
 
 template <class Processor>
-struct UserCommandInfo
-{
-        std::wstring_view cmd;
-        void (*func)(Processor cl, ClientId client, const std::vector<std::wstring>& params);
-        std::wstring_view usage;
-        std::wstring_view description;
-};
-
-template <class Processor>
-struct AdminCommandInfo
+struct CommandInfo
 {
         std::wstring_view cmd;
         void (*func)(Processor cl, const std::vector<std::wstring>& params);

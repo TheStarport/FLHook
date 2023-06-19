@@ -107,6 +107,8 @@ class DLL Plugin
         std::vector<Timer> timers;
 
     public:
+        Plugin(const Plugin&) = default;
+
         explicit Plugin(const PluginInfo& info)
         {
             name = info.name;

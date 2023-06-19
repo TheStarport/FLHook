@@ -39,7 +39,7 @@ namespace Plugins
      * @brief This command is called when a player types /afk. It prints a message in red text to nearby players saying they are afk. It will also let anyone
      * who messages them know too.
      */
-    void AfkPlugin::UserCmdAfk(ClientId& client)
+    void AfkPlugin::UserCmdAfk()
     {
         awayClients.emplace_back(client);
         const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
@@ -56,7 +56,7 @@ namespace Plugins
      * @brief This command is called when a player types /back. It removes the afk status and welcomes the player back.
      * who messages them know too.
      */
-    void AfkPlugin::UserCmdBack(ClientId& client)
+    void AfkPlugin::UserCmdBack()
     {
         if (const auto it = awayClients.begin(); std::find(it, awayClients.end(), client) != awayClients.end())
         {
@@ -83,12 +83,13 @@ namespace Plugins
     }
 
     // Hooks on chat being submitted
-    void AfkPlugin::SubmitChat(ClientId& client, [[maybe_unused]] const unsigned long& lP1, [[maybe_unused]] const void** rdlReader,
+    void AfkPlugin::SubmitChat(ClientId& triggeringClient, [[maybe_unused]] const unsigned long& lP1, [[maybe_unused]] const void** rdlReader,
                                [[maybe_unused]] ClientId& to, [[maybe_unused]] const int& dunno)
     {
         if (const auto it = awayClients.begin(); Hk::Client::IsValidClientID(client) && std::find(it, awayClients.end(), client) != awayClients.end())
         {
-            UserCmdBack(client);
+            client = triggeringClient;
+            UserCmdBack();
         }
     }
 

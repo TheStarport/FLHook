@@ -14,22 +14,22 @@ namespace Plugins
              * @brief This command is called when a player types /afk. It prints a message in red text to nearby players saying they are afk. It will also let
              * anyone who messages them know too.
              */
-            void UserCmdAfk(ClientId& client);
+            void UserCmdAfk();
 
             /**
              * @ingroup AwayFromKeyboard
              * @brief This command is called when a player types /back. It removes the afk status and welcomes the player back.
              * who messages them know too.
              */
-            void UserCmdBack(ClientId& client);
+            void UserCmdBack();
 
             constexpr inline static std::wstring_view afkDescription =
                 L"Sets your status to \"Away from Keyboard\". Other players will notified if they try to speak to you.";
 
-            constexpr inline static std::array<UserCommandInfo<AfkPlugin>, 2> commands = {
+            constexpr inline static std::array<CommandInfo<AfkPlugin>, 2> commands = {
                 {
-                 AddUserCommand(AfkPlugin, L "afk", UserCmdAfk, L"", afkDescription),
-                 AddUserCommand(AfkPlugin, L "back", UserCmdBack, L"", L"Removes the AFK status."),
+                 AddCommand(AfkPlugin, L"afk", UserCmdAfk, L"/afk", afkDescription),
+                 AddCommand(AfkPlugin, L"back", UserCmdBack, L"/back", L"Removes the AFK status."),
                  }
             }; // namespace Plugins
 

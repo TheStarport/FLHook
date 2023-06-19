@@ -192,10 +192,15 @@ struct PluginHookData
 
 inline bool operator<(const PluginHookData& lhs, const PluginHookData& rhs) { return lhs.priority > rhs.priority; }
 
+// Forward declarations for friend defs
+
+class AdminCommandProcessor;
+class UserCommandProcessor;
+
 class PluginManager : public Singleton<PluginManager>
 {
-        friend class AdminCommandProcessor;
-        friend class UserCommandProcessor;
+        friend AdminCommandProcessor;
+        friend UserCommandProcessor;
 
     public:
         struct FunctionHookProps

@@ -67,13 +67,6 @@ class ClassFunctionWrapper<Ret (Cl::*)(Args...), func>
             auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cl.*func)(args...); } };
             return std::apply(lambda, arg);
         }
-
-        static Ret ProcessUserCommand(Cl cl, ClientId client, const std::vector<std::wstring>& params)
-        {
-            auto arg = CreateTuple<Args...>(params);
-            auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cl.*func)(client, args...); } };
-            return std::apply(lambda, arg);
-        }
 };
 
 template <typename T>

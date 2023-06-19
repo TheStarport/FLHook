@@ -243,3 +243,63 @@ void ProcessPendingCommands()
         cmd = logger->GetCommand();
     }
 }
+
+void PrintUserCmdText(ClientId client, std::wstring_view text)
+{
+    if (const auto newLineChar = text.find(L'\n'); newLineChar == std::wstring::npos)
+    {
+        const std::wstring xml =
+            std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.userCmdStyle, StringUtils::XmlText(text));
+        Hk::Chat::FMsg(client, xml);
+    }
+    else
+    {
+        // Split text into two strings, one from the beginning to the character before newLineChar, and one after newLineChar till the end.
+        // It will then recursively call itself for each new line char until the original text is all displayed.
+        PrintUserCmdText(client, text.substr(0, newLineChar));
+        PrintUserCmdText(client, text.substr(newLineChar + 1, std::wstring::npos));
+    }
+}
+
+// Print message to all ships within the specific number of meters of the player.
+void PrintLocalUserCmdText(ClientId client, const std::wstring_view msg, float distance)
+{
+    uint ship;
+    pub::Player::GetShip(client, ship);
+
+    Vector pos;
+    Matrix rot;
+    pub::SpaceObj::GetLocation(ship, pos, rot);
+
+    uint system;
+    pub::Player::GetSystem(client, system);
+
+    // For all players in system...
+    PlayerData* playerDb = nullptr;
+    while ((playerDb = Players.traverse_active(playerDb)))
+    {
+        // Get the this player's current system and location in the system.
+        ClientId client2 = playerDb->onlineId;
+        uint system2 = 0;
+        pub::Player::GetSystem(client2, system2);
+        if (system != system2)
+        {
+            continue;
+        }
+
+        uint ship2;
+        pub::Player::GetShip(client2, ship2);
+
+        Vector pos2;
+        Matrix rot2;
+        pub::SpaceObj::GetLocation(ship2, pos2, rot2);
+
+        // Is player within the specified range of the sending char.
+        if (Hk::Math::Distance3D(pos, pos2) > distance)
+        {
+            continue;
+        }
+
+        PrintUserCmdText(client2, msg);
+    }
+}

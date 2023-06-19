@@ -5,92 +5,41 @@
 #include "Defs/FLHookConfig.hpp"
 #include "Features/Mail.hpp"
 #include "Global.hpp"
-#include "plugin.h"
 
 #include <Features/CommandProcessors/UserCommandProcessor.hpp>
 
-bool UserCommandProcessor::ProcessCommand(ClientId client, std::wstring_view commandString)
+bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstring_view commandStr)
 {
-    auto params = StringUtils::GetParams(commandString, ' ');
+    this->client = triggeringClient;
+
+    auto params = StringUtils::GetParams(commandStr, ' ');
 
     auto command = params.front();
 
     std::vector<std::wstring> paramsFiltered(params.begin(), params.end());
     paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
 
-    const std::wstring character = Hk::Client::GetCharacterNameByID(client).Unwrap();
-    Logger::i()->Log(LogLevel::Info, std::format(L"{}: {}", character, commandString));
+    const std::wstring character = Hk::Client::GetCharacterNameByID(triggeringClient).Unwrap();
+    Logger::i()->Log(LogLevel::Info, std::format(L"{}: {}", character, commandStr));
 
-    return ProcessCommand(client, command, paramsFiltered);
+    return ProcessCommand(triggeringClient, command, paramsFiltered);
 }
 
-bool UserCommandProcessor::ProcessCommand(ClientId client, std::wstring_view cmd, const std::vector<std::wstring>& paramVector)
+template <>
+bool UserCommandProcessor::MatchCommand<0>([[maybe_unused]] UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd,
+                                           const std::vector<std::wstring>& paramVector)
 {
-    return MatchCommand<commands.size()>(this, client, cmd, paramVector);
+    return std::ranges::any_of(PluginManager::i()->userCommands,
+                               [=](const std::weak_ptr<AbstractUserCommandProcessor>& weakPtr)
+                               { return weakPtr.lock()->ProcessCommand(triggeringClient, cmd, paramVector); });
 }
 
-void UserCommandProcessor::PrintUserCmdText(ClientId client, std::wstring_view text)
+bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, const std::vector<std::wstring>& paramVector)
 {
-    if (const auto newLineChar = text.find(L'\n'); newLineChar == std::wstring::npos)
-    {
-        const std::wstring xml =
-            std::format(L"<TRA data=\"{}\" mask=\"-1\"/><TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.userCmdStyle, StringUtils::XmlText(text));
-        Hk::Chat::FMsg(client, xml);
-    }
-    else
-    {
-        // Split text into two strings, one from the beginning to the character before newLineChar, and one after newLineChar till the end.
-        // It will then recursively call itself for each new line char until the original text is all displayed.
-        PrintUserCmdText(client, text.substr(0, newLineChar));
-        PrintUserCmdText(client, text.substr(newLineChar + 1, std::wstring::npos));
-    }
+    return MatchCommand<commands.size()>(this, triggeringClient, cmd, paramVector);
 }
 
-/// Print message to all ships within the specific number of meters of the
-/// player.
-void UserCommandProcessor::PrintLocalUserCmdText(ClientId client, const std::wstring_view msg, float distance)
-{
-    uint ship;
-    pub::Player::GetShip(client, ship);
-
-    Vector pos;
-    Matrix rot;
-    pub::SpaceObj::GetLocation(ship, pos, rot);
-
-    uint system;
-    pub::Player::GetSystem(client, system);
-
-    // For all players in system...
-    PlayerData* playerDb = nullptr;
-    while ((playerDb = Players.traverse_active(playerDb)))
-    {
-        // Get the this player's current system and location in the system.
-        ClientId client2 = playerDb->onlineId;
-        uint system2 = 0;
-        pub::Player::GetSystem(client2, system2);
-        if (system != system2)
-        {
-            continue;
-        }
-
-        uint ship2;
-        pub::Player::GetShip(client2, ship2);
-
-        Vector pos2;
-        Matrix rot2;
-        pub::SpaceObj::GetLocation(ship2, pos2, rot2);
-
-        // Is player within the specified range of the sending char.
-        if (Hk::Math::Distance3D(pos, pos2) > distance)
-        {
-            continue;
-        }
-
-        PrintUserCmdText(client2, msg);
-    }
-}
-
-void UserCommandProcessor::SetDieMessage(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::SetDieMessage(const std::wstring& param)
 {
     if (!FLHookConfig::i()->chatConfig.dieMsg)
     {
@@ -138,7 +87,7 @@ void UserCommandProcessor::SetDieMessage(ClientId& client, const std::wstring& p
     PrintOk(client);
 }
 
-void UserCommandProcessor::SetDieMessageFontSize(ClientId& client, const std::wstring& param)
+void UserCommandProcessor::SetDieMessageFontSize(const std::wstring& param)
 {
     if (!FLHookConfig::i()->userCommands.userCmdSetDieMsgSize)
     {
@@ -177,7 +126,7 @@ void UserCommandProcessor::SetDieMessageFontSize(ClientId& client, const std::ws
     // send confirmation msg
 }
 
-void UserCommandProcessor::SetChatFont(ClientId& client, std::wstring_view fontSize, std::wstring_view fontType)
+void UserCommandProcessor::SetChatFont(std::wstring_view fontSize, std::wstring_view fontType)
 {
     if (!FLHookConfig::i()->userCommands.userCmdSetChatFont)
     {
@@ -244,7 +193,7 @@ void UserCommandProcessor::SetChatFont(ClientId& client, std::wstring_view fontS
     PrintOk(client);
 }
 
-void UserCommandProcessor::IgnoreUser(ClientId& client, std::wstring_view ignoredUser, std::wstring_view flags)
+void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstring_view flags)
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {
@@ -305,7 +254,7 @@ void UserCommandProcessor::IgnoreUser(ClientId& client, std::wstring_view ignore
     PrintOk(client);
 }
 
-void UserCommandProcessor::IgnoreClientId(ClientId& client, ClientId ignoredClient, std::wstring_view flags)
+void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_view flags)
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {
@@ -354,7 +303,7 @@ void UserCommandProcessor::IgnoreClientId(ClientId& client, ClientId ignoredClie
     PrintUserCmdText(client, std::format(L"OK, \"{}\" added to ignore list", character));
 }
 
-void UserCommandProcessor::GetIgnoreList(ClientId& client)
+void UserCommandProcessor::GetIgnoreList()
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {
@@ -372,7 +321,7 @@ void UserCommandProcessor::GetIgnoreList(ClientId& client)
     PrintOk(client);
 }
 
-void UserCommandProcessor::RemoveFromIgnored(ClientId& client, std::vector<std::wstring_view> charactersToRemove)
+void UserCommandProcessor::RemoveFromIgnored(const std::vector<std::wstring_view>& charactersToRemove)
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {
@@ -441,7 +390,7 @@ void UserCommandProcessor::RemoveFromIgnored(ClientId& client, std::vector<std::
     PrintOk(client);
 }
 
-void UserCommandProcessor::GetClientIds(ClientId& client)
+void UserCommandProcessor::GetClientIds()
 {
     for (auto& player : Hk::Admin::GetPlayers())
     {
@@ -450,16 +399,16 @@ void UserCommandProcessor::GetClientIds(ClientId& client)
     PrintUserCmdText(client, L"OK");
 }
 
-void UserCommandProcessor::GetSelfClientId(ClientId& client) { PrintUserCmdText(client, std::format(L"Your client-id: {}", client)); }
+void UserCommandProcessor::GetSelfClientId() { PrintUserCmdText(client, std::format(L"Your client-id: {}", client)); }
 
-//TODO: Move to utils.
-void UserCommandProcessor::InvitePlayer(ClientId& client, const std::wstring_view& characterName)
+// TODO: Move to utils.
+void UserCommandProcessor::InvitePlayer(const std::wstring_view& characterName)
 {
     const std::wstring XML = L"<TEXT>/i " + StringUtils::XmlText(characterName) + L"</TEXT>";
 
     // Allocates a stack-sized std::array once per run-time and clear every invocation.
     static std::array<char, USHRT_MAX> buf{};
-    std::fill_n(buf, buf.size(), 0);
+    std::ranges::fill(buf, 0);
 
     uint retVal;
     if (Hk::Chat::FMsgEncodeXml(XML, buf.data(), sizeof buf, retVal).Raw().has_error())
@@ -475,15 +424,15 @@ void UserCommandProcessor::InvitePlayer(ClientId& client, const std::wstring_vie
     Server.SubmitChat(chatId, retVal, buf.data(), chatIdTo, -1);
 }
 
-void UserCommandProcessor::InvitePlayerByName(ClientId& client, std::wstring_view invitee)
+void UserCommandProcessor::InvitePlayerByName(std::wstring_view invitee)
 {
     if (!invitee.empty())
     {
- 
+
         auto inviteeId = Hk::Client::GetClientIdFromCharName(std::wstring(invitee)).Raw();
         if (inviteeId.has_value() && !Hk::Client::IsInCharSelectMenu(inviteeId.value()))
         {
-            InvitePlayer(client, invitee);
+            InvitePlayer(invitee);
         }
     }
     else
@@ -491,31 +440,30 @@ void UserCommandProcessor::InvitePlayerByName(ClientId& client, std::wstring_vie
         auto targetClientId = Hk::Player::GetTargetClientID(client).Raw();
         if (targetClientId.has_value())
         {
-            InvitePlayer(client, Hk::Client::GetCharacterNameByID(targetClientId.value()).Unwrap());
+            InvitePlayer(Hk::Client::GetCharacterNameByID(targetClientId.value()).Unwrap());
         }
     }
 }
 
-void UserCommandProcessor::InvitePlayerById(ClientId& client, ClientId inviteeId)
+void UserCommandProcessor::InvitePlayerById(ClientId inviteeId)
 {
 
-    if (inviteeId == UINT_MAX)
+    if (inviteeId == UINT_MAX || inviteeId == 0)
     {
-        PrintUserCmdText(client, L"Error: Invalid parameters\nUsage: /i$ <client-id>");
+        PrintUserCmdText(client, L"Error: Invalid parameters\nUsage: /invite$ <client-id>");
         return;
     }
 
-   
     if (!Hk::Client::IsValidClientID(inviteeId) || Hk::Client::IsInCharSelectMenu(inviteeId))
     {
         PrintUserCmdText(client, L"Error: Invalid client-id");
         return;
     }
 
-    InvitePlayer(client, Hk::Client::GetCharacterNameByID(inviteeId).Unwrap());
+    InvitePlayer(Hk::Client::GetCharacterNameByID(inviteeId).Unwrap());
 }
 
-void UserCommandProcessor::FactionInvite(ClientId& client, std::wstring_view factionTag)
+void UserCommandProcessor::FactionInvite(std::wstring_view factionTag)
 {
 
     bool msgSent = false;
@@ -539,7 +487,7 @@ void UserCommandProcessor::FactionInvite(ClientId& client, std::wstring_view fac
             continue;
         }
 
-        InvitePlayer(client, player.character);
+        InvitePlayer(player.character);
         msgSent = true;
     }
 
@@ -549,7 +497,7 @@ void UserCommandProcessor::FactionInvite(ClientId& client, std::wstring_view fac
     }
 }
 
-void UserCommandProcessor::DeleteMail(ClientId& client, const std::wstring_view mailID, const std::wstring_view readOnlyDel)
+void UserCommandProcessor::DeleteMail(const std::wstring_view mailID, const std::wstring_view readOnlyDel)
 {
     if (mailID == L"all")
     {
@@ -575,7 +523,7 @@ void UserCommandProcessor::DeleteMail(ClientId& client, const std::wstring_view 
     }
 }
 
-void UserCommandProcessor::ReadMail(ClientId& client, uint mailId)
+void UserCommandProcessor::ReadMail(uint mailId)
 {
     if (mailId <= 0)
     {
@@ -597,7 +545,7 @@ void UserCommandProcessor::ReadMail(ClientId& client, uint mailId)
     PrintUserCmdText(client, item.body);
 }
 
-void UserCommandProcessor::ListMail(ClientId& client, int pageNumber, std::wstring_view unread)
+void UserCommandProcessor::ListMail(int pageNumber, std::wstring_view unread)
 {
 
     if (pageNumber <= 0)
@@ -636,8 +584,8 @@ void UserCommandProcessor::ListMail(ClientId& client, int pageNumber, std::wstri
     }
 }
 
-//TODO: Implement GiveCash Target and by ID
-void UserCommandProcessor::GiveCash(ClientId& client, std::wstring_view characterName, std::wstring_view amount)
+// TODO: Implement GiveCash Target and by ID
+void UserCommandProcessor::GiveCash(std::wstring_view characterName, std::wstring_view amount)
 {
 
     const auto targetPlayer = Hk::Client::GetClientIdFromCharName(characterName).Unwrap();
@@ -662,9 +610,8 @@ void UserCommandProcessor::GiveCash(ClientId& client, std::wstring_view characte
         return;
     }
 
-    const auto removal = Hk::Player::RemoveCash(client, cash);
-
-    const auto addition = Hk::Player::AddCash(targetPlayer, cash);
+    Hk::Player::RemoveCash(client, cash).Handle();
+    Hk::Player::AddCash(targetPlayer, cash).Handle();
 
     Hk::Player::SaveChar(client);
     Hk::Player::SaveChar(targetPlayer);
@@ -672,83 +619,20 @@ void UserCommandProcessor::GiveCash(ClientId& client, std::wstring_view characte
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCmd_Help(ClientId& client, const std::wstring& paramView);
-
-UserCommand CreateUserCommand(const std::variant<std::wstring_view, std::vector<std::wstring_view>>& command, const std::wstring& usage,
-                              const std::variant<UserCmdProc, UserCmdProcWithParam>& proc, const std::wstring& description)
-{
-    return { command, usage, proc, description };
-}
-
-std::vector<std::wstring_view> CmdArr(std::initializer_list<std::wstring_view> cmds) { return cmds; }
-
-const std::wstring helpUsage = L"/help [module] [command]";
-const std::wstring helpDescription =
-    L"/help, /h, or /? will list all command modules, commands within a specific module, or information on a specific command.";
-const std::vector UserCmds = {
-    {CreateUserCommand(L"/set diemsg", L"<all/system/self/none>", UserCmd_SetDieMsg, L""),
-     CreateUserCommand(L"/set diemsgsize", L"<small/default>", UserCmd_SetDieMsgSize, L"Sets the text size of death chatConfig."),
-     CreateUserCommand(L"/set chatfont", L"<small/default/big> <default/bold/italic/underline>", UserCmd_SetChatFont, L"Sets the font of chat."),
-     CreateUserCommand(L"/ignorelist", L"", UserCmd_IgnoreList, L"Lists currently ignored players."),
-     CreateUserCommand(L"/delignore", L"<id/*> [<id2> <id3...]", UserCmd_DelIgnore, L"Removes specified entries form ignore list, '*' clears the whole list."),
-     CreateUserCommand(L"/ignore", L"<name> [flags]", UserCmd_Ignore,
-     L"Suppresses chat chatConfig from the specified player. Flag 'p' only suppresses private chat, 'i' allows for partial match."),
-     CreateUserCommand(L"/ignoreid", L"<client-id> [flags]", UserCmd_IgnoreID,
-     L"Suppresses chat chatConfig from the specified player. Flag 'p' only suppresses private chat."),
-     CreateUserCommand(L"/ids", L"", UserCmd_Ids, L"List all player IDs."),
-     CreateUserCommand(L"/id", L"", UserCmd_ID, L"Lists your player ID."),
-     CreateUserCommand(L"/invite", L"[name]", UserCmd_Invite, L"Sends a group invite to a player with the specified name, or target, if no name is provided."),
-     CreateUserCommand(L"/invite$", L"<id>", UserCmd_InviteID, L"Sends a group invite to a player with the specified ID."),
-     CreateUserCommand(L"/i", L"[name]", UserCmd_Invite, L"Shortcut for /invite"),
-     CreateUserCommand(L"/i$", L"<id>", UserCmd_InviteID, L"Shortcut for /invite$"),
-     CreateUserCommand(L"/factioninvite", L"<name>", UserCmd_FactionInvite, L"Send a group invite to online members of the specified tag."),
-     CreateUserCommand(L"/fi", L"<name>", UserCmd_FactionInvite, L"Shortcut for /factioninvite."),
-     CreateUserCommand(
-     L"/maildel", L"/maildel <id/all> [readonly]", UserCmdDelMail,
-     L"Delete the specified mail, or if all is provided delete all mail. If all is specified with the param of readonly, unread mail will be preserved."),
-     CreateUserCommand(L"/mailread", L"/mailread <id>", UserCmdReadMail, L"Read the specified mail."),
-     CreateUserCommand(L"/maillist", L"/maillist <page> [unread]", UserCmdListMail,
-     L"List the mail items on the specified page. If unread is specified, only mail that hasn't been read will be listed."),
-     CreateUserCommand(CmdArr({ L"/help", L"/h", L"/?" }), helpUsage, UserCmd_Help, helpDescription),
-     CreateUserCommand(L"/givecash", L"<player> <amount>", UserCmdGiveCash, L"Gives specified amount of cash to a target player, target must be online.")}
-};
-
-bool GetCommand(const std::wstring& cmd, const UserCommand& userCmd)
-{
-    const auto isMatch = [&cmd](std::wstring_view subCmd)
-    {
-        if (cmd.rfind(L'/') == 0)
-        {
-            return subCmd == cmd;
-        }
-
-        const auto trimmed = subCmd.substr(1, subCmd.size() - 1);
-        return trimmed == cmd;
-    };
-
-    if (userCmd.command.index() == 0)
-    {
-        return isMatch(std::get<std::wstring_view>(userCmd.command));
-    }
-
-    const auto& arr = std::get<std::vector<std::wstring_view>>(userCmd.command);
-    return std::ranges::any_of(arr, isMatch);
-}
-
-void UserCmd_Help(ClientId& client, const std::wstring& paramView)
+void UserCommandProcessor::Help(std::wstring_view module, std::wstring_view command)
 {
     if (const auto* config = FLHookConfig::c(); !config->userCommands.userCmdHelp)
     {
-        PRINT_DISABLED()
+        PrintUserCmdText(client, L"The help command is disabled.");
         return;
     }
 
-    const auto& plugins = PluginManager::i();
-    if (paramView.find(L' ') == std::wstring::npos)
+    const auto& pm = PluginManager::i();
+    /*if (module.empty())
     {
         PrintUserCmdText(client, L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
         PrintUserCmdText(client, L"core");
-        for (const auto plugin : *plugins)
+        for (const auto& userCommandProcessor : pm->userCommands)
         {
             if (const auto commands = plugin->GetCommands(); commands.empty())
             {
@@ -758,9 +642,9 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
             PrintUserCmdText(client, StringUtils::ToLower(std::wstring(plugin->GetShortName())));
         }
         return;
-    }
+    }*/
 
-    auto params = StringUtils::GetParams(paramView, ' ');
+    /*auto params = StringUtils::GetParams(paramView, ' ');
     const auto mod = StringUtils::GetParam(params, 1);
     const auto cmd = StringUtils::ToLower(StringUtils::Trim(StringUtils::GetParam(params, 2)));
 
@@ -828,5 +712,5 @@ void UserCmd_Help(ClientId& client, const std::wstring& paramView)
     else
     {
         PrintUserCmdText(client, std::format(L"Command '{}' not found within module '{}'", cmd, std::wstring(plugin->GetShortName())));
-    }
+    }*/
 }
