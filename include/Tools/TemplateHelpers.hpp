@@ -43,13 +43,19 @@ inline const std::vector<std::wstring_view>& TransformArg(std::wstring_view s)
 }
 
 template <typename... Args, std::size_t... Is>
-auto CreateTupleImpl(std::index_sequence<Is...>, const std::vector<std::wstring>& arguments)
+auto CreateTupleImpl(std::index_sequence<Is...>, std::vector<std::wstring>& arguments)
 {
+    // If not enough params we need to pad the list
+    for (uint i = arguments.size(); arguments.size() < sizeof...(Is); i++)
+    {
+        arguments.emplace_back();
+    }
+
     return std::make_tuple(TransformArg<Args>(arguments[Is])...);
 }
 
 template <typename... Args>
-auto CreateTuple(const std::vector<std::wstring>& arguments)
+auto CreateTuple(std::vector<std::wstring>& arguments)
 {
     return CreateTupleImpl<Args...>(std::index_sequence_for<Args...>{}, arguments);
 }
@@ -61,7 +67,7 @@ template <class Ret, class Cl, class... Args, Ret (Cl::*func)(Args...)>
 class ClassFunctionWrapper<Ret (Cl::*)(Args...), func>
 {
     public:
-        static Ret ProcessParam(Cl cl, const std::vector<std::wstring>& params)
+        static Ret ProcessParam(Cl cl, std::vector<std::wstring>& params)
         {
             auto arg = CreateTuple<Args...>(params);
             auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cl.*func)(args...); } };

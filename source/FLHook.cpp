@@ -237,8 +237,27 @@ void ProcessPendingCommands()
     {
         const auto processor = AdminCommandProcessor::i();
         processor->SetCurrentUser(L"console", AdminCommandProcessor::AllowedContext::ConsoleOnly);
-        const auto response = AdminCommandProcessor::i()->ProcessCommand(cmd.value());
-        Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, response);
+
+        try
+        {
+            const auto response = AdminCommandProcessor::i()->ProcessCommand(cmd.value());
+            Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, response);
+        }
+        catch (GameException& ex)
+        {
+            // TODO: Log to admin command file
+            Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Warn, ex.Msg());
+        }
+        catch (StopProcessingException&)
+        {
+            // Continue processing
+        }
+        catch (std::exception& ex)
+        {
+            // Anything else critically log
+            // TODO: Log to error log file
+            Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, StringUtils::stows(ex.what()));
+        }
 
         cmd = logger->GetCommand();
     }

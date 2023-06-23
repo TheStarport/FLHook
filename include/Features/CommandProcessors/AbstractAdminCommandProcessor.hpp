@@ -4,7 +4,8 @@ class AbstractAdminCommandProcessor
 {
     public:
         virtual ~AbstractAdminCommandProcessor() = default;
-        virtual std::wstring ProcessCommand(std::wstring_view cmd, const std::vector<std::wstring>& paramVector) = 0;
+        virtual std::wstring ProcessCommand(std::wstring_view cmd, std::vector<std::wstring>& paramVector) = 0;
+        virtual std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> GetCommands() = 0;
 };
 
 template <class T>

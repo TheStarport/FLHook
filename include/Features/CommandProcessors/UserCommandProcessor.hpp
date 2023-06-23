@@ -24,7 +24,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         void Help(std::wstring_view module, std::wstring_view command);
 
         constexpr inline static std::array<CommandInfo<UserCommandProcessor>, 15> commands = {
-            {AddCommand(UserCommandProcessor, L"ids", GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
+            {AddCommand(UserCommandProcessor, L"/ids", GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
              AddCommand(UserCommandProcessor, L"/setdiemsgsize", SetDieMessageFontSize, L"/setdiemsgsize [option]",
              L"Sets the text size of death chatConfig. Use without parameters to see available options."),
              AddCommand(UserCommandProcessor, L"/setdiemsg", SetDieMessage, L"/setdiemsg [option]",
@@ -37,7 +37,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              L"removes specified names from ignore list, typing /unignore all removes ignore list entierly."),
              AddCommand(UserCommandProcessor, L"/invite", InvitePlayerByName, L"/invite <name>", L"invites specified player to group"),
              AddCommand(UserCommandProcessor, L"/invite$", InvitePlayerById, L"/invite$ <id>", L"invites specified player to group by client id"),
-             AddCommand(UserCommandProcessor, L"finv", FactionInvite, L"/finv <prefix>", L"invites players that matches the listed prefix in their name"),
+             AddCommand(UserCommandProcessor, L"/finv", FactionInvite, L"/finv <prefix>", L"invites players that matches the listed prefix in their name"),
              AddCommand(UserCommandProcessor, L"/delmail", DeleteMail, L"/delmail <id>", L"deletes specified mail"),
              AddCommand(UserCommandProcessor, L"/readmail", ReadMail, L"/readmail <id>", L"prints specified mail."),
              AddCommand(UserCommandProcessor, L"/listmail", ListMail, L"/listmail [page]", L"lists the mails of the specified page."),
@@ -45,13 +45,10 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              AddCommand(UserCommandProcessor, L"/help", Help, L"/help [module] [command]", L"gives speicified amount of cash to named target")}
         };
 
-        auto GetCommands()
-        {
-            return commands | std::ranges::views::transform([](const auto& cmd) { return std::make_tuple(cmd.cmd, cmd.usage, cmd.description); });
-        }
+        GetCommandsFunc(commands);
 
         template <int N>
-        bool MatchCommand(UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd, const std::vector<std::wstring>& paramVector)
+        bool MatchCommand(UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd, std::vector<std::wstring>& paramVector)
         {
             if (const CommandInfo<UserCommandProcessor> command = std::get<N - 1>(commands); command.cmd == cmd)
             {
@@ -64,9 +61,9 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
 
         template <>
         // ReSharper disable once CppExplicitSpecializationInNonNamespaceScope
-        bool MatchCommand<0>(UserCommandProcessor* processor, ClientId triggeringClient, std::wstring_view cmd, const std::vector<std::wstring>& paramVector);
+        bool MatchCommand<0>(UserCommandProcessor* processor, ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring>& paramVector);
 
     public:
-        bool ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, const std::vector<std::wstring>& paramVector) override;
+        bool ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring>& paramVector) override;
         bool ProcessCommand(ClientId triggeringClient, std::wstring_view commandStr);
 };

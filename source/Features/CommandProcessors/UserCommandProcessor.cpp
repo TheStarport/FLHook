@@ -27,14 +27,20 @@ bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstrin
 
 template <>
 bool UserCommandProcessor::MatchCommand<0>([[maybe_unused]] UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd,
-                                           const std::vector<std::wstring>& paramVector)
+                                           std::vector<std::wstring>& paramVector)
 {
-    return std::ranges::any_of(PluginManager::i()->userCommands,
-                               [=](const std::weak_ptr<AbstractUserCommandProcessor>& weakPtr)
-                               { return weakPtr.lock()->ProcessCommand(triggeringClient, cmd, paramVector); });
+    for (auto user : PluginManager::i()->userCommands)
+    {
+        if (user.lock()->ProcessCommand(triggeringClient, cmd, paramVector))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
-bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, const std::vector<std::wstring>& paramVector)
+bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring>& paramVector)
 {
     return MatchCommand<commands.size()>(this, triggeringClient, cmd, paramVector);
 }
@@ -311,11 +317,11 @@ void UserCommandProcessor::GetIgnoreList()
         return;
     }
 
-    PrintUserCmdText(client, L"Id | Charactername | flags");
+    PrintUserCmdText(client, L"Id | Character Name | flags");
     int i = 1;
     for (auto& ignore : ClientInfo[client].ignoreInfoList)
     {
-        PrintUserCmdText(client, std::format(L"{} | %s | %s", i, ignore.character.c_str(), ignore.flags));
+        PrintUserCmdText(client, std::format(L"{} | %s | %s", i, ignore.character, ignore.flags));
         i++;
     }
     PrintOk(client);
@@ -394,7 +400,7 @@ void UserCommandProcessor::GetClientIds()
 {
     for (auto& player : Hk::Admin::GetPlayers())
     {
-        PrintUserCmdText(client, std::format(L"{} = {} | ", player.character, player.client));
+        PrintUserCmdText(client, std::format(L"| {} = {}", player.character, player.client));
     }
     PrintUserCmdText(client, L"OK");
 }
@@ -428,9 +434,8 @@ void UserCommandProcessor::InvitePlayerByName(std::wstring_view invitee)
 {
     if (!invitee.empty())
     {
-
-        auto inviteeId = Hk::Client::GetClientIdFromCharName(std::wstring(invitee)).Raw();
-        if (inviteeId.has_value() && !Hk::Client::IsInCharSelectMenu(inviteeId.value()))
+        if (auto inviteeId = Hk::Client::GetClientIdFromCharName(std::wstring(invitee)).Raw();
+            inviteeId.has_value() && !Hk::Client::IsInCharSelectMenu(inviteeId.value()))
         {
             InvitePlayer(invitee);
         }

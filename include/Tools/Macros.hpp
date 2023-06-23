@@ -73,27 +73,40 @@ private:                                                                   \
         std::wstring_view(str), ClassFunctionWrapper<decltype(&class ::func), &class ::func>::ProcessParam, usage, description \
     }
 
-#define SetupUserCommandHandler(class, commandArray)                                                                                          \
-    template <int N>                                                                                                                          \
-    bool MatchCommand(class* processor, ClientId triggeringClient, const std::wstring_view cmd, const std::vector<std::wstring>& paramVector) \
-    {                                                                                                                                         \
-        if (const CommandInfo<class> command = std::get<N - 1>(class ::commandArray); command.cmd == cmd)                                     \
-        {                                                                                                                                     \
-            command.func(*processor, paramVector);                                                                                            \
-            return true;                                                                                                                      \
-        }                                                                                                                                     \
-                                                                                                                                              \
-        return MatchCommand<N - 1>(processor, triggeringClient, cmd, paramVector);                                                            \
-    }                                                                                                                                         \
-                                                                                                                                              \
-    template <>                                                                                                                               \
-    bool MatchCommand<0>(class * processor, ClientId triggeringClient, std::wstring_view cmd, const std::vector<std::wstring>& paramVector)   \
-    {                                                                                                                                         \
-        return false;                                                                                                                         \
-    }                                                                                                                                         \
-                                                                                                                                              \
-    bool ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, const std::vector<std::wstring>& paramVector) override              \
-    {                                                                                                                                         \
-        client = triggeringClient;                                                                                                            \
-        return MatchCommand<commandArray.size()>(this, client, cmd, paramVector);                                                             \
+#define GetCommandsFunc(commands)                                                                                                        \
+    std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> GetCommands() override                              \
+    {                                                                                                                                    \
+        std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> info;                                           \
+        std::ranges::for_each(commands, [info](auto& cmd) { info.emplace_back(std::make_tuple(cmd.cmd, cmd.usage, cmd.description)); }); \
+        return info;                                                                                                                     \
     }
+
+#define SetupUserCommandHandler(class, commandArray)                                                                                    \
+    template <int N>                                                                                                                    \
+    bool MatchCommand(class* processor, ClientId triggeringClient, const std::wstring_view cmd, std::vector<std::wstring>& paramVector) \
+    {                                                                                                                                   \
+        if (const CommandInfo<class> command = std::get<N - 1>(class ::commandArray); command.cmd == cmd)                               \
+        {                                                                                                                               \
+            command.func(*processor, paramVector);                                                                                      \
+            return true;                                                                                                                \
+        }                                                                                                                               \
+                                                                                                                                        \
+        return MatchCommand<N - 1>(processor, triggeringClient, cmd, paramVector);                                                      \
+    }                                                                                                                                   \
+                                                                                                                                        \
+    template <>                                                                                                                         \
+    bool MatchCommand<0>(class * processor, ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring> & paramVector)  \
+    {                                                                                                                                   \
+        return false;                                                                                                                   \
+    }                                                                                                                                   \
+                                                                                                                                        \
+    bool ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring>& paramVector) override              \
+    {                                                                                                                                   \
+        client = triggeringClient;                                                                                                      \
+        return MatchCommand<commandArray.size()>(this, client, cmd, paramVector);                                                       \
+    }                                                                                                                                   \
+                                                                                                                                        \
+public:                                                                                                                                 \
+    GetCommandsFunc(commandArray);                                                                                                      \
+                                                                                                                                        \
+private:

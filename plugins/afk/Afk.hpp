@@ -23,13 +23,11 @@ namespace Plugins
              */
             void UserCmdBack();
 
-            constexpr inline static std::wstring_view afkDescription =
-                L"Sets your status to \"Away from Keyboard\". Other players will notified if they try to speak to you.";
-
             constexpr inline static std::array<CommandInfo<AfkPlugin>, 2> commands = {
                 {
-                 AddCommand(AfkPlugin, L"afk", UserCmdAfk, L"/afk", afkDescription),
-                 AddCommand(AfkPlugin, L"back", UserCmdBack, L"/back", L"Removes the AFK status."),
+                 AddCommand(AfkPlugin, L"/afk", UserCmdAfk, L"/afk",
+                 L"Sets your status to \"Away from Keyboard\". Other players will notified if they try to speak to you."),
+                 AddCommand(AfkPlugin, L"/back", UserCmdBack, L"/back", L"Removes the AFK status."),
                  }
             }; // namespace Plugins
 

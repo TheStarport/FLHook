@@ -36,18 +36,20 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
             {L"console", { magic_enum::enum_name(DefaultRoles::SuperAdmin) }}
         };
 
-#define AddAdminCommand(str, func, context, requiredRole)                                                                                 \
+#define AddAdminCommand(str, func, context, requiredRole, usage, description)                                                             \
     {                                                                                                                                     \
         std::wstring_view(str), ClassFunctionWrapper<decltype(&AdminCommandProcessor::func), &AdminCommandProcessor::func>::ProcessParam, \
-            AllowedContext::context, magic_enum::enum_name(DefaultRoles::requiredRole)                                                    \
+            AllowedContext::context, magic_enum::enum_name(DefaultRoles::requiredRole), usage, description                                \
     }
 
         struct CommandInfo
         {
                 std::wstring_view cmd;
-                std::wstring (*func)(AdminCommandProcessor cl, const std::vector<std::wstring>& params);
+                std::wstring (*func)(AdminCommandProcessor cl, std::vector<std::wstring>& params);
                 AllowedContext allowedContext;
                 std::wstring_view requiredRole;
+                std::wstring_view usage;
+                std::wstring_view description;
         };
 
         std::wstring SetCash(std::wstring_view characterName, uint amount);
@@ -82,44 +84,65 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         // std::wstring Move(const std::wstring& characterName, Vector position);
 
         constexpr inline static std::array<CommandInfo, 29> commands = {
-            {AddAdminCommand(L"getcash", GetCash, GameAndConsole, Cash),
-             AddAdminCommand(L"setcash", SetCash, GameAndConsole, Cash),
-             AddAdminCommand(L"kick", KickPlayer, GameAndConsole, Expel),
-             AddAdminCommand(L"ban", BanPlayer, GameAndConsole, Expel),
-             AddAdminCommand(L"tempban", TempbanPlayer, GameAndConsole, Expel),
-             AddAdminCommand(L"unban", UnBanPlayer, GameAndConsole, Expel),
-             AddAdminCommand(L"getclient", GetClientId, GameAndConsole, Info),
-             AddAdminCommand(L"kill", KillPlayer, GameAndConsole, Expel),
-             AddAdminCommand(L"setrep", SetRep, GameAndConsole, Reputation),
-             AddAdminCommand(L"resetrep", ResetRep, GameAndConsole, Reputation),
-             AddAdminCommand(L"getrep", GetRep, GameAndConsole, Reputation),
-             AddAdminCommand(L"msg", MessagePlayer, GameAndConsole, Message),
-             AddAdminCommand(L"msgs", SendSystemMessage, GameAndConsole, Message),
-             AddAdminCommand(L"msgu", SendUniverseMessage, GameAndConsole, Message),
-             AddAdminCommand(L"listcargo", ListCargo, GameAndConsole, Cargo),
-             AddAdminCommand(L"addcargo", AddCargo, GameAndConsole, Cargo),
-             AddAdminCommand(L"renamechar", RenameChar, GameAndConsole, Character),
-             AddAdminCommand(L"deletechar", DeleteChar, GameAndConsole, Character),
-             AddAdminCommand(L"getplayerinfo", GetPlayerInfo, GameAndConsole, Info),
-             AddAdminCommand(L"addroles", AddRoles, GameAndConsole, SuperAdmin),
-             AddAdminCommand(L"deleteroles", DeleteRoles, GameAndConsole, SuperAdmin),
-             AddAdminCommand(L"setroles", SetRoles, GameAndConsole, SuperAdmin),
-             AddAdminCommand(L"loadplugin", LoadPlugin, GameAndConsole, Plugin),
-             AddAdminCommand(L"unloadplugin", UnloadPlugin, GameAndConsole, Plugin),
-             AddAdminCommand(L"reloadplugin", ReloadPlugin, GameAndConsole, Plugin),
-             AddAdminCommand(L"listplugins", ListPlugins, GameAndConsole, Info),
-             AddAdminCommand(L"chase", Chase, GameOnly, Movement),
-             AddAdminCommand(L"beam", Beam, GameAndConsole, Movement),
-             AddAdminCommand(L"pull", Pull, GameAndConsole, Movement)}
+            {AddAdminCommand(L"getcash", GetCash, GameAndConsole, Cash, L".getcash <charname> <cash>", L"Gets the cash of the target cash"),
+             AddAdminCommand(L"setcash", SetCash, GameAndConsole, Cash, L".setcash <charname> <cash>", L"Sets the cash of the target cash"),
+             AddAdminCommand(L"kick", KickPlayer, GameAndConsole, Expel, L".kick <charname>", L"Kick the specified character from the server."),
+             AddAdminCommand(L"ban", BanPlayer, GameAndConsole, Expel, L".ban <charname>", L"Ban the specified character from the server."),
+             AddAdminCommand(L"tempban", TempbanPlayer, GameAndConsole, Expel, L".tempban <charname> <duration>",
+             L"Bans the specified character for a specified duration."),
+             AddAdminCommand(L"unban", UnBanPlayer, GameAndConsole, Expel, L".unban <charname>", L"Unbans the specified character from the server."),
+             AddAdminCommand(L"getclient", GetClientId, GameAndConsole, Info, L".getclient <charname>", L"Get the client id of the specified character."),
+             AddAdminCommand(L"kill", KillPlayer, GameAndConsole, Expel, L".kill <charname>", L"Kills the specified character if they are in space."),
+             AddAdminCommand(L"setrep", SetRep, GameAndConsole, Reputation, L".setrep <charname> <repgroup> [value]",
+             L"Set the rep value for the specified character for the specified group. Defaults to 0.0 if not specified."),
+             AddAdminCommand(L"resetrep", ResetRep, GameAndConsole, Reputation, L".resetrep <charname> <repgroup>",
+             L"Resets the reputation for the specified character and group to their default mpnewplayer value."),
+             AddAdminCommand(L"getrep", GetRep, GameAndConsole, Reputation, L".getrep <charname> <repgroup>",
+             L"Gets the rep value for the specified character and rep group."),
+             AddAdminCommand(L"msg", MessagePlayer, GameAndConsole, Message, L".msg <charname> <message>", L"Send an admin message to the target player."),
+             AddAdminCommand(L"msgs", SendSystemMessage, GameAndConsole, Message, L".msgs <system> <message>", L"Send a message to every player in a system."),
+             AddAdminCommand(L"msgu", SendUniverseMessage, GameAndConsole, Message, L".msgu <message>", L"Send a message to every player on the server."),
+             AddAdminCommand(L"listcargo", ListCargo, GameAndConsole, Cargo, L".listcargo <charname>", L"List the cargo of the specified player"),
+             AddAdminCommand(L"addcargo", AddCargo, GameAndConsole, Cargo, L".addcargo <charname> <item> <count> [isMission]",
+             L"Add cargo the specified player."),
+             AddAdminCommand(L"renamechar", RenameChar, GameAndConsole, Character, L".renamechar <charname> <newcharanme>",
+             L"Changes the name of the specified character to the new specified value."),
+             AddAdminCommand(L"deletechar", DeleteChar, GameAndConsole, Character, L".deletechar <charname>", L"Permanently delete the specified character."),
+             AddAdminCommand(L"getplayerinfo", GetPlayerInfo, GameAndConsole, Info, L".getplayerinfo <charname>",
+             L"Returns data about the player's session information."),
+             AddAdminCommand(L"addroles", AddRoles, GameAndConsole, SuperAdmin, L".addroles <charname> <roles...>",
+             L"Add the specified admin roles to the user."),
+             AddAdminCommand(L"deleteroles", DeleteRoles, GameAndConsole, SuperAdmin, L".deleteroles <charname> <roles...>",
+             L"Removes the specified admin roles from the user."),
+             AddAdminCommand(L"setroles", SetRoles, GameAndConsole, SuperAdmin, L".setroles <charname> [roles...]",
+             L"Replaces the existing roles with the new specified roles. Providing none will clear the roles."),
+             AddAdminCommand(L"loadplugin", LoadPlugin, GameAndConsole, Plugin, L".loadplugin <dllname>",
+             L"Attempt to load the specified DLL from the plugins folder. Providing 'all' loads all plugins."),
+             AddAdminCommand(L"unloadplugin", UnloadPlugin, GameAndConsole, Plugin, L".unloadplugin <plugin_shortname>",
+             L"Unload the plugin by its short name. Providing 'all' unloads all plugins."),
+             AddAdminCommand(L"reloadplugin", ReloadPlugin, GameAndConsole, Plugin, L".reloadplugin <plugin_shortname>", L"Unload then reload a plugin"),
+             AddAdminCommand(L"listplugins", ListPlugins, GameAndConsole, Info, L".listplugins", L"List all plugins and their short names."),
+             AddAdminCommand(L"chase", Chase, GameOnly, Movement, L".chase <charname>",
+             L"Teleport the admin to the location of the specified character. Does not traverse systems."),
+             AddAdminCommand(L"beam", Beam, GameAndConsole, Movement, L".beam <charname> <base>", L"Teleport the specified character to the specified base."),
+             AddAdminCommand(L"pull", Pull, GameOnly, Movement, L".pull <charname>",
+             L"Pulls the specified character to your location. Does not traverse systems.")}
   // AddAdminCommand(L"move", Move, GameOnly, Movement)
         };
 
 #undef AddAdminCommand
 
+        std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> GetCommands() override
+        {
+            std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> info;
+            std::ranges::for_each(commands, [info](auto& cmd) { info.emplace_back(std::make_tuple(cmd.cmd, cmd.usage, cmd.description)); });
+            return info;
+        };
+
         cpp::result<void, std::wstring> Validate(AllowedContext context, std::wstring_view requiredRole);
 
         template <int N>
-        std::wstring MatchCommand(AdminCommandProcessor* processor, const std::wstring_view cmd, const std::vector<std::wstring>& paramVector)
+        std::wstring MatchCommand(AdminCommandProcessor* processor, const std::wstring_view cmd, std::vector<std::wstring>& paramVector)
         {
             if (const CommandInfo command = std::get<N - 1>(commands); command.cmd == cmd)
             {
@@ -136,7 +159,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
 
         template <>
         // ReSharper disable once CppExplicitSpecializationInNonNamespaceScope
-        std::wstring MatchCommand<0>(AdminCommandProcessor* processor, std::wstring_view cmd, const std::vector<std::wstring>& paramVector)
+        std::wstring MatchCommand<0>(AdminCommandProcessor* processor, std::wstring_view cmd, std::vector<std::wstring>& paramVector)
         {
             // The original command was not found, we now search our plugins
 
@@ -146,6 +169,6 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
 
     public:
         std::wstring ProcessCommand(std::wstring_view commandString);
-        std::wstring ProcessCommand(std::wstring_view cmd, const std::vector<std::wstring>& paramVector) override;
+        std::wstring ProcessCommand(std::wstring_view cmd, std::vector<std::wstring>& paramVector) override;
         void SetCurrentUser(std::wstring_view user, AllowedContext context);
 };

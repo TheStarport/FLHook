@@ -25,6 +25,11 @@ namespace Hk::Chat
 {
     Action<void> Msg(const std::variant<uint, std::wstring_view>& player, std::wstring_view message)
     {
+        if (message.empty())
+        {
+            return { {} };
+        }
+
         ClientId client = Client::ExtractClientID(player);
 
         if (client == UINT_MAX)
@@ -51,6 +56,11 @@ namespace Hk::Chat
 
     Action<void> MsgS(const std::variant<std::wstring_view, uint>& system, std::wstring_view message)
     {
+        if (message.empty())
+        {
+            return { {} };
+        }
+
         uint systemId = 0;
         if (!system.index())
         {
@@ -88,6 +98,11 @@ namespace Hk::Chat
 
     Action<void> MsgU(std::wstring_view message)
     {
+        if (message.empty())
+        {
+            return { {} };
+        }
+
         const CHAT_ID ci = { 0 };
         const CHAT_ID ciClient = { 0x00010000 };
 
@@ -271,12 +286,12 @@ namespace Hk::Chat
         const std::wstring TRADataSenderColor = L"FFFFFF"; // white
 
         const auto XML = std::format(L"<TRA data=\"0x{}{}\" mask=\"-1\"/><TEXT>{}: </TEXT><TRA data=\"0x{}{}\" mask=\"-1\"/><TEXT>{}</TEXT>",
-                    TRADataSenderColor,
-                    TRADataFormat,
-                    StringUtils::XmlText(sender),
-                    textColor,
-                    TRADataFormat,
-                    StringUtils::XmlText(text));
+                                     TRADataSenderColor,
+                                     TRADataFormat,
+                                     StringUtils::XmlText(sender),
+                                     textColor,
+                                     TRADataFormat,
+                                     StringUtils::XmlText(text));
 
         if (const auto err = FMsg(toClientId, XML).Raw(); err.has_error())
         {

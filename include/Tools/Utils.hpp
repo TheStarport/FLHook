@@ -74,7 +74,7 @@ class StringUtils
             requires(IsStringView<Str> || StringRestriction<Str>) && (std::is_integral_v<Ret> || std::is_floating_point_v<Ret>)
         static Ret Cast(Str str)
         {
-            if (!IsAscii(str))
+            if (str.empty() || !IsAscii(str))
             {
                 return Ret();
             }

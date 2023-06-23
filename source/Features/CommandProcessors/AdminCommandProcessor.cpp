@@ -23,7 +23,7 @@ std::wstring AdminCommandProcessor::ProcessCommand(std::wstring_view commandStri
     return res;
 }
 
-std::wstring AdminCommandProcessor::ProcessCommand(std::wstring_view cmd, const std::vector<std::wstring>& paramVector)
+std::wstring AdminCommandProcessor::ProcessCommand(std::wstring_view cmd, std::vector<std::wstring>& paramVector)
 {
     return MatchCommand<commands.size()>(this, cmd, paramVector);
 }
