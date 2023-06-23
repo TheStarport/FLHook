@@ -624,7 +624,7 @@ void UserCommandProcessor::GiveCash(std::wstring_view characterName, std::wstrin
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserCommandProcessor::Help(std::wstring_view module, std::wstring_view command)
+void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_view command)
 {
     if (const auto* config = FLHookConfig::c(); !config->userCommands.userCmdHelp)
     {
@@ -633,59 +633,53 @@ void UserCommandProcessor::Help(std::wstring_view module, std::wstring_view comm
     }
 
     const auto& pm = PluginManager::i();
-    /*if (module.empty())
+    if (module.empty())
     {
         PrintUserCmdText(client, L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
         PrintUserCmdText(client, L"core");
-        for (const auto& userCommandProcessor : pm->userCommands)
+        for (const auto& plugin : pm->plugins)
         {
-            if (const auto commands = plugin->GetCommands(); commands.empty())
+            if (dynamic_cast<const AbstractUserCommandProcessor*>(plugin.get()) == nullptr)
             {
                 continue;
             }
 
-            PrintUserCmdText(client, StringUtils::ToLower(std::wstring(plugin->GetShortName())));
+            PrintUserCmdText(client, StringUtils::ToLower(plugin->GetShortName()));
         }
         return;
-    }*/
+    }
 
-    /*auto params = StringUtils::GetParams(paramView, ' ');
-    const auto mod = StringUtils::GetParam(params, 1);
-    const auto cmd = StringUtils::ToLower(StringUtils::Trim(StringUtils::GetParam(params, 2)));
+    const auto cmd = StringUtils::ToLower(StringUtils::Trim(command));
 
-    if (mod == L"core")
+    const auto moduleLower = StringUtils::ToLower(module);
+
+    if (moduleLower == L"core")
     {
         if (cmd.empty())
         {
-            for (const auto& i : UserCmds)
+            for (const auto& i : commands)
             {
-                if (i.command.index() == 0)
-                {
-                    PrintUserCmdText(client, std::get<std::wstring_view>(i.command));
-                }
-                else
-                {
-                    PrintUserCmdText(client, i.usage);
-                }
+                PrintUserCmdText(client, i.cmd);
             }
         }
-        else if (const auto& userCommand = std::ranges::find_if(UserCmds, [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
-                 userCommand != UserCmds.end())
+        else if (const auto& userCommand =
+                     std::ranges::find_if(commands, [&cmd](const auto& userCmd) { return cmd == userCmd.cmd.substr(1, userCmd.cmd.size() - 1); });
+                 userCommand != commands.end())
         {
             PrintUserCmdText(client, userCommand->usage);
             PrintUserCmdText(client, userCommand->description);
         }
         else
         {
-            PrintUserCmdText(client, std::format(L"Command '{}' not found within module 'Core'", cmd.c_str()));
+            PrintUserCmdText(client, std::format(L"Command '{}' not found within module 'core'", cmd));
         }
         return;
     }
 
     const auto& pluginIterator = std::ranges::find_if(
-        *plugins, [&mod](const std::shared_ptr<Plugin> plug) { return StringUtils::ToLower(std::wstring(plug->GetShortName())) == StringUtils::ToLower(mod); });
+        pm->plugins, [&moduleLower](const std::shared_ptr<Plugin>& plug) { return StringUtils::ToLower(std::wstring(plug->GetShortName())) == moduleLower; });
 
-    if (pluginIterator == plugins->end())
+    if (pluginIterator == pm->plugins.end())
     {
         PrintUserCmdText(client, L"Command module not found.");
         return;
@@ -693,22 +687,22 @@ void UserCommandProcessor::Help(std::wstring_view module, std::wstring_view comm
 
     const auto plugin = *pluginIterator;
 
-    const auto commands = plugin->GetCommands();
+    const auto cmdProcessor = dynamic_cast<AbstractUserCommandProcessor*>(plugin.get());
+    if (cmdProcessor == nullptr)
+    {
+        PrintUserCmdText(client, L"Command module not found.");
+        return;
+    }
+
     if (cmd.empty())
     {
-        for (const auto& [command, usage, proc, description] : commands)
+        for (const auto& [fullCmd, usage, description] : cmdProcessor->GetCommands())
         {
-            if (command.index() == 0)
-            {
-                PrintUserCmdText(client, std::get<std::wstring_view>(command));
-            }
-            else
-            {
-                PrintUserCmdText(client, usage);
-            }
+            PrintUserCmdText(client, fullCmd);
         }
     }
-    else if (const auto& userCommand = std::ranges::find_if(commands, [&cmd](const UserCommand& userCmd) { return GetCommand(cmd, userCmd); });
+    else if (const auto& userCommand =
+                 std::ranges::find_if(commands, [&cmd](const auto& userCmd) { return cmd == userCmd.cmd.substr(1, userCmd.cmd.size() - 1); });
              userCommand != commands.end())
     {
         PrintUserCmdText(client, userCommand->usage);
@@ -717,5 +711,5 @@ void UserCommandProcessor::Help(std::wstring_view module, std::wstring_view comm
     else
     {
         PrintUserCmdText(client, std::format(L"Command '{}' not found within module '{}'", cmd, std::wstring(plugin->GetShortName())));
-    }*/
+    }
 }

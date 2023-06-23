@@ -73,13 +73,17 @@ private:                                                                   \
         std::wstring_view(str), ClassFunctionWrapper<decltype(&class ::func), &class ::func>::ProcessParam, usage, description \
     }
 
-#define GetCommandsFunc(commands)                                                                                                        \
-    std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> GetCommands() override                              \
-    {                                                                                                                                    \
-        std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> info;                                           \
-        std::ranges::for_each(commands, [info](auto& cmd) { info.emplace_back(std::make_tuple(cmd.cmd, cmd.usage, cmd.description)); }); \
-        return info;                                                                                                                     \
-    }
+#define GetCommandsFunc(commands)                                                                           \
+    std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> GetCommands() override \
+    {                                                                                                       \
+        std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> info;              \
+        for (const auto& cmd : commands)                                                                    \
+        {                                                                                                   \
+            info.emplace_back(cmd.cmd, cmd.usage, cmd.description);                                         \
+        }                                                                                                   \
+                                                                                                            \
+        return info;                                                                                        \
+    };
 
 #define SetupUserCommandHandler(class, commandArray)                                                                                    \
     template <int N>                                                                                                                    \

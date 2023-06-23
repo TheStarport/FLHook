@@ -132,12 +132,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
 
 #undef AddAdminCommand
 
-        std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> GetCommands() override
-        {
-            std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> info;
-            std::ranges::for_each(commands, [info](auto& cmd) { info.emplace_back(std::make_tuple(cmd.cmd, cmd.usage, cmd.description)); });
-            return info;
-        };
+        GetCommandsFunc(commands);
 
         cpp::result<void, std::wstring> Validate(AllowedContext context, std::wstring_view requiredRole);
 
