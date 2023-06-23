@@ -33,7 +33,7 @@ void Logger::SetLogSource(void* addr)
         if (GetModuleFileNameW(dll, maxPath, MAX_PATH))
         {
             const std::wstring path = maxPath;
-            logPrefix = std::wstring(L"(L") + GetTimeString(FLHookConfig::i()->general.localTime) + path.substr(path.find_last_of(L"\\") + 1) + L") ";
+            logPrefix = std::wstring(L"(") + GetTimeString(FLHookConfig::i()->general.localTime) + path.substr(path.find_last_of(L"\\") + 1) + L") ";
         }
     }
 }
