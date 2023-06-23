@@ -10,8 +10,7 @@ bool SaveGameDetour::GetUserDataPathDetour(char* retPtr)
     const auto* i = dynamic_cast<SaveGameDetour*>(MemoryManager::i());
 
     const auto len = i->path.size();
-    // ReSharper disable once CppDeprecatedEntity
-    wcsncpy(reinterpret_cast<wchar_t*>(retPtr), i->path.c_str(), len + 1);
+    strncpy_s(retPtr, len + 1, StringUtils::wstos(i->path).c_str(), MAX_PATH);
 
     return true;
 }
@@ -64,7 +63,7 @@ void SaveGameDetour::InitHook()
 
     path = std::format(L"{}\0", GetSaveDataPath());
 
-    char arr[255];
+    char arr[MAX_PATH];
     GetUserDataPath(arr);
 }
 
