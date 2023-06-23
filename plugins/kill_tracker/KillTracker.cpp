@@ -166,6 +166,24 @@ namespace Plugins::KillTracker
 			greatestDamageMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, greatestDamageMessage);
 			Hk::Message::FMsgS(system, greatestDamageMessage);
 		}
+
+		if (global->config->enableMilestones && clientVictim && clientKiller)
+		{
+			std::wstring killerName = Hk::Client::GetCharacterNameByID(clientKiller).value();
+			std::wstring victimName = Hk::Client::GetCharacterNameByID(clientVictim).value();
+			int numKills = Hk::Player::GetPvpKills(clientKiller).value();
+			std::wformat_args templateArgs = std::make_wformat_args(killerName, victimName, numKills);
+			std::wstring killMilestoneMessage;
+
+			auto templateMessage = global->config->milestoneTemplate.find(numKills);
+			if (templateMessage != global->config->milestoneTemplate.end())
+			{
+				std::wstring templateString = templateMessage->second;
+				killMilestoneMessage = std::vformat(templateString, templateArgs);
+				killMilestoneMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, killMilestoneMessage);
+				Hk::Message::FMsgS(system, killMilestoneMessage);
+			}
+		}
 	}
 
 	void Disconnect(ClientId& client, [[maybe_unused]] EFLConnection conn)
