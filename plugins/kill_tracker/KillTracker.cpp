@@ -88,6 +88,26 @@ namespace Plugins::KillTracker
 		PrintUserCmdText(client, std::format(L"Level: {}", rank));
 	}
 
+	void trackKillStreaks(ClientId& clientKiller, ClientId& clientVictim)
+	{
+		auto killerKillStreak = global->killStreaks.find(clientKiller);
+		auto victimKillStreak = global->killStreaks.find(clientVictim);
+
+		if (killerKillStreak != global->killStreaks.end())
+		{
+			global->killStreaks[clientKiller]++;
+		}
+		else if (killerKillStreak == global->killStreaks.end())
+		{
+			global->killStreaks[clientKiller] = 1;
+		};
+
+		if (victimKillStreak != global->killStreaks.end())
+		{
+			global->killStreaks[clientVictim] = 0;
+		}
+	}
+
 	/** @ingroup KillTracker
 	 * @brief Hook on ShipDestroyed. Increments the number of kills of a player if there is one.
 	 */
@@ -102,10 +122,12 @@ namespace Plugins::KillTracker
 				const DamageList* dmg = *_dmg;
 				const auto killerId = Hk::Client::GetClientIdByShip(
 				    dmg->get_cause() == DamageCause::Unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
+				const auto victimId = Hk::Client::GetClientIdByShip(cShip->get_id());
 
-				if (killerId.has_value() && killerId.value() != client)
+				if (killerId.has_value() && victimId.has_value() && killerId.value() != client)
 				{
 					Hk::Player::IncrementPvpKills(killerId.value());
+					trackKillStreaks(*killerId, *victimId);
 				}
 			}
 		}
@@ -171,7 +193,12 @@ namespace Plugins::KillTracker
 		{
 			std::wstring killerName = Hk::Client::GetCharacterNameByID(clientKiller).value();
 			std::wstring victimName = Hk::Client::GetCharacterNameByID(clientVictim).value();
-			int numKills = Hk::Player::GetPvpKills(clientKiller).value();
+			uint numKills;
+
+			if (global->killStreaks.find(clientKiller) != global->killStreaks.end())
+			{
+				uint numKills = global->killStreaks[clientKiller];
+			}
 			std::wformat_args templateArgs = std::make_wformat_args(killerName, victimName, numKills);
 			std::wstring killMilestoneMessage;
 
@@ -192,6 +219,14 @@ namespace Plugins::KillTracker
 		{
 			clearDamageTaken(client);
 			clearDamageDone(client);
+		}
+		if (global->config->enableMilestones)
+		{
+			auto clientStreakEntry = global->killStreaks.find(client);
+			if (clientStreakEntry != global->killStreaks.end())
+			{
+				global->killStreaks.erase(clientStreakEntry);
+			}
 		}
 	}
 

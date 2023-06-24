@@ -34,5 +34,6 @@ namespace Plugins::KillTracker
 		std::array<std::array<float, MaxClientId + 1>, MaxClientId + 1> damageArray;
 		std::array<float, MaxClientId + 1> lastPlayerHealth;
 		ReturnCode returncode = ReturnCode::Default;
+		std::map<ClientId, uint> killStreaks;
 	};
 } // namespace Plugins::KillTracker
