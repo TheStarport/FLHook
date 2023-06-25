@@ -91,7 +91,7 @@ private:                                                                   \
     {                                                                                                                                   \
         if (const CommandInfo<class> command = std::get<N - 1>(class ::commandArray); command.cmd == cmd)                               \
         {                                                                                                                               \
-            command.func(*processor, paramVector);                                                                                      \
+            command.func(processor, paramVector);                                                                                       \
             return true;                                                                                                                \
         }                                                                                                                               \
                                                                                                                                         \

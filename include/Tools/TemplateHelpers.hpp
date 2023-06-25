@@ -67,10 +67,10 @@ template <class Ret, class Cl, class... Args, Ret (Cl::*func)(Args...)>
 class ClassFunctionWrapper<Ret (Cl::*)(Args...), func>
 {
     public:
-        static Ret ProcessParam(Cl cl, std::vector<std::wstring>& params)
+        static Ret ProcessParam(Cl* cl, std::vector<std::wstring>& params)
         {
             auto arg = CreateTuple<Args...>(params);
-            auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cl.*func)(args...); } };
+            auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cl->*func)(args...); } };
             return std::apply(lambda, arg);
         }
 };

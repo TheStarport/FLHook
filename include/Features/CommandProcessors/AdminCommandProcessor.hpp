@@ -45,7 +45,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         struct CommandInfo
         {
                 std::wstring_view cmd;
-                std::wstring (*func)(AdminCommandProcessor cl, std::vector<std::wstring>& params);
+                std::wstring (*func)(AdminCommandProcessor* cl, std::vector<std::wstring>& params);
                 AllowedContext allowedContext;
                 std::wstring_view requiredRole;
                 std::wstring_view usage;
@@ -146,7 +146,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
                     return validation.error();
                 }
 
-                return command.func(*processor, paramVector);
+                return command.func(processor, paramVector);
             }
 
             return MatchCommand<N - 1>(processor, cmd, paramVector);

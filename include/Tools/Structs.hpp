@@ -276,7 +276,7 @@ template <class Processor>
 struct CommandInfo
 {
         std::wstring_view cmd;
-        void (*func)(Processor cl, std::vector<std::wstring>& params);
+        void (*func)(Processor* cl, std::vector<std::wstring>& params);
         std::wstring_view usage;
         std::wstring_view description;
 };

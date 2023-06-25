@@ -52,7 +52,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         {
             if (const CommandInfo<UserCommandProcessor> command = std::get<N - 1>(commands); command.cmd == cmd)
             {
-                command.func(*processor, paramVector);
+                command.func(processor, paramVector);
                 return true;
             }
 
