@@ -110,31 +110,31 @@ std::wstring AdminCommandProcessor::KillPlayer(std::wstring_view characterName)
     return std::format(L"{} successfully killed", characterName);
 }
 
-std::wstring AdminCommandProcessor::SetRep(std::wstring_view characterName, const std::wstring& repGroup, float value)
+std::wstring AdminCommandProcessor::SetRep(std::wstring_view characterName, std::wstring_view repGroup, float value)
 {
     Hk::Player::SetRep(characterName, repGroup, value).Handle();
     return std::format(L"{}'s reputation with {} set to {}", characterName, repGroup, value);
 }
 
-std::wstring AdminCommandProcessor::ResetRep(std::wstring_view characterName, const std::wstring& repGroup)
+std::wstring AdminCommandProcessor::ResetRep(std::wstring_view characterName, std::wstring_view repGroup)
 {
     Hk::Player::ResetRep(characterName).Handle();
     return std::format(L"{}'rep to {} reset", characterName, repGroup);
 }
 
-std::wstring AdminCommandProcessor::GetRep(std::wstring_view characterName, const std::wstring& repGroup)
+std::wstring AdminCommandProcessor::GetRep(std::wstring_view characterName, std::wstring_view repGroup)
 {
     auto rep = Hk::Player::GetRep(characterName, repGroup).Handle();
     return std::format(L"{}'reputation to {} is {}", characterName, repGroup, rep);
 }
 
-std::wstring AdminCommandProcessor::MessagePlayer(std::wstring_view characterName, const std::wstring& text)
+std::wstring AdminCommandProcessor::MessagePlayer(std::wstring_view characterName, std::wstring_view text)
 {
     Hk::Chat::Msg(characterName, text).Handle();
     return std::format(L"Message sent to {} successfully sent", characterName);
 }
 
-std::wstring AdminCommandProcessor::SendSystemMessage(std::wstring_view systemName, const std::wstring& text)
+std::wstring AdminCommandProcessor::SendSystemMessage(std::wstring_view systemName, std::wstring_view text)
 {
     Hk::Chat::MsgS(std::wstring(systemName), text).Handle();
     return std::format(L"Message successfully sent to {}", systemName);
@@ -165,13 +165,13 @@ std::wstring AdminCommandProcessor::ListCargo(std::wstring_view characterName)
     return res;
 }
 
-std::wstring AdminCommandProcessor::AddCargo(std::wstring_view characterName, const std::wstring& good, uint count, bool mission)
+std::wstring AdminCommandProcessor::AddCargo(std::wstring_view characterName, std::wstring_view good, uint count, bool mission)
 {
     Hk::Player::AddCargo(characterName, good, count, mission).Handle();
     return std::format(L"{} units of {} has been added to {}'s cargo", count, good, characterName);
 }
 
-std::wstring AdminCommandProcessor::RenameChar(std::wstring_view characterName, const std::wstring& newName)
+std::wstring AdminCommandProcessor::RenameChar(std::wstring_view characterName, std::wstring_view newName)
 {
     Hk::Player::Rename(characterName, newName, false).Handle();
     return std::format(L"{} has been renamed to {}", characterName, newName);
@@ -196,13 +196,25 @@ std::wstring AdminCommandProcessor::GetPlayerInfo(std::wstring_view characterNam
                        res.systemName);
 }
 
-std::wstring AdminCommandProcessor::AddRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles) { return {}; }
+std::wstring AdminCommandProcessor::AddRoles(std::wstring_view characterName, std::vector<std::wstring_view> roles)
+{
+    Hk::Admin::AddRoles(characterName, roles).Handle();
+    return std::format(L"Successfully added {} roles", roles.size());
+}
 
-std::wstring AdminCommandProcessor::SetRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles) { return {}; }
+std::wstring AdminCommandProcessor::SetRoles(std::wstring_view characterName, std::vector<std::wstring_view> roles)
+{
+    Hk::Admin::AddRoles(characterName, roles).Handle();
+    return L"Successfully set roles.{} roles";
+}
 
-std::wstring AdminCommandProcessor::DeleteRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles) { return {}; }
+std::wstring AdminCommandProcessor::DeleteRoles(std::wstring_view characterName, std::vector<std::wstring_view> roles)
+{
+    Hk::Admin::AddRoles(characterName, roles).Handle();
+    return L"Successfully removed roles.";
+}
 
-std::wstring AdminCommandProcessor::LoadPlugin(const std::vector<std::wstring_view>& pluginNames)
+std::wstring AdminCommandProcessor::LoadPlugin(std::vector<std::wstring_view> pluginNames)
 {
     if (pluginNames.empty())
     {
@@ -232,7 +244,7 @@ std::wstring AdminCommandProcessor::LoadPlugin(const std::vector<std::wstring_vi
     return res;
 }
 
-std::wstring AdminCommandProcessor::UnloadPlugin(const std::vector<std::wstring_view>& pluginNames)
+std::wstring AdminCommandProcessor::UnloadPlugin(std::vector<std::wstring_view> pluginNames)
 {
     if (pluginNames.empty())
     {
@@ -262,7 +274,7 @@ std::wstring AdminCommandProcessor::UnloadPlugin(const std::vector<std::wstring_
     return res;
 }
 
-std::wstring AdminCommandProcessor::ReloadPlugin(const std::vector<std::wstring_view>& pluginNames)
+std::wstring AdminCommandProcessor::ReloadPlugin(std::vector<std::wstring_view> pluginNames)
 {
     std::wstring response = std::format(L"{}\n", UnloadPlugin(pluginNames));
     response += LoadPlugin(pluginNames);
@@ -305,7 +317,7 @@ std::wstring AdminCommandProcessor::Chase(std::wstring_view characterName)
         L"Jump to system={} x={:.0f} y={:.0f} z={:.0f}", target.systemName, static_cast<float>(pos.x), static_cast<float>(pos.y), static_cast<float>(pos.z));
 }
 
-std::wstring AdminCommandProcessor::Beam(std::wstring_view characterName, const std::wstring& baseName)
+std::wstring AdminCommandProcessor::Beam(std::wstring_view characterName, std::wstring_view baseName)
 {
     std::wstring targetPlayer;
 
@@ -329,7 +341,7 @@ std::wstring AdminCommandProcessor::Beam(std::wstring_view characterName, const 
     return std::format(L"{} beamed to {}", targetPlayer, base->baseId);
 }
 
-std::wstring AdminCommandProcessor::Pull(const std::wstring& characterName)
+std::wstring AdminCommandProcessor::Pull(std::wstring_view characterName)
 {
     const auto admin = Hk::Admin::GetPlayerInfo(currentUser, false).Handle();
     const auto target = Hk::Admin::GetPlayerInfo(characterName, false).Handle();
@@ -353,7 +365,7 @@ std::wstring AdminCommandProcessor::Pull(const std::wstring& characterName)
                        static_cast<float>(pos.z));
 }
 
-// std::wstring AdminCommandProcessor::Move(const std::wstring& characterName, Vector position)
+// std::wstring AdminCommandProcessor::Move(std::wstring_view characterName, Vector position)
 //{
 //	std::wstring targetPlayer;
 //

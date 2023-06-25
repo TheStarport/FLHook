@@ -558,12 +558,12 @@ namespace Hk::Player
         return { {} };
     }
 
-    Action<void> AddCargo(const std::variant<uint, std::wstring_view>& player, const std::wstring& good, int count, bool mission)
+    Action<void> AddCargo(const std::variant<uint, std::wstring_view>& player, std::wstring_view good, int count, bool mission)
     {
         uint goodId = StringUtils::Cast<int>(good);
         if (!goodId)
         {
-            pub::GetGoodID(goodId, StringUtils::wstos(good).c_str());
+            pub::GetGoodID(goodId, StringUtils::wstos(std::wstring(good)).c_str());
         }
         if (!goodId)
         {
@@ -575,7 +575,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> Rename(const std::variant<uint, std::wstring_view>& player, const std::wstring& newCharname, bool onlyDelete)
+    Action<void> Rename(const std::variant<uint, std::wstring_view>& player, std::wstring_view newCharname, bool onlyDelete)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -662,7 +662,7 @@ namespace Hk::Player
         Players.login(logindata, MaxClientId + 1);
 
         SCreateCharacterInfo newcharinfo;
-        wcsncpy_s(newcharinfo.charname, newCharname.c_str(), 23);
+        wcsncpy_s(newcharinfo.charname, newCharname.data(), 23);
         newcharinfo.charname[23] = 0;
 
         newcharinfo.nickName = 0;
@@ -850,7 +850,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> SetRep(const std::variant<uint, std::wstring_view>& player, const std::wstring& repGroup, float value)
+    Action<void> SetRep(const std::variant<uint, std::wstring_view>& player, std::wstring_view repGroup, float value)
     {
         ClientId client = Client::ExtractClientID(player);
         // check if logged in
@@ -860,7 +860,7 @@ namespace Hk::Player
         }
 
         uint repGroupId;
-        pub::Reputation::GetReputationGroup(repGroupId, StringUtils::wstos(repGroup).c_str());
+        pub::Reputation::GetReputationGroup(repGroupId, StringUtils::wstos(std::wstring(repGroup)).c_str());
         if (repGroupId == -1)
         {
             return { cpp::fail(Error::InvalidRepGroup) };

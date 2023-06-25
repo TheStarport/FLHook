@@ -195,10 +195,10 @@ namespace Hk::Admin
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<BaseHealth> GetBaseStatus(const std::wstring& basename)
+    Action<BaseHealth> GetBaseStatus(std::wstring_view basename)
     {
         uint baseId = 0;
-        pub::GetBaseID(baseId, StringUtils::wstos(basename).c_str());
+        pub::GetBaseID(baseId, StringUtils::wstos(std::wstring(basename)).c_str());
         if (!baseId)
         {
             return { cpp::fail(Error::InvalidBaseName) };
@@ -257,11 +257,213 @@ namespace Hk::Admin
     CEqObj* GetEqObjFromObjRW(IObjRW* objRW) { return GetEqObjFromObjRW_(objRW); }
 
     // TODO: implement role based commands
-    Action<void> AddRole(const std::wstring& characterName, const std::wstring& role) { return { {} }; }
+    Action<void> AddRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles)
+    {
+        if (ClientId client = Client::GetClientIdFromCharName(characterName).Unwrap())
+        {
+            const auto info = &ClientInfo[client];
+            const auto adminObj = info->accountData.value("admin", nlohmann::json::object());
+            auto roleArray = adminObj.value("roles", nlohmann::json::array());
 
-    Action<void> RemoveRole(const std::wstring& characterName, const std::wstring& role) { return { {} }; }
+            for (const auto& role : roles)
+            {
+                roleArray.emplace_back(StringUtils::wstos(std::wstring(role)));
+            }
 
-    Action<void> SetRoles(const std::wstring& characterName, const std::vector<std::wstring>& roles) { return { {} }; }
+            info->SaveAccountData();
+
+            return { {} };
+        }
+
+        const auto acc = Hk::Client::GetAccountByCharName(characterName).Raw();
+        if (acc.has_error())
+        {
+            return { cpp::fail(acc.error()) };
+        }
+
+        const std::wstring dir = Client::GetAccountDirName(acc.value());
+        const std::wstring userFile = std::format(L"{}{}\\accData.json", CoreGlobals::c()->accPath, dir);
+
+        // TODO: Move all file IO to FileUtils class
+
+        std::fstream file;
+        file.open(userFile, std::ios::in | std::ios::out | std::ios::app);
+        file.seekg(0, std::ios::end);
+        size_t size = static_cast<size_t>(file.tellg());
+
+        std::string buffer(size, ' ');
+
+        file.seekg(0);
+        file.read(buffer.data(), size);
+
+        nlohmann::basic_json<> accountData;
+        try
+        {
+            accountData = nlohmann::json::parse(buffer);
+        }
+        catch (nlohmann::json::parse_error&)
+        {
+            // TODO: Log error character error to specific file
+            Logger::i()->Log(LogLevel::Err, std::format(L"Unable to parse account data for character: {}.", characterName));
+            accountData = nlohmann::json::object();
+        }
+
+        if (!accountData.contains("admin"))
+        {
+            accountData["admin"] = nlohmann::json::object();
+        }
+
+        auto& admin = accountData["admin"];
+        if (!admin.contains("roles"))
+        {
+            admin["roles"] = nlohmann::json::array();
+        }
+
+        auto& roleArray = admin["roles"];
+
+        for (const auto& role : roles)
+        {
+            if (std::ranges::all_of(roleArray,
+                                    [role](const auto& existing)
+                                    {
+                                        if (!existing.is_string())
+                                        {
+                                            throw GameException(L"Account data is malformed. Admin block corrupted.", Error::MalformedData);
+                                        }
+                                        return StringUtils::stows(existing.template get<std::string>()) != role;
+                                    }))
+            {
+                roleArray.emplace_back(StringUtils::wstos(std::wstring(role)));
+            }
+        }
+
+        const auto content = accountData.dump(4);
+        std::ofstream of(userFile);
+        of.write(content.c_str(), content.size());
+
+        return { {} };
+    }
+
+    Action<void> RemoveRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles, bool clear)
+    {
+        if (ClientId client = Client::GetClientIdFromCharName(characterName).Unwrap())
+        {
+            const auto info = &ClientInfo[client];
+            const auto adminObj = info->accountData.value("admin", nlohmann::json::object());
+            auto roleArray = adminObj.value("roles", nlohmann::json::array());
+
+            if (clear)
+            {
+                roleArray = nlohmann::json::array();
+            }
+            else
+            {
+                for (const auto& role : roles)
+                {
+                    if (const auto foundRole = std::ranges::find_if(roleArray,
+                                                                    [role](const auto& existing)
+                                                                    {
+                                                                        if (!existing.is_string())
+                                                                        {
+                                                                            throw GameException(L"Account data is malformed. Admin block corrupted.",
+                                                                                                Error::MalformedData);
+                                                                        }
+                                                                        return StringUtils::stows(existing.template get<std::string>()) != role;
+                                                                    }) == roleArray.end())
+                    {
+                        roleArray.erase(foundRole);
+                    }
+                }
+            }
+
+            info->SaveAccountData();
+
+            return { {} };
+        }
+
+        const auto acc = Hk::Client::GetAccountByCharName(characterName).Raw();
+        if (acc.has_error())
+        {
+            return { cpp::fail(acc.error()) };
+        }
+
+        const std::wstring dir = Client::GetAccountDirName(acc.value());
+        const std::wstring userFile = std::format(L"{}{}\\accData.json", CoreGlobals::c()->accPath, dir);
+
+        // TODO: Move all file IO to FileUtils class
+
+        std::fstream file;
+        file.open(userFile, std::ios::in | std::ios::out | std::ios::app);
+        file.seekg(0, std::ios::end);
+        size_t size = static_cast<size_t>(file.tellg());
+
+        std::string buffer(size, ' ');
+
+        file.seekg(0);
+        file.read(buffer.data(), size);
+
+        nlohmann::basic_json<> accountData;
+        try
+        {
+            accountData = nlohmann::json::parse(buffer);
+        }
+        catch (nlohmann::json::parse_error&)
+        {
+            // TODO: Log error character error to specific file
+            Logger::i()->Log(LogLevel::Err, std::format(L"Unable to parse account data for character: {}.", characterName));
+            accountData = nlohmann::json::object();
+        }
+
+        if (!accountData.contains("admin"))
+        {
+            accountData["admin"] = nlohmann::json::object();
+        }
+
+        auto& admin = accountData["admin"];
+        if (!admin.contains("roles"))
+        {
+            admin["roles"] = nlohmann::json::array();
+        }
+
+        auto& roleArray = admin["roles"];
+
+        for (const auto& role : roles)
+        {
+            if (const auto foundRole = std::ranges::find_if(roleArray,
+                                                            [role](const auto& existing)
+                                                            {
+                                                                if (!existing.is_string())
+                                                                {
+                                                                    throw GameException(L"Account data is malformed. Admin block corrupted.",
+                                                                                        Error::MalformedData);
+                                                                }
+                                                                return StringUtils::stows(existing.template get<std::string>()) != role;
+                                                            }) == roleArray.end())
+            {
+                roleArray.erase(foundRole);
+            }
+        }
+
+        const auto content = accountData.dump(4);
+        std::ofstream of(userFile);
+        of.write(content.c_str(), content.size());
+        return { {} };
+    }
+
+    Action<void> SetRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles)
+    {
+        if (const auto removed = RemoveRoles(characterName, roles, true).Raw(); removed.has_error())
+        {
+            return { cpp::fail(removed.error()) };
+        }
+
+        if (const auto added = AddRoles(characterName, roles).Raw(); added.has_error())
+        {
+            return { cpp::fail(added.error()) };
+        }
+
+        return { {} };
+    }
 
     __declspec(naked) bool __stdcall LightFuse_(IObjRW* ship, uint fuseId, float delay, float lifetime, float skip)
     {

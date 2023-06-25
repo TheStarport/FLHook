@@ -83,7 +83,7 @@ namespace Hk::Solar
         return { type };
     }
 
-    Action<Universe::IBase*> GetBaseByWildcard(const std::wstring& targetBaseName)
+    Action<Universe::IBase*> GetBaseByWildcard(std::wstring_view targetBaseName)
     {
         // Search for an exact match at the start of the name
         Universe::IBase* baseinfo = Universe::GetFirstBase();

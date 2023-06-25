@@ -23,6 +23,11 @@ namespace Plugins
              */
             void UserCmdBack();
 
+            void ClearClientInfo(ClientId& client);
+            void SendChat(ClientId& client, ClientId& targetClient, [[maybe_unused]] const uint& size, [[maybe_unused]] void** rdl);
+            void SubmitChat(ClientId& client, [[maybe_unused]] const unsigned long& lP1, [[maybe_unused]] const void** rdlReader, [[maybe_unused]] ClientId& to,
+                            [[maybe_unused]] const int& dunno);
+
             constexpr inline static std::array<CommandInfo<AfkPlugin>, 2> commands = {
                 {
                  AddCommand(AfkPlugin, L"/afk", UserCmdAfk, L"/afk",
@@ -32,11 +37,6 @@ namespace Plugins
             }; // namespace Plugins
 
             SetupUserCommandHandler(AfkPlugin, commands);
-
-            void ClearClientInfo(ClientId& client);
-            void SendChat(ClientId& client, ClientId& targetClient, [[maybe_unused]] const uint& size, [[maybe_unused]] void** rdl);
-            void SubmitChat(ClientId& client, [[maybe_unused]] const unsigned long& lP1, [[maybe_unused]] const void** rdlReader, [[maybe_unused]] ClientId& to,
-                            [[maybe_unused]] const int& dunno);
 
         public:
             explicit AfkPlugin(const PluginInfo& info);

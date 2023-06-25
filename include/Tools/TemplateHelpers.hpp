@@ -17,12 +17,6 @@ inline std::wstring_view TransformArg(std::wstring_view s)
 }
 
 template <>
-inline const std::wstring& TransformArg(std::wstring_view s)
-{
-    return std::wstring(s);
-}
-
-template <>
 inline bool TransformArg(std::wstring_view s)
 {
     const auto lower = StringUtils::ToLower(s);
@@ -30,11 +24,10 @@ inline bool TransformArg(std::wstring_view s)
 }
 
 template <>
-inline const std::vector<std::wstring_view>& TransformArg(std::wstring_view s)
+inline std::vector<std::wstring_view> TransformArg(std::wstring_view s)
 {
     std::vector<std::wstring_view> views;
-    auto params = StringUtils::GetParams(s, L' ');
-    for (const auto& i : params)
+    for (auto params = StringUtils::GetParams(s, L' '); auto i : params)
     {
         views.emplace_back(i);
     }
@@ -45,10 +38,35 @@ inline const std::vector<std::wstring_view>& TransformArg(std::wstring_view s)
 template <typename... Args, std::size_t... Is>
 auto CreateTupleImpl(std::index_sequence<Is...>, std::vector<std::wstring>& arguments)
 {
+    constexpr size_t size = sizeof...(Is);
     // If not enough params we need to pad the list
-    for (uint i = arguments.size(); arguments.size() < sizeof...(Is); i++)
+    for (uint i = arguments.size(); arguments.size() < size; i++)
     {
         arguments.emplace_back();
+    }
+
+    if constexpr (size != 0)
+    {
+        using LastType = std::tuple_element_t<size - 1, std::tuple<Args...>>;
+        if constexpr (std::is_same_v<LastType, std::vector<std::wstring_view>>)
+        {
+            std::vector extraArgs = {
+                std::pair{size - 1, arguments.size()}
+            };
+            auto view = extraArgs |
+                        std::views::transform(
+                            [&arguments](auto r)
+                            {
+                                auto [beg, end] = r;
+                                return std::views::counted(arguments.begin() + beg, end - beg);
+                            }) |
+                        std::views::join;
+
+            std::wstring newArg;
+            std::ranges::for_each(view, [&newArg](auto& v) { newArg += std::format(L"{} ", std::wstring(v)); });
+
+            arguments[size - 1] = StringUtils::Trim(newArg);
+        }
     }
 
     return std::make_tuple(TransformArg<Args>(arguments[Is])...);

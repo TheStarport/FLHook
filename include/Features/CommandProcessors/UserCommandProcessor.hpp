@@ -5,13 +5,13 @@
 class UserCommandProcessor final : public Singleton<UserCommandProcessor>, public AbstractUserCommandProcessor
 {
         void GetClientIds();
-        void SetDieMessage(const std::wstring& param);
-        void SetDieMessageFontSize(const std::wstring& param);
+        void SetDieMessage(std::wstring_view param);
+        void SetDieMessageFontSize(std::wstring_view param);
         void SetChatFont(std::wstring_view fontSize, std::wstring_view fontType);
         void IgnoreUser(std::wstring_view ignoredUser, std::wstring_view flags);
         void IgnoreClientId(ClientId ignoredClient, std::wstring_view flags);
         void GetIgnoreList();
-        void RemoveFromIgnored(const std::vector<std::wstring_view>& charactersToRemove);
+        void RemoveFromIgnored(std::vector<std::wstring_view> charactersToRemove);
         void GetSelfClientId();
         void InvitePlayer(const std::wstring_view& characterName);
         void InvitePlayerByName(std::wstring_view invitee);

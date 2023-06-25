@@ -45,7 +45,7 @@ bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstrin
     return MatchCommand<commands.size()>(this, triggeringClient, cmd, paramVector);
 }
 
-void UserCommandProcessor::SetDieMessage(const std::wstring& param)
+void UserCommandProcessor::SetDieMessage(std::wstring_view param)
 {
     if (!FLHookConfig::i()->chatConfig.dieMsg)
     {
@@ -93,7 +93,7 @@ void UserCommandProcessor::SetDieMessage(const std::wstring& param)
     PrintOk(client);
 }
 
-void UserCommandProcessor::SetDieMessageFontSize(const std::wstring& param)
+void UserCommandProcessor::SetDieMessageFontSize(std::wstring_view param)
 {
     if (!FLHookConfig::i()->userCommands.userCmdSetDieMsgSize)
     {
@@ -327,7 +327,7 @@ void UserCommandProcessor::GetIgnoreList()
     PrintOk(client);
 }
 
-void UserCommandProcessor::RemoveFromIgnored(const std::vector<std::wstring_view>& charactersToRemove)
+void UserCommandProcessor::RemoveFromIgnored(std::vector<std::wstring_view> charactersToRemove)
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {

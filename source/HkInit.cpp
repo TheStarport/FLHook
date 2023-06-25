@@ -250,6 +250,7 @@ void ClearClientInfo(ClientId client)
 load settings from accData.json
 **************************************************************************************************************/
 
+// TODO: Rewrite all of HkInit into a central flhook class
 void LoadUserSettings(ClientId client)
 {
     auto* info = &ClientInfo[client];
