@@ -1,18 +1,6 @@
 #pragma once
 
-struct Timer
-{
-        std::function<void()> func;
-        mstime intervalInSeconds;
-        mstime lastTime = 0;
-
-#ifdef FLHOOK
-        static std::vector<std::unique_ptr<Timer>> timers;
-#endif
-
-        DLL static void Add(std::function<void()> function, uint interval);
-        DLL static void Remove(const std::function<void()>& func);
-};
+#include "PCH.hpp"
 
 constexpr PluginMajorVersion CurrentMajorVersion = PluginMajorVersion::VERSION_04;
 constexpr PluginMinorVersion CurrentMinorVersion = PluginMinorVersion::VERSION_01;
@@ -71,6 +59,17 @@ class DLL PluginCommunicator
         std::map<std::wstring, EventSubscription> listeners;
 };
 
+struct Timer
+{
+        std::function<void()> func;
+        mstime intervalInSeconds;
+        mstime lastTime = 0;
+
+        static std::vector<std::shared_ptr<Timer>> timers;
+        static std::shared_ptr<Timer> Add(std::function<void()> function, uint interval);
+        static void Remove(const std::function<void()>& func);
+};
+
 struct PluginInfo
 {
         std::wstring name;
@@ -100,25 +99,10 @@ class DLL Plugin
         std::vector<PluginHook> hooks;
         HMODULE dll = nullptr;
         std::wstring dllName;
+        std::vector<std::shared_ptr<Timer>> timers;
 
     protected:
         ReturnCode returnCode = ReturnCode::Default;
-
-        std::vector<Timer> timers;
-
-    public:
-        explicit Plugin(const PluginInfo& info)
-        {
-            name = info.name;
-            shortName = info.shortName;
-            mayUnload = info.mayUnload;
-            versionMajor = info.versionMajor;
-            versionMinor = info.versionMinor;
-        }
-
-        virtual ~Plugin() = default;
-        Plugin& operator=(const Plugin&&) = delete;
-        Plugin& operator=(const Plugin&) = delete;
 
         template <typename... Args>
         void EmplaceHook(Args&&... args)
@@ -138,6 +122,37 @@ class DLL Plugin
             std::erase_if(hooks, [target, step](const PluginHook& hook) { return hook.targetFunction == target && step == hook.step; });
         }
 
+        void AddTimer(void (Plugin::*func)(), const int frequencyInSeconds)
+        {
+            if (auto timer = Timer::Add(std::bind(func, this), frequencyInSeconds))
+            {
+                timers.emplace_back(timer);
+            }
+        }
+
+    public:
+        explicit Plugin(const PluginInfo& info)
+        {
+            name = info.name;
+            shortName = info.shortName;
+            mayUnload = info.mayUnload;
+            versionMajor = info.versionMajor;
+            versionMinor = info.versionMinor;
+        }
+
+        virtual ~Plugin()
+        {
+            for (int i = static_cast<int>(timers.size()) - 1u; i >= 0u; --i)
+            {
+                const auto& timer = timers[i];
+                Timer::Remove(timer->func);
+                timers.erase(timers.begin() + i);
+            }
+        };
+
+        Plugin& operator=(const Plugin&&) = delete;
+        Plugin& operator=(const Plugin&) = delete;
+
         [[nodiscard]]
         std::wstring_view GetName() const
         {
@@ -150,11 +165,7 @@ class DLL Plugin
             return shortName;
         }
 
-        [[nodiscard]]
-        auto& GetTimers()
-        {
-            return timers;
-        }
+        const auto& GetTimers() { return timers; }
 };
 
 #define SetupPlugin(type, info)                                               \
@@ -163,3 +174,5 @@ class DLL Plugin
         __pragma(comment(linker, "/EXPORT:" __FUNCTION__ "=" __FUNCDNAME__)); \
         return std::move(std::make_shared<type>(info));                       \
     }
+
+#define AddPluginTimer(func, time) AddTimer(static_cast<void (Plugin::*)()>(func), time)

@@ -75,12 +75,12 @@ namespace IServerImplHook
                 continue;
             }
 
-            for (auto& [func, intervalInSeconds, lastTime] : timers)
+            for (const auto& timer : timers)
             {
-                if (currentTime - lastTime >= intervalInSeconds * 1000)
+                if (currentTime - timer->lastTime >= timer->intervalInSeconds * 1000)
                 {
-                    lastTime = currentTime;
-                    func();
+                    timer->lastTime = currentTime;
+                    timer->func();
                 }
             }
         }

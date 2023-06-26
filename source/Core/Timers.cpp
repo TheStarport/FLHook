@@ -27,7 +27,7 @@ uint PerfTimer::Stop()
     return timeDelta;
 }
 
-std::vector<std::unique_ptr<Timer>> Timer::timers;
+std::vector<std::shared_ptr<Timer>> Timer::timers;
 
 template <typename T, typename... U>
 DWORD GetAddress(std::function<T(U...)> f)
@@ -37,19 +37,22 @@ DWORD GetAddress(std::function<T(U...)> f)
     return reinterpret_cast<DWORD>(*fnPointer);
 }
 
-void Timer::Add(std::function<void()> function, uint interval)
+std::shared_ptr<Timer> Timer::Add(std::function<void()> function, uint interval)
 {
-    if (std::ranges::any_of(timers, [function](const std::unique_ptr<Timer>& existing) { return GetAddress(function) == GetAddress(existing->func); }))
+    if (std::ranges::any_of(timers, [function](const std::shared_ptr<Timer>& existing) { return GetAddress(function) == GetAddress(existing->func); }))
     {
-        return;
+        return nullptr;
     }
 
-    timers.emplace_back(std::make_unique<Timer>(function, interval));
+    auto ptr = std::make_shared<Timer>(function, interval);
+    timers.emplace_back(ptr);
+
+    return ptr;
 }
 
 void Timer::Remove(const std::function<void()>& func)
 {
-    const auto timer = std::ranges::find_if(timers, [func](const std::unique_ptr<Timer>& existing) { return GetAddress(func) == GetAddress(existing->func); });
+    const auto timer = std::ranges::find_if(timers, [func](const std::shared_ptr<Timer>& existing) { return GetAddress(func) == GetAddress(existing->func); });
     if (timer == timers.end())
     {
         return;
