@@ -70,11 +70,12 @@ void Logger::PrintToConsole(LogLevel level, std::wstring_view str) const
     {
         case LogLevel::Trace:
             {
-                SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::Blue));
+                SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongWhite));
                 break;
             }
         case LogLevel::Debug:
             {
+
                 SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::Green));
                 break;
             }
@@ -158,6 +159,11 @@ Logger::~Logger()
 
 void Logger::Log(LogFile file, LogLevel level, std::wstring_view str)
 {
+    if ((!FLHookConfig::i()->debug.logTraceLevel && level == LogLevel::Trace) || (!FLHookConfig::i()->debug.debugMode && level == LogLevel::Debug))
+    {
+        return;
+    }
+
     if (logPrefix.empty())
     {
         SetLogSource(_ReturnAddress());
