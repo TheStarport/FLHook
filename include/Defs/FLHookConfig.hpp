@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Tools/Serialization/Serializer.hpp"
+#include "Core/Serializer.hpp"
 
 struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 {

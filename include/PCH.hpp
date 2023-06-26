@@ -23,43 +23,43 @@
 #include <variant>
 #include <vector>
 
-#include "Tools/Constexpr.hpp"
-#include "Tools/Typedefs.hpp"
+#include "Core/Templates/Constexpr.hpp"
+#include "Core/templates/Typedefs.hpp"
 
 #define MAGIC_ENUM_USING_ALIAS_STRING_VIEW using string_view = std::wstring_view;
 #define MAGIC_ENUM_USING_ALIAS_STRING      using string = std::wstring;
-#include <ext/magic_enum.hpp>
+#include <External/magic_enum.hpp>
 
 #include <nlohmann/json.hpp>
 
-#include <ext/Singleton.h>
-#include <ext/Wildcard.hpp>
-#include <ext/inipp.hpp>
-#include <ext/jpcre2.hpp>
-#include <ext/result.hpp>
+#include <External/Singleton.h>
+#include <External/Wildcard.hpp>
+#include <External/inipp.hpp>
+#include <External/jpcre2.hpp>
+#include <External/result.hpp>
 
-#include "Tools/Macros.hpp"
+#include "Core/Templates/Macros.hpp"
 
 #include "FLCore/FLCoreCommon.h"
 #include "FLCore/FLCoreDALib.h"
 #include "FLCore/FLCoreServer.h"
 
-#include "Tools/Enums.hpp"
-#include "Tools/Structs.hpp"
+#include "Defs/Enums.hpp"
+#include "Defs/Structs.hpp"
 
-#include "Tools/Concepts.hpp"
-#include "Tools/TemplateHelpers.hpp"
+#include "Core/Templates/Concepts.hpp"
+#include "Core/Templates/TemplateHelpers.hpp"
 
-#include "Exceptions/Action.hpp"
+#include "Core/Action.hpp"
 
 #include "FLCore/FLCoreRemoteClient.h"
 
-#include "Tools/Utils.hpp"
+#include "API/Utils/Utils.hpp"
 
 #include "FLHook.hpp"
 
-#include "Features/CommandProcessors/AbstractAdminCommandProcessor.hpp"
-#include "Features/CommandProcessors/AbstractUserCommandProcessor.hpp"
+#include "Core/Commands/AbstractAdminCommandProcessor.hpp"
+#include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 #include <sqlite_orm/sqlite_orm.h>
 
@@ -69,19 +69,19 @@
 #include "Defs/ShipArchDefs.hpp"
 #include "Defs/WeaponEquipDefs.hpp"
 
-#include "Helpers/Admin.hpp"
-#include "Helpers/Chat.hpp"
-#include "Helpers/Client.hpp"
-#include "Helpers/FileUtils.hpp"
-#include "Helpers/FlCodec.hpp"
-#include "Helpers/IniUtils.hpp"
-#include "Helpers/Math.hpp"
-#include "Helpers/Personalities.hpp"
-#include "Helpers/Player.hpp"
-#include "Helpers/Solar.hpp"
-#include "Helpers/ZoneUtilities.hpp"
+#include "API/FLServer/Admin.hpp"
+#include "API/FLServer/Chat.hpp"
+#include "API/FLServer/Client.hpp"
+#include "API/FLServer/Math.hpp"
+#include "API/FLServer/Personalities.hpp"
+#include "API/FLServer/Player.hpp"
+#include "API/FLServer/Solar.hpp"
+#include "API/FLServer/ZoneUtilities.hpp"
+#include "API/Utils/FileUtils.hpp"
+#include "API/Utils/IniUtils.hpp"
+#include "Core/Codec.hpp"
 
-#include <Features/Logger.hpp>
+#include <Core/Logger.hpp>
 
 #pragma comment(lib, "pcre2-8.lib")
 #pragma comment(lib, "pcre2-16.lib")

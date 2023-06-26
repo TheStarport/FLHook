@@ -1,369 +1,324 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="FLHook">
-      <UniqueIdentifier>{391fd7da-cf31-4382-84a5-8c970fd80de7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="FLHook\hooks">
-      <UniqueIdentifier>{10671e0e-08e5-47f5-86dc-a4753ed07bdd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="FLHook\Helpers">
-      <UniqueIdentifier>{9f77e9f6-3d8d-45c9-bd51-4e9d0d316a62}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="FLHook\Features">
-      <UniqueIdentifier>{a876a4d6-e361-4bc3-ae71-51c2e7c3f3b9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="FLHook\Memory">
-      <UniqueIdentifier>{8af08fa1-208a-40a3-8ded-6926df4fe285}</UniqueIdentifier>
+    <Filter Include="Source">
+      <UniqueIdentifier>{39f43ee6-bcef-4d3b-af60-487ae42275cb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Include">
-      <UniqueIdentifier>{fa28c962-1974-4770-a3c9-fa8fd6366bf3}</UniqueIdentifier>
+      <UniqueIdentifier>{935801cd-eaf8-4fb5-aee9-190a1c21d509}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\Tools">
-      <UniqueIdentifier>{62d0b77b-91bb-4710-8324-bc544549f6c6}</UniqueIdentifier>
+    <Filter Include="Source\API">
+      <UniqueIdentifier>{c22b2d7d-cbd6-4d2b-a368-e559fa238ee1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\Features">
-      <UniqueIdentifier>{b918d703-a8b2-4da3-9854-92b3c11c7df8}</UniqueIdentifier>
+    <Filter Include="Source\Core">
+      <UniqueIdentifier>{dc1887ae-c87b-4e7c-85d6-316a094a97e9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="FLHook\Data">
-      <UniqueIdentifier>{8dda06a6-36ac-442e-86af-b459eb62dde1}</UniqueIdentifier>
+    <Filter Include="Source\Hooks">
+      <UniqueIdentifier>{30cf2156-c1ae-4d91-9886-56dec5dfc697}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\Tools\Serialization">
-      <UniqueIdentifier>{87225937-9c94-4d5e-8e3f-ba1236fe0369}</UniqueIdentifier>
+    <Filter Include="Source\Core\Commands">
+      <UniqueIdentifier>{3927f67b-8158-4f8a-873b-14db76ccf03b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\Tools\External">
-      <UniqueIdentifier>{90905a1e-aa4a-4101-9a3a-ac6db2daa2e7}</UniqueIdentifier>
+    <Filter Include="Source\API\FLHook">
+      <UniqueIdentifier>{876be2ae-78a1-4080-970d-c0ea7773b25c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\Tools\External\AMQP">
-      <UniqueIdentifier>{5b529d7c-012d-4b53-8ef1-ccf2fe077921}</UniqueIdentifier>
+    <Filter Include="Source\API\FLServer">
+      <UniqueIdentifier>{3ec9ac72-9554-4f7f-83ef-85c47f948d0e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\SDK">
-      <UniqueIdentifier>{96e52e53-6bc7-4fea-8e78-b3bd4fefe5a1}</UniqueIdentifier>
+    <Filter Include="Source\API\Utilities">
+      <UniqueIdentifier>{8c18688f-c6a3-4ff8-839e-64e31e82d429}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Contracts">
-      <UniqueIdentifier>{ea7c21e6-c5a1-4536-b914-2e7e0abba0d4}</UniqueIdentifier>
+    <Filter Include="Include\API">
+      <UniqueIdentifier>{a18e4208-124a-4ccd-9fda-632fa9238c6d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\Helpers">
-      <UniqueIdentifier>{f247d53e-edef-4b93-8896-97695980a070}</UniqueIdentifier>
+    <Filter Include="Include\Core">
+      <UniqueIdentifier>{06ab4515-4028-4d15-8cf7-091decd8a2a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\API\FLServer">
+      <UniqueIdentifier>{657872d9-2450-4008-961d-b2a239a620d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\API\FLHook">
+      <UniqueIdentifier>{2e200967-c2c2-454b-a852-04208121f548}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\API\Utilities">
+      <UniqueIdentifier>{d543ab56-360b-430c-8c34-cd08fecaa5b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Core\Commands">
+      <UniqueIdentifier>{4ad4d98b-8ea5-454e-b3f5-b89982de3e5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Core\Exceptions">
+      <UniqueIdentifier>{75a8fdfe-f862-41c2-b934-ba212a1ef238}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Core\Templates">
+      <UniqueIdentifier>{96409414-b01c-4aed-8048-580c200c91ee}</UniqueIdentifier>
     </Filter>
     <Filter Include="Include\Defs">
-      <UniqueIdentifier>{0c8fdf3f-457c-4de8-bb7d-ddc221a6283c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Include\Exceptions">
-      <UniqueIdentifier>{b179b450-5e3f-443b-bd15-09cef2f0e47d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="FLHook\Exceptions">
-      <UniqueIdentifier>{bd9ce818-f423-48ec-b2fb-7a06c8d1749d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Include\Defs\FLConfigData">
-      <UniqueIdentifier>{9178612a-831c-4d60-ae0c-f5b4d288641b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="FLHook\Tools">
-      <UniqueIdentifier>{bf83692e-f0f0-4526-856d-e9b33fcade06}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="FLHook\Features\CommandProcessors">
-      <UniqueIdentifier>{f53d771b-4b6d-45c5-a119-22cf7d76fca0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Include\Features\CommandProcessors">
-      <UniqueIdentifier>{0d8c86e9-12ff-48df-8807-1738bc93b43e}</UniqueIdentifier>
+      <UniqueIdentifier>{b65d00c7-3ec5-4c49-ac2e-6e749d0d5ee8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\source\HkInit.cpp">
-      <Filter>FLHook</Filter>
+    <ClCompile Include="..\Source\FLHook.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\HkDataBaseMarket.cpp">
-      <Filter>FLHook\Data</Filter>
+    <ClCompile Include="..\Source\Core\Codec.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\FLHook.cpp" />
-    <ClCompile Include="..\source\Settings.cpp" />
-    <ClCompile Include="..\source\Tools.cpp" />
-    <ClCompile Include="..\source\HkIEngine.cpp">
-      <Filter>FLHook\hooks</Filter>
+    <ClCompile Include="..\Source\Core\Debug.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\HkIEngineDamage.cpp">
-      <Filter>FLHook\hooks</Filter>
+    <ClCompile Include="..\Source\Core\FLPacket.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\HkIEngineDeath.cpp">
-      <Filter>FLHook\hooks</Filter>
+    <ClCompile Include="..\Source\Core\Logger.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\HkIEngineDisconnect.cpp">
-      <Filter>FLHook\hooks</Filter>
+    <ClCompile Include="..\Source\Core\MemoryManager.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\HkIChatServer.cpp">
-      <Filter>FLHook\hooks</Filter>
+    <ClCompile Include="..\Source\Core\PluginManager.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\HkClientServerInterface.cpp">
-      <Filter>FLHook\hooks</Filter>
+    <ClCompile Include="..\Source\Core\SaveData.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\FLCodec.cpp" />
-    <ClCompile Include="..\source\FLPacket.cpp">
-      <Filter>FLHook</Filter>
+    <ClCompile Include="..\Source\Core\Settings.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Features\PluginManager.cpp">
-      <Filter>FLHook\Features</Filter>
+    <ClCompile Include="..\Source\Core\StartupCache.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Features\StartupCache.cpp">
-      <Filter>FLHook\Features</Filter>
+    <ClCompile Include="..\Source\Core\TempBan.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Features\Timers.cpp">
-      <Filter>FLHook\Features</Filter>
+    <ClCompile Include="..\Source\Core\Timers.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\Admin.cpp">
-      <Filter>FLHook\Helpers</Filter>
+    <ClCompile Include="..\Source\Core\Commands\AdminCommandProcessor.cpp">
+      <Filter>Source\Core\Commands</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\Client.cpp">
-      <Filter>FLHook\Helpers</Filter>
+    <ClCompile Include="..\Source\Core\Commands\CommandLineParser.cpp">
+      <Filter>Source\Core\Commands</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\IniUtils.cpp">
-      <Filter>FLHook\Helpers</Filter>
+    <ClCompile Include="..\Source\Core\Commands\UserCommandProcessor.cpp">
+      <Filter>Source\Core\Commands</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\Math.cpp">
-      <Filter>FLHook\Helpers</Filter>
+    <ClCompile Include="..\Source\Hooks\HkCbOther.cpp">
+      <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\Chat.cpp">
-      <Filter>FLHook\Helpers</Filter>
+    <ClCompile Include="..\Source\Hooks\HkClientServerInterface.cpp">
+      <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\Player.cpp">
-      <Filter>FLHook\Helpers</Filter>
+    <ClCompile Include="..\Source\Hooks\HkDataBaseMarket.cpp">
+      <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\Solar.cpp">
-      <Filter>FLHook\Helpers</Filter>
+    <ClCompile Include="..\Source\Hooks\HkIChatServer.cpp">
+      <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp">
-      <Filter>FLHook\Helpers</Filter>
+    <ClCompile Include="..\Source\Hooks\HkIEngine.cpp">
+      <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\ZoneUtilities.cpp">
-      <Filter>FLHook\Helpers</Filter>
+    <ClCompile Include="..\Source\Hooks\HkIEngineDamage.cpp">
+      <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Features\Mail.cpp">
-      <Filter>FLHook\Features</Filter>
+    <ClCompile Include="..\Source\Hooks\HkIEngineDeath.cpp">
+      <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Data\Lights.cpp">
-      <Filter>FLHook\Data</Filter>
+    <ClCompile Include="..\Source\Hooks\HkIEngineDisconnect.cpp">
+      <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Debug.cpp">
-      <Filter>FLHook</Filter>
+    <ClCompile Include="..\Source\Hooks\HkInit.cpp">
+      <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Memory\SaveData.cpp">
-      <Filter>FLHook\Memory</Filter>
+    <ClCompile Include="..\Source\Hooks\SendComm.cpp">
+      <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Memory\MemoryManager.cpp">
-      <Filter>FLHook\Memory</Filter>
+    <ClCompile Include="..\Source\API\FLHook\Mail.cpp">
+      <Filter>Source\API\FLHook</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Features\TempBan.cpp">
-      <Filter>FLHook\Features</Filter>
+    <ClCompile Include="..\Source\API\FLHook\MessageHandler.cpp">
+      <Filter>Source\API\FLHook</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Hooks\SendComm.cpp">
-      <Filter>FLHook\hooks</Filter>
+    <ClCompile Include="..\Source\API\FLServer\Admin.cpp">
+      <Filter>Source\API\FLServer</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Features\MessageHandler.cpp">
-      <Filter>FLHook\Features</Filter>
+    <ClCompile Include="..\Source\API\FLServer\Chat.cpp">
+      <Filter>Source\API\FLServer</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Features\Logger.cpp">
-      <Filter>FLHook\Features</Filter>
+    <ClCompile Include="..\Source\API\FLServer\Client.cpp">
+      <Filter>Source\API\FLServer</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Exceptions\ErrorInfo.cpp">
-      <Filter>FLHook\Exceptions</Filter>
+    <ClCompile Include="..\Source\API\FLServer\Math.cpp">
+      <Filter>Source\API\FLServer</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\PCH.cpp" />
-    <ClCompile Include="..\source\Tools\CommandLineParser.cpp">
-      <Filter>FLHook\Tools</Filter>
+    <ClCompile Include="..\Source\API\FLServer\PilotPersonalities.cpp">
+      <Filter>Source\API\FLServer</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Tools\ThreadScheduler.cpp">
-      <Filter>FLHook\Tools</Filter>
+    <ClCompile Include="..\Source\API\FLServer\Player.cpp">
+      <Filter>Source\API\FLServer</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Tools\MemUtil.cpp">
-      <Filter>FLHook\Tools</Filter>
+    <ClCompile Include="..\Source\API\FLServer\Solar.cpp">
+      <Filter>Source\API\FLServer</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Tools\StringUtil.cpp">
-      <Filter>FLHook\Tools</Filter>
+    <ClCompile Include="..\Source\API\FLServer\ZoneUtilities.cpp">
+      <Filter>Source\API\FLServer</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Tools\TimeUtil.cpp">
-      <Filter>FLHook\Tools</Filter>
+    <ClCompile Include="..\Source\API\Utils\FileUtils.cpp">
+      <Filter>Source\API\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Helpers\FileUtils.cpp">
-      <Filter>FLHook\Helpers</Filter>
+    <ClCompile Include="..\Source\API\Utils\IniUtils.cpp">
+      <Filter>Source\API\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Features\CommandProcessors\AdminCommandProcessor.cpp">
-      <Filter>FLHook\Features\CommandProcessors</Filter>
+    <ClCompile Include="..\Source\API\Utils\MemUtils.cpp">
+      <Filter>Source\API\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Features\CommandProcessors\UserCommandProcessor.cpp">
-      <Filter>FLHook\Features\CommandProcessors</Filter>
+    <ClCompile Include="..\Source\API\Utils\StringUtil.cpp">
+      <Filter>Source\API\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\API\Utils\TimeUtils.cpp">
+      <Filter>Source\API\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Include\PCH.cpp">
+      <Filter>Include</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\source\Global.hpp" />
-    <ClInclude Include="..\include\FLHook.hpp">
+    <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">
+      <Filter>Include\Core\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Commands\AbstractUserCommandProcessor.hpp">
+      <Filter>Include\Core\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Commands\AdminCommandProcessor.hpp">
+      <Filter>Include\Core\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Commands\CommandLineParser.hpp">
+      <Filter>Include\Core\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp">
+      <Filter>Include\Core\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Exceptions\ErrorInfo.hpp">
+      <Filter>Include\Core\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Exceptions\GameException.hpp">
+      <Filter>Include\Core\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Exceptions\StopProcessingException.hpp">
+      <Filter>Include\Core\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Exceptions\UnsupportedException.hpp">
+      <Filter>Include\Core\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Templates\Concepts.hpp">
+      <Filter>Include\Core\Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Templates\Constexpr.hpp">
+      <Filter>Include\Core\Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Templates\Macros.hpp">
+      <Filter>Include\Core\Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Templates\TemplateHelpers.hpp">
+      <Filter>Include\Core\Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Codec.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Detour.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Logger.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\MemoryManager.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\MessageHandler.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\Serializer.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\TempBan.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Defs\CoreGlobals.hpp">
+      <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Defs\Enums.hpp">
+      <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Defs\FLHookConfig.hpp">
+      <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Defs\FLPacket.hpp">
+      <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Defs\ServerStats.hpp">
+      <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Defs\ShipArchDefs.hpp">
+      <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Defs\Structs.hpp">
+      <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Defs\WeaponEquipDefs.hpp">
+      <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\FLServer\Admin.hpp">
+      <Filter>Include\API\FLServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\FLServer\Chat.hpp">
+      <Filter>Include\API\FLServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\FLServer\Client.hpp">
+      <Filter>Include\API\FLServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\FLServer\Math.hpp">
+      <Filter>Include\API\FLServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\FLServer\Personalities.hpp">
+      <Filter>Include\API\FLServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\FLServer\Player.hpp">
+      <Filter>Include\API\FLServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\FLServer\Solar.hpp">
+      <Filter>Include\API\FLServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\FLServer\ZoneUtilities.hpp">
+      <Filter>Include\API\FLServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\FLHook\MailManager.hpp">
+      <Filter>Include\API\FLHook</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\FLHook\Plugin.hpp">
+      <Filter>Include\API\FLHook</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\Utils\FileUtils.hpp">
+      <Filter>Include\API\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\Utils\IniUtils.hpp">
+      <Filter>Include\API\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\API\Utils\Utils.hpp">
+      <Filter>Include\API\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\FLHook.hpp">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\plugin.h">
+    <ClInclude Include="..\Include\Global.hpp">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Tools\Constexpr.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Tools\Enums.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Tools\Macros.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Tools\Structs.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Tools\Typedefs.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Tools\Utils.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Features\Mail.hpp">
-      <Filter>Include\Features</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Tools\Concepts.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\Memory\MemoryManager.hpp">
-      <Filter>FLHook\Memory</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Features\TempBan.hpp">
-      <Filter>Include\Features</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Tools\Serialization\Serializer.hpp">
-      <Filter>Include\Tools\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Tools\Serialization\Attributes.hpp">
-      <Filter>Include\Tools\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Tools\Detour.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Features\MessageHandler.hpp">
-      <Filter>Include\Features</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h">
-      <Filter>Include\SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDACom.h">
-      <Filter>Include\SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDALib.h">
-      <Filter>Include\SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDefs.h">
-      <Filter>Include\SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreFLServerEXE.h">
-      <Filter>Include\SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h">
-      <Filter>Include\SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h">
-      <Filter>Include\SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h">
-      <Filter>Include\SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Helpers\Time.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Helpers\Chat.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Helpers\Client.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Helpers\Math.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Helpers\Player.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Helpers\Solar.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Helpers\IniUtils.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Helpers\Admin.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Helpers\Personalities.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Helpers\ZoneUtilities.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Helpers\FlCodec.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Defs\FLPacket.hpp">
-      <Filter>Include\Defs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Defs\FLHookConfig.hpp">
-      <Filter>Include\Defs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Defs\CoreGlobals.hpp">
-      <Filter>Include\Defs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Features\DataManager.hpp">
-      <Filter>Include\Features</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Exceptions\ErrorInfo.hpp">
-      <Filter>Include\Exceptions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Defs\ShipArchDefs.hpp">
-      <Filter>Include\Defs\FLConfigData</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Defs\WeaponEquipDefs.hpp">
-      <Filter>Include\Defs\FLConfigData</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\PCH.hpp">
+    <ClInclude Include="..\Include\PCH.hpp">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Defs\ServerStats.hpp">
-      <Filter>Include\Defs</Filter>
+    <ClInclude Include="..\Include\Core\Templates\Typedefs.hpp">
+      <Filter>Include\Core\Templates</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Tools\CommandLineParser.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Tools\ThreadScheduler.hpp">
-      <Filter>Include\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\ext\Singleton.h">
-      <Filter>Include\Tools\External</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Tools\TemplateHelpers.hpp">
-      <Filter>FLHook\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Helpers\FileUtils.hpp">
-      <Filter>Include\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Exceptions\Action.hpp">
-      <Filter>Include\Exceptions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Exceptions\GameException.hpp">
-      <Filter>Include\Exceptions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Exceptions\UnsupportedException.hpp">
-      <Filter>Include\Exceptions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Exceptions\StopProcessingException.hpp">
-      <Filter>Include\Exceptions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Features\CommandProcessors\AdminCommandProcessor.hpp">
-      <Filter>Include\Features\CommandProcessors</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Features\CommandProcessors\UserCommandProcessor.hpp">
-      <Filter>Include\Features\CommandProcessors</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Features\CommandProcessors\AbstractAdminCommandProcessor.hpp">
-      <Filter>Include\Features\CommandProcessors</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Features\CommandProcessors\AbstractUserCommandProcessor.hpp">
-      <Filter>Include\Features\CommandProcessors</Filter>
+    <ClInclude Include="..\Include\Core\Action.hpp">
+      <Filter>Include\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

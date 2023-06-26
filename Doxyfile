@@ -51,7 +51,7 @@ PROJECT_BRIEF          = "Server extension for Freelancer (2003)"
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = ./docs/FLServer.png
+PROJECT_LOGO           = ./Docs/FLServer.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
@@ -767,7 +767,7 @@ FILE_VERSION_FILTER    =
 # DoxygenLayout.xml, doxygen will parse it automatically even if the LAYOUT_FILE
 # tag is left empty.
 
-LAYOUT_FILE            = docs/layout.xml
+LAYOUT_FILE            = Docs/layout.xml
 
 # The CITE_BIB_FILES tag can be used to specify one or more bib files containing
 # the reference definitions. This must be a list of .bib files. The .bib
@@ -1005,7 +1005,7 @@ EXAMPLE_RECURSIVE      = NO
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             = img docs/img
+IMAGE_PATH             = img Docs/img
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
@@ -1248,7 +1248,7 @@ HTML_FILE_EXTENSION    = .html
 # of the possible markers and block names see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_HEADER            = docs/doxygen-header.html
+HTML_HEADER            = Docs/doxygen-header.html
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
 # generated HTML page. If the tag is left blank doxygen will generate a standard
@@ -1283,9 +1283,9 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  = docs/doxygen-awesome.css \
-                         docs/doxygen-awesome-sidebar-only.css \
-                         docs/doxygen-awesome-sidebar-only-darkmode-toggle.css
+HTML_EXTRA_STYLESHEET  = Docs/doxygen-awesome.css \
+                         Docs/doxygen-awesome-sidebar-only.css \
+                         Docs/doxygen-awesome-sidebar-only-darkmode-toggle.css
                          
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
@@ -1296,10 +1296,10 @@ HTML_EXTRA_STYLESHEET  = docs/doxygen-awesome.css \
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       = docs/doxygen-awesome-darkmode-toggle.js \
-                         docs/doxygen-awesome-fragment-copy-button.js \
-                         docs/doxygen-awesome-paragraph-link.js \
-                         docs/FLServer.ico
+HTML_EXTRA_FILES       = Docs/doxygen-awesome-darkmode-toggle.js \
+                         Docs/doxygen-awesome-fragment-copy-button.js \
+                         Docs/doxygen-awesome-paragraph-link.js \
+                         Docs/FLServer.ico
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to

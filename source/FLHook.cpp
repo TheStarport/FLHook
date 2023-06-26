@@ -1,13 +1,17 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
-#include "Memory/MemoryManager.hpp"
-#include <Features/Logger.hpp>
-#include <Features/MessageHandler.hpp>
+#include "Core/MemoryManager.hpp"
+#include <Core/Logger.hpp>
+#include <Core/MessageHandler.hpp>
 
 #include "Defs/FLHookConfig.hpp"
-#include "Features/CommandProcessors/AdminCommandProcessor.hpp"
-#include "Features/DataManager.hpp"
+#include "Core/Commands/AdminCommandProcessor.hpp"
+#include "Core/Exceptions/GameException.hpp"
+#include "Core/Exceptions/StopProcessingException.hpp"
+
+#include <API/FLHook/Plugin.hpp>
+
 
 HANDLE hProcFL = nullptr;
 HMODULE server = nullptr;
@@ -137,9 +141,6 @@ void FLHookInit_Pre()
         }
 
         Logger::i()->Log(LogLevel::Info, L"Loading Freelancer INIs");
-        const auto dataManager = DataManager::i();
-
-        dataManager->LoadLights();
 
         // Force constructor to run
         Hk::IniUtils::i();

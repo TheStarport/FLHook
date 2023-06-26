@@ -10,6 +10,97 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Include\PCH.cpp" />
+    <ClCompile Include="..\Source\API\FLHook\Mail.cpp" />
+    <ClCompile Include="..\Source\API\FLHook\MessageHandler.cpp" />
+    <ClCompile Include="..\Source\API\FLServer\Admin.cpp" />
+    <ClCompile Include="..\Source\API\FLServer\Chat.cpp" />
+    <ClCompile Include="..\Source\API\FLServer\Client.cpp" />
+    <ClCompile Include="..\Source\API\FLServer\Math.cpp" />
+    <ClCompile Include="..\Source\API\FLServer\PilotPersonalities.cpp" />
+    <ClCompile Include="..\Source\API\FLServer\Player.cpp" />
+    <ClCompile Include="..\Source\API\FLServer\Solar.cpp" />
+    <ClCompile Include="..\Source\API\FLServer\ZoneUtilities.cpp" />
+    <ClCompile Include="..\Source\API\Utils\FileUtils.cpp" />
+    <ClCompile Include="..\Source\API\Utils\IniUtils.cpp" />
+    <ClCompile Include="..\Source\API\Utils\MemUtils.cpp" />
+    <ClCompile Include="..\Source\API\Utils\StringUtil.cpp" />
+    <ClCompile Include="..\Source\API\Utils\TimeUtils.cpp" />
+    <ClCompile Include="..\Source\Core\Codec.cpp" />
+    <ClCompile Include="..\Source\Core\Commands\AdminCommandProcessor.cpp" />
+    <ClCompile Include="..\Source\Core\Commands\CommandLineParser.cpp" />
+    <ClCompile Include="..\Source\Core\Commands\UserCommandProcessor.cpp" />
+    <ClCompile Include="..\Source\Core\Debug.cpp" />
+    <ClCompile Include="..\Source\Core\FLPacket.cpp" />
+    <ClCompile Include="..\Source\Core\Logger.cpp" />
+    <ClCompile Include="..\Source\Core\MemoryManager.cpp" />
+    <ClCompile Include="..\Source\Core\PluginManager.cpp" />
+    <ClCompile Include="..\Source\Core\SaveData.cpp" />
+    <ClCompile Include="..\Source\Core\Settings.cpp" />
+    <ClCompile Include="..\Source\Core\StartupCache.cpp" />
+    <ClCompile Include="..\Source\Core\TempBan.cpp" />
+    <ClCompile Include="..\Source\Core\Timers.cpp" />
+    <ClCompile Include="..\Source\FLHook.cpp" />
+    <ClCompile Include="..\Source\Hooks\HkCbOther.cpp" />
+    <ClCompile Include="..\Source\Hooks\HkClientServerInterface.cpp" />
+    <ClCompile Include="..\Source\Hooks\HkDataBaseMarket.cpp" />
+    <ClCompile Include="..\Source\Hooks\HkIChatServer.cpp" />
+    <ClCompile Include="..\Source\Hooks\HkIEngine.cpp" />
+    <ClCompile Include="..\Source\Hooks\HkIEngineDamage.cpp" />
+    <ClCompile Include="..\Source\Hooks\HkIEngineDeath.cpp" />
+    <ClCompile Include="..\Source\Hooks\HkIEngineDisconnect.cpp" />
+    <ClCompile Include="..\Source\Hooks\HkInit.cpp" />
+    <ClCompile Include="..\Source\Hooks\SendComm.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Include\API\FLHook\MailManager.hpp" />
+    <ClInclude Include="..\Include\API\FLHook\Plugin.hpp" />
+    <ClInclude Include="..\Include\API\FLServer\Admin.hpp" />
+    <ClInclude Include="..\Include\API\FLServer\Chat.hpp" />
+    <ClInclude Include="..\Include\API\FLServer\Client.hpp" />
+    <ClInclude Include="..\Include\API\FLServer\Math.hpp" />
+    <ClInclude Include="..\Include\API\FLServer\Personalities.hpp" />
+    <ClInclude Include="..\Include\API\FLServer\Player.hpp" />
+    <ClInclude Include="..\Include\API\FLServer\Solar.hpp" />
+    <ClInclude Include="..\Include\API\FLServer\ZoneUtilities.hpp" />
+    <ClInclude Include="..\Include\API\Utils\FileUtils.hpp" />
+    <ClInclude Include="..\Include\API\Utils\IniUtils.hpp" />
+    <ClInclude Include="..\Include\API\Utils\Utils.hpp" />
+    <ClInclude Include="..\Include\Core\Action.hpp" />
+    <ClInclude Include="..\Include\Core\Codec.hpp" />
+    <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp" />
+    <ClInclude Include="..\Include\Core\Commands\AbstractUserCommandProcessor.hpp" />
+    <ClInclude Include="..\Include\Core\Commands\AdminCommandProcessor.hpp" />
+    <ClInclude Include="..\Include\Core\Commands\CommandLineParser.hpp" />
+    <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp" />
+    <ClInclude Include="..\Include\Core\Detour.hpp" />
+    <ClInclude Include="..\Include\Core\Exceptions\ErrorInfo.hpp" />
+    <ClInclude Include="..\Include\Core\Exceptions\GameException.hpp" />
+    <ClInclude Include="..\Include\Core\Exceptions\StopProcessingException.hpp" />
+    <ClInclude Include="..\Include\Core\Exceptions\UnsupportedException.hpp" />
+    <ClInclude Include="..\Include\Core\Logger.hpp" />
+    <ClInclude Include="..\Include\Core\MemoryManager.hpp" />
+    <ClInclude Include="..\Include\Core\MessageHandler.hpp" />
+    <ClInclude Include="..\Include\Core\Serializer.hpp" />
+    <ClInclude Include="..\Include\Core\TempBan.hpp" />
+    <ClInclude Include="..\Include\Core\Templates\Concepts.hpp" />
+    <ClInclude Include="..\Include\Core\Templates\Constexpr.hpp" />
+    <ClInclude Include="..\Include\Core\Templates\Macros.hpp" />
+    <ClInclude Include="..\Include\Core\Templates\TemplateHelpers.hpp" />
+    <ClInclude Include="..\Include\Core\Templates\Typedefs.hpp" />
+    <ClInclude Include="..\Include\Defs\CoreGlobals.hpp" />
+    <ClInclude Include="..\Include\Defs\Enums.hpp" />
+    <ClInclude Include="..\Include\Defs\FLHookConfig.hpp" />
+    <ClInclude Include="..\Include\Defs\FLPacket.hpp" />
+    <ClInclude Include="..\Include\Defs\ServerStats.hpp" />
+    <ClInclude Include="..\Include\Defs\ShipArchDefs.hpp" />
+    <ClInclude Include="..\Include\Defs\Structs.hpp" />
+    <ClInclude Include="..\Include\Defs\WeaponEquipDefs.hpp" />
+    <ClInclude Include="..\Include\FLHook.hpp" />
+    <ClInclude Include="..\Include\Global.hpp" />
+    <ClInclude Include="..\Include\PCH.hpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FE6EB3C9-DA22-4492-AEC3-068C9553A623}</ProjectGuid>
     <RootNamespace>FLHook</RootNamespace>
@@ -192,115 +283,6 @@
       </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\include\PCH.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\source\Data\Lights.cpp" />
-    <ClCompile Include="..\source\Debug.cpp" />
-    <ClCompile Include="..\source\Exceptions\ErrorInfo.cpp" />
-    <ClCompile Include="..\source\Features\CommandProcessors\AdminCommandProcessor.cpp" />
-    <ClCompile Include="..\source\Features\CommandProcessors\UserCommandProcessor.cpp" />
-    <ClCompile Include="..\source\Features\Logger.cpp" />
-    <ClCompile Include="..\source\Features\Mail.cpp" />
-    <ClCompile Include="..\source\Features\MessageHandler.cpp" />
-    <ClCompile Include="..\source\Features\PluginManager.cpp" />
-    <ClCompile Include="..\source\Features\StartupCache.cpp" />
-    <ClCompile Include="..\source\Features\TempBan.cpp" />
-    <ClCompile Include="..\source\Features\Timers.cpp" />
-    <ClCompile Include="..\source\FLCodec.cpp" />
-    <ClCompile Include="..\source\FLPacket.cpp" />
-    <ClCompile Include="..\source\Helpers\Admin.cpp" />
-    <ClCompile Include="..\source\Helpers\Client.cpp" />
-    <ClCompile Include="..\source\Helpers\FileUtils.cpp" />
-    <ClCompile Include="..\source\Helpers\IniUtils.cpp" />
-    <ClCompile Include="..\source\Helpers\Math.cpp" />
-    <ClCompile Include="..\source\Helpers\Chat.cpp" />
-    <ClCompile Include="..\source\Helpers\PilotPersonalities.cpp" />
-    <ClCompile Include="..\source\Helpers\Player.cpp" />
-    <ClCompile Include="..\source\Helpers\Solar.cpp" />
-    <ClCompile Include="..\source\Helpers\ZoneUtilities.cpp" />
-    <ClCompile Include="..\source\HkClientServerInterface.cpp" />
-    <ClCompile Include="..\source\HkIEngine.cpp" />
-    <ClCompile Include="..\source\HkInit.cpp" />
-    <ClCompile Include="..\source\HkIChatServer.cpp" />
-    <ClCompile Include="..\source\HkIEngineDamage.cpp" />
-    <ClCompile Include="..\source\HkIEngineDeath.cpp" />
-    <ClCompile Include="..\source\HkIEngineDisconnect.cpp" />
-    <ClCompile Include="..\source\HkDataBaseMarket.cpp" />
-    <ClCompile Include="..\source\Hooks\SendComm.cpp" />
-    <ClCompile Include="..\source\Memory\MemoryManager.cpp" />
-    <ClCompile Include="..\source\Memory\SaveData.cpp" />
-    <ClCompile Include="..\source\FLHook.cpp" />
-    <ClCompile Include="..\source\Settings.cpp" />
-    <ClCompile Include="..\source\Tools.cpp" />
-    <ClCompile Include="..\source\Tools\CommandLineParser.cpp" />
-    <ClCompile Include="..\source\Tools\MemUtil.cpp" />
-    <ClCompile Include="..\source\Tools\StringUtil.cpp" />
-    <ClCompile Include="..\source\Tools\ThreadScheduler.cpp" />
-    <ClCompile Include="..\source\Tools\TimeUtil.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDACom.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDALib.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDefs.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreFLServerEXE.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h" />
-    <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h" />
-    <ClInclude Include="..\include\Defs\CoreGlobals.hpp" />
-    <ClInclude Include="..\include\Defs\FLHookConfig.hpp" />
-    <ClInclude Include="..\include\Defs\FLPacket.hpp" />
-    <ClInclude Include="..\include\Defs\ServerStats.hpp" />
-    <ClInclude Include="..\include\Defs\ShipArchDefs.hpp" />
-    <ClInclude Include="..\include\Defs\WeaponEquipDefs.hpp" />
-    <ClInclude Include="..\include\Exceptions\Action.hpp" />
-    <ClInclude Include="..\include\Exceptions\ErrorInfo.hpp" />
-    <ClInclude Include="..\include\Exceptions\GameException.hpp" />
-    <ClInclude Include="..\include\Exceptions\StopProcessingException.hpp" />
-    <ClInclude Include="..\include\Exceptions\UnsupportedException.hpp" />
-    <ClInclude Include="..\include\ext\Singleton.h" />
-    <ClInclude Include="..\include\Features\CommandProcessors\AbstractAdminCommandProcessor.hpp" />
-    <ClInclude Include="..\include\Features\CommandProcessors\AbstractUserCommandProcessor.hpp" />
-    <ClInclude Include="..\include\Features\CommandProcessors\AdminCommandProcessor.hpp" />
-    <ClInclude Include="..\include\Features\CommandProcessors\UserCommandProcessor.hpp" />
-    <ClInclude Include="..\include\Features\DataManager.hpp" />
-    <ClInclude Include="..\include\Features\Mail.hpp" />
-    <ClInclude Include="..\include\Features\MessageHandler.hpp" />
-    <ClInclude Include="..\include\Features\TempBan.hpp" />
-    <ClInclude Include="..\include\FLHook.hpp" />
-    <ClInclude Include="..\include\Helpers\Admin.hpp" />
-    <ClInclude Include="..\include\Helpers\Client.hpp" />
-    <ClInclude Include="..\include\Helpers\FileUtils.hpp" />
-    <ClInclude Include="..\include\Helpers\FlCodec.hpp" />
-    <ClInclude Include="..\include\Helpers\IniUtils.hpp" />
-    <ClInclude Include="..\include\Helpers\Math.hpp" />
-    <ClInclude Include="..\include\Helpers\Chat.hpp" />
-    <ClInclude Include="..\include\Helpers\Personalities.hpp" />
-    <ClInclude Include="..\include\Helpers\Player.hpp" />
-    <ClInclude Include="..\include\Helpers\Solar.hpp" />
-    <ClInclude Include="..\include\Helpers\Time.hpp" />
-    <ClInclude Include="..\include\Helpers\ZoneUtilities.hpp" />
-    <ClInclude Include="..\include\PCH.hpp" />
-    <ClInclude Include="..\include\plugin.h" />
-    <ClInclude Include="..\include\Tools\CommandLineParser.hpp" />
-    <ClInclude Include="..\include\Tools\Concepts.hpp" />
-    <ClInclude Include="..\include\Tools\Constexpr.hpp" />
-    <ClInclude Include="..\include\Tools\Detour.hpp" />
-    <ClInclude Include="..\include\Tools\Enums.hpp" />
-    <ClInclude Include="..\include\Tools\Macros.hpp" />
-    <ClInclude Include="..\include\Tools\Serialization\Attributes.hpp" />
-    <ClInclude Include="..\include\Tools\Serialization\Serializer.hpp" />
-    <ClInclude Include="..\include\Tools\Structs.hpp" />
-    <ClInclude Include="..\include\Tools\TemplateHelpers.hpp" />
-    <ClInclude Include="..\include\Tools\ThreadScheduler.hpp" />
-    <ClInclude Include="..\include\Tools\Typedefs.hpp" />
-    <ClInclude Include="..\include\Tools\Utils.hpp" />
-    <ClInclude Include="..\source\Global.hpp" />
-    <ClInclude Include="..\source\Memory\MemoryManager.hpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
