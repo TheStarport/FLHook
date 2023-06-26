@@ -88,19 +88,23 @@ namespace Plugins::KillTracker
 		PrintUserCmdText(client, std::format(L"Level: {}", rank));
 	}
 
-	void trackKillStreaks(ClientId& clientKiller, ClientId& clientVictim)
-	{
-		auto killerKillStreak = global->killStreaks.find(clientKiller);
+	void TrackKillStreaks(ClientId& clientVictim, ClientId& clientKiller = NULL)
+	{	
+		if (clientKiller != NULL)
+		{
+			auto killerKillStreak = global->killStreaks.find(clientKiller);
+			if (killerKillStreak != global->killStreaks.end())
+			{
+				global->killStreaks[clientKiller]++;
+			}
+			else if (killerKillStreak == global->killStreaks.end())
+			{
+				global->killStreaks[clientKiller] = 1;
+			};
+		}
+		
 		auto victimKillStreak = global->killStreaks.find(clientVictim);
 
-		if (killerKillStreak != global->killStreaks.end())
-		{
-			global->killStreaks[clientKiller]++;
-		}
-		else if (killerKillStreak == global->killStreaks.end())
-		{
-			global->killStreaks[clientKiller] = 1;
-		};
 
 		if (victimKillStreak != global->killStreaks.end())
 		{
@@ -127,7 +131,11 @@ namespace Plugins::KillTracker
 				if (killerId.has_value() && victimId.has_value() && killerId.value() != client)
 				{
 					Hk::Player::IncrementPvpKills(killerId.value());
-					trackKillStreaks(*killerId, *victimId);
+					TrackKillStreaks(*victimId, *killerId);
+				}
+				else if (victimId.has_value() && killerId.value() != client)
+				{
+					TrackKillStreaks(*victimId);
 				}
 			}
 		}
