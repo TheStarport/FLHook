@@ -4,15 +4,6 @@
 
 #include "Global.hpp"
 
-#include "Defs/CoreGlobals.hpp"
-#include "Defs/FLHookConfig.hpp"
-#include "Defs/ServerStats.hpp"
-#include "Features/MessageHandler.hpp"
-#include "Features/TempBan.hpp"
-#include "Helpers/Admin.hpp"
-#include "Helpers/Client.hpp"
-#include "Helpers/Player.hpp"
-
 PerfTimer::PerfTimer(const std::wstring& func, uint warn) : function(func), warning(warn) {}
 
 void PerfTimer::Start() { tmStart = TimeUtils::UnixMilliseconds(); }

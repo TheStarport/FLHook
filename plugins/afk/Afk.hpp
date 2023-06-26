@@ -1,7 +1,6 @@
 #pragma once
 
 // Includes
-#include <plugin.h>
 
 namespace Plugins
 {

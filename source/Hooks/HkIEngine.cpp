@@ -1,8 +1,6 @@
 #include "PCH.hpp"
 
-#include "Defs/FLHookConfig.hpp"
 #include "Global.hpp"
-#include "Helpers/Client.hpp"
 
 /**************************************************************************************************************
 // misc flserver engine function hooks

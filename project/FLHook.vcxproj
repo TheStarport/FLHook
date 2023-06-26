@@ -11,7 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Include\PCH.cpp" />
+    <ClCompile Include="..\Include\PCH.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\Source\API\FLHook\Mail.cpp" />
     <ClCompile Include="..\Source\API\FLHook\MessageHandler.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Admin.cpp" />
@@ -42,7 +45,6 @@
     <ClCompile Include="..\Source\Core\TempBan.cpp" />
     <ClCompile Include="..\Source\Core\Timers.cpp" />
     <ClCompile Include="..\Source\FLHook.cpp" />
-    <ClCompile Include="..\Source\Hooks\HkCbOther.cpp" />
     <ClCompile Include="..\Source\Hooks\HkClientServerInterface.cpp" />
     <ClCompile Include="..\Source\Hooks\HkDataBaseMarket.cpp" />
     <ClCompile Include="..\Source\Hooks\HkIChatServer.cpp" />

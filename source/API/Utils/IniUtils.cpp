@@ -1,10 +1,5 @@
 #include "PCH.hpp"
 
-#include "Defs/CoreGlobals.hpp"
-#include "Defs/FLHookConfig.hpp"
-#include "Helpers/Client.hpp"
-#include "Helpers/FlCodec.hpp"
-
 namespace Hk
 {
     struct FlhookPlayerData
@@ -181,6 +176,26 @@ namespace Hk
 
         const auto kv = iniSection->second.find(key);
         return kv == iniSection->second.end() ? L"" : kv->second;
+    }
+
+    cpp::result<std::wstring, Error> IniUtils::GetFromFile(const std::wstring& filePath, const std::wstring& section, const std::wstring& key)
+    {
+        std::wstring ret;
+
+        if (!std::filesystem::exists(filePath))
+        {
+            return { cpp::fail(Error::FileNotFound) };
+        }
+
+        std::wstring buffer;
+
+        std::wifstream file(filePath);
+        file.seekg(0, std::ios::end);
+        buffer.resize(file.tellg());
+        file.seekg(0);
+        file.read(buffer.data(), buffer.size());
+
+        return GetIniValue(filePath, section, key);
     }
 
     cpp::result<std::wstring, Error> IniUtils::GetFromPlayerFile(const std::variant<uint, std::wstring_view>& player, const std::wstring& key) const

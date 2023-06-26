@@ -2,15 +2,10 @@
 
 #include <random>
 
-#include "Features/Mail.hpp"
-#include "Features/TempBan.hpp"
 #include "Global.hpp"
 
-#include "Defs/CoreGlobals.hpp"
-#include "Defs/FLHookConfig.hpp"
-#include "Features/CommandProcessors/AdminCommandProcessor.hpp"
-#include "Features/CommandProcessors/UserCommandProcessor.hpp"
-#include "plugin.h"
+#include "Core/Commands/AdminCommandProcessor.hpp"
+#include "Core/Commands/UserCommandProcessor.hpp"
 
 void IClientImpl__Startup__Inner(uint, uint)
 {

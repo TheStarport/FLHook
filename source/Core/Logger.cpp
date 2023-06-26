@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Defs/FLHookConfig.hpp"
 #include "Core/Commands/CommandLineParser.hpp"
+#include "Defs/FLHookConfig.hpp"
 
 enum class ConsoleColor
 {
@@ -33,7 +33,7 @@ void Logger::SetLogSource(void* addr)
         if (GetModuleFileNameW(dll, maxPath, MAX_PATH))
         {
             const std::wstring path = maxPath;
-            logPrefix = std::wstring(L"(") + GetTimeString(FLHookConfig::i()->general.localTime) + path.substr(path.find_last_of(L"\\") + 1) + L") ";
+            logPrefix = std::format(L"({} {}) ", TimeUtils::HumanReadableTime(), path.substr(path.find_last_of(L"\\") + 1));
         }
     }
 }

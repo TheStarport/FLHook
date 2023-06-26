@@ -1,7 +1,6 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
-#include "Helpers/ZoneUtilities.hpp"
+#include "API/FLServer/ZoneUtilities.hpp"
 
 // TODO: Move into class with proper ctor and dtor
 

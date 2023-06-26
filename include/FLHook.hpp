@@ -80,18 +80,6 @@ class CLIENT_INFO
 // Magic Enum Extensions
 using namespace magic_enum::bitwise_operators; // NOLINT
 
-DLL std::wstring IniGetS(const std::wstring& file, const std::wstring& app, const std::wstring& key, const std::wstring& def);
-DLL int IniGetI(const std::wstring& file, const std::wstring& app, const std::wstring& key, int def);
-DLL bool IniGetB(const std::wstring& file, const std::wstring& app, const std::wstring& key, bool def);
-DLL void IniWrite(const std::wstring& file, const std::wstring& app, const std::wstring& key, const std::wstring& value);
-DLL void IniDelSection(const std::wstring& file, const std::wstring& app);
-DLL void IniDelete(const std::wstring& file, const std::wstring& app, const std::wstring& key);
-DLL void IniWriteW(const std::wstring& file, const std::wstring& app, const std::wstring& key, const std::wstring& value);
-DLL std::wstring IniGetWS(const std::wstring& file, const std::wstring& app, const std::wstring& key, const std::wstring& def);
-DLL float IniGetF(const std::wstring& file, const std::wstring& app, const std::wstring& key, float def);
-DLL std::wstring GetTimeString(bool localTime);
-DLL std::wstring GetUserFilePath(const std::variant<uint, std::wstring_view>& player, const std::wstring& extension);
-
 // variables
 extern DLL HANDLE hProcFL;
 extern DLL HMODULE server;

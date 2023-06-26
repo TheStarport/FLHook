@@ -102,9 +102,6 @@
     <ClCompile Include="..\Source\Core\Commands\UserCommandProcessor.cpp">
       <Filter>Source\Core\Commands</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Hooks\HkCbOther.cpp">
-      <Filter>Source\Hooks</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\Hooks\HkClientServerInterface.cpp">
       <Filter>Source\Hooks</Filter>
     </ClCompile>
@@ -177,9 +174,7 @@
     <ClCompile Include="..\Source\API\Utils\TimeUtils.cpp">
       <Filter>Source\API\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="..\Include\PCH.cpp">
-      <Filter>Include</Filter>
-    </ClCompile>
+    <ClCompile Include="..\Include\PCH.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">

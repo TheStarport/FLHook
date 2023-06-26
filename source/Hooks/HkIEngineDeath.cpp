@@ -1,9 +1,6 @@
 #include "PCH.hpp"
 
-#include "Defs/FLHookConfig.hpp"
 #include "Global.hpp"
-#include "Helpers/Chat.hpp"
-#include "Helpers/Client.hpp"
 
 std::wstring SetSizeToSmall(const std::wstring& DataFormat) { return DataFormat.substr(0, 8) + L"90"; }
 

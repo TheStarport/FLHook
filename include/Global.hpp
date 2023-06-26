@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Logger.hpp"
 #include "API/FlHook/Plugin.hpp"
+#include "Core/Logger.hpp"
 
 bool FLHookInit();
 void FLHookInit_Pre();
@@ -361,7 +361,7 @@ class DebugTools : public Singleton<DebugTools>
 
     public:
         DebugTools() = default;
-        void Init();
+        void Init() const;
 };
 
 void DetourSendComm();

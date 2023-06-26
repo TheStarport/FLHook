@@ -1,10 +1,6 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
-#include "Helpers/Admin.hpp"
-
-#include "Defs/CoreGlobals.hpp"
-#include "Helpers/Client.hpp"
 
 bool g_bNPCDisabled;
 

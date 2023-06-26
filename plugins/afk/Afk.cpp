@@ -24,7 +24,6 @@
 #include "PCH.hpp"
 
 #include "Afk.hpp"
-#include <Features/Logger.hpp>
 
 namespace Plugins
 {
@@ -43,7 +42,7 @@ namespace Plugins
     {
         awayClients.emplace_back(client);
         const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-        const auto message = Hk::Chat::FormatMsg(MessageColor::Red, MessageFormat::Normal, playerName + L" is now away from keyboard.");
+        const auto message = std::format(L"{} is now away from keyboard.", Hk::Chat::FormatMsg(MessageColor::Red, MessageFormat::Normal, playerName));
 
         const auto systemId = Hk::Player::GetSystem(client).Handle();
 

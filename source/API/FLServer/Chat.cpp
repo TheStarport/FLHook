@@ -2,13 +2,6 @@
 
 #include "Global.hpp"
 
-#include "Helpers/Chat.hpp"
-
-#include "Defs/FLHookConfig.hpp"
-#include "Helpers/Client.hpp"
-#include "Helpers/Math.hpp"
-#include "Helpers/Player.hpp"
-
 // Very hacky way to call non-header function
 namespace IServerImplHook
 {

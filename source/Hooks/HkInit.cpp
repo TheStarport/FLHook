@@ -1,11 +1,6 @@
 #include "PCH.hpp"
 
-#include "Defs/CoreGlobals.hpp"
-#include "Defs/FLHookConfig.hpp"
 #include "Global.hpp"
-#include "Helpers/Admin.hpp"
-#include "Helpers/Chat.hpp"
-#include "Helpers/Client.hpp"
 
 namespace IEngineHook
 {

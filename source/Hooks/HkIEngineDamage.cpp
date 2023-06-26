@@ -1,8 +1,6 @@
 #include "PCH.hpp"
 
-#include "Defs/FLHookConfig.hpp"
 #include "Global.hpp"
-#include "Helpers/Client.hpp"
 
 EXPORT uint g_DmgTo = 0;
 EXPORT uint g_DmgToSpaceId = 0;

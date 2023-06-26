@@ -1,7 +1,7 @@
 #pragma once
+#include "Core/Templates/Concepts.hpp"
 #include <Core/Logger.hpp>
 #include <ranges>
-#include "Core/Templates/Concepts.hpp"
 
 class TimeUtils
 {
@@ -12,6 +12,7 @@ class TimeUtils
         DLL static uint UnixSeconds();
         DLL static uint64 UnixMilliseconds();
         DLL static std::wstring HumanReadableTime(std::chrono::seconds dur);
+        DLL static std::wstring HumanReadableTime();
 
         template <typename T>
         static std::chrono::microseconds ToMicroseconds(T duration)

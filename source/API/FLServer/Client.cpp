@@ -1,7 +1,6 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
-#include "Helpers/Client.hpp"
 
 namespace Hk::Client
 {
@@ -114,20 +113,19 @@ namespace Hk::Client
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //TODO: DEPRECATE
+    // TODO: DEPRECATE
     bool IsEncoded(const std::wstring& fileName)
     {
         bool retVal = false;
 
         auto f = std::wifstream(fileName);
 
-
         if (!f)
         {
             return false;
         }
 
-        //Checks first 4 bytes of a file and if the first 4 bytes are the listed string, 
+        // Checks first 4 bytes of a file and if the first 4 bytes are the listed string,
         const wchar_t magic[] = L"FLS1";
         wchar_t file[sizeof magic] = L"";
         f.read(0, sizeof magic);

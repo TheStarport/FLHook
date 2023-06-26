@@ -1,6 +1,5 @@
 #include "PCH.hpp"
 
-#include "Features/TempBan.hpp"
 #include "Global.hpp"
 
 namespace Hk::Player
@@ -94,12 +93,12 @@ namespace Hk::Player
                 return { cpp::fail(Error::CouldNotDecodeCharFile) };
             }
 
-            auto cash = static_cast<uint>(IniGetI(charFileNew, L"Player", L"money", -1));
+            auto cash = StringUtils::Cast<uint>(IniUtils::GetFromFile(charFileNew, L"Player", L"money").value());
             DeleteFileW(charFileNew.c_str());
             return { cash };
         }
 
-        return { static_cast<uint>(IniGetI(charFile, L"Player", L"money", -1)) };
+        return { StringUtils::Cast<int>(IniUtils::GetFromFile(charFile, L"Player", L"money").value()) };
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,50 +124,8 @@ namespace Hk::Player
         }
 
         const auto& character = std::get<std::wstring_view>(player);
-        const auto acc = Client::GetAccountByCharName(std::get<std::wstring_view>(player)).Raw();
-        if (acc.has_error())
-        {
-            return { cpp::fail(acc.error()) };
-        }
-
-        const auto dir = Client::GetAccountDirName(acc.value());
-
-        const auto file = Client::GetCharFileName(character).Raw();
-        if (file.has_error())
-        {
-            return { cpp::fail(file.error()) };
-        }
-
-        const std::wstring charFile = CoreGlobals::c()->accPath + dir + L"\\" + file.value() + L".fl";
-        int retVal;
-        if (Client::IsEncoded(charFile))
-        {
-            const std::wstring charFileNew = charFile + L".ini";
-
-            if (!FlCodec::DecodeFile(charFile, charFileNew))
-            {
-                return { cpp::fail(Error::CouldNotDecodeCharFile) };
-            }
-
-            retVal = IniGetI(charFileNew, L"Player", L"money", -1);
-            // Add a space to the value so the ini file line looks like "<key> =
-            // <value>" otherwise IFSO can't decode the file correctly
-            IniWrite(charFileNew, L"Player", L"money", L" " + std::to_wstring(retVal + amount));
-
-            if (!FLHookConfig::i()->general.disableCharfileEncryption && !FlCodec::EncodeFile(charFileNew, charFile))
-            {
-                return { cpp::fail(Error::CouldNotEncodeCharFile) };
-            }
-
-            DeleteFileW(charFileNew.c_str());
-        }
-        else
-        {
-            retVal = IniGetI(charFile, L"Player", L"money", -1);
-            // Add a space to the value so the ini file line looks like "<key> =
-            // <value>" otherwise IFSO can't decode the file correctly
-            IniWrite(charFile, L"Player", L"money", L" " + std::to_wstring(retVal + amount));
-        }
+        const int money = StringUtils::Cast<int>(IniUtils::i()->GetFromPlayerFile(player, L"money").value());
+        IniUtils::i()->WriteToPlayerFile(player, L"money", std::to_wstring(money + amount)).Handle();
 
         if (client != UINT_MAX)
         {
@@ -755,7 +712,8 @@ namespace Hk::Player
             swprintf_s(buf, L"%02X%02X", static_cast<uint>(hiByte) & 0xFF, static_cast<uint>(loByte) & 0xFF);
             value += buf;
         }
-        IniWrite(NewCharfilePath, L"Player", L"Name", value);
+
+        IniUtils::i()->WriteToPlayerFile(player, L"Name", value).Handle();
 
         // Re-encode the char file if needed.
         if (!FLHookConfig::i()->general.disableCharfileEncryption && !FlCodec::EncodeFile(NewCharfilePath, NewCharfilePath))
@@ -1191,11 +1149,11 @@ namespace Hk::Player
                 return { cpp::fail(Error::CouldNotDecodeCharFile) };
             }
 
-            int secs = IniGetI(charFileNew, L"mPlayer", L"total_time_played", 0);
+            int secs = StringUtils::Cast<int>(IniUtils::GetFromFile(charFileNew, L"mPlayer", L"total_time_played").value());
             DeleteFileW(charFileNew.c_str());
             return { secs };
         }
-        return { IniGetI(charFile, L"mPlayer", L"total_time_played", 0) };
+        return { StringUtils::Cast<int>(IniUtils::GetFromFile(charFile, L"mPlayer", L"total_time_played").value()) };
     }
 
     Action<uint> GetSystemByNickname(std::variant<std::wstring_view, std::string_view> nickname)

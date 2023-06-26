@@ -24,7 +24,7 @@
 #include <vector>
 
 #include "Core/Templates/Constexpr.hpp"
-#include "Core/templates/Typedefs.hpp"
+#include "Core/Templates/Typedefs.hpp"
 
 #define MAGIC_ENUM_USING_ALIAS_STRING_VIEW using string_view = std::wstring_view;
 #define MAGIC_ENUM_USING_ALIAS_STRING      using string = std::wstring;
@@ -51,7 +51,6 @@
 #include "Core/Templates/TemplateHelpers.hpp"
 
 #include "Core/Action.hpp"
-
 #include "FLCore/FLCoreRemoteClient.h"
 
 #include "API/Utils/Utils.hpp"
@@ -79,7 +78,14 @@
 #include "API/FLServer/ZoneUtilities.hpp"
 #include "API/Utils/FileUtils.hpp"
 #include "API/Utils/IniUtils.hpp"
+
+#include "API/FLHook/MailManager.hpp"
 #include "Core/Codec.hpp"
+
+#include "Core/Action.hpp"
+#include "Core/MessageHandler.hpp"
+#include "Core/TempBan.hpp"
+#include "Defs/ServerStats.hpp"
 
 #include <Core/Logger.hpp>
 
@@ -98,5 +104,7 @@ using JpWide = jpcre2::select<wchar_t>;
         #define DLL __declspec(dllexport)
     #endif
 #endif
+
+#include "API/FLHook/Plugin.hpp"
 
 #pragma warning(pop)

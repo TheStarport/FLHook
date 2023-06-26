@@ -41,5 +41,13 @@ class DLL ErrorInfo
 
     public:
         [[nodiscard]]
-        static std::wstring_view GetText(Error err);
+        inline static std::wstring_view GetText(Error err)
+        {
+            if (const auto errInfo = Errors.find(err); errInfo != Errors.end())
+            {
+                return errInfo->second;
+            }
+
+            return L"No error text available";
+        };
 };
