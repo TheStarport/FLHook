@@ -215,7 +215,7 @@ void TaxPlugin::TimerF1Check()
 
 void TaxPlugin::DisConnect([[maybe_unused]] ClientId& client, [[maybe_unused]] const EFLConnection& state) { TimerF1Check(); }
 
-void TaxPlugin::LoadSettings() { config = std::make_unique<Config>(Serializer::JsonToObject<Config>()); }
+void TaxPlugin::LoadSettings() { config = Serializer::LoadFromJson<Config>(L"config/tax.json"); }
 
 DefaultDllMain();
 

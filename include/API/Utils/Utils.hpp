@@ -85,11 +85,11 @@ class StringUtils
         }
 
         //! Converts numeric value with a metric suffix to the full value, eg 10k translates to 10000
-        static uint MultiplyUIntBySuffix(std::wstring_view valueString);
-        static std::wstring XmlText(std::wstring_view text);
+        static DLL uint MultiplyUIntBySuffix(std::wstring_view valueString);
+        static DLL std::wstring XmlText(std::wstring_view text);
 
-        static std::wstring stows(const std::string& text);
-        static std::string wstos(const std::wstring& text);
+        static DLL std::wstring stows(const std::string& text);
+        static DLL std::string wstos(const std::wstring& text);
 
         template <typename Str>
             requires StringRestriction<Str> || IsStringView<Str>
@@ -150,7 +150,7 @@ class StringUtils
             return nullRemoved.substr(0, start + 1);
         }
 
-        static std::wstring ExpandEnvironmentVariables(const std::wstring& input)
+        static DLL std::wstring ExpandEnvironmentVariables(const std::wstring& input)
         {
             std::string accumulator;
             std::string output;
@@ -292,19 +292,5 @@ class StringUtils
             ss.imbue(std::locale(""));
             ss << std::fixed << cash;
             return ss.str();
-        }
-
-        template <typename TStr>
-        static auto strswa(TStr str)
-            requires StringRestriction<TStr>
-        {
-            if constexpr (std::is_same_v<TStr, std::wstring>)
-            {
-                return stows(str);
-            }
-            else
-            {
-                return StringUtils::wstos(str);
-            }
         }
 };

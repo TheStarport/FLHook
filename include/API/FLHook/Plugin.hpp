@@ -62,12 +62,13 @@ class DLL PluginCommunicator
 struct Timer
 {
         std::function<void()> func;
+        DWORD funcAddr;
         mstime intervalInSeconds;
         mstime lastTime = 0;
 
         static std::vector<std::shared_ptr<Timer>> timers;
-        static std::shared_ptr<Timer> Add(std::function<void()> function, uint interval);
-        static void Remove(const std::function<void()>& func);
+        static std::shared_ptr<Timer> Add(std::function<void()> function, void* funcAddr, uint interval);
+        static void Remove(DWORD funcAddr);
 };
 
 struct PluginInfo
@@ -124,7 +125,7 @@ class DLL Plugin
 
         void AddTimer(void (Plugin::*func)(), const int frequencyInSeconds)
         {
-            if (auto timer = Timer::Add(std::bind(func, this), frequencyInSeconds))
+            if (auto timer = Timer::Add([this, func] { (this->*func)(); }, &func, frequencyInSeconds))
             {
                 timers.emplace_back(timer);
             }
@@ -145,7 +146,7 @@ class DLL Plugin
             for (int i = static_cast<int>(timers.size()) - 1u; i >= 0u; --i)
             {
                 const auto& timer = timers[i];
-                Timer::Remove(timer->func);
+                Timer::Remove(timer->funcAddr);
                 timers.erase(timers.begin() + i);
             }
         };

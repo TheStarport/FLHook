@@ -1,17 +1,16 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "Core/MemoryManager.hpp"
+#include "Global.hpp"
 #include <Core/Logger.hpp>
 #include <Core/MessageHandler.hpp>
 
-#include "Defs/FLHookConfig.hpp"
 #include "Core/Commands/AdminCommandProcessor.hpp"
 #include "Core/Exceptions/GameException.hpp"
 #include "Core/Exceptions/StopProcessingException.hpp"
+#include "Defs/FLHookConfig.hpp"
 
 #include <API/FLHook/Plugin.hpp>
-
 
 HANDLE hProcFL = nullptr;
 HMODULE server = nullptr;
@@ -114,7 +113,7 @@ void FLHookInit_Pre()
         if (FLHookConfig::i()->messageQueue.enableQueues)
         {
             MessageHandler::i()->DeclareExchange(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), AMQP::fanout, AMQP::durable);
-            Timer::Add(PublishServerStats, 30000);
+            Timer::Add(PublishServerStats, &PublishServerStats, 30000);
         }
 
         if (const auto config = FLHookConfig::c(); config->plugins.loadAllPlugins)
@@ -181,11 +180,11 @@ bool FLHookInit()
         }
 
         // Setup timers
-        Timer::Add(ProcessPendingCommands, 50);
-        Timer::Add(TimerCheckKick, 50);
-        Timer::Add(TimerNPCAndF1Check, 1000);
-        Timer::Add(TimerCheckResolveResults, 0);
-        Timer::Add(TimerTempBanCheck, 15000);
+        Timer::Add(ProcessPendingCommands, &ProcessPendingCommands, 50);
+        Timer::Add(TimerCheckKick, &TimerCheckKick, 50);
+        Timer::Add(TimerNPCAndF1Check, &TimerCheckKick, 1000);
+        Timer::Add(TimerCheckResolveResults, &TimerCheckResolveResults, 0);
+        Timer::Add(TimerTempBanCheck, &TimerTempBanCheck, 15000);
     }
     catch (std::runtime_error& err)
     {

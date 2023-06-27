@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sqlite_orm/sqlite_orm.h>
+
 class DLL MailManager : public Singleton<MailManager>
 {
         [[nodiscard]]

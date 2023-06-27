@@ -12,7 +12,7 @@ uint PerfTimer::Stop()
 {
     auto timeDelta = static_cast<uint>(TimeUtils::UnixMilliseconds() - tmStart);
 
-    if (FLHookConfig::i()->general.logPerformanceTimers)
+    if (FLHookConfig::i()->debug.logPerformanceTimers)
     {
         if (timeDelta > max && timeDelta > warning)
         {
@@ -29,30 +29,23 @@ uint PerfTimer::Stop()
 
 std::vector<std::shared_ptr<Timer>> Timer::timers;
 
-template <typename T, typename... U>
-DWORD GetAddress(std::function<T(U...)> f)
+std::shared_ptr<Timer> Timer::Add(std::function<void()> function, void* funcAddrRaw, uint interval)
 {
-    typedef T(FnType)(U...);
-    auto** fnPointer = f.template target<FnType*>();
-    return reinterpret_cast<DWORD>(*fnPointer);
-}
-
-std::shared_ptr<Timer> Timer::Add(std::function<void()> function, uint interval)
-{
-    if (std::ranges::any_of(timers, [function](const std::shared_ptr<Timer>& existing) { return GetAddress(function) == GetAddress(existing->func); }))
+    DWORD funcAddr = reinterpret_cast<DWORD>(funcAddrRaw);
+    if (std::ranges::any_of(timers, [funcAddr](const std::shared_ptr<Timer>& existing) { return funcAddr == existing->funcAddr; }))
     {
         return nullptr;
     }
 
-    auto ptr = std::make_shared<Timer>(function, interval);
+    auto ptr = std::make_shared<Timer>(function, funcAddr, interval);
     timers.emplace_back(ptr);
 
     return ptr;
 }
 
-void Timer::Remove(const std::function<void()>& func)
+void Timer::Remove(const DWORD funcAddr)
 {
-    const auto timer = std::ranges::find_if(timers, [func](const std::shared_ptr<Timer>& existing) { return GetAddress(func) == GetAddress(existing->func); });
+    const auto timer = std::ranges::find_if(timers, [funcAddr](const std::shared_ptr<Timer>& existing) { return funcAddr == existing->funcAddr; });
     if (timer == timers.end())
     {
         return;

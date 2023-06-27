@@ -60,7 +60,6 @@ DLL void AddExceptionInfoLog(SEHException* ex);
         }                                                                                                                \
         return true;                                                                                                     \
     }
-#define DefaultDllMainSettings(loadSettings) DefaultDllMain(loadSettings(), CoreGlobals::c()->flhookReady&&)
 
 #define DeduceClassType(variableName, type, value)                         \
 private:                                                                   \
@@ -114,3 +113,5 @@ public:                                                                         
     GetCommandsFunc(commandArray);                                                                                                      \
                                                                                                                                         \
 private:
+
+#define Serialize(type, ...) NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(type, __VA_ARGS__)

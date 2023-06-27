@@ -2,10 +2,8 @@
 
 class TaxPlugin : public Plugin, public AbstractUserCommandProcessor
 {
-        struct Config final : Reflectable
+        struct Config final
         {
-                std::wstring File() override { return L"config/tax.json"; }
-
                 //! Minimal playtime in seconds required for a character to be a valid demand target.
                 int minplaytimeSec = 0;
                 //! Maximum amount of credits a player can demand from another.
@@ -24,6 +22,9 @@ class TaxPlugin : public Plugin, public AbstractUserCommandProcessor
                 std::wstring cannotPay = L"This rogue isn't interested in money. Run for cover, they want to kill you!";
                 //! If true, kills the players who disconnect while having a demand levied against them.
                 bool killDisconnectingPlayers = true;
+
+                Serialize(Config, minplaytimeSec, maxTax, customColor, customFormat, taxRequestReceived, huntingMessage, huntingMessageOriginator, cannotPay,
+                          killDisconnectingPlayers);
         };
 
         //! Structs
@@ -44,7 +45,7 @@ class TaxPlugin : public Plugin, public AbstractUserCommandProcessor
         void DisConnect(ClientId& client, const EFLConnection& state);
         void LoadSettings();
 
-        std::unique_ptr<Config> config = nullptr;
+        std::unique_ptr<Config> config;
         std::list<Tax> taxes{};
         std::vector<uint> excludedsystemsIds{};
 
