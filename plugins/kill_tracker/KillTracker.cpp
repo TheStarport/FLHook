@@ -103,10 +103,7 @@ namespace Plugins::KillTracker
 			};
 		}
 		
-		auto victimKillStreak = global->killStreaks.find(clientVictim);
-
-
-		if (victimKillStreak != global->killStreaks.end())
+		if (auto victimKillStreak = global->killStreaks.find(clientVictim); victimKillStreak != global->killStreaks.end())
 		{
 			global->killStreaks[clientVictim] = 0;
 		}
@@ -210,7 +207,7 @@ namespace Plugins::KillTracker
 			std::wformat_args templateArgs = std::make_wformat_args(killerName, victimName, numKills);
 			std::wstring killMilestoneMessage;
 
-			auto templateMessage = global->config->killStreakTemplate.find(numKills);
+			auto templateMessage = global->config->killStreakTemplate.find(std::to_wstring(numKills));
 			if (templateMessage != global->config->killStreakTemplate.end())
 			{
 				std::wstring templateString = templateMessage->second;
