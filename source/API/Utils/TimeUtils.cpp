@@ -8,7 +8,7 @@ uint TimeUtils::UnixSeconds() { return static_cast<uint>(duration_cast<seconds>(
 
 sys_time<seconds> TimeUtils::UnixToSysTime(int64 time) { return sys_time{ seconds{ time } }; }
 
-std::wstring TimeUtils::HumanReadableTime(seconds dur)
+std::wstring TimeUtils::AsTimePassed(seconds dur)
 {
     using Days = duration<int, std::ratio<86400>>;
     const auto d = duration_cast<Days>(dur);
@@ -58,4 +58,10 @@ std::wstring TimeUtils::HumanReadableTime(seconds dur)
     return ss.str();
 }
 
-std::wstring TimeUtils::HumanReadableTime() { return HumanReadableTime(duration_cast<seconds>(system_clock::now().time_since_epoch())); }
+std::wstring TimeUtils::AsDate(const seconds total)
+{
+    sys_time time{ total };
+    return std::format(L"{0:%Y-%m-%d %H:%M:%S}", time);
+}
+
+std::wstring TimeUtils::CurrentDate() { return AsDate(seconds{ UnixSeconds() }); }

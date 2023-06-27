@@ -11,8 +11,9 @@ class TimeUtils
         DLL static std::chrono::sys_time<std::chrono::seconds> UnixToSysTime(int64 time);
         DLL static uint UnixSeconds();
         DLL static uint64 UnixMilliseconds();
-        DLL static std::wstring HumanReadableTime(std::chrono::seconds dur);
-        DLL static std::wstring HumanReadableTime();
+        DLL static std::wstring AsTimePassed(std::chrono::seconds dur);
+        DLL static std::wstring AsDate(std::chrono::seconds total);
+        DLL static std::wstring CurrentDate();
 
         template <typename T>
         static std::chrono::microseconds ToMicroseconds(T duration)
