@@ -294,4 +294,7 @@ class StringUtils
             ss << std::fixed << cash;
             return ss.str();
         }
+
+        static std::wstring ToHex(std::wstring_view input);
+        static std::wstring FromHex(std::wstring_view hex);
 };

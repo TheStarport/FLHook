@@ -4,40 +4,6 @@
 
 namespace Hk::Client
 {
-    cpp::result<const uint, Error> GetClientID(const std::wstring& character)
-    {
-        if (character.find(L"id ") == std::wstring::npos)
-        {
-            return { cpp::fail(Error::InvalidIdString) };
-        }
-
-        auto resolvedId = ResolveID(character).Raw();
-        if (resolvedId.has_error() || resolvedId.error() == Error::InvalidIdString)
-        {
-            resolvedId = ResolveShortCut(character).Raw();
-            if (resolvedId.has_error())
-            {
-                if (resolvedId.error() == Error::AmbiguousShortcut || resolvedId.error() == Error::NoMatchingPlayer)
-                {
-                    return { cpp::fail(resolvedId.error()) };
-                }
-
-                if (resolvedId.error() == Error::InvalidShortcutString)
-                {
-                    resolvedId = GetClientIdFromCharName(character).Raw();
-                    if (resolvedId.has_value())
-                    {
-                        return resolvedId.value();
-                    }
-                    return { cpp::fail(Error::PlayerNotLoggedIn) };
-                }
-
-                return { cpp::fail(resolvedId.error()) };
-            }
-        }
-
-        return resolvedId.value();
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -181,8 +147,6 @@ namespace Hk::Client
         return false;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     Action<std::wstring> GetCharacterNameByID(ClientId client)
     {
         if (!IsValidClientID(client) || IsInCharSelectMenu(client))
@@ -192,27 +156,6 @@ namespace Hk::Client
 
         return { reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client)) };
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    Action<uint> ResolveID(std::wstring_view character)
-    {
-        if (const std::wstring characterLower = StringUtils::ToLower(character); characterLower.find(L"id ") == 0)
-        {
-            uint id = 0;
-            swscanf_s(characterLower.c_str(), L"id %u", &id);
-            if (!IsValidClientID(id))
-            {
-                return { cpp::fail(Error::InvalidClientId) };
-            }
-
-            return { id };
-        }
-
-        return { cpp::fail(Error::InvalidIdString) };
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     Action<ClientId> ResolveShortCut(const std::wstring& shortcut)
     {
@@ -551,6 +494,7 @@ namespace Hk::Client
         return ET_OTHER;
     }
 
+    
     uint ExtractClientID(const std::variant<uint, std::wstring_view>& player)
     {
         // If index is 0, we just use the client Id we are given
@@ -563,17 +507,6 @@ namespace Hk::Client
         // Otherwise we have a character name
         const std::wstring_view characterName = std::get<std::wstring_view>(player);
 
-        // Check if its an id string
-        if (characterName.rfind(L"id ", 0) != std::wstring::npos)
-        {
-            const auto val = ResolveID(characterName).Raw();
-            if (val.has_error())
-            {
-                return -1;
-            }
-
-            return val.value();
-        }
 
         const auto client = GetClientIdFromCharName(characterName).Raw();
         if (client.has_error())

@@ -323,7 +323,7 @@ namespace Hk::Player
             {
                 return { cpp::fail(fileName.error()) };
             }
-            const std::wstring newFile = fileName.value() + L".fl";
+            const std::wstring newFile = std::format(L"{}.fl", fileName.value());
             CHARACTER_ID charId;
             strcpy_s(charId.charFilename, StringUtils::wstos(newFile.substr(0, 14)).c_str());
             Server.CharacterSelect(charId, client);

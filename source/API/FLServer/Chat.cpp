@@ -33,7 +33,8 @@ namespace Hk::Chat
         const CHAT_ID ci = { 0 };
         const CHAT_ID ciClient = { client };
 
-        const std::wstring XML = L"<TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(message) + L"</TEXT>";
+        const std::wstring XML = std::format(L"<TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>{}</TEXT>", StringUtils::XmlText(message));
+
         uint retVal;
         char buf[1024];
         if (auto err = FMsgEncodeXml(XML, buf, sizeof buf, retVal).Raw(); err.has_error())
@@ -66,7 +67,9 @@ namespace Hk::Chat
         }
 
         // prepare xml
-        const std::wstring xml = L"<TRA data=\"0xE6C68400\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(message) + L"</TEXT>";
+        const std::wstring xml = std::format(L"<TRA data=\"0xE6C68400\" mask=\"-1\"/><TEXT>", StringUtils::XmlText(message));
+       
+
         uint retVal;
         char buffer[1024];
         if (const auto err = FMsgEncodeXml(xml, buffer, sizeof buffer, retVal).Raw(); err.has_error())
@@ -99,7 +102,9 @@ namespace Hk::Chat
         const CHAT_ID ci = { 0 };
         const CHAT_ID ciClient = { 0x00010000 };
 
-        const std::wstring xml = L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>" + StringUtils::XmlText(message) + L"</TEXT>";
+        const std::wstring xml = std::format(L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>", StringUtils::XmlText(message));
+
+ 
         uint retVal;
         char buf[1024];
         if (const auto err = FMsgEncodeXml(xml, buf, sizeof buf, retVal).Raw(); err.has_error())
@@ -117,9 +122,8 @@ namespace Hk::Chat
     {
         XMLReader rdr;
         RenderDisplayList rdl;
-        std::wstring msg = L"<?xml version=\"1.0\" encoding=\"UTF-16\"?><RDL><PUSH/>";
-        msg += xmring;
-        msg += L"<PARA/><POP/></RDL>\x000A\x000A";
+        std::wstring msg = std::format(L"<?xml version=\"1.0\" encoding=\"UTF-16\"?><RDL><PUSH/>{}<PARA/><POP/></RDL>\x000A\x000A", xmring);
+
         if (!rdr.read_buffer(rdl, (const char*)msg.c_str(), msg.length() * 2))
         {
             return { cpp::fail(Error::WrongXmlSyntax) };
