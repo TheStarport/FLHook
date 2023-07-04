@@ -194,7 +194,8 @@ namespace Plugins::KillTracker
 			Hk::Message::FMsgS(system, greatestDamageMessage);
 		}
 
-		if (global->config->enableMilestones && clientVictim && clientKiller)
+		// Messages relating to kill streaks
+		if (!global->config->killStreakTemplate.empty() && clientVictim && clientKiller)
 		{
 			std::wstring killerName = Hk::Client::GetCharacterNameByID(clientKiller).value();
 			std::wstring victimName = Hk::Client::GetCharacterNameByID(clientVictim).value();
@@ -205,15 +206,34 @@ namespace Plugins::KillTracker
 				uint numKills = global->killStreaks[clientKiller];
 			}
 			std::wformat_args templateArgs = std::make_wformat_args(killerName, victimName, numKills);
-			std::wstring killMilestoneMessage;
+			std::wstring killStreakMessage;
 
 			auto templateMessage = global->config->killStreakTemplate.find(std::to_wstring(numKills));
 			if (templateMessage != global->config->killStreakTemplate.end())
 			{
 				std::wstring templateString = templateMessage->second;
-				killMilestoneMessage = std::vformat(templateString, templateArgs);
-				killMilestoneMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, killMilestoneMessage);
-				Hk::Message::FMsgS(system, killMilestoneMessage);
+				killStreakMessage = std::vformat(templateString, templateArgs);
+				killStreakMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, killStreakMessage);
+				Hk::Message::FMsgS(system, killStreakMessage);
+			}
+		}
+
+		// Messages relating to milestones
+		if (!global->config->milestoneTemplate.empty() && clientKiller)
+		{
+			std::wstring killerName = Hk::Client::GetCharacterNameByID(clientKiller).value();
+			auto numServerKills = Hk::Player::GetPvpKills(killerName).value();
+
+			std::wformat_args templateArgs = std::make_wformat_args(killerName, numServerKills);
+			std::wstring milestoneMessage;
+
+			auto templateMessage = global->config->milestoneTemplate.find(std::to_wstring(numServerKills));
+			if (templateMessage != global->config->milestoneTemplate.end())
+			{
+				std::wstring templateString = templateMessage->second;
+				milestoneMessage = std::vformat(templateString, templateArgs);
+				milestoneMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, milestoneMessage);
+				Hk::Message::FMsgS(system, milestoneMessage);
 			}
 		}
 	}
@@ -225,7 +245,7 @@ namespace Plugins::KillTracker
 			clearDamageTaken(client);
 			clearDamageDone(client);
 		}
-		if (global->config->enableMilestones)
+		if (!global->config->killStreakTemplate.empty())
 		{
 			auto clientStreakEntry = global->killStreaks.find(client);
 			if (clientStreakEntry != global->killStreaks.end())
@@ -274,7 +294,7 @@ namespace Plugins::KillTracker
 
 using namespace Plugins::KillTracker;
 
-REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking), field(killStreakTemplate));
+REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking), field(killStreakTemplate), field(milestoneTemplate));
 
 DefaultDllMainSettings(LoadSettings);
 

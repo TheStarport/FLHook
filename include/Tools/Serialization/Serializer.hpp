@@ -152,7 +152,7 @@ class Serializer
 			std::map<std::string, std::string> mapOfString = json[member.name.c_str()].template get<std::map<std::string, std::string>>();
 			if constexpr (IsWString<StrType>)
 			{
-				std::map<std::wstring, std::wstring> mapOfWstring(mapOfString.size());
+				std::map<std::wstring, std::wstring> mapOfWstring();
 				for (auto& i : mapOfString)
 				{
 					mapOfWstring[stows(i.first)] = stows(i.second);
@@ -161,7 +161,7 @@ class Serializer
 			}
 			else
 			{
-				std::map<std::string, std::wstring> mapOfWstring(mapOfString.size());
+				std::map<std::string, std::wstring> mapOfWstring();
 				for (auto& i : mapOfString)
 				{
 					mapOfWstring[i.first] = stows(i.second);
