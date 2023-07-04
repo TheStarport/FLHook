@@ -48,7 +48,7 @@ namespace Plugins::KillTracker
 		{
 			KillMessage(100, L"{0} has killed their 100th enemy!"),
 		    KillMessage(1000, L"{0} has killed their 1,000th enemy!"),
-		    KillMessage(10000, L"{0 has killed their 10,000th enemy!")
+		    KillMessage(10000, L"{0} has killed their 10,000th enemy!")
 		};
 	};
 
