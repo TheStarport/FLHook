@@ -195,7 +195,7 @@ namespace Plugins::KillTracker
 		}
 
 		// Messages relating to kill streaks
-		if (!global->config->killStreakTemplate.empty() && clientVictim && clientKiller)
+		if (!global->killStreakTemplates.empty() && clientVictim && clientKiller)
 		{
 			std::wstring killerName = Hk::Client::GetCharacterNameByID(clientKiller).value();
 			std::wstring victimName = Hk::Client::GetCharacterNameByID(clientVictim).value();
@@ -208,8 +208,8 @@ namespace Plugins::KillTracker
 			std::wformat_args templateArgs = std::make_wformat_args(killerName, victimName, numKills);
 			std::wstring killStreakMessage;
 
-			auto templateMessage = global->config->killStreakTemplate.find(std::to_wstring(numKills));
-			if (templateMessage != global->config->killStreakTemplate.end())
+			auto templateMessage = global->killStreakTemplates.find(numKills);
+			if (templateMessage != global->killStreakTemplates.end())
 			{
 				std::wstring templateString = templateMessage->second;
 				killStreakMessage = std::vformat(templateString, templateArgs);
@@ -219,7 +219,7 @@ namespace Plugins::KillTracker
 		}
 
 		// Messages relating to milestones
-		if (!global->config->milestoneTemplate.empty() && clientKiller)
+		if (!global->milestoneTemplates.empty() && clientKiller)
 		{
 			std::wstring killerName = Hk::Client::GetCharacterNameByID(clientKiller).value();
 			auto numServerKills = Hk::Player::GetPvpKills(killerName).value();
@@ -227,8 +227,8 @@ namespace Plugins::KillTracker
 			std::wformat_args templateArgs = std::make_wformat_args(killerName, numServerKills);
 			std::wstring milestoneMessage;
 
-			auto templateMessage = global->config->milestoneTemplate.find(std::to_wstring(numServerKills));
-			if (templateMessage != global->config->milestoneTemplate.end())
+			auto templateMessage = global->milestoneTemplates.find(numServerKills);
+			if (templateMessage != global->milestoneTemplates.end())
 			{
 				std::wstring templateString = templateMessage->second;
 				milestoneMessage = std::vformat(templateString, templateArgs);
@@ -245,7 +245,7 @@ namespace Plugins::KillTracker
 			clearDamageTaken(client);
 			clearDamageDone(client);
 		}
-		if (!global->config->killStreakTemplate.empty())
+		if (!global->killStreakTemplates.empty())
 		{
 			auto clientStreakEntry = global->killStreaks.find(client);
 			if (clientStreakEntry != global->killStreaks.end())
@@ -289,12 +289,20 @@ namespace Plugins::KillTracker
 		global->config = std::make_unique<Config>(config);
 		for (auto& subArray : global->damageArray)
 			subArray.fill(0.0f);
+		for (auto& killStreakTemplate : global->config->killStreakTemplates) {
+			global->killStreakTemplates[killStreakTemplate.number] = killStreakTemplate.message;
+		}
+		for (auto& milestoneTemplate : global->config->milestoneTemplates)
+		{
+			global->killStreakTemplates[milestoneTemplate.number] = milestoneTemplate.message;
+		}
 	}
 } // namespace Plugins::KillTracker
 
 using namespace Plugins::KillTracker;
 
-REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking), field(killStreakTemplate), field(milestoneTemplate));
+REFL_AUTO(type(KillMessage), field(number), field(message));
+REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking), field(killStreakTemplates), field(milestoneTemplates));
 
 DefaultDllMainSettings(LoadSettings);
 
