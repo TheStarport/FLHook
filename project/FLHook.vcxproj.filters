@@ -55,6 +55,9 @@
     <Filter Include="Include\Defs">
       <UniqueIdentifier>{b65d00c7-3ec5-4c49-ac2e-6e749d0d5ee8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Hooks\ClientServerInterface">
+      <UniqueIdentifier>{194ddbd6-508d-4847-988e-84b08b1899a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\FLHook.cpp">
@@ -101,9 +104,6 @@
     </ClCompile>
     <ClCompile Include="..\Source\Core\Commands\UserCommandProcessor.cpp">
       <Filter>Source\Core\Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Hooks\HkClientServerInterface.cpp">
-      <Filter>Source\Hooks</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Hooks\HkDataBaseMarket.cpp">
       <Filter>Source\Hooks</Filter>
@@ -175,6 +175,96 @@
       <Filter>Source\API\Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\Include\PCH.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Hooks.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\ChatHooks.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\PlayerLaunch.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\MunitionCollision.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\SPObjectUpdate.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\LaunchComplete.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Character.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Base.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\TerminateTrade.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Equipment.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Goods.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\OnConnect.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Disconnect.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\JumpInComplete.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\SystemSwitchOutComplete.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Login.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Tradelane.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\ObjectCollision.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Mission.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Trade.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Cargo.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Cash.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Ship.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Location.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\UserInterface.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\ObjectSelect.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Maneuver.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\MineAsteroid.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\IClientImpl.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\HookEntry.cpp">
+      <Filter>Source\Hooks\ClientServerInterface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">
@@ -315,5 +405,11 @@
     <ClInclude Include="..\Include\Core\Action.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\Core\ClientServerInterface.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

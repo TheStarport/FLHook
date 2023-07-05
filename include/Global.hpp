@@ -65,7 +65,6 @@ void TimerCheckResolveResults();
 
 void BaseDestroyed(uint objectId, ClientId clientBy);
 
-extern HookEntry IServerImplEntries[73];
 
 // DataBaseMarket
 bool LoadBaseMarket();

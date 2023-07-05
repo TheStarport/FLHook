@@ -1,12 +1,8 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
+#include "Core/ClientServerInterface.hpp"
 
-// Very hacky way to call non-header function
-namespace IServerImplHook
-{
-    void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, const void* rdlReader, CHAT_ID cidTo, int _genArg1);
-}
 
 bool g_bMsg;
 bool g_bMsgU;

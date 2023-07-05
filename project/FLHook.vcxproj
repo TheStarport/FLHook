@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="ReleaseWithDebug|Win32">
       <Configuration>ReleaseWithDebug</Configuration>
@@ -45,7 +46,36 @@
     <ClCompile Include="..\Source\Core\TempBan.cpp" />
     <ClCompile Include="..\Source\Core\Timers.cpp" />
     <ClCompile Include="..\Source\FLHook.cpp" />
-    <ClCompile Include="..\Source\Hooks\HkClientServerInterface.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Cash.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Equipment.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Base.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Cargo.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Character.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Disconnect.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Goods.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\HookEntry.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Tradelane.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\IClientImpl.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\JumpInComplete.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\LaunchComplete.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Location.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Login.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Maneuver.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\MineAsteroid.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Mission.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\MunitionCollision.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\ObjectCollision.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\ObjectSelect.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\OnConnect.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\PlayerLaunch.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Ship.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\SPObjectUpdate.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\ChatHooks.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\SystemSwitchOutComplete.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\TerminateTrade.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Trade.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\Hooks.cpp" />
+    <ClCompile Include="..\Source\Hooks\ClientServerInterface\UserInterface.cpp" />
     <ClCompile Include="..\Source\Hooks\HkDataBaseMarket.cpp" />
     <ClCompile Include="..\Source\Hooks\HkIChatServer.cpp" />
     <ClCompile Include="..\Source\Hooks\HkIEngine.cpp" />
@@ -81,6 +111,7 @@
     <ClInclude Include="..\Include\Core\Exceptions\GameException.hpp" />
     <ClInclude Include="..\Include\Core\Exceptions\StopProcessingException.hpp" />
     <ClInclude Include="..\Include\Core\Exceptions\UnsupportedException.hpp" />
+    <ClInclude Include="..\Include\Core\ClientServerInterface.hpp" />
     <ClInclude Include="..\Include\Core\Logger.hpp" />
     <ClInclude Include="..\Include\Core\MemoryManager.hpp" />
     <ClInclude Include="..\Include\Core\MessageHandler.hpp" />
@@ -102,6 +133,9 @@
     <ClInclude Include="..\Include\FLHook.hpp" />
     <ClInclude Include="..\Include\Global.hpp" />
     <ClInclude Include="..\Include\PCH.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FE6EB3C9-DA22-4492-AEC3-068C9553A623}</ProjectGuid>
@@ -287,5 +321,13 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+  </Target>
 </Project>

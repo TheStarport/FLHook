@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
+#include "Core/ClientServerInterface.hpp"
 
 namespace IEngineHook
 {
