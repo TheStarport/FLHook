@@ -291,7 +291,6 @@ namespace IServerImplHook
 		TRY_HOOK
 		{
 			ClientInfo[client].ship = shipId;
-			ClientInfo[client].iKillsInARow = 0;
 			ClientInfo[client].bCruiseActivated = false;
 			ClientInfo[client].bThrusterActivated = false;
 			ClientInfo[client].bEngineKilled = false;

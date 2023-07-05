@@ -191,7 +191,6 @@ void ClearClientInfo(ClientId client)
 	info->chatStyle = CST_DEFAULT;
 
 	info->lstIgnore.clear();
-	info->iKillsInARow = 0;
 	info->wscHostname = L"";
 	info->bEngineKilled = false;
 	info->bThrusterActivated = false;
