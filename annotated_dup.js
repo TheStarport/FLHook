@@ -79,7 +79,8 @@ var annotated_dup =
       ] ],
       [ "KillTracker", "namespace_plugins_1_1_kill_tracker.html", [
         [ "Config", "struct_plugins_1_1_kill_tracker_1_1_config.html", "struct_plugins_1_1_kill_tracker_1_1_config" ],
-        [ "Global", "struct_plugins_1_1_kill_tracker_1_1_global.html", "struct_plugins_1_1_kill_tracker_1_1_global" ]
+        [ "Global", "struct_plugins_1_1_kill_tracker_1_1_global.html", "struct_plugins_1_1_kill_tracker_1_1_global" ],
+        [ "KillMessage", "struct_plugins_1_1_kill_tracker_1_1_kill_message.html", "struct_plugins_1_1_kill_tracker_1_1_kill_message" ]
       ] ],
       [ "LightControl", "namespace_plugins_1_1_light_control.html", [
         [ "Config", "struct_plugins_1_1_light_control_1_1_config.html", "struct_plugins_1_1_light_control_1_1_config" ],

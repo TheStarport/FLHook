@@ -16,8 +16,9 @@ var searchData=
   ['tologstring_13',['ToLogString',['../_global_8hpp.html#a8478433125234d71b413e709cc579b44',1,'Global.hpp']]],
   ['toushort_14',['ToUShort',['../_global_8hpp.html#a6f34d668ea19fec009369165c5275fbc',1,'ToUShort(const wchar_t *val):&#160;Global.hpp'],['../_global_8hpp.html#a10d462188ee546e38acb10665183eede',1,'ToUShort(wchar_t *val):&#160;Global.hpp']]],
   ['towchar_15',['ToWChar',['../_global_8hpp.html#a37d516ac63f1664999824e635d1dfc21',1,'ToWChar(const ushort *val):&#160;Global.hpp'],['../_global_8hpp.html#a52064cf548a3c1f2d40ce79414870f6c',1,'ToWChar(ushort *val):&#160;Global.hpp']]],
-  ['tractorobjects_16',['TractorObjects',['../namespace_i_server_impl_hook.html#aa242a1c727aa6ef7e6ce07b9d6d0a821',1,'IServerImplHook::TractorObjects()'],['../group___crash_catcher.html#ga556fd2ad08ce277dfe51b197f7cc5b9f',1,'Plugins::CrashCatcher::TractorObjects()']]],
-  ['traderesponse_17',['TradeResponse',['../namespace_i_server_impl_hook.html#ab26592e548d5eae1b053e232950433dc',1,'IServerImplHook']]],
-  ['transfercash_18',['TransferCash',['../namespace_plugins_1_1_cash_manager_1_1_sql.html#a97d4f601a03ae77117954e0df012403a',1,'Plugins::CashManager::Sql']]],
-  ['transfermoney_19',['TransferMoney',['../namespace_plugins_1_1_cash_manager.html#a6aaa8140ea8dff3a2ea4b2afd29695ba',1,'Plugins::CashManager']]]
+  ['trackkillstreaks_16',['TrackKillStreaks',['../group___kill_tracker.html#gac42e5053604173723ced9827ddf874f0',1,'Plugins::KillTracker']]],
+  ['tractorobjects_17',['TractorObjects',['../namespace_i_server_impl_hook.html#aa242a1c727aa6ef7e6ce07b9d6d0a821',1,'IServerImplHook::TractorObjects()'],['../group___crash_catcher.html#ga556fd2ad08ce277dfe51b197f7cc5b9f',1,'Plugins::CrashCatcher::TractorObjects()']]],
+  ['traderesponse_18',['TradeResponse',['../namespace_i_server_impl_hook.html#ab26592e548d5eae1b053e232950433dc',1,'IServerImplHook']]],
+  ['transfercash_19',['TransferCash',['../namespace_plugins_1_1_cash_manager_1_1_sql.html#a97d4f601a03ae77117954e0df012403a',1,'Plugins::CashManager::Sql']]],
+  ['transfermoney_20',['TransferMoney',['../namespace_plugins_1_1_cash_manager.html#a6aaa8140ea8dff3a2ea4b2afd29695ba',1,'Plugins::CashManager']]]
 ];

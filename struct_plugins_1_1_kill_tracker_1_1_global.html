@@ -165,6 +165,12 @@ Public Attributes</h2></td></tr>
 <tr class="separator:ac562271802de41f114fa0ecb350324bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f2c07f1a7671674af848a99e8b321b8"><td class="memItemLeft" align="right" valign="top">ReturnCode&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_kill_tracker_1_1_global.html#a0f2c07f1a7671674af848a99e8b321b8">returncode</a> = ReturnCode::Default</td></tr>
 <tr class="separator:a0f2c07f1a7671674af848a99e8b321b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c70cb12b5dfe932e09ca19274251936"><td class="memItemLeft" align="right" valign="top">std::map&lt; ClientId, uint &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_kill_tracker_1_1_global.html#a8c70cb12b5dfe932e09ca19274251936">killStreaks</a></td></tr>
+<tr class="separator:a8c70cb12b5dfe932e09ca19274251936"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4b06013a634deb2e3fc6c27b9a9f1fc"><td class="memItemLeft" align="right" valign="top">std::map&lt; int, std::wstring &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_kill_tracker_1_1_global.html#af4b06013a634deb2e3fc6c27b9a9f1fc">killStreakTemplates</a></td></tr>
+<tr class="separator:af4b06013a634deb2e3fc6c27b9a9f1fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5e67de348b1fd8918fe7cbc09881b6d"><td class="memItemLeft" align="right" valign="top">std::map&lt; int, std::wstring &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_kill_tracker_1_1_global.html#ac5e67de348b1fd8918fe7cbc09881b6d">milestoneTemplates</a></td></tr>
+<tr class="separator:ac5e67de348b1fd8918fe7cbc09881b6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="struct_plugins_1_1_kill_tracker_1_1_global.html" title="Global data for this plugin.">Global</a> data for this plugin. </p>
@@ -197,6 +203,34 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a8c70cb12b5dfe932e09ca19274251936" name="a8c70cb12b5dfe932e09ca19274251936"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c70cb12b5dfe932e09ca19274251936">&#9670;&#160;</a></span>killStreaks</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::map&lt;ClientId, uint&gt; Plugins::KillTracker::Global::killStreaks</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af4b06013a634deb2e3fc6c27b9a9f1fc" name="af4b06013a634deb2e3fc6c27b9a9f1fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af4b06013a634deb2e3fc6c27b9a9f1fc">&#9670;&#160;</a></span>killStreakTemplates</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::map&lt;int, std::wstring&gt; Plugins::KillTracker::Global::killStreakTemplates</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="ac562271802de41f114fa0ecb350324bc" name="ac562271802de41f114fa0ecb350324bc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac562271802de41f114fa0ecb350324bc">&#9670;&#160;</a></span>lastPlayerHealth</h2>
 
@@ -205,6 +239,20 @@ Public Attributes</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">std::array&lt;float, MaxClientId + 1&gt; Plugins::KillTracker::Global::lastPlayerHealth</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac5e67de348b1fd8918fe7cbc09881b6d" name="ac5e67de348b1fd8918fe7cbc09881b6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5e67de348b1fd8918fe7cbc09881b6d">&#9670;&#160;</a></span>milestoneTemplates</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::map&lt;int, std::wstring&gt; Plugins::KillTracker::Global::milestoneTemplates</td>
         </tr>
       </table>
 </div><div class="memdoc">

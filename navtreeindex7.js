@@ -1,5 +1,7 @@
 var NAVTREEINDEX7 =
 {
+"namespace_hk_1_1_personalities.html#af6d1483bd3bd8eeea904af0050999cdb":[2,1,0,0,6,12],
+"namespace_hk_1_1_player.html":[2,1,0,0,7],
 "namespace_hk_1_1_player.html#a04116fc50c4deecc4a14841e20736708":[2,1,0,0,7,37],
 "namespace_hk_1_1_player.html#a0c459506c469564b7d8768c133539a9f":[2,1,0,0,7,53],
 "namespace_hk_1_1_player.html#a0db96abb8779d27362c22571c612b746":[2,1,0,0,7,41],
@@ -247,7 +249,5 @@ var NAVTREEINDEX7 =
 "namespace_plugins_1_1_autobuy.html#a677a0024edd14fd42b02345e5d1d3b95":[2,1,0,4,3,8],
 "namespace_plugins_1_1_autobuy.html#a9454ab632caee6922cdb7c0ec9c5c5d3":[2,1,0,4,3,10],
 "namespace_plugins_1_1_autobuy.html#aaf674392115e202e86bcf3773c675ec2":[2,1,0,4,3,12],
-"namespace_plugins_1_1_autobuy.html#ac7dc63d53ddacc60591bd2c13d47114b":[2,1,0,4,3,4],
-"namespace_plugins_1_1_autobuy.html#ad4f67f84271ffa3bfde4cc2217b6c67c":[2,1,0,4,3,7],
-"namespace_plugins_1_1_autobuy.html#afe75320a9ff4f72cfb5c1f38e591160b":[2,1,0,4,3,11]
+"namespace_plugins_1_1_autobuy.html#ac7dc63d53ddacc60591bd2c13d47114b":[2,1,0,4,3,4]
 };

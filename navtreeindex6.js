@@ -1,13 +1,15 @@
 var NAVTREEINDEX6 =
 {
-"group___i_p_ban.html#ga957de83ac423a476b4c30b3830f29e43":[2,0,12,5],
-"group___i_p_ban.html#ga9f403fe739de471046a7bd9451ef61e6":[2,0,12,1],
-"group___i_p_ban.html#gaaccbc2f281e87d0f61410f7dc4b4771f":[2,0,12,0],
-"group___i_p_ban.html#gabb899eb1e225b47542693b5f18e7179d":[2,0,12,3],
-"group___i_p_ban.html#gaeebf2d67e6a9e0388aaf6e47de6aacab":[2,0,12,6],
-"group___kill_tracker.html":[2,0,13],
-"group___kill_tracker.html#ga9c80f40a2fc4b5cd89c7d37872bc443c":[2,0,13,0],
-"group___kill_tracker.html#gaa872a1320265bf03a4ad5aca1c312c1c":[2,0,13,1],
+"group___kill_tracker.html#ga89cae692659382454da9edbc182d2b51":[2,0,13,8],
+"group___kill_tracker.html#ga8ea43c2eed9c1a02a59868568dc14208":[2,0,13,1],
+"group___kill_tracker.html#ga9b8573369a84493d7cbd4dcf5d6400c8":[2,0,13,4],
+"group___kill_tracker.html#ga9c80f40a2fc4b5cd89c7d37872bc443c":[2,0,13,9],
+"group___kill_tracker.html#ga9de4788f9050f8256eb34a930435159e":[2,0,13,6],
+"group___kill_tracker.html#gaa138ba34d6b61a27e417a1e23b48234e":[2,0,13,5],
+"group___kill_tracker.html#gaa872a1320265bf03a4ad5aca1c312c1c":[2,0,13,11],
+"group___kill_tracker.html#gac42e5053604173723ced9827ddf874f0":[2,0,13,10],
+"group___kill_tracker.html#gae10bdd2a8038e3765212befd9ccc90c1":[2,0,13,3],
+"group___kill_tracker.html#gae5092925cee194b6ffae856c6345c657":[2,0,13,7],
 "group___light_control.html":[2,0,14],
 "group___light_control.html#ga0c701250cb6732e92ed7ed102c90b28b":[2,0,14,3],
 "group___light_control.html#ga1a8f3c7c529bcd3461fd3103879b9c68":[2,0,14,5],
@@ -247,7 +249,5 @@ var NAVTREEINDEX6 =
 "namespace_hk_1_1_personalities.html#ae4b0ec88f6e16bdefe4da0d54d3da5ee":[2,1,0,0,6,16],
 "namespace_hk_1_1_personalities.html#ae846f97840805f35e5e834cb49f2af6a":[2,1,0,0,6,4],
 "namespace_hk_1_1_personalities.html#ae8b5764eaa241ee7859a10473a4b2e13":[2,1,0,0,6,2],
-"namespace_hk_1_1_personalities.html#af29fd5d0e88d39f25f9b2bf148d1a8cd":[2,1,0,0,6,31],
-"namespace_hk_1_1_personalities.html#af6d1483bd3bd8eeea904af0050999cdb":[2,1,0,0,6,12],
-"namespace_hk_1_1_player.html":[2,1,0,0,7]
+"namespace_hk_1_1_personalities.html#af29fd5d0e88d39f25f9b2bf148d1a8cd":[2,1,0,0,6,31]
 };

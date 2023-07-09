@@ -1,5 +1,7 @@
 var NAVTREEINDEX8 =
 {
+"namespace_plugins_1_1_autobuy.html#ad4f67f84271ffa3bfde4cc2217b6c67c":[2,1,0,4,3,7],
+"namespace_plugins_1_1_autobuy.html#afe75320a9ff4f72cfb5c1f38e591160b":[2,1,0,4,3,11],
 "namespace_plugins_1_1_betting.html":[2,1,0,4,4],
 "namespace_plugins_1_1_betting.html#aaea5da366bbb0cf75f3360b2350b4c0a":[2,1,0,4,4,15],
 "namespace_plugins_1_1_betting.html#ac0de85a4c73d3d5ab79e6a0e24fea158":[2,1,0,4,4,16],
@@ -83,18 +85,8 @@ var NAVTREEINDEX8 =
 "namespace_plugins_1_1_i_p_ban.html#a45f649e31ad303f00a6ff7742abbbda0":[2,1,0,4,12,6],
 "namespace_plugins_1_1_i_p_ban.html#a97486146ef3222e8eab0c4ca684ba00e":[2,1,0,4,12,8],
 "namespace_plugins_1_1_kill_tracker.html":[2,1,0,4,13],
-"namespace_plugins_1_1_kill_tracker.html#a136a179190bee8c2e4f623a81def0017":[2,1,0,4,13,14],
-"namespace_plugins_1_1_kill_tracker.html#a2e331fbe31db656518d8a6c5d36dea69":[2,1,0,4,13,4],
-"namespace_plugins_1_1_kill_tracker.html#a65e1bc5acd5ddcc3b344b675c35408c4":[2,1,0,4,13,2],
-"namespace_plugins_1_1_kill_tracker.html#a89cae692659382454da9edbc182d2b51":[2,1,0,4,13,10],
-"namespace_plugins_1_1_kill_tracker.html#a8ea43c2eed9c1a02a59868568dc14208":[2,1,0,4,13,3],
-"namespace_plugins_1_1_kill_tracker.html#a9b8573369a84493d7cbd4dcf5d6400c8":[2,1,0,4,13,6],
-"namespace_plugins_1_1_kill_tracker.html#a9de4788f9050f8256eb34a930435159e":[2,1,0,4,13,8],
-"namespace_plugins_1_1_kill_tracker.html#aa138ba34d6b61a27e417a1e23b48234e":[2,1,0,4,13,7],
-"namespace_plugins_1_1_kill_tracker.html#aba8c51676c53900e4082191ef12fe43a":[2,1,0,4,13,12],
-"namespace_plugins_1_1_kill_tracker.html#ad80f6961c1ae0808f3397e9446f6063e":[2,1,0,4,13,15],
-"namespace_plugins_1_1_kill_tracker.html#ae10bdd2a8038e3765212befd9ccc90c1":[2,1,0,4,13,5],
-"namespace_plugins_1_1_kill_tracker.html#ae5092925cee194b6ffae856c6345c657":[2,1,0,4,13,9],
+"namespace_plugins_1_1_kill_tracker.html#a136a179190bee8c2e4f623a81def0017":[2,1,0,4,13,15],
+"namespace_plugins_1_1_kill_tracker.html#ad80f6961c1ae0808f3397e9446f6063e":[2,1,0,4,13,16],
 "namespace_plugins_1_1_light_control.html":[2,1,0,4,14],
 "namespace_plugins_1_1_light_control.html#a3f76ed56a7b5a27ca9abbdc5ddc29cc0":[2,1,0,4,14,6],
 "namespace_plugins_1_1_light_control.html#aa01e45c255c8d8ece2027344b24bf3ee":[2,1,0,4,14,11],
@@ -249,5 +241,13 @@ var NAVTREEINDEX8 =
 "namespace_plugins_1_1_warehouse.html#a628e4be31b4fe64317192772998221ec":[2,1,0,4,30,4],
 "namespace_plugins_1_1_warehouse.html#a6b9304cd83e1ffc2cb7595293a031bb4":[2,1,0,4,30,14],
 "namespace_plugins_1_1_warehouse.html#a755e2348cc9b45e507ab8a2c6e5734d6":[2,1,0,4,30,18],
-"namespace_plugins_1_1_warehouse.html#a7a25f357257eafffcee4c0589d8abd3b":[2,1,0,4,30,16]
+"namespace_plugins_1_1_warehouse.html#a7a25f357257eafffcee4c0589d8abd3b":[2,1,0,4,30,16],
+"namespace_plugins_1_1_warehouse.html#a7df1837dbc68191b36f15134db220adf":[2,1,0,4,30,7],
+"namespace_plugins_1_1_warehouse.html#a96a5093ae4d8462dd7f4cefdfeed044f":[2,1,0,4,30,11],
+"namespace_plugins_1_1_warehouse.html#ab0cf1a70b67f930d76eef50e432bdd0e":[2,1,0,4,30,3],
+"namespace_plugins_1_1_warehouse.html#abae2ce816c3ece07dcaed58eda4b1607":[2,1,0,4,30,6],
+"namespace_plugins_1_1_warehouse.html#ad5694bb70ccdf017122a2f2e4468fdcd":[2,1,0,4,30,5],
+"namespace_plugins_1_1_warehouse.html#ae8480cc55f017b84ac3f88f13b8ed7d9":[2,1,0,4,30,10],
+"namespace_plugins_1_1_warehouse.html#aead8b917d83f4b4506eb28a66133075b":[2,1,0,4,30,8],
+"namespace_startup_cache.html":[2,1,0,5]
 };

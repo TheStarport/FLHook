@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['savegamedetour_0',['SaveGameDetour',['../class_save_game_detour.html',1,'']]],
-  ['sensor_1',['Sensor',['../struct_plugins_1_1_system_sensor_1_1_sensor.html',1,'Plugins::SystemSensor']]],
-  ['socket_5fconnection_2',['SOCKET_CONNECTION',['../struct_s_o_c_k_e_t___c_o_n_n_e_c_t_i_o_n.html',1,'']]],
-  ['startupnpc_3',['StartupNpc',['../struct_plugins_1_1_npc_1_1_startup_npc.html',1,'Plugins::Npc']]]
+  ['reflectablesensor_0',['ReflectableSensor',['../struct_plugins_1_1_system_sensor_1_1_reflectable_sensor.html',1,'Plugins::SystemSensor']]],
+  ['rename_1',['Rename',['../struct_plugins_1_1_rename_1_1_rename.html',1,'Plugins::Rename']]],
+  ['rep_5fdata_5flist_2',['REP_DATA_LIST',['../struct_i_engine_hook_1_1_r_e_p___d_a_t_a___l_i_s_t.html',1,'IEngineHook']]],
+  ['restart_3',['Restart',['../struct_plugins_1_1_restart_1_1_restart.html',1,'Plugins::Restart']]]
 ];

@@ -177,6 +177,10 @@ Public Attributes</h2></td></tr>
 <tr class="separator:af288fbf148b067a4052f6b2238c65469"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7bdf530025ae2d35cd878f8f1957b264"><td class="memItemLeft" align="right" valign="top">std::wstring&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_kill_tracker_1_1_config.html#a7bdf530025ae2d35cd878f8f1957b264">deathDamageTemplate</a> = L&quot;{0} took most hull damage from {1}, {2}%&quot;</td></tr>
 <tr class="separator:a7bdf530025ae2d35cd878f8f1957b264"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a660bd4d62dd2d23cdd6238ce3971727e"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="struct_plugins_1_1_kill_tracker_1_1_kill_message.html">KillMessage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_kill_tracker_1_1_config.html#a660bd4d62dd2d23cdd6238ce3971727e">killStreakTemplates</a></td></tr>
+<tr class="separator:a660bd4d62dd2d23cdd6238ce3971727e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb1503be0b6c0bda35e244a2009eee0c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="struct_plugins_1_1_kill_tracker_1_1_kill_message.html">KillMessage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_plugins_1_1_kill_tracker_1_1_config.html#acb1503be0b6c0bda35e244a2009eee0c">milestoneTemplates</a></td></tr>
+<tr class="separator:acb1503be0b6c0bda35e244a2009eee0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Configurable fields for this plugin. </p>
@@ -218,7 +222,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p><a class="el" href="namespace_plugins_1_1_message.html">Message</a> broadcasted systemwide upon ship's death if enableDamageTracking is true. {0} is replaced with victim's name, {1} with player who dealt the most damage to them, {2} with percentage of hull damage taken byt that player. </p>
+<p>If enabled, broadcasts <a class="el" href="namespace_plugins_1_1_message.html">Message</a> broadcasted systemwide upon ship's death if enableDamageTracking is true. {0} is replaced with victim's name, {1} with player who dealt the most damage to them, {2} with percentage of hull damage taken byt that player. </p>
 
 </div>
 </div>
@@ -251,6 +255,48 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>If enabled, lists all NPC ship types killed, along with kill counts. </p>
+
+</div>
+</div>
+<a id="a660bd4d62dd2d23cdd6238ce3971727e" name="a660bd4d62dd2d23cdd6238ce3971727e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a660bd4d62dd2d23cdd6238ce3971727e">&#9670;&#160;</a></span>killStreakTemplates</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="struct_plugins_1_1_kill_tracker_1_1_kill_message.html">KillMessage</a>&gt; Plugins::KillTracker::Config::killStreakTemplates</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= </div>
+<div class="line">        {</div>
+<div class="line">            KillMessage(5, L<span class="stringliteral">&quot;{0} is on a killing spree!&quot;</span>), </div>
+<div class="line">            KillMessage(10, L<span class="stringliteral">&quot;{0} has claimed {2} kills!&quot;</span>), </div>
+<div class="line">            KillMessage(15, L<span class="stringliteral">&quot;{0} has slain {1} for kill {2}&quot;</span>)</div>
+<div class="line">        }</div>
+</div><!-- fragment --><p><a class="el" href="namespace_plugins_1_1_message.html">Message</a> broadcasted systemwide upon ship's death if template isn't empty. {0} corresponds to the killers name, {1} corresponds to the victims name, {2} corresponds to the kill count </p>
+
+</div>
+</div>
+<a id="acb1503be0b6c0bda35e244a2009eee0c" name="acb1503be0b6c0bda35e244a2009eee0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb1503be0b6c0bda35e244a2009eee0c">&#9670;&#160;</a></span>milestoneTemplates</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="struct_plugins_1_1_kill_tracker_1_1_kill_message.html">KillMessage</a>&gt; Plugins::KillTracker::Config::milestoneTemplates</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= </div>
+<div class="line">        {</div>
+<div class="line">            KillMessage(100, L<span class="stringliteral">&quot;{0} has killed their 100th enemy!&quot;</span>),</div>
+<div class="line">            KillMessage(1000, L<span class="stringliteral">&quot;{0} has killed their 1,000th enemy!&quot;</span>),</div>
+<div class="line">            KillMessage(10000, L<span class="stringliteral">&quot;{0} has killed their 10,000th enemy!&quot;</span>)</div>
+<div class="line">        }</div>
+</div><!-- fragment --><p><a class="el" href="namespace_plugins_1_1_message.html">Message</a> broadcasted systemwide when player reaches certain kill counts, if template isn't empty. {0} corresponds to said players name </p>
 
 </div>
 </div>

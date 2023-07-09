@@ -1,7 +1,13 @@
 var searchData=
 [
-  ['nameinfo_0',['NameInfo',['../struct_startup_cache_1_1_name_info.html',1,'StartupCache']]],
-  ['npc_1',['Npc',['../struct_plugins_1_1_npc_1_1_npc.html',1,'Plugins::Npc']]],
-  ['npc_5fmission_2',['NPC_MISSION',['../struct_plugins_1_1_event_1_1_n_p_c___m_i_s_s_i_o_n.html',1,'Plugins::Event']]],
-  ['npc_5fmission_5freflectable_3',['NPC_MISSION_REFLECTABLE',['../struct_plugins_1_1_event_1_1_config_1_1_n_p_c___m_i_s_s_i_o_n___r_e_f_l_e_c_t_a_b_l_e.html',1,'Plugins::Event::Config']]]
+  ['mark_5finfo_0',['MARK_INFO',['../struct_plugins_1_1_mark_1_1_m_a_r_k___i_n_f_o.html',1,'Plugins::Mark']]],
+  ['memorymanager_1',['MemoryManager',['../class_memory_manager.html',1,'']]],
+  ['miningstats_2',['MiningStats',['../struct_plugins_1_1_mining_control_1_1_mining_stats.html',1,'Plugins::MiningControl']]],
+  ['miscclientinfo_3',['MiscClientInfo',['../struct_plugins_1_1_con_data_1_1_misc_client_info.html',1,'Plugins::ConData::MiscClientInfo'],['../struct_plugins_1_1_misc_commands_1_1_misc_client_info.html',1,'Plugins::MiscCommands::MiscClientInfo']]],
+  ['move_4',['Move',['../struct_plugins_1_1_rename_1_1_move.html',1,'Plugins::Rename']]],
+  ['msvc_5f_5fcatchabletype_5',['msvc__CatchableType',['../structmsvc_____catchable_type.html',1,'']]],
+  ['msvc_5f_5fcatchabletypearray_6',['msvc__CatchableTypeArray',['../structmsvc_____catchable_type_array.html',1,'']]],
+  ['msvc_5f_5fpmd_7',['msvc__PMD',['../structmsvc_____p_m_d.html',1,'']]],
+  ['msvc_5f_5fthrowinfo_8',['msvc__ThrowInfo',['../structmsvc_____throw_info.html',1,'']]],
+  ['msvc_5f_5ftypedescriptor_9',['msvc__TypeDescriptor',['../structmsvc_____type_descriptor.html',1,'']]]
 ];

@@ -25,7 +25,7 @@ var searchData=
   ['usercmd_5ffactionmsg_22',['UserCmd_FactionMsg',['../group___message.html#gab772534466248467516b1ae394374be5',1,'Plugins::Message']]],
   ['usercmd_5fflhookinfo_23',['UserCmd_FLHookInfo',['../source_2_features_2_user_commands_8cpp.html#a33b9d22e8f3c9bf71e1dcdcf0e20b53c',1,'UserCommands.cpp']]],
   ['usercmd_5fgmsg_24',['UserCmd_GMsg',['../group___message.html#ga26da7e1f18f118e9bb9bbd2621455af9',1,'Plugins::Message']]],
-  ['usercmd_5fhelp_25',['UserCmd_Help',['../source_2_features_2_user_commands_8cpp.html#a53cb14e0ab86a6fdf4ba7c264a31ce29',1,'UserCmd_Help():&#160;UserCommands.cpp'],['../namespace_plugins_1_1_kill_tracker.html#aba8c51676c53900e4082191ef12fe43a',1,'Plugins::KillTracker::UserCmd_Help()']]],
+  ['usercmd_5fhelp_25',['UserCmd_Help',['../source_2_features_2_user_commands_8cpp.html#a53cb14e0ab86a6fdf4ba7c264a31ce29',1,'UserCommands.cpp']]],
   ['usercmd_5fid_26',['UserCmd_ID',['../source_2_features_2_user_commands_8cpp.html#a8d6a9b37a81ab683bf8ef3d0b9baeaef',1,'UserCommands.cpp']]],
   ['usercmd_5fids_27',['UserCmd_Ids',['../source_2_features_2_user_commands_8cpp.html#ab7a0c637a8cd6b2133b757e0576ebc5b',1,'UserCommands.cpp']]],
   ['usercmd_5fignore_28',['UserCmd_Ignore',['../source_2_features_2_user_commands_8cpp.html#a983c636b9f720f10b8dddc38d55f7dc0',1,'UserCommands.cpp']]],

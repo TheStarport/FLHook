@@ -168,6 +168,275 @@ IPC Interfaces Exposed</h4>
 Optional Plugin Dependencies</h4>
 <p>This plugin has no dependencies. </p>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="ga65e1bc5acd5ddcc3b344b675c35408c4" name="ga65e1bc5acd5ddcc3b344b675c35408c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga65e1bc5acd5ddcc3b344b675c35408c4">&#9670;&#160;</a></span>AddDamageEntry()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::AddDamageEntry </td>
+          <td>(</td>
+          <td class="paramtype">const DamageList **&#160;</td>
+          <td class="paramname"><em>damageList</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const ushort &amp;&#160;</td>
+          <td class="paramname"><em>subObjId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float &amp;&#160;</td>
+          <td class="paramname"><em>newHitPoints</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const enum DamageEntry::SubObjFate &amp;&#160;</td>
+          <td class="paramname"><em>fate</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hook on damage entry. </p>
+
+</div>
+</div>
+<a id="ga8ea43c2eed9c1a02a59868568dc14208" name="ga8ea43c2eed9c1a02a59868568dc14208"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8ea43c2eed9c1a02a59868568dc14208">&#9670;&#160;</a></span>CharacterSelect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::CharacterSelect </td>
+          <td>(</td>
+          <td class="paramtype">CHARACTER_ID const &amp;&#160;</td>
+          <td class="paramname"><em>cid</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>client</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>CharacterSelect hook. Clears damage tracking. </p>
+
+</div>
+</div>
+<a id="ga2e331fbe31db656518d8a6c5d36dea69" name="ga2e331fbe31db656518d8a6c5d36dea69"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2e331fbe31db656518d8a6c5d36dea69">&#9670;&#160;</a></span>clearDamageDone()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::clearDamageDone </td>
+          <td>(</td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>inflictor</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clears the damage done for a given ClientId. </p>
+
+</div>
+</div>
+<a id="gae10bdd2a8038e3765212befd9ccc90c1" name="gae10bdd2a8038e3765212befd9ccc90c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae10bdd2a8038e3765212befd9ccc90c1">&#9670;&#160;</a></span>clearDamageTaken()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::clearDamageTaken </td>
+          <td>(</td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>victim</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clears the damage taken for a given ClientId. </p>
+
+</div>
+</div>
+<a id="ga9b8573369a84493d7cbd4dcf5d6400c8" name="ga9b8573369a84493d7cbd4dcf5d6400c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9b8573369a84493d7cbd4dcf5d6400c8">&#9670;&#160;</a></span>Disconnect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::Disconnect </td>
+          <td>(</td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">EFLConnection&#160;</td>
+          <td class="paramname"><em>conn</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Disconnect hook. Clears all the info we are tracking. </p>
+
+</div>
+</div>
+<a id="gaa138ba34d6b61a27e417a1e23b48234e" name="gaa138ba34d6b61a27e417a1e23b48234e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa138ba34d6b61a27e417a1e23b48234e">&#9670;&#160;</a></span>LoadSettings()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::LoadSettings </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LoadSettings hook. Loads/generates config file and sets up global variables. </p>
+
+</div>
+</div>
+<a id="ga9de4788f9050f8256eb34a930435159e" name="ga9de4788f9050f8256eb34a930435159e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9de4788f9050f8256eb34a930435159e">&#9670;&#160;</a></span>PlayerLaunch()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::PlayerLaunch </td>
+          <td>(</td>
+          <td class="paramtype">ShipId&#160;</td>
+          <td class="paramname"><em>shipId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>client</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>PlayerLaunch hook. Clears damage tracking. </p>
+
+</div>
+</div>
+<a id="gae5092925cee194b6ffae856c6345c657" name="gae5092925cee194b6ffae856c6345c657"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae5092925cee194b6ffae856c6345c657">&#9670;&#160;</a></span>PrintNPCKills()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::PrintNPCKills </td>
+          <td>(</td>
+          <td class="paramtype">uint&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::wstring &amp;&#160;</td>
+          <td class="paramname"><em>charFile</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int &amp;&#160;</td>
+          <td class="paramname"><em>numKills</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Prints number of NPC kills for each arch. </p>
+
+</div>
+</div>
+<a id="ga89cae692659382454da9edbc182d2b51" name="ga89cae692659382454da9edbc182d2b51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga89cae692659382454da9edbc182d2b51">&#9670;&#160;</a></span>SendDeathMessage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::SendDeathMessage </td>
+          <td>(</td>
+          <td class="paramtype">const std::wstring &amp;&#160;</td>
+          <td class="paramname"><em>message</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const SystemId &amp;&#160;</td>
+          <td class="paramname"><em>system</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>clientVictim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>clientKiller</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hook on SendDeathMessage, prints out the various messages this plugin is responsible for sending. </p>
+
+</div>
+</div>
 <a id="ga9c80f40a2fc4b5cd89c7d37872bc443c" name="ga9c80f40a2fc4b5cd89c7d37872bc443c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga9c80f40a2fc4b5cd89c7d37872bc443c">&#9670;&#160;</a></span>ShipDestroyed()</h2>
 
@@ -201,6 +470,36 @@ Optional Plugin Dependencies</h4>
 </div><div class="memdoc">
 
 <p>Hook on ShipDestroyed. Increments the number of kills of a player if there is one. </p>
+
+</div>
+</div>
+<a id="gac42e5053604173723ced9827ddf874f0" name="gac42e5053604173723ced9827ddf874f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac42e5053604173723ced9827ddf874f0">&#9670;&#160;</a></span>TrackKillStreaks()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::KillTracker::TrackKillStreaks </td>
+          <td>(</td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>clientVictim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>clientKiller</em> = <code>NULL</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Keeps track of the kills of the player during their current session. </p>
 
 </div>
 </div>

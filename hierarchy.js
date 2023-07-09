@@ -93,6 +93,7 @@ var hierarchy =
       [ "Plugins::Event::Config::CARGO_MISSION_REFLECTABLE", "struct_plugins_1_1_event_1_1_config_1_1_c_a_r_g_o___m_i_s_s_i_o_n___r_e_f_l_e_c_t_a_b_l_e.html", null ],
       [ "Plugins::Event::Config::NPC_MISSION_REFLECTABLE", "struct_plugins_1_1_event_1_1_config_1_1_n_p_c___m_i_s_s_i_o_n___r_e_f_l_e_c_t_a_b_l_e.html", null ],
       [ "Plugins::KillTracker::Config", "struct_plugins_1_1_kill_tracker_1_1_config.html", null ],
+      [ "Plugins::KillTracker::KillMessage", "struct_plugins_1_1_kill_tracker_1_1_kill_message.html", null ],
       [ "Plugins::LightControl::Config", "struct_plugins_1_1_light_control_1_1_config.html", null ],
       [ "Plugins::Mark::Config", "struct_plugins_1_1_mark_1_1_config.html", null ],
       [ "Plugins::Message::Config", "struct_plugins_1_1_message_1_1_config.html", null ],

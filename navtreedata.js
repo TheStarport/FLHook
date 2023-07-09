@@ -78,18 +78,18 @@ var NAVTREEINDEX =
 "_admin_8cpp.html",
 "_f_l_hook_8cpp.html#a164f305d709baa4c4e2a854c1c36ca82",
 "_hk_client_server_interface_8cpp.html#ab8ebfa7292f513a4e2a8197f93f8f04e",
-"_mark_8h.html#a494c17e45ec73c49cc27a423914e5518",
-"_send_comm_8cpp.html#a5dd008171bc27e4f83dc5ab4f57b2dea",
-"class_plugins_1_1_message_1_1_client_info.html#ac85c78cb1c43cc46778d232c8eda6384",
-"group___i_p_ban.html#ga957de83ac423a476b4c30b3830f29e43",
-"namespace_hk_1_1_player.html#a04116fc50c4deecc4a14841e20736708",
-"namespace_plugins_1_1_betting.html",
-"namespace_plugins_1_1_warehouse.html#a7df1837dbc68191b36f15134db220adf",
-"struct_plugin_hook_data.html",
-"struct_plugins_1_1_con_data_1_1_config.html#a2c10d807f0603d397dad40c704fd6e7a",
-"struct_plugins_1_1_light_control_1_1_global.html",
-"struct_plugins_1_1_npc_1_1_config.html",
-"struct_plugins_1_1_system_sensor_1_1_active_network.html#a383c8f5a596b1cb19fe67e4b27b9429e"
+"_mark_8h.html#abc081f0b4198fb4614eb092f0ca7a643",
+"_settings_8cpp.html#a896bea41f065ef3cac36cd59dc38a2bc",
+"dir_1476ea2b63af23484f180fbefe8bda17.html",
+"group___kill_tracker.html#ga89cae692659382454da9edbc182d2b51",
+"namespace_hk_1_1_personalities.html#af6d1483bd3bd8eeea904af0050999cdb",
+"namespace_plugins_1_1_autobuy.html#ad4f67f84271ffa3bfde4cc2217b6c67c",
+"namespace_startup_cache.html#a6ccc43d9bc08af807ef8d19b74bd6cec",
+"struct_plugin_manager_1_1_function_hook_props.html#a8aa00ed6e682d29ecee407863d11ee81",
+"struct_plugins_1_1_con_data_1_1_config.html#a7e91e2f2fe54cffa947e7f26841e2673",
+"struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html",
+"struct_plugins_1_1_n_p_c_spin_protection_1_1_config.html#a1c3df6d954899af4f972458e47b453dd",
+"struct_plugins_1_1_stats_1_1_global.html#a7557de040a2398966d31656d80ebb5b3"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
