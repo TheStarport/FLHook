@@ -265,7 +265,7 @@ namespace Plugins::SystemSensor
 
 	void JumpInComplete([[maybe_unused]] SystemId& system, [[maybe_unused]] ShipId& ship)
 	{
-		ClientId& client = Hk::Client::GetClientIdByShip(ship).value();
+		ClientId client = Hk::Client::GetClientIdByShip(ship).value();
 		EnableSensorAccess(client);
 		if (global->networks[client].inJumpGate)
 		{

@@ -153,7 +153,7 @@ class Serializer
 			if constexpr (IsWString<StrType>)
 			{
 				std::map<std::wstring, std::wstring> mapOfWstring;
-				for (auto& i : mapOfString)
+				for (const auto& i : mapOfString)
 				{
 					mapOfWstring[stows(i.first)] = stows(i.second);
 				}
@@ -162,7 +162,7 @@ class Serializer
 			else
 			{
 				std::map<std::string, std::wstring> mapOfWstring;
-				for (auto& i : mapOfString)
+				for (const auto& i : mapOfString)
 				{
 					mapOfWstring[i.first] = stows(i.second);
 				}

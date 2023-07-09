@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.7
+- Fix code smells shown in SonarLint.
+
 ## 4.0.6
 
 - Moved multikill tracking to KillTracker plugin & removed corresponding functionality
