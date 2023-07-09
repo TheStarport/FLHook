@@ -65,6 +65,8 @@ namespace IServerImplHook
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
+	const auto hello = "hi" + L" hi";
+	
 	if (bExecuted)
 		return TRUE;
 
