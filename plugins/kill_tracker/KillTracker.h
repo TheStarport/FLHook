@@ -8,14 +8,10 @@ namespace Plugins::KillTracker
 	//! Struct to hold the Kill Streaks
 	struct KillMessage final : Reflectable
 	{
-		uint number;
+		uint number = 0;
 		std::wstring message;
-		KillMessage(int number_, std::wstring message_)
-		{
-			number = number_;
-			message = message_;
-		}
-		KillMessage() {}
+		KillMessage(int numberParam, std::wstring const& messageParam) : number(numberParam), message(messageParam) {}
+		KillMessage() = default;
 	};
 
 	//! Configurable fields for this plugin
