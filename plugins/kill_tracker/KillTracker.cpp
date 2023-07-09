@@ -31,11 +31,9 @@ namespace Plugins::KillTracker
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void UserCmd_Help(ClientId& client, [[maybe_unused]] const std::wstring& param)
-	{
-		PrintUserCmdText(client, L"/kills <player name>");
-	}
-
+	/** @ingroup KillTracker
+	 * @brief Prints number of NPC kills for each arch
+	 */
 	void PrintNPCKills(uint client, std::wstring& charFile, int& numKills)
 	{
 		for (const auto lines = Hk::Player::ReadCharFile(charFile); auto& str : lines.value())
@@ -89,6 +87,30 @@ namespace Plugins::KillTracker
 	}
 
 	/** @ingroup KillTracker
+	 * @brief Keeps track of the kills of the player during their current session
+	 */
+	void TrackKillStreaks(ClientId& clientVictim, ClientId& clientKiller = NULL)
+	{	
+		if (clientKiller != NULL)
+		{
+			auto killerKillStreak = global->killStreaks.find(clientKiller);
+			if (killerKillStreak != global->killStreaks.end())
+			{
+				global->killStreaks[clientKiller]++;
+			}
+			else if (killerKillStreak == global->killStreaks.end())
+			{
+				global->killStreaks[clientKiller] = 1;
+			};
+		}
+		
+		if (auto victimKillStreak = global->killStreaks.find(clientVictim); victimKillStreak != global->killStreaks.end())
+		{
+			global->killStreaks[clientVictim] = 0;
+		}
+	}
+
+	/** @ingroup KillTracker
 	 * @brief Hook on ShipDestroyed. Increments the number of kills of a player if there is one.
 	 */
 	void ShipDestroyed(DamageList** _dmg, const DWORD** ecx, const uint& kill)
@@ -102,15 +124,24 @@ namespace Plugins::KillTracker
 				const DamageList* dmg = *_dmg;
 				const auto killerId = Hk::Client::GetClientIdByShip(
 				    dmg->get_cause() == DamageCause::Unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
+				const auto victimId = Hk::Client::GetClientIdByShip(cShip->get_id());
 
-				if (killerId.has_value() && killerId.value() != client)
+				if (killerId.has_value() && victimId.has_value() && killerId.value() != client)
 				{
 					Hk::Player::IncrementPvpKills(killerId.value());
+					TrackKillStreaks(*victimId, *killerId);
+				}
+				else if (victimId.has_value() && killerId.value() != client)
+				{
+					TrackKillStreaks(*victimId);
 				}
 			}
 		}
 	}
 
+	/** @ingroup KillTracker
+	 * @brief Hook on damage entry
+	 */
 	void AddDamageEntry(
 	    const DamageList** damageList, const ushort& subObjId, const float& newHitPoints, [[maybe_unused]] const enum DamageEntry::SubObjFate& fate)
 	{
@@ -125,18 +156,27 @@ namespace Plugins::KillTracker
 		}
 	}
 
+	/** @ingroup KillTracker
+	 * @brief Clears the damage taken for a given ClientId
+	 */
 	void clearDamageTaken(ClientId& victim)
 	{
 		for (auto& damageEntry : global->damageArray[victim])
 			damageEntry = 0.0f;
 	}
 
+	/** @ingroup KillTracker
+	 * @brief Clears the damage done for a given ClientId
+	 */
 	void clearDamageDone(ClientId& inflictor)
 	{
 		for (int i = 1; i < MaxClientId + 1; i++)
 			global->damageArray[i][inflictor] = 0.0f;
 	}
 
+	/** @ingroup KillTracker
+	 * @brief Hook on SendDeathMessage, prints out the various messages this plugin is responsible for sending
+	 */
 	void SendDeathMessage([[maybe_unused]] const std::wstring& message, const SystemId& system, ClientId& clientVictim, ClientId& clientKiller)
 	{
 		if (global->config->enableDamageTracking && clientVictim && clientKiller)
@@ -166,8 +206,54 @@ namespace Plugins::KillTracker
 			greatestDamageMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, greatestDamageMessage);
 			Hk::Message::FMsgS(system, greatestDamageMessage);
 		}
+
+		// Messages relating to kill streaks
+		if (!global->killStreakTemplates.empty() && clientVictim && clientKiller)
+		{
+			std::wstring killerName = Hk::Client::GetCharacterNameByID(clientKiller).value();
+			std::wstring victimName = Hk::Client::GetCharacterNameByID(clientVictim).value();
+			uint numKills;
+
+			if (global->killStreaks.find(clientKiller) != global->killStreaks.end())
+			{
+				numKills = global->killStreaks[clientKiller];
+			}
+			std::wformat_args templateArgs = std::make_wformat_args(killerName, victimName, numKills);
+			std::wstring killStreakMessage;
+
+			auto templateMessage = global->killStreakTemplates.find(numKills);
+			if (templateMessage != global->killStreakTemplates.end())
+			{
+				std::wstring templateString = templateMessage->second;
+				killStreakMessage = std::vformat(templateString, templateArgs);
+				killStreakMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, killStreakMessage);
+				Hk::Message::FMsgS(system, killStreakMessage);
+			}
+		}
+
+		// Messages relating to milestones
+		if (!global->milestoneTemplates.empty() && clientKiller)
+		{
+			std::wstring killerName = Hk::Client::GetCharacterNameByID(clientKiller).value();
+			auto numServerKills = Hk::Player::GetPvpKills(killerName).value();
+
+			std::wformat_args templateArgs = std::make_wformat_args(killerName, numServerKills);
+			std::wstring milestoneMessage;
+
+			auto templateMessage = global->milestoneTemplates.find(numServerKills);
+			if (templateMessage != global->milestoneTemplates.end())
+			{
+				std::wstring templateString = templateMessage->second;
+				milestoneMessage = std::vformat(templateString, templateArgs);
+				milestoneMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, milestoneMessage);
+				Hk::Message::FMsgS(system, milestoneMessage);
+			}
+		}
 	}
 
+	/** @ingroup KillTracker
+	 * @brief Disconnect hook. Clears all the info we are tracking
+	 */
 	void Disconnect(ClientId& client, [[maybe_unused]] EFLConnection conn)
 	{
 		if (global->config->enableDamageTracking)
@@ -175,8 +261,19 @@ namespace Plugins::KillTracker
 			clearDamageTaken(client);
 			clearDamageDone(client);
 		}
+		if (!global->killStreakTemplates.empty())
+		{
+			auto clientStreakEntry = global->killStreaks.find(client);
+			if (clientStreakEntry != global->killStreaks.end())
+			{
+				global->killStreaks.erase(clientStreakEntry);
+			}
+		}
 	}
 
+	/** @ingroup KillTracker
+	 * @brief PlayerLaunch hook. Clears damage tracking
+	 */
 	void PlayerLaunch([[maybe_unused]] ShipId shipId, ClientId& client)
 	{
 		if (global->config->enableDamageTracking)
@@ -191,6 +288,9 @@ namespace Plugins::KillTracker
 		}
 	}
 
+	/** @ingroup KillTracker
+	 * @brief CharacterSelect hook. Clears damage tracking
+	 */
 	void CharacterSelect([[maybe_unused]] CHARACTER_ID const& cid, ClientId& client)
 	{
 		if (global->config->enableDamageTracking)
@@ -204,20 +304,30 @@ namespace Plugins::KillTracker
 	    CreateUserCommand(L"/kills", L"[playerName]", UserCmd_Kills, L"Displays how many pvp kills you (or player you named) have."),
 	}};
 
-	// Load Settings
+	/** @ingroup KillTracker
+	 * @brief LoadSettings hook. Loads/generates config file and sets up global variables
+	 */
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
-
 		for (auto& subArray : global->damageArray)
 			subArray.fill(0.0f);
+		for (auto& killStreakTemplate : global->config->killStreakTemplates) 
+		{
+			global->killStreakTemplates[killStreakTemplate.number] = killStreakTemplate.message;
+		}
+		for (auto& milestoneTemplate : global->config->milestoneTemplates)
+		{
+			global->milestoneTemplates[milestoneTemplate.number] = milestoneTemplate.message;
+		}
 	}
 } // namespace Plugins::KillTracker
 
 using namespace Plugins::KillTracker;
 
-REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking))
+REFL_AUTO(type(KillMessage), field(number), field(message));
+REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking), field(killStreakTemplates), field(milestoneTemplates));
 
 DefaultDllMainSettings(LoadSettings);
 

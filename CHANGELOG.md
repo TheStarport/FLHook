@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.6
+
+- Moved multikill tracking to KillTracker plugin & removed corresponding functionality
+from other places in the code.
+
 ## 4.0.5
 
 - Changed CargoDrop plugin to accept more than two commodities, amount of Hull drops now calculcated by mass rather than ship hold size.
