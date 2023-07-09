@@ -22,6 +22,8 @@ jobs:
           repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_branch }}
           fetch-depth: 0
+          submodules: true
+      - run: vcpkg install --triplet x86-windows
       - name: 'Download Artifacts'
         uses: actions/github-script@v6
         with:
