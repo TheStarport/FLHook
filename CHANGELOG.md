@@ -1,5 +1,7 @@
 # Changelog
 
+force rebuild
+
 ## 4.0.7
 - Fix code smells shown in SonarLint.
 
