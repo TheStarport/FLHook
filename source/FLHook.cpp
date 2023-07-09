@@ -3,6 +3,8 @@
 
 #include "Memory/MemoryManager.hpp"
 
+void* bad = nullptr;
+
 // structs
 struct SOCKET_CONNECTION
 {
@@ -65,8 +67,6 @@ namespace IServerImplHook
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-	const auto hello = "hi" + L" hi";
-	
 	if (bExecuted)
 		return TRUE;
 
