@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
+#include "API/FLServer/Client.hpp"
 
 EXPORT uint g_DmgTo = 0;
 EXPORT uint g_DmgToSpaceId = 0;

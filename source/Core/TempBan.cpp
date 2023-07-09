@@ -2,6 +2,8 @@
 
 #include "Core/TempBan.hpp"
 #include "Defs/FLHookConfig.hpp"
+#include "API/FLServer/Client.hpp"
+#include "API/FLServer/Player.hpp"
 
 
 void TempBanManager::ClearFinishedTempBans()

@@ -11,6 +11,7 @@
 #include "Defs/FLHookConfig.hpp"
 
 #include <API/FLHook/Plugin.hpp>
+#include "API/API.hpp"
 
 HANDLE hProcFL = nullptr;
 HMODULE server = nullptr;
@@ -279,6 +280,7 @@ void PrintUserCmdText(ClientId client, std::wstring_view text)
         PrintUserCmdText(client, text.substr(0, newLineChar));
         PrintUserCmdText(client, text.substr(newLineChar + 1, std::wstring::npos));
     }
+
 }
 
 // Print message to all ships within the specific number of meters of the player.

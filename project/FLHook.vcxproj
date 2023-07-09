@@ -84,6 +84,7 @@
     <ClCompile Include="..\Source\Hooks\SendComm.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Include\API\API.hpp" />
     <ClInclude Include="..\Include\API\FLHook\MailManager.hpp" />
     <ClInclude Include="..\Include\API\FLHook\Plugin.hpp" />
     <ClInclude Include="..\Include\API\FLServer\Admin.hpp" />

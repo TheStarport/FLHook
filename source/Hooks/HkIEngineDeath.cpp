@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
+#include "API/API.hpp"
 
 std::wstring SetSizeToSmall(const std::wstring& DataFormat) { return DataFormat.substr(0, 8) + L"90"; }
 

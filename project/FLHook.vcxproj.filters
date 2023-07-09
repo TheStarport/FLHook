@@ -405,5 +405,8 @@
     <ClInclude Include="..\Include\Core\ClientServerInterface.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\API\API.hpp">
+      <Filter>Include\API</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

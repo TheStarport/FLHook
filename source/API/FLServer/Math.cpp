@@ -1,8 +1,8 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include "API/FLServer/Math.hpp"
 
 namespace Hk::Math
 {

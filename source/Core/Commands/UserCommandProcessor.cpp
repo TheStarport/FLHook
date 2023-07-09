@@ -4,6 +4,9 @@
 #include "Defs/FLHookConfig.hpp"
 #include "API/FLHook/MailManager.hpp"
 #include "Global.hpp"
+
+#include "API/API.hpp"
+
 #include <Core/Commands/UserCommandProcessor.hpp>
 
 bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstring_view commandStr)

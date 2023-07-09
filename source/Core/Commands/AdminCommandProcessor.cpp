@@ -5,6 +5,8 @@
 #include "Core/Commands/AdminCommandProcessor.hpp"
 #include "Global.hpp"
 
+#include "API/API.hpp"
+
 std::wstring AdminCommandProcessor::ProcessCommand(std::wstring_view commandString)
 {
     auto params = StringUtils::GetParams(commandString, ' ');

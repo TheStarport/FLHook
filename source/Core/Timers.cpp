@@ -4,6 +4,8 @@
 
 #include "Global.hpp"
 
+#include "API/API.hpp"
+
 PerfTimer::PerfTimer(const std::wstring& func, uint warn) : function(func), warning(warn) {}
 
 void PerfTimer::Start() { tmStart = TimeUtils::UnixMilliseconds(); }

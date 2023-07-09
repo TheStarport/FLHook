@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
+#include "API/FLServer/Chat.hpp"
 
 /**************************************************************************************************************
 called when chat-text is being sent to a player, we reformat it(/set chatfont)

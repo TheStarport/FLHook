@@ -3,6 +3,8 @@
 #include "Global.hpp"
 #include "Core/ClientServerInterface.hpp"
 
+#include "API/API.hpp"
+
 namespace IEngineHook
 {
     void __cdecl UpdateTime(double interval);

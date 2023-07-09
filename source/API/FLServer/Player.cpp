@@ -1,6 +1,13 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
+#include "API/FLServer/Player.hpp"
+
+#include "API/FLServer/Chat.hpp"
+#include "API/FLServer/Client.hpp"
+#include "API/FLServer/Math.hpp"
+#include "API/Utils/IniUtils.hpp"
+
 
 namespace Hk::Player
 {

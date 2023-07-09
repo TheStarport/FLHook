@@ -1,6 +1,9 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
+#include "API/FLServer/Admin.hpp"
+#include "API/FLServer/Client.hpp"
+
 
 bool g_bNPCDisabled;
 

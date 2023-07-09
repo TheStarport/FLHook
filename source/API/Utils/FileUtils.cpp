@@ -1,4 +1,8 @@
+
 #include "PCH.hpp"
+#include "API/FLServer/Client.hpp"
+#include "API/Utils/FileUtils.hpp"
+
 
 cpp::result<std::wstring, Error> FileUtils::FileToBuffer(const std::wstring& fileLocation)
 {

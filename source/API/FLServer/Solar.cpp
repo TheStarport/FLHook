@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 
 #include "API/FLServer/Chat.hpp"
+#include "API/FLServer/Solar.hpp"
 
 namespace Hk::Solar
 {

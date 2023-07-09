@@ -1,6 +1,8 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
+#include "API/FLServer/Client.hpp"
+#include "API/FLServer/Player.hpp"
 #include "Core/ClientServerInterface.hpp"
 
 namespace IServerImplHook

@@ -1,7 +1,8 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
-#include "Core\ClientServerInterface.hpp"
+#include "API/FLHook/MailManager.hpp"
+#include "Core/ClientServerInterface.hpp"
 
 namespace IServerImplHook
 {

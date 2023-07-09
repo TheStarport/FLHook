@@ -3,6 +3,8 @@
 #include "Global.hpp"
 #include "Core/ClientServerInterface.hpp"
 
+#include "API/API.hpp"
+
 namespace IServerImplHook
 {
     bool Login__InnerBefore(const SLoginInfo& li, ClientId client)

@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
+#include "API/FLServer/Client.hpp"
 
 namespace IServerImplHook
 {

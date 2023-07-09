@@ -1,7 +1,8 @@
 #include "PCH.hpp"
 
 #include "Global.hpp"
-#include "Core/ClientServerInterface.hpp"
+#include "API/API.hpp"
+
 
 namespace IServerImplHook
 {
