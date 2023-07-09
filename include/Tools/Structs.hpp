@@ -98,9 +98,6 @@ struct CLIENT_INFO
 	CHATSIZE chatSize;
 	CHATSTYLE chatStyle;
 
-	// MultiKillMessages
-	uint iKillsInARow;
-
 	// bans
 	uint iConnects; // incremented when player connects
 
