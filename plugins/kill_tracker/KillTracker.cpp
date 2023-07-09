@@ -31,11 +31,9 @@ namespace Plugins::KillTracker
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void UserCmd_Help(ClientId& client, [[maybe_unused]] const std::wstring& param)
-	{
-		PrintUserCmdText(client, L"/kills <player name>");
-	}
-
+	/** @ingroup KillTracker
+	 * @brief Prints number of NPC kills for each arch
+	 */
 	void PrintNPCKills(uint client, std::wstring& charFile, int& numKills)
 	{
 		for (const auto lines = Hk::Player::ReadCharFile(charFile); auto& str : lines.value())
@@ -88,6 +86,9 @@ namespace Plugins::KillTracker
 		PrintUserCmdText(client, std::format(L"Level: {}", rank));
 	}
 
+	/** @ingroup KillTracker
+	 * @brief Keeps track of the kills of the player during their current session
+	 */
 	void TrackKillStreaks(ClientId& clientVictim, ClientId& clientKiller = NULL)
 	{	
 		if (clientKiller != NULL)
@@ -138,6 +139,9 @@ namespace Plugins::KillTracker
 		}
 	}
 
+	/** @ingroup KillTracker
+	 * @brief Hook on damage entry
+	 */
 	void AddDamageEntry(
 	    const DamageList** damageList, const ushort& subObjId, const float& newHitPoints, [[maybe_unused]] const enum DamageEntry::SubObjFate& fate)
 	{
@@ -152,18 +156,27 @@ namespace Plugins::KillTracker
 		}
 	}
 
+	/** @ingroup KillTracker
+	 * @brief Clears the damage taken for a given ClientId
+	 */
 	void clearDamageTaken(ClientId& victim)
 	{
 		for (auto& damageEntry : global->damageArray[victim])
 			damageEntry = 0.0f;
 	}
 
+	/** @ingroup KillTracker
+	 * @brief Clears the damage done for a given ClientId
+	 */
 	void clearDamageDone(ClientId& inflictor)
 	{
 		for (int i = 1; i < MaxClientId + 1; i++)
 			global->damageArray[i][inflictor] = 0.0f;
 	}
 
+	/** @ingroup KillTracker
+	 * @brief Hook on SendDeathMessage, prints out the various messages this plugin is responsible for sending
+	 */
 	void SendDeathMessage([[maybe_unused]] const std::wstring& message, const SystemId& system, ClientId& clientVictim, ClientId& clientKiller)
 	{
 		if (global->config->enableDamageTracking && clientVictim && clientKiller)
@@ -203,7 +216,7 @@ namespace Plugins::KillTracker
 
 			if (global->killStreaks.find(clientKiller) != global->killStreaks.end())
 			{
-				uint numKills = global->killStreaks[clientKiller];
+				numKills = global->killStreaks[clientKiller];
 			}
 			std::wformat_args templateArgs = std::make_wformat_args(killerName, victimName, numKills);
 			std::wstring killStreakMessage;
@@ -238,6 +251,9 @@ namespace Plugins::KillTracker
 		}
 	}
 
+	/** @ingroup KillTracker
+	 * @brief Disconnect hook. Clears all the info we are tracking
+	 */
 	void Disconnect(ClientId& client, [[maybe_unused]] EFLConnection conn)
 	{
 		if (global->config->enableDamageTracking)
@@ -255,6 +271,9 @@ namespace Plugins::KillTracker
 		}
 	}
 
+	/** @ingroup KillTracker
+	 * @brief PlayerLaunch hook. Clears damage tracking
+	 */
 	void PlayerLaunch([[maybe_unused]] ShipId shipId, ClientId& client)
 	{
 		if (global->config->enableDamageTracking)
@@ -269,6 +288,9 @@ namespace Plugins::KillTracker
 		}
 	}
 
+	/** @ingroup KillTracker
+	 * @brief CharacterSelect hook. Clears damage tracking
+	 */
 	void CharacterSelect([[maybe_unused]] CHARACTER_ID const& cid, ClientId& client)
 	{
 		if (global->config->enableDamageTracking)
@@ -282,19 +304,22 @@ namespace Plugins::KillTracker
 	    CreateUserCommand(L"/kills", L"[playerName]", UserCmd_Kills, L"Displays how many pvp kills you (or player you named) have."),
 	}};
 
-	// Load Settings
+	/** @ingroup KillTracker
+	 * @brief LoadSettings hook. Loads/generates config file and sets up global variables
+	 */
 	void LoadSettings()
 	{
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
 		for (auto& subArray : global->damageArray)
 			subArray.fill(0.0f);
-		for (auto& killStreakTemplate : global->config->killStreakTemplates) {
+		for (auto& killStreakTemplate : global->config->killStreakTemplates) 
+		{
 			global->killStreakTemplates[killStreakTemplate.number] = killStreakTemplate.message;
 		}
 		for (auto& milestoneTemplate : global->config->milestoneTemplates)
 		{
-			global->killStreakTemplates[milestoneTemplate.number] = milestoneTemplate.message;
+			global->milestoneTemplates[milestoneTemplate.number] = milestoneTemplate.message;
 		}
 	}
 } // namespace Plugins::KillTracker
