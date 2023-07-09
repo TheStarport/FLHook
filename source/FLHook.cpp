@@ -263,6 +263,7 @@ void ProcessPendingCommands()
     }
 }
 
+//TODO: Move this into a better file such as User Commands.
 void PrintUserCmdText(ClientId client, std::wstring_view text)
 {
     if (const auto newLineChar = text.find(L'\n'); newLineChar == std::wstring::npos)
