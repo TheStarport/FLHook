@@ -699,19 +699,7 @@ namespace Hk::Player
         }
         DeleteFileW(tmpPath.c_str());
 
-        // Update the char name in the new char file.
-        // Add a space to the value so the ini file line looks like "<key> =
-        // <value>" otherwise Ioncross Server Operator can't decode the file
-        // correctly
-        std::wstring value = L" ";
-        for (uint i = 0; i < newCharname.length(); i++)
-        {
-            char hiByte = newCharname[i] >> 8;
-            char loByte = newCharname[i] & 0xFF;
-            wchar_t buf[8];
-            swprintf_s(buf, L"%02X%02X", static_cast<uint>(hiByte) & 0xFF, static_cast<uint>(loByte) & 0xFF);
-            value += buf;
-        }
+        std::wstring value = std::format(L" {}", StringUtils::ToHex(newCharname));
 
         IniUtils::i()->WriteToPlayerFile(player, L"Name", value).Handle();
 

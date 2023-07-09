@@ -2,7 +2,7 @@
 
 bool IsValidHex(std::wstring_view input)
 {
-    constexpr std::wstring_view characters = L"1234567890ABCDEFabcdf" ;
+    constexpr std::wstring_view characters = L"1234567890ABCDEFabcdf";
     return input.find_first_not_of(characters) == std::wstring::npos;
 }
 
@@ -70,38 +70,11 @@ std::string StringUtils::wstos(const std::wstring& text)
 std::wstring StringUtils::ToHex(std::wstring_view input)
 {
     std::wostringstream output;
+
     for (const auto& c : input)
     {
         const auto val = static_cast<long>(c);
-        output << std::hex << val;
+        output << std::uppercase << std::setfill(L'0') << std::setw(4) << std::hex << val;
     }
-    return output.str();
-}
-
-std::wstring StringUtils::FromHex(std::wstring_view hex)
-{
-    if (!IsValidHex(hex))
-    {
-        throw;
-        // TODO: Log and throw custom exception.
-    }
-    std::wostringstream output;
-    std::vector<byte> bytes;
-
-    for (const auto i : hex)
-    {
-        bytes.emplace_back(static_cast<byte>(i));
-    }
-
-    std::vector<wchar_t> sixteenByte;
-
-    for (uint i = 0; i <= bytes.size(); i += 2)
-    {
-        wchar_t val;
-        std::memcpy(&val, &bytes[i], sizeof(val));
-
-        sixteenByte.emplace_back(val);
-    }
-
     return output.str();
 }
