@@ -5,6 +5,8 @@
 
 void* bad = nullptr;
 
+void* bad2 = nullptr;
+
 // structs
 struct SOCKET_CONNECTION
 {
