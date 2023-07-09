@@ -199,9 +199,6 @@
     <ClCompile Include="..\Source\Hooks\ClientServerInterface\Base.cpp">
       <Filter>Source\Hooks\ClientServerInterface</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Hooks\ClientServerInterface\TerminateTrade.cpp">
-      <Filter>Source\Hooks\ClientServerInterface</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\Hooks\ClientServerInterface\Equipment.cpp">
       <Filter>Source\Hooks\ClientServerInterface</Filter>
     </ClCompile>
@@ -408,8 +405,5 @@
     <ClInclude Include="..\Include\Core\ClientServerInterface.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>

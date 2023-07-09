@@ -5,7 +5,7 @@
 
 namespace IServerImplHook
 {
-
+    std::wstring g_CharBefore;
     bool CharacterSelect__Inner(const CHARACTER_ID& cid, ClientId client)
     {
         try

@@ -140,7 +140,32 @@ bool IClientImpl::SendPacket(ClientId client, void* _genArg1)
 
 bool IClientImpl::Startup(uint _genArg1, uint _genArg2)
 {
-    IClientImpl__Startup__Inner(_genArg1, _genArg2);
+    // TODO: Rewrite this base loading code
+    CoreGlobals::i()->allBases.clear();
+    Universe::IBase* base = Universe::GetFirstBase();
+    while (base)
+    {
+        BaseInfo bi;
+        bi.destroyed = false;
+        bi.objectId = base->spaceObjId;
+        const char* name = "";
+        __asm {
+            pushad
+            mov ecx, [base]
+            mov eax, [base]
+            mov eax, [eax]
+            call [eax+4]
+            mov [name], eax
+            popad
+        }
+
+        bi.baseName = StringUtils::stows(name);
+        bi.baseId = CreateID(name);
+        CoreGlobals::i()->allBases.push_back(bi);
+        pub::System::LoadSystem(base->systemId);
+
+        base = Universe::GetNextBase();
+    }
 
     bool retVal;
     CALL_CLIENT_PREAMBLE { retVal = Startup(_genArg1, _genArg2); }

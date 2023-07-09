@@ -12,12 +12,9 @@ void ProcessPendingCommands();
 void PatchClientImpl();
 bool InitHookExports();
 void UnloadHookExports();
-void LoadUserCharSettings(ClientId client);
 
 void ClearClientInfo(ClientId client);
 void LoadUserSettings(ClientId client);
-
-bool UserCmd_Process(ClientId client, const std::wstring& Cmd);
 
 bool AllowPlayerDamage(ClientId client, ClientId clientTarget);
 
@@ -75,8 +72,6 @@ extern std::list<RESOLVE_IP> resolveIPsResult;
 extern HANDLE hThreadResolver;
 
 // help
-
-void IClientImpl__Startup__Inner(uint dunno, uint dunno2);
 
 inline auto* ToWChar(const ushort* val) { return reinterpret_cast<const wchar_t*>(val); }
 

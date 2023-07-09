@@ -3,7 +3,6 @@
 #include "Global.hpp"
 #include "Core/ClientServerInterface.hpp"
 
-
 namespace IServerImplHook
 {
     void InitiateTrade__Inner(ClientId client1, ClientId client2)
