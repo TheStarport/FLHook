@@ -1,7 +1,9 @@
 # Changelog
 
---To Force Rebuild. part5
+force rebuild5
 
+## 4.0.7
+- Fix code smells shown in SonarLint.
 
 ## 4.0.6
 
