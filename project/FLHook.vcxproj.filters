@@ -262,6 +262,9 @@
     <ClCompile Include="..\Source\Hooks\ClientServerInterface\HookEntry.cpp">
       <Filter>Source\Hooks\ClientServerInterface</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\API\FLHook\Database.cpp">
+      <Filter>Source\API\FLHook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">
@@ -407,6 +410,9 @@
     </ClInclude>
     <ClInclude Include="..\Include\API\API.hpp">
       <Filter>Include\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\FLHook\Database.hpp">
+      <Filter>Include\API\FLHook</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

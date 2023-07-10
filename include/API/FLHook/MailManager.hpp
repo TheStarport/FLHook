@@ -2,8 +2,6 @@
 
 #include "API/Utils/FileUtils.hpp"
 
-#include <sqlite_orm/sqlite_orm.h>
-
 class DLL MailManager : public Singleton<MailManager>
 {
         [[nodiscard]]

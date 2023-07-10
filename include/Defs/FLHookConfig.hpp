@@ -192,6 +192,17 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
                 Serialize(Callsign, allowedFormations, disableRandomisedFormations, disableUsingAffiliationForCallsign);
         };
 
+        struct Db
+        {
+                std::string host = "127.0.0.1";
+                std::string password = "";
+                int port = 6379;
+                int timeout = 0;
+                int poolSize = 8;
+
+                Serialize(Db, host, password, port, timeout, poolSize);
+        };
+
         Debug debug;
         General general;
         Plugins plugins;
@@ -200,6 +211,7 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
         Bans bans;
         ChatConfig chatConfig;
         Callsign callsign;
+        Db db;
 
-        Serialize(FLHookConfig, debug, general, plugins, messageQueue, userCommands, bans, chatConfig, callsign);
+        Serialize(FLHookConfig, debug, general, plugins, messageQueue, userCommands, bans, chatConfig, callsign, db);
 };
