@@ -38,7 +38,7 @@ jobs:
                   let download = await github.rest.actions.downloadArtifact({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  artifact_id: matchArtifact.id,
+                  artifact_id: artifact.id,
                   archive_format: 'zip',
                 });
                 let fs = require('fs');
