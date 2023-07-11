@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.8
+- Fix bugs with NPC Control Plugin.
+
 ## 4.0.7
 - Fix code smells shown in SonarLint.
 
