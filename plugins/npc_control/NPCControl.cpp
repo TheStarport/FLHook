@@ -334,24 +334,21 @@ namespace Plugins::Npc
 		// Destroy targeted ship
 		if (cmds->IsPlayer())
 		{
-			if (auto const ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()); ship.has_value())
-				if (auto const target = Hk::Player::GetTarget(ship.value()); target.has_value())
+			if (auto const target = Hk::Player::GetTarget(cmds->GetAdminName()); target.has_value())
+			{
+				if (const auto it = std::ranges::find(global->spawnedNpcs, target.value()); target.value() && it != global->spawnedNpcs.end())
 				{
-					if (const auto it = std::ranges::find(global->spawnedNpcs, target.value()); target.value() && it != global->spawnedNpcs.end())
-					{
-						pub::SpaceObj::Destroy(target.value(), DestroyType::FUSE);
-						global->spawnedNpcs.erase(it);
-						cmds->Print("OK");
-						return;
-					}
+					pub::SpaceObj::Destroy(target.value(), DestroyType::FUSE);
+					cmds->Print("OK");
+					return;
 				}
+			}
 		}
 
-		// Destroy all ships
-		for (const auto& npc : global->spawnedNpcs)
+		// Destroy all ships - Copy into new vector since the old one will be modified in ShipDestroy hook
+		for (std::vector<uint> tempSpawnedNpcs = global->spawnedNpcs; const auto& npc : tempSpawnedNpcs)
 			pub::SpaceObj::Destroy(npc, DestroyType::FUSE);
 
-		global->spawnedNpcs.clear();
 		cmds->Print("OK");
 	}
 
