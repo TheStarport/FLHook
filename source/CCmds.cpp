@@ -811,17 +811,24 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
 {
 	RIGHT_CHECK_SUPERADMIN();
 
-	if (const auto res = Hk::Admin::GetPlayerInfo(adminName, false);
-		res.has_error())
+	const auto admin = Hk::Admin::GetPlayerInfo(adminName, false);
+
+	if (admin.has_error())
 	{
-		PrintError(res.error());
+		PrintError(admin.error());
 		return;
 	}
 
 	const auto target = Hk::Admin::GetPlayerInfo(player, false);
 	if (target.has_error() || target.value().ship == 0)
 	{
-		Print("ERR Player not found or not in space");
+		Print("ERR Player not found or not in space.");
+		return;
+	}
+
+	if (target.value().iSystem != admin.value().iSystem)
+	{
+		Print("ERR Player must be in the same system as you.");
 		return;
 	}
 
@@ -830,7 +837,8 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
 	pub::SpaceObj::GetLocation(target.value().ship, pos, ornt);
 	pos.y += 100;
 
-	Print(std::format("Jump to system={} x={:.0f} y={:.0f} z={:.0f}", wstos(target.value().wscSystem), pos.x, pos.y, pos.z));
+	Hk::Player::RelocateClient(admin.value().client, pos, ornt);
+
 	return;
 }
 
