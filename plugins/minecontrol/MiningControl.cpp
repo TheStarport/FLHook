@@ -448,7 +448,7 @@ namespace Plugins::MiningControl
 						uint sendToClientId = client;
 						if (!miningBonusEligible)
 						{
-							auto targetShip = Hk::Player::GetTarget(ship);
+							auto targetShip = Hk::Player::GetTarget(client);
 							if (targetShip.has_value())
 							{
 								const auto targetClientId = Hk::Client::GetClientIdByShip(targetShip.value());
