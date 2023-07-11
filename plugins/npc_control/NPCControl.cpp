@@ -426,12 +426,11 @@ namespace Plugins::Npc
 			const auto ship = Hk::Player::GetShip(client);
 			if (ship.has_value())
 			{
-				if (const auto target = Hk::Player::GetTarget(ship.value()); target.has_value())
+				if (const auto target = Hk::Player::GetTarget(client); target.has_value())
 				{
 					if (const auto it = std::ranges::find(global->spawnedNpcs, target.value()); target.value() && it != global->spawnedNpcs.end())
 					{
 						AiFollow(ship.value(), target.value());
-						global->spawnedNpcs.erase(it);
 					}
 					else
 					{
@@ -459,29 +458,25 @@ namespace Plugins::Npc
 			return;
 		}
 
-		const auto ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value());
-		if (ship.has_value())
+		// Is the admin targeting an NPC?
+		if (const auto target = Hk::Player::GetTarget(cmds->GetAdminName()); target.has_value())
 		{
-			// Is the admin targeting an NPC?
-			if (const auto target = Hk::Player::GetTarget(ship.value()); target.has_value())
+			if (const auto it = std::ranges::find(global->spawnedNpcs, target.value()); target.value() && it != global->spawnedNpcs.end())
 			{
-				if (const auto it = std::ranges::find(global->spawnedNpcs, target.value()); target.value() && it != global->spawnedNpcs.end())
-				{
-					pub::AI::DirectiveCancelOp cancelOp;
-					pub::AI::SubmitDirective(target.value(), &cancelOp);
-				}
+				pub::AI::DirectiveCancelOp cancelOp;
+				pub::AI::SubmitDirective(target.value(), &cancelOp);
 			}
-			// Cancel all NPC actions
-			else
-			{
-				for (const auto& npc : global->spawnedNpcs)
-				{
-					pub::AI::DirectiveCancelOp cancelOp;
-					pub::AI::SubmitDirective(npc, &cancelOp);
-				}
-			}
-			cmds->Print("OK");
 		}
+		// Cancel all NPC actions
+		else
+		{
+			for (const auto& npc : global->spawnedNpcs)
+			{
+				pub::AI::DirectiveCancelOp cancelOp;
+				pub::AI::SubmitDirective(npc, &cancelOp);
+			}
+		}
+		cmds->Print("OK");
 	}
 
 	/** @ingroup NPCControl
