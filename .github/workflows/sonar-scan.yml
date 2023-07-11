@@ -1,0 +1,78 @@
+# This runs SonarCloud to detect code issues.
+
+name: SonarScan
+
+on:
+  workflow_run:
+    workflows: [SonarBuild]
+    types: [completed]
+
+jobs:    
+  build:
+    runs-on: windows-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    env:
+      SONAR_SCANNER_VERSION: 4.6.1.2450
+      SONAR_SERVER_URL: "https://sonarcloud.io"
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory
+      COVERAGE_RESULTS: coverage_results
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+          submodules: true
+      - run: vcpkg install --triplet x86-windows
+      - name: 'Download Artifacts'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: context.payload.workflow_run.id,
+            });
+            await allArtifacts.data.artifacts.map(async (artifact) => {
+              if (artifact.name == "sonar-build" || artifact.name == "pr-number") {
+                  let download = await github.rest.actions.downloadArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                  archive_format: 'zip',
+                });
+                let fs = require('fs');
+                fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/${artifact.name}.zip`, Buffer.from(download.data));
+              }
+            });
+            
+      - name: 'Unzip Artifacts'
+        run: |
+          Expand-Archive -Force sonar-build.zip ${{ env.BUILD_WRAPPER_OUT_DIR }}
+          if (Test-Path -Path pr-number.zip) {
+            Expand-Archive -Force pr-number.zip .
+            $number = Get-Content -Path pr-number.txt
+            echo "PR_NUMBER=$number" >> $env:GITHUB_ENV
+          }
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - uses: ilammy/msvc-dev-cmd@v1.10.0
+        with:
+          arch: x86
+      - name: Download and set up sonar-scanner
+        env:
+          SONAR_SCANNER_DOWNLOAD_URL: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-windows.zip
+        run: |
+          New-Item -Force -ItemType directory -Path $HOME\.sonar 
+          curl -sSLo $HOME\.sonar\sonar-scanner.zip ${{ env.SONAR_SCANNER_DOWNLOAD_URL }} 
+          unzip -o $HOME\.sonar\sonar-scanner.zip -d $HOME\.sonar\
+          echo "$HOME\.sonar\sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows\bin" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
+      - name: Run sonar-scanner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if ($null -ne $env:PR_NUMBER) { sonar-scanner --define sonar.pullrequest.key="${{ env.PR_NUMBER }}" --define sonar.host.url="${{ env.SONAR_SERVER_URL }}" --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" }
+          else { sonar-scanner --define sonar.host.url="${{ env.SONAR_SERVER_URL }}" --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" }

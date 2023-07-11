@@ -93,8 +93,7 @@ namespace Plugins::KillTracker
 	{	
 		if (clientKiller != NULL)
 		{
-			auto killerKillStreak = global->killStreaks.find(clientKiller);
-			if (killerKillStreak != global->killStreaks.end())
+			if (auto killerKillStreak = global->killStreaks.find(clientKiller); killerKillStreak != global->killStreaks.end())
 			{
 				global->killStreaks[clientKiller]++;
 			}
@@ -214,7 +213,7 @@ namespace Plugins::KillTracker
 			std::wstring victimName = Hk::Client::GetCharacterNameByID(clientVictim).value();
 			uint numKills;
 
-			if (global->killStreaks.find(clientKiller) != global->killStreaks.end())
+			if (global->killStreaks.contains(clientKiller))
 			{
 				numKills = global->killStreaks[clientKiller];
 			}
@@ -313,11 +312,11 @@ namespace Plugins::KillTracker
 		global->config = std::make_unique<Config>(config);
 		for (auto& subArray : global->damageArray)
 			subArray.fill(0.0f);
-		for (auto& killStreakTemplate : global->config->killStreakTemplates) 
+		for (auto const& killStreakTemplate : global->config->killStreakTemplates) 
 		{
 			global->killStreakTemplates[killStreakTemplate.number] = killStreakTemplate.message;
 		}
-		for (auto& milestoneTemplate : global->config->milestoneTemplates)
+		for (auto const& milestoneTemplate : global->config->milestoneTemplates)
 		{
 			global->milestoneTemplates[milestoneTemplate.number] = milestoneTemplate.message;
 		}
