@@ -948,10 +948,10 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			return this->GetAdminName();
 		else if (bTarget)
 		{
-			uint iTarget = Hk::Player::GetTarget(this->GetAdminName()).value();
-			if (!iTarget)
+			uint target = Hk::Player::GetTarget(this->GetAdminName()).value();
+			if (!target)
 				return L"";
-			auto targetId = Hk::Client::GetClientIdByShip(iTarget);
+			auto targetId = Hk::Client::GetClientIdByShip(target);
 			if (!targetId.has_error())
 				return L"";
 			return L"id " + std::to_wstring(targetId.value());
@@ -965,10 +965,10 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			return L"id " + wscArg.substr(2);
 		else if (wscArg == L">t")
 		{
-			uint iTarget = Hk::Player::GetTarget(this->GetAdminName()).value();
-			if (!iTarget)
+			uint target = Hk::Player::GetTarget(this->GetAdminName()).value();
+			if (!target)
 				return L"";
-			auto targetId = Hk::Client::GetClientIdByShip(iTarget);
+			auto targetId = Hk::Client::GetClientIdByShip(target);
 			if (!targetId.has_error())
 				return L"";
 			return L"id " + std::to_wstring(targetId.value());
