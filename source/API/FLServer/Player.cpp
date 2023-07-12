@@ -595,8 +595,9 @@ namespace Hk::Player
             return { cpp::fail(oldFileName.error()) };
         }
 
-        std::wstring NewCharfilePath = CoreGlobals::c()->accPath + (AccountDirname) + L"\\" + (newFileName.value()) + L".fl";
-        std::wstring OldCharfilePath = CoreGlobals::c()->accPath + (AccountDirname) + L"\\" + (oldFileName.value()) + L".fl";
+        std::wstring NewCharfilePath = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, AccountDirname, newFileName.value());
+        std::wstring OldCharfilePath = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, AccountDirname, oldFileName.value());
+
 
         if (onlyDelete)
         {
@@ -612,7 +613,7 @@ namespace Hk::Player
         Client::UnlockAccountAccess(acc);
 
         // Copy existing char file into tmp
-        std::wstring tmpPath = OldCharfilePath + L".tmp";
+        std::wstring tmpPath = std::format(L"{}.fl", OldCharfilePath);
         DeleteFileW(tmpPath.c_str());
         CopyFileW(OldCharfilePath.c_str(), tmpPath.c_str(), FALSE);
 
@@ -915,7 +916,7 @@ namespace Hk::Player
             return { cpp::fail(file.error()) };
         }
 
-        std::wstring charFile = CoreGlobals::c()->accPath + dir + L"\\" + file.value() + L".fl";
+        std::wstring charFile = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, dir, file.value());
         std::wstring fileToRead;
         bool deleteAfter;
         if (Client::IsEncoded(charFile))
@@ -982,12 +983,12 @@ namespace Hk::Player
             return { cpp::fail(file.error()) };
         }
 
-        std::wstring charFile = CoreGlobals::c()->accPath + dir + L"\\" + file.value() + L".fl";
+        std::wstring charFile = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, dir, file.value());
         std::wstring fileToWrite;
         bool encode;
         if (Client::IsEncoded(charFile))
         {
-            fileToWrite = charFile + L".ini";
+            fileToWrite = std::format(L"{}.ini", charFile);
             encode = true;
         }
         else
@@ -1135,10 +1136,10 @@ namespace Hk::Player
             return { cpp::fail(file.error()) };
         }
 
-        const std::wstring charFile = CoreGlobals::c()->accPath + dir + L"\\" + file.value() + L".fl";
+        const std::wstring charFile = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, dir, file.value());
         if (Client::IsEncoded(charFile))
         {
-            const std::wstring charFileNew = charFile + L".ini";
+            const std::wstring charFileNew = std::format(L"{}.ini",charFile);
             if (!FlCodec::DecodeFile(charFile, charFileNew))
             {
                 return { cpp::fail(Error::CouldNotDecodeCharFile) };
@@ -1678,7 +1679,7 @@ namespace Hk::Player
             }
             else if (key == L"money")
             {
-                const int findEqual = line.find(L"=");
+                const int findEqual = line.find(L'=');
                 if (findEqual == -1)
                 {
                     continue;

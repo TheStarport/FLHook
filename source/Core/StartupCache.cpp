@@ -73,8 +73,7 @@ namespace StartupCache
     static void SaveCache()
     {
         // Save the name cache file
-        std::wstring path = baseAcctPath + L"namecache.bin";
-
+        const std::wstring path = std::format(L"{}namecache.bin", baseAcctPath);
         FILE* file;
         _wfopen_s(&file, path.c_str(), L"wb");
         if (file)
@@ -117,7 +116,7 @@ namespace StartupCache
         // Calculate our base path
         char DataPath[MAX_PATH];
         GetUserDataPath(DataPath);
-        baseAcctPath = StringUtils::stows(DataPath) + L"\\Accts\\MultiPlayer\\";
+        baseAcctPath = std::format(L"{}\\Accts\\MultiPlayer\\", StringUtils::stows(DataPath));
         accPathPrefixLength = baseAcctPath.length();
 
         // Load the cache

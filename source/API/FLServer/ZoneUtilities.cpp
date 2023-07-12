@@ -246,9 +246,8 @@ namespace Hk::ZoneUtilities
      specified file and calcuate the lootable zone transformation matrix */
     void ZoneUtilities::ReadSystemZones(std::multimap<uint, LootableZone, std::less<>>& zones, const std::string& systemNick, const std::string& file)
     {
-        std::string path = R"(..\data\universe\)";
-        path += file;
-
+        std::string path = std::format(R"(..\data\universe\{})", file);
+       
         INI_Reader ini;
         if (ini.open(path.c_str(), false))
         {
