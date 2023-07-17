@@ -1,6 +1,6 @@
 #pragma once
 
-#include <plugin.h>
+#include "API/API.hpp"
 
 namespace Plugins
 {

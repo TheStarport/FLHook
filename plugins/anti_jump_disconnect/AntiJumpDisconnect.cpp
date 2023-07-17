@@ -25,11 +25,7 @@
 // Includes
 #include "PCH.hpp"
 #include "AntiJumpDisconnect.hpp"
-#include "Features/TempBan.hpp"
-#include "FLHook.hpp"
-#include "Helpers/Error.hpp"
-#include "Helpers/Player.hpp"
-#include "Helpers/Client.hpp"
+#include "API/API.hpp"
 
 constexpr auto TempBanDurationMinutes = 5;
 
@@ -56,11 +52,8 @@ namespace Plugins
 	{
 		if (mapInfo[client])
 		{
-			if (const auto ban = Hk::Player::Kill(client); ban.has_error())
-			{
-				PrintUserCmdText(client, Hk::Err::ErrGetText(ban.error()));
-				return;
-			}
+
+			Hk::Player::Kill(client).Handle();
 
 			// tempban for 5 minutes
 			TempBanManager::i()->AddTempBan(client, TempBanDurationMinutes);
@@ -88,7 +81,7 @@ namespace Plugins
 	 */
 	void AntiJumpDisconnect::JumpInComplete([[maybe_unused]] const SystemId& system, [[maybe_unused]] const ShipId& ship)
 	{
-		ClientId& client = Hk::Client::GetClientIdByShip(ship).value();
+        ClientId& client = Hk::Client::GetClientIdByShip(ship).Unwrap();
 		mapInfo[client] = false;
 	}
 
@@ -107,5 +100,5 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info("AFK", "afk", PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
+const PluginInfo Info(L"AFK", L"afk", PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
 SetupPlugin(AntiJumpDisconnect, Info);

@@ -21,13 +21,8 @@ namespace Hk
             Action<void> WriteToPlayerFile(const std::variant<uint, std::wstring_view>& player, const std::wstring& key, const std::wstring& value) const;
 
             void SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value) const;
-            static std::wstring GetCharacterIniString(ClientId client, const std::wstring& name);
-            static bool GetCharacterIniBool(ClientId client, const std::wstring& name);
-            static int GetCharacterIniInt(ClientId client, const std::wstring& name);
-            static uint GetCharacterIniUint(ClientId client, const std::wstring& name);
-            static float GetCharacterIniFloat(ClientId client, const std::wstring& name);
-            static double GetCharacterIniDouble(ClientId client, const std::wstring& name);
-            static int64_t GetCharacterIniInt64(ClientId client, const std::wstring& name);
+            std::wstring GetCharacterIni(ClientId client, const std::wstring& name);
+
     };
 
 } // namespace Hk

@@ -1,53 +1,57 @@
 #pragma once
 
-#include <plugin.h>
-#include "Tools/Serialization/Serializer.hpp"
+#include <API/API.hpp>
 
 namespace Plugins
 {
-	class Arena final : public Plugin
-	{
-		//! This plugin can communicate with the base plugin if loaded.
-		enum class ClientState
-		{
-			None,
-			Transfer,
-			Return
-		};
-		const std::wstring dockErrorText = L"Please dock at nearest base";
-		const std::wstring cargoErrorText = L"Cargo hold is not empty";
-		//! Config data for this plugin
-		struct Config final : Reflectable
-		{
-			std::string File() override { return "config/arena.json"; }
+    class Arena final : public Plugin, public AbstractUserCommandProcessor
+    {
+            //! This plugin can communicate with the base plugin if loaded.
+            enum class ClientState
+            {
+                None,
+                Transfer,
+                Return
+            };
+            const std::wstring dockErrorText = L"Please dock at nearest base";
+            const std::wstring cargoErrorText = L"Cargo hold is not empty";
+            //! Config data for this plugin
 
-			// Reflectable fields
-			//! The command to be used to beam to the arena system. Defaults to "arena".
-			std::string command = "arena";
-			//! The base in the pvp system they should be beamed to.
-			std::string targetBase;
-			//! The pvp system they should be beamed to.
-			std::string targetSystem;
-			//! The system the commands should not work for.
-			std::string restrictedSystem;
-		};
-		Config config;
-		// Non-reflectable fields
-		uint targetBaseId = 0;
-		uint targetSystemId = 0;
-		uint restrictedSystemId = 0;
-		std::wstring command = L"arena";
+            struct Config final
+            {
+                    std::string targetBase;
+                    std::string targetSystem;
+                    std::string restrictedSystem;
 
-		std::array<ClientState, MaxClientId + 1> transferFlags = {};
 
-		void ClearClientInfo(ClientId& client);
-		void LoadSettings();
-		void CharacterSelect([[maybe_unused]] const std::string& charFilename, ClientId& client);
-		void PlayerLaunch_AFTER([[maybe_unused]] const uint& ship, ClientId& client);
-		void UserCmd_Conn(ClientId& client, [[maybe_unused]] const std::wstring& param);
-		void UserCmd_Return(ClientId& client, [[maybe_unused]] const std::wstring& param);
+            };
+            std::unique_ptr<Config> config;
+            // Non-reflectable fields
+            uint targetBaseId = 0;
+            uint targetSystemId = 0;
+            uint restrictedSystemId = 0;
+            std::wstring command = L"arena";
 
-	public:
-		explicit Arena(const PluginInfo& info);
-	};
+            std::array<ClientState, MaxClientId + 1> transferFlags = {};
+
+            void UserCmdArena();
+            void UserCmdReturn();
+
+            constexpr inline static std::array<CommandInfo<Arena>, 2> commands = {
+                {AddCommand(Arena, L"/arena", UserCmdArena, L"/arena", L" Sends you to the designated arena system."),
+                 AddCommand(Arena, L"/return", UserCmdArena, L"/return", L" Returns you from the arena system to where you last docked.")}
+            };
+
+            SetupUserCommandHandler(Arena, commands);
+
+            void ClearClientInfo(ClientId& client);
+            void LoadSettings();
+            void CharacterSelect([[maybe_unused]] const std::string& charFilename, ClientId& client);
+            void PlayerLaunch_AFTER([[maybe_unused]] const uint& ship, ClientId& client);
+
+           
+
+        public:
+            explicit Arena(const PluginInfo& info);
+    };
 } // namespace Plugins

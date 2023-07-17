@@ -1,5 +1,7 @@
 #pragma once
 
+#include "API/API.hpp"
+
 class TaxPlugin : public Plugin, public AbstractUserCommandProcessor
 {
         struct Config final

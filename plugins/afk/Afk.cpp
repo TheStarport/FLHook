@@ -22,7 +22,7 @@
  */
 
 #include "PCH.hpp"
-
+#include "API/API.hpp"
 #include "Afk.hpp"
 
 namespace Plugins

@@ -241,7 +241,7 @@ namespace Hk
         return FileUtils::WriteCharacterFile(characterName, output.str());
     }
 
-    std::wstring IniUtils::GetCharacterIniString(ClientId client, const std::wstring& name)
+    std::wstring IniUtils::GetCharacterIni(ClientId client, const std::wstring& name)
     {
         if (!clients.contains(client))
         {
@@ -264,39 +264,5 @@ namespace Hk
 
     void IniUtils::SetCharacterIni(ClientId client, const std::wstring& name, std::wstring value) const { clients[client].lines[name] = std::move(value); }
 
-    bool IniUtils::GetCharacterIniBool(ClientId client, const std::wstring& name)
-    {
-        const auto val = GetCharacterIniString(client, name);
-        return val == L"true" || val == L"1";
-    }
-
-    int IniUtils::GetCharacterIniInt(ClientId client, const std::wstring& name)
-    {
-        const auto val = GetCharacterIniString(client, name);
-        return wcstol(val.c_str(), nullptr, 10);
-    }
-
-    uint IniUtils::GetCharacterIniUint(ClientId client, const std::wstring& name)
-    {
-        const auto val = GetCharacterIniString(client, name);
-        return wcstoul(val.c_str(), nullptr, 10);
-    }
-
-    float IniUtils::GetCharacterIniFloat(ClientId client, const std::wstring& name)
-    {
-        const auto val = GetCharacterIniString(client, name);
-        return wcstof(val.c_str(), nullptr);
-    }
-
-    double IniUtils::GetCharacterIniDouble(ClientId client, const std::wstring& name)
-    {
-        const auto val = GetCharacterIniString(client, name);
-        return wcstod(val.c_str(), nullptr);
-    }
-
-    int64 IniUtils::GetCharacterIniInt64(ClientId client, const std::wstring& name)
-    {
-        const auto val = GetCharacterIniString(client, name);
-        return wcstoll(val.c_str(), nullptr, 10);
-    }
+ 
 } // namespace Hk
