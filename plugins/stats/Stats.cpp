@@ -75,7 +75,7 @@ namespace Plugins::Stats
 	/** @ingroup Stats
 	 * @brief Encodes the string as UTF-8 and removes double quotes which are invalid json
 	 */
-	std::string encode(const std::wstring& data)
+	std::string Encode(const std::wstring_view& data)
 	{
 		if (data.empty())
 		{
@@ -85,7 +85,7 @@ namespace Plugins::Stats
 		const auto size = WideCharToMultiByte(CP_UTF8, 0, &data.at(0), (int)data.size(), nullptr, 0, nullptr, nullptr);
 		if (size <= 0)
 		{
-			throw std::runtime_error("WideCharToMultiByte() failed: " + std::to_string(size));
+			throw std::runtime_error(std::format("WideCharToMultiByte() failed: {}", std::to_string(size)));
 		}
 
 		std::string convertedString(size, 0);
@@ -121,7 +121,7 @@ namespace Plugins::Stats
 			nlohmann::json jPlayer;
 
 			// Add name
-			jPlayer["name"] = encode(lstPlayer.character);
+			jPlayer["name"] = Encode(lstPlayer.character);
 
 			// Add rank
 			int iRank = Hk::Player::GetRank(lstPlayer.client).value();
