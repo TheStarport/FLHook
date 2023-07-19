@@ -811,17 +811,24 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
 {
 	RIGHT_CHECK_SUPERADMIN();
 
-	if (const auto res = Hk::Admin::GetPlayerInfo(adminName, false);
-		res.has_error())
+	const auto admin = Hk::Admin::GetPlayerInfo(adminName, false);
+
+	if (admin.has_error())
 	{
-		PrintError(res.error());
+		PrintError(admin.error());
 		return;
 	}
 
 	const auto target = Hk::Admin::GetPlayerInfo(player, false);
 	if (target.has_error() || target.value().ship == 0)
 	{
-		Print("ERR Player not found or not in space");
+		Print("ERR Player not found or not in space.");
+		return;
+	}
+
+	if (target.value().iSystem != admin.value().iSystem)
+	{
+		Print("ERR Player must be in the same system as you.");
 		return;
 	}
 
@@ -830,7 +837,8 @@ void CCmds::CmdChase(std::wstring adminName, const std::variant<uint, std::wstri
 	pub::SpaceObj::GetLocation(target.value().ship, pos, ornt);
 	pos.y += 100;
 
-	Print(std::format("Jump to system={} x={:.0f} y={:.0f} z={:.0f}", wstos(target.value().wscSystem), pos.x, pos.y, pos.z));
+	Hk::Player::RelocateClient(admin.value().client, pos, ornt);
+
 	return;
 }
 
@@ -948,17 +956,10 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			return this->GetAdminName();
 		else if (bTarget)
 		{
-			auto client = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
-			if (client.has_error())
+			uint target = Hk::Player::GetTarget(this->GetAdminName()).value();
+			if (!target)
 				return L"";
-			uint ship;
-			pub::Player::GetShip(client.value(), ship);
-			if (!ship)
-				return L"";
-			uint iTarget = Hk::Player::GetTarget(ship).value();
-			if (!iTarget)
-				return L"";
-			auto targetId = Hk::Client::GetClientIdByShip(iTarget);
+			auto targetId = Hk::Client::GetClientIdByShip(target);
 			if (!targetId.has_error())
 				return L"";
 			return L"id " + std::to_wstring(targetId.value());
@@ -972,17 +973,10 @@ std::wstring CCmds::ArgCharname(uint iArg)
 			return L"id " + wscArg.substr(2);
 		else if (wscArg == L">t")
 		{
-			auto client = Hk::Client::GetClientIdFromCharName(this->GetAdminName());
-			if (client.has_error())
+			uint target = Hk::Player::GetTarget(this->GetAdminName()).value();
+			if (!target)
 				return L"";
-			uint ship;
-			pub::Player::GetShip(client.value(), ship);
-			if (!ship)
-				return L"";
-			uint iTarget = Hk::Player::GetTarget(ship).value();
-			if (!iTarget)
-				return L"";
-			auto targetId = Hk::Client::GetClientIdByShip(iTarget);
+			auto targetId = Hk::Client::GetClientIdByShip(target);
 			if (!targetId.has_error())
 				return L"";
 			return L"id " + std::to_wstring(targetId.value());

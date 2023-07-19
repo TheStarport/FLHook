@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.8
+- Fix bugs with NPC Control Plugin.
+- Fix bug with the chase admin command.
+
 ## 4.0.7
 - Fix code smells shown in SonarLint.
 
