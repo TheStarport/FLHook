@@ -1,4 +1,11 @@
 ﻿
+/*
+*	Temporary Notes:
+*		. ask for sensible default behaviour for config probabilities >100%
+*		. find out why its still creating this weird Loot Tables dll
+*		. how to structure the config json not sillily?
+*/
+
 // Includes
 #include "LootTables.hpp"
 
@@ -23,20 +30,16 @@ namespace Plugins::LootTables
 
 	// This is temporarily used to fetch equipement, it will have to be redone once FLHook functionality
 	// is updated accordingly.
-	bool CheckForItem(const CShip* ship)
+	bool CheckForItem(const CShip* ship, std::wstring ItemNickname)
 	{
 		CEquipManager* eqManager = GetEquipManager((CEqObj*)ship);
 		CEquipTraverser tr(65536);
 		while (CEquip* eq = eqManager->Traverse(tr))
 		{
 			const GoodInfo* gi = GoodList_get()->find_by_archetype(eq->archetype->get_id());
-			// gi->iType == 0 means actual commodity and not ammo or unmounted guns
-			if (gi->iIdSName == global->config->iIdSNameToCheck)
-			{
-				return true;
-			}
-			return false;
+			//if (gi->iArchId == )
 		}
+		return true;
 	}
 
 	// Hook on ship destroyed, like in KillTracker
@@ -44,7 +47,7 @@ namespace Plugins::LootTables
 	{
 
 		const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
-		if (CheckForItem(cShip))
+		if (CheckForItem(cShip, L"placeholder"))
 		{
 			const std::wstring message = L"Test message.";
 			Hk::Message::MsgU(message);
@@ -59,19 +62,43 @@ namespace Plugins::LootTables
 		global->config = std::make_unique<Config>(std::move(config));
 	}
 
-} // namespace Plugins::Template
+	LootTable::LootTable(bool PlayersBool, bool NPCsBool, std::wstring TriggerItem, std::map<std::wstring, float> DropProbabilities)
+	{
+		this->Players = PlayersBool;
+		this->NPCs = NPCsBool;
+		this->Item = TriggerItem;
+
+		// Check if probabilities given to Constructor make sense
+		// if sum of probabilities >100% [insert behaviour]
+		// if sum of probabilities <100% chance to drop nothing
+		float ProbabilitySum = 0;
+		for (auto it = DropProbabilities.begin(); it != DropProbabilities.end(); ++it)
+		{
+			ProbabilitySum += it->second;
+		}
+		if (ProbabilitySum <= 1.0)
+		{
+			this->Probabilities = DropProbabilities;
+			this->NoDropChance = (1.0 - ProbabilitySum);
+		}
+		else
+		{
+			int my_var = 1;
+		}
+	}
+
+} // namespace Plugins::LootTables
 
 using namespace Plugins::LootTables;
 
-REFL_AUTO(type(Config), field(overrideUserNumber), field(iIdSNameToCheck), field(test_bool));
+REFL_AUTO(type(LootTable), field(Players), field(NPCs), field(Item), field(Probabilities), field(NoDropChance));
+REFL_AUTO(type(Config), field(DefaultItem_1), field(DefaultProbabilities_1), field(DefaultItem_2), field(DefaultProbabilities_2));
 
 DefaultDllMainSettings(LoadSettings);
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	// Full name of your plugin
 	pi->name("Loot Tables");
-	// Shortened name, all lower case, no spaces. Abbreviation when possible.
 	pi->shortName("loottables");
 	pi->mayUnload(true);
 	pi->returnCode(&global->returncode);
