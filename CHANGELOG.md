@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.9
+- Fixed bug in Stats plugin.
+
 ## 4.0.8
 - Fix bugs with NPC Control Plugin.
 - Fix bug with the chase admin command.
