@@ -3,17 +3,23 @@
 #include <FLHook.hpp>
 #include <plugin.h>
 
-namespace Plugins::Template
+namespace Plugins::LootTables
 {
 	// Loadable json configuration
-	struct Config : Reflectable
+	struct Config final : Reflectable
 	{
-		std::string File() override { return "config/template.json"; }
+		std::string File() override { return "config/loottables.json"; }
 		bool overrideUserNumber = false;
+		// Change according to dummy item, here to test:
+		// missile01_mark01_rtc
+		uint iIdSNameToCheck = 263146;
+		// Test bool for me to try something
+		bool test_bool = true;
 	};
 
-	struct Global
+	struct Global final
 	{
 		std::unique_ptr<Config> config = nullptr;
+		ReturnCode returncode = ReturnCode::Default;
 	};
 } // namespace Plugins::Template

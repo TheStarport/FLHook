@@ -46,7 +46,7 @@
     <TargetName>$safeprojectname$</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">
-    <TargetName>$safeprojectname$</TargetName>
+    <TargetName>loottables</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

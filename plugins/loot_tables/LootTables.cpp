@@ -1,26 +1,14 @@
-﻿// This is a template with the bare minimum to have a functional plugin.
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
-
+﻿
 // Includes
 #include "LootTables.hpp"
 
 #include <random>
 
-namespace Plugins::Template
+namespace Plugins::LootTables
 {
-	const auto global = std::make_unique<Global>();
+	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	// Put things that are performed on plugin load here!
-	void LoadSettings()
-	{
-		// Load JSON config
-		auto config = Serializer::JsonToObject<Config>();
-		global->config = std::make_unique<Config>(std::move(config));
-	}
-
+	// Maybe not needed, here for now
 	bool IsNPC(CShip* ship)
 	{
 		if (ship->is_player() == true)
@@ -33,30 +21,62 @@ namespace Plugins::Template
 		}
 	}
 
+	// This is temporarily used to fetch equipement, it will have to be redone once FLHook functionality
+	// is updated accordingly.
+	bool CheckForItem(const CShip* ship)
+	{
+		CEquipManager* eqManager = GetEquipManager((CEqObj*)ship);
+		CEquipTraverser tr(65536);
+		while (CEquip* eq = eqManager->Traverse(tr))
+		{
+			const GoodInfo* gi = GoodList_get()->find_by_archetype(eq->archetype->get_id());
+			// gi->iType == 0 means actual commodity and not ammo or unmounted guns
+			if (gi->iIdSName == global->config->iIdSNameToCheck)
+			{
+				return true;
+			}
+			return false;
+		}
+	}
+
+	// Hook on ship destroyed, like in KillTracker
 	void ShipDestroyed(DamageList** dmgList, const DWORD** ecx, const uint& kill)
 	{
-		if (kill == 1)
+
+		const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
+		if (CheckForItem(cShip))
 		{
-			const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
+			const std::wstring message = L"Test message.";
+			Hk::Message::MsgU(message);
 		}
+	}
+
+	// Put things that are performed on plugin load here!
+	void LoadSettings()
+	{
+		// Load JSON config
+		auto config = Serializer::JsonToObject<Config>();
+		global->config = std::make_unique<Config>(std::move(config));
 	}
 
 } // namespace Plugins::Template
 
-using namespace Plugins::Template;
+using namespace Plugins::LootTables;
 
-REFL_AUTO(type(Config), field(overrideUserNumber));
+REFL_AUTO(type(Config), field(overrideUserNumber), field(iIdSNameToCheck), field(test_bool));
 
 DefaultDllMainSettings(LoadSettings);
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
 	// Full name of your plugin
-	pi->name("$projectname$");
+	pi->name("Loot Tables");
 	// Shortened name, all lower case, no spaces. Abbreviation when possible.
-	pi->shortName("$safeprojectname$");
+	pi->shortName("loottables");
 	pi->mayUnload(true);
+	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
+	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 }
