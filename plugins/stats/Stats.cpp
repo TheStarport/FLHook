@@ -31,7 +31,9 @@ namespace Plugins::Stats
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	// Load configuration file
+	/** @ingroup Stats
+	 * @brief Load configuration file
+	 */
 	void LoadSettings()
 	{
 		global->jsonFileName = Serializer::JsonToObject<FileName>();
@@ -70,22 +72,41 @@ namespace Plugins::Stats
 		}
 	}
 
-	// This removes double quotes from player names. This causes invalid json.
-	std::string encode(const std::string& data)
+	/** @ingroup Stats
+	 * @brief Encodes the string as UTF-8 and removes double quotes which are invalid json
+	 */
+	std::string encode(const std::wstring& data)
 	{
-		std::string scEncoded;
-		scEncoded.reserve(data.size());
-		for (char pos : data)
+		if (data.empty())
+		{
+			return "";
+		}
+
+		const auto size = WideCharToMultiByte(CP_UTF8, 0, &data.at(0), (int)data.size(), nullptr, 0, nullptr, nullptr);
+		if (size <= 0)
+		{
+			throw std::runtime_error("WideCharToMultiByte() failed: " + std::to_string(size));
+		}
+
+		std::string convertedString(size, 0);
+		WideCharToMultiByte(CP_UTF8, 0, &data.at(0), (int)data.size(), &convertedString.at(0), size, nullptr, nullptr);
+
+		std::string sanitizedString;
+		sanitizedString.reserve(convertedString.size());
+
+		for (char pos : convertedString)
 		{
 			if (pos == '\"')
-				scEncoded.append("&quot;");
+				sanitizedString.append("&quot;");
 			else
-				scEncoded.append(1, pos);
+				sanitizedString.append(1, pos);
 		}
-		return scEncoded;
+		return sanitizedString;	 
 	}
 
-	// Function to export load and player data to a json file
+	/** @ingroup Stats
+	 * @brief Function to export load and player data to a json file
+	 */
 	void ExportJSON()
 	{
 		std::ofstream out(global->jsonFileName.FilePath + "\\" + global->jsonFileName.StatsFile);
@@ -100,7 +121,7 @@ namespace Plugins::Stats
 			nlohmann::json jPlayer;
 
 			// Add name
-			jPlayer["name"] = encode(wstos(lstPlayer.character));
+			jPlayer["name"] = encode(lstPlayer.character);
 
 			// Add rank
 			int iRank = Hk::Player::GetRank(lstPlayer.client).value();
@@ -127,26 +148,31 @@ namespace Plugins::Stats
 		out.close();
 	}
 
-	// Hooks for updating stats
+	/** @ingroup Stats
+	 * @brief Hook for updating stats
+	 */
 	void DisConnect_AFTER([[maybe_unused]] uint client, [[maybe_unused]] enum EFLConnection state)
 	{
 		ExportJSON();
 	}
 
+	/** @ingroup Stats
+	 * @brief Hook for updating stats
+	 */
 	void PlayerLaunch_AFTER([[maybe_unused]] const uint& ship, [[maybe_unused]] ClientId& client)
 	{
 		ExportJSON();
 	}
 
+	/** @ingroup Stats
+	 * @brief Hook for updating stats
+	 */
 	void CharacterSelect_AFTER([[maybe_unused]] const std::string& charFilename, [[maybe_unused]] ClientId& client)
 	{
 		ExportJSON();
 	}
 } // namespace Plugins::Stats
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FLHOOK STUFF
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::Stats;
 REFL_AUTO(type(FileName), field(FilePath, AttrNotEmptyNotWhiteSpace<std::string> {}), field(StatsFile, AttrNotEmptyNotWhiteSpace<std::string> {}))
 
