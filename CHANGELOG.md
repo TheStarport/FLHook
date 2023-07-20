@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.9
+- Fixed bug in Stats plugin where data was not being converted to UTF-8 causing issues with non-standard characters.
+
 ## 4.0.8
 - Fix bugs with NPC Control Plugin.
 - Fix bug with the chase admin command.
