@@ -146,6 +146,7 @@ $(document).ready(function(){initNavTree('group___stats.html',''); initResizable
   <div class="headertitle"><div class="title">Stats</div></div>
 </div><!--header-->
 <div class="contents">
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>The plugin tries to normalize the multiplayer specific unnatural physics. </p>
 <p>The Stats plugin collects various statistics and exports them into a JSON for later view.</p>
 <dl class="section date"><dt>Date</dt><dd>Feb 2010 </dd></dl>
@@ -182,6 +183,155 @@ Configuration</h4>
 </div><!-- fragment --><h4><a class="anchor" id="ipc"></a>
 IPC Interfaces Exposed</h4>
 <p>This plugin does not expose any functionality. </p>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="gad8195aa1ac0df5fcfbd8b18ae8a7f03b" name="gad8195aa1ac0df5fcfbd8b18ae8a7f03b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad8195aa1ac0df5fcfbd8b18ae8a7f03b">&#9670;&#160;</a></span>CharacterSelect_AFTER()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::Stats::CharacterSelect_AFTER </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>charFilename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>client</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hook for updating stats. </p>
+
+</div>
+</div>
+<a id="gac11f7dc48195aada7116b010acc7fec1" name="gac11f7dc48195aada7116b010acc7fec1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac11f7dc48195aada7116b010acc7fec1">&#9670;&#160;</a></span>DisConnect_AFTER()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::Stats::DisConnect_AFTER </td>
+          <td>(</td>
+          <td class="paramtype">uint&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">enum EFLConnection&#160;</td>
+          <td class="paramname"><em>state</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hook for updating stats. </p>
+
+</div>
+</div>
+<a id="gac9c43cae647b6ace701f7441bfa01a36" name="gac9c43cae647b6ace701f7441bfa01a36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac9c43cae647b6ace701f7441bfa01a36">&#9670;&#160;</a></span>Encode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string Plugins::Stats::Encode </td>
+          <td>(</td>
+          <td class="paramtype">const std::wstring_view &amp;&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Encodes the string as UTF-8 and removes double quotes which are invalid json. </p>
+
+</div>
+</div>
+<a id="ga77b7bd5652f0b456a7f6cc7d94bcb558" name="ga77b7bd5652f0b456a7f6cc7d94bcb558"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga77b7bd5652f0b456a7f6cc7d94bcb558">&#9670;&#160;</a></span>ExportJSON()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::Stats::ExportJSON </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to export load and player data to a json file. </p>
+
+</div>
+</div>
+<a id="ga7969a66c7bc23c1e6760e9fdfdb1b56f" name="ga7969a66c7bc23c1e6760e9fdfdb1b56f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7969a66c7bc23c1e6760e9fdfdb1b56f">&#9670;&#160;</a></span>LoadSettings()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::Stats::LoadSettings </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Load configuration file. </p>
+
+</div>
+</div>
+<a id="ga440f033290c1fbf3f8509c2ff036003e" name="ga440f033290c1fbf3f8509c2ff036003e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga440f033290c1fbf3f8509c2ff036003e">&#9670;&#160;</a></span>PlayerLaunch_AFTER()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Plugins::Stats::PlayerLaunch_AFTER </td>
+          <td>(</td>
+          <td class="paramtype">const uint &amp;&#160;</td>
+          <td class="paramname"><em>ship</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ClientId &amp;&#160;</td>
+          <td class="paramname"><em>client</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hook for updating stats. </p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

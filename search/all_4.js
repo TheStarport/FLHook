@@ -43,7 +43,7 @@ var searchData=
   ['disconnect_40',['Disconnect',['../group___kill_tracker.html#ga9b8573369a84493d7cbd4dcf5d6400c8',1,'Plugins::KillTracker']]],
   ['disconnect_41',['DisConnect',['../group___message.html#ga72760abca2d683df7c333e054a379965',1,'Plugins::Message::DisConnect()'],['../namespace_plugins_1_1_tax.html#aeff08a4a0e6fb159d09247c560c12512',1,'Plugins::Tax::DisConnect()']]],
   ['disconnect_5f_5finner_42',['DisConnect__Inner',['../namespace_i_server_impl_hook.html#ae3f0f9a4ad7f10241b830ce12cb82405',1,'IServerImplHook']]],
-  ['disconnect_5fafter_43',['DisConnect_AFTER',['../namespace_plugins_1_1_stats.html#ac11f7dc48195aada7116b010acc7fec1',1,'Plugins::Stats']]],
+  ['disconnect_5fafter_43',['DisConnect_AFTER',['../group___stats.html#gac11f7dc48195aada7116b010acc7fec1',1,'Plugins::Stats']]],
   ['disconnectcheck_44',['DisconnectCheck',['../group___cargo_drop.html#gaa98820463d3ace5df2edb318a64450fd',1,'Plugins::CargoDrop']]],
   ['disconnectingplayersrange_45',['disconnectingPlayersRange',['../struct_plugins_1_1_cargo_drop_1_1_config.html#aa290728c64e21f2d84255f0735709d93',1,'Plugins::CargoDrop::Config']]],
   ['disconnectmsg_46',['disconnectMsg',['../struct_plugins_1_1_cargo_drop_1_1_config.html#aa0a9191b69ed84b50d201d836c38c6c9',1,'Plugins::CargoDrop::Config']]],

@@ -181,12 +181,6 @@ var NAVTREEINDEX8 =
 "namespace_plugins_1_1_sound_manager.html#afdb9ddb4608ca16d0a86627e84de375b":[2,1,0,4,24,2],
 "namespace_plugins_1_1_stats.html":[2,1,0,4,25],
 "namespace_plugins_1_1_stats.html#a3ef65e1cf2dd50395787d12306ebbe4f":[2,1,0,4,25,8],
-"namespace_plugins_1_1_stats.html#a440f033290c1fbf3f8509c2ff036003e":[2,1,0,4,25,7],
-"namespace_plugins_1_1_stats.html#a62c124b528b76f1b4b6e3801f411de31":[2,1,0,4,25,4],
-"namespace_plugins_1_1_stats.html#a77b7bd5652f0b456a7f6cc7d94bcb558":[2,1,0,4,25,5],
-"namespace_plugins_1_1_stats.html#a7969a66c7bc23c1e6760e9fdfdb1b56f":[2,1,0,4,25,6],
-"namespace_plugins_1_1_stats.html#ac11f7dc48195aada7116b010acc7fec1":[2,1,0,4,25,3],
-"namespace_plugins_1_1_stats.html#ad8195aa1ac0df5fcfbd8b18ae8a7f03b":[2,1,0,4,25,2],
 "namespace_plugins_1_1_system_sensor.html":[2,1,0,4,26],
 "namespace_plugins_1_1_system_sensor.html#a02b2313e1ba5b70b2a74e675c01937d2":[2,1,0,4,26,8],
 "namespace_plugins_1_1_system_sensor.html#a0f853406738b45737f39a8f55a83e8b2":[2,1,0,4,26,7],
@@ -249,5 +243,11 @@ var NAVTREEINDEX8 =
 "namespace_plugins_1_1_warehouse.html#ad5694bb70ccdf017122a2f2e4468fdcd":[2,1,0,4,30,5],
 "namespace_plugins_1_1_warehouse.html#ae8480cc55f017b84ac3f88f13b8ed7d9":[2,1,0,4,30,10],
 "namespace_plugins_1_1_warehouse.html#aead8b917d83f4b4506eb28a66133075b":[2,1,0,4,30,8],
-"namespace_startup_cache.html":[2,1,0,5]
+"namespace_startup_cache.html":[2,1,0,5],
+"namespace_startup_cache.html#a6ccc43d9bc08af807ef8d19b74bd6cec":[2,1,0,5,1],
+"namespace_startup_cache.html#a9576219cbc480ea6435fbb741fd99777":[2,1,0,5,2],
+"namespace_startup_cache.html#aa5c5564fc7d448774689e161c1c17dec":[2,1,0,5,3],
+"namespace_startup_cache.html#ac7a5a47cd3fb32ec2872fda299bc6d51":[2,1,0,5,4],
+"namespacemembers.html":[2,1,1,0],
+"namespacemembers.html":[2,1,1,0,0]
 };

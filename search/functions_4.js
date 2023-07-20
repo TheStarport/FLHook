@@ -19,7 +19,7 @@ var searchData=
   ['disconnect_16',['Disconnect',['../group___kill_tracker.html#ga9b8573369a84493d7cbd4dcf5d6400c8',1,'Plugins::KillTracker']]],
   ['disconnect_17',['DisConnect',['../namespace_i_server_impl_hook.html#ab8ebfa7292f513a4e2a8197f93f8f04e',1,'IServerImplHook::DisConnect()'],['../group___anti_jump_disconnect.html#ga9d0392e57d1b3a91860c17bd6de07050',1,'Plugins::AntiJumpDisconnect::DisConnect()'],['../group___betting.html#gacc3efbedcbdd8dd72da7b9e059ff06d5',1,'Plugins::Betting::DisConnect()'],['../group___bounty_hunt.html#ga232523e5be313451d76e53bdc1460a28',1,'Plugins::BountyHunt::DisConnect()'],['../group___mark.html#ga0bc68ca3cc2464c6d633df591b642814',1,'Plugins::Mark::DisConnect()'],['../group___message.html#ga72760abca2d683df7c333e054a379965',1,'Plugins::Message::DisConnect()'],['../namespace_plugins_1_1_tax.html#aeff08a4a0e6fb159d09247c560c12512',1,'Plugins::Tax::DisConnect()']]],
   ['disconnect_5f_5finner_18',['DisConnect__Inner',['../namespace_i_server_impl_hook.html#ae3f0f9a4ad7f10241b830ce12cb82405',1,'IServerImplHook']]],
-  ['disconnect_5fafter_19',['DisConnect_AFTER',['../namespace_plugins_1_1_stats.html#ac11f7dc48195aada7116b010acc7fec1',1,'Plugins::Stats']]],
+  ['disconnect_5fafter_19',['DisConnect_AFTER',['../group___stats.html#gac11f7dc48195aada7116b010acc7fec1',1,'Plugins::Stats']]],
   ['disconnectcheck_20',['DisconnectCheck',['../group___cargo_drop.html#gaa98820463d3ace5df2edb318a64450fd',1,'Plugins::CargoDrop']]],
   ['disconnectpacketsent_21',['DisconnectPacketSent',['../_hk_i_engine_disconnect_8cpp.html#ae76ac50c9321eec7fd2b09a752a985b5',1,'HkIEngineDisconnect.cpp']]],
   ['distance3d_22',['Distance3D',['../namespace_hk_1_1_math.html#ab287748a760807713402e62609f95eae',1,'Hk::Math']]],

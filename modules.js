@@ -20,7 +20,7 @@ var modules =
     [ "Mining Control", "group___mining_control.html", "group___mining_control" ],
     [ "Misc Commands", "group___misc_commands.html", "group___misc_commands" ],
     [ "NPC Control", "group___n_p_c_control.html", "group___n_p_c_control" ],
-    [ "Stats", "group___stats.html", null ],
+    [ "Stats", "group___stats.html", "group___stats" ],
     [ "Purchase Restrictions", "group___purchase_restrictions.html", null ],
     [ "Rename", "group___rename.html", null ],
     [ "Sound Manager", "group___sound_manager.html", null ],
