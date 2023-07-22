@@ -3,7 +3,8 @@
 *	Temporary Notes:
 *		. ask for sensible default behaviour for config probabilities >100%
 *		. find out why its still creating this weird Loot Tables dll
-*		. how to structure the config json not sillily?
+*		. How item drop? (Get location, why mine asteroid?)
+*		. cShip required, get from NPC?
 */
 
 // Includes
@@ -15,42 +16,66 @@ namespace Plugins::LootTables
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	// Maybe not needed, here for now
-	bool IsNPC(CShip* ship)
+	void ItemDrop(const CShip* ship, std::string ItemNickname)
 	{
-		if (ship->is_player() == true)
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
+		// Placeholder
 	}
 
 	// This is temporarily used to fetch equipement, it will have to be redone once FLHook functionality
-	// is updated accordingly.
-	bool CheckForItem(const CShip* ship, std::wstring ItemNickname)
+	// is updated accordingly. (Hopefully)
+	bool CheckForItem(const CShip* ship, std::string ItemNickname)
 	{
 		CEquipManager* eqManager = GetEquipManager((CEqObj*)ship);
 		CEquipTraverser tr(65536);
 		while (CEquip* eq = eqManager->Traverse(tr))
 		{
 			const GoodInfo* gi = GoodList_get()->find_by_archetype(eq->archetype->get_id());
-			//if (gi->iArchId == )
+			if (CreateID(ItemNickname.c_str()) == gi->iArchId)
+			{
+				return true;
+			}
 		}
-		return true;
+		return false;
 	}
 
-	// Hook on ship destroyed, like in KillTracker
+	// Hook on ship destroyed
 	void ShipDestroyed(DamageList** dmgList, const DWORD** ecx, const uint& kill)
 	{
-
+		// Get cShip from NPC?
 		const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
-		if (CheckForItem(cShip, L"placeholder"))
+		for (int i = 0; i <= global->config->ExampleLootTables.size(); i++)
 		{
-			const std::wstring message = L"Test message.";
-			Hk::Message::MsgU(message);
+			LootTable CurrentLootTable = global->config->ExampleLootTables[i];
+
+			// Check if the Loot Table in question applies to the destroyed ship
+			bool IsPlayer = cShip->is_player();
+			bool LootTableApplies = ((IsPlayer == CurrentLootTable.Players) || (IsPlayer == CurrentLootTable.NPCs));
+			if (!LootTableApplies)
+			{
+				// LootTable does not apply, drop nothing
+				return;
+			}
+
+			// RNG
+			float AccumulatedProbability = (1.0 - CurrentLootTable.NoDropChance);
+			float RandomFloat = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+
+			if (RandomFloat <= CurrentLootTable.NoDropChance)
+			{
+				// Drop nothing
+				return;
+			}
+
+			// Calculate what Item to drop
+			float Sum = (0.0 + CurrentLootTable.NoDropChance);
+			for (auto Item : CurrentLootTable.Probabilities)
+			{
+				Sum += Item.first;
+				if (RandomFloat <= Sum)
+				{
+					// Placeholder
+				}
+			}
 		}
 	}
 
@@ -62,7 +87,7 @@ namespace Plugins::LootTables
 		global->config = std::make_unique<Config>(std::move(config));
 	}
 
-	LootTable::LootTable(bool PlayersBool, bool NPCsBool, std::wstring TriggerItem, std::map<std::wstring, float> DropProbabilities)
+	LootTable::LootTable(bool PlayersBool, bool NPCsBool, std::string TriggerItem, std::map<float, std::string> DropProbabilities)
 	{
 		this->Players = PlayersBool;
 		this->NPCs = NPCsBool;
@@ -72,9 +97,9 @@ namespace Plugins::LootTables
 		// if sum of probabilities >100% [insert behaviour]
 		// if sum of probabilities <100% chance to drop nothing
 		float ProbabilitySum = 0;
-		for (auto it = DropProbabilities.begin(); it != DropProbabilities.end(); ++it)
+		for (auto it = DropProbabilities.begin(); it != DropProbabilities.end(); it++)
 		{
-			ProbabilitySum += it->second;
+			ProbabilitySum += it->first;
 		}
 		if (ProbabilitySum <= 1.0)
 		{
@@ -83,7 +108,7 @@ namespace Plugins::LootTables
 		}
 		else
 		{
-			int my_var = 1;
+			// Placeholder
 		}
 	}
 
@@ -92,7 +117,7 @@ namespace Plugins::LootTables
 using namespace Plugins::LootTables;
 
 REFL_AUTO(type(LootTable), field(Players), field(NPCs), field(Item), field(Probabilities), field(NoDropChance));
-REFL_AUTO(type(Config), field(DefaultItem_1), field(DefaultProbabilities_1), field(DefaultItem_2), field(DefaultProbabilities_2));
+REFL_AUTO(type(Config), field(ExampleLootTables));
 
 DefaultDllMainSettings(LoadSettings);
 

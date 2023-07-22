@@ -10,12 +10,12 @@ namespace Plugins::LootTables
 		// Parameters
 		bool Players;
 		bool NPCs;
-		std::wstring Item;
-		std::map<std::wstring, float> Probabilities;
+		std::string Item;
+		std::map<float, std::string> Probabilities;
 		float NoDropChance;
 
 		// Constructors
-		LootTable(bool PlayersBool, bool NPCsBool, std::wstring TriggerItem, std::map<std::wstring, float> DropProbabilities);
+		LootTable(bool PlayersBool, bool NPCsBool, std::string TriggerItem, std::map<float, std::string> DropProbabilities);
 		LootTable() = default;
 	};
 
@@ -25,24 +25,28 @@ namespace Plugins::LootTables
 		std::string File() override { return "config/loottables.json"; }
 
 		// Parameters for default loot tables
-		std::wstring DefaultItem_1 = L"missile01_mark01_rtc";
-		std::map<std::wstring, float> DefaultProbabilities_1 = 
+		bool TrackPlayers_1 = true;
+		bool TrackNPCs_1 = false;
+		std::string DefaultItem_1 = "missile01_mark01_rtc";
+		std::map<float, std::string> DefaultProbabilities_1 = 
 		{
-		    {L"missile01_mark01_rtc_ammo", 0.5},
-			{L"missile01_mark01", 0.25},
-			{L"missile01_mark01_ammo", 0.1}
+			{0.5, "missile01_mark01_rtc_ammo"}, 
+			{0.25, "missile01_mark01"}, 
+			{0.1, "missile01_mark01_ammo"}
 		};
-		std::wstring DefaultItem_2 = L"missile01_mark02";
-		std::map<std::wstring, float> DefaultProbabilities_2 =
+		bool TrackPlayers_2 = false;
+		bool TrackNPCs_2 = true;
+		std::string DefaultItem_2 = "missile01_mark02";
+		std::map<float, std::string> DefaultProbabilities_2 =
 		{
-			{L"missile01_mark02_ammo", 0.5},
-			{L"missile01_mark03", 0.5}
+			{0.5, "missile01_mark02_ammo"}, 
+			{0.5, "missile01_mark03"}
 		};
 
 		// Example loot tables
 		std::vector<LootTable> ExampleLootTables = {
-		    LootTable(true, false, DefaultItem_1, DefaultProbabilities_1), 
-			LootTable(false, true, DefaultItem_2, DefaultProbabilities_2)
+		    LootTable(TrackPlayers_1, TrackNPCs_1, DefaultItem_1, DefaultProbabilities_1), 
+			LootTable(TrackPlayers_2, TrackNPCs_2, DefaultItem_2, DefaultProbabilities_2)
 		};
 	};
 
