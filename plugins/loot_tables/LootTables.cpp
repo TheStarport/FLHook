@@ -1,12 +1,4 @@
 ﻿
-/*
-*	Temporary Notes:
-*		. ask for sensible default behaviour for config probabilities >100%
-*		. find out why its still creating this weird Loot Tables dll
-*		. How item drop? (Get location, why mine asteroid?)
-*		. cShip required, get from NPC?
-*/
-
 // Includes
 #include "LootTables.hpp"
 
@@ -16,21 +8,26 @@ namespace Plugins::LootTables
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void ItemDrop(const CShip* ship, std::string ItemNickname)
+	void ItemDrop(const CShip* cShip, std::string const * itemNickname, uint dropCount)
 	{
-		// Placeholder
+		const Vector deathPosition = cShip->get_position();
+		auto itemArchId = CreateID((*itemNickname).c_str());
+		auto lootCrateId = CreateID(global->lootDropContainer.c_str());
+		auto deathSystem = cShip->iSystem;
+		ClientId client = cShip->GetOwnerPlayer();
+		Server.MineAsteroid(deathSystem, deathPosition, lootCrateId, itemArchId, dropCount, client);
 	}
 
 	// This is temporarily used to fetch equipement, it will have to be redone once FLHook functionality
 	// is updated accordingly. (Hopefully)
-	bool CheckForItem(const CShip* ship, std::string ItemNickname)
+	bool CheckForItem(const CShip* cShip, std::string itemNickname)
 	{
-		CEquipManager* eqManager = GetEquipManager((CEqObj*)ship);
+		CEquipManager* eqManager = GetEquipManager((CEqObj*)cShip);
 		CEquipTraverser tr(65536);
-		while (CEquip* eq = eqManager->Traverse(tr))
+		while (const CEquip* equipment = eqManager->Traverse(tr))
 		{
-			const GoodInfo* gi = GoodList_get()->find_by_archetype(eq->archetype->get_id());
-			if (CreateID(ItemNickname.c_str()) == gi->iArchId)
+			const GoodInfo* goodInfo = GoodList_get()->find_by_archetype(equipment->archetype->get_id());
+			if (CreateID(itemNickname.c_str()) == goodInfo->iArchId)
 			{
 				return true;
 			}
@@ -39,41 +36,48 @@ namespace Plugins::LootTables
 	}
 
 	// Hook on ship destroyed
-	void ShipDestroyed(DamageList** dmgList, const DWORD** ecx, const uint& kill)
+	void ShipDestroyed([[maybe_unused]] DamageList** dmgList, const DWORD** ecx, [[maybe_unused]] const uint& kill)
 	{
 		// Get cShip from NPC?
 		const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
-		for (int i = 0; i <= global->config->ExampleLootTables.size(); i++)
+		for (uint i = 0; i <= global->exampleLootTables.size(); i++)
 		{
-			LootTable CurrentLootTable = global->config->ExampleLootTables[i];
+			LootTable currentLootTable = global->exampleLootTables[i];
+
+			// Check if the killed Ship has an Item on board, which would trigger the loot table
+			if (!CheckForItem(cShip, currentLootTable.triggerItemNickname))
+			{
+				return;
+			}
 
 			// Check if the Loot Table in question applies to the destroyed ship
-			bool IsPlayer = cShip->is_player();
-			bool LootTableApplies = ((IsPlayer == CurrentLootTable.Players) || (IsPlayer == CurrentLootTable.NPCs));
-			if (!LootTableApplies)
+			bool isPlayer = cShip->is_player();
+			if (!((isPlayer == currentLootTable.applyToPlayers) || (isPlayer == currentLootTable.applyToNpcs)))
 			{
 				// LootTable does not apply, drop nothing
 				return;
 			}
 
 			// RNG
-			float AccumulatedProbability = (1.0 - CurrentLootTable.NoDropChance);
-			float RandomFloat = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-
-			if (RandomFloat <= CurrentLootTable.NoDropChance)
+			auto lootTableSize = currentLootTable.dropWeights.size();
+			std::vector<float> probabilitiesFromWeights;
+			for (const auto& [weight,nickname]: currentLootTable.dropWeights)
 			{
-				// Drop nothing
-				return;
+				probabilitiesFromWeights.push_back((float)weight / (float)lootTableSize);
 			}
 
 			// Calculate what Item to drop
-			float Sum = (0.0 + CurrentLootTable.NoDropChance);
-			for (auto Item : CurrentLootTable.Probabilities)
+			float randomFloat = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+			float Sum = 0.0;
+			int correspondingVectorIndex = 0;
+			for (const auto& [weight, nickname] : currentLootTable.dropWeights)
 			{
-				Sum += Item.first;
-				if (RandomFloat <= Sum)
+				Sum += probabilitiesFromWeights[correspondingVectorIndex];
+				if (randomFloat <= Sum && (nickname != "None"))
 				{
-					// Placeholder
+					std::string itemToDropNickname = nickname;
+					ItemDrop(cShip, &itemToDropNickname, currentLootTable.dropCount);
+					return;
 				}
 			}
 		}
@@ -86,38 +90,12 @@ namespace Plugins::LootTables
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(std::move(config));
 	}
-
-	LootTable::LootTable(bool PlayersBool, bool NPCsBool, std::string TriggerItem, std::map<float, std::string> DropProbabilities)
-	{
-		this->Players = PlayersBool;
-		this->NPCs = NPCsBool;
-		this->Item = TriggerItem;
-
-		// Check if probabilities given to Constructor make sense
-		// if sum of probabilities >100% [insert behaviour]
-		// if sum of probabilities <100% chance to drop nothing
-		float ProbabilitySum = 0;
-		for (auto it = DropProbabilities.begin(); it != DropProbabilities.end(); it++)
-		{
-			ProbabilitySum += it->first;
-		}
-		if (ProbabilitySum <= 1.0)
-		{
-			this->Probabilities = DropProbabilities;
-			this->NoDropChance = (1.0 - ProbabilitySum);
-		}
-		else
-		{
-			// Placeholder
-		}
-	}
-
 } // namespace Plugins::LootTables
 
 using namespace Plugins::LootTables;
 
-REFL_AUTO(type(LootTable), field(Players), field(NPCs), field(Item), field(Probabilities), field(NoDropChance));
-REFL_AUTO(type(Config), field(ExampleLootTables));
+REFL_AUTO(type(LootTable), field(dropCount), field(applyToPlayers), field(applyToNpcs), field(triggerItemNickname), field(dropWeights));
+REFL_AUTO(type(Config), field(lootDropContainer), field(exampleLootTables));
 
 DefaultDllMainSettings(LoadSettings);
 

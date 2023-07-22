@@ -8,14 +8,23 @@ namespace Plugins::LootTables
 	struct LootTable final : Reflectable
 	{
 		// Parameters
-		bool Players;
-		bool NPCs;
-		std::string Item;
-		std::map<float, std::string> Probabilities;
-		float NoDropChance;
+		uint dropCount;
+		bool applyToPlayers;
+		bool applyToNpcs;
+		std::string triggerItemNickname;
+		std::map<uint, std::string> dropWeights;
 
 		// Constructors
-		LootTable(bool PlayersBool, bool NPCsBool, std::string TriggerItem, std::map<float, std::string> DropProbabilities);
+		LootTable(uint dropCountParam,
+			bool applyToPlayersParam,
+			bool applyToNpcsParam, 
+			std::string triggerItemNicknameParam,
+		    std::map<uint, std::string> dropWeightsParam)
+		    : dropCount(dropCountParam), 
+			applyToPlayers(applyToPlayersParam),
+			applyToNpcs(applyToNpcsParam), 
+			triggerItemNickname(triggerItemNicknameParam),
+		    dropWeights(dropWeightsParam) {}
 		LootTable() = default;
 	};
 
@@ -24,29 +33,35 @@ namespace Plugins::LootTables
 	{
 		std::string File() override { return "config/loottables.json"; }
 
+		// Crate to use for loot
+		std::string lootDropContainer = "lootcrate_ast_loot_metal";
+
 		// Parameters for default loot tables
-		bool TrackPlayers_1 = true;
-		bool TrackNPCs_1 = false;
-		std::string DefaultItem_1 = "missile01_mark01_rtc";
-		std::map<float, std::string> DefaultProbabilities_1 = 
+		uint dropCount_1 = 1;
+		bool applyToPlayers_1 = true;
+		bool applyToNPCs_1 = false;
+		std::string defaultItem_1 = "missile01_mark01_rtc";
+		std::map<uint, std::string> defaultWeights_1 = 
 		{
-			{0.5, "missile01_mark01_rtc_ammo"}, 
-			{0.25, "missile01_mark01"}, 
-			{0.1, "missile01_mark01_ammo"}
+			{4, "missile01_mark01_rtc_ammo"}, 
+			{2, "missile01_mark01"}, 
+			{2, "missile01_mark01_ammo"}
 		};
-		bool TrackPlayers_2 = false;
-		bool TrackNPCs_2 = true;
-		std::string DefaultItem_2 = "missile01_mark02";
-		std::map<float, std::string> DefaultProbabilities_2 =
+		uint dropCount_2 = 2;
+		bool applyToPlayers_2 = false;
+		bool applyToNPCs_2 = true;
+		std::string defaultItem_2 = "missile01_mark02";
+		std::map<uint, std::string> defaultWeights_2 =
 		{
-			{0.5, "missile01_mark02_ammo"}, 
-			{0.5, "missile01_mark03"}
+			{1, "missile01_mark02_ammo"}, 
+			{1, "missile01_mark03"}
 		};
 
 		// Example loot tables
-		std::vector<LootTable> ExampleLootTables = {
-		    LootTable(TrackPlayers_1, TrackNPCs_1, DefaultItem_1, DefaultProbabilities_1), 
-			LootTable(TrackPlayers_2, TrackNPCs_2, DefaultItem_2, DefaultProbabilities_2)
+		std::vector<LootTable> exampleLootTables = 
+		{
+			LootTable(dropCount_1, applyToPlayers_1, applyToNPCs_1, defaultItem_1, defaultWeights_1),
+		    LootTable(dropCount_2, applyToPlayers_2, applyToNPCs_2, defaultItem_2, defaultWeights_2)
 		};
 	};
 
@@ -54,5 +69,7 @@ namespace Plugins::LootTables
 	{
 		std::unique_ptr<Config> config = nullptr;
 		ReturnCode returncode = ReturnCode::Default;
+		std::string lootDropContainer;
+		std::vector<LootTable> exampleLootTables;
 	};
 } // namespace Plugins::Template
