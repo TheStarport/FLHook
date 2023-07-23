@@ -62,6 +62,7 @@ namespace Plugins::LootTables
 			for (const auto& [weight, nickname] : lootTable.dropWeights)
 			{
 				sum += probabilitiesFromWeights[correspondingVectorIndex];
+				correspondingVectorIndex++;
 				if (randomFloat <= sum && (nickname != "None"))
 				{
 					std::string itemToDropNickname = nickname;
