@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.0.20
+## 4.0.10
 - Added Loot Tables plugin, allowing for greater control over item drops.
 
 ## 4.0.9

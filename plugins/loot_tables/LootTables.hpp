@@ -3,6 +3,8 @@
 #include <FLHook.hpp>
 #include <plugin.h>
 
+#include <random>
+
 namespace Plugins::LootTables
 {
 	struct DropWeight final : Reflectable
@@ -46,6 +48,7 @@ namespace Plugins::LootTables
 		std::string lootDropContainer = "lootcrate_ast_loot_metal";
 
 		// Loot Tables
+		// Set the item corresponding to a weight to "None" if there should be a chance for nothing to be dropped
 		std::vector<LootTable> lootTables = 
 		{
 			LootTable(1, true, false, "missile01_mark01_rtc", { DropWeight(4, "missile01_mark01_rtc_ammo"), DropWeight(2, "missile01_mark01"), DropWeight(2, "missile01_mark01_ammo")}),

@@ -1,15 +1,37 @@
-﻿
+﻿/**
+ * @date 23/07/2023
+ * @author Shiniri
+ * @defgroup LootTables Loot Tables
+ * @brief
+ * This plugin implements functionality which allows for more control over what items get
+ * dropped when a ship is destroyed, and over their drop probabilities.
+ *
+ * @paragraph cmds Player Commands
+ * There are no cmds player commands in this plugin.
+ * 
+ * @paragraph adminCmds Admin Commands
+ * There are no admin commands in this plugin.
+ *
+ * @paragraph configuration Configuration
+ * No configuration file is needed.
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin depends on <random>
+ */
+
 // Includes
 #include "LootTables.hpp"
-
-#include <random>
 
 namespace Plugins::LootTables
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	// This is temporarily used to fetch equipement, it will have to be redone once FLHook functionality
-	// is updated accordingly. (Hopefully)
+	/** @ingroup LootTables
+	* @brief Checks if a certain item is on board a ship. (Potentially replaced in future)
+	*/
 	bool CheckForItem(const CShip* cShip, const std::string &itemNickname)
 	{
 		CEquipManager* eqManager = GetEquipManager((CEqObj*)cShip);
@@ -27,7 +49,9 @@ namespace Plugins::LootTables
 		return false;
 	}
 
-	// Hook on ship destroyed
+	/** @ingroup LootTables
+	 * @brief Hook on ShipDestroyed. Applies loot table if possible, drops one of the items from the table at random.
+	 */
 	void ShipDestroyed([[maybe_unused]] DamageList** dmgList, const DWORD** ecx, [[maybe_unused]] const uint& kill)
 	{
 		// Get cShip from NPC?
@@ -79,7 +103,9 @@ namespace Plugins::LootTables
 		}
 	}
 
-	// Put things that are performed on plugin load here!
+	/** @ingroup KillTracker
+	 * @brief LoadSettings hook. Loads/generates config file
+	 */
 	void LoadSettings()
 	{
 		// Load JSON config
