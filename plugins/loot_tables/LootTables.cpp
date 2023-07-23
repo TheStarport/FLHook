@@ -8,16 +8,6 @@ namespace Plugins::LootTables
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void ItemDrop(const CShip* cShip, std::string const * itemNickname, uint dropCount)
-	{
-		const Vector deathPosition = cShip->get_position();
-		auto itemArchId = CreateID((*itemNickname).c_str());
-		auto lootCrateId = CreateID(global->config->lootDropContainer.c_str());
-		auto deathSystem = cShip->iSystem;
-		ClientId client = cShip->GetOwnerPlayer();
-		Server.MineAsteroid(deathSystem, deathPosition, lootCrateId, itemArchId, dropCount, client);
-	}
-
 	// This is temporarily used to fetch equipement, it will have to be redone once FLHook functionality
 	// is updated accordingly. (Hopefully)
 	bool CheckForItem(const CShip* cShip, const std::string &itemNickname)
@@ -29,6 +19,8 @@ namespace Plugins::LootTables
 			const GoodInfo* goodInfo = GoodList_get()->find_by_archetype(equipment->archetype->get_id());
 			if (CreateID(itemNickname.c_str()) == goodInfo->iArchId)
 			{
+				const std::wstring message1 = L"Match!";
+				Hk::Message::MsgU(message1);
 				return true;
 			}
 		}
@@ -40,42 +32,46 @@ namespace Plugins::LootTables
 	{
 		// Get cShip from NPC?
 		const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
-		for (uint i = 0; i <= global->config->lootTables.size(); i++)
+		for (auto const& lootTable : global->config->lootTables)
 		{
-			LootTable currentLootTable = global->config->lootTables[i];
-
 			// Check if the killed Ship has an Item on board, which would trigger the loot table
-			if (!CheckForItem(cShip, currentLootTable.triggerItemNickname))
+			if (!CheckForItem(cShip, lootTable.triggerItemNickname))
 			{
+				// Drop nothing
 				return;
 			}
 
 			// Check if the Loot Table in question applies to the destroyed ship
-			if (bool isPlayer = cShip->is_player(); !((isPlayer == currentLootTable.applyToPlayers) || (isPlayer == currentLootTable.applyToNpcs)))
+			if (bool isPlayer = cShip->is_player(); !((isPlayer && lootTable.applyToPlayers) || (!isPlayer && lootTable.applyToNpcs)))
 			{
-				// LootTable does not apply, drop nothing
+				// Drop nothing
 				return;
 			}
 
 			// RNG
-			auto lootTableSize = currentLootTable.dropWeights.size();
 			std::vector<float> probabilitiesFromWeights;
-			for (const auto& [weight,nickname]: currentLootTable.dropWeights)
+			for (const auto& [weight,nickname]: lootTable.dropWeights)
 			{
-				probabilitiesFromWeights.push_back((float)weight / (float)lootTableSize);
+				probabilitiesFromWeights.push_back((static_cast<float>(weight) / static_cast<float>(lootTable.dropWeights.size())));
 			}
 
 			// Calculate what Item to drop
 			float randomFloat = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-			float Sum = 0.0;
+			float sum = 0.0;
 			int correspondingVectorIndex = 0;
-			for (const auto& [weight, nickname] : currentLootTable.dropWeights)
+			for (const auto& [weight, nickname] : lootTable.dropWeights)
 			{
-				Sum += probabilitiesFromWeights[correspondingVectorIndex];
-				if (randomFloat <= Sum && (nickname != "None"))
+				sum += probabilitiesFromWeights[correspondingVectorIndex];
+				if (randomFloat <= sum && (nickname != "None"))
 				{
 					std::string itemToDropNickname = nickname;
-					ItemDrop(cShip, &itemToDropNickname, currentLootTable.dropCount);
+					Server.MineAsteroid(
+					    cShip->iSystem, 
+						cShip->get_position(), 
+						CreateID(global->config->lootDropContainer.c_str()), 
+						CreateID(nickname.c_str()), 
+						lootTable.dropCount, 
+						cShip->GetOwnerPlayer());
 					return;
 				}
 			}

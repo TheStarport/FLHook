@@ -17,9 +17,9 @@ namespace Plugins::LootTables
 	struct LootTable final : Reflectable
 	{
 		// Parameters
-		uint dropCount;
-		bool applyToPlayers;
-		bool applyToNpcs;
+		uint dropCount = 0;
+		bool applyToPlayers = false;
+		bool applyToNpcs = false;
 		std::string triggerItemNickname;
 		std::vector<DropWeight> dropWeights;
 
