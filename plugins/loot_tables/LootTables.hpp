@@ -5,6 +5,15 @@
 
 namespace Plugins::LootTables
 {
+	struct DropWeight final : Reflectable
+	{
+		uint weighting = 0;
+		std::string item;
+
+		DropWeight(uint weightingParam, std::string const& itemParam) : weighting(weightingParam), item(itemParam) {}
+		DropWeight() = default;
+	};
+
 	struct LootTable final : Reflectable
 	{
 		// Parameters
@@ -12,14 +21,14 @@ namespace Plugins::LootTables
 		bool applyToPlayers;
 		bool applyToNpcs;
 		std::string triggerItemNickname;
-		std::map<uint, std::string> dropWeights;
+		std::vector<DropWeight> dropWeights;
 
 		// Constructors
 		LootTable(uint dropCountParam,
 			bool applyToPlayersParam,
 			bool applyToNpcsParam, 
-			std::string triggerItemNicknameParam,
-		    std::map<uint, std::string> dropWeightsParam)
+			std::string const& triggerItemNicknameParam,
+		    std::vector<DropWeight> dropWeightsParam)
 		    : dropCount(dropCountParam), 
 			applyToPlayers(applyToPlayersParam),
 			applyToNpcs(applyToNpcsParam), 
@@ -36,32 +45,11 @@ namespace Plugins::LootTables
 		// Crate to use for loot
 		std::string lootDropContainer = "lootcrate_ast_loot_metal";
 
-		// Parameters for default loot tables
-		uint dropCount_1 = 1;
-		bool applyToPlayers_1 = true;
-		bool applyToNPCs_1 = false;
-		std::string defaultItem_1 = "missile01_mark01_rtc";
-		std::map<uint, std::string> defaultWeights_1 = 
+		// Loot Tables
+		std::vector<LootTable> lootTables = 
 		{
-			{4, "missile01_mark01_rtc_ammo"}, 
-			{2, "missile01_mark01"}, 
-			{2, "missile01_mark01_ammo"}
-		};
-		uint dropCount_2 = 2;
-		bool applyToPlayers_2 = false;
-		bool applyToNPCs_2 = true;
-		std::string defaultItem_2 = "missile01_mark02";
-		std::map<uint, std::string> defaultWeights_2 =
-		{
-			{1, "missile01_mark02_ammo"}, 
-			{1, "missile01_mark03"}
-		};
-
-		// Example loot tables
-		std::vector<LootTable> exampleLootTables = 
-		{
-			LootTable(dropCount_1, applyToPlayers_1, applyToNPCs_1, defaultItem_1, defaultWeights_1),
-		    LootTable(dropCount_2, applyToPlayers_2, applyToNPCs_2, defaultItem_2, defaultWeights_2)
+			LootTable(1, true, false, "missile01_mark01_rtc", { DropWeight(4, "missile01_mark01_rtc_ammo"), DropWeight(2, "missile01_mark01"), DropWeight(2, "missile01_mark01_ammo")}),
+		    LootTable(2, false, true, "missile01_mark02", { DropWeight(1, "missile01_mark02_ammo"), DropWeight(1, "missile01_mark03")})
 		};
 	};
 
@@ -69,7 +57,5 @@ namespace Plugins::LootTables
 	{
 		std::unique_ptr<Config> config = nullptr;
 		ReturnCode returncode = ReturnCode::Default;
-		std::string lootDropContainer;
-		std::vector<LootTable> exampleLootTables;
 	};
 } // namespace Plugins::Template

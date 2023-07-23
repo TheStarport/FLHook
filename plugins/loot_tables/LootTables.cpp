@@ -12,7 +12,7 @@ namespace Plugins::LootTables
 	{
 		const Vector deathPosition = cShip->get_position();
 		auto itemArchId = CreateID((*itemNickname).c_str());
-		auto lootCrateId = CreateID(global->lootDropContainer.c_str());
+		auto lootCrateId = CreateID(global->config->lootDropContainer.c_str());
 		auto deathSystem = cShip->iSystem;
 		ClientId client = cShip->GetOwnerPlayer();
 		Server.MineAsteroid(deathSystem, deathPosition, lootCrateId, itemArchId, dropCount, client);
@@ -20,7 +20,7 @@ namespace Plugins::LootTables
 
 	// This is temporarily used to fetch equipement, it will have to be redone once FLHook functionality
 	// is updated accordingly. (Hopefully)
-	bool CheckForItem(const CShip* cShip, std::string itemNickname)
+	bool CheckForItem(const CShip* cShip, const std::string &itemNickname)
 	{
 		CEquipManager* eqManager = GetEquipManager((CEqObj*)cShip);
 		CEquipTraverser tr(65536);
@@ -40,9 +40,9 @@ namespace Plugins::LootTables
 	{
 		// Get cShip from NPC?
 		const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
-		for (uint i = 0; i <= global->exampleLootTables.size(); i++)
+		for (uint i = 0; i <= global->config->lootTables.size(); i++)
 		{
-			LootTable currentLootTable = global->exampleLootTables[i];
+			LootTable currentLootTable = global->config->lootTables[i];
 
 			// Check if the killed Ship has an Item on board, which would trigger the loot table
 			if (!CheckForItem(cShip, currentLootTable.triggerItemNickname))
@@ -51,8 +51,7 @@ namespace Plugins::LootTables
 			}
 
 			// Check if the Loot Table in question applies to the destroyed ship
-			bool isPlayer = cShip->is_player();
-			if (!((isPlayer == currentLootTable.applyToPlayers) || (isPlayer == currentLootTable.applyToNpcs)))
+			if (bool isPlayer = cShip->is_player(); !((isPlayer == currentLootTable.applyToPlayers) || (isPlayer == currentLootTable.applyToNpcs)))
 			{
 				// LootTable does not apply, drop nothing
 				return;
@@ -94,8 +93,9 @@ namespace Plugins::LootTables
 
 using namespace Plugins::LootTables;
 
+REFL_AUTO(type(DropWeight), field(weighting), field(item));
 REFL_AUTO(type(LootTable), field(dropCount), field(applyToPlayers), field(applyToNpcs), field(triggerItemNickname), field(dropWeights));
-REFL_AUTO(type(Config), field(lootDropContainer), field(exampleLootTables));
+REFL_AUTO(type(Config), field(lootDropContainer), field(lootTables));
 
 DefaultDllMainSettings(LoadSettings);
 
