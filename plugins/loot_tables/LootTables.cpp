@@ -31,6 +31,7 @@ namespace Plugins::LootTables
 
 	/** @ingroup LootTables
 	* @brief Checks if a certain item is on board a ship. (Potentially replaced in future)
+	* For now this also only works for commodities!
 	*/
 	bool CheckForItem(const CShip* cShip, const std::string &itemNickname)
 	{
@@ -41,8 +42,6 @@ namespace Plugins::LootTables
 			const GoodInfo* goodInfo = GoodList_get()->find_by_archetype(equipment->archetype->get_id());
 			if (CreateID(itemNickname.c_str()) == goodInfo->iArchId)
 			{
-				const std::wstring message1 = L"Match!";
-				Hk::Message::MsgU(message1);
 				return true;
 			}
 		}
@@ -111,6 +110,17 @@ namespace Plugins::LootTables
 		// Load JSON config
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(std::move(config));
+
+		// Handle loot tables which won't work due to trigger not being
+		// a commodity
+		for (const auto& lootTable : global->config->lootTables)
+		{
+			if (const GoodInfo* goodInfo = GoodList_get()->find_by_archetype(CreateID(lootTable.triggerItemNickname.c_str()));
+			    (goodInfo->iType) != GOODINFO_TYPE_COMMODITY)
+			{
+				AddLog(LogType::Normal, LogLevel::Err, "Used non-commodity as loot table trigger. This Plugin only works with commodities.");
+			}
+		}
 	}
 } // namespace Plugins::LootTables
 
