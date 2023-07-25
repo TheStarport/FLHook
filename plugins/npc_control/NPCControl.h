@@ -67,7 +67,7 @@ namespace Plugins::Npc
 		inline static const char* pluginName = "NPC Control";
 		explicit NpcCommunicator(const std::string& plug);
 
-		void PluginCall(CreateNpc, const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition);
+		uint PluginCall(CreateNpc, const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition);
 	};
 
 	//! Global data for this plugin
