@@ -22,8 +22,6 @@ namespace Plugins
                     std::string targetBase;
                     std::string targetSystem;
                     std::string restrictedSystem;
-
-
             };
             std::unique_ptr<Config> config;
             // Non-reflectable fields

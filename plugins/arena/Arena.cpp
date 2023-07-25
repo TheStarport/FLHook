@@ -42,7 +42,7 @@ namespace Plugins
     void Arena::ClearClientInfo(ClientId& client) { transferFlags[client] = ClientState::None; }
 
     /// Load the configuration
-    void Arena::LoadSettings() {}
+    void Arena::LoadSettings() { config = Serializer::LoadFromJson<Config>(L"config/arena.json"); }
 
     /** @ingroup Arena
      * @brief Returns true if the client is docked, returns false otherwise.
