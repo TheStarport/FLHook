@@ -565,6 +565,8 @@ namespace Plugins::Npc
 
 		return true;
 	}
+
+	NpcCommunicator::NpcCommunicator(const std::string& plug) : PluginCommunicator(plug) { this->CreateNpc = CreateNPC; }
 } // namespace Plugins::Npc
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -581,7 +583,7 @@ REFL_AUTO(type(Config), field(npcInfo), field(fleetInfo), field(startupNpcs), fi
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("NPC Control");
+	pi->name(NpcCommunicator::pluginName);
 	pi->shortName("npc");
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
@@ -590,4 +592,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__Startup, &AfterStartup, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
+
+	// Register IPC
+	global->communicator = new NpcCommunicator(NpcCommunicator::pluginName);
+	PluginCommunicator::ExportPluginCommunicator(global->communicator);
 }

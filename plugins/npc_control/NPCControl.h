@@ -60,6 +60,16 @@ namespace Plugins::Npc
 		std::string File() override { return "config/npc.json"; }
 	};
 
+	//! Communicator class for this plugin. This is used by other plugins
+	class NpcCommunicator : public PluginCommunicator
+	{
+	  public:
+		inline static const char* pluginName = "NPC Control";
+		explicit NpcCommunicator(const std::string& plug);
+
+		void PluginCall(CreateNpc, const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition);
+	};
+
 	//! Global data for this plugin
 	struct Global final
 	{
@@ -69,5 +79,6 @@ namespace Plugins::Npc
 		std::vector<uint> spawnedNpcs {};
 		std::shared_ptr<spdlog::logger> Log = nullptr;
 		uint dockNpc = 0;
+		NpcCommunicator* communicator = nullptr;
 	};
 } // namespace Plugins::Npc
