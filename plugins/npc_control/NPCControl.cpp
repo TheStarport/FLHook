@@ -134,7 +134,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Function to spawn an NPC
 	 */
-	void CreateNPC(const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
+	uint CreateNPC(const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
 	{
 		Npc arch = global->config->npcInfo[name];
 
@@ -204,7 +204,7 @@ namespace Plugins::Npc
 		{
 			std::string errorMessage = arch.pilot + " is not recognised as a pilot name.";
 			AddLog(LogType::Normal, LogLevel::Err, errorMessage);
-			return;
+			return 0;
 		}
 
 		personalityParams.personality = personality.value();
@@ -221,6 +221,8 @@ namespace Plugins::Npc
 		constexpr auto level = static_cast<spdlog::level::level_enum>(LogLevel::Info);
 		std::string logMessage = "Created " + wstos(name);
 		global->Log->log(level, logMessage);
+
+		return spaceObj;
 	}
 
 	/** @ingroup NPCControl

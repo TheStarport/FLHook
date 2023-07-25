@@ -1,6 +1,7 @@
 #pragma once
 #include <FLHook.hpp>
 #include <plugin.h>
+#include "../npc_control/NPCControl.h"
 
 struct Costume
 {
@@ -47,7 +48,7 @@ namespace Plugins::WaveDefence
 
 	struct Wave : Reflectable
 	{
-		std::vector<std::string> npcs;
+		std::vector<std::wstring> npcs;
 		uint reward = 0;
 		VoiceLine startVoiceLine;
 		VoiceLine endVoiceLine;
@@ -87,5 +88,6 @@ namespace Plugins::WaveDefence
 		std::unique_ptr<Config> config = nullptr;
 		ReturnCode returnCode = ReturnCode::Default;
 		std::vector<Game> games;
+		Plugins::Npc::NpcCommunicator* communicator = nullptr;
 	};
 } // namespace Plugins::WaveDefence

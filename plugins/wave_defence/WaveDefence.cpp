@@ -64,19 +64,19 @@ namespace Plugins::WaveDefence
 		global->config = std::make_unique<Config>(config);
 	}
 
-	void SendComm(const std::vector<uint>& group, const Character& character, VoiceLine& voiceline) 
+	void SendComm(const std::vector<uint>& group, const Character& character, const VoiceLine& voiceline)
 	{
 		for (auto const& player : group)
 		{
 			uint ship;
 			pub::Player::GetShip(player, ship);
-			pub::SpaceObj::SendComm(0, ship, character.voiceId, &character.costume, 216000, &voiceline.voiceLine.id, 9, 19009, 0.5, false);
+			pub::SpaceObj::SendComm(0, ship, character.voiceId, &character.costume, 216000, (uint*)&voiceline.voiceLine, 9, 19009, 0.5, false);
 		}
 	}
 
 	void ShowPlayerMissionText(uint client, uint infocard, MissionMessageType type)
 	{
-		FmtStr caption(0, 0);
+		FmtStr caption(0, nullptr);
 		caption.begin_mad_lib(infocard);
 		caption.end_mad_lib();
 
@@ -86,7 +86,7 @@ namespace Plugins::WaveDefence
 	bool PlayerChecks(uint client, uint member, uint system)
 	{
 		auto characterName = Hk::Client::GetCharacterNameByID(member);
-		
+
 		// Check player is in the correct system
 		uint playerSystem;
 		pub::Player::GetSystem(member, playerSystem);
@@ -107,7 +107,7 @@ namespace Plugins::WaveDefence
 
 		// Is the player already in a game?
 		for (auto& game : global->games)
-		{			
+		{
 			if (std::ranges::find(game.members, member) != game.members.end())
 			{
 				PrintUserCmdText(client, std::format(L"{} is already in a Wave Defence game.", characterName.value()));
@@ -118,8 +118,36 @@ namespace Plugins::WaveDefence
 		return true;
 	}
 
+	void EndSurvival(Game& game, bool success)
+	{
+		// Announcement
+		if (success)
+		{
+			auto player = Hk::Client::GetCharacterNameByID(game.members.front());
+			const auto message = Hk::Message::FormatMsg(
+			    MessageColor::Red, MessageFormat::Normal, std::format(L"{} and their team have completed a Wave Defence game.", player.value()));
+			Hk::Message::FMsgU(message);
+		}
+
+		// Remove game from global
+		auto gameSubRange = std::ranges::remove_if(global->games, [&game](auto& g) { return g.system.systemId == game.system.systemId; });
+		global->games.erase(gameSubRange.begin(), gameSubRange.end());
+	}
+
 	void NewWave(Game& game)
 	{
+		// Get wave
+		Wave const& wave = game.system.waves.at(game.waveNumber);
+
+		// Check IPC is working
+		if (!global->communicator)
+		{
+			AddLog(LogType::Normal, LogLevel::Err, "Cannot communicate with NPC Control plugin! Check it is loaded.");
+			PrintUserCmdText(game.members.front(), L"There has been an error with the Wave Defence plugin. Please contact an administrator.");
+			EndSurvival(game, false);
+			return;
+		}
+
 		// Spawn NPCS
 		uint ship;
 		Vector position;
@@ -127,26 +155,30 @@ namespace Plugins::WaveDefence
 		pub::Player::GetShip(game.members.front(), ship);
 		pub::SpaceObj::GetLocation(ship, position, rotation);
 
-		for (auto const& npc : game.system.waves.at(game.waveNumber).npcs)
+		for (auto const& npc : wave.npcs)
 		{
-			// game.spawnedNpcs.push_back(NPCs::CreateNPC(npc, position, rotation, game.system, true)); // This won't work. DO IPC
+			game.spawnedNpcs.push_back(global->communicator->CreateNpc(npc, game.system.positionVector, rotation, game.system.systemId, true));
 		}
 
-// Actions for all players in group
-for (auto const& player : game.members)
-{
-	// Defend yourself!
-	ShowPlayerMissionText(player, 22612, MissionMessageType_Type2);
-	// Set all enemies to be hostile
-	for (auto const& npc : game.spawnedNpcs)
-	{
-		int reputation;
-		pub::Player::GetRep(player, reputation);
-		int npcReputation;
-		pub::SpaceObj::GetRep(npc, npcReputation);
-		pub::Reputation::SetAttitude(npcReputation, reputation, -0.9f);
-	}
-}
+		// Actions for all players in group
+		for (auto const& player : game.members)
+		{
+			// Defend yourself!
+			ShowPlayerMissionText(player, 22612, MissionMessageType_Type2);
+
+			// Set all enemies to be hostile
+			for (auto const& npc : game.spawnedNpcs)
+			{
+				int reputation;
+				pub::Player::GetRep(player, reputation);
+				int npcReputation;
+				pub::SpaceObj::GetRep(npc, npcReputation);
+				pub::Reputation::SetAttitude(npcReputation, reputation, -0.9f);
+			}
+		}
+
+		// Send voice line
+		SendComm(game.members, game.system.character, wave.startVoiceLine);
 	}
 
 	void NewGame(uint client)
@@ -155,7 +187,7 @@ for (auto const& player : game.members)
 		pub::Player::GetSystem(client, systemId);
 
 		// Is there a game already in this system?
-		for (auto& game : global->games)
+		for (auto const& game : global->games)
 		{
 			if (game.system.systemId == systemId)
 			{
@@ -168,7 +200,7 @@ for (auto const& player : game.members)
 		Game game;
 
 		// Is a survival game possible in this system?
-		for (auto& system : global->config->systems)
+		for (auto const& system : global->config->systems)
 		{
 			if (systemId == system.systemId)
 			{
@@ -197,13 +229,12 @@ for (auto const& player : game.members)
 		}
 
 		// Is player in a group?
-		uint groupId = Players.GetGroupID(client);
-		if (groupId != 0)
+		if (uint groupId = Players.GetGroupID(client); groupId != 0)
 		{
 			// Get players in the group
 			st6::vector<unsigned int> tempList;
 			CPlayerGroup::FromGroupID(groupId)->StoreMemberList(tempList);
-			for (auto& player : tempList)
+			for (auto const& player : tempList)
 				game.members.push_back(player);
 		}
 		else
@@ -217,7 +248,7 @@ for (auto const& player : game.members)
 				return;
 
 			// Beam the players to a point in the system
-			Matrix rotation = { 0.0f, 0.0f, 0.0f };
+			Matrix rotation = {0.0f, 0.0f, 0.0f};
 			Hk::Player::RelocateClient(player, game.system.positionVector, rotation);
 		}
 
@@ -225,26 +256,13 @@ for (auto const& player : game.members)
 		global->games.push_back(game);
 	}
 
-	void EndSurvival(Game& game, bool success)
-	{
-		// Announcement
-		if (success)
-		{
-			auto player = Hk::Client::GetCharacterNameByID(game.members.front());
-			const auto message = Hk::Message::FormatMsg(
-			    MessageColor::Red, MessageFormat::Normal, std::format(L"{} and their team have completed a Wave Defence game.", player.value()));
-			Hk::Message::FMsgU(message);
-		}
-		
-		// Remove game from global
-		auto gameSubRange = std::ranges::remove_if(global->games, [&game](auto& g) { return g.system.systemId == game.system.systemId; });
-		global->games.erase(gameSubRange.begin(), gameSubRange.end());
-	}
-
 	void EndWave(Game& game)
 	{
+		// Get Wave
+		const Wave& wave = game.system.waves.at(game.waveNumber);
+
 		// Payout reward
-		uint reward = game.system.waves.at(game.waveNumber).reward;
+		uint reward = wave.reward;
 		if (game.groupId != 0)
 		{
 			CPlayerGroup* group = CPlayerGroup::FromGroupID(game.groupId);
@@ -256,11 +274,14 @@ for (auto const& player : game.members)
 			Hk::Player::AddCash(player.value(), reward);
 		}
 
+		// Send Voice Line
+		SendComm(game.members, game.system.character, wave.endVoiceLine);
+
 		// Increment Wave
 		game.waveNumber++;
 
 		// Message each player telling them the wave is over. Do after wave number increment because we want wave 1 not 0.
-		for (auto& player : game.members)
+		for (auto const& player : game.members)
 			PrintUserCmdText(player, std::format(L"Wave {} complete. Reward: {} credits.", game.waveNumber, reward));
 
 		// Is there a next wave? If so start it on a timer. If not, EndSurvival()
@@ -290,8 +311,7 @@ for (auto const& player : game.members)
 		// Are they even in a game?
 		for (auto& game : global->games)
 		{
-			std::vector<uint>::iterator it = std::find(game.members.begin(), game.members.end(), client);
-			if (it != game.members.end())
+			if (auto it = std::ranges::find(game.members, client); it != game.members.end())
 			{
 				// Remove from group
 				if (game.groupId != 0)
@@ -314,29 +334,27 @@ for (auto const& player : game.members)
 				}
 
 				auto playerCharacterName = Hk::Client::GetCharacterNameByID(client);
-				for (auto& player : game.members)
+				for (auto const& player : game.members)
 					PrintUserCmdText(player, std::format(L"{} has fled the battle.", playerCharacterName.value()));
 			}
 		}
 	}
 
 	// Disqualify from survival if these hooks go off
-	void __stdcall DisConnect(unsigned int client, enum EFLConnection state)
+	void __stdcall DisConnect(unsigned int client, [[maybe_unused]] enum EFLConnection state)
 	{
 		Disqualify(client);
 	}
 
-	void __stdcall BaseEnter(unsigned int base, unsigned int client)
+	void __stdcall BaseEnter([[maybe_unused]] unsigned int base, unsigned int client)
 	{
 		Disqualify(client);
 	}
 
-	void __stdcall PlayerLaunch(unsigned int ship, unsigned int client)
+	void __stdcall PlayerLaunch([[maybe_unused]] unsigned int ship, unsigned int client)
 	{
 		Disqualify(client);
 	}
-
-
 } // namespace Plugins::WaveDefence
 
 using namespace Plugins::WaveDefence;
@@ -359,4 +377,13 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
+
+	global->communicator = static_cast<Plugins::Npc::NpcCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Plugins::Npc::NpcCommunicator::pluginName));
 }
+
+/*
+
+- Timer for new wave
+- Ship destroy for players and npcs
+
+*/
