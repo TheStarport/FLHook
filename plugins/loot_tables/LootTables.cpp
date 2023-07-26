@@ -110,10 +110,30 @@ namespace Plugins::LootTables
 		// Load JSON config
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(std::move(config));
+	}
 
+	void AfterStartup()
+	{
 		std::string nick = "missile01_mark02";
 		const GoodInfo* goodInfo = GoodList_get()->find_by_archetype(CreateID(nick.c_str()));
-		AddLog(LogType::Normal, LogLevel::Err, std::to_string(goodInfo->iIdSName));
+		AddLog(LogType::Normal, LogLevel::Info, std::to_string(goodInfo->iIdSName));
+
+		bool test;
+		pub::IsCommodity(CreateID(nick.c_str()), test);
+		
+		if (!test)
+		{
+			AddLog(LogType::Normal, LogLevel::Info, "That's not a commodity");
+		}
+
+		bool test2;
+		pub::IsCommodity(CreateID("commodity_gold"), test2);
+
+		if (test2)
+		{
+			AddLog(LogType::Normal, LogLevel::Info, "That's a commodity");
+		}
+
 	}
 } // namespace Plugins::LootTables
 
@@ -134,5 +154,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
+	pi->emplaceHook(HookedCall::IServerImpl__Startup, &AfterStartup, HookStep::After);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 }
