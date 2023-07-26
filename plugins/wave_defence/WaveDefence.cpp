@@ -377,6 +377,10 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
+	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
+	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
+	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &NPCDestroyed);
 
 	global->communicator = static_cast<Plugins::Npc::NpcCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Plugins::Npc::NpcCommunicator::pluginName));
 }
