@@ -56,7 +56,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>SERVER;_VC80_UPGRADE=0x0710;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
       <EnableModules>true</EnableModules>
       <DisableSpecificWarnings>5222</DisableSpecificWarnings>

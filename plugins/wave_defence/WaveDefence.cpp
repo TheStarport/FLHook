@@ -288,12 +288,31 @@ namespace Plugins::WaveDefence
 		if (game.waveNumber >= game.system.waves.size())
 			EndSurvival(game, true);
 		else
-			NewWave(game);
+			global->systemsPendingNewWave.push_back(game.system.systemId);
 	}
 
-	// This is only called when it's an FLHook spawned NPC (see main.cpp)
-	void NPCDestroyed(CShip* ship)
+	void WaveTimer()
 	{
+		for (const auto& systemId : global->systemsPendingNewWave)
+		{
+			auto game = std::ranges::find_if(global->games.begin(), global->games.end(), [systemId] (auto& item) { return item.system.systemId == systemId; });
+			NewWave(*game);
+		}
+	}
+
+	const std::vector<Timer> timers = {{WaveTimer, 5}};
+
+	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, [[maybe_unused]] const DWORD** ecx, const uint& kill)
+	{
+		// Grab the ship from the ecx
+		const CShip* ship = Hk::Player::CShipFromShipDestroyed(ecx);
+		
+		// Skip the for loop if its a player
+		if (ship->is_player())
+		{
+			return;
+		}
+
 		for (auto& game : global->games)
 		{
 			// Remove NPC if part of a wave
@@ -374,20 +393,14 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("wave_defence");
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
+	pi->timers(&timers);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
-	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &NPCDestroyed);
+	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 
 	global->communicator = static_cast<Plugins::Npc::NpcCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Plugins::Npc::NpcCommunicator::pluginName));
 }
-
-/*
-
-- Timer for new wave
-- Ship destroy for players and npcs
-
-*/
