@@ -17,11 +17,11 @@ namespace Plugins::WaveDefence
 {
 	struct CostumeStrings : Reflectable
 	{
-		std::string body;
-		std::string head;
-		std::string lefthand;
-		std::string righthand;
-		std::vector<std::string> accessory;
+		std::string head = "sh_male1_head";
+		std::string body = "pi_orillion_body";
+		std::string lefthand = "benchmark_male_hand_left";
+		std::string righthand = "benchmark_male_hand_right";
+		std::vector<std::string> accessory = {{"prop_shades_04"}};
 		int accessories = 0;
 	};
 
@@ -32,9 +32,9 @@ namespace Plugins::WaveDefence
 		Costume costume;
 
 		// Reflectable
-		uint infocard = 0;
-		std::string voice;
-		CostumeStrings costumeStrings;
+		uint infocard = 13015;
+		std::string voice = "mc_leg_m01";
+		CostumeStrings costumeStrings = CostumeStrings();
 	};
 
 	struct VoiceLine : Reflectable
@@ -48,10 +48,10 @@ namespace Plugins::WaveDefence
 
 	struct Wave : Reflectable
 	{
-		std::vector<std::wstring> npcs;
-		uint reward = 0;
-		VoiceLine startVoiceLine;
-		VoiceLine endVoiceLine;
+		std::vector<std::wstring> npcs = {{L"example"}, {L"example"}};
+		uint reward = 1000;
+		VoiceLine startVoiceLine = VoiceLine();
+		VoiceLine endVoiceLine = VoiceLine();
 	};
 
 	struct System : Reflectable
@@ -61,12 +61,12 @@ namespace Plugins::WaveDefence
 		Vector positionVector;
 
 		// Reflectable properties
-		std::vector<Wave> waves;
-		std::string system;
+		std::vector<Wave> waves = {{Wave()}, {Wave()}};
+		std::string system = "li01";
 		float posX = 0;
 		float posY = 0;
 		float posZ = 0;
-		Character character;
+		Character character = Character();
 	};
 
 	struct Game
@@ -80,7 +80,10 @@ namespace Plugins::WaveDefence
 
 	struct Config : Reflectable
 	{
-		std::vector<System> systems;
+		std::vector<System> systems = {{System()}, {System()}};
+
+		//! The config file we load out of
+		std::string File() override { return "config/wave_defence.json"; }
 	};
 
 	struct Global final
@@ -89,5 +92,6 @@ namespace Plugins::WaveDefence
 		ReturnCode returnCode = ReturnCode::Default;
 		std::vector<Game> games;
 		Plugins::Npc::NpcCommunicator* communicator = nullptr;
+		std::vector<uint> systemsPendingNewWave;
 	};
 } // namespace Plugins::WaveDefence
