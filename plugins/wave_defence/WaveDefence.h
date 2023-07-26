@@ -5,8 +5,8 @@
 
 struct Costume
 {
-	uint body = 0;
 	uint head = 0;
+	uint body = 0;
 	uint lefthand = 0;
 	uint righthand = 0;
 	uint accessory[8] = {};

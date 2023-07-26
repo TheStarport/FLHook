@@ -376,7 +376,8 @@ namespace Plugins::WaveDefence
 		Disqualify(client);
 	}
 
-	const std::vector commands = {{CreateUserCommand(L"/wave", L"", NewGame, L"Starts a wave defence game.")
+	const std::vector commands = {
+	    {CreateUserCommand(L"/wave", L"", NewGame, L"Starts a wave defence game.")
 	}};
 } // namespace Plugins::WaveDefence
 
