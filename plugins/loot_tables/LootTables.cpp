@@ -111,16 +111,9 @@ namespace Plugins::LootTables
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(std::move(config));
 
-		// Handle loot tables which won't work due to trigger not being
-		// a commodity
-		for (const auto& lootTable : global->config->lootTables)
-		{
-			if (const GoodInfo* goodInfo = GoodList_get()->find_by_archetype(CreateID(lootTable.triggerItemNickname.c_str()));
-			    (goodInfo->iType) != GOODINFO_TYPE_COMMODITY)
-			{
-				AddLog(LogType::Normal, LogLevel::Err, "Used non-commodity as loot table trigger. This Plugin only works with commodities.");
-			}
-		}
+		std::string nick = "missile01_mark02";
+		const GoodInfo* goodInfo = GoodList_get()->find_by_archetype(CreateID(nick.c_str()));
+		AddLog(LogType::Normal, LogLevel::Err, std::to_string(goodInfo->iIdSName));
 	}
 } // namespace Plugins::LootTables
 

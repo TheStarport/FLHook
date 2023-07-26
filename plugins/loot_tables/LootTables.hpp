@@ -29,7 +29,7 @@ namespace Plugins::LootTables
 		LootTable(uint dropCountParam,
 			bool applyToPlayersParam,
 			bool applyToNpcsParam, 
-			std::string const& triggerItemNicknameParam,
+			std::string triggerItemNicknameParam,
 		    std::vector<DropWeight> dropWeightsParam)
 		    : dropCount(dropCountParam), 
 			applyToPlayers(applyToPlayersParam),
