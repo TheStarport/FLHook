@@ -48,7 +48,7 @@ namespace Plugins::WaveDefence
 			system.character.costume.righthand = CreateID(system.character.costumeStrings.righthand.c_str());
 			system.character.costume.accessories = system.character.costumeStrings.accessories;
 
-			for (int i = 0; i < 8; i++)
+			for (int i = 0; i < system.character.costumeStrings.accessory.size(); i++)
 			{
 				system.character.costume.accessory[i] = CreateID(system.character.costumeStrings.accessory[i].c_str());
 			}
@@ -181,7 +181,7 @@ namespace Plugins::WaveDefence
 		SendComm(game.members, game.system.character, wave.startVoiceLine);
 	}
 
-	void NewGame(uint client)
+	void NewGame(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		uint systemId;
 		pub::Player::GetSystem(client, systemId);
@@ -298,11 +298,12 @@ namespace Plugins::WaveDefence
 			auto game = std::ranges::find_if(global->games.begin(), global->games.end(), [systemId] (auto& item) { return item.system.systemId == systemId; });
 			NewWave(*game);
 		}
+		global->systemsPendingNewWave.clear();
 	}
 
 	const std::vector<Timer> timers = {{WaveTimer, 5}};
 
-	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, [[maybe_unused]] const DWORD** ecx, const uint& kill)
+	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, const DWORD** ecx, [[maybe_unused]] const uint& kill)
 	{
 		// Grab the ship from the ecx
 		const CShip* ship = Hk::Player::CShipFromShipDestroyed(ecx);
@@ -374,6 +375,9 @@ namespace Plugins::WaveDefence
 	{
 		Disqualify(client);
 	}
+
+	const std::vector commands = {{CreateUserCommand(L"/wave", L"", NewGame, L"Starts a wave defence game.")
+	}};
 } // namespace Plugins::WaveDefence
 
 using namespace Plugins::WaveDefence;
@@ -394,6 +398,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
 	pi->timers(&timers);
+	pi->commands(&commands);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
