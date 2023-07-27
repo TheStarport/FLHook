@@ -40,19 +40,6 @@ namespace Plugins::WaveDefence
 			system.positionVector.z = system.posZ;
 			system.systemId = CreateID(system.system.c_str());
 
-			// Character / Costume
-			system.character.voiceId = CreateID(system.character.voice.c_str());
-			system.character.costume.head = CreateID(system.character.costumeStrings.head.c_str());
-			system.character.costume.body = CreateID(system.character.costumeStrings.body.c_str());
-			system.character.costume.lefthand = CreateID(system.character.costumeStrings.lefthand.c_str());
-			system.character.costume.righthand = CreateID(system.character.costumeStrings.righthand.c_str());
-			system.character.costume.accessories = system.character.costumeStrings.accessories;
-
-			for (int i = 0; i < system.character.costumeStrings.accessory.size(); i++)
-			{
-				system.character.costume.accessory[i] = CreateID(system.character.costumeStrings.accessory[i].c_str());
-			}
-
 			// Waves
 			for (auto& wave : system.waves)
 			{
@@ -61,16 +48,35 @@ namespace Plugins::WaveDefence
 			}
 		}
 
+		// Character / Costume
+		for (auto& character : config.characters)
+		{
+			character.voiceId = CreateID(character.voice.c_str());
+			character.costume.head = CreateID(character.costumeStrings.head.c_str());
+			character.costume.body = CreateID(character.costumeStrings.body.c_str());
+			character.costume.lefthand = CreateID(character.costumeStrings.lefthand.c_str());
+			character.costume.righthand = CreateID(character.costumeStrings.righthand.c_str());
+			character.costume.accessories = character.costumeStrings.accessories;
+
+			for (int i = 0; i < character.costumeStrings.accessory.size(); i++)
+			{
+				character.costume.accessory[i] = CreateID(character.costumeStrings.accessory[i].c_str());
+			}
+		}
+
 		global->config = std::make_unique<Config>(config);
 	}
 
-	void SendComm(const std::vector<uint>& group, const Character& character, const VoiceLine& voiceline)
+	void SendComm(const std::vector<uint>& group, const VoiceLine& voiceline)
 	{
+		auto character = std::ranges::find_if(
+		    global->config->characters.begin(), global->config->characters.end(), [&voiceline](auto& item) { return voiceline.character == item.voice; });
+
 		for (auto const& player : group)
 		{
 			uint ship;
 			pub::Player::GetShip(player, ship);
-			pub::SpaceObj::SendComm(0, ship, character.voiceId, &character.costume, 216000, (uint*)&voiceline.voiceLine, 9, 19009, 0.5, false);
+			pub::SpaceObj::SendComm(0, ship, character->voiceId, &character->costume, character->infocard, (uint*)&voiceline.voiceLine, 9, 19009, 0.5, false);
 		}
 	}
 
@@ -127,6 +133,17 @@ namespace Plugins::WaveDefence
 			const auto message = Hk::Message::FormatMsg(
 			    MessageColor::Red, MessageFormat::Normal, std::format(L"{} and their team have completed a Wave Defence game.", player.value()));
 			Hk::Message::FMsgU(message);
+			
+			// Play victory music and message
+			pub::Audio::Tryptich music;
+			music.iDunno = 0;
+			music.iMusicId = CreateID("music_victory_long");
+			for (const auto& member : game.members)
+			{
+				 
+				ShowPlayerMissionText(member, 21650, MissionMessageType::MissionMessageType_Type3);
+				pub::Audio::SetMusic(member, music);
+			}
 		}
 
 		// Remove game from global
@@ -178,7 +195,7 @@ namespace Plugins::WaveDefence
 		}
 
 		// Send voice line
-		SendComm(game.members, game.system.character, wave.startVoiceLine);
+		SendComm(game.members, wave.startVoiceLine);
 	}
 
 	void NewGame(ClientId& client, [[maybe_unused]] const std::wstring& param)
@@ -275,7 +292,7 @@ namespace Plugins::WaveDefence
 		}
 
 		// Send Voice Line
-		SendComm(game.members, game.system.character, wave.endVoiceLine);
+		SendComm(game.members, wave.endVoiceLine);
 
 		// Increment Wave
 		game.waveNumber++;
@@ -387,10 +404,10 @@ DefaultDllMainSettings(LoadSettings);
 
 REFL_AUTO(type(CostumeStrings), field(body), field(head), field(lefthand), field(righthand), field(accessory));
 REFL_AUTO(type(Character), field(voice), field(infocard), field(costumeStrings));
-REFL_AUTO(type(VoiceLine), field(voiceLineString));
+REFL_AUTO(type(VoiceLine), field(voiceLineString), field(character));
 REFL_AUTO(type(Wave), field(npcs), field(reward), field(startVoiceLine), field(endVoiceLine));
-REFL_AUTO(type(System), field(system), field(waves), field(posX), field(posY), field(posZ), field(character));
-REFL_AUTO(type(Config), field(systems));
+REFL_AUTO(type(System), field(system), field(waves), field(posX), field(posY), field(posZ));
+REFL_AUTO(type(Config), field(systems), field(characters));
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
