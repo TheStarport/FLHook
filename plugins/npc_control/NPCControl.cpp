@@ -66,7 +66,7 @@
  * @endcode
  *
  * @paragraph ipc IPC Interfaces Exposed
- * This plugin does not expose any functionality.
+ * NpcCommunicator: exposes CreateNpc method with parameters (const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
  */
 
 #define SPDLOG_USE_STD_FORMAT
