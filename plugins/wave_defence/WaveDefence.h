@@ -87,8 +87,8 @@ namespace Plugins::WaveDefence
 		// Music
 		std::string victoryMusic = "music_victory_long";
 		std::string failureMusic = "music_failure";
-		pub::Audio::Tryptich victoryMusicId = 0;
-		pub::Audio::Tryptich failureMusicId = 0;
+		pub::Audio::Tryptich victoryMusicId;
+		pub::Audio::Tryptich failureMusicId;
 
 		//! The config file we load out of
 		std::string File() override { return "config/wave_defence.json"; }

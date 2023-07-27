@@ -17,6 +17,9 @@
  *
  * @paragraph ipc IPC Interfaces Exposed
  * This plugin does not expose any functionality.
+ * 
+ * @paragraph ipc IPC Interfaces Exposed
+ * NpcCommunicator: exposes CreateNpc method with parameters (const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
  */
 
 #include "WaveDefence.h"
@@ -78,11 +81,15 @@ namespace Plugins::WaveDefence
 		auto character = std::ranges::find_if(
 		    global->config->characters.begin(), global->config->characters.end(), [&voiceline](auto& item) { return voiceline.character == item.voice; });
 
-		for (auto const& player : group)
+		if (character != global->config->characters.end())
 		{
-			uint ship;
-			pub::Player::GetShip(player, ship);
-			pub::SpaceObj::SendComm(0, ship, character->voiceId, &character->costume, character->infocard, (uint*)&voiceline.voiceLine, 9, 19009, 0.5, false);
+			for (auto const& player : group)
+			{
+				uint ship;
+				pub::Player::GetShip(player, ship);
+				pub::SpaceObj::SendComm(
+				    0, ship, character->voiceId, &character->costume, character->infocard, (uint*)&voiceline.voiceLine, 9, 19009, 0.5, false);
+			}
 		}
 	}
 
@@ -270,7 +277,6 @@ namespace Plugins::WaveDefence
 
 		PrintLocalUserCmdText(game.members.front(), L"The game will start shortly.", 5000);
 
-		NewWave(game);
 		global->games.push_back(game);
 	}
 
@@ -332,6 +338,7 @@ namespace Plugins::WaveDefence
 					Hk::Player::RelocateClient(player, game.system.positionVector, rotation);
 				}
 				game.started = true;
+				NewWave(game);
 			}
 		}
 	}
