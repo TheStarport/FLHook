@@ -41,7 +41,8 @@ namespace Plugins::WaveDefence
 	{
 		// Reflectable
 		std::string voiceLineString = "rmb_morehostilesatwaypoint_01 -";
-		
+		std::string character = "mc_leg_m01";
+
 		// Non-reflectable
 		ID_String voiceLine;
 	};
@@ -66,7 +67,6 @@ namespace Plugins::WaveDefence
 		float posX = 0;
 		float posY = 0;
 		float posZ = 0;
-		Character character = Character();
 	};
 
 	struct Game
@@ -81,6 +81,7 @@ namespace Plugins::WaveDefence
 	struct Config : Reflectable
 	{
 		std::vector<System> systems = {{System()}, {System()}};
+		std::vector<Character> characters = {{Character(), Character()}};
 
 		//! The config file we load out of
 		std::string File() override { return "config/wave_defence.json"; }
