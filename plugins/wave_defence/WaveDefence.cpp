@@ -32,6 +32,12 @@ namespace Plugins::WaveDefence
 	{
 		auto config = Serializer::JsonToObject<Config>();
 
+		config.victoryMusicId.iDunno = 0;
+		config.victoryMusicId.iMusicId = CreateID(config.victoryMusic.c_str());
+
+		config.failureMusicId.iDunno = 0;
+		config.failureMusicId.iMusicId = CreateID(config.failureMusic.c_str());
+
 		for (auto& system : config.systems)
 		{
 			// System & Position
@@ -134,15 +140,11 @@ namespace Plugins::WaveDefence
 			    MessageColor::Red, MessageFormat::Normal, std::format(L"{} and their team have completed a Wave Defence game.", player.value()));
 			Hk::Message::FMsgU(message);
 			
-			// Play victory music and message
-			pub::Audio::Tryptich music;
-			music.iDunno = 0;
-			music.iMusicId = CreateID("music_victory_long");
 			for (const auto& member : game.members)
 			{
 				 
 				ShowPlayerMissionText(member, 21650, MissionMessageType::MissionMessageType_Type3);
-				pub::Audio::SetMusic(member, music);
+				pub::Audio::SetMusic(member, global->config->victoryMusicId);
 			}
 		}
 
@@ -183,11 +185,12 @@ namespace Plugins::WaveDefence
 			// Defend yourself!
 			ShowPlayerMissionText(player, 22612, MissionMessageType_Type2);
 
+			int reputation;
+			pub::Player::GetRep(player, reputation);
+
 			// Set all enemies to be hostile
 			for (auto const& npc : game.spawnedNpcs)
 			{
-				int reputation;
-				pub::Player::GetRep(player, reputation);
 				int npcReputation;
 				pub::SpaceObj::GetRep(npc, npcReputation);
 				pub::Reputation::SetAttitude(npcReputation, reputation, -0.9f);
@@ -263,11 +266,9 @@ namespace Plugins::WaveDefence
 		{
 			if (!PlayerChecks(client, player, systemId))
 				return;
-
-			// Beam the players to a point in the system
-			Matrix rotation = {0.0f, 0.0f, 0.0f};
-			Hk::Player::RelocateClient(player, game.system.positionVector, rotation);
 		}
+
+		PrintLocalUserCmdText(game.members.front(), L"The game will start shortly.", 5000);
 
 		NewWave(game);
 		global->games.push_back(game);
@@ -318,7 +319,24 @@ namespace Plugins::WaveDefence
 		global->systemsPendingNewWave.clear();
 	}
 
-	const std::vector<Timer> timers = {{WaveTimer, 5}};
+	void GameTimer()
+	{
+		for (auto& game : global->games)
+		{
+			if (!game.started)
+			{
+				for (const auto& player : game.members)
+				{
+					// Beam the players to a point in the system
+					Matrix rotation = {0.0f, 0.0f, 0.0f};
+					Hk::Player::RelocateClient(player, game.system.positionVector, rotation);
+				}
+				game.started = true;
+			}
+		}
+	}
+
+	const std::vector<Timer> timers = {{WaveTimer, 5}, {GameTimer, 5}};;
 
 	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, const DWORD** ecx, [[maybe_unused]] const uint& kill)
 	{
@@ -362,6 +380,9 @@ namespace Plugins::WaveDefence
 
 				// Mission Failed.
 				ShowPlayerMissionText(client, 13085, MissionMessageType_Failure);
+
+				// Play loser music
+				pub::Audio::SetMusic(client, global->config->failureMusicId);
 
 				// Any members left?
 				if (game.members.empty())
@@ -407,7 +428,7 @@ REFL_AUTO(type(Character), field(voice), field(infocard), field(costumeStrings))
 REFL_AUTO(type(VoiceLine), field(voiceLineString), field(character));
 REFL_AUTO(type(Wave), field(npcs), field(reward), field(startVoiceLine), field(endVoiceLine));
 REFL_AUTO(type(System), field(system), field(waves), field(posX), field(posY), field(posZ));
-REFL_AUTO(type(Config), field(systems), field(characters));
+REFL_AUTO(type(Config), field(systems), field(characters), field(victoryMusic), field(failureMusic));
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {

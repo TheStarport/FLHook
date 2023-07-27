@@ -71,6 +71,7 @@ namespace Plugins::WaveDefence
 
 	struct Game
 	{
+		bool started = false;
 		uint waveNumber = 0;
 		uint groupId = 0;
 		std::vector<uint> members;
@@ -82,6 +83,12 @@ namespace Plugins::WaveDefence
 	{
 		std::vector<System> systems = {{System()}, {System()}};
 		std::vector<Character> characters = {{Character(), Character()}};
+
+		// Music
+		std::string victoryMusic = "music_victory_long";
+		std::string failureMusic = "music_failure";
+		pub::Audio::Tryptich victoryMusicId = 0;
+		pub::Audio::Tryptich failureMusicId = 0;
 
 		//! The config file we load out of
 		std::string File() override { return "config/wave_defence.json"; }
