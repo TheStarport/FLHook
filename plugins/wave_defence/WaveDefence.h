@@ -50,6 +50,7 @@ namespace Plugins::WaveDefence
 	struct Wave : Reflectable
 	{
 		std::vector<std::wstring> npcs = {{L"example"}, {L"example"}};
+		std::vector<std::wstring> variableNpcs = {{L"example"}, {L"example"}};
 		uint reward = 1000;
 		VoiceLine startVoiceLine = VoiceLine();
 		VoiceLine endVoiceLine = VoiceLine();
@@ -89,6 +90,9 @@ namespace Plugins::WaveDefence
 		std::string failureMusic = "music_failure";
 		pub::Audio::Tryptich victoryMusicId;
 		pub::Audio::Tryptich failureMusicId;
+
+		// How many variable npcs per player
+		uint npcMultiplier = 2;
 
 		//! The config file we load out of
 		std::string File() override { return "config/wave_defence.json"; }

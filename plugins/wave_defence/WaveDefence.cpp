@@ -186,6 +186,14 @@ namespace Plugins::WaveDefence
 			game.spawnedNpcs.push_back(global->communicator->CreateNpc(npc, game.system.positionVector, rotation, game.system.systemId, true));
 		}
 
+		for (uint multiple = 0; multiple < global->config->npcMultiplier; multiple++)
+		{
+			for (auto const& npc : wave.variableNpcs)
+			{
+				game.spawnedNpcs.push_back(global->communicator->CreateNpc(npc, game.system.positionVector, rotation, game.system.systemId, true));
+			}
+		}
+
 		// Actions for all players in group
 		for (auto const& player : game.members)
 		{
@@ -433,9 +441,9 @@ DefaultDllMainSettings(LoadSettings);
 REFL_AUTO(type(CostumeStrings), field(body), field(head), field(lefthand), field(righthand), field(accessory));
 REFL_AUTO(type(Character), field(voice), field(infocard), field(costumeStrings));
 REFL_AUTO(type(VoiceLine), field(voiceLineString), field(character));
-REFL_AUTO(type(Wave), field(npcs), field(reward), field(startVoiceLine), field(endVoiceLine));
+REFL_AUTO(type(Wave), field(npcs), field(variableNpcs), field(reward), field(startVoiceLine), field(endVoiceLine));
 REFL_AUTO(type(System), field(system), field(waves), field(posX), field(posY), field(posZ));
-REFL_AUTO(type(Config), field(systems), field(characters), field(victoryMusic), field(failureMusic));
+REFL_AUTO(type(Config), field(systems), field(characters), field(victoryMusic), field(failureMusic), field(npcMultiplier));
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
