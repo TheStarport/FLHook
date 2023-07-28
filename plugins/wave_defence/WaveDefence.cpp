@@ -18,8 +18,8 @@
  * @paragraph ipc IPC Interfaces Exposed
  * This plugin does not expose any functionality.
  * 
- * @paragraph ipc IPC Interfaces Exposed
- * NpcCommunicator: exposes CreateNpc method with parameters (const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
+ * @paragraph ipc IPC Interfaces Used
+ * NpcCommunicator: uses CreateNpc method with parameters (const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
  */
 
 #include "WaveDefence.h"
