@@ -120,7 +120,6 @@
     <ClInclude Include="..\Include\Core\Templates\Constexpr.hpp" />
     <ClInclude Include="..\Include\Core\Templates\Macros.hpp" />
     <ClInclude Include="..\Include\Core\Templates\TemplateHelpers.hpp" />
-    <ClInclude Include="..\Include\Core\Templates\Typedefs.hpp" />
     <ClInclude Include="..\Include\Defs\CoreGlobals.hpp" />
     <ClInclude Include="..\Include\Defs\Enums.hpp" />
     <ClInclude Include="..\Include\Defs\FLHookConfig.hpp" />

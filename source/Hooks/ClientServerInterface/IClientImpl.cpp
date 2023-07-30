@@ -703,7 +703,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(ClientId client, FLPACKET_UNKN
     return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(ClientId client, FLPACKET_CREATEGUIDED& guided)
+bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(uint& client, FLPACKET_CREATEGUIDED& guided)
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(\n\tClientId client = {}\n)", client));
 
@@ -1223,7 +1223,7 @@ void IClientImpl::unknown_83(ClientId client, char* _genArg1)
     CALL_CLIENT_POSTAMBLE;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(ClientId client, uint shipId, uint flag, uint _genArg1, uint _genArg2)
+bool IClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(uint& client, uint shipId, uint flag, uint _genArg1, uint _genArg2)
 {
     Logger::i()->Log(
         LogLevel::Trace,
@@ -1450,7 +1450,7 @@ void IClientImpl::unknown_100(ClientId client, uint _genArg1, uint _genArg2)
     CALL_CLIENT_POSTAMBLE;
 }
 
-void IClientImpl::unknown_101(ClientId client, FLPACKET_UNKNOWN& _genArg1)
+void IClientImpl::unknown_101(uint& client, FLPACKET_UNKNOWN& _genArg1)
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_101(\n\tClientId client = {}\n)", client));
 

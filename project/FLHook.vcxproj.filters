@@ -396,9 +396,6 @@
     <ClInclude Include="..\Include\PCH.hpp">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Core\Templates\Typedefs.hpp">
-      <Filter>Include\Core\Templates</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Core\Action.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
