@@ -33,6 +33,7 @@
     <ClCompile Include="..\Source\Core\Codec.cpp" />
     <ClCompile Include="..\Source\Core\Commands\AdminCommandProcessor.cpp" />
     <ClCompile Include="..\Source\Core\Commands\CommandLineParser.cpp" />
+    <ClCompile Include="..\Source\Core\Commands\ExternalCommandProcessor.cpp" />
     <ClCompile Include="..\Source\Core\Commands\UserCommandProcessor.cpp" />
     <ClCompile Include="..\Source\Core\Debug.cpp" />
     <ClCompile Include="..\Source\Core\FLPacket.cpp" />
@@ -104,6 +105,7 @@
     <ClInclude Include="..\Include\Core\Commands\AbstractUserCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Commands\AdminCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Commands\CommandLineParser.hpp" />
+    <ClInclude Include="..\Include\Core\Commands\ExternalCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Detour.hpp" />
     <ClInclude Include="..\Include\Core\Exceptions\ErrorInfo.hpp" />

@@ -5,6 +5,7 @@
 #include "Global.hpp"
 
 #include "API/API.hpp"
+#include "Core/MessageHandler.hpp"
 
 PerfTimer::PerfTimer(const std::wstring& func, uint warn) : function(func), warning(warn) {}
 

@@ -36,6 +36,7 @@ public:
 	enum class Queue
 	{
 		ServerStats,
+		ExternalCommands,
 	};
 
 	static std::wstring_view QueueToStr(const Queue queue) { return magic_enum::enum_name<Queue>(queue); }
@@ -43,4 +44,5 @@ public:
 	void Publish(const std::wstring& jsonData, const std::wstring& exchange = L"", const std::wstring& queue = L"") const;
 	void DeclareQueue(const std::wstring& queue, int flags = 0) const;
 	void DeclareExchange(const std::wstring& exchange, AMQP::ExchangeType type = AMQP::fanout, int flags = 0) const;
+    void RemoteProcedureCall(nlohmann::json call);
 };

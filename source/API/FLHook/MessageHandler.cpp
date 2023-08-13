@@ -138,3 +138,7 @@ void MessageHandler::Publish(const std::wstring& jsonData, const std::wstring& e
 	channel->publish(StringUtils::wstos(exchange), StringUtils::wstos(queue), StringUtils::wstos(jsonData));
 }
 
+void MessageHandler::RemoteProcedureCall(nlohmann::json call)
+{
+
+}

@@ -24,9 +24,7 @@
 #include <vector>
 #include <random>
 
-
 #include "Core/Templates/Constexpr.hpp"
-#include "Core/Templates/Typedefs.hpp"
 
 #define MAGIC_ENUM_USING_ALIAS_STRING_VIEW using string_view = std::wstring_view;
 #define MAGIC_ENUM_USING_ALIAS_STRING      using string = std::wstring;
@@ -68,7 +66,6 @@
 #include "Core/Codec.hpp"
 
 #include "Core/Action.hpp"
-#include "Core/MessageHandler.hpp"
 #include "Core/TempBan.hpp"
 #include "Defs/ServerStats.hpp"
 
