@@ -1,8 +1,7 @@
 #include "PCH.hpp"
-#include "Core/Commands/ExternalCommandProcessor.hpp"
+
 #include "API/API.hpp"
-
-
+#include "Core/Commands/ExternalCommandProcessor.hpp"
 
 std::optional<nlohmann::json> ExternalCommandProcessor::ProcessCommand(const nlohmann::json& command)
 {
@@ -10,13 +9,32 @@ std::optional<nlohmann::json> ExternalCommandProcessor::ProcessCommand(const nlo
     {
         std::wstring functionName = command.at("command").get<std::wstring>();
 
-        return functions[functionName](command);
+        auto func = functions.find(functionName);
+        if (func == functions.end())
+        {
+            return std::nullopt;
+        }
+
+        return func->second(command);
     }
     catch (nlohmann::json::exception& ex)
     {
-        Logger::i()->Log(LogLevel::Warn, std::format(L"Exception was thrown while trying to process an external command. {}",StringUtils::stows(ex.what())));
+        Logger::i()->Log(LogLevel::Warn, std::format(L"Exception was thrown while trying to process an external command. {}", StringUtils::stows(ex.what())));
     }
 
+    return std::nullopt;
+}
+
+std::vector<std::wstring_view> ExternalCommandProcessor::GetCommands()
+{
+    std::vector<std::wstring_view> commands;
+    commands.reserve(functions.size());
+    for (auto i : functions)
+    {
+        commands.emplace_back(i.first);
+    }
+
+    return commands;
 }
 
 nlohmann::json ExternalCommandProcessor::Beam(const nlohmann::json& parameters)

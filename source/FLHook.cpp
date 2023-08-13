@@ -10,8 +10,10 @@
 #include "Core/Exceptions/StopProcessingException.hpp"
 #include "Defs/FLHookConfig.hpp"
 
-#include <API/FLHook/Plugin.hpp>
 #include "API/API.hpp"
+#include "Core/Commands/ExternalCommandProcessor.hpp"
+
+#include <API/FLHook/Plugin.hpp>
 
 HANDLE hProcFL = nullptr;
 HMODULE server = nullptr;
@@ -113,7 +115,51 @@ void FLHookInit_Pre()
         // so we want to make sure the service is up at startup time
         if (FLHookConfig::i()->messageQueue.enableQueues)
         {
-            MessageHandler::i()->DeclareExchange(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), AMQP::fanout, AMQP::durable);
+            auto msg = MessageHandler::i();
+            msg->DeclareExchange(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), AMQP::fanout, AMQP::durable);
+            msg->DeclareQueue(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)), AMQP::durable);
+
+            msg->Subscribe(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)),
+                           [](const AMQP::Message& message, std::optional<nlohmann::json>& response)
+                           {
+                               std::string body = message.body();
+                               try
+                               {
+                                   const auto json = nlohmann::json::parse(body, nullptr);
+                                   response = ExternalCommandProcessor::i()->ProcessCommand(json);
+                                   if (!response.has_value())
+                                   {
+                                       // Iterate through plugins and see if they have a valid json output
+                                   }
+
+                                   return true;
+                               }
+                               catch (nlohmann::json::exception& ex)
+                               {
+                                   response = {
+                                       {"err", ex.what()}
+                                   };
+                                   Logger::i()->Log(LogLevel::Warn,
+                                                    std::format(L"An json exception was encountered while trying to process an external command. EX: {}",
+                                                                StringUtils::stows(ex.what())));
+                                   return true;
+                               }
+                               catch (GameException& ex)
+                               {
+                                   response = {
+                                       {"err", std::wstring(ex.Msg())}
+                                   };
+                                   return true;
+                               }
+                               catch (std::exception& ex)
+                               {
+                                   response = {
+                                       {"err", std::string(ex.what())}
+                                   };
+                                   return true;
+                               }
+                           });
+
             Timer::Add(PublishServerStats, &PublishServerStats, 30000);
         }
 
@@ -264,7 +310,7 @@ void ProcessPendingCommands()
     }
 }
 
-//TODO: Move this into a better file such as User Commands.
+// TODO: Move this into a better file such as User Commands.
 void PrintUserCmdText(ClientId client, std::wstring_view text)
 {
     if (const auto newLineChar = text.find(L'\n'); newLineChar == std::wstring::npos)
@@ -280,7 +326,6 @@ void PrintUserCmdText(ClientId client, std::wstring_view text)
         PrintUserCmdText(client, text.substr(0, newLineChar));
         PrintUserCmdText(client, text.substr(newLineChar + 1, std::wstring::npos));
     }
-
 }
 
 // Print message to all ships within the specific number of meters of the player.
