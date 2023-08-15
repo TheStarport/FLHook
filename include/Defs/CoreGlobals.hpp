@@ -2,20 +2,20 @@
 
 struct DLL CoreGlobals : Singleton<CoreGlobals>
 {
-	uint damageToClientId {};
-	uint damageToSpaceId {};
+        uint damageToClientId{};
+        uint damageToSpaceId{};
 
-	bool messagePrivate {};
-	bool messageSystem {};
-	bool messageUniverse {};
+        bool messagePrivate{};
+        bool messageSystem{};
+        bool messageUniverse{};
 
-	std::wstring accPath;
+        std::wstring accPath;
 
-	uint serverLoadInMs {};
-	uint playerCount {};
-	bool disableNpcs {};
+        uint serverLoadInMs{};
+        uint playerCount{};
+        bool disableNpcs{};
 
-	std::list<BaseInfo> allBases;
+        std::list<BaseInfo> allBases;
 
-	bool flhookReady {};
+        bool flhookReady{};
 };

@@ -11,47 +11,6 @@ enum class LogType : int
     PerfTimers
 };
 
-enum class Error
-{
-    NicknameNotFound,
-    PlayerNotInSpace,
-    PlayerNotLoggedIn,
-    PlayerNotDocked,
-    CharacterNotSelected,
-    CharacterDoesNotExist,
-    CannotGetAccount,
-    MpNewCharacterFileNotFoundOrInvalid,
-    NoTargetSelected,
-    TargetIsNotPlayer,
-    CouldNotDecodeCharFile,
-    CouldNotEncodeCharFile,
-    NotAdmin,
-    MissingRequiredRole,
-    WrongXmlSyntax,
-    InvalidClientId,
-    InvalidGood,
-    InvalidShip,
-    InvalidBase,
-    InvalidBaseName,
-    InvalidIdString,
-    InvalidSystem,
-    InvalidRepGroup,
-    InvalidGroupId,
-    AlreadyExists,
-    CharacterNameTooLong,
-    CharacterNameTooShort,
-    AmbiguousShortcut,
-    NoMatchingPlayer,
-    InvalidShortcutString,
-    PluginCannotBeLoaded,
-    PluginNotFound,
-    InvalidIdType,
-    InvalidSpaceObjId,
-    FileNotFound,
-    MalformedData,
-    UnknownError = 1000,
-};
-
 enum DIEMSGTYPE
 {
     DiemsgAll = 0,

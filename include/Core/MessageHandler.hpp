@@ -2,7 +2,6 @@
 
 #pragma warning(push, 0)
 #pragma warning(disable : 4244)
-#include <External/Singleton.h>
 #include <External/uvw.hpp>
 #include <amqpcpp.h>
 #include <memory>

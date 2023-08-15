@@ -25,9 +25,6 @@
     <Filter Include="Source\API\FLServer">
       <UniqueIdentifier>{3ec9ac72-9554-4f7f-83ef-85c47f948d0e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\API\Utilities">
-      <UniqueIdentifier>{8c18688f-c6a3-4ff8-839e-64e31e82d429}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Include\API">
       <UniqueIdentifier>{a18e4208-124a-4ccd-9fda-632fa9238c6d}</UniqueIdentifier>
     </Filter>
@@ -39,9 +36,6 @@
     </Filter>
     <Filter Include="Include\API\FLHook">
       <UniqueIdentifier>{2e200967-c2c2-454b-a852-04208121f548}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Include\API\Utilities">
-      <UniqueIdentifier>{d543ab56-360b-430c-8c34-cd08fecaa5b1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Include\Core\Commands">
       <UniqueIdentifier>{4ad4d98b-8ea5-454e-b3f5-b89982de3e5c}</UniqueIdentifier>
@@ -57,6 +51,12 @@
     </Filter>
     <Filter Include="Source\Hooks\ClientServerInterface">
       <UniqueIdentifier>{194ddbd6-508d-4847-988e-84b08b1899a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDK">
+      <UniqueIdentifier>{d52f96c4-07bb-4fba-867c-44947c71ac8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDK\Utils">
+      <UniqueIdentifier>{c1b303dd-94c5-4323-8ab7-298d3d13d097}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -158,21 +158,6 @@
     </ClCompile>
     <ClCompile Include="..\Source\API\FLServer\ZoneUtilities.cpp">
       <Filter>Source\API\FLServer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\API\Utils\FileUtils.cpp">
-      <Filter>Source\API\Utilities</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\API\Utils\IniUtils.cpp">
-      <Filter>Source\API\Utilities</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\API\Utils\MemUtils.cpp">
-      <Filter>Source\API\Utilities</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\API\Utils\StringUtil.cpp">
-      <Filter>Source\API\Utilities</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\API\Utils\TimeUtils.cpp">
-      <Filter>Source\API\Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\Include\PCH.cpp" />
     <ClCompile Include="..\Source\Hooks\ClientServerInterface\Hooks.cpp">
@@ -285,13 +270,7 @@
     <ClInclude Include="..\Include\Core\Exceptions\ErrorInfo.hpp">
       <Filter>Include\Core\Exceptions</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Core\Exceptions\GameException.hpp">
-      <Filter>Include\Core\Exceptions</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Core\Exceptions\StopProcessingException.hpp">
-      <Filter>Include\Core\Exceptions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Core\Exceptions\UnsupportedException.hpp">
       <Filter>Include\Core\Exceptions</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Core\Templates\Concepts.hpp">
@@ -381,15 +360,6 @@
     <ClInclude Include="..\Include\API\FLHook\Plugin.hpp">
       <Filter>Include\API\FLHook</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\API\Utils\FileUtils.hpp">
-      <Filter>Include\API\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\API\Utils\IniUtils.hpp">
-      <Filter>Include\API\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\API\Utils\Utils.hpp">
-      <Filter>Include\API\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\FLHook.hpp">
       <Filter>Include</Filter>
     </ClInclude>
@@ -398,9 +368,6 @@
     </ClInclude>
     <ClInclude Include="..\Include\PCH.hpp">
       <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Core\Action.hpp">
-      <Filter>Include\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Core\ClientServerInterface.hpp">
       <Filter>Include\Core</Filter>
@@ -413,6 +380,24 @@
     </ClInclude>
     <ClInclude Include="..\include\Core\Commands\AbstractExternalCommandProcessor.hpp">
       <Filter>Include\Core\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Utils\IniUtils.hpp">
+      <Filter>SDK\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Utils\MemUtils.hpp">
+      <Filter>SDK\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Utils\StringUtils.hpp">
+      <Filter>SDK\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Utils\TimeUtils.hpp">
+      <Filter>SDK\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Utils\Utils.hpp">
+      <Filter>SDK\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Utils\FileUtils.hpp">
+      <Filter>SDK\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

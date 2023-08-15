@@ -7,7 +7,7 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
 
-#include <Core/Detour.hpp>
+#include <Utils/Detour.hpp>
 
 using CreateIDType = uint (*)(const char*);
 std::map<std::string, uint> DebugTools::hashMap;

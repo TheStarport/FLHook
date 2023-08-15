@@ -2,12 +2,12 @@
 
 namespace Hk::Solar
 {
-    DLL Action<SystemId> GetSystemBySpaceId(uint spaceObjId);
-    DLL Action<std::pair<Vector, Matrix>> GetLocation(uint id, IdType type);
-    DLL Action<float> GetMass(uint spaceObjId);
-    DLL Action<std::pair<Vector, Vector>> GetMotion(uint spaceObjId);
-    DLL Action<uint> GetType(uint spaceObjId);
-    DLL Action<Universe::IBase*> GetBaseByWildcard(std::wstring_view targetBaseName);
-    DLL Action<uint> GetAffiliation(BaseId solarId);
-    DLL Action<float> GetCommodityPrice(BaseId baseId, GoodId goodId);
+    DLL Action<SystemId, Error> GetSystemBySpaceId(uint spaceObjId);
+    DLL Action<std::pair<Vector, Matrix>, Error> GetLocation(uint id, IdType type);
+    DLL Action<float, Error> GetMass(uint spaceObjId);
+    DLL Action<std::pair<Vector, Vector>, Error> GetMotion(uint spaceObjId);
+    DLL Action<uint, Error> GetType(uint spaceObjId);
+    DLL Action<Universe::IBase*, Error> GetBaseByWildcard(std::wstring_view targetBaseName);
+    DLL Action<uint, Error> GetAffiliation(BaseId solarId);
+    DLL Action<float, Error> GetCommodityPrice(BaseId baseId, GoodId goodId);
 } // namespace Hk::Solar

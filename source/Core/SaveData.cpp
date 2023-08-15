@@ -1,7 +1,8 @@
 #include "PCH.hpp"
 
 #include "Core/MemoryManager.hpp"
-#include <Core/Detour.hpp>
+
+#include <Utils/Detour.hpp>
 
 using GetUserDataPathSig = bool (*)(char*);
 

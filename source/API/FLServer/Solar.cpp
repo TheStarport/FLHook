@@ -5,7 +5,7 @@
 
 namespace Hk::Solar
 {
-    Action<SystemId> GetSystemBySpaceId(uint spaceObjId)
+    Action<SystemId, Error> GetSystemBySpaceId(uint spaceObjId)
     {
         uint system;
         pub::SpaceObj::GetSystem(spaceObjId, system);
@@ -17,7 +17,7 @@ namespace Hk::Solar
         return { system };
     }
 
-    Action<std::pair<Vector, Matrix>> GetLocation(uint id, IdType type)
+    Action<std::pair<Vector, Matrix>, Error> GetLocation(uint id, IdType type)
     {
         switch (type)
         {
@@ -43,7 +43,7 @@ namespace Hk::Solar
         }
     }
 
-    Action<float> GetMass(uint spaceObjId)
+    Action<float, Error> GetMass(uint spaceObjId)
     {
         uint system;
         pub::SpaceObj::GetSystem(spaceObjId, system);
@@ -57,7 +57,7 @@ namespace Hk::Solar
         return { mass };
     }
 
-    Action<std::pair<Vector, Vector>> GetMotion(uint spaceObjId)
+    Action<std::pair<Vector, Vector>, Error> GetMotion(uint spaceObjId)
     {
         uint system;
         pub::SpaceObj::GetSystem(spaceObjId, system);
@@ -71,7 +71,7 @@ namespace Hk::Solar
         return { std::make_pair(v1, v2) };
     }
 
-    Action<uint> GetType(uint spaceObjId)
+    Action<uint, Error> GetType(uint spaceObjId)
     {
         uint system;
         pub::SpaceObj::GetSystem(spaceObjId, system);
@@ -84,7 +84,7 @@ namespace Hk::Solar
         return { type };
     }
 
-    Action<Universe::IBase*> GetBaseByWildcard(std::wstring_view targetBaseName)
+    Action<Universe::IBase*, Error> GetBaseByWildcard(std::wstring_view targetBaseName)
     {
         // Search for an exact match at the start of the name
         Universe::IBase* baseinfo = Universe::GetFirstBase();
@@ -116,7 +116,7 @@ namespace Hk::Solar
         return { cpp::fail(Error::InvalidBase) };
     }
 
-    Action<uint> GetAffiliation(BaseId solarId)
+    Action<uint, Error> GetAffiliation(BaseId solarId)
     {
         int solarRep;
         pub::SpaceObj::GetSolarRep(solarId, solarRep);
@@ -134,7 +134,7 @@ namespace Hk::Solar
         return { baseAff };
     }
 
-    Action<float> GetCommodityPrice(BaseId baseId, GoodId goodId)
+    Action<float, Error> GetCommodityPrice(BaseId baseId, GoodId goodId)
     {
         float nomPrice;
         pub::Market::GetNominalPrice(goodId, nomPrice);

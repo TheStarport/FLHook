@@ -1,9 +1,8 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLServer/Admin.hpp"
 #include "API/FLServer/Client.hpp"
-
+#include "Global.hpp"
 
 bool g_bNPCDisabled;
 
@@ -65,7 +64,7 @@ namespace Hk::Admin
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<PlayerInfo> GetPlayerInfo(const std::variant<uint, std::wstring_view>& player, bool alsoCharmenu)
+    Action<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring_view>& player, bool alsoCharmenu)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -140,7 +139,7 @@ namespace Hk::Admin
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<DPN_CONNECTION_INFO> GetConnectionStats(ClientId client)
+    Action<DPN_CONNECTION_INFO, Error> GetConnectionStats(ClientId client)
     {
         if (client < 1 || client > MaxClientId)
         {
@@ -160,7 +159,7 @@ namespace Hk::Admin
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> ChangeNPCSpawn(bool disable)
+    Action<void, Error> ChangeNPCSpawn(bool disable)
     {
         if (CoreGlobals::c()->disableNpcs && disable)
         {
@@ -194,7 +193,7 @@ namespace Hk::Admin
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<BaseHealth> GetBaseStatus(std::wstring_view basename)
+    Action<BaseHealth, Error> GetBaseStatus(std::wstring_view basename)
     {
         uint baseId = 0;
         pub::GetBaseID(baseId, StringUtils::wstos(std::wstring(basename)).c_str());
@@ -256,7 +255,7 @@ namespace Hk::Admin
     CEqObj* GetEqObjFromObjRW(IObjRW* objRW) { return GetEqObjFromObjRW_(objRW); }
 
     // TODO: implement role based commands
-    Action<void> AddRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles)
+    Action<void, Error> AddRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles)
     {
         if (ClientId client = Client::GetClientIdFromCharName(characterName).Unwrap())
         {
@@ -343,7 +342,7 @@ namespace Hk::Admin
         return { {} };
     }
 
-    Action<void> RemoveRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles, bool clear)
+    Action<void, Error> RemoveRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles, bool clear)
     {
         if (ClientId client = Client::GetClientIdFromCharName(characterName).Unwrap())
         {
@@ -449,7 +448,7 @@ namespace Hk::Admin
         return { {} };
     }
 
-    Action<void> SetRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles)
+    Action<void, Error> SetRoles(std::wstring_view characterName, const std::vector<std::wstring_view>& roles)
     {
         if (const auto removed = RemoveRoles(characterName, roles, true).Raw(); removed.has_error())
         {

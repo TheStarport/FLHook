@@ -16,27 +16,33 @@
 #include <memory>
 #include <numbers>
 #include <optional>
+#include <random>
 #include <set>
 #include <string>
 #include <thread>
 #include <tuple>
 #include <variant>
 #include <vector>
-#include <random>
+
+#ifndef DLL
+    #ifndef FLHOOK
+        #define DLL __declspec(dllimport)
+    #else
+        #define DLL __declspec(dllexport)
+    #endif
+#endif
 
 #include "Core/Templates/Constexpr.hpp"
 
 #define MAGIC_ENUM_USING_ALIAS_STRING_VIEW using string_view = std::wstring_view;
 #define MAGIC_ENUM_USING_ALIAS_STRING      using string = std::wstring;
-#include <External/magic_enum.hpp>
+#include <magic_enum.hpp>
 
 #include <nlohmann/json.hpp>
 
-#include <External/Singleton.h>
 #include <External/Wildcard.hpp>
 #include <External/inipp.hpp>
 #include <External/jpcre2.hpp>
-#include <External/result.hpp>
 
 #include "Core/Templates/Macros.hpp"
 
@@ -47,10 +53,6 @@
 #include "Defs/Enums.hpp"
 #include "Defs/Structs.hpp"
 
-#include "Core/Templates/Concepts.hpp"
-#include "Core/Templates/TemplateHelpers.hpp"
-
-#include "Core/Action.hpp"
 #include "FLCore/FLCoreRemoteClient.h"
 
 #include "FLHook.hpp"
@@ -58,14 +60,17 @@
 #include "Core/Commands/AbstractAdminCommandProcessor.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
+#include "Concepts.hpp"
+#include "Utils/Utils.hpp"
+
+#include "Core/Codec.hpp"
+#include "Core/Templates/TemplateHelpers.hpp"
 #include "Defs/CoreGlobals.hpp"
 #include "Defs/FLHookConfig.hpp"
 #include "Defs/FLPacket.hpp"
 #include "Defs/ShipArchDefs.hpp"
 #include "Defs/WeaponEquipDefs.hpp"
-#include "Core/Codec.hpp"
 
-#include "Core/Action.hpp"
 #include "Core/TempBan.hpp"
 #include "Defs/ServerStats.hpp"
 
@@ -78,14 +83,6 @@
 
 using Jp = jpcre2::select<char>;
 using JpWide = jpcre2::select<wchar_t>;
-
-#ifndef DLL
-    #ifndef FLHOOK
-        #define DLL __declspec(dllimport)
-    #else
-        #define DLL __declspec(dllexport)
-    #endif
-#endif
 
 #include "API/FLHook/Plugin.hpp"
 

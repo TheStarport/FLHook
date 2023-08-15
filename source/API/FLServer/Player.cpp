@@ -1,13 +1,12 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLServer/Player.hpp"
+#include "Global.hpp"
 
 #include "API/FLServer/Chat.hpp"
 #include "API/FLServer/Client.hpp"
 #include "API/FLServer/Math.hpp"
 #include "API/Utils/IniUtils.hpp"
-
 
 namespace Hk::Player
 {
@@ -19,7 +18,7 @@ namespace Hk::Player
     constexpr auto AddrAntiCheat4 = 0x6FAA0;
     constexpr auto PossibleCheatingDetectedAddr = 0x6F570;
 
-    Action<void> AddToGroup(ClientId client, uint groupId)
+    Action<void, Error> AddToGroup(ClientId client, uint groupId)
     {
         if (!Client::IsValidClientID(client))
         {
@@ -41,7 +40,7 @@ namespace Hk::Player
         return { {} };
     }
 
-    Action<uint> GetGroupID(ClientId client)
+    Action<uint, Error> GetGroupID(ClientId client)
     {
         if (!Client::IsValidClientID(client))
         {
@@ -53,7 +52,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<uint> GetCash(const std::variant<uint, std::wstring_view>& player)
+    Action<uint, Error> GetCash(const std::variant<uint, std::wstring_view>& player)
     {
         if (ClientId client = Client::ExtractClientID(player); client != UINT_MAX)
         {
@@ -110,7 +109,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> AdjustCash(const std::variant<uint, std::wstring_view>& player, int amount)
+    Action<void, Error> AdjustCash(const std::variant<uint, std::wstring_view>& player, int amount)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -161,13 +160,13 @@ namespace Hk::Player
         return { {} };
     }
 
-    Action<void> AddCash(const std::variant<uint, std::wstring_view>& player, uint amount) { return AdjustCash(player, static_cast<int>(amount)); }
+    Action<void, Error> AddCash(const std::variant<uint, std::wstring_view>& player, uint amount) { return AdjustCash(player, static_cast<int>(amount)); }
 
-    Action<void> RemoveCash(const std::variant<uint, std::wstring_view>& player, uint amount) { return AdjustCash(player, -static_cast<int>(amount)); }
+    Action<void, Error> RemoveCash(const std::variant<uint, std::wstring_view>& player, uint amount) { return AdjustCash(player, -static_cast<int>(amount)); }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> Kick(const std::variant<uint, std::wstring_view>& player)
+    Action<void, Error> Kick(const std::variant<uint, std::wstring_view>& player)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -181,7 +180,7 @@ namespace Hk::Player
         return { {} };
     }
 
-    Action<void> KickReason(const std::variant<uint, std::wstring_view>& player, std::wstring_view reason)
+    Action<void, Error> KickReason(const std::variant<uint, std::wstring_view>& player, std::wstring_view reason)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -204,7 +203,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> Ban(const std::variant<uint, std::wstring_view>& player, bool ban)
+    Action<void, Error> Ban(const std::variant<uint, std::wstring_view>& player, bool ban)
     {
         auto acc = Client::ExtractAccount(player);
         if (acc.has_error())
@@ -225,7 +224,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> TempBan(const std::variant<uint, std::wstring_view>& player, uint duration)
+    Action<void, Error> TempBan(const std::variant<uint, std::wstring_view>& player, uint duration)
     {
         uint clientId;
         if (player.index() != 0)
@@ -272,7 +271,7 @@ namespace Hk::Player
         CreateID("li01_15_base"),
     };
 
-    Action<void> Beam(const std::variant<uint, std::wstring_view>& player, const std::variant<uint, std::wstring_view>& baseVar)
+    Action<void, Error> Beam(const std::variant<uint, std::wstring_view>& player, const std::variant<uint, std::wstring_view>& baseVar)
     {
         ClientId client = Client::ExtractClientID(player);
         uint baseId;
@@ -341,7 +340,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> SaveChar(const std::variant<uint, std::wstring_view>& player)
+    Action<void, Error> SaveChar(const std::variant<uint, std::wstring_view>& player)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -377,7 +376,7 @@ namespace Hk::Player
             bool mission;
     };
 
-    Action<std::list<CargoInfo>> EnumCargo(const std::variant<uint, std::wstring_view>& player, int& remainingHoldSize)
+    Action<std::list<CargoInfo>, Error> EnumCargo(const std::variant<uint, std::wstring_view>& player, int& remainingHoldSize)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -411,7 +410,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> RemoveCargo(const std::variant<uint, std::wstring_view>& player, ushort cargoId, int count)
+    Action<void, Error> RemoveCargo(const std::variant<uint, std::wstring_view>& player, ushort cargoId, int count)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -441,7 +440,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> AddCargo(const std::variant<uint, std::wstring_view>& player, uint goodId, int count, bool mission)
+    Action<void, Error> AddCargo(const std::variant<uint, std::wstring_view>& player, uint goodId, int count, bool mission)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -522,7 +521,7 @@ namespace Hk::Player
         return { {} };
     }
 
-    Action<void> AddCargo(const std::variant<uint, std::wstring_view>& player, std::wstring_view good, int count, bool mission)
+    Action<void, Error> AddCargo(const std::variant<uint, std::wstring_view>& player, std::wstring_view good, int count, bool mission)
     {
         uint goodId = StringUtils::Cast<int>(good);
         if (!goodId)
@@ -539,7 +538,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> Rename(const std::variant<uint, std::wstring_view>& player, std::wstring_view newCharname, bool onlyDelete)
+    Action<void, Error> Rename(const std::variant<uint, std::wstring_view>& player, std::wstring_view newCharname, bool onlyDelete)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -597,7 +596,6 @@ namespace Hk::Player
 
         std::wstring NewCharfilePath = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, AccountDirname, newFileName.value());
         std::wstring OldCharfilePath = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, AccountDirname, oldFileName.value());
-
 
         if (onlyDelete)
         {
@@ -722,7 +720,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> MsgAndKick(ClientId client, const std::wstring_view reason, uint interval)
+    Action<void, Error> MsgAndKick(ClientId client, const std::wstring_view reason, uint interval)
     {
         if (!ClientInfo[client].tmKickTime)
         {
@@ -736,7 +734,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> Kill(const std::variant<uint, std::wstring_view>& player)
+    Action<void, Error> Kill(const std::variant<uint, std::wstring_view>& player)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -760,7 +758,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> ResetRep(const std::variant<uint, std::wstring_view>& player)
+    Action<void, Error> ResetRep(const std::variant<uint, std::wstring_view>& player)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -804,7 +802,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> SetRep(const std::variant<uint, std::wstring_view>& player, std::wstring_view repGroup, float value)
+    Action<void, Error> SetRep(const std::variant<uint, std::wstring_view>& player, std::wstring_view repGroup, float value)
     {
         ClientId client = Client::ExtractClientID(player);
         // check if logged in
@@ -828,7 +826,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<float> GetRep(const std::variant<uint, std::wstring_view>& player, const std::variant<uint, std::wstring_view>& repGroup)
+    Action<float, Error> GetRep(const std::variant<uint, std::wstring_view>& player, const std::variant<uint, std::wstring_view>& repGroup)
     {
         ClientId client = Client::ExtractClientID(player);
         if (client == UINT_MAX)
@@ -859,7 +857,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<std::vector<GroupMember>> GetGroupMembers(const std::variant<uint, std::wstring_view>& player)
+    Action<std::vector<GroupMember>, Error> GetGroupMembers(const std::variant<uint, std::wstring_view>& player)
     {
         std::vector<GroupMember> members;
         ClientId client = Client::ExtractClientID(player);
@@ -885,7 +883,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // TODO: Make this return just a single string.
-    Action<std::list<std::wstring>> ReadCharFile(const std::variant<uint, std::wstring_view>& player)
+    Action<std::list<std::wstring>, Error> ReadCharFile(const std::variant<uint, std::wstring_view>& player)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -960,7 +958,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> WriteCharFile(const std::variant<uint, std::wstring_view>& player, std::wstring data)
+    Action<void, Error> WriteCharFile(const std::variant<uint, std::wstring_view>& player, std::wstring data)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -1028,7 +1026,7 @@ namespace Hk::Player
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> PlayerRecalculateCRC(ClientId client)
+    Action<void, Error> PlayerRecalculateCRC(ClientId client)
     {
         try
         {
@@ -1076,7 +1074,7 @@ namespace Hk::Player
     }
 
     /** Dock the client immediately */
-    Action<void> InstantDock(ClientId client, uint dockObj)
+    Action<void, Error> InstantDock(ClientId client, uint dockObj)
     {
         // check if logged in
         if (client == UINT_MAX)
@@ -1112,7 +1110,7 @@ namespace Hk::Player
         return { {} };
     }
 
-    Action<int> GetRank(const std::variant<uint, std::wstring_view>& player)
+    Action<int, Error> GetRank(const std::variant<uint, std::wstring_view>& player)
     {
         auto rank = IniUtils::i()->GetFromPlayerFile(player, L"rank");
         if (rank.has_error())
@@ -1124,7 +1122,7 @@ namespace Hk::Player
     }
 
     /// Get online time.
-    Action<int> GetOnlineTime(const std::variant<uint, std::wstring_view>& player)
+    Action<int, Error> GetOnlineTime(const std::variant<uint, std::wstring_view>& player)
     {
         const auto client = Client::ExtractClientID(player);
         const auto acc = Client::GetAccountByClientID(client);
@@ -1139,7 +1137,7 @@ namespace Hk::Player
         const std::wstring charFile = std::format(L"{}{}\\{}.fl", CoreGlobals::c()->accPath, dir, file.value());
         if (Client::IsEncoded(charFile))
         {
-            const std::wstring charFileNew = std::format(L"{}.ini",charFile);
+            const std::wstring charFileNew = std::format(L"{}.ini", charFile);
             if (!FlCodec::DecodeFile(charFile, charFileNew))
             {
                 return { cpp::fail(Error::CouldNotDecodeCharFile) };
@@ -1152,7 +1150,7 @@ namespace Hk::Player
         return { StringUtils::Cast<int>(IniUtils::GetFromFile(charFile, L"mPlayer", L"total_time_played").value()) };
     }
 
-    Action<uint> GetSystemByNickname(std::variant<std::wstring_view, std::string_view> nickname)
+    Action<uint, Error> GetSystemByNickname(std::variant<std::wstring_view, std::string_view> nickname)
     {
         uint system = 0;
         const std::string nick =
@@ -1249,7 +1247,7 @@ namespace Hk::Player
     Create a new character in the specified account by emulating a
     create character.
     */
-    Action<void> NewCharacter(CAccount* acc, std::wstring& character)
+    Action<void, Error> NewCharacter(CAccount* acc, std::wstring& character)
     {
         Client::LockAccountAccess(acc, true);
         Client::UnlockAccountAccess(acc);
@@ -1340,7 +1338,7 @@ namespace Hk::Player
     }
 
     // Anti cheat checking code by mc_horst. Will always return okay if the user is in space.
-    Action<void> AntiCheat(ClientId client)
+    Action<void, Error> AntiCheat(ClientId client)
     {
         const auto AntiCheat1 = (_FLAntiCheat)((char*)server + AddrAntiCheat1);
         const auto AntiCheat2 = (_FLAntiCheat)((char*)server + AddrAntiCheat2);
@@ -1419,7 +1417,7 @@ namespace Hk::Player
         }
     }
 
-    Action<void> SetEquip(const std::variant<uint, std::wstring_view>& player, const st6::list<EquipDesc>& equip)
+    Action<void, Error> SetEquip(const std::variant<uint, std::wstring_view>& player, const st6::list<EquipDesc>& equip)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -1491,7 +1489,7 @@ namespace Hk::Player
         return { cpp::fail(Error::UnknownError) };
     }
 
-    Action<void> AddEquip(const std::variant<uint, std::wstring_view>& player, uint goodId, const std::wstring& hardpoint)
+    Action<void, Error> AddEquip(const std::variant<uint, std::wstring_view>& player, uint goodId, const std::wstring& hardpoint)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -1522,7 +1520,7 @@ namespace Hk::Player
         return { {} };
     }
 
-    Action<void> AddEquip(const std::variant<uint, std::wstring_view>& player, [[maybe_unused]] uint goodId, const std::wstring& hardpoint, bool mounted)
+    Action<void, Error> AddEquip(const std::variant<uint, std::wstring_view>& player, [[maybe_unused]] uint goodId, const std::wstring& hardpoint, bool mounted)
     {
         using _AddCargoDocked = bool(__stdcall*)(uint goodId, CacheString * &hardpoint, int numItems, float health, int mounted, int mission, uint one);
         static _AddCargoDocked addCargoDocked = nullptr;
@@ -1603,7 +1601,7 @@ namespace Hk::Player
         return StringUtils::stows(Systemname);
     }
 
-    Action<uint> GetShipValue(const std::variant<uint, std::wstring_view>& player)
+    Action<uint, Error> GetShipValue(const std::variant<uint, std::wstring_view>& player)
     {
         if (ClientId client = Client::ExtractClientID(player); client != UINT_MAX && !Client::IsInCharSelectMenu(client))
         {
@@ -1714,7 +1712,7 @@ namespace Hk::Player
         pub::Save(client, 1);
     }
 
-    Action<ShipId> GetTarget(const std::variant<uint, std::wstring_view>& player)
+    Action<ShipId, Error> GetTarget(const std::variant<uint, std::wstring_view>& player)
     {
         ClientId client = Client::ExtractClientID(player);
         const auto ship = GetShip(client).Raw();
@@ -1733,7 +1731,7 @@ namespace Hk::Player
         return { target };
     }
 
-    Action<ClientId> GetTargetClientID(const std::variant<uint, std::wstring_view>& player)
+    Action<ClientId, Error> GetTargetClientID(const std::variant<uint, std::wstring_view>& player)
     {
         const auto target = GetTarget(player).Raw();
         if (target.has_error())
@@ -1750,7 +1748,7 @@ namespace Hk::Player
         return { targetClientId };
     }
 
-    Action<BaseId> GetCurrentBase(const std::variant<uint, std::wstring_view>& player)
+    Action<BaseId, Error> GetCurrentBase(const std::variant<uint, std::wstring_view>& player)
     {
         ClientId client = Client::ExtractClientID(player);
         if (client == UINT_MAX)
@@ -1768,7 +1766,7 @@ namespace Hk::Player
         return { cpp::fail(Error::PlayerNotDocked) };
     }
 
-    Action<SystemId> GetSystem(const std::variant<uint, std::wstring_view>& player)
+    Action<SystemId, Error> GetSystem(const std::variant<uint, std::wstring_view>& player)
     {
         ClientId client = Client::ExtractClientID(player);
         if (client == UINT_MAX)
@@ -1787,7 +1785,7 @@ namespace Hk::Player
     }
 
     // returns ship instance ID
-    Action<ShipId> GetShip(const std::variant<uint, std::wstring_view>& player)
+    Action<ShipId, Error> GetShip(const std::variant<uint, std::wstring_view>& player)
     {
         ClientId client = Client::ExtractClientID(player);
         if (client == UINT_MAX)
@@ -1806,7 +1804,7 @@ namespace Hk::Player
     }
 
     // returns Ship type
-    Action<uint> GetShipID(const std::variant<uint, std::wstring_view>& player)
+    Action<uint, Error> GetShipID(const std::variant<uint, std::wstring_view>& player)
     {
         ClientId client = Client::ExtractClientID(player);
         if (client == UINT_MAX)
@@ -1824,7 +1822,7 @@ namespace Hk::Player
         return { shipId };
     }
 
-    Action<void> MarkObj(const std::variant<uint, std::wstring_view>& player, uint objId, int markStatus)
+    Action<void, Error> MarkObj(const std::variant<uint, std::wstring_view>& player, uint objId, int markStatus)
     {
         ClientId client = Client::ExtractClientID(player);
         if (client == UINT_MAX)
@@ -1836,7 +1834,7 @@ namespace Hk::Player
         return { {} };
     }
 
-    Action<int> GetPvpKills(const std::variant<uint, std::wstring_view>& player)
+    Action<int, Error> GetPvpKills(const std::variant<uint, std::wstring_view>& player)
     {
         ClientId client = Client::ExtractClientID(player);
         if (client == UINT_MAX)
@@ -1848,7 +1846,7 @@ namespace Hk::Player
         return { kills };
     }
 
-    Action<void> SetPvpKills(const std::variant<uint, std::wstring_view>& player, int killAmount)
+    Action<void, Error> SetPvpKills(const std::variant<uint, std::wstring_view>& player, int killAmount)
     {
         ClientId client = Client::ExtractClientID(player);
         if (client == UINT_MAX)
@@ -1861,7 +1859,7 @@ namespace Hk::Player
         return { {} };
     }
 
-    Action<int> IncrementPvpKills(const std::variant<uint, std::wstring_view>& player)
+    Action<int, Error> IncrementPvpKills(const std::variant<uint, std::wstring_view>& player)
     {
         ClientId client = Client::ExtractClientID(player);
         if (client == UINT_MAX)

@@ -16,7 +16,7 @@ _RCSendChatMsg RCSendChatMsg;
 
 namespace Hk::Chat
 {
-    Action<void> Msg(const std::variant<uint, std::wstring_view>& player, std::wstring_view message)
+    Action<void, Error> Msg(const std::variant<uint, std::wstring_view>& player, std::wstring_view message)
     {
         if (message.empty())
         {
@@ -48,7 +48,7 @@ namespace Hk::Chat
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> MsgS(const std::variant<std::wstring_view, uint>& system, std::wstring_view message)
+    Action<void, Error> MsgS(const std::variant<std::wstring_view, uint>& system, std::wstring_view message)
     {
         if (message.empty())
         {
@@ -92,7 +92,7 @@ namespace Hk::Chat
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> MsgU(std::wstring_view message)
+    Action<void, Error> MsgU(std::wstring_view message)
     {
         if (message.empty())
         {
@@ -118,7 +118,7 @@ namespace Hk::Chat
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> FMsgEncodeXml(std::wstring_view xmring, char* buffer, uint size, uint& ret)
+    Action<void, Error> FMsgEncodeXml(std::wstring_view xmring, char* buffer, uint size, uint& ret)
     {
         XMLReader rdr;
         RenderDisplayList rdl;
@@ -156,7 +156,7 @@ namespace Hk::Chat
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> FMsg(ClientId client, std::wstring_view xmring)
+    Action<void, Error> FMsg(ClientId client, std::wstring_view xmring)
     {
         char buf[0xFFFF];
         uint ret;
@@ -169,7 +169,7 @@ namespace Hk::Chat
         return { {} };
     }
 
-    Action<void> FMsg(const std::variant<uint, std::wstring_view>& player, std::wstring_view xmring)
+    Action<void, Error> FMsg(const std::variant<uint, std::wstring_view>& player, std::wstring_view xmring)
     {
         ClientId client = Client::ExtractClientID(player);
 
@@ -183,7 +183,7 @@ namespace Hk::Chat
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> FMsgS(const std::variant<std::wstring_view, uint>& system, std::wstring_view xmring)
+    Action<void, Error> FMsgS(const std::variant<std::wstring_view, uint>& system, std::wstring_view xmring)
     {
         uint systemId = 0;
         if (!system.index())
@@ -214,7 +214,7 @@ namespace Hk::Chat
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Action<void> FMsgU(const std::wstring& xmring)
+    Action<void, Error> FMsgU(const std::wstring& xmring)
     {
         // encode xml std::wstring
         char buf[0xFFFF];
@@ -239,7 +239,7 @@ namespace Hk::Chat
     /** Format a chat std::wstring in accordance with the receiver's preferences and
     send it. Will check that the receiver accepts chatConfig from sender and
     refuses to send if necessary. */
-    Action<void> FormatSendChat(uint toClientId, const std::wstring& sender, const std::wstring& text, const std::wstring& textColor)
+    Action<void, Error> FormatSendChat(uint toClientId, const std::wstring& sender, const std::wstring& text, const std::wstring& textColor)
     {
 #define HAS_FLAG(a, b) ((a).flags.find(b) != -1)
 
@@ -299,7 +299,7 @@ namespace Hk::Chat
     }
 
     /** Send a player to player message */
-    Action<void> SendPrivateChat(uint fromClientId, uint toClientId, const std::wstring& text)
+    Action<void, Error> SendPrivateChat(uint fromClientId, uint toClientId, const std::wstring& text)
     {
         const auto Sender = Client::GetCharacterNameByID(fromClientId).Raw();
         if (Sender.has_error())

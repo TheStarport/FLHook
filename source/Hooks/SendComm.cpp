@@ -1,8 +1,9 @@
 #include "PCH.hpp"
+
 #include "API/Utils/IniUtils.hpp"
 
-#include "Core/Detour.hpp"
 #include <Global.hpp>
+#include <Utils/Detour.hpp>
 
 using SendCommType = int(__cdecl*)(uint, uint, uint, const Costume*, uint, uint*, int, uint, float, bool);
 const std::unique_ptr<FunctionDetour<SendCommType>> func = std::make_unique<FunctionDetour<SendCommType>>(pub::SpaceObj::SendComm);

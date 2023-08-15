@@ -25,11 +25,7 @@
     <ClCompile Include="..\Source\API\FLServer\Player.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Solar.cpp" />
     <ClCompile Include="..\Source\API\FLServer\ZoneUtilities.cpp" />
-    <ClCompile Include="..\Source\API\Utils\FileUtils.cpp" />
     <ClCompile Include="..\Source\API\Utils\IniUtils.cpp" />
-    <ClCompile Include="..\Source\API\Utils\MemUtils.cpp" />
-    <ClCompile Include="..\Source\API\Utils\StringUtil.cpp" />
-    <ClCompile Include="..\Source\API\Utils\TimeUtils.cpp" />
     <ClCompile Include="..\Source\Core\Codec.cpp" />
     <ClCompile Include="..\Source\Core\Commands\AdminCommandProcessor.cpp" />
     <ClCompile Include="..\Source\Core\Commands\CommandLineParser.cpp" />
@@ -85,6 +81,12 @@
     <ClCompile Include="..\Source\Hooks\SendComm.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\FLHookSDK\include\Utils\FileUtils.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Utils\IniUtils.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Utils\MemUtils.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Utils\StringUtils.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Utils\TimeUtils.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Utils\Utils.hpp" />
     <ClInclude Include="..\Include\API\API.hpp" />
     <ClInclude Include="..\Include\API\FLHook\MailManager.hpp" />
     <ClInclude Include="..\Include\API\FLHook\Plugin.hpp" />
@@ -96,10 +98,6 @@
     <ClInclude Include="..\Include\API\FLServer\Player.hpp" />
     <ClInclude Include="..\Include\API\FLServer\Solar.hpp" />
     <ClInclude Include="..\Include\API\FLServer\ZoneUtilities.hpp" />
-    <ClInclude Include="..\Include\API\Utils\FileUtils.hpp" />
-    <ClInclude Include="..\Include\API\Utils\IniUtils.hpp" />
-    <ClInclude Include="..\Include\API\Utils\Utils.hpp" />
-    <ClInclude Include="..\Include\Core\Action.hpp" />
     <ClInclude Include="..\Include\Core\Codec.hpp" />
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp" />
     <ClInclude Include="..\include\Core\Commands\AbstractExternalCommandProcessor.hpp" />
@@ -110,9 +108,7 @@
     <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Detour.hpp" />
     <ClInclude Include="..\Include\Core\Exceptions\ErrorInfo.hpp" />
-    <ClInclude Include="..\Include\Core\Exceptions\GameException.hpp" />
     <ClInclude Include="..\Include\Core\Exceptions\StopProcessingException.hpp" />
-    <ClInclude Include="..\Include\Core\Exceptions\UnsupportedException.hpp" />
     <ClInclude Include="..\Include\Core\ClientServerInterface.hpp" />
     <ClInclude Include="..\Include\Core\Logger.hpp" />
     <ClInclude Include="..\Include\Core\MemoryManager.hpp" />

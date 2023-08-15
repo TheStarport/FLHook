@@ -1,8 +1,6 @@
 // ReSharper disable CppClangTidyClangDiagnosticReturnStackAddress
 #pragma once
 
-#include "API/Utils/Utils.hpp"
-
 // Default transform arg - assume is integral or floating point and straight cast it
 template <class T>
 T TransformArg(std::wstring_view s)

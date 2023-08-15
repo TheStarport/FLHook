@@ -1,8 +1,9 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/API.hpp"
+#include "Global.hpp"
 
+#include <API/Utils/IniUtils.hpp>
 
 namespace IServerImplHook
 {
@@ -174,7 +175,7 @@ namespace IServerImplHook
         CallPluginsAfter(HookedCall::IServerImpl__RequestPlayerStats, client, _genArg1, _genArg2);
     }
 
-        bool CharacterInfoReq__Inner(ClientId client, bool)
+    bool CharacterInfoReq__Inner(ClientId client, bool)
     {
         TRY_HOOK
         {
