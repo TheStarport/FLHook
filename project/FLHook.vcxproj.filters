@@ -52,11 +52,11 @@
     <Filter Include="Source\Hooks\ClientServerInterface">
       <UniqueIdentifier>{194ddbd6-508d-4847-988e-84b08b1899a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SDK">
-      <UniqueIdentifier>{d52f96c4-07bb-4fba-867c-44947c71ac8c}</UniqueIdentifier>
+    <Filter Include="Source\API\Utils">
+      <UniqueIdentifier>{68fe03b6-58d0-4bb4-bf34-428d8d0bff0c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SDK\Utils">
-      <UniqueIdentifier>{c1b303dd-94c5-4323-8ab7-298d3d13d097}</UniqueIdentifier>
+    <Filter Include="Include\API\Utils">
+      <UniqueIdentifier>{fc052256-119a-40dc-97f3-85d222cdd71a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -250,6 +250,12 @@
     <ClCompile Include="..\Source\Core\Commands\ExternalCommandProcessor.cpp">
       <Filter>Source\Core\Commands</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\API\Utils\IniUtils.cpp">
+      <Filter>Source\API\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\API\Utils\FileUtils.cpp">
+      <Filter>Source\API\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">
@@ -381,23 +387,11 @@
     <ClInclude Include="..\include\Core\Commands\AbstractExternalCommandProcessor.hpp">
       <Filter>Include\Core\Commands</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Utils\IniUtils.hpp">
-      <Filter>SDK\Utils</Filter>
+    <ClInclude Include="..\include\API\Utils\FileUtils.hpp">
+      <Filter>Include\API\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Utils\MemUtils.hpp">
-      <Filter>SDK\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Utils\StringUtils.hpp">
-      <Filter>SDK\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Utils\TimeUtils.hpp">
-      <Filter>SDK\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Utils\Utils.hpp">
-      <Filter>SDK\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Utils\FileUtils.hpp">
-      <Filter>SDK\Utils</Filter>
+    <ClInclude Include="..\include\API\Utils\IniUtils.hpp">
+      <Filter>Include\API\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

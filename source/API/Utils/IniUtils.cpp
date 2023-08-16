@@ -1,5 +1,8 @@
 #include "PCH.hpp"
 
+#include "API/FLServer/Client.hpp"
+#include "API/Utils/FileUtils.hpp"
+
 #include <API/Utils/IniUtils.hpp>
 
 namespace Hk
