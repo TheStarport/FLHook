@@ -37,6 +37,8 @@ namespace Plugins::SolarControl
 	{
 		std::vector<StartupSolar> startupSolars = {StartupSolar()};
 		std::map<std::wstring, SolarArch> solarArches = {{L"largestation1", SolarArch()}};
+		std::map<std::string, std::string> baseRedirects = {{"li01_01_base", "li01_02_base"}};
+		std::map<uint, uint> hashedBaseRedirects;
 		//! The config file we load out of
 		std::string File() override { return "config/solar.json"; }
 	};
@@ -61,5 +63,6 @@ namespace Plugins::SolarControl
 		std::unique_ptr<Config> config = nullptr;
 		std::shared_ptr<spdlog::logger> Log = nullptr;
 		SolarCommunicator* communicator = nullptr;
+		std::map<uint, uint> pendingRedirects;
 	};
 } // namespace Plugins::SolarControl

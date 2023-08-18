@@ -136,7 +136,7 @@ namespace Plugins::SolarControl
 	/** @ingroup SolarControl
 	 * @brief Creates a solar from a solarInfo struct
 	 */
-	int CreateSolar(uint& iSpaceID, pub::SpaceObj::SolarInfo& solarInfo)
+	int CreateSolar(uint& spaceId, pub::SpaceObj::SolarInfo& solarInfo)
 	{
 		// Hack server.dll so it does not call create solar packet send
 		char* serverHackAddress = reinterpret_cast<char*>(hModServer) + 0x2A62A;
@@ -144,16 +144,16 @@ namespace Plugins::SolarControl
 		WriteProcMem(serverHackAddress, &serverHack, 1);
 
 		// Create the Solar
-		const int returnVal = pub::SpaceObj::CreateSolar(iSpaceID, solarInfo);
+		const int returnValue = pub::SpaceObj::CreateSolar(spaceId, solarInfo);
 
 		// Send solar creation packet
-		SendSolarPacket(iSpaceID, solarInfo);
+		SendSolarPacket(spaceId, solarInfo);
 
 		// Undo the server.dll hack
 		constexpr char serverUnHack[] = {'\x74'};
 		WriteProcMem(serverHackAddress, &serverUnHack, 1);
 
-		return returnVal;
+		return returnValue;
 	}
 
 	/** @ingroup SolarControl
@@ -376,6 +376,11 @@ namespace Plugins::SolarControl
 			solar.rot = EulerMatrix({solar.rotation[0], solar.rotation[1], solar.rotation[2]});
 		}
 
+		for (auto& [baseFrom, baseTo] : config.baseRedirects)
+		{
+			config.hashedBaseRedirects[CreateID(baseFrom.c_str())] = CreateID(baseTo.c_str());
+		}
+
 		global->config = std::make_unique<Config>(config);
 	}
 
@@ -423,18 +428,45 @@ namespace Plugins::SolarControl
 	/** @ingroup SolarControl
 	 * @brief Timer to clear the docking requests vector. This vector exists to stop the server from spamming docking requests when using SetTarget
 	 */
-	void ClearDockingRequests()
+	void ClearDockingRequestsTimer()
 	{
 		global->pendingDockingRequests.clear();
 	}
 
 	// Timers
-	const std::vector<Timer> timers = {{RelativeHealthTimer, 5}, {ClearDockingRequests, 5}};
+	const std::vector<Timer> timers = {{RelativeHealthTimer, 5}, {ClearDockingRequestsTimer, 5}};
 
 	// IPC
 	SolarCommunicator::SolarCommunicator(const std::string& plug) : PluginCommunicator(plug)
 	{
 		this->CreateUserDefinedSolar = CreateUserDefinedSolar;
+	}
+
+	void PlayerLaunch([[maybe_unused]] ShipId& shipId, ClientId& client)
+	{
+		if (global->pendingRedirects.find(client) != global->pendingRedirects.end())
+		{
+			Hk::Player::Beam(client, global->pendingRedirects[client]);
+			PrintUserCmdText(client, L"Redirecting undock. Please launch again.");
+		}
+	}
+
+	//! Base Enter hook
+	void BaseEnter([[maybe_unused]] const uint& baseId, ClientId& client)
+	{
+		if (global->pendingRedirects.find(client) != global->pendingRedirects.end())
+		{
+			global->pendingRedirects.erase(client);
+		}
+		else
+		{
+			global->pendingRedirects[client] = global->config->hashedBaseRedirects[baseId];
+		}
+	}
+
+	void ClearClientInfo(ClientId& client)
+	{
+		global->pendingRedirects.erase(client);
 	}
 } // namespace Plugins::SolarControl
 
@@ -444,7 +476,7 @@ DefaultDllMainSettings(LoadSettings);
 
 REFL_AUTO(type(SolarArch), field(solarArch), field(loadout), field(iff), field(infocard), field(base), field(pilot));
 REFL_AUTO(type(StartupSolar), field(name), field(system), field(position), field(rotation));
-REFL_AUTO(type(Config), field(startupSolars), field(solarArches));
+REFL_AUTO(type(Config), field(startupSolars), field(solarArches), field(baseRedirects));
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
@@ -459,6 +491,9 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &AdminCommandProcessing);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__SetTarget, &SetTarget, HookStep::After);
+	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
+	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch, HookStep::After);
+	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
 
 	// Register IPC
 	global->communicator = new SolarCommunicator(SolarCommunicator::pluginName);
