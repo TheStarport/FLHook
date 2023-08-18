@@ -2,16 +2,7 @@
 #include <FLHook.hpp>
 #include <plugin.h>
 #include "../npc_control/NPCControl.h"
-
-struct Costume
-{
-	uint head = 0;
-	uint body = 0;
-	uint lefthand = 0;
-	uint righthand = 0;
-	uint accessory[8] = {};
-	int accessories = 0;
-};
+#include "../solar_control/SolarControl.h"
 
 namespace Plugins::WaveDefence
 {
@@ -51,6 +42,7 @@ namespace Plugins::WaveDefence
 	{
 		std::vector<std::wstring> npcs = {{L"example"}, {L"example"}};
 		std::vector<std::wstring> variableNpcs = {{L"example"}, {L"example"}};
+		std::vector<std::wstring> solars = {{L"weapon_platform"}};
 		uint reward = 1000;
 		VoiceLine startVoiceLine = VoiceLine();
 		VoiceLine endVoiceLine = VoiceLine();
@@ -77,6 +69,7 @@ namespace Plugins::WaveDefence
 		uint groupId = 0;
 		std::vector<uint> members;
 		std::vector<uint> spawnedNpcs;
+		std::vector<uint> spawnedSolars;
 		System system;
 	};
 
@@ -94,6 +87,9 @@ namespace Plugins::WaveDefence
 		// How many variable npcs per player
 		uint npcMultiplier = 2;
 
+		// Fleeing message
+		std::wstring fleeingMessage = L"{} has fled the battle.";
+
 		//! The config file we load out of
 		std::string File() override { return "config/wave_defence.json"; }
 	};
@@ -102,8 +98,11 @@ namespace Plugins::WaveDefence
 	{
 		std::unique_ptr<Config> config = nullptr;
 		ReturnCode returnCode = ReturnCode::Default;
+
 		std::vector<Game> games;
-		Plugins::Npc::NpcCommunicator* communicator = nullptr;
 		std::vector<uint> systemsPendingNewWave;
+
+		Plugins::Npc::NpcCommunicator* npcCommunicator = nullptr;
+		Plugins::SolarControl::SolarCommunicator* solarCommunicator = nullptr;
 	};
 } // namespace Plugins::WaveDefence

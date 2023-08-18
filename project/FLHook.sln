@@ -50,6 +50,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Rename", "..\plugins\rename
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "System Sensor", "..\plugins\system_sensor\System Sensor.vcxproj", "{9AE293D2-A402-4EA6-B9BA-A830DA18B219}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Solar Control", "..\plugins\solar_control\solar_control.vcxproj", "{6F69FEED-80B6-4DFB-865E-90A195281BAB}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3111A690-73C5-484F-9D51-630B12824971}"
 	ProjectSection(SolutionItems) = preProject
 		..\.clang-format = ..\.clang-format
@@ -85,6 +87,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Loot Tables", "..\plugins\loot_tables\Loot Tables.vcxproj", "{DECED50E-AEE2-4327-94FC-6DAAEA6D8B61}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wave Defence", "..\plugins\wave_defence\wave_defence.vcxproj", "{F3164A55-BEBD-4156-8F93-8C380DB35C4C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mission Control", "..\plugins\mission_control\MissionControl.vcxproj", "{DA6AFDF4-1803-4356-983F-546D412985F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -300,6 +304,22 @@ Global
 		{F3164A55-BEBD-4156-8F93-8C380DB35C4C}.ReleaseWithDebug|Win32.Build.0 = ReleaseWithDebug|Win32
 		{F3164A55-BEBD-4156-8F93-8C380DB35C4C}.ReleaseWithDebug|x64.ActiveCfg = ReleaseWithDebug|Win32
 		{F3164A55-BEBD-4156-8F93-8C380DB35C4C}.ReleaseWithDebug|x64.Build.0 = ReleaseWithDebug|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.Release|Win32.ActiveCfg = Release|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.Release|Win32.Build.0 = Release|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.Release|x64.ActiveCfg = Release|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.Release|x64.Build.0 = Release|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.ReleaseWithDebug|Win32.ActiveCfg = ReleaseWithDebug|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.ReleaseWithDebug|Win32.Build.0 = ReleaseWithDebug|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.ReleaseWithDebug|x64.ActiveCfg = ReleaseWithDebug|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.ReleaseWithDebug|x64.Build.0 = ReleaseWithDebug|Win32
+		{DA6AFDF4-1803-4356-983F-546D412985F2}.Release|Win32.ActiveCfg = Release|Win32
+		{DA6AFDF4-1803-4356-983F-546D412985F2}.Release|Win32.Build.0 = Release|Win32
+		{DA6AFDF4-1803-4356-983F-546D412985F2}.Release|x64.ActiveCfg = Release|Win32
+		{DA6AFDF4-1803-4356-983F-546D412985F2}.Release|x64.Build.0 = Release|Win32
+		{DA6AFDF4-1803-4356-983F-546D412985F2}.ReleaseWithDebug|Win32.ActiveCfg = ReleaseWithDebug|Win32
+		{DA6AFDF4-1803-4356-983F-546D412985F2}.ReleaseWithDebug|Win32.Build.0 = ReleaseWithDebug|Win32
+		{DA6AFDF4-1803-4356-983F-546D412985F2}.ReleaseWithDebug|x64.ActiveCfg = ReleaseWithDebug|Win32
+		{DA6AFDF4-1803-4356-983F-546D412985F2}.ReleaseWithDebug|x64.Build.0 = ReleaseWithDebug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -339,6 +359,8 @@ Global
 		{91E8438D-F413-4A2C-8A9B-6CE3544116DB} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{DECED50E-AEE2-4327-94FC-6DAAEA6D8B61} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{F3164A55-BEBD-4156-8F93-8C380DB35C4C} = {88754785-84CA-4F78-8906-F8C39564BA83}
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB} = {88754785-84CA-4F78-8906-F8C39564BA83}
+		{DA6AFDF4-1803-4356-983F-546D412985F2} = {88754785-84CA-4F78-8906-F8C39564BA83}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAC9ADCA-E201-4AA0-8494-1C3804461C24}

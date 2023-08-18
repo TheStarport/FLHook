@@ -20,6 +20,7 @@
  * 
  * @paragraph ipc IPC Interfaces Used
  * NpcCommunicator: uses CreateNpc method with parameters (const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
+ * SolarCommunicator: uses CreateUserDefinedSolar method with parameters (const std::wstring& name, Vector pos, const Matrix& rot, uint iSystem, bool varyPosition, bool mission)
  */
 
 #include "WaveDefence.h"
@@ -67,7 +68,7 @@ namespace Plugins::WaveDefence
 			character.costume.righthand = CreateID(character.costumeStrings.righthand.c_str());
 			character.costume.accessories = character.costumeStrings.accessories;
 
-			for (int i = 0; i < character.costumeStrings.accessory.size(); i++)
+			for (uint i = 0; i < character.costumeStrings.accessory.size(); i++)
 			{
 				character.costume.accessory[i] = CreateID(character.costumeStrings.accessory[i].c_str());
 			}
@@ -76,10 +77,13 @@ namespace Plugins::WaveDefence
 		global->config = std::make_unique<Config>(config);
 	}
 
-	void SendComm(const std::vector<uint>& group, const VoiceLine& voiceline)
+	/** @ingroup WaveDefence
+	 * @brief Sends a comm to the group
+	 */
+	void SendComm(const std::vector<uint>& group, const VoiceLine& voiceLine)
 	{
 		auto character = std::ranges::find_if(
-		    global->config->characters.begin(), global->config->characters.end(), [&voiceline](auto& item) { return voiceline.character == item.voice; });
+		    global->config->characters.begin(), global->config->characters.end(), [&voiceLine](auto& item) { return voiceLine.character == item.voice; });
 
 		if (character != global->config->characters.end())
 		{
@@ -88,11 +92,14 @@ namespace Plugins::WaveDefence
 				uint ship;
 				pub::Player::GetShip(player, ship);
 				pub::SpaceObj::SendComm(
-				    0, ship, character->voiceId, &character->costume, character->infocard, (uint*)&voiceline.voiceLine, 9, 19009, 0.5, false);
+				    0, ship, character->voiceId, &character->costume, character->infocard, (uint*)&voiceLine.voiceLine, 9, 19009, 0.5, false);
 			}
 		}
 	}
 
+	/** @ingroup WaveDefence
+	 * @brief Shows an infocard via mission messages. Candidate for helper function in the future.
+	 */
 	void ShowPlayerMissionText(uint client, uint infocard, MissionMessageType type)
 	{
 		FmtStr caption(0, nullptr);
@@ -102,6 +109,9 @@ namespace Plugins::WaveDefence
 		pub::Player::DisplayMissionMessage(client, caption, type, true);
 	}
 
+	/** @ingroup WaveDefence
+	 * @brief Checks that the player is able to join a wave defence game
+	 */
 	bool PlayerChecks(uint client, uint member, uint system)
 	{
 		auto characterName = Hk::Client::GetCharacterNameByID(member);
@@ -137,19 +147,22 @@ namespace Plugins::WaveDefence
 		return true;
 	}
 
-	void EndSurvival(Game& game, bool success)
+	/** @ingroup WaveDefence
+	 * @brief Ends the wave defence game either successfully or not
+	 */
+	void EndGame(Game& game, bool success)
 	{
-		// Announcement
+		// Success Announcement
 		if (success)
 		{
 			auto player = Hk::Client::GetCharacterNameByID(game.members.front());
 			const auto message = Hk::Message::FormatMsg(
 			    MessageColor::Red, MessageFormat::Normal, std::format(L"{} and their team have completed a Wave Defence game.", player.value()));
 			Hk::Message::FMsgU(message);
-			
+
+			// Play music and show victory mission text for each player
 			for (const auto& member : game.members)
 			{
-				 
 				ShowPlayerMissionText(member, 21650, MissionMessageType::MissionMessageType_Type3);
 				pub::Audio::SetMusic(member, global->config->victoryMusicId);
 			}
@@ -160,38 +173,50 @@ namespace Plugins::WaveDefence
 		global->games.erase(gameSubRange.begin(), gameSubRange.end());
 	}
 
+	/** @ingroup WaveDefence
+	 * @brief Starts a new wave for the specified game
+	 */
 	void NewWave(Game& game)
 	{
 		// Get wave
 		Wave const& wave = game.system.waves.at(game.waveNumber);
 
 		// Check IPC is working
-		if (!global->communicator)
+		if (!global->npcCommunicator || !global->solarCommunicator)
 		{
-			AddLog(LogType::Normal, LogLevel::Err, "Cannot communicate with NPC Control plugin! Check it is loaded.");
+			AddLog(LogType::Normal, LogLevel::Err, "Cannot communicate with dependent plugins! Check they are loaded.");
 			PrintUserCmdText(game.members.front(), L"There has been an error with the Wave Defence plugin. Please contact an administrator.");
-			EndSurvival(game, false);
+			EndGame(game, false);
 			return;
 		}
 
-		// Spawn NPCS
+		// Get current location to know where to spawn the npcs and solars
 		uint ship;
 		Vector position;
 		Matrix rotation;
 		pub::Player::GetShip(game.members.front(), ship);
 		pub::SpaceObj::GetLocation(ship, position, rotation);
 
+		// Spawn specific npcs
 		for (auto const& npc : wave.npcs)
 		{
-			game.spawnedNpcs.push_back(global->communicator->CreateNpc(npc, game.system.positionVector, rotation, game.system.systemId, true));
+			game.spawnedNpcs.push_back(global->npcCommunicator->CreateNpc(npc, game.system.positionVector, rotation, game.system.systemId, true));
 		}
 
+		// Spawn variable npcs. This scales up depending on how many players there are
 		for (uint multiple = 0; multiple < global->config->npcMultiplier; multiple++)
 		{
 			for (auto const& npc : wave.variableNpcs)
 			{
-				game.spawnedNpcs.push_back(global->communicator->CreateNpc(npc, game.system.positionVector, rotation, game.system.systemId, true));
+				game.spawnedNpcs.push_back(global->npcCommunicator->CreateNpc(npc, game.system.positionVector, rotation, game.system.systemId, true));
 			}
+		}
+
+		// Spawn solars
+		for (auto const& solar : wave.solars)
+		{
+			game.spawnedSolars.push_back(
+			    global->solarCommunicator->CreateUserDefinedSolar(solar, game.system.positionVector, rotation, game.system.systemId, true, true));
 		}
 
 		// Actions for all players in group
@@ -216,8 +241,12 @@ namespace Plugins::WaveDefence
 		SendComm(game.members, wave.startVoiceLine);
 	}
 
+	/** @ingroup WaveDefence
+	 * @brief Starts a new wave defence game
+	 */
 	void NewGame(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
+		// Grab the players system
 		uint systemId;
 		pub::Player::GetSystem(client, systemId);
 
@@ -283,27 +312,29 @@ namespace Plugins::WaveDefence
 				return;
 		}
 
+		// Announce the game start and push the game into the vector
 		PrintLocalUserCmdText(game.members.front(), L"The game will start shortly.", 5000);
-
 		global->games.push_back(game);
 	}
 
+	/** @ingroup WaveDefence
+	 * @brief Ends the current wave for the game
+	 */
 	void EndWave(Game& game)
 	{
 		// Get Wave
 		const Wave& wave = game.system.waves.at(game.waveNumber);
 
 		// Payout reward
-		uint reward = wave.reward;
 		if (game.groupId != 0)
 		{
 			CPlayerGroup* group = CPlayerGroup::FromGroupID(game.groupId);
-			group->RewardMembers(reward);
+			group->RewardMembers(wave.reward);
 		}
 		else
 		{
 			auto player = Hk::Client::GetCharacterNameByID(game.members.front());
-			Hk::Player::AddCash(player.value(), reward);
+			Hk::Player::AddCash(player.value(), wave.reward);
 		}
 
 		// Send Voice Line
@@ -314,25 +345,31 @@ namespace Plugins::WaveDefence
 
 		// Message each player telling them the wave is over. Do after wave number increment because we want wave 1 not 0.
 		for (auto const& player : game.members)
-			PrintUserCmdText(player, std::format(L"Wave {} complete. Reward: {} credits.", game.waveNumber, reward));
+			PrintUserCmdText(player, std::format(L"Wave {} complete. Reward: {} credits.", game.waveNumber, wave.reward));
 
 		// Is there a next wave? If so start it on a timer. If not, EndSurvival()
 		if (game.waveNumber >= game.system.waves.size())
-			EndSurvival(game, true);
+			EndGame(game, true);
 		else
 			global->systemsPendingNewWave.push_back(game.system.systemId);
 	}
 
+	/** @ingroup WaveDefence
+	 * @brief Starts the next wave on a timer. This is so the wave doesnt start immediately after the end of the previous one
+	 */
 	void WaveTimer()
 	{
 		for (const auto& systemId : global->systemsPendingNewWave)
 		{
-			auto game = std::ranges::find_if(global->games.begin(), global->games.end(), [systemId] (auto& item) { return item.system.systemId == systemId; });
+			auto game = std::ranges::find_if(global->games.begin(), global->games.end(), [systemId](auto& item) { return item.system.systemId == systemId; });
 			NewWave(*game);
 		}
 		global->systemsPendingNewWave.clear();
 	}
 
+	/** @ingroup WaveDefence
+	 * @brief Starts any pending games that haven't started already
+	 */
 	void GameTimer()
 	{
 		for (auto& game : global->games)
@@ -351,8 +388,28 @@ namespace Plugins::WaveDefence
 		}
 	}
 
-	const std::vector<Timer> timers = {{WaveTimer, 5}, {GameTimer, 5}};;
+	const std::vector<Timer> timers = {{WaveTimer, 5}, {GameTimer, 5}};
 
+	/** @ingroup WaveDefence
+	 * @brief Hook on BaseDestroyed. Checks if the base was part of a game.
+	 */
+	void BaseDestroyed(uint objectId, [[maybe_unused]] uint clientBy)
+	{
+		for (auto& game : global->games)
+		{
+			// Remove Solar if part of a wave
+			auto solarSubRange = std::ranges::remove_if(game.spawnedSolars, [objectId](auto& item) { return item == objectId; });
+			game.spawnedSolars.erase(solarSubRange.begin(), solarSubRange.end());
+
+			// If there's no more NPCs or Solars, end of the wave
+			if (game.spawnedNpcs.empty() && game.spawnedSolars.empty())
+				EndWave(game);
+		}
+	}
+
+	/** @ingroup WaveDefence
+	 * @brief Hook on ShipDestroyed. Checks if the ship was part of a game.
+	 */
 	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, const DWORD** ecx, [[maybe_unused]] const uint& kill)
 	{
 		// Grab the ship from the ecx
@@ -370,12 +427,15 @@ namespace Plugins::WaveDefence
 			auto npcSubRange = std::ranges::remove_if(game.spawnedNpcs, [ship](auto& item) { return item == ship->get_id(); });
 			game.spawnedNpcs.erase(npcSubRange.begin(), npcSubRange.end());
 
-			// If there's no more NPCs, end of the wave
-			if (game.spawnedNpcs.empty())
+			// If there's no more NPCs or Solars, end of the wave
+			if (game.spawnedNpcs.empty() && game.spawnedSolars.empty())
 				EndWave(game);
 		}
 	}
 
+	/** @ingroup WaveDefence
+	 * @brief Remove the client from any games.
+	 */
 	void Disqualify(uint client)
 	{
 		// Are they even in a game?
@@ -402,13 +462,14 @@ namespace Plugins::WaveDefence
 				// Any members left?
 				if (game.members.empty())
 				{
-					EndSurvival(game, false);
+					EndGame(game, false);
 					return;
 				}
 
+				// Send fleeing message
 				auto playerCharacterName = Hk::Client::GetCharacterNameByID(client);
 				for (auto const& player : game.members)
-					PrintUserCmdText(player, std::format(L"{} has fled the battle.", playerCharacterName.value()));
+					PrintUserCmdText(player, std::vformat(global->config->fleeingMessage, std::make_wformat_args(playerCharacterName.value())));
 			}
 		}
 	}
@@ -441,7 +502,7 @@ DefaultDllMainSettings(LoadSettings);
 REFL_AUTO(type(CostumeStrings), field(body), field(head), field(lefthand), field(righthand), field(accessory));
 REFL_AUTO(type(Character), field(voice), field(infocard), field(costumeStrings));
 REFL_AUTO(type(VoiceLine), field(voiceLineString), field(character));
-REFL_AUTO(type(Wave), field(npcs), field(variableNpcs), field(reward), field(startVoiceLine), field(endVoiceLine));
+REFL_AUTO(type(Wave), field(npcs), field(variableNpcs), field(reward), field(startVoiceLine), field(endVoiceLine), field(solars));
 REFL_AUTO(type(System), field(system), field(waves), field(posX), field(posY), field(posZ));
 REFL_AUTO(type(Config), field(systems), field(characters), field(victoryMusic), field(failureMusic), field(npcMultiplier));
 
@@ -459,7 +520,10 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
 	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+	pi->emplaceHook(HookedCall::IEngine__BaseDestroyed, &BaseDestroyed);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 
-	global->communicator = static_cast<Plugins::Npc::NpcCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Plugins::Npc::NpcCommunicator::pluginName));
+	global->npcCommunicator = static_cast<Plugins::Npc::NpcCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Plugins::Npc::NpcCommunicator::pluginName));
+	global->solarCommunicator = static_cast<Plugins::SolarControl::SolarCommunicator*>(
+	    PluginCommunicator::ImportPluginCommunicator(Plugins::SolarControl::SolarCommunicator::pluginName));
 }
