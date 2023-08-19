@@ -38,7 +38,7 @@ jobs:
         env:
            BUILD_WRAPPER_DOWNLOAD_URL: ${{ env.SONAR_SERVER_URL }}/static/cpp/build-wrapper-win-x86.zip
         run: |
-          if not exist $HOME\.sonar\ mkdir $HOME\.sonar\
+          if (!(Test-Path $HOME\.sonar\ -PathType Container)) { New-Item -ItemType Directory -Force -Path $HOME\.sonar\ }
           curl -sSLo $HOME\.sonar\build-wrapper.zip ${{ env.BUILD_WRAPPER_DOWNLOAD_URL }} 
           unzip -o $HOME\.sonar\build-wrapper.zip -d $HOME\.sonar\
           echo "$HOME\.sonar\build-wrapper-win-x86" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
