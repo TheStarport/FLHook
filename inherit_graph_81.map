@@ -1,7 +1,49 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$class_save_game_detour.html" title=" " alt="" coords="5,5,143,31"/>
-<area shape="rect" id="node2" href="$class_memory_manager.html" title=" " alt="" coords="191,5,324,31"/>
-<area shape="rect" id="node3" title=" " alt="" coords="33,55,115,80"/>
-<area shape="rect" id="node4" href="$class_debug_tools.html" title=" " alt="" coords="209,55,306,80"/>
-<area shape="rect" id="node5" href="$class_plugin_manager.html" title=" " alt="" coords="198,104,317,129"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,1311,100,1336"/>
+<area shape="rect" id="node2" href="$struct_authenticated_accounts.html" title=" " alt="" coords="180,5,352,31"/>
+<area shape="rect" id="node3" href="$struct_config.html" title=" " alt="" coords="235,55,297,80"/>
+<area shape="rect" id="node4" href="$struct_i_p_bans.html" title=" " alt="" coords="233,104,299,129"/>
+<area shape="rect" id="node5" href="$struct_login_id_bans.html" title=" " alt="" coords="215,153,317,179"/>
+<area shape="rect" id="node6" href="$struct_plugins_1_1_arena_1_1_config.html" title="Config data for this plugin." alt="" coords="184,203,348,228"/>
+<area shape="rect" id="node7" href="$struct_plugins_1_1_autobuy_1_1_config.html" title="Configurable fields for this plugin." alt="" coords="177,252,355,277"/>
+<area shape="rect" id="node8" href="$struct_plugins_1_1_bounty_hunt_1_1_config.html" title="Configurable fields for this plugin." alt="" coords="189,302,343,342"/>
+<area shape="rect" id="node9" href="$struct_plugins_1_1_cargo_drop_1_1_config.html" title="Config data for this plugin." alt="" coords="193,366,339,406"/>
+<area shape="rect" id="node10" href="$struct_plugins_1_1_cash_manager_1_1_config.html" title=" " alt="" coords="183,430,349,470"/>
+<area shape="rect" id="node11" href="$struct_plugins_1_1_con_data_1_1_config.html" title=" " alt="" coords="175,495,357,520"/>
+<area shape="rect" id="node12" href="$struct_plugins_1_1_death_penalty_1_1_config.html" title="Configurable fields for this plugin." alt="" coords="183,545,349,585"/>
+<area shape="rect" id="node13" href="$struct_plugins_1_1_event_1_1_config.html" title="Configurable fields for this plugin." alt="" coords="185,609,347,635"/>
+<area shape="rect" id="node14" href="$struct_plugins_1_1_event_1_1_config_1_1_c_a_r_g_o___m_i_s_s_i_o_n___r_e_f_l_e_c_t_a_b_l_e.html" title=" " alt="" coords="148,659,384,699"/>
+<area shape="rect" id="node15" href="$struct_plugins_1_1_event_1_1_config_1_1_n_p_c___m_i_s_s_i_o_n___r_e_f_l_e_c_t_a_b_l_e.html" title=" " alt="" coords="158,723,374,763"/>
+<area shape="rect" id="node16" href="$struct_plugins_1_1_kill_tracker_1_1_config.html" title="Configurable fields for this plugin." alt="" coords="194,787,338,827"/>
+<area shape="rect" id="node17" href="$struct_plugins_1_1_kill_tracker_1_1_kill_message.html" title="Struct to hold the Kill Streaks." alt="" coords="194,851,338,891"/>
+<area shape="rect" id="node18" href="$struct_plugins_1_1_light_control_1_1_config.html" title="Config data for this plugin." alt="" coords="188,915,344,955"/>
+<area shape="rect" id="node19" href="$struct_plugins_1_1_loot_tables_1_1_config.html" title=" " alt="" coords="193,979,339,1019"/>
+<area shape="rect" id="node20" href="$struct_plugins_1_1_loot_tables_1_1_drop_weight.html" title=" " alt="" coords="193,1043,339,1083"/>
+<area shape="rect" id="node21" href="$struct_plugins_1_1_loot_tables_1_1_loot_table.html" title=" " alt="" coords="193,1107,339,1147"/>
+<area shape="rect" id="node22" href="$struct_plugins_1_1_mark_1_1_config.html" title=" " alt="" coords="187,1172,345,1197"/>
+<area shape="rect" id="node23" href="$struct_plugins_1_1_message_1_1_config.html" title="Config data for this plugin." alt="" coords="174,1221,358,1247"/>
+<area shape="rect" id="node24" href="$struct_plugins_1_1_mining_control_1_1_config.html" title="Config data for this plugin." alt="" coords="182,1271,350,1311"/>
+<area shape="rect" id="node25" href="$struct_plugins_1_1_mining_control_1_1_mining_stats.html" title="A struct to load in the stats config file across restarts." alt="" coords="182,1335,350,1375"/>
+<area shape="rect" id="node26" href="$struct_plugins_1_1_mining_control_1_1_player_bonus.html" title="A struct that defines a mining bonus to a player if they meet certain criteria." alt="" coords="182,1399,350,1439"/>
+<area shape="rect" id="node27" href="$struct_plugins_1_1_mining_control_1_1_zone_bonus.html" title="A struct that defines a mining bonus for a certain zone in space." alt="" coords="182,1463,350,1503"/>
+<area shape="rect" id="node28" href="$struct_plugins_1_1_mining_control_1_1_zone_stats.html" title="A struct to hold the current status of a zone so their progress persists across restarts." alt="" coords="182,1527,350,1567"/>
+<area shape="rect" id="node29" href="$struct_plugins_1_1_misc_commands_1_1_config.html" title="Config data for this plugin." alt="" coords="175,1591,357,1631"/>
+<area shape="rect" id="node30" href="$struct_plugins_1_1_n_p_c_spin_protection_1_1_config.html" title="Config data for this plugin." alt="" coords="167,1655,365,1695"/>
+<area shape="rect" id="node31" href="$struct_plugins_1_1_npc_1_1_config.html" title="Config data for this plugin." alt="" coords="191,1720,341,1745"/>
+<area shape="rect" id="node32" href="$struct_plugins_1_1_npc_1_1_fleet.html" title=" " alt="" coords="195,1769,337,1795"/>
+<area shape="rect" id="node33" href="$struct_plugins_1_1_npc_1_1_npc.html" title="A struct that represents an npc that can be spawned." alt="" coords="199,1819,333,1844"/>
+<area shape="rect" id="node34" href="$struct_plugins_1_1_npc_1_1_startup_npc.html" title=" " alt="" coords="175,1868,357,1893"/>
+<area shape="rect" id="node35" href="$struct_plugins_1_1_purchase_restrictions_1_1_config.html" title="Config data for this plugin." alt="" coords="159,1918,373,1958"/>
+<area shape="rect" id="node36" href="$struct_plugins_1_1_rename_1_1_config.html" title="Config data for this plugin." alt="" coords="176,1983,356,2008"/>
+<area shape="rect" id="node37" href="$struct_plugins_1_1_rename_1_1_tag_data.html" title="Struct to hold a clan/group tag. This contains the passwords used to manage and rename a character to..." alt="" coords="170,2032,362,2057"/>
+<area shape="rect" id="node38" href="$struct_plugins_1_1_rename_1_1_tag_list.html" title="A struct to hold all the tags." alt="" coords="174,2081,358,2107"/>
+<area shape="rect" id="node39" href="$struct_plugins_1_1_restart_1_1_config.html" title="Config data for this plugin." alt="" coords="179,2131,353,2156"/>
+<area shape="rect" id="node40" href="$struct_plugins_1_1_sound_manager_1_1_config.html" title="Config data for this plugin." alt="" coords="179,2181,353,2221"/>
+<area shape="rect" id="node41" href="$struct_plugins_1_1_stats_1_1_file_name.html" title="Reflectable struct that contains the file path of the config file as well as the file to export stats..." alt="" coords="176,2245,356,2271"/>
+<area shape="rect" id="node42" href="$struct_plugins_1_1_system_sensor_1_1_config.html" title=" " alt="" coords="181,2295,351,2335"/>
+<area shape="rect" id="node43" href="$struct_plugins_1_1_system_sensor_1_1_reflectable_sensor.html" title=" " alt="" coords="181,2359,351,2399"/>
+<area shape="rect" id="node44" href="$struct_plugins_1_1_tax_1_1_config.html" title="Configurable fields for this plugin." alt="" coords="192,2424,340,2449"/>
+<area shape="rect" id="node45" href="$struct_plugins_1_1_template_1_1_config.html" title=" " alt="" coords="193,2474,339,2514"/>
+<area shape="rect" id="node46" href="$struct_plugins_1_1_wardrobe_1_1_config.html" title="Config data for this plugin." alt="" coords="193,2538,339,2578"/>
+<area shape="rect" id="node47" href="$struct_plugins_1_1_warehouse_1_1_config.html" title=" " alt="" coords="191,2602,341,2642"/>
 </map>

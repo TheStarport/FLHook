@@ -15,6 +15,7 @@ var modules =
     [ "IP Ban", "group___i_p_ban.html", "group___i_p_ban" ],
     [ "Kill Tracker", "group___kill_tracker.html", "group___kill_tracker" ],
     [ "Light Control", "group___light_control.html", "group___light_control" ],
+    [ "Loot Tables", "group___loot_tables.html", "group___loot_tables" ],
     [ "Mark", "group___mark.html", "group___mark" ],
     [ "Message", "group___message.html", "group___message" ],
     [ "Mining Control", "group___mining_control.html", "group___mining_control" ],

@@ -78,18 +78,19 @@ var NAVTREEINDEX =
 "_admin_8cpp.html",
 "_f_l_hook_8cpp.html#a164f305d709baa4c4e2a854c1c36ca82",
 "_hk_client_server_interface_8cpp.html#ab8ebfa7292f513a4e2a8197f93f8f04e",
-"_mark_8h.html#abc081f0b4198fb4614eb092f0ca7a643",
-"_settings_8cpp.html#a896bea41f065ef3cac36cd59dc38a2bc",
-"dir_419eab14b376b260d16e9187f7926cbb.html",
-"group___kill_tracker.html#gaa872a1320265bf03a4ad5aca1c312c1c",
-"namespace_hk_1_1_personalities.html#af6d1483bd3bd8eeea904af0050999cdb",
-"namespace_plugins_1_1_autobuy.html#ad4f67f84271ffa3bfde4cc2217b6c67c",
-"namespacemembers_a.html",
-"struct_plugins_1_1_afk_1_1_global.html#a81e187d367702bcca9720bafd5868a41",
-"struct_plugins_1_1_con_data_1_1_config.html#a8fac0662da888c149f5a0015cd51ac95",
-"struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#a83ff69bd443bd9094e059693d6a6e8f8",
-"struct_plugins_1_1_n_p_c_spin_protection_1_1_global.html",
-"struct_plugins_1_1_system_sensor_1_1_active_network.html"
+"_mark_8h.html#a25b44f2211ea1df0bfd406c3694f85fc",
+"_send_comm_8cpp.html#a2cf048d2b86c6a995233555ffd847b18",
+"class_save_game_detour.html#a14fb79bcaf823d3cb55cf5d57cbd874a",
+"group___i_p_ban.html#gaeebf2d67e6a9e0388aaf6e47de6aacab",
+"namespace_hk_1_1_personalities.html#aa8b864865476b02dcba1826b9278f42f",
+"namespace_plugins_1_1_arena.html#a917346e3bb9df6528d9e835c42e1a447a6950810f0d2bba97a6f710c7b965b84e",
+"namespace_plugins_1_1_warehouse.html#a755e2348cc9b45e507ab8a2c6e5734d6",
+"struct_plugin_data.html#af66bd3358794a923a9ae4429d656cb05",
+"struct_plugins_1_1_con_data_1_1_config.html#a291d232519674f8bfaa2b30f8509d0e7",
+"struct_plugins_1_1_light_control_1_1_config.html#a720361ea380740801398259c191df637",
+"struct_plugins_1_1_mining_control_1_1_zone_bonus.html#adad41b14685aad6cbab03acaebf0f89a",
+"struct_plugins_1_1_restart_1_1_config.html#ac9bc13a7150a4a55361d1da443ab1080",
+"structmsvc_____throw_info.html#a6df5f2a026718e73eba520d25cb00f77"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

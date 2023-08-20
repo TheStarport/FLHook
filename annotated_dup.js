@@ -87,6 +87,12 @@ var annotated_dup =
         [ "EquipmentHardpoint", "struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html", "struct_plugins_1_1_light_control_1_1_equipment_hardpoint" ],
         [ "Global", "struct_plugins_1_1_light_control_1_1_global.html", "struct_plugins_1_1_light_control_1_1_global" ]
       ] ],
+      [ "LootTables", "namespace_plugins_1_1_loot_tables.html", [
+        [ "Config", "struct_plugins_1_1_loot_tables_1_1_config.html", "struct_plugins_1_1_loot_tables_1_1_config" ],
+        [ "DropWeight", "struct_plugins_1_1_loot_tables_1_1_drop_weight.html", "struct_plugins_1_1_loot_tables_1_1_drop_weight" ],
+        [ "Global", "struct_plugins_1_1_loot_tables_1_1_global.html", "struct_plugins_1_1_loot_tables_1_1_global" ],
+        [ "LootTable", "struct_plugins_1_1_loot_tables_1_1_loot_table.html", "struct_plugins_1_1_loot_tables_1_1_loot_table" ]
+      ] ],
       [ "Mark", "namespace_plugins_1_1_mark.html", [
         [ "Config", "struct_plugins_1_1_mark_1_1_config.html", "struct_plugins_1_1_mark_1_1_config" ],
         [ "DELAY_MARK", "struct_plugins_1_1_mark_1_1_d_e_l_a_y___m_a_r_k.html", "struct_plugins_1_1_mark_1_1_d_e_l_a_y___m_a_r_k" ],

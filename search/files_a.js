@@ -4,5 +4,7 @@ var searchData=
   ['lightcontrol_2eh_1',['LightControl.h',['../_light_control_8h.html',1,'']]],
   ['lights_2ecpp_2',['Lights.cpp',['../_lights_8cpp.html',1,'']]],
   ['logging_2ecpp_3',['Logging.cpp',['../_logging_8cpp.html',1,'']]],
-  ['logging_2emd_4',['Logging.md',['../_logging_8md.html',1,'']]]
+  ['logging_2emd_4',['Logging.md',['../_logging_8md.html',1,'']]],
+  ['loottables_2ecpp_5',['LootTables.cpp',['../_loot_tables_8cpp.html',1,'']]],
+  ['loottables_2ehpp_6',['LootTables.hpp',['../_loot_tables_8hpp.html',1,'']]]
 ];

@@ -17,7 +17,7 @@ var searchData=
   ['destinationcharname_14',['destinationCharName',['../struct_plugins_1_1_rename_1_1_move.html#a034e53012a1eed67abb608490ce1de9f',1,'Plugins::Rename::Move']]],
   ['detour_15',['detour',['../_debug_8cpp.html#a1ecc4a86ef00fd8c8ca4f7bc5b76cefb',1,'detour():&#160;Debug.cpp'],['../_save_data_8cpp.html#a1ecc4a86ef00fd8c8ca4f7bc5b76cefb',1,'detour():&#160;SaveData.cpp']]],
   ['dicemessage_16',['diceMessage',['../struct_plugins_1_1_misc_commands_1_1_config.html#a40b0089ae9462fcb8ddaa99f2b25e91f',1,'Plugins::MiscCommands::Config']]],
-  ['directory_17',['directory',['../struct_plugins_1_1_restart_1_1_restart.html#a454427e8daf0a4dfaf1a8ff7d0e0f67e',1,'Plugins::Restart::Restart::directory()'],['../struct_plugins_1_1_wardrobe_1_1_wardrobe.html#a8ceeb2602263045cf3858af3cb1fac45',1,'Plugins::Wardrobe::Wardrobe::directory()']]],
+  ['directory_17',['directory',['../struct_plugins_1_1_wardrobe_1_1_wardrobe.html#a8ceeb2602263045cf3858af3cb1fac45',1,'Plugins::Wardrobe::Wardrobe::directory()'],['../struct_plugins_1_1_restart_1_1_restart.html#a454427e8daf0a4dfaf1a8ff7d0e0f67e',1,'Plugins::Restart::Restart::directory()']]],
   ['disconnectingplayersrange_18',['disconnectingPlayersRange',['../struct_plugins_1_1_cargo_drop_1_1_config.html#aa290728c64e21f2d84255f0735709d93',1,'Plugins::CargoDrop::Config']]],
   ['disconnectmsg_19',['disconnectMsg',['../struct_plugins_1_1_cargo_drop_1_1_config.html#aa0a9191b69ed84b50d201d836c38c6c9',1,'Plugins::CargoDrop::Config']]],
   ['disconnectswearinginspacemsg_20',['disconnectSwearingInSpaceMsg',['../struct_plugins_1_1_message_1_1_config.html#a1411aa401ee771c56533a4b53b2358af',1,'Plugins::Message::Config']]],
@@ -25,5 +25,7 @@ var searchData=
   ['dll_22',['dll',['../struct_plugin_data.html#a7329497365831096b4c6bd0399ec1e55',1,'PluginData']]],
   ['dllname_23',['dllName',['../struct_plugin_data.html#a8e7723e2ea8f7343e9c5d7b1f545a199',1,'PluginData']]],
   ['docknpc_24',['dockNpc',['../struct_plugins_1_1_npc_1_1_global.html#ab269c37e355abfe94f08ea9bb0410989',1,'Plugins::Npc::Global']]],
-  ['duels_25',['duels',['../struct_plugins_1_1_betting_1_1_global.html#a4ddb954dbfb24932c2cd34e406dc737a',1,'Plugins::Betting::Global']]]
+  ['dropcount_25',['dropCount',['../struct_plugins_1_1_loot_tables_1_1_loot_table.html#a7503b8f68ef87517bb6d340471e6e6de',1,'Plugins::LootTables::LootTable']]],
+  ['dropweights_26',['dropWeights',['../struct_plugins_1_1_loot_tables_1_1_loot_table.html#a83b6b30f3f14ea51b1b6ce322211ac02',1,'Plugins::LootTables::LootTable']]],
+  ['duels_27',['duels',['../struct_plugins_1_1_betting_1_1_global.html#a4ddb954dbfb24932c2cd34e406dc737a',1,'Plugins::Betting::Global']]]
 ];

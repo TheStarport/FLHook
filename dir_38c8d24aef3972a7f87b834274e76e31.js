@@ -17,6 +17,7 @@ var dir_38c8d24aef3972a7f87b834274e76e31 =
     [ "ip_ban", "dir_3b99d45563f69cedc0a9fd8ebc0eebfd.html", "dir_3b99d45563f69cedc0a9fd8ebc0eebfd" ],
     [ "kill_tracker", "dir_674bbe98184f990d39b07bb795fe8d0a.html", "dir_674bbe98184f990d39b07bb795fe8d0a" ],
     [ "light_control", "dir_67067475a2fdf44a2ed2517bfafdf7d4.html", "dir_67067475a2fdf44a2ed2517bfafdf7d4" ],
+    [ "loot_tables", "dir_08e88101657f1254b2d5fdf17c29cf47.html", "dir_08e88101657f1254b2d5fdf17c29cf47" ],
     [ "mark", "dir_8e12fc77aacf43e1506eeb84afc9b603.html", "dir_8e12fc77aacf43e1506eeb84afc9b603" ],
     [ "message", "dir_f0348eb1aaecbc5c1da7e1201fd20b31.html", "dir_f0348eb1aaecbc5c1da7e1201fd20b31" ],
     [ "minecontrol", "dir_6b9058d7dbcaa2799e2434b4448c2bb1.html", "dir_6b9058d7dbcaa2799e2434b4448c2bb1" ],

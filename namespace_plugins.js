@@ -25,6 +25,7 @@ var namespace_plugins =
     ] ],
     [ "KillTracker", "namespace_plugins_1_1_kill_tracker.html", "namespace_plugins_1_1_kill_tracker" ],
     [ "LightControl", "namespace_plugins_1_1_light_control.html", "namespace_plugins_1_1_light_control" ],
+    [ "LootTables", "namespace_plugins_1_1_loot_tables.html", "namespace_plugins_1_1_loot_tables" ],
     [ "Mark", "namespace_plugins_1_1_mark.html", "namespace_plugins_1_1_mark" ],
     [ "Message", "namespace_plugins_1_1_message.html", "namespace_plugins_1_1_message" ],
     [ "MiningControl", "namespace_plugins_1_1_mining_control.html", "namespace_plugins_1_1_mining_control" ],

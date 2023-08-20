@@ -6,6 +6,7 @@ var group___kill_tracker =
     [ "Plugins::KillTracker::clearDamageTaken", "group___kill_tracker.html#gae10bdd2a8038e3765212befd9ccc90c1", null ],
     [ "Plugins::KillTracker::Disconnect", "group___kill_tracker.html#ga9b8573369a84493d7cbd4dcf5d6400c8", null ],
     [ "Plugins::KillTracker::LoadSettings", "group___kill_tracker.html#gaa138ba34d6b61a27e417a1e23b48234e", null ],
+    [ "Plugins::LootTables::LoadSettings", "group___kill_tracker.html#ga6f4fe100bc2d0abc05b5781aab680f93", null ],
     [ "Plugins::KillTracker::PlayerLaunch", "group___kill_tracker.html#ga9de4788f9050f8256eb34a930435159e", null ],
     [ "Plugins::KillTracker::PrintNPCKills", "group___kill_tracker.html#gae5092925cee194b6ffae856c6345c657", null ],
     [ "Plugins::KillTracker::SendDeathMessage", "group___kill_tracker.html#ga89cae692659382454da9edbc182d2b51", null ],
