@@ -35,17 +35,19 @@ namespace Plugins::LootTables
 	*/
 	bool CheckForItem(CShip* ship, const uint triggerItemHashed)
 	{
-		CEquipTraverser tr(UINT_MAX);
-		CEquip const* equip = nullptr;
-		while ((equip = GetEquipManager((ship))->Traverse(tr)))
+		CEquipTraverser traverser(UINT_MAX);
+		CEquip const* equip = GetEquipManager((ship))->Traverse(traverser);
+		while (equip)
 		{
-			EquipDesc e;
-			equip->GetEquipDesc(e);
+			EquipDesc equipDesc;
+			equip->GetEquipDesc(equipDesc);
 
-			if (e.iArchId == triggerItemHashed)
+			if (equipDesc.iArchId == triggerItemHashed)
 			{
 				return true;
 			}
+
+			equip = GetEquipManager((ship))->Traverse(traverser);
 		}
 		return false;
 	}
@@ -56,28 +58,28 @@ namespace Plugins::LootTables
 	void ShipDestroyed([[maybe_unused]] DamageList** dmgList, const DWORD** ecx, [[maybe_unused]] const uint& kill)
 	{
 		// Get cShip from NPC?
-		CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
+		CShip* ship = Hk::Player::CShipFromShipDestroyed(ecx);
 		for (auto const& lootTable : global->config->lootTables)
 		{
 			// Check if the killed Ship has an Item on board, which would trigger the loot table
-			if (!CheckForItem(cShip, lootTable.triggerItemHashed))
+			if (!CheckForItem(ship, lootTable.triggerItemHashed))
 			{
 				// Drop nothing
 				return;
 			}
 
 			// Check if the Loot Table in question applies to the destroyed ship
-			if (const bool isPlayer = cShip->is_player(); !((isPlayer && lootTable.applyToPlayers) || (!isPlayer && lootTable.applyToNpcs)))
+			if (const bool isPlayer = ship->is_player(); !((isPlayer && lootTable.applyToPlayers) || (!isPlayer && lootTable.applyToNpcs)))
 			{
 				// Drop nothing
 				return;
 			}
 
 			// Calculate what Item to drop
-			std::random_device rd; // Used to obtain a seed
-			std::mt19937 mt(rd()); //  Mersenne Twister algorithm seeded with the variable above
+			std::random_device randomDevice; // Used to obtain a seed
+			std::mt19937 mersenneTwisterEngine(randomDevice()); //  Mersenne Twister algorithm seeded with the variable above
 			std::uniform_real_distribution dist(0.0f, 1.0f);
-			const float randomFloat = dist(mt);
+			const float randomFloat = dist(mersenneTwisterEngine);
 			float sum = 0.0;
 			for (const auto& [weight, itemHashed, item] : lootTable.dropWeights)
 			{
@@ -85,12 +87,12 @@ namespace Plugins::LootTables
 				if (randomFloat <= sum && itemHashed)
 				{
      					Server.MineAsteroid(
-					    cShip->iSystem, 
-						cShip->get_position(), 
+					    ship->iSystem, 
+						ship->get_position(), 
 						global->config->lootDropContainerHashed, 
 						itemHashed, 
 						lootTable.dropCount, 
-						cShip->GetOwnerPlayer());
+						ship->GetOwnerPlayer());
 					return;
 				}
 			}
