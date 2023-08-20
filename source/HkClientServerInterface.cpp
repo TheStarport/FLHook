@@ -2932,7 +2932,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(ClientId client, wchar_t* char
 {
 	AddLog(LogType::Normal,
 	    LogLevel::Debug,
-	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(\n\tClientId client = {}\n\twchar_t* characterName = \n\tuint _genArg2 = {}\n\tchar "
+	    wstos(std::format(L"IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(\n\tClientId client = {}\n\twchar_t* characterName = {}\n\tuint _genArg2 = {}\n\tchar "
 	                      L"_genArg3 = {}\n)",
 	        client,
 	        std::wstring(characterName),

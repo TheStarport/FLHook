@@ -297,18 +297,18 @@ namespace Plugins::Rename
 			try
 			{
 				if (!acc)
-					throw "no acc";
+					throw std::runtime_error("no acc");
 
 				Hk::Client::LockAccountAccess(acc, true);
 				Hk::Client::UnlockAccountAccess(acc);
 
 				// Move files around
 				if (!::MoveFileExA(o.sourceFile.c_str(), o.destFile.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
-					throw "move failed";
+					throw std::runtime_error("move failed");
 				if (std::filesystem::exists(o.sourceFile.c_str()))
-					throw "src still exists";
+					throw std::runtime_error("src still exists");
 				if (!std::filesystem::exists(o.destFile.c_str()))
-					throw "dest does not exist";
+					throw std::runtime_error("dest does not exist");
 
 				// Decode the char file, update the char name and re-encode it.
 				// Add a space to the value so the ini file line looks like "<key> =
@@ -365,11 +365,11 @@ namespace Plugins::Rename
 
 				// Move files around
 				if (!::MoveFileExA(o.sourceFile.c_str(), o.destFile.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
-					throw "move failed";
+					throw std::runtime_error("move failed");
 				if (std::filesystem::exists(o.sourceFile.c_str()))
-					throw "src still exists";
+					throw std::runtime_error("src still exists");
 				if (!std::filesystem::exists(o.destFile.c_str()))
-					throw "dest does not exist";
+					throw std::runtime_error("dest does not exist");
 
 				std::string oldAccDir = CoreGlobals::c()->accPath + wstos(Hk::Client::GetAccountDirName(oldAcc));
 

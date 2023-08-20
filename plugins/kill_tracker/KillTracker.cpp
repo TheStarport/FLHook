@@ -198,9 +198,8 @@ namespace Plugins::KillTracker
 				return;
 			std::wstring victimName = Hk::Client::GetCharacterNameByID(clientVictim).value();
 			std::wstring greatestInflictorName = Hk::Client::GetCharacterNameByID(greatestInflictorId).value();
-			std::wformat_args templateArgs =
-			    std::make_wformat_args(victimName, greatestInflictorName, static_cast<uint>(ceil((greatestDamageDealt / totalDamageTaken) * 100)));
-			std::wstring greatestDamageMessage = std::vformat(global->config->deathDamageTemplate, templateArgs);
+			std::wstring greatestDamageMessage = std::vformat(global->config->deathDamageTemplate,
+			    std::make_wformat_args(victimName, greatestInflictorName, static_cast<uint>(ceil((greatestDamageDealt / totalDamageTaken) * 100))));
 
 			greatestDamageMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, greatestDamageMessage);
 			Hk::Message::FMsgS(system, greatestDamageMessage);
@@ -217,14 +216,12 @@ namespace Plugins::KillTracker
 			{
 				numKills = global->killStreaks[clientKiller];
 			}
-			std::wformat_args templateArgs = std::make_wformat_args(killerName, victimName, numKills);
-			std::wstring killStreakMessage;
 
-			auto templateMessage = global->killStreakTemplates.find(numKills);
+			const auto templateMessage = global->killStreakTemplates.find(numKills);
 			if (templateMessage != global->killStreakTemplates.end())
 			{
-				std::wstring templateString = templateMessage->second;
-				killStreakMessage = std::vformat(templateString, templateArgs);
+				std::wstring killStreakMessage =
+				    std::vformat(templateMessage->second, std::make_wformat_args(killerName, victimName, numKills));
 				killStreakMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, killStreakMessage);
 				Hk::Message::FMsgS(system, killStreakMessage);
 			}
@@ -236,14 +233,10 @@ namespace Plugins::KillTracker
 			std::wstring killerName = Hk::Client::GetCharacterNameByID(clientKiller).value();
 			auto numServerKills = Hk::Player::GetPvpKills(killerName).value();
 
-			std::wformat_args templateArgs = std::make_wformat_args(killerName, numServerKills);
-			std::wstring milestoneMessage;
-
 			auto templateMessage = global->milestoneTemplates.find(numServerKills);
 			if (templateMessage != global->milestoneTemplates.end())
 			{
-				std::wstring templateString = templateMessage->second;
-				milestoneMessage = std::vformat(templateString, templateArgs);
+				std::wstring milestoneMessage = std::vformat(templateMessage->second, std::make_wformat_args(killerName, numServerKills));
 				milestoneMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, milestoneMessage);
 				Hk::Message::FMsgS(system, milestoneMessage);
 			}
