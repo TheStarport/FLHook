@@ -36,7 +36,7 @@ namespace Plugins::LootTables
 	bool CheckForItem(CShip* ship, const uint triggerItemHashed)
 	{
 		CEquipTraverser traverser(UINT_MAX);
-		CEquip const* equip = GetEquipManager((ship))->Traverse(traverser);
+		CEquip const* equip = GetEquipManager(ship)->Traverse(traverser);
 		while (equip)
 		{
 			EquipDesc equipDesc;
@@ -47,7 +47,7 @@ namespace Plugins::LootTables
 				return true;
 			}
 
-			equip = GetEquipManager((ship))->Traverse(traverser);
+			equip = GetEquipManager(ship)->Traverse(traverser);
 		}
 		return false;
 	}
