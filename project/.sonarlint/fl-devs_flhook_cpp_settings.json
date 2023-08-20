@@ -1,5 +1,174 @@
 {
   "sonarlint.rules": {
+    "cpp:S961": {
+      "level": "On",
+      "severity": "Blocker"
+    },
+    "cpp:S956": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S955": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S5527": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "cpp:S935": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "cpp:S2755": {
+      "level": "On",
+      "severity": "Blocker"
+    },
+    "cpp:S1764": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S2737": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "cpp:S6487": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "cpp:S6491": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S3923": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S6427": {
+      "level": "On",
+      "severity": "Blocker"
+    },
+    "cpp:S5553": {
+      "level": "On",
+      "severity": "Blocker"
+    },
+    "cpp:S5267": {
+      "level": "On",
+      "severity": "Blocker"
+    },
+    "cpp:S3805": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S4524": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S1134": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S2583": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S2681": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S1117": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S3358": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S6621": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "cpp:S5547": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "cpp:S5542": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "cpp:S4423": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "cpp:S4426": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "cpp:S2757": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S3972": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "cpp:S3973": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "cpp:S2761": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S4830": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "cpp:S110": {
+      "level": "On",
+      "parameters": {
+        "max": "5"
+      },
+      "severity": "Major"
+    },
+    "cpp:S108": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S101": {
+      "level": "On",
+      "parameters": {
+        "format": "^[A-Z][a-zA-Z0-9]*$"
+      },
+      "severity": "Minor"
+    },
+    "cpp:S100": {
+      "level": "On",
+      "parameters": {
+        "format": "^[A-Z][a-zA-Z0-9]*$"
+      },
+      "severity": "Minor"
+    },
+    "cpp:S6232": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S4144": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S4143": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S5489": {
+      "level": "On",
+      "severity": "Blocker"
+    },
+    "cpp:S5000": {
+      "level": "On",
+      "severity": "Blocker"
+    },
     "cpp:S1016": {
       "level": "On",
       "severity": "Major"
@@ -12,10 +181,6 @@
       "level": "On",
       "severity": "Info"
     },
-    "cpp:S1134": {
-      "level": "On",
-      "severity": "Major"
-    },
     "cpp:S1133": {
       "level": "On",
       "severity": "Info"
@@ -27,10 +192,6 @@
     "cpp:S1011": {
       "level": "On",
       "severity": "Minor"
-    },
-    "cpp:S2583": {
-      "level": "On",
-      "severity": "Major"
     },
     "cpp:S5978": {
       "level": "On",
@@ -180,10 +341,6 @@
       "level": "On",
       "severity": "Minor"
     },
-    "cpp:S2681": {
-      "level": "On",
-      "severity": "Major"
-    },
     "cpp:S5950": {
       "level": "On",
       "severity": "Major"
@@ -208,10 +365,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "cpp:S1117": {
-      "level": "On",
-      "severity": "Major"
-    },
     "cpp:S1479": {
       "level": "On",
       "parameters": {
@@ -219,11 +372,11 @@
       },
       "severity": "Major"
     },
-    "cpp:S969": {
+    "cpp:S1116": {
       "level": "On",
-      "severity": "Blocker"
+      "severity": "Minor"
     },
-    "cpp:S961": {
+    "cpp:S969": {
       "level": "On",
       "severity": "Blocker"
     },
@@ -240,6 +393,10 @@
       "severity": "Major"
     },
     "cpp:S3543": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "cpp:S1003": {
       "level": "On",
       "severity": "Critical"
     },
@@ -307,10 +464,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "cpp:S3358": {
-      "level": "On",
-      "severity": "Major"
-    },
     "cpp:S5658": {
       "level": "On",
       "severity": "Critical"
@@ -367,17 +520,9 @@
       "level": "On",
       "severity": "Critical"
     },
-    "cpp:S5547": {
-      "level": "On",
-      "severity": "Critical"
-    },
     "cpp:S1068": {
       "level": "On",
       "severity": "Major"
-    },
-    "cpp:S5542": {
-      "level": "On",
-      "severity": "Critical"
     },
     "cpp:S5421": {
       "level": "On",
@@ -438,14 +583,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "cpp:S956": {
-      "level": "On",
-      "severity": "Major"
-    },
-    "cpp:S955": {
-      "level": "On",
-      "severity": "Major"
-    },
     "cpp:S5997": {
       "level": "On",
       "severity": "Minor"
@@ -453,10 +590,6 @@
     "cpp:S3457": {
       "level": "On",
       "severity": "Major"
-    },
-    "cpp:S4423": {
-      "level": "On",
-      "severity": "Critical"
     },
     "cpp:S3458": {
       "level": "On",
@@ -466,10 +599,6 @@
       "level": "On",
       "severity": "Blocker"
     },
-    "cpp:S4426": {
-      "level": "On",
-      "severity": "Critical"
-    },
     "cpp:S3576": {
       "level": "On",
       "severity": "Minor"
@@ -477,6 +606,10 @@
     "cpp:S1036": {
       "level": "On",
       "severity": "Blocker"
+    },
+    "cpp:S1035": {
+      "level": "On",
+      "severity": "Critical"
     },
     "cpp:S3574": {
       "level": "On",
@@ -565,10 +698,6 @@
       "level": "On",
       "severity": "Critical"
     },
-    "cpp:S5527": {
-      "level": "On",
-      "severity": "Critical"
-    },
     "cpp:S5409": {
       "level": "On",
       "severity": "Critical"
@@ -582,10 +711,6 @@
       "severity": "Minor"
     },
     "cpp:S936": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "cpp:S935": {
       "level": "On",
       "severity": "Critical"
     },
@@ -648,10 +773,6 @@
       "level": "On",
       "severity": "Minor"
     },
-    "cpp:S2757": {
-      "level": "On",
-      "severity": "Major"
-    },
     "cpp:S1669": {
       "level": "On",
       "severity": "Blocker"
@@ -663,10 +784,6 @@
     "cpp:S2637": {
       "level": "On",
       "severity": "Minor"
-    },
-    "cpp:S2755": {
-      "level": "On",
-      "severity": "Blocker"
     },
     "cpp:S916": {
       "level": "On",
@@ -711,10 +828,6 @@
       "level": "On",
       "severity": "Major"
     },
-    "cpp:S1764": {
-      "level": "On",
-      "severity": "Major"
-    },
     "cpp:S1763": {
       "level": "On",
       "severity": "Major"
@@ -746,15 +859,15 @@
       "level": "On",
       "severity": "Minor"
     },
-    "cpp:S2737": {
-      "level": "On",
-      "severity": "Minor"
-    },
     "cpp:S1768": {
       "level": "On",
       "severity": "Critical"
     },
     "cpp:S1767": {
+      "level": "On",
+      "severity": "Critical"
+    },
+    "cpp:S4963": {
       "level": "On",
       "severity": "Critical"
     },
@@ -820,7 +933,7 @@
     "cpp:S1578": {
       "level": "On",
       "parameters": {
-        "format": "^[A-Za-z_-][A-Za-z0-9_-]+\\.(c|m|cpp|cc|cxx)$"
+        "format": "^[A-Za-z_-][A-Za-z0-9_-]+\\.(c|m|cpp|cc|cxx|h|hpp|ixx)$"
       },
       "severity": "Minor"
     },
@@ -864,25 +977,13 @@
       "level": "On",
       "severity": "Minor"
     },
-    "cpp:S3972": {
-      "level": "On",
-      "severity": "Critical"
-    },
     "cpp:S3730": {
       "level": "On",
       "severity": "Minor"
     },
-    "cpp:S3973": {
-      "level": "On",
-      "severity": "Critical"
-    },
     "cpp:S3731": {
       "level": "On",
       "severity": "Minor"
-    },
-    "cpp:S2761": {
-      "level": "On",
-      "severity": "Major"
     },
     "cpp:S5912": {
       "level": "On",
@@ -893,10 +994,6 @@
       "severity": "Major"
     },
     "cpp:S3743": {
-      "level": "On",
-      "severity": "Critical"
-    },
-    "cpp:S4830": {
       "level": "On",
       "severity": "Critical"
     },
@@ -1002,6 +1099,14 @@
       "level": "On",
       "severity": "Major"
     },
+    "cpp:S6009": {
+      "level": "On",
+      "severity": "Minor"
+    },
+    "cpp:S6488": {
+      "level": "On",
+      "severity": "Major"
+    },
     "cpp:S6367": {
       "level": "On",
       "severity": "Major"
@@ -1034,11 +1139,19 @@
       "level": "On",
       "severity": "Major"
     },
+    "cpp:S6489": {
+      "level": "On",
+      "severity": "Major"
+    },
     "cpp:S6005": {
       "level": "On",
       "severity": "Major"
     },
     "cpp:S5279": {
+      "level": "On",
+      "severity": "Major"
+    },
+    "cpp:S1913": {
       "level": "On",
       "severity": "Major"
     },
@@ -1081,6 +1194,10 @@
       "level": "On",
       "severity": "Major"
     },
+    "cpp:S6482": {
+      "level": "On",
+      "severity": "Major"
+    },
     "cpp:S5272": {
       "level": "On",
       "severity": "Major"
@@ -1109,9 +1226,17 @@
       "level": "On",
       "severity": "Minor"
     },
+    "cpp:S6495": {
+      "level": "On",
+      "severity": "Major"
+    },
     "cpp:S6011": {
       "level": "On",
       "severity": "Major"
+    },
+    "cpp:S6494": {
+      "level": "On",
+      "severity": "Minor"
     },
     "cpp:S6010": {
       "level": "On",
@@ -1129,9 +1254,17 @@
       "level": "On",
       "severity": "Critical"
     },
+    "cpp:S6490": {
+      "level": "On",
+      "severity": "Major"
+    },
     "cpp:S5280": {
       "level": "On",
       "severity": "Critical"
+    },
+    "cpp:S6493": {
+      "level": "On",
+      "severity": "Blocker"
     },
     "cpp:S6372": {
       "level": "On",
@@ -1140,6 +1273,10 @@
     "cpp:S5283": {
       "level": "On",
       "severity": "Critical"
+    },
+    "cpp:S6492": {
+      "level": "On",
+      "severity": "Major"
     },
     "cpp:S1854": {
       "level": "On",
@@ -1169,6 +1306,10 @@
       "level": "On",
       "severity": "Minor"
     },
+    "cpp:S6185": {
+      "level": "On",
+      "severity": "Major"
+    },
     "cpp:S1862": {
       "level": "On",
       "severity": "Major"
@@ -1180,14 +1321,6 @@
     "cpp:S3807": {
       "level": "On",
       "severity": "Critical"
-    },
-    "cpp:S3805": {
-      "level": "On",
-      "severity": "Major"
-    },
-    "cpp:S3923": {
-      "level": "On",
-      "severity": "Major"
     },
     "cpp:S6190": {
       "level": "On",
@@ -1268,6 +1401,10 @@
       "level": "On",
       "severity": "Major"
     },
+    "cpp:S6177": {
+      "level": "On",
+      "severity": "Minor"
+    },
     "cpp:S6172": {
       "level": "On",
       "severity": "Major"
@@ -1275,13 +1412,6 @@
     "cpp:S6171": {
       "level": "On",
       "severity": "Minor"
-    },
-    "cpp:S110": {
-      "level": "On",
-      "parameters": {
-        "max": "5"
-      },
-      "severity": "Major"
     },
     "cpp:S5570": {
       "level": "On",
@@ -1292,10 +1422,6 @@
       "parameters": {
         "max": "7"
       },
-      "severity": "Major"
-    },
-    "cpp:S108": {
-      "level": "On",
       "severity": "Major"
     },
     "cpp:S2193": {
@@ -1332,10 +1458,6 @@
       "level": "On",
       "severity": "Critical"
     },
-    "cpp:S5553": {
-      "level": "On",
-      "severity": "Blocker"
-    },
     "cpp:S3252": {
       "level": "On",
       "severity": "Critical"
@@ -1354,20 +1476,6 @@
     },
     "cpp:S5566": {
       "level": "On",
-      "severity": "Minor"
-    },
-    "cpp:S101": {
-      "level": "On",
-      "parameters": {
-        "format": "^[A-Z][a-zA-Z0-9]*$"
-      },
-      "severity": "Minor"
-    },
-    "cpp:S100": {
-      "level": "On",
-      "parameters": {
-        "format": "^[A-Z][a-zA-Z0-9]*$"
-      },
       "severity": "Minor"
     },
     "cpp:S3261": {
@@ -1414,6 +1522,10 @@
       "level": "On",
       "severity": "Major"
     },
+    "cpp:S6461": {
+      "level": "On",
+      "severity": "Major"
+    },
     "cpp:S6222": {
       "level": "On",
       "severity": "Minor"
@@ -1436,10 +1548,6 @@
     "cpp:S5028": {
       "level": "On",
       "severity": "Critical"
-    },
-    "cpp:S5267": {
-      "level": "On",
-      "severity": "Blocker"
     },
     "cpp:S5025": {
       "level": "On",
@@ -1501,10 +1609,6 @@
       "level": "On",
       "severity": "Blocker"
     },
-    "cpp:S6232": {
-      "level": "On",
-      "severity": "Major"
-    },
     "cpp:S5261": {
       "level": "On",
       "severity": "Major"
@@ -1512,10 +1616,6 @@
     "cpp:S5381": {
       "level": "On",
       "severity": "Minor"
-    },
-    "cpp:S4144": {
-      "level": "On",
-      "severity": "Major"
     },
     "cpp:S5350": {
       "level": "On",
@@ -1529,10 +1629,6 @@
       "level": "On",
       "severity": "Critical"
     },
-    "cpp:S4143": {
-      "level": "On",
-      "severity": "Major"
-    },
     "cpp:S4263": {
       "level": "On",
       "severity": "Major"
@@ -1542,10 +1638,6 @@
       "severity": "Blocker"
     },
     "cpp:S5486": {
-      "level": "On",
-      "severity": "Blocker"
-    },
-    "cpp:S5489": {
       "level": "On",
       "severity": "Blocker"
     },
@@ -1564,10 +1656,6 @@
     "cpp:S5485": {
       "level": "On",
       "severity": "Critical"
-    },
-    "cpp:S5000": {
-      "level": "On",
-      "severity": "Blocker"
     },
     "cpp:S2095": {
       "level": "On",
@@ -1645,7 +1733,160 @@
       "level": "On",
       "severity": "Major"
     },
-    "cpp:S4524": {
+    "cpp:S5972": {
+      "level": "Off"
+    },
+    "cpp:M23_187": {
+      "level": "Off"
+    },
+    "cpp:M23_064": {
+      "level": "Off"
+    },
+    "cpp:M23_046": {
+      "level": "Off"
+    },
+    "cpp:M23_287": {
+      "level": "Off"
+    },
+    "cpp:M23_045": {
+      "level": "Off"
+    },
+    "cpp:M23_163": {
+      "level": "Off"
+    },
+    "cpp:M23_042": {
+      "level": "Off"
+    },
+    "cpp:M23_162": {
+      "level": "Off"
+    },
+    "cpp:M23_158": {
+      "level": "Off"
+    },
+    "cpp:M23_036": {
+      "level": "Off"
+    },
+    "cpp:M23_039": {
+      "level": "Off"
+    },
+    "cpp:M23_152": {
+      "level": "Off"
+    },
+    "cpp:M23_388": {
+      "level": "Off"
+    },
+    "cpp:M23_146": {
+      "level": "Off"
+    },
+    "cpp:M23_090": {
+      "level": "Off"
+    },
+    "cpp:M23_094": {
+      "level": "Off"
+    },
+    "cpp:M23_089": {
+      "level": "Off"
+    },
+    "cpp:M23_083": {
+      "level": "Off"
+    },
+    "cpp:M23_087": {
+      "level": "Off"
+    },
+    "cpp:M23_194": {
+      "level": "Off"
+    },
+    "cpp:M23_191": {
+      "level": "Off"
+    },
+    "cpp:M23_196": {
+      "level": "Off"
+    },
+    "cpp:M23_403": {
+      "level": "Off"
+    },
+    "cpp:M23_212": {
+      "level": "Off"
+    },
+    "cpp:M23_331": {
+      "level": "Off"
+    },
+    "cpp:M23_210": {
+      "level": "Off"
+    },
+    "cpp:M23_338": {
+      "level": "Off"
+    },
+    "cpp:M23_218": {
+      "level": "Off"
+    },
+    "cpp:M23_330": {
+      "level": "Off"
+    },
+    "cpp:M23_201": {
+      "level": "Off"
+    },
+    "cpp:M23_325": {
+      "level": "Off"
+    },
+    "cpp:M23_324": {
+      "level": "Off"
+    },
+    "cpp:M23_329": {
+      "level": "Off"
+    },
+    "cpp:S6655": {
+      "level": "Off"
+    },
+    "cpp:M23_135": {
+      "level": "Off"
+    },
+    "cpp:M23_134": {
+      "level": "Off"
+    },
+    "cpp:M23_003": {
+      "level": "Off"
+    },
+    "cpp:M23_126": {
+      "level": "Off"
+    },
+    "cpp:M23_360": {
+      "level": "Off"
+    },
+    "cpp:M23_356": {
+      "level": "Off"
+    },
+    "cpp:M23_112": {
+      "level": "Off"
+    },
+    "cpp:M23_359": {
+      "level": "Off"
+    },
+    "cpp:M23_224": {
+      "level": "Off"
+    },
+    "cpp:M23_100": {
+      "level": "Off"
+    },
+    "cpp:S3776": {
+      "level": "Off"
+    },
+    "cpp:S6636": {
+      "level": "Off"
+    },
+    "cpp:S103": {
+      "level": "Off"
+    },
+    "cpp:S105": {
+      "level": "Off"
+    },
+    "cpp:S104": {
+      "level": "Off"
+    },
+    "cpp:S121": {
+      "level": "Off"
+    },
+    "cpp:S122": {
       "level": "Off"
     },
     "cpp:S1013": {
@@ -1667,9 +1908,6 @@
       "level": "Off"
     },
     "cpp:S991": {
-      "level": "Off"
-    },
-    "cpp:S5972": {
       "level": "Off"
     },
     "cpp:S1259": {
@@ -1732,13 +1970,7 @@
     "cpp:S997": {
       "level": "Off"
     },
-    "cpp:S3776": {
-      "level": "Off"
-    },
     "cpp:S2324": {
-      "level": "Off"
-    },
-    "cpp:S1116": {
       "level": "Off"
     },
     "cpp:S968": {
@@ -1766,9 +1998,6 @@
       "level": "Off"
     },
     "cpp:S5966": {
-      "level": "Off"
-    },
-    "cpp:S1003": {
       "level": "Off"
     },
     "cpp:S1244": {
@@ -1885,9 +2114,6 @@
     "cpp:S3698": {
       "level": "Off"
     },
-    "cpp:S1035": {
-      "level": "Off"
-    },
     "cpp:S3696": {
       "level": "Off"
     },
@@ -1975,9 +2201,6 @@
     "cpp:S2738": {
       "level": "Off"
     },
-    "cpp:S4963": {
-      "level": "Off"
-    },
     "cpp:S3630": {
       "level": "Off"
     },
@@ -1985,9 +2208,6 @@
       "level": "Off"
     },
     "cpp:S3642": {
-      "level": "Off"
-    },
-    "cpp:S3400": {
       "level": "Off"
     },
     "cpp:S5946": {
@@ -2023,25 +2243,10 @@
     "cpp:S6007": {
       "level": "Off"
     },
-    "cpp:S6009": {
-      "level": "Off"
-    },
-    "cpp:S6488": {
-      "level": "Off"
-    },
-    "cpp:S6487": {
-      "level": "Off"
-    },
-    "cpp:S6489": {
-      "level": "Off"
-    },
     "cpp:S1915": {
       "level": "Off"
     },
     "cpp:S1914": {
-      "level": "Off"
-    },
-    "cpp:S1913": {
       "level": "Off"
     },
     "cpp:S1908": {
@@ -2059,34 +2264,10 @@
     "cpp:S5270": {
       "level": "Off"
     },
-    "cpp:S6482": {
-      "level": "Off"
-    },
     "cpp:S1917": {
       "level": "Off"
     },
-    "cpp:S6495": {
-      "level": "Off"
-    },
-    "cpp:S6494": {
-      "level": "Off"
-    },
-    "cpp:S6491": {
-      "level": "Off"
-    },
-    "cpp:S6490": {
-      "level": "Off"
-    },
-    "cpp:S6493": {
-      "level": "Off"
-    },
-    "cpp:S6492": {
-      "level": "Off"
-    },
     "cpp:S6183": {
-      "level": "Off"
-    },
-    "cpp:S6185": {
       "level": "Off"
     },
     "cpp:S6184": {
@@ -2131,13 +2312,7 @@
     "cpp:S138": {
       "level": "Off"
     },
-    "cpp:S6177": {
-      "level": "Off"
-    },
     "cpp:S139": {
-      "level": "Off"
-    },
-    "cpp:S6427": {
       "level": "Off"
     },
     "cpp:S112": {
@@ -2146,28 +2321,13 @@
     "cpp:S5213": {
       "level": "Off"
     },
-    "cpp:S103": {
-      "level": "Off"
-    },
-    "cpp:S105": {
-      "level": "Off"
-    },
-    "cpp:S104": {
-      "level": "Off"
-    },
     "cpp:S106": {
       "level": "Off"
     },
     "cpp:S109": {
       "level": "Off"
     },
-    "cpp:S121": {
-      "level": "Off"
-    },
     "cpp:S4136": {
-      "level": "Off"
-    },
-    "cpp:S122": {
       "level": "Off"
     },
     "cpp:S113": {
@@ -2204,9 +2364,6 @@
       "level": "Off"
     },
     "cpp:S784": {
-      "level": "Off"
-    },
-    "cpp:S6461": {
       "level": "Off"
     },
     "cpp:S787": {

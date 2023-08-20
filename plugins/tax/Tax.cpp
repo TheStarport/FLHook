@@ -219,7 +219,7 @@ void TaxPlugin::LoadSettings() { config = Serializer::LoadFromJson<Config>(L"con
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Tax", L"tax", PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
+const PluginInfo Info(TaxPlugin::pluginName, TaxPlugin::pluginShortName, PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
 SetupPlugin(TaxPlugin, Info);
 
 TaxPlugin::TaxPlugin(const PluginInfo& info) : Plugin(info)

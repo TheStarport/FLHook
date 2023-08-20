@@ -1,7 +1,5 @@
 #pragma once
 
-#include "PCH.hpp"
-
 constexpr PluginMajorVersion CurrentMajorVersion = PluginMajorVersion::VERSION_04;
 constexpr PluginMinorVersion CurrentMinorVersion = PluginMinorVersion::VERSION_01;
 
@@ -38,27 +36,6 @@ struct PluginHook
         friend class PluginManager;
 };
 
-#define PluginCall(name, ...) (*(name))(__VA_ARGS__)
-
-// Inherit from this to define a IPC (Inter-Plugin Communication) class.
-class DLL PluginCommunicator
-{
-    public:
-        using EventSubscription = void (*)(int id, void* dataPack);
-        void Dispatch(int id, void* dataPack) const;
-        void AddListener(std::wstring plugin, EventSubscription event);
-
-        std::wstring plugin;
-
-        explicit PluginCommunicator(std::wstring plugin) : plugin(std::move(plugin)) {}
-
-        static void ExportPluginCommunicator(PluginCommunicator* communicator);
-        static PluginCommunicator* ImportPluginCommunicator(std::wstring plugin, EventSubscription subscription = nullptr);
-
-    private:
-        std::map<std::wstring, EventSubscription> listeners;
-};
-
 struct Timer
 {
         std::function<void()> func;
@@ -80,16 +57,19 @@ struct PluginInfo
         bool mayUnload;
 
         PluginInfo() = delete;
-        PluginInfo(std::wstring name, std::wstring shortName, const PluginMajorVersion major, const PluginMinorVersion minor, const bool mayUnload = true)
-            : name(std::move(name)), shortName(std::move(shortName)), versionMajor(major), versionMinor(minor), mayUnload(mayUnload)
+        PluginInfo(std::wstring_view name, std::wstring_view shortName, const PluginMajorVersion major, const PluginMinorVersion minor,
+                   const bool mayUnload = true)
+            : name(name), shortName(shortName), versionMajor(major), versionMinor(minor), mayUnload(mayUnload)
         {}
 };
 
 class DLL Plugin
 {
+        static std::optional<std::weak_ptr<Plugin>> GetPluginFromManager(std::wstring_view shortName);
 #ifdef FLHOOK
         friend PluginManager;
 #endif
+
         PluginMajorVersion versionMajor = PluginMajorVersion::UNDEFINED;
         PluginMinorVersion versionMinor = PluginMinorVersion::UNDEFINED;
 
@@ -131,6 +111,21 @@ class DLL Plugin
             }
         }
 
+        template <typename T>
+        std::optional<std::weak_ptr<T>> GetPlugin(const std::wstring_view shortName)
+            requires std::derived_from<T, Plugin>
+        {
+            auto plugin = GetPluginFromManager(shortName);
+            if (!plugin.has_value())
+            {
+                return std::nullopt;
+            }
+
+            auto weakBase = plugin.value();
+            std::weak_ptr<T> weakPlugin = std::static_pointer_cast<T>(weakBase.lock());
+            return weakPlugin;
+        }
+
     public:
         explicit Plugin(const PluginInfo& info)
         {
@@ -143,11 +138,11 @@ class DLL Plugin
 
         virtual ~Plugin()
         {
-            for (int i = static_cast<int>(timers.size()) - 1u; i >= 0u; --i)
+            for (int i = static_cast<int>(timers.size()) - 1; i >= 0; --i)
             {
                 const auto& timer = timers[i];
                 Timer::Remove(timer->funcAddr);
-                timers.erase(timers.begin() + i);
+                timers.erase(timers.begin() + static_cast<uint>(i));
             }
         };
 

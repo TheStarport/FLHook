@@ -62,7 +62,6 @@ void TimerCheckResolveResults();
 
 void BaseDestroyed(uint objectId, ClientId clientBy);
 
-
 // DataBaseMarket
 bool LoadBaseMarket();
 
@@ -250,6 +249,8 @@ class PluginManager : public Singleton<PluginManager>
             return plugins.end();
         }
 
+        std::optional<std::weak_ptr<Plugin>> GetPlugin(std::wstring_view shortName);
+
         template <typename ReturnType, typename... Args>
         ReturnType CallPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&&... args) const
         {
@@ -343,6 +344,8 @@ bool CallPluginsOther(HookedCall target, HookStep step, Args&&... args)
 }
 
 using PluginFactoryT = std::shared_ptr<Plugin> (*)();
+
+inline std::optional<std::weak_ptr<Plugin>> Plugin::GetPluginFromManager(const std::wstring_view shortName) { return PluginManager::i()->GetPlugin(shortName); }
 
 // TODO: Move this to its own CPP file and use the Detour class
 class DebugTools : public Singleton<DebugTools>

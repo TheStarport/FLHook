@@ -61,5 +61,7 @@ class TaxPlugin : public Plugin, public AbstractUserCommandProcessor
         SetupUserCommandHandler(TaxPlugin, commands);
 
     public:
+        inline static const std::wstring_view pluginName = L"Tax";
+        inline static const std::wstring_view pluginShortName = L"tax";
         explicit TaxPlugin(const PluginInfo& info);
 };
