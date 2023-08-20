@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.10
+- Fixed bug in CI that prevented Sonar running if there hasn't been a commit for a while.
+
 ## 4.0.9
 - Fixed bug in Stats plugin where data was not being converted to UTF-8 causing issues with non-standard characters.
 
