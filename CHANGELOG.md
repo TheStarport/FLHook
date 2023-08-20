@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.11
+- Added Loot Tables plugin that allows you greater control over the loot dropped by NPCs.
+
 ## 4.0.10
 - Fixed bug in CI that prevented Sonar running if there hasn't been a commit for a while.
 
