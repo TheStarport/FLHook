@@ -145,7 +145,16 @@ namespace Plugins::Autobuy
 	{
 		// TODO: Update to per-weapon ammo limits once implemented
 		item.archId = launcher->iProjectileArchId;
-		item.count = MAX_PLAYER_AMMO - PlayerGetAmmoCount(cargo, item.archId);
+		uint itemID = Arch2Good(item.archId);
+		if (global->ammoLimits.find(Arch2Good(item.archId)) != global->ammoLimits.end())
+		{
+			item.count = global->ammoLimits[itemID] - PlayerGetAmmoCount(cargo, item.archId);
+		}
+		else
+		{
+			item.count = MAX_PLAYER_AMMO - PlayerGetAmmoCount(cargo, item.archId);
+		}
+
 		item.description = desc;
 		cart.emplace_back(item);
 	}
@@ -518,16 +527,55 @@ namespace Plugins::Autobuy
 	}};
 
 	// Load Settings
-	void LoadSettings()
-	{
-		auto config = Serializer::JsonToObject<Config>();
-		global->config = std::make_unique<Config>(config);
-	}
+    void LoadSettings()
+    {
+	    auto config = Serializer::JsonToObject<Config>();
+	    global->config = std::make_unique<Config>(config);
+
+	    // Get ammo limit
+		for (const auto& iniPath : global->config->iniPaths)
+		{
+			INI_Reader ini;
+			if (!ini.open(iniPath.c_str(), false))
+			{
+				Console::ConErr(std::format("Was unable to read ammo limits from the following file: {}", iniPath));
+				return;
+			}
+
+			while (ini.read_header())
+			{
+				if (ini.is_header("Munition"))
+				{
+					uint itemname;
+					int itemlimit;
+					bool valid = false;
+
+					while (ini.read_value())
+					{
+						if (ini.is_value("nickname"))
+						{
+							itemname = CreateID(ini.get_value_string(0));
+						}
+						else if (ini.is_value("ammo_limit"))
+						{
+							valid = true;
+							itemlimit = ini.get_value_int(0);
+						}
+					}
+
+					if (valid == true)
+					{
+						global->ammoLimits[itemname] = itemlimit;
+					}
+				}
+			}
+		}
+    }
 } // namespace Plugins::Autobuy
 
 using namespace Plugins::Autobuy;
 
-REFL_AUTO(type(Config), field(nanobot_nickname), field(shield_battery_nickname))
+REFL_AUTO(type(Config), field(nanobot_nickname), field(shield_battery_nickname), field(iniPaths))
 
 DefaultDllMainSettings(LoadSettings);
 
