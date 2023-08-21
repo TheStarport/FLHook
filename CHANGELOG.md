@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.13
+- Adressed to-do in Autobuy: adhere to Ammo Limits specified in .ini files.
+
 ## 4.0.12
 - Fix the bugs reported in SonarCloud. This is mainly throwing a proper exception rather than just a string.
 
