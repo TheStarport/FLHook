@@ -319,23 +319,23 @@ bool FLHookInit()
 	{
 		// get module handles
 		if (!(hModServer = GetModuleHandle("server")))
-			throw "server.dll not loaded";
+			throw std::runtime_error("server.dll not loaded");
 		if (!(hModRemoteClient = GetModuleHandle("remoteclient")))
-			throw "remoteclient.dll not loaded";
+			throw std::runtime_error("remoteclient.dll not loaded");
 		if (!(hModCommon = GetModuleHandle("common")))
-			throw "common.dll not loaded";
+			throw std::runtime_error("common.dll not loaded");
 		if (!(hModDPNet = GetModuleHandle("dpnet")))
-			throw "dpnet.dll not loaded";
+			throw std::runtime_error("dpnet.dll not loaded");
 		if (!(hModDaLib = GetModuleHandle("dalib")))
-			throw "dalib.dll not loaded";
+			throw std::runtime_error("dalib.dll not loaded");
 		if (!(hModContent = GetModuleHandle("content")))
-			throw "content.dll not loaded";
+			throw std::runtime_error("content.dll not loaded");
 		if (!(hMe = GetModuleHandle("FLHook")))
-			throw "FLHook.dll not loaded";
+			throw std::runtime_error("FLHook.dll not loaded");
 
 		// init hooks
 		if (!InitHookExports())
-			throw "InitHookExports failed";
+			throw std::runtime_error("InitHookExports failed");
 
 		bInitHookExports = true;
 		const auto* config = FLHookConfig::c();
@@ -352,10 +352,10 @@ bool FLHookInit()
 				adr.sin_family = AF_INET;
 				adr.sin_port = htons(config->socket.port);
 				if (::bind(sListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-					throw "ascii: socket-bind failed, port already in use?";
+					throw std::runtime_error("ascii: socket-bind failed, port already in use?");
 
 				if (listen(sListen, SOMAXCONN) != 0)
-					throw "ascii: socket-listen failed";
+					throw std::runtime_error("ascii: socket-listen failed");
 
 				Console::ConInfo("socket(ascii): socket connection listening");
 			}
@@ -368,11 +368,10 @@ bool FLHookInit()
 				adr.sin_family = AF_INET;
 				adr.sin_port = htons(config->socket.wPort);
 				if (::bind(sWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-					throw "unicode: socket-bind failed, port already in "
-					      "use?";
+					throw std::runtime_error("unicode: socket-bind failed, port already in use?");
 
 				if (listen(sWListen, SOMAXCONN) != 0)
-					throw "unicode: socket-listen failed";
+					throw std::runtime_error("unicode: socket-listen failed");
 
 				Console::ConInfo("socket(unicode): socket connection listening");
 			}
@@ -385,10 +384,10 @@ bool FLHookInit()
 				adr.sin_family = AF_INET;
 				adr.sin_port = htons(config->socket.ePort);
 				if (::bind(sEListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-					throw "encrypted: socket-bind failed, port already in use?";
+					throw std::runtime_error("encrypted: socket-bind failed, port already in use?");
 
 				if (listen(sEListen, SOMAXCONN) != 0)
-					throw "encrypted: socket-listen failed";
+					throw std::runtime_error("encrypted: socket-listen failed");
 
 				Console::ConInfo("socket(encrypted-ascii): socket connection listening");
 			}
@@ -401,11 +400,10 @@ bool FLHookInit()
 				adr.sin_family = AF_INET;
 				adr.sin_port = htons(config->socket.eWPort);
 				if (::bind(sEWListen, (sockaddr*)&adr, sizeof(adr)) != 0)
-					throw "encrypted-unicode: socket-bind failed, port "
-					      "already in use?";
+					throw std::runtime_error("encrypted-unicode: socket-bind failed, port already in use?");
 
 				if (listen(sEWListen, SOMAXCONN) != 0)
-					throw "encrypted-unicode: socket-listen failed";
+					throw std::runtime_error("encrypted-unicode: socket-listen failed");
 
 				Console::ConInfo("socket(encrypted-unicode): socket connection listening");
 			}

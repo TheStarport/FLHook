@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.12
+- Fix the bugs reported in SonarCloud. This is mainly throwing a proper exception rather than just a string.
+
 ## 4.0.11
 - Added Loot Tables plugin that allows you greater control over the loot dropped by NPCs.
 

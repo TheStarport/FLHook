@@ -1359,6 +1359,8 @@ namespace Hk::Player
 			Kick(client);
 			return cpp::fail(Error::UnknownError);
 		}
+
+		return {};
 	}
 
 	cpp::result<void, Error> SetEquip(const std::variant<uint, std::wstring>& player, const st6::list<EquipDesc>& equip)

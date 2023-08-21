@@ -182,7 +182,7 @@ namespace Plugins::Restart
 				std::string scTimeStampDesc = IniGetS(scCharFile, "Player", "description", "");
 				std::string scTimeStamp = IniGetS(scCharFile, "Player", "tstamp", "0");
 				if (!::CopyFileA(restart.restartFile.c_str(), scCharFile.c_str(), FALSE))
-					throw "copy template";
+					throw std::runtime_error("copy template");
 
 				FlcDecodeFile(scCharFile.c_str(), scCharFile.c_str());
 				IniWriteW(scCharFile, "Player", "name", restart.characterName);
