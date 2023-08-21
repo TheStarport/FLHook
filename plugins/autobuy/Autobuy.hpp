@@ -25,13 +25,15 @@ namespace Plugins
             };
 
             //! Configurable fields for this plugin
-            struct Config
+            struct Config final
             {
                     // Reflectable fields
                     //! Nickname of the nanobot item being used when performing the automatic purchase
-                    std::string nanobot_nickname = "ge_s_repair_01";
+                    std::string nanobotNickname = "ge_s_repair_01";
                     //! Nickname of the shield battery item being used when performing the automatic purchase
-                    std::string shield_battery_nickname = "ge_s_battery_01";
+                    std::string shieldBatteryNickname = "ge_s_battery_01";
+
+                Serialize(Config, nanobotNickname, shieldBatteryNickname);
             };
 
             void UserCmdAutobuy(std::wstring_view autobuyType, std::wstring_view newState);

@@ -1427,9 +1427,9 @@ namespace Hk::Player
         }
 
         // Update FLHook's lists to make anticheat pleased.
-        if (&equip != &Players[client].lShadowEquipDescList.equip)
+        if (&equip != &Players[client].shadowEquipDescList.equip)
         {
-            Players[client].lShadowEquipDescList.equip = equip;
+            Players[client].shadowEquipDescList.equip = equip;
         }
 
         if (&equip != &Players[client].equipDescList.equip)
@@ -1515,7 +1515,7 @@ namespace Hk::Player
         ed.id = Players[client].lastEquipId;
         ed.count = 1;
         ed.archId = goodId;
-        Players[client].lShadowEquipDescList.add_equipment_item(ed, false);
+        Players[client].shadowEquipDescList.add_equipment_item(ed, false);
 
         return { {} };
     }

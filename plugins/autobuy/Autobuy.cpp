@@ -37,9 +37,15 @@
 
 namespace Plugins
 {
+
+
+
     void Autobuy::LoadPlayerAutobuy(ClientId client)
     {
+
+        //TODO: Implement chardata database retrieval for this as IniUtils is being deprecated for 4.1
         AutobuyInfo playerAutobuyInfo{};
+        /*
         playerAutobuyInfo.missiles = StringUtils::Cast<bool>(Hk::IniUtils::c()->GetFromPlayerFile(client, L"autobuy.missiles").value());
         playerAutobuyInfo.torps = StringUtils::Cast<bool>(Hk::IniUtils::c()->GetFromPlayerFile(client, L"autobuy.torps").value());
         playerAutobuyInfo.cd = StringUtils::Cast<bool>(Hk::IniUtils::c()->GetFromPlayerFile(client, L"autobuy.cd").value());
@@ -47,6 +53,7 @@ namespace Plugins
         playerAutobuyInfo.bb = StringUtils::Cast<bool>(Hk::IniUtils::c()->GetFromPlayerFile(client, L"autobuy.bb").value());
         playerAutobuyInfo.repairs = StringUtils::Cast<bool>(Hk::IniUtils::c()->GetFromPlayerFile(client, L"autobuy.repairs").value());
         autobuyInfo[client] = playerAutobuyInfo;
+        */
     }
 
     void Autobuy::ClearClientInfo(ClientId& client) { autobuyInfo.erase(client); }
@@ -109,9 +116,9 @@ namespace Plugins
 
             auto& equip = Players[client].equipDescList.equip;
 
-            if (&equip != &Players[client].lShadowEquipDescList.equip)
+            if (&equip != &Players[client].shadowEquipDescList.equip)
             {
-                Players[client].lShadowEquipDescList.equip = equip;
+                Players[client].shadowEquipDescList.equip = equip;
             }
 
             st6::vector<EquipDesc> eqVector;
@@ -127,12 +134,12 @@ namespace Plugins
             HookClient->Send_FLPACKET_SERVER_SETEQUIPMENT(client, eqVector);
         }
 
-        if (auto& playerCollision = Players[client].collisionGroupDesc.data; !playerCollision.empty())
+        if (auto& playerCollision = Players[client].collisionGroupDesc; !playerCollision.empty())
         {
             st6::list<XCollision> componentList;
             for (auto& colGrp : playerCollision)
             {
-                auto* newColGrp = reinterpret_cast<XCollision*>(colGrp.data);
+                auto* newColGrp = reinterpret_cast<XCollision*>(colGrp);
                 newColGrp->componentHp = 1.0f;
                 componentList.push_back(*newColGrp);
             }
@@ -185,9 +192,9 @@ namespace Plugins
             // shield bats & nanobots
 
             uint nanobotsId;
-            pub::GetGoodID(nanobotsId, config->nanobot_nickname.c_str());
+            pub::GetGoodID(nanobotsId, config->nanobotNickname.c_str());
             uint shieldBatsId;
-            pub::GetGoodID(shieldBatsId, config->shield_battery_nickname.c_str());
+            pub::GetGoodID(shieldBatsId, config->shieldBatteryNickname.c_str());
             bool nanobotsFound = false;
             bool shieldBattsFound = false;
             for (auto& item : cargo)

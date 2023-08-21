@@ -22,7 +22,10 @@ namespace Plugins
                     std::string targetBase;
                     std::string targetSystem;
                     std::string restrictedSystem;
+
+                Serialize(Config, targetBase, targetSystem, restrictedSystem);
             };
+
             std::unique_ptr<Config> config;
             // Non-reflectable fields
             uint targetBaseId = 0;
