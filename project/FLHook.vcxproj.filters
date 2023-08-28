@@ -327,13 +327,7 @@
     <ClInclude Include="..\Include\Defs\ServerStats.hpp">
       <Filter>Include\Defs</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Defs\ShipArchDefs.hpp">
-      <Filter>Include\Defs</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Defs\Structs.hpp">
-      <Filter>Include\Defs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Defs\WeaponEquipDefs.hpp">
       <Filter>Include\Defs</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\API\FLServer\Admin.hpp">

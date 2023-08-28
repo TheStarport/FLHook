@@ -67,8 +67,6 @@
 #include "Defs/CoreGlobals.hpp"
 #include "Defs/FLHookConfig.hpp"
 #include "Defs/FLPacket.hpp"
-#include "Defs/ShipArchDefs.hpp"
-#include "Defs/WeaponEquipDefs.hpp"
 
 #include "Core/TempBan.hpp"
 #include "Defs/ServerStats.hpp"

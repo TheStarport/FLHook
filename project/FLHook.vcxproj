@@ -121,9 +121,7 @@
     <ClInclude Include="..\Include\Defs\FLHookConfig.hpp" />
     <ClInclude Include="..\Include\Defs\FLPacket.hpp" />
     <ClInclude Include="..\Include\Defs\ServerStats.hpp" />
-    <ClInclude Include="..\Include\Defs\ShipArchDefs.hpp" />
     <ClInclude Include="..\Include\Defs\Structs.hpp" />
-    <ClInclude Include="..\Include\Defs\WeaponEquipDefs.hpp" />
     <ClInclude Include="..\Include\FLHook.hpp" />
     <ClInclude Include="..\Include\Global.hpp" />
     <ClInclude Include="..\Include\PCH.hpp" />
