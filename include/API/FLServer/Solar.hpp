@@ -10,4 +10,5 @@ namespace Hk::Solar
     DLL Action<Universe::IBase*, Error> GetBaseByWildcard(std::wstring_view targetBaseName);
     DLL Action<uint, Error> GetAffiliation(BaseId solarId);
     DLL Action<float, Error> GetCommodityPrice(BaseId baseId, GoodId goodId);
+    DLL Action<bool, Error> ExistsAndAlive(uint id);
 } // namespace Hk::Solar

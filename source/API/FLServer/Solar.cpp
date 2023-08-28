@@ -151,4 +151,17 @@ namespace Hk::Solar
         }
         return { price };
     }
+
+    Action<bool, Error> ExistsAndAlive(uint id)
+    {
+        int isAlive = pub::SpaceObj::ExistsAndAlive(id);
+        if (isAlive == 0)
+        {
+            return { true };
+        }
+        else
+        {
+            return { false };
+        }
+    }
 } // namespace Hk::Solar
