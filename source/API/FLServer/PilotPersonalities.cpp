@@ -911,7 +911,7 @@ namespace Hk::Personalities
         {
             difficulty = 1;
         }
-        else if (str == "equa")
+        else if (str == "equal")
         {
             difficulty = 2;
         }
@@ -919,9 +919,13 @@ namespace Hk::Personalities
         {
             difficulty = 3;
         }
-        else
+        else if (str == "hardest")
         {
             difficulty = 4;
+        }
+        else
+        {
+            difficulty = 2;
         }
     }
 
