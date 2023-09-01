@@ -143,12 +143,11 @@ namespace Plugins::Autobuy
 	void AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CARGO_INFO>& cargo, std::list<AutobuyCartItem>& cart, AutobuyCartItem& item,
 	    const std::wstring_view& desc)
 	{
-		// TODO: Update to per-weapon ammo limits once implemented
 		item.archId = launcher->iProjectileArchId;
-		uint itemID = Arch2Good(item.archId);
+		uint itemId = Arch2Good(item.archId);
 		if (global->ammoLimits.find(Arch2Good(item.archId)) != global->ammoLimits.end())
 		{
-			item.count = global->ammoLimits[itemID] - PlayerGetAmmoCount(cargo, item.archId);
+			item.count = global->ammoLimits[itemId] - PlayerGetAmmoCount(cargo, item.archId);
 		}
 		else
 		{
@@ -546,8 +545,8 @@ namespace Plugins::Autobuy
 			{
 				if (ini.is_header("Munition"))
 				{
-					uint itemname;
-					int itemlimit;
+					uint itemname = 0;
+					int itemlimit = 0;
 					bool valid = false;
 
 					while (ini.read_value())
@@ -563,7 +562,7 @@ namespace Plugins::Autobuy
 						}
 					}
 
-					if (valid == true)
+					if (valid)
 					{
 						global->ammoLimits[itemname] = itemlimit;
 					}
