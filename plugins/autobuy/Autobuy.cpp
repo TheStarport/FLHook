@@ -57,7 +57,7 @@ namespace Plugins::Autobuy
 	int PlayerGetAmmoCount(const std::list<CARGO_INFO>& cargoList, uint itemArchId)
 	{
 		if (auto foundCargo = std::ranges::find_if(cargoList, [itemArchId](const CARGO_INFO& cargo) { return cargo.iArchId == itemArchId; });
-		    foundCargo != cargoList.end())
+		foundCargo != cargoList.end())
 		{
 			return foundCargo->iCount;
 		}
@@ -141,11 +141,19 @@ namespace Plugins::Autobuy
 	}
 
 	void AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CARGO_INFO>& cargo, std::list<AutobuyCartItem>& cart, AutobuyCartItem& item,
-	    const std::wstring_view& desc)
+		const std::wstring_view& desc)
 	{
-		// TODO: Update to per-weapon ammo limits once implemented
 		item.archId = launcher->iProjectileArchId;
-		item.count = MAX_PLAYER_AMMO - PlayerGetAmmoCount(cargo, item.archId);
+		uint itemId = Arch2Good(item.archId);
+		if (global->ammoLimits.contains(Arch2Good(item.archId)))
+		{
+			item.count = global->ammoLimits[itemId] - PlayerGetAmmoCount(cargo, item.archId);
+		}
+		else
+		{
+			item.count = MAX_PLAYER_AMMO - PlayerGetAmmoCount(cargo, item.archId);
+		}
+
 		item.description = desc;
 		cart.emplace_back(item);
 	}
@@ -312,7 +320,7 @@ namespace Plugins::Autobuy
 		BaseInfo const* bi = nullptr;
 
 		if (auto foundBase = std::ranges::find_if(CoreGlobals::c()->allBases, [baseId](const BaseInfo& base) { return base.baseId == baseId; });
-		    foundBase != CoreGlobals::c()->allBases.end())
+			foundBase != CoreGlobals::c()->allBases.end())
 		{
 			bi = std::to_address(foundBase);
 		}
@@ -514,7 +522,7 @@ namespace Plugins::Autobuy
 
 	// Define usable chat commands here
 	const std::vector commands = {{
-	    CreateUserCommand(L"/autobuy", L"<consumable type/info> <on/off>", UserCmdAutobuy, L"Sets up automatic purchases for consumables."),
+		CreateUserCommand(L"/autobuy", L"<consumable type/info> <on/off>", UserCmdAutobuy, L"Sets up automatic purchases for consumables."),
 	}};
 
 	// Load Settings
@@ -522,12 +530,51 @@ namespace Plugins::Autobuy
 	{
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
+
+		// Get ammo limit
+		for (const auto& iniPath : global->config->iniPaths)
+		{
+			INI_Reader ini;
+			if (!ini.open(iniPath.c_str(), false))
+			{
+				Console::ConErr(std::format("Was unable to read ammo limits from the following file: {}", iniPath));
+				return;
+			}
+
+			while (ini.read_header())
+			{
+				if (ini.is_header("Munition"))
+				{
+					uint itemname = 0;
+					int itemlimit = 0;
+					bool valid = false;
+
+					while (ini.read_value())
+					{
+						if (ini.is_value("nickname"))
+						{
+							itemname = CreateID(ini.get_value_string(0));
+						}
+						else if (ini.is_value("ammo_limit"))
+						{
+							valid = true;
+							itemlimit = ini.get_value_int(0);
+						}
+					}
+
+					if (valid)
+					{
+						global->ammoLimits[itemname] = itemlimit;
+					}
+				}
+			}
+		}
 	}
 } // namespace Plugins::Autobuy
 
 using namespace Plugins::Autobuy;
 
-REFL_AUTO(type(Config), field(nanobot_nickname), field(shield_battery_nickname))
+REFL_AUTO(type(Config), field(nanobot_nickname), field(shield_battery_nickname), field(iniPaths))
 
 DefaultDllMainSettings(LoadSettings);
 
