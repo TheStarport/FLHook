@@ -9,7 +9,7 @@ var _autobuy_8cpp =
     [ "LoadSettings", "_autobuy_8cpp.html#a12eee9a3a9513494b7c2e4e8dc9afbce", null ],
     [ "OnBaseEnter", "_autobuy_8cpp.html#a9454ab632caee6922cdb7c0ec9c5c5d3", null ],
     [ "PlayerGetAmmoCount", "_autobuy_8cpp.html#afe75320a9ff4f72cfb5c1f38e591160b", null ],
-    [ "REFL_AUTO", "_autobuy_8cpp.html#ac5832595c7174e3b87b7f5a3502b21ad", null ],
+    [ "REFL_AUTO", "_autobuy_8cpp.html#aee137b9a601a12c83e788cb00e5f616f", null ],
     [ "UserCmdAutobuy", "_autobuy_8cpp.html#aaf674392115e202e86bcf3773c675ec2", null ],
     [ "commands", "_autobuy_8cpp.html#a4045d30d96b74b7b7efecd9cb6262b9a", null ],
     [ "global", "_autobuy_8cpp.html#a4385c9ad4d1dd094238af69491e50d19", null ]

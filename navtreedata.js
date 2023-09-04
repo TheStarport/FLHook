@@ -86,11 +86,11 @@ var NAVTREEINDEX =
 "namespace_plugins_1_1_arena.html#a917346e3bb9df6528d9e835c42e1a447a6950810f0d2bba97a6f710c7b965b84e",
 "namespace_plugins_1_1_warehouse.html#a755e2348cc9b45e507ab8a2c6e5734d6",
 "struct_plugin_data.html#af66bd3358794a923a9ae4429d656cb05",
-"struct_plugins_1_1_con_data_1_1_config.html#a291d232519674f8bfaa2b30f8509d0e7",
-"struct_plugins_1_1_light_control_1_1_config.html#a720361ea380740801398259c191df637",
-"struct_plugins_1_1_mining_control_1_1_zone_bonus.html#adad41b14685aad6cbab03acaebf0f89a",
-"struct_plugins_1_1_restart_1_1_config.html#ac9bc13a7150a4a55361d1da443ab1080",
-"structmsvc_____throw_info.html#a6df5f2a026718e73eba520d25cb00f77"
+"struct_plugins_1_1_con_data_1_1_config.html#a11eab949aeed789d56727a0ef864fb6c",
+"struct_plugins_1_1_light_control_1_1_config.html#a106b122e56e1c51d873242e36083e5c1",
+"struct_plugins_1_1_mining_control_1_1_zone_bonus.html#a94c6b1071b05ead630b77cc9704ff49e",
+"struct_plugins_1_1_restart_1_1_config.html#a55a24c10b027462f63c266d74afa7c6c",
+"structmsvc_____throw_info.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
