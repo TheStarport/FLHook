@@ -57,7 +57,7 @@ namespace Plugins::Autobuy
 	int PlayerGetAmmoCount(const std::list<CARGO_INFO>& cargoList, uint itemArchId)
 	{
 		if (auto foundCargo = std::ranges::find_if(cargoList, [itemArchId](const CARGO_INFO& cargo) { return cargo.iArchId == itemArchId; });
-		    foundCargo != cargoList.end())
+		foundCargo != cargoList.end())
 		{
 			return foundCargo->iCount;
 		}
@@ -141,7 +141,7 @@ namespace Plugins::Autobuy
 	}
 
 	void AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CARGO_INFO>& cargo, std::list<AutobuyCartItem>& cart, AutobuyCartItem& item,
-	    const std::wstring_view& desc)
+		const std::wstring_view& desc)
 	{
 		item.archId = launcher->iProjectileArchId;
 		uint itemId = Arch2Good(item.archId);
@@ -320,7 +320,7 @@ namespace Plugins::Autobuy
 		BaseInfo const* bi = nullptr;
 
 		if (auto foundBase = std::ranges::find_if(CoreGlobals::c()->allBases, [baseId](const BaseInfo& base) { return base.baseId == baseId; });
-		    foundBase != CoreGlobals::c()->allBases.end())
+			foundBase != CoreGlobals::c()->allBases.end())
 		{
 			bi = std::to_address(foundBase);
 		}
@@ -522,16 +522,16 @@ namespace Plugins::Autobuy
 
 	// Define usable chat commands here
 	const std::vector commands = {{
-	    CreateUserCommand(L"/autobuy", L"<consumable type/info> <on/off>", UserCmdAutobuy, L"Sets up automatic purchases for consumables."),
+		CreateUserCommand(L"/autobuy", L"<consumable type/info> <on/off>", UserCmdAutobuy, L"Sets up automatic purchases for consumables."),
 	}};
 
 	// Load Settings
 	void LoadSettings()
-    {
+	{
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
 
-	    // Get ammo limit
+		// Get ammo limit
 		for (const auto& iniPath : global->config->iniPaths)
 		{
 			INI_Reader ini;
@@ -569,7 +569,7 @@ namespace Plugins::Autobuy
 				}
 			}
 		}
-    }
+	}
 } // namespace Plugins::Autobuy
 
 using namespace Plugins::Autobuy;
