@@ -145,7 +145,7 @@ namespace Plugins::Autobuy
 	{
 		item.archId = launcher->iProjectileArchId;
 		uint itemId = Arch2Good(item.archId);
-		if (global->ammoLimits.find(Arch2Good(item.archId)) != global->ammoLimits.end())
+		if (global->ammoLimits.contains(Arch2Good(item.archId)))
 		{
 			item.count = global->ammoLimits[itemId] - PlayerGetAmmoCount(cargo, item.archId);
 		}
@@ -526,10 +526,10 @@ namespace Plugins::Autobuy
 	}};
 
 	// Load Settings
-    void LoadSettings()
+	void LoadSettings()
     {
-	    auto config = Serializer::JsonToObject<Config>();
-	    global->config = std::make_unique<Config>(config);
+		auto config = Serializer::JsonToObject<Config>();
+		global->config = std::make_unique<Config>(config);
 
 	    // Get ammo limit
 		for (const auto& iniPath : global->config->iniPaths)
