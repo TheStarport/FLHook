@@ -56,7 +56,7 @@ jobs:
           tag_name: ${{ steps.date.outputs.date }}
           release_name: "${{ steps.extract_changelog.outputs.version }} | ${{ steps.date.outputs.date }}"
           body: |
-            "${{ steps.extract_changelog.outputs.body }}"
+            ${{ steps.extract_changelog.outputs.body }}
           draft: false
           prerelease: false
       
