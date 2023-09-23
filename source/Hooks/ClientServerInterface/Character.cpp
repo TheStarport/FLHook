@@ -36,7 +36,7 @@ namespace IServerImplHook
         {
             auto& info = ClientInfo[client];
             info.characterFile = StringUtils::stows(charId.charFilename);
-            std::wstring charName = ToWChar(Players.GetActiveCharacterName(client));
+            const std::wstring charName = Hk::Client::GetCharacterNameByID(client).Handle();
 
             if (g_CharBefore != charName)
             {

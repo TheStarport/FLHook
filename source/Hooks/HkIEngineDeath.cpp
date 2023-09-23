@@ -165,7 +165,7 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
                 DamageCause cause = dmg.get_cause();
                 const auto clientKiller = Hk::Client::GetClientIdByShip(dmg.get_inflictor_id()).Raw();
 
-                std::wstring victimName = ToWChar(Players.GetActiveCharacterName(client));
+                std::wstring victimName = Hk::Client::GetCharacterNameByID(client).Handle();
                 if (clientKiller.has_value())
                 {
                     std::wstring killType;
@@ -193,7 +193,7 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
                     }
                     else
                     {
-                        std::wstring Killer = ToWChar(Players.GetActiveCharacterName(clientKiller.value()));
+                        std::wstring Killer = Hk::Client::GetCharacterNameByID(client).Handle();
 
                         deathMessage = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextPlayerKill, L"%victim", victimName);
                         deathMessage = StringUtils::ReplaceStr(deathMessage, L"%killer", Killer);

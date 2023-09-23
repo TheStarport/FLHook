@@ -21,7 +21,7 @@ namespace IServerImplHook
                     legalSell = true;
                     if (abs(gsi.count) > cargo.count)
                     {
-                        const auto* charName = ToWChar(Players.GetActiveCharacterName(client));
+                        const std::wstring charName = Hk::Client::GetCharacterNameByID(client).Handle();
                         // AddCheaterLog(charName, std::format(L"Sold more good than possible item={} count={}", gsi.archId, gsi.count));
 
                         Hk::Chat::MsgU(std::format(L"Possible cheating detected ({})", charName));
@@ -34,7 +34,7 @@ namespace IServerImplHook
             }
             if (!legalSell)
             {
-                const auto* charName = ToWChar(Players.GetActiveCharacterName(client));
+                const std::wstring charName = Hk::Client::GetCharacterNameByID(client).Handle();
                 // AddCheaterLog(charName, std::format(L"Sold good player does not have (buggy test), item={}", gsi.archId));
 
                 return false;

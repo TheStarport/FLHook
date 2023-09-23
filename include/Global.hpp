@@ -72,14 +72,6 @@ extern HANDLE hThreadResolver;
 
 // help
 
-inline auto* ToWChar(const ushort* val) { return reinterpret_cast<const wchar_t*>(val); }
-
-inline auto* ToWChar(ushort* val) { return reinterpret_cast<wchar_t*>(val); }
-
-inline auto* ToUShort(const wchar_t* val) { return reinterpret_cast<const ushort*>(val); }
-
-inline auto* ToUShort(wchar_t* val) { return reinterpret_cast<ushort*>(val); }
-
 #define CALL_SERVER_PREAMBLE                                           \
     {                                                                  \
         static PerfTimer timer(StringUtils::stows(__FUNCTION__), 100); \
