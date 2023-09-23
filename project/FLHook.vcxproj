@@ -110,6 +110,7 @@
     <ClInclude Include="..\Include\Core\Logger.hpp" />
     <ClInclude Include="..\Include\Core\MemoryManager.hpp" />
     <ClInclude Include="..\Include\Core\MessageHandler.hpp" />
+    <ClInclude Include="..\Include\Core\PluginManager.hpp" />
     <ClInclude Include="..\Include\Core\Serializer.hpp" />
     <ClInclude Include="..\Include\Core\TempBan.hpp" />
     <ClInclude Include="..\Include\Core\Templates\Concepts.hpp" />

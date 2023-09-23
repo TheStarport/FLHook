@@ -1,6 +1,6 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
+#include "Core/PluginManager.hpp"
 
 void PluginManager::ClearData(bool free)
 {

@@ -73,6 +73,7 @@
 
 #include <Core/Logger.hpp>
 
+
 #pragma comment(lib, "pcre2-8.lib")
 #pragma comment(lib, "pcre2-16.lib")
 #pragma comment(lib, "pcre2-32.lib")
@@ -82,5 +83,7 @@ using Jp = jpcre2::select<char>;
 using JpWide = jpcre2::select<wchar_t>;
 
 #include "API/FLHook/Plugin.hpp"
+
+#include "Core/PluginManager.hpp"
 
 #pragma warning(pop)

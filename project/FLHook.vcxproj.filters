@@ -387,5 +387,8 @@
     <ClInclude Include="..\include\API\Utils\IniUtils.hpp">
       <Filter>Include\API\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\Core\PluginManager.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
