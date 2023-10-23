@@ -216,7 +216,7 @@ namespace Plugins::WaveDefence
 		for (auto const& solar : wave.solars)
 		{
 			game.spawnedSolars.push_back(
-			    global->solarCommunicator->CreateUserDefinedSolar(solar, game.system.positionVector, rotation, game.system.systemId, true, true));
+			    global->solarCommunicator->CreateSolar(solar, game.system.positionVector, rotation, game.system.systemId, true, true));
 		}
 
 		// Actions for all players in group
@@ -410,6 +410,9 @@ namespace Plugins::WaveDefence
 	/** @ingroup WaveDefence
 	 * @brief Hook on ShipDestroyed. Checks if the ship was part of a game.
 	 */
+
+	// TO DO merge the spawnedSolars and spawnedNpcs list.
+
 	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, const DWORD** ecx, [[maybe_unused]] const uint& kill)
 	{
 		// Grab the ship from the ecx

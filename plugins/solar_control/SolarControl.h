@@ -50,7 +50,7 @@ namespace Plugins::SolarControl
 		inline static const char* pluginName = "Solar Control";
 		explicit SolarCommunicator(const std::string& plug);
 
-		uint PluginCall(CreateUserDefinedSolar, const std::wstring& name, Vector pos, const Matrix& rot, uint iSystem, bool varyPosition, bool mission);
+		uint PluginCall(CreateSolar, const std::wstring& name, Vector position, const Matrix& rotation, SystemId system, bool varyPosition, bool mission);
 	};
 
 	//! Global data for this plugin

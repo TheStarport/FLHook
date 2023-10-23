@@ -180,7 +180,7 @@ namespace Plugins::SolarControl
 	/** @ingroup SolarControl
 	 * @brief Creates a solar defined in the solar json file
 	 */
-	uint CreateUserDefinedSolar(const std::wstring& name, Vector pos, const Matrix& rot, uint iSystem, bool varyPosition, bool mission)
+	uint CreateUserDefinedSolar(const std::wstring& name, Vector position, const Matrix& rotation, SystemId system, bool varyPosition, bool mission)
 	{
 		SolarArch arch = global->config->solarArches[name];
 
@@ -192,8 +192,8 @@ namespace Plugins::SolarControl
 		si.iArchId = arch.solarArchId;
 		si.iLoadoutId = arch.loadoutId;
 		si.iHitPointsLeft = 1000;
-		si.systemId = iSystem;
-		si.mOrientation = rot;
+		si.systemId = system;
+		si.mOrientation = rotation;
 		si.Costume.head = CreateID("benchmark_male_head");
 		si.Costume.body = CreateID("benchmark_male_body");
 		si.Costume.lefthand = 0;
@@ -205,18 +205,18 @@ namespace Plugins::SolarControl
 		strncpy_s(si.cNickName, sizeof(si.cNickName), npcId.c_str(), name.size() + global->spawnedSolars.size());
 
 		// Do we need to vary the starting position slightly? Useful when spawning multiple objects
-		si.vPos = pos;
+		si.vPos = position;
 		if (varyPosition)
 		{
-			si.vPos.x = pos.x + randomFloatRange(0, 1000);
-			si.vPos.y = pos.y + randomFloatRange(0, 1000);
-			si.vPos.z = pos.z + randomFloatRange(0, 2000);
+			si.vPos.x = position.x + randomFloatRange(0, 1000);
+			si.vPos.y = position.y + randomFloatRange(0, 1000);
+			si.vPos.z = position.z + randomFloatRange(0, 2000);
 		}
 		else
 		{
-			si.vPos.x = pos.x;
-			si.vPos.y = pos.y;
-			si.vPos.z = pos.z;
+			si.vPos.x = position.x;
+			si.vPos.y = position.y;
+			si.vPos.z = position.z;
 		}
 
 		// Which base this links to
@@ -323,15 +323,15 @@ namespace Plugins::SolarControl
 	/** @ingroup SolarControl
 	 * @brief Proceessing for admin commands
 	 */
-	bool AdminCommandProcessing(CCmds* commands, const std::wstring& wscCmd)
+	bool AdminCommandProcessing(CCmds* commands, const std::wstring& command)
 	{
-		if (wscCmd == L"solarcreate")
+		if (command == L"solarcreate")
 		{
 			global->returnCode = ReturnCode::SkipAll;
 			AdminCmd_SolarMake(commands, commands->ArgInt(1), commands->ArgStr(2));
 			return true;
 		}
-		else if (wscCmd == L"solardestroy")
+		else if (command == L"solardestroy")
 		{
 			global->returnCode = ReturnCode::SkipAll;
 			AdminCmd_SolarKill(commands);
@@ -436,12 +436,6 @@ namespace Plugins::SolarControl
 	// Timers
 	const std::vector<Timer> timers = {{RelativeHealthTimer, 5}, {ClearDockingRequestsTimer, 5}};
 
-	// IPC
-	SolarCommunicator::SolarCommunicator(const std::string& plug) : PluginCommunicator(plug)
-	{
-		this->CreateUserDefinedSolar = CreateUserDefinedSolar;
-	}
-
 	void PlayerLaunch([[maybe_unused]] ShipId& shipId, ClientId& client)
 	{
 		if (global->pendingRedirects.find(client) != global->pendingRedirects.end())
@@ -452,7 +446,7 @@ namespace Plugins::SolarControl
 	}
 
 	//! Base Enter hook
-	void BaseEnter([[maybe_unused]] const uint& baseId, ClientId& client)
+	void BaseEnter(const uint& baseId, ClientId& client)
 	{
 		if (global->pendingRedirects.find(client) != global->pendingRedirects.end())
 		{
@@ -467,6 +461,12 @@ namespace Plugins::SolarControl
 	void ClearClientInfo(ClientId& client)
 	{
 		global->pendingRedirects.erase(client);
+	}
+
+	// IPC
+	SolarCommunicator::SolarCommunicator(const std::string& plug) : PluginCommunicator(plug)
+	{
+		this->CreateSolar = CreateUserDefinedSolar;
 	}
 } // namespace Plugins::SolarControl
 
