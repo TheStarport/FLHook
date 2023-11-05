@@ -193,7 +193,7 @@ void FLHookInit_Pre()
 
         PatchClientImpl();
 
-        CallPluginsAfter(HookedCall::FLHook__LoadSettings);
+        CallPlugins(&Plugin::OnLoadSettings);
     }
     catch (char* error)
     {

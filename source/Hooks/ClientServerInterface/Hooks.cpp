@@ -1,8 +1,8 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLHook/MailManager.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -89,7 +89,7 @@ namespace IServerImplHook
 
     int __stdcall Update()
     {
-        auto [retVal, skip] = CallPluginsBefore<int>(HookedCall::IServerImpl__Update);
+        auto [retVal, skip] = CallPlugins<int>(&Plugin::OnServerUpdate);
 
         Update__Inner();
 
@@ -99,7 +99,7 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(true, int());
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__Update);
+        CallPlugins(&Plugin::OnServerUpdateAfter);
 
         return retVal;
     }
@@ -108,7 +108,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, L"Shutdown()");
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Shutdown); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnServerShutdown); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.Shutdown(); }
             CALL_SERVER_POSTAMBLE(true, );
@@ -120,7 +120,7 @@ namespace IServerImplHook
     {
         Startup__Inner(si);
 
-        auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IServerImpl__Startup, si);
+        auto [retVal, skip] = CallPlugins<bool>(&Plugin::OnServerStartup, si);
 
         if (!skip)
         {
@@ -129,7 +129,7 @@ namespace IServerImplHook
         }
         Startup__InnerAfter(si);
 
-        CallPluginsAfter(HookedCall::IServerImpl__Startup, si);
+        CallPlugins(&Plugin::OnServerStartupAfter, si);
 
         return retVal;
     }

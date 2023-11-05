@@ -36,16 +36,16 @@ DLL void AddExceptionInfoLog(SEHException* ex);
     try          \
     {            \
         _set_se_translator(SEHException::Translator);
-#define CATCH_HOOK(e)                                                 \
-    }                                                                 \
-    catch ([[maybe_unused]] SEHException & exc) { e; }                \
-    catch ([[maybe_unused]] const StopProcessingException& ex) { e; } \
-    catch (const GameException& ex)                                   \
-    {                                                                 \
-        Logger::i()->Log(LogLevel::Info, ex.Msg());                   \
-        e;                                                            \
-    }                                                                 \
-    catch ([[maybe_unused]] std::exception & exc) { e; }              \
+#define CATCH_HOOK(e)                                          \
+    }                                                          \
+    catch ([[maybe_unused]] SEHException & exc) { e; }         \
+    catch ([[maybe_unused]] const StopProcessingException&) {} \
+    catch (const GameException& ex)                            \
+    {                                                          \
+        Logger::i()->Log(LogLevel::Info, ex.Msg());            \
+        e;                                                     \
+    }                                                          \
+    catch ([[maybe_unused]] std::exception & exc) { e; }       \
     catch (...) { e; }
 
 #define LOG_EXCEPTION \

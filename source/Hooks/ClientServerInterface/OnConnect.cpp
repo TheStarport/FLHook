@@ -1,8 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "Core/ClientServerInterface.hpp"
-
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -59,7 +58,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"OnConnect(\n\tClientId client = {}\n)", client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__OnConnect, client);
+        const auto skip = CallPlugins(&Plugin::OnConnect, client);
 
         if (const bool innerCheck = OnConnect__Inner(client); !innerCheck)
         {
@@ -72,6 +71,6 @@ namespace IServerImplHook
         }
         OnConnect__InnerAfter(client);
 
-        CallPluginsAfter(HookedCall::IServerImpl__OnConnect, client);
+        CallPlugins(&Plugin::OnConnectAfter, client);
     }
-}
+} // namespace IServerImplHook

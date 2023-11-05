@@ -1,8 +1,8 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLServer/Client.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -25,13 +25,13 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"JumpInComplete(\n\tuint systemId = {}\n\tuint shipId = {}\n)", systemId, shipId));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__JumpInComplete, systemId, shipId); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnJumpInComplete, systemId, shipId); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.JumpInComplete(systemId, shipId); }
             CALL_SERVER_POSTAMBLE(true, );
         }
         JumpInComplete__InnerAfter(systemId, shipId);
 
-        CallPluginsAfter(HookedCall::IServerImpl__JumpInComplete, systemId, shipId);
+        CallPlugins(&Plugin::OnJumpInCompleteAfter, systemId, shipId);
     }
-}
+} // namespace IServerImplHook

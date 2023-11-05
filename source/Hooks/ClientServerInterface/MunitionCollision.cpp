@@ -1,8 +1,8 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLServer/Client.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -22,7 +22,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"SPMunitionCollision(\n\tClientId client = {}\n)", client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPMunitionCollision, mci, client);
+        const auto skip = CallPlugins(&Plugin::OnSpMunitionCollision, client, mci);
 
         CHECK_FOR_DISCONNECT;
 
@@ -34,7 +34,7 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__SPMunitionCollision, mci, client);
+        CallPlugins(&Plugin::OnSpMunitionCollisionAfter, client, mci);
     }
 
 } // namespace IServerImplHook

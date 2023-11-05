@@ -2,7 +2,6 @@
 
 #include "Global.hpp"
 
-
 #include "API/FLServer/Chat.hpp"
 #include "API/FLServer/Client.hpp"
 #include "Core/ClientServerInterface.hpp"
@@ -151,7 +150,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.id, size, cidTo.id));
 
-        auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SubmitChat, cidFrom.id, size, rdlReader, cidTo.id, genArg1);
+        auto skip = CallPlugins(&Plugin::OnSubmitChat, cidFrom.id, size, rdlReader, cidTo.id, genArg1);
 
         if (const bool innerCheck = SubmitChat__Inner(cidFrom, size, rdlReader, cidTo, genArg1); !innerCheck)
         {
@@ -165,6 +164,6 @@ namespace IServerImplHook
         }
         chatData->inSubmitChat = false;
 
-        CallPluginsAfter(HookedCall::IServerImpl__SubmitChat, cidFrom.id, size, rdlReader, cidTo.id, genArg1);
+        CallPlugins(&Plugin::OnSubmitChatAfter, cidFrom.id, size, rdlReader, cidTo.id, genArg1);
     }
 } // namespace IServerImplHook

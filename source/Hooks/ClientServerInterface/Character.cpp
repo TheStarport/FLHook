@@ -40,7 +40,7 @@ namespace IServerImplHook
 
             if (g_CharBefore != charName)
             {
-                CallPluginsAfter(HookedCall::FLHook__LoadCharacterSettings, client);
+                CallPlugins(&Plugin::OnLoadCharacterSettings, client, std::wstring_view(charName));
 
                 if (FLHookConfig::i()->userCommands.userCmdHelp)
                 {
@@ -100,8 +100,8 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"CharacterSelect(\n\tClientId client = {}\n)", client));
 
-        std::wstring charName = StringUtils::stows(cid.charFilename);
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterSelect, charName, client);
+        const std::wstring charName = StringUtils::stows(cid.charFilename);
+        const auto skip = CallPlugins(&Plugin::OnCharacterSelect, client, std::wstring_view(charName));
 
         CHECK_FOR_DISCONNECT;
 
@@ -116,33 +116,35 @@ namespace IServerImplHook
         }
         CharacterSelect__InnerAfter(cid, client);
 
-        CallPluginsAfter(HookedCall::IServerImpl__CharacterSelect, charName, client);
+        CallPlugins(&Plugin::OnCharacterSelectAfter, client, std::wstring_view(charName));
     }
 
     void __stdcall CreateNewCharacter(const SCreateCharacterInfo& _genArg1, ClientId client)
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"CreateNewCharacter(\n\tClientId client = {}\n)", client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CreateNewCharacter, _genArg1, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnCharacterCreation, client, _genArg1); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.CreateNewCharacter(_genArg1, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__CreateNewCharacter, _genArg1, client);
+        CallPlugins(&Plugin::OnCharacterCreationAfter, client, _genArg1);
     }
 
-    void __stdcall DestroyCharacter(const CHARACTER_ID& _genArg1, ClientId client)
+    void __stdcall DestroyCharacter(const CHARACTER_ID& cid, ClientId client)
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"DestroyCharacter(\n\tClientId client = {}\n)", client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DestroyCharacter, _genArg1, client); !skip)
+        const std::wstring charName = StringUtils::stows(cid.charFilename);
+
+        if (const auto skip = CallPlugins(&Plugin::OnCharacterDelete, client, std::wstring_view(charName)); !skip)
         {
-            CALL_SERVER_PREAMBLE { Server.DestroyCharacter(_genArg1, client); }
+            CALL_SERVER_PREAMBLE { Server.DestroyCharacter(cid, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__DestroyCharacter, _genArg1, client);
+        CallPlugins(&Plugin::OnCharacterDeleteAfter, client, std::wstring_view(charName));
     }
 
     void __stdcall RequestRankLevel(ClientId client, uint _genArg1, int _genArg2)
@@ -151,13 +153,13 @@ namespace IServerImplHook
             LogLevel::Trace,
             std::format(L"RequestRankLevel(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)", client, _genArg1, _genArg2));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestRankLevel, client, _genArg1, _genArg2); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnRequestRankLevel, client, _genArg1, _genArg2); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.RequestRankLevel(client, (uchar*)_genArg1, _genArg2); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__RequestRankLevel, client, _genArg1, _genArg2);
+        CallPlugins(&Plugin::OnRequestRankLevelAfter, client, _genArg1, _genArg2);
     }
 
     void __stdcall RequestPlayerStats(ClientId client, uint _genArg1, int _genArg2)
@@ -166,13 +168,13 @@ namespace IServerImplHook
             LogLevel::Trace,
             std::format(L"RequestPlayerStats(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)", client, _genArg1, _genArg2));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestPlayerStats, client, _genArg1, _genArg2); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnRequestPlayerStats, client, _genArg1, _genArg2); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.RequestPlayerStats(client, (uchar*)_genArg1, _genArg2); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__RequestPlayerStats, client, _genArg1, _genArg2);
+        CallPlugins(&Plugin::OnRequestPlayerStats, client, _genArg1, _genArg2);
     }
 
     bool CharacterInfoReq__Inner(ClientId client, bool)
@@ -212,7 +214,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"CharacterInfoReq(\n\tClientId client = {}\n\tbool _genArg1 = {}\n)", client, _genArg1));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__CharacterInfoReq, client, _genArg1);
+        const auto skip = CallPlugins(&Plugin::OnCharacterInfoRequest, client, _genArg1);
 
         CHECK_FOR_DISCONNECT;
 
@@ -226,7 +228,7 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(CharacterInfoReq__Catch(client, _genArg1), );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__CharacterInfoReq, client, _genArg1);
+        CallPlugins(&Plugin::OnCharacterInfoRequestAfter, client, _genArg1);
     }
 
 } // namespace IServerImplHook

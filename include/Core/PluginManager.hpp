@@ -2,54 +2,21 @@
 #include "API/FlHook/Plugin.hpp"
 #include "Commands/AdminCommandProcessor.hpp"
 #include "Commands/UserCommandProcessor.hpp"
-#include <Singleton.hpp>
 #include <Exceptions/ErrorInfo.hpp>
-
-struct PluginHookData
-{
-        HookedCall targetFunction;
-        PluginHook::FunctionType hookFunction;
-        HookStep step;
-        int priority;
-        std::weak_ptr<Plugin> plugin;
-};
-
-inline bool operator<(const PluginHookData& lhs, const PluginHookData& rhs) { return lhs.priority > rhs.priority; }
-
+#include <Singleton.hpp>
+#include <Utils/TemplateHelpers.hpp>
 
 class PluginManager : public Singleton<PluginManager>
 {
         friend AdminCommandProcessor;
         friend UserCommandProcessor;
 
-    public:
-        struct FunctionHookProps
-        {
-                bool callBefore = false;
-                bool callAfter = false;
-
-                bool matches(HookStep s) const
-                {
-                    switch (s)
-                    {
-                        case HookStep::Before: return callBefore;
-                        case HookStep::After: return callAfter;
-                        default: return false;
-                    }
-                }
-        };
-
-    private:
-        std::array<std::vector<PluginHookData>, static_cast<uint>(HookedCall::Count) * magic_enum::enum_count<HookStep>()> pluginHooks;
         // TODO: Add a getter function of a const ref so other classes can look at thi list of plugins.
         std::vector<std::shared_ptr<Plugin>> plugins;
         std::vector<std::weak_ptr<AbstractUserCommandProcessor>> userCommands;
         std::vector<std::weak_ptr<AbstractAdminCommandProcessor>> adminCommands;
-        std::unordered_map<HookedCall, FunctionHookProps> hookProps;
 
         void ClearData(bool free);
-        void setupProps();
-        void SetProps(HookedCall c, bool before, bool after);
 
     public:
         PluginManager();
@@ -78,43 +45,53 @@ class PluginManager : public Singleton<PluginManager>
 
         std::optional<std::weak_ptr<Plugin>> GetPlugin(std::wstring_view shortName);
 
-        template <typename ReturnType, typename... Args>
-        ReturnType CallPlugins(HookedCall target, HookStep step, bool& skipFunctionCall, Args&&... args) const
+        template <typename ReturnType, typename FuncPtr, typename... Args>
+        ReturnType CallPlugins(FuncPtr target, bool& skipFunctionCall, Args... args) const
         {
-            using PluginCallType = ReturnType(__thiscall*)(void*, Args...);
             constexpr bool returnTypeIsVoid = std::is_same_v<ReturnType, void>;
             using NoVoidReturnType = std::conditional_t<returnTypeIsVoid, int, ReturnType>;
 
             NoVoidReturnType ret{};
             TRY_HOOK
             {
-                for (const PluginHookData& hook : pluginHooks[static_cast<uint>(target) * magic_enum::enum_count<HookStep>() + static_cast<uint>(step)])
+                for (auto plugin : plugins)
                 {
-                    if (hook.plugin.expired())
-                    {
-                        continue;
-                    }
-
-                    const auto& plugin = hook.plugin.lock();
-
                     plugin->returnCode = ReturnCode::Default;
 
                     TRY_HOOK
                     {
-                        void* pluginRaw = plugin.get();
-                        if constexpr (returnTypeIsVoid)
+                        using ClassType = typename MemberFunctionPointerClassType<FuncPtr>::type;
+                        if constexpr (std::is_same_v<ClassType, PacketInterface>)
                         {
-                            reinterpret_cast<PluginCallType>(hook.hookFunction)(pluginRaw, std::forward<Args>(args)...);
+                            if (const auto packetInterface = dynamic_cast<PacketInterface*>(plugin.get()); packetInterface != nullptr)
+                            {
+                                auto& pluginRef = *packetInterface;
+                                if constexpr (returnTypeIsVoid)
+                                {
+                                    (pluginRef.*target)(args...);
+                                }
+                                else
+                                {
+                                    ret = (pluginRef.*target)(args...);
+                                }
+                            }
                         }
                         else
                         {
-                            ret = reinterpret_cast<PluginCallType>(hook.hookFunction)(pluginRaw, std::forward<Args>(args)...);
+                            auto& pluginRef = *plugin;
+                            if constexpr (returnTypeIsVoid)
+                            {
+                                (pluginRef.*target)(args...);
+                            }
+                            else
+                            {
+                                ret = (pluginRef.*target)(args...);
+                            }
                         }
                     }
                     CATCH_HOOK({
-                        Logger::i()->Log(
-                            LogLevel::Err,
-                            std::format(L"Exception in plugin '{}' in {}-{}", plugin->name, magic_enum::enum_name(target), magic_enum::enum_name(step)));
+                        auto targetName = typeid(FuncPtr).name();
+                        Logger::i()->Log(LogLevel::Err, std::format(L"Exception in plugin '{}' in {}", plugin->name, StringUtils::stows(targetName)));
                     })
 
                     const auto code = plugin->returnCode;
@@ -136,38 +113,27 @@ class PluginManager : public Singleton<PluginManager>
             {
                 return ret;
             }
+            else
+            {
+                return void();
+            }
         }
 };
 
-template <typename ReturnType = void, typename... Args>
-auto CallPluginsBefore(HookedCall target, Args&&... args)
+template <typename ReturnType = void, typename FuncPtr, typename... Args>
+auto CallPlugins(FuncPtr target, Args... args)
 {
     bool skip = false;
     if constexpr (std::is_same_v<ReturnType, void>)
     {
-        PluginManager::i()->CallPlugins<void>(target, HookStep::Before, skip, std::forward<Args>(args)...);
+        PluginManager::i()->CallPlugins<void>(target, skip, args...);
         return skip;
     }
     else
     {
-        auto ret = PluginManager::i()->CallPlugins<ReturnType>(target, HookStep::Before, skip, std::forward<Args>(args)...);
+        auto ret = PluginManager::i()->CallPlugins<ReturnType>(target, skip, args...);
         return std::make_tuple(ret, skip);
     }
-}
-
-template <typename... Args>
-void CallPluginsAfter(HookedCall target, Args&&... args)
-{
-    bool _ = false;
-    PluginManager::i()->CallPlugins<void>(target, HookStep::After, _, std::forward<Args>(args)...);
-}
-
-template <typename... Args>
-bool CallPluginsOther(HookedCall target, HookStep step, Args&&... args)
-{
-    bool skip = false;
-    PluginManager::i()->CallPlugins<void>(target, step, skip, std::forward<Args>(args)...);
-    return skip;
 }
 
 using PluginFactoryT = std::shared_ptr<Plugin> (*)();

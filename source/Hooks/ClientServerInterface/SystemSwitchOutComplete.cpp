@@ -1,11 +1,10 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLServer/Client.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
-
     void SystemSwitchOutComplete__InnerAfter(uint, ClientId client)
     {
         TRY_HOOK
@@ -15,18 +14,19 @@ namespace IServerImplHook
         }
         CATCH_HOOK({})
     }
+
     void __stdcall SystemSwitchOutComplete(uint shipId, ClientId client)
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"SystemSwitchOutComplete(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SystemSwitchOutComplete, shipId, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnSystemSwitchOutComplete, client, shipId); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.SystemSwitchOutComplete(shipId, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
         SystemSwitchOutComplete__InnerAfter(shipId, client);
 
-        CallPluginsAfter(HookedCall::IServerImpl__SystemSwitchOutComplete, shipId, client);
+        CallPlugins(&Plugin::OnSystemSwitchOutCompleteAfter, client, shipId);
     }
 
-}
+} // namespace IServerImplHook

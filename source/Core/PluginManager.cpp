@@ -2,7 +2,7 @@
 
 #include "Core/PluginManager.hpp"
 
-void PluginManager::ClearData(bool free)
+void PluginManager::ClearData(const bool free)
 {
     if (free)
     {
@@ -15,18 +15,9 @@ void PluginManager::ClearData(bool free)
         }
     }
     plugins.clear();
-
-    for (auto& p : pluginHooks)
-    {
-        p.clear();
-    }
 }
 
-PluginManager::PluginManager()
-{
-    ClearData(false);
-    setupProps();
-}
+PluginManager::PluginManager() { ClearData(false); }
 
 PluginManager::~PluginManager() { ClearData(false); }
 
@@ -51,14 +42,6 @@ cpp::result<std::wstring, Error> PluginManager::Unload(std::wstring_view name)
 
     std::wstring unloadedPluginDll = plugin->dllName;
     Logger::i()->Log(LogLevel::Info, std::format(L"Unloading {} ({})", plugin->name, plugin->dllName));
-
-    for (const auto& hook : plugin->hooks)
-    {
-        const uint hookId = static_cast<uint>(hook.targetFunction) * static_cast<uint>(magic_enum::enum_count<HookStep>()) + static_cast<uint>(hook.step);
-        auto& list = pluginHooks[hookId];
-
-        std::erase_if(list, [dllAddr](const PluginHookData& x) { return x.plugin.lock()->dll == dllAddr; });
-    }
 
     plugins.erase(pluginIterator);
 
@@ -99,15 +82,15 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
         }
     }
 
-    const std::wstring pathToDLL = L"./plugins/" + dllName;
+    const std::wstring pathToDll = L"./plugins/" + dllName;
 
-    if (!std::filesystem::exists(pathToDLL))
+    if (!std::filesystem::exists(pathToDll))
     {
         Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR plugin {} not found", dllName));
         return false;
     }
 
-    HMODULE dll = LoadLibraryW(pathToDLL.c_str());
+    const HMODULE dll = LoadLibraryW(pathToDll.c_str());
 
     if (!dll)
     {
@@ -186,28 +169,6 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
         return false;
     }
 
-    for (const auto& hook : plugin->hooks)
-    {
-        if (!hook.hookFunction)
-        {
-            Logger::i()->Log(LogFile::ConsoleOnly,
-                             LogLevel::Err,
-                             std::format(L"ERR could not load function. has step {} of plugin {}", magic_enum::enum_name(hook.step), dllName));
-            continue;
-        }
-
-        if (const auto& targetHookProps = hookProps[hook.targetFunction]; !targetHookProps.matches(hook.step))
-        {
-            Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Warn, std::format(L"ERR could not bind function. plugin: {}, step not available", dllName));
-            continue;
-        }
-
-        uint hookId = static_cast<uint>(hook.targetFunction) * magic_enum::enum_count<HookStep>() + static_cast<uint>(hook.step);
-        std::vector<PluginHookData>& list = pluginHooks[hookId];
-        PluginHookData data = { hook.targetFunction, hook.hookFunction, hook.step, hook.priority, plugin };
-        list.emplace_back(std::move(data));
-    }
-
     plugins.emplace_back(plugin);
 
     const std::weak_ptr weakRef = plugins.back();
@@ -243,5 +204,3 @@ void PluginManager::LoadAll(bool startup)
     }
     while (FindNextFileW(findPluginsHandle, &findData));
 }
-
-void PluginManager::SetProps(HookedCall c, bool before, bool after) { hookProps[c] = { before, after }; }

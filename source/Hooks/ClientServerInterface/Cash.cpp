@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -9,26 +9,26 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"ReqSetCash(\n\tint cash = {}\n\tClientId client = {}\n)", cash, client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqSetCash, cash, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnRequestSetCash, client, cash); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.ReqSetCash(cash, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__ReqSetCash, cash, client);
+        CallPlugins(&Plugin::OnRequestSetCashAfter, client, cash);
     }
 
     void __stdcall ReqChangeCash(int cashAdd, ClientId client)
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"ReqChangeCash(\n\tint cashAdd = {}\n\tClientId client = {}\n)", cashAdd, client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqChangeCash, cashAdd, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnRequestChangeCash, client, cashAdd); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.ReqChangeCash(cashAdd, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__ReqChangeCash, cashAdd, client);
+        CallPlugins(&Plugin::OnRequestChangeCashAfter, client, cashAdd);
     }
 
 } // namespace IServerImplHook

@@ -1,8 +1,8 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLServer/Player.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -38,7 +38,7 @@ namespace IServerImplHook
 
     void __stdcall SPObjUpdate(const SSPObjUpdateInfo& ui, ClientId client)
     {
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPObjUpdate, ui, client);
+        const auto skip = CallPlugins(&Plugin::OnSpObjectUpdate, client, ui);
 
         CHECK_FOR_DISCONNECT;
 
@@ -52,6 +52,6 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__SPObjUpdate, ui, client);
+        CallPlugins(&Plugin::OnSpObjectUpdateAfter, client, ui);
     }
-}
+} // namespace IServerImplHook

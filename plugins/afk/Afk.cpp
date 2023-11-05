@@ -22,17 +22,13 @@
  */
 
 #include "PCH.hpp"
+
 #include "API/API.hpp"
 #include "Afk.hpp"
 
 namespace Plugins
 {
-    AfkPlugin::AfkPlugin(const PluginInfo& info) : Plugin(info)
-    {
-        EmplaceHook(HookedCall::FLHook__ClearClientInfo, &AfkPlugin::ClearClientInfo, HookStep::After);
-        EmplaceHook(HookedCall::IChat__SendChat, &AfkPlugin::SendChat);
-        EmplaceHook(HookedCall::IServerImpl__SubmitChat, &AfkPlugin::SubmitChat);
-    }
+    AfkPlugin::AfkPlugin(const PluginInfo& info) : Plugin(info) {}
 
     /** @ingroup AwayFromKeyboard
      * @brief This command is called when a player types /afk. It prints a message in red text to nearby players saying they are afk. It will also let anyone
@@ -71,9 +67,8 @@ namespace Plugins
 
     // Clean up when a client disconnects
 
-    // Hook on chat being sent (This gets called twice with the client and to
-    // swapped
-    void AfkPlugin::SendChat(ClientId& client, ClientId& targetClient, [[maybe_unused]] const uint& size, [[maybe_unused]] void** rdl)
+    // Hook on chat being sent (This gets called twice with the client and to swapped
+    void AfkPlugin::OnSendChat(ClientId client, ClientId targetClient, [[maybe_unused]] const uint size, [[maybe_unused]] void* rdl)
     {
         if (std::ranges::find(awayClients, targetClient) != awayClients.end())
         {
@@ -82,8 +77,8 @@ namespace Plugins
     }
 
     // Hooks on chat being submitted
-    void AfkPlugin::SubmitChat(ClientId& triggeringClient, [[maybe_unused]] const unsigned long& lP1, [[maybe_unused]] const void** rdlReader,
-                               [[maybe_unused]] ClientId& to, [[maybe_unused]] const int& dunno)
+    void AfkPlugin::OnSubmitChat(ClientId triggeringClient, [[maybe_unused]] const unsigned long lP1, [[maybe_unused]] const void* rdlReader,
+                                 [[maybe_unused]] ClientId to, [[maybe_unused]] const int dunno)
     {
         if (const auto it = awayClients.begin(); Hk::Client::IsValidClientID(client) && std::find(it, awayClients.end(), client) != awayClients.end())
         {
@@ -92,7 +87,7 @@ namespace Plugins
         }
     }
 
-    void AfkPlugin::ClearClientInfo(ClientId& client)
+    void AfkPlugin::OnClearClientInfo(ClientId client)
     {
         auto [first, last] = std::ranges::remove(awayClients, client);
         awayClients.erase(first, last);

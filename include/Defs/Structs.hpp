@@ -18,15 +18,23 @@ struct CargoInfo
         CacheString hardpoint;
 };
 
+struct LaunchData
+{
+        CEqObj* obj;
+        Vector pos;
+        Matrix orientation;
+        int dock;
+};
+
 // money stuff
-struct MONEY_FIX
+struct MoneyFix
 {
         std::wstring character;
         uint amount;
 
-        bool operator==(MONEY_FIX mf1) const
+        bool operator==(const MoneyFix mf1) const
         {
-            if (!character.compare(mf1.character))
+            if (character != mf1.character)
             {
                 return true;
             }

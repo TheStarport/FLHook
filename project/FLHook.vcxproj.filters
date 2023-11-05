@@ -279,16 +279,10 @@
     <ClInclude Include="..\Include\Core\Exceptions\StopProcessingException.hpp">
       <Filter>Include\Core\Exceptions</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Core\Templates\Concepts.hpp">
-      <Filter>Include\Core\Templates</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Core\Templates\Constexpr.hpp">
       <Filter>Include\Core\Templates</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Core\Templates\Macros.hpp">
-      <Filter>Include\Core\Templates</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Core\Templates\TemplateHelpers.hpp">
       <Filter>Include\Core\Templates</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Core\Codec.hpp">

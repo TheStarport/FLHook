@@ -22,10 +22,9 @@ namespace Plugins
              */
             void UserCmdBack();
 
-            void ClearClientInfo(ClientId& client);
-            void SendChat(ClientId& client, ClientId& targetClient, [[maybe_unused]] const uint& size, [[maybe_unused]] void** rdl);
-            void SubmitChat(ClientId& client, [[maybe_unused]] const unsigned long& lP1, [[maybe_unused]] const void** rdlReader, [[maybe_unused]] ClientId& to,
-                            [[maybe_unused]] const int& dunno);
+            void OnClearClientInfo(ClientId client) override;
+            void OnSendChat(ClientId client, ClientId targetClient, uint size, void* rdl) override;
+            void OnSubmitChat(ClientId client, unsigned long lP1, const void* rdlReader, ClientId to, int dunno) override;
 
             constexpr inline static std::array<CommandInfo<AfkPlugin>, 2> commands = {
                 {

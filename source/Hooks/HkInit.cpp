@@ -241,9 +241,9 @@ void ClearClientInfo(ClientId client)
         }
     }
 
-    Hk::IniUtils::i()->CharacterClearClientInfo(client);
+    Hk::IniUtils::CharacterClearClientInfo(client);
 
-    CallPluginsAfter(HookedCall::FLHook__ClearClientInfo, client);
+    CallPlugins(&Plugin::OnClearClientInfo, client);
 }
 
 /**************************************************************************************************************

@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Global.hpp"
 
 #include "API/API.hpp"
 
@@ -49,7 +49,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"PlayerLaunch(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__PlayerLaunch, shipId, client);
+        const auto skip = CallPlugins(&Plugin::OnPlayerLaunch, client, shipId);
 
         CHECK_FOR_DISCONNECT;
 
@@ -62,7 +62,7 @@ namespace IServerImplHook
         }
         PlayerLaunch__InnerAfter(shipId, client);
 
-        CallPluginsAfter(HookedCall::IServerImpl__PlayerLaunch, shipId, client);
+        CallPlugins(&Plugin::OnPlayerLaunchAfter, client, shipId);
     }
 
-} 
+} // namespace IServerImplHook

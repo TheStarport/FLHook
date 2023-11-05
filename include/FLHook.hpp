@@ -21,7 +21,7 @@ class CLIENT_INFO
         DamageList dmgLast;
 
         // money cmd
-        std::list<MONEY_FIX> moneyFix;
+        std::list<MoneyFix> moneyFix;
 
         // anticheat
         uint tradePartner;

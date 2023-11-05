@@ -1,8 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "Core/ClientServerInterface.hpp"
-
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -10,52 +9,52 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"RequestCreateShip(\n\tClientId client = {}\n)", client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestCreateShip, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnRequestCreateShip, client); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.RequestCreateShip(client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__RequestCreateShip, client);
+        CallPlugins(&Plugin::OnRequestCreateShipAfter, client);
     }
 
     void __stdcall ReqCollisionGroups(const st6::list<CollisionGroupDesc>& collisionGroups, ClientId client)
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"ReqCollisionGroups(\n\tClientId client = {}\n)", client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqCollisionGroups, collisionGroups, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnRequestCollisionGroups, client, collisionGroups); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.ReqCollisionGroups(collisionGroups, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__ReqCollisionGroups, collisionGroups, client);
+        CallPlugins(&Plugin::OnRequestCollisionGroupsAfter, client, collisionGroups);
     }
 
-    void __stdcall ReqShipArch(uint archId, ClientId client)
+    void __stdcall ReqShipArch(ArchId archId, ClientId client)
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"ReqShipArch(\n\tuint archId = {}\n\tClientId client = {}\n)", archId, client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqShipArch, archId, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnRequestShipArch, client, archId); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.ReqShipArch(archId, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__ReqShipArch, archId, client);
+        CallPlugins(&Plugin::OnRequestShipArchAfter, client, archId);
     }
 
     void __stdcall ReqHulatus(float status, ClientId client)
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"ReqHulatus(\n\tfloat status = {}\n\tClientId client = {}\n)", status, client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqHulatus, status, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnRequestHullStatus, client, status); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.ReqHullStatus(status, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__ReqHulatus, status, client);
+        CallPlugins(&Plugin::OnRequestHullStatusAfter, client, status);
     }
 
     void __stdcall SPRequestInvincibility(uint shipId, bool enable, InvincibilityReason reason, ClientId client)
@@ -68,13 +67,13 @@ namespace IServerImplHook
                         (int)reason,
                         client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPRequestInvincibility, shipId, enable, reason, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnSpRequestInvincibility, client, shipId, enable, reason); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.SPRequestInvincibility(shipId, enable, reason, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__SPRequestInvincibility, shipId, enable, reason, client);
+        CallPlugins(&Plugin::OnSpRequestInvincibilityAfter, client, shipId, enable, reason);
     }
 
 } // namespace IServerImplHook

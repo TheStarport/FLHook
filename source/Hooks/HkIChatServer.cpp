@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLServer/Chat.hpp"
+#include "Global.hpp"
 
 /**************************************************************************************************************
 called when chat-text is being sent to a player, we reformat it(/set chatfont)
@@ -11,7 +11,7 @@ called when chat-text is being sent to a player, we reformat it(/set chatfont)
 
 void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl)
 {
-    CallPluginsBefore(HookedCall::IChat__SendChat, client, clientTo, size, rdl);
+    CallPlugins(&Plugin::OnSendChat, client, clientTo, size, rdl);
 
     TRY_HOOK
     {

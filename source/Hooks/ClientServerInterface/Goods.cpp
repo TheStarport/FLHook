@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/API.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -52,7 +52,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"GFGoodSell(\n\tClientId client = {}\n)", client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodSell, _genArg1, client);
+        const auto skip = CallPlugins(&Plugin::OnGfGoodSell, client, _genArg1);
 
         CHECK_FOR_DISCONNECT;
 
@@ -66,34 +66,33 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__GFGoodSell, _genArg1, client);
+        CallPlugins(&Plugin::OnGfGoodSellAfter, client, _genArg1);
     }
 
     void __stdcall GFGoodBuy(const SGFGoodBuyInfo& _genArg1, ClientId client)
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"GFGoodBuy(\n\tClientId client = {}\n)", client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodBuy, _genArg1, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnGfGoodBuy, client, _genArg1); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.GFGoodBuy(_genArg1, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__GFGoodBuy, _genArg1, client);
+        CallPlugins(&Plugin::OnGfGoodBuyAfter, client, _genArg1);
     }
 
     void __stdcall GFGoodVaporized(const SGFGoodVaporizedInfo& gvi, ClientId client)
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"GFGoodVaporized(\n\tClientId client = {}\n)", client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFGoodVaporized, gvi, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnGfGoodVaporized, client, gvi); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.GFGoodVaporized(gvi, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__GFGoodVaporized, gvi, client);
+        CallPlugins(&Plugin::OnGfGoodVaporizedAfter, client, gvi);
     }
-
 
 } // namespace IServerImplHook

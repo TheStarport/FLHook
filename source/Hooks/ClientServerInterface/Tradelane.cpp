@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/API.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -30,7 +30,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"GoTradelane(\n\tClientId client = {}\n)", client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GoTradelane, client, gt);
+        const auto skip = CallPlugins(&Plugin::OnTradelaneStart, client, gt);
 
         GoTradelane__Inner(client, gt);
 
@@ -40,7 +40,7 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(GoTradelane__Catch(client, gt), );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__GoTradelane, client, gt);
+        CallPlugins(&Plugin::OnTradelaneStartAfter, client, gt);
     }
 
     void StopTradelane__Inner(ClientId client, uint, uint, uint)
@@ -60,7 +60,7 @@ namespace IServerImplHook
                                      tradelaneRing1,
                                      tradelaneRing2));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__StopTradelane, client, shipId, tradelaneRing1, tradelaneRing2);
+        const auto skip = CallPlugins(&Plugin::OnTradelaneStop, client, shipId, tradelaneRing1, tradelaneRing2);
 
         StopTradelane__Inner(client, shipId, tradelaneRing1, tradelaneRing2);
 
@@ -70,6 +70,6 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__StopTradelane, client, shipId, tradelaneRing1, tradelaneRing2);
+        CallPlugins(&Plugin::OnTradelaneStopAfter, client, shipId, tradelaneRing1, tradelaneRing2);
     }
 } // namespace IServerImplHook

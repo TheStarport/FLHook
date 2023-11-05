@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLServer/Client.hpp"
+#include "Global.hpp"
 
 /**************************************************************************************************************
 // misc flserver engine function hooks
@@ -15,7 +15,7 @@ namespace IEngineHook
 
     FARPROC g_OldInitCShip;
 
-    void __stdcall CShip__Init(CShip* ship) { CallPluginsAfter(HookedCall::IEngine__CShip__Init, ship); }
+    void __stdcall CShip__Init(CShip* ship) { CallPlugins(&Plugin::OnCShipInit, ship); }
 
     __declspec(naked) void Naked__CShip__Init()
     {
@@ -30,7 +30,7 @@ namespace IEngineHook
 
     FARPROC g_OldDestroyCShip;
 
-    void __stdcall CShip__Destroy(CShip* ship) { CallPluginsBefore(HookedCall::IEngine__CShip__Destroy, ship); }
+    void __stdcall CShip__Destroy(CShip* ship) { CallPlugins(&Plugin::OnCShipDestroy, ship); }
 
     __declspec(naked) void Naked__CShip__Destroy()
     {
@@ -64,14 +64,7 @@ namespace IEngineHook
     /**************************************************************************************************************
     **************************************************************************************************************/
 
-    void __cdecl UpdateTime(double interval)
-    {
-        CallPluginsBefore(HookedCall::IEngine__UpdateTime, interval);
-
-        Timing::UpdateGlobalTime(interval);
-
-        CallPluginsAfter(HookedCall::IEngine__UpdateTime, interval);
-    }
+    void __cdecl UpdateTime(double interval) { Timing::UpdateGlobalTime(interval); }
 
     /**************************************************************************************************************
     **************************************************************************************************************/
@@ -82,12 +75,8 @@ namespace IEngineHook
 
     void __stdcall ElapseTime(float interval)
     {
-        CallPluginsBefore(HookedCall::IEngine__ElapseTime, interval);
-
         dummy = &Server;
         Server.ElapseTime(interval);
-
-        CallPluginsAfter(HookedCall::IEngine__ElapseTime, interval);
 
         // low server load missile jitter bug fix
         const uint curLoad = GetTickCount() - g_LastTicks;
@@ -109,20 +98,29 @@ namespace IEngineHook
         //	dockPortIndex != -1, response -> 4 --> Dock ok, proceed (dockPortIndex starts from 0 for docking point 1)
         //	dockPortIndex == -1, response -> 5 --> now DOCK!
 
-        CallPluginsBefore(HookedCall::IEngine__DockCall, shipId, spaceId, dockPortIndex, response);
+        auto [override, skip] = CallPlugins<std::optional<DOCK_HOST_RESPONSE>>(&Plugin::OnDockCall, shipId, spaceId, dockPortIndex, response);
+
+        if (skip)
+        {
+            return 0;
+        }
+
+        if (override.has_value())
+        {
+            response = override.value();
+        }
 
         int retVal = 0;
         TRY_HOOK
         {
             // Print out a message when a player ship docks.
-            if (FLHookConfig::c()->chatConfig.dockingMessages && response == DOCK_HOST_RESPONSE::ProceedDock)
+            if (FLHookConfig::c()->chatConfig.dockingMessages && response == DOCK_HOST_RESPONSE::Dock)
             {
-                const auto client = Hk::Client::GetClientIdByShip(shipId).Raw();
-                if (client.has_value())
+                if (const auto client = Hk::Client::GetClientIdByShip(shipId).Raw(); client.has_value())
                 {
-                    std::wstring Msg = L"Traffic control alert: %player has requested to dock";
-                    Msg = StringUtils::ReplaceStr(Msg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(client.value()));
-                    PrintLocalUserCmdText(client.value(), Msg, 15000);
+                    std::wstring msg = L"Traffic control alert: %player has docked.";
+                    msg = StringUtils::ReplaceStr(msg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(client.value()));
+                    PrintLocalUserCmdText(client.value(), msg, 15000);
                 }
             }
             // Actually dock
@@ -130,7 +128,7 @@ namespace IEngineHook
         }
         CATCH_HOOK({})
 
-        CallPluginsAfter(HookedCall::IEngine__DockCall, shipId, spaceId, dockPortIndex, response);
+        CallPlugins(&Plugin::OnDockCallAfter, shipId, spaceId, dockPortIndex, response);
 
         return retVal;
     }
@@ -140,12 +138,15 @@ namespace IEngineHook
 
     FARPROC g_OldLaunchPosition;
 
-    bool __stdcall LaunchPosition(uint spaceId, CEqObj& obj, Vector& position, Matrix& orientation, int dock)
+    bool __stdcall LaunchPosition(const uint spaceId, CEqObj& obj, Vector& position, Matrix& orientation, int dock)
     {
-        auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IEngine__LaunchPosition, spaceId, obj, position, orientation, dock);
-        if (skip)
+        const LaunchData data = { &obj, position, orientation, dock };
+        if (auto [retVal, skip] = CallPlugins<std::optional<LaunchData>>(&Plugin::OnLaunchPosition, spaceId, data); skip && retVal.has_value())
         {
-            return retVal;
+            const auto& val = retVal.value();
+            position = val.pos;
+            orientation = val.orientation;
+            return true;
         }
 
         return obj.launch_pos(position, orientation, dock);

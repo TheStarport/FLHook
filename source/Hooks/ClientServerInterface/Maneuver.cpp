@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -9,12 +9,12 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"SetManeuver(\n\tClientId client = {}\n)", client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetManeuver, client, sm); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnSetManeuver, client, sm); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.SetManeuver(client, sm); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__SetManeuver, client, sm);
+        CallPlugins(&Plugin::OnSetManeuverAfter, client, sm);
     }
 } // namespace IServerImplHook

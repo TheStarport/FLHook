@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -9,7 +9,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"SPObjCollision(\n\tClientId client = {}\n)", client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPObjCollision, oci, client);
+        const auto skip = CallPlugins(&Plugin::OnSpObjectCollision, client, oci);
 
         CHECK_FOR_DISCONNECT;
 
@@ -19,7 +19,7 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__SPObjCollision, oci, client);
+        CallPlugins(&Plugin::OnSpObjectCollisionAfter, client, oci);
     }
 
 } // namespace IServerImplHook

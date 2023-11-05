@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLServer/Client.hpp"
+#include "Global.hpp"
 
 EXPORT uint g_DmgTo = 0;
 EXPORT uint g_DmgToSpaceId = 0;
@@ -20,12 +20,7 @@ FARPROC g_OldGuidedHit;
 
 int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 {
-    auto [rval, skip] = CallPluginsBefore<int>(HookedCall::IEngine__GuidedHit, ecx, p1, dmgList);
-    if (skip)
-    {
-        return rval;
-    }
-
+    uint retValue = 0;
     TRY_HOOK
     {
         char* p;
@@ -34,36 +29,45 @@ int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
         memcpy(&client, p + 0xB4, 4);
         uint spaceId;
         memcpy(&spaceId, p + 0xB0, 4);
+        uint inflictorShip;
+        memcpy(&inflictorShip, p1 + 4, 4);
+
+        auto [rval, skip] = CallPlugins<bool>(&Plugin::OnGuidedHit, inflictorShip, client, spaceId, dmgList);
+        if (skip)
+        {
+            return rval;
+        }
 
         g_DmgTo = client;
         g_DmgToSpaceId = spaceId;
         if (client)
         {
             // a player was hit
-            uint inflictorShip;
-            memcpy(&inflictorShip, p1 + 4, 4);
             const auto clientInflictor = Hk::Client::GetClientIdByShip(inflictorShip).Raw();
             if (clientInflictor.has_error())
             {
-                return 0; // hit by npc
+                retValue = 0; // hit by npc
             }
-
-            if (!AllowPlayerDamage(clientInflictor.value(), client))
+            else
             {
-                return 1;
-            }
+                if (!AllowPlayerDamage(clientInflictor.value(), client))
+                {
+                    retValue = 1;
+                }
 
-            if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour &&
-                ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause() == DamageCause::UnkDisrupter) &&
-                 !ClientInfo[client].cruiseActivated))
-            {
-                dmgList->set_cause(DamageCause::DummyDisrupter); // change to sth else, so client won't recognize it as a disruptor
+                if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour &&
+                    ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause() == DamageCause::UnkDisrupter) &&
+                     !ClientInfo[client].cruiseActivated))
+                {
+                    dmgList->set_cause(DamageCause::DummyDisrupter); // change to sth else, so client won't recognize it as a disruptor
+                }
             }
         }
+
+        CallPlugins(&Plugin::OnGuidedHitAfter, inflictorShip, client, spaceId, dmgList);
     }
     CATCH_HOOK({})
-
-    return 0;
+    return retValue;
 }
 
 __declspec(naked) void Naked__GuidedHit()
@@ -95,7 +99,7 @@ the g_DmgTo variable...
 
 void __stdcall AddDamageEntry(DamageList* dmgList, unsigned short subObjId, float hitPts, DamageEntry::SubObjFate fate)
 {
-    if (CallPluginsBefore(HookedCall::IEngine__AddDamageEntry, dmgList, subObjId, hitPts, fate))
+    if (CallPlugins(&Plugin::OnAddDamageEntry, dmgList, subObjId, hitPts, fate))
     {
         return;
     }
@@ -166,7 +170,7 @@ void __stdcall AddDamageEntry(DamageList* dmgList, unsigned short subObjId, floa
     }
     CATCH_HOOK({})
 
-    CallPluginsAfter(HookedCall::IEngine__AddDamageEntry, dmgList, subObjId, hitPts, fate);
+    CallPlugins(&Plugin::OnAddDamageEntryAfter, dmgList, subObjId, hitPts, fate);
 
     g_DmgTo = 0;
     g_DmgToSpaceId = 0;
@@ -194,8 +198,6 @@ FARPROC g_OldDamageHit, g_OldDamageHit2;
 
 void __stdcall DamageHit(char* ecx)
 {
-    CallPluginsBefore(HookedCall::IEngine__DamageHit, ecx);
-
     TRY_HOOK
     {
         char* p;
@@ -207,6 +209,8 @@ void __stdcall DamageHit(char* ecx)
 
         g_DmgTo = client;
         g_DmgToSpaceId = spaceId;
+
+        CallPlugins(&Plugin::OnDamageHit, client, spaceId);
     }
     CATCH_HOOK({})
 }
@@ -239,7 +243,7 @@ Called when ship was damaged
 
 bool AllowPlayerDamage(ClientId client, ClientId clientTarget)
 {
-    auto [rval, skip] = CallPluginsBefore<bool>(HookedCall::IEngine__AllowPlayerDamage, client, clientTarget);
+    auto [rval, skip] = CallPlugins<bool>(&Plugin::OnAllowPlayerDamage, client, clientTarget);
     if (skip)
     {
         return rval;

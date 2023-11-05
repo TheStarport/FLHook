@@ -5,37 +5,6 @@ constexpr PluginMinorVersion CurrentMinorVersion = PluginMinorVersion::VERSION_0
 
 const std::wstring VersionInformation = std::to_wstring(static_cast<int>(CurrentMajorVersion)) + L"." + std::to_wstring(static_cast<int>(CurrentMinorVersion));
 
-struct PluginHook
-{
-        using FunctionType = void (*)(void*);
-
-        HookedCall targetFunction;
-        FunctionType hookFunction;
-        HookStep step;
-        int priority;
-
-        template <typename Func>
-        PluginHook(const HookedCall targetFunction, Func hookFunc, const HookStep step = HookStep::Before, const int priority = 0)
-            : targetFunction(targetFunction), step(step), priority(priority)
-        {
-            // This is dumb. We have to cast it to a pointer reference, then dereference it. If we don't we get a type error.
-            hookFunction = *reinterpret_cast<FunctionType*>(&hookFunc);
-            switch (step)
-            {
-                case HookStep::Before:
-                    if (targetFunction == HookedCall::FLHook__LoadSettings)
-                    {
-                        throw std::invalid_argument("Load settings can only be called HookStep::After.");
-                    }
-                    break;
-                case HookStep::After: break;
-                default:;
-            }
-        }
-
-        friend class PluginManager;
-};
-
 struct Timer
 {
         std::function<void()> func;
@@ -63,6 +32,10 @@ struct PluginInfo
         {}
 };
 
+#ifdef FLHOOK
+class PluginManager;
+#endif
+
 class DLL Plugin
 {
         static std::optional<std::weak_ptr<Plugin>> GetPluginFromManager(std::wstring_view shortName);
@@ -77,31 +50,13 @@ class DLL Plugin
         std::wstring shortName;
         bool mayUnload;
 
-        std::vector<PluginHook> hooks;
         HMODULE dll = nullptr;
         std::wstring dllName;
         std::vector<std::shared_ptr<Timer>> timers;
+        int callPriority = 0;
 
     protected:
         ReturnCode returnCode = ReturnCode::Default;
-
-        template <typename... Args>
-        void EmplaceHook(Args&&... args)
-        {
-            PluginHook ph(std::forward<Args>(args)...);
-            if (std::ranges::find_if(hooks, [ph](const PluginHook& hook) { return hook.targetFunction == ph.targetFunction && ph.step == hook.step; }) !=
-                hooks.end())
-            {
-                return;
-            }
-
-            hooks.emplace_back(ph);
-        }
-
-        void RemoveHook(HookedCall target, HookStep step)
-        {
-            std::erase_if(hooks, [target, step](const PluginHook& hook) { return hook.targetFunction == target && step == hook.step; });
-        }
 
         void AddTimer(void (Plugin::*func)(), const int frequencyInSeconds)
         {
@@ -111,17 +66,19 @@ class DLL Plugin
             }
         }
 
+        void SetPriority(const int priority) { callPriority = priority; }
+
         template <typename T>
         std::optional<std::weak_ptr<T>> GetPlugin(const std::wstring_view shortName)
             requires std::derived_from<T, Plugin>
         {
-            auto plugin = GetPluginFromManager(shortName);
+            const auto plugin = GetPluginFromManager(shortName);
             if (!plugin.has_value())
             {
                 return std::nullopt;
             }
 
-            auto weakBase = plugin.value();
+            const auto weakBase = plugin.value();
             std::weak_ptr<T> weakPlugin = std::static_pointer_cast<T>(weakBase.lock());
             return weakPlugin;
         }
@@ -162,7 +119,149 @@ class DLL Plugin
         }
 
         const auto& GetTimers() { return timers; }
+
+        // Define a macro that specifies a hook has an 'after' event
+#define Aft(type, name, params)                 \
+    virtual type name params { return type(); } \
+    virtual void name##After params {}
+
+        // Hooks
+        virtual void OnCShipInit(CShip* ship) {}
+        virtual void OnCShipDestroy(CShip* ship) {}
+        Aft(std::optional<DOCK_HOST_RESPONSE>, OnDockCall, (ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response));
+        virtual std::optional<LaunchData> OnLaunchPosition(ObjectId spaceId, const LaunchData& data) { return std::nullopt; }
+        virtual void OnShipDestroyed(ClientId killedPlayer, DamageList* dmg, CShip* destroyedShip) {}
+        virtual void OnBaseDestroyed(ClientId destroyingClient, ObjectId spaceId) {}
+        Aft(bool, OnGuidedHit, (ShipId inflictorShip, ClientId hitClient, ObjectId hitObject, DamageList* dmg));
+        Aft(void, OnAddDamageEntry, (DamageList * dmg, ushort subObjId, float newHitPts, DamageEntry::SubObjFate fate));
+        virtual void OnDamageHit(ClientId hitClient, ObjectId spaceId) {}
+        Aft(bool, OnAllowPlayerDamage, (ClientId client, ClientId target));
+        Aft(void, OnSendDeathMessage, (ClientId killer, ClientId victim, SystemId system, std::wstring_view msg));
+        virtual void OnLoadSettings() {}
+        virtual void OnLoadCharacterSettings(ClientId client, std::wstring_view characterName) {}
+        virtual void OnClearClientInfo(ClientId client) {}
+        virtual void OnSendChat(ClientId client, ClientId targetClient, const uint size, void* rdl) {}
+        Aft(void, OnFireWeapon, (ClientId client, const XFireWeaponInfo& info));
+        Aft(void, OnActivateEquip, (ClientId client, const XActivateEquip& activate));
+        Aft(void, OnActivateCruise, (ClientId client, const XActivateCruise& activate));
+        Aft(void, OnActivateThrusters, (ClientId client, const XActivateThrusters& activate));
+        Aft(void, OnSetTarget, (ClientId client, const XSetTarget& target));
+        Aft(void, OnTradelaneStart, (ClientId client, const XGoTradelane& tradelane));
+        Aft(void, OnTradelaneStop, (ClientId client, ShipId ship, ObjectId tradelaneRing1, ObjectId tradelaneRing2));
+        Aft(bool, OnServerStartup, (const SStartupInfo& info));
+        virtual void OnServerShutdown() {}
+        Aft(int, OnServerUpdate, ());
+        Aft(void, OnLogin, (ClientId client, const SLoginInfo& li));
+        Aft(void, OnConnect, (ClientId client));
+        Aft(void, OnDisconnect, (ClientId client, EFLConnection connection));
+        Aft(void, OnCharacterInfoRequest, (ClientId client, bool unk1));
+        Aft(void, OnCharacterSelect, (ClientId client, std::wstring_view id));
+        Aft(void, OnCharacterCreation, (ClientId client, const SCreateCharacterInfo& info));
+        Aft(void, OnCharacterDelete, (ClientId client, std::wstring_view charName));
+        Aft(void, OnRequestShipArch, (ClientId client, ArchId arch));
+        Aft(void, OnRequestHullStatus, (ClientId client, float status));
+        Aft(void, OnRequestCollisionGroups, (ClientId client, const st6::list<CollisionGroupDesc>& groups));
+        Aft(void, OnRequestEquipment, (ClientId client, const EquipDescList& edl));
+        Aft(void, OnRequestModifyItem, (ClientId client, ushort slotId, std::wstring_view hardpoint, int count, float status, bool mounted));
+        Aft(void, OnRequestAddItem, (ClientId client, GoodId goodId, std::wstring_view hardpoint, int count, float status, bool mounted));
+        Aft(void, OnRequestRemoveItem, (ClientId client, ushort slotId, int count));
+        Aft(void, OnCargoJettison, (ClientId client, const XJettisonCargo& cargo));
+        Aft(void, OnTractorObjects, (ClientId client, const XTractorObjects& tractor));
+        Aft(void, OnRequestSetCash, (ClientId client, int cash));
+        Aft(void, OnRequestChangeCash, (ClientId client, int cash));
+        Aft(void, OnBaseEnter, (BaseId base, ClientId client));
+        Aft(void, OnBaseExit, (BaseId base, ClientId client));
+        Aft(void, OnLocationEnter, (ClientId client, LocationId location));
+        Aft(void, OnLocationExit, (ClientId client, LocationId location));
+        Aft(void, OnRequestBaseInfo, (uint unk1, uint unk2, uint unk3));
+        Aft(void, OnRequestLocationInfo, (uint unk1, uint unk2, uint unk3));
+        Aft(void, OnGfObjectSelect, (uint unk1, uint unk2));
+        Aft(void, OnGfGoodBuy, (ClientId client, const SGFGoodBuyInfo& info));
+        Aft(void, OnGfGoodSell, (ClientId client, const SGFGoodSellInfo& info));
+        Aft(void, OnGfGoodVaporized, (ClientId client, const SGFGoodVaporizedInfo& info));
+        Aft(void, OnMissionResponse, (ClientId client, uint unk1, ulong unk2, bool unk3));
+        Aft(void, OnSystemSwitchOutComplete, (ClientId client, ShipId ship));
+        Aft(void, OnPlayerLaunch, (ClientId client, ShipId ship));
+        Aft(void, OnLaunchComplete, (BaseId baseId, ShipId ship));
+        Aft(void, OnJumpInComplete, (SystemId system, ShipId ship));
+        Aft(void, OnHail, (uint unk1, uint unk2, uint unk3));
+        Aft(void, OnSpObjectUpdate, (ClientId client, const SSPObjUpdateInfo& info));
+        Aft(void, OnSpMunitionCollision, (ClientId client, const SSPMunitionCollisionInfo& info));
+        Aft(void, OnSpObjectCollision, (ClientId client, const SSPObjCollisionInfo& info));
+        Aft(void, OnSpScanCargo, (uint unk1, uint unk2, uint unk3));
+        Aft(void, OnSpRequestUseItem, (ClientId client, const SSPUseItem& item));
+        Aft(void, OnSpRequestInvincibility, (ClientId client, ShipId shipId, bool enable, InvincibilityReason reason));
+        Aft(void, OnRequestEvent, (ClientId client, int eventType, ShipId ship, ObjectId dockTarget, uint unk1, uint unk2));
+        Aft(void, OnRequestCancel, (ClientId client, int eventType, ShipId ship, ObjectId dockTarget, uint unk1));
+        Aft(void, OnMineAsteroid, (ClientId client, SystemId system, const Vector& pos, ObjectId crateId, ObjectId lootId, uint count));
+        Aft(void, OnRequestCreateShip, (ClientId client));
+        Aft(void, OnSetManeuver, (ClientId client, const XSetManeuver& maneuver));
+        Aft(void, OnInterfaceItemUsed, (uint unk1, uint unk2));
+        Aft(void, OnAbortMission, (ClientId client, uint unk1));
+        Aft(void, OnSetWeaponGroup, (ClientId client, uint unk1, int unk2));
+        Aft(void, OnSetVisitedState, (ClientId client, uint objectHash, int state));
+        Aft(void, OnRequestBestPath, (ClientId client, uint unk1, int unk2));
+        Aft(void, OnRequestPlayerStats, (ClientId id, uint unk1, int unk2));
+        Aft(void, OnPopupDialogueConfirm, (ClientId client, uint buttonClicked));
+        Aft(void, OnRequestGroupPositions, (ClientId client, uint unk1, int unk2));
+        Aft(void, OnSetInterfaceState, (ClientId client, uint unk1, int unk2));
+        Aft(void, OnRequestRankLevel, (ClientId client, uint unk1, int unk2));
+        Aft(void, OnTradeResponse, (ClientId client, const unsigned char* unk1, int unk2));
+        Aft(void, OnInitiateTrade, (ClientId client1, ClientId client2));
+        Aft(void, OnTerminateTrade, (ClientId client, int accepted));
+        Aft(void, OnAcceptTrade, (ClientId client, bool unk1));
+        Aft(void, OnSetTradeMoney, (ClientId client, ulong cash));
+        Aft(void, OnAddTradeEquip, (ClientId client, const EquipDesc& equip));
+        Aft(void, OnRemoveTradeEquip, (ClientId client, const EquipDesc& equip));
+        Aft(void, OnStopTradeRequest, (ClientId client));
+        Aft(void, OnRequestTrade, (ClientId client1, ClientId client2));
+        Aft(void, OnSubmitChat, (ClientId from, ulong size, const void* rdlReader, ClientId to, int genArg1));
 };
+
+class DLL PacketInterface
+{
+    public:
+        virtual ~PacketInterface() = default;
+        Aft(bool, OnFireWeaponPacket, (ClientId client, XFireWeaponInfo& info));
+        Aft(bool, OnActivateEquipPacket, (ClientId client, XActivateEquip& activate));
+        Aft(bool, OnActivateCruisePacket, (ClientId client, XActivateCruise& activate));
+        Aft(bool, OnActivateThrusterPacket, (ClientId client, XActivateThrusters& activate));
+        Aft(bool, OnSetShipArchPacket, (ClientId client, ArchId arch));
+        Aft(bool, OnSetHullStatusPacket, (ClientId client, float status));
+        Aft(bool, OnSetCollisionGroupsPacket, (ClientId client, st6::list<XCollision>& collisionGroupList));
+        Aft(bool, OnSetEquipmentPacket, (ClientId client, st6::vector<EquipDesc>& equipmentVector));
+        Aft(bool, OnSetAddItemPacket, (ClientId client, FLPACKET_UNKNOWN& unk1, FLPACKET_UNKNOWN& unk2));
+        Aft(bool, OnSetStartRoomPacket, (ClientId client, uint unk1, uint unk2));
+        Aft(bool, OnCreateSolarPacket, (ClientId client, FLPACKET_CREATESOLAR& solar));
+        Aft(bool, OnCreateLootPacket, (ClientId client, FLPACKET_UNKNOWN& unk1));
+        Aft(bool, OnCreateShipPacket, (ClientId client, FLPACKET_CREATESHIP& ship));
+        Aft(bool, OnCreateMinePacket, (ClientId client, FLPACKET_UNKNOWN& unk1));
+        Aft(bool, OnCreateGuidedPacket, (ClientId client, FLPACKET_CREATEGUIDED& guided));
+        Aft(bool, OnCreateCounterPacket, (ClientId client, FLPACKET_UNKNOWN& unk1));
+        Aft(bool, OnUpdateObjectPacket, (ClientId client, SSPObjUpdateInfo& update));
+        Aft(bool, OnDestroyObjectPacket, (ClientId client, FLPACKET_DESTROYOBJECT& destroy));
+        Aft(bool, OnActivateObjectPacket, (ClientId client, XActivateEquip& aq));
+        Aft(bool, OnLaunchPacket, (ClientId client, FLPACKET_LAUNCH& launch));
+        Aft(bool, OnRequestCreateShipResponsePacket, (ClientId client, bool response, ShipId shipId));
+        Aft(bool, OnUseItemPacket, (ClientId client, uint unk1));
+        Aft(bool, OnSetReputationPacket, (ClientId client, FLPACKET_SETREPUTATION& rep));
+        Aft(bool, OnSetMissionMessagePacket, (ClientId client, FLPACKET_UNKNOWN& unk1));
+        Aft(bool, OnSetMissionObjectivesPacket, (ClientId client, uint unk1));
+        Aft(bool, OnSetCashPacket, (ClientId client, uint cash));
+        Aft(bool, OnBurnFusePacket, (ClientId client, FLPACKET_BURNFUSE& burnFuse));
+        Aft(bool, OnScanNotifyPacket, (ClientId client, uint unk1, uint unk2));
+        Aft(bool, OnPlayerListPacket, (ClientId client, std::wstring_view characterName, uint unk2, char unk3));
+        Aft(bool, OnPlayerList2Packet, (ClientId client));
+        Aft(bool, OnMiscObjectUpdatePacket, (ClientId client, FLPACKET_UNKNOWN& unk1));
+        Aft(bool, OnMiscObjectUpdate2Packet, (ClientId client, uint unk1, uint unk2));
+        Aft(bool, OnMiscObjectUpdate3Packet, (ClientId client, uint targetId, uint rank));
+        Aft(bool, OnMiscObjectUpdate4Packet, (ClientId client, uint unk1, uint unk2));
+        Aft(bool, OnMiscObjectUpdate5Packet, (ClientId client, uint unk1, uint unk2));
+        Aft(bool, OnMiscObjectUpdate6Packet, (ClientId client, uint unk1, uint unk2));
+        Aft(bool, OnMiscObjectUpdate7Packet, (ClientId client, uint unk1, uint unk2));
+};
+
+#undef Aft
 
 #define SetupPlugin(type, info)                                               \
     EXPORT std::shared_ptr<type> PluginFactory()                              \

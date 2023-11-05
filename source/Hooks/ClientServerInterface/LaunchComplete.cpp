@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/API.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -30,7 +30,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"LaunchComplete(\n\tuint baseId = {}\n\tuint shipId = {}\n)", baseId, shipId));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__LaunchComplete, baseId, shipId);
+        const auto skip = CallPlugins(&Plugin::OnLaunchComplete, baseId, shipId);
 
         LaunchComplete__Inner(baseId, shipId);
 
@@ -40,7 +40,7 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__LaunchComplete, baseId, shipId);
+        CallPlugins(&Plugin::OnLaunchCompleteAfter, baseId, shipId);
     }
 
-}
+} // namespace IServerImplHook

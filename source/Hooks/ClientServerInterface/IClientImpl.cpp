@@ -6,7 +6,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(ClientId client, XFireWeaponIn
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_COMMON_FIREWEAPON, client, fwi);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnFireWeaponPacket, client, fwi);
 
     if (!skip)
     {
@@ -14,7 +14,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(ClientId client, XFireWeaponIn
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_COMMON_FIREWEAPON, client, fwi);
+    CallPlugins(&PacketInterface::OnFireWeaponPacketAfter, client, fwi);
 
     return retVal;
 }
@@ -23,7 +23,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(ClientId client, XActivateE
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_COMMON_ACTIVATEEQUIP, client, aq);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnActivateEquipPacket, client, aq);
 
     if (!skip)
     {
@@ -31,7 +31,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(ClientId client, XActivateE
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_COMMON_ACTIVATEEQUIP, client, aq);
+    CallPlugins(&PacketInterface::OnActivateEquipPacketAfter, client, aq);
 
     return retVal;
 }
@@ -40,7 +40,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(ClientId client, XActivate
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_COMMON_ACTIVATECRUISE, client, aq);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnActivateCruisePacket, client, aq);
 
     if (!skip)
     {
@@ -48,7 +48,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(ClientId client, XActivate
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_COMMON_ACTIVATECRUISE, client, aq);
+    CallPlugins(&PacketInterface::OnActivateCruisePacketAfter, client, aq);
 
     return retVal;
 }
@@ -57,7 +57,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(ClientId client, XActiv
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_COMMON_ACTIVATETHRUSTERS, client, aq);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnActivateThrusterPacket, client, aq);
 
     if (!skip)
     {
@@ -65,7 +65,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(ClientId client, XActiv
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_COMMON_ACTIVATETHRUSTERS, client, aq);
+    CallPlugins(&PacketInterface::OnActivateThrusterPacketAfter, client, aq);
 
     return retVal;
 }
@@ -256,16 +256,9 @@ uint IClientImpl::CDPClientProxy__GetSendQBytes(ClientId client)
 
 double IClientImpl::CDPClientProxy__GetLinkSaturation(ClientId client)
 {
-    auto [retVal, skip] = CallPluginsBefore<double>(HookedCall::IClientImpl__CDPClientProxy__GetLinkSaturation, client);
-
-    if (!skip)
-    {
-        CALL_CLIENT_PREAMBLE { retVal = CDPClientProxy__GetLinkSaturation(client); }
-        CALL_CLIENT_POSTAMBLE;
-    }
-
-    CallPluginsAfter(HookedCall::IClientImpl__CDPClientProxy__GetLinkSaturation, client);
-
+    double retVal = 0.0;
+    CALL_CLIENT_PREAMBLE { retVal = CDPClientProxy__GetLinkSaturation(client); }
+    CALL_CLIENT_POSTAMBLE;
     return retVal;
 }
 
@@ -274,7 +267,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(ClientId client, uint shipArc
     Logger::i()->Log(LogLevel::Trace,
                      std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(\n\tClientId client = {}\n\tuint shipArch = {}\n)", client, shipArch));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETSHIPARCH, client, shipArch);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetShipArchPacket, client, shipArch);
 
     if (!skip)
     {
@@ -282,7 +275,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(ClientId client, uint shipArc
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETSHIPARCH, client, shipArch);
+    CallPlugins(&PacketInterface::OnSetShipArchPacketAfter, client, shipArch);
 
     return retVal;
 }
@@ -292,7 +285,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(ClientId client, float stat
     Logger::i()->Log(LogLevel::Trace,
                      std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETHULATUS(\n\tClientId client = {}\n\tfloat status = {}\n)", client, status));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETHULATUS, client, status);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetHullStatusPacket, client, status);
 
     if (!skip)
     {
@@ -300,7 +293,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(ClientId client, float stat
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETHULATUS, client, status);
+    CallPlugins(&PacketInterface::OnSetHullStatusPacketAfter, client, status);
 
     return retVal;
 }
@@ -309,7 +302,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(ClientId client, st6::
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETCOLLISIONGROUPS, client, collisionGroupList);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetCollisionGroupsPacket, client, collisionGroupList);
 
     if (!skip)
     {
@@ -317,7 +310,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(ClientId client, st6::
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETCOLLISIONGROUPS, client, collisionGroupList);
+    CallPlugins(&PacketInterface::OnSetCollisionGroupsPacketAfter, client, collisionGroupList);
 
     return retVal;
 }
@@ -326,7 +319,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(ClientId client, st6::vector
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETEQUIPMENT, client, equipmentVector);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetEquipmentPacket, client, equipmentVector);
 
     if (!skip)
     {
@@ -334,7 +327,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(ClientId client, st6::vector
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETEQUIPMENT, client, equipmentVector);
+    CallPlugins(&PacketInterface::OnSetEquipmentPacketAfter, client, equipmentVector);
 
     return retVal;
 }
@@ -351,7 +344,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(ClientId client, FLPACKET_UNKN
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETADDITEM, client, _genArg1, _genArg2);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetAddItemPacket, client, _genArg1, _genArg2);
 
     if (!skip)
     {
@@ -359,7 +352,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(ClientId client, FLPACKET_UNKN
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETADDITEM, client, _genArg1, _genArg2);
+    CallPlugins(&PacketInterface::OnSetAddItemPacketAfter, client, _genArg1, _genArg2);
 
     return retVal;
 }
@@ -385,7 +378,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(ClientId client, uint _genAr
                                  _genArg1,
                                  _genArg2));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETSTARTROOM, client, _genArg1, _genArg2);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetStartRoomPacket, client, _genArg1, _genArg2);
 
     if (!skip)
     {
@@ -393,7 +386,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(ClientId client, uint _genAr
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETSTARTROOM, client, _genArg1, _genArg2);
+    CallPlugins(&PacketInterface::OnSetStartRoomPacketAfter, client, _genArg1, _genArg2);
 
     return retVal;
 }
@@ -639,7 +632,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(ClientId client, FLPACKET_CRE
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATESOLAR, client, solar);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateSolarPacket, client, solar);
 
     if (!skip)
     {
@@ -647,7 +640,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(ClientId client, FLPACKET_CRE
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATESOLAR, client, solar);
+    CallPlugins(&PacketInterface::OnCreateSolarPacketAfter, client, solar);
 
     return retVal;
 }
@@ -656,7 +649,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(ClientId client, FLPACKET_CREA
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATESHIP, client, ship);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateShipPacket, client, ship);
 
     if (!skip)
     {
@@ -664,7 +657,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(ClientId client, FLPACKET_CREA
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATESHIP, client, ship);
+    CallPlugins(&PacketInterface::OnCreateShipPacketAfter, client, ship);
 
     return retVal;
 }
@@ -673,7 +666,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(ClientId client, FLPACKET_UNKN
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATELOOT, client, _genArg1);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateLootPacket, client, _genArg1);
 
     if (!skip)
     {
@@ -681,7 +674,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(ClientId client, FLPACKET_UNKN
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATELOOT, client, _genArg1);
+    CallPlugins(&PacketInterface::OnCreateLootPacketAfter, client, _genArg1);
 
     return retVal;
 }
@@ -690,7 +683,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(ClientId client, FLPACKET_UNKN
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATEMINE, client, _genArg1);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateMinePacket, client, _genArg1);
 
     if (!skip)
     {
@@ -698,7 +691,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(ClientId client, FLPACKET_UNKN
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATEMINE, client, _genArg1);
+    CallPlugins(&PacketInterface::OnCreateMinePacketAfter, client, _genArg1);
 
     return retVal;
 }
@@ -707,7 +700,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(uint& client, FLPACKET_CREAT
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATEGUIDED, client, guided);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateGuidedPacket, client, guided);
 
     if (!skip)
     {
@@ -715,7 +708,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(uint& client, FLPACKET_CREAT
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATEGUIDED, client, guided);
+    CallPlugins(&PacketInterface::OnCreateGuidedPacketAfter, client, guided);
 
     return retVal;
 }
@@ -724,7 +717,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(ClientId client, FLPACKET_U
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATECOUNTER, client, _genArg1);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateCounterPacket, client, _genArg1);
 
     if (!skip)
     {
@@ -732,7 +725,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(ClientId client, FLPACKET_U
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_CREATECOUNTER, client, _genArg1);
+    CallPlugins(&PacketInterface::OnCreateCounterPacketAfter, client, _genArg1);
 
     return retVal;
 }
@@ -760,7 +753,7 @@ void IClientImpl::unknown_54(ClientId client, uint _genArg1, uint _genArg2, uint
 
 bool IClientImpl::Send_FLPACKET_COMMON_UPDATEOBJECT(ClientId client, SSPObjUpdateInfo& update)
 {
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_COMMON_UPDATEOBJECT, client, update);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnUpdateObjectPacket, client, update);
 
     if (!skip)
     {
@@ -768,7 +761,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_UPDATEOBJECT(ClientId client, SSPObjUpdat
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_COMMON_UPDATEOBJECT, client, update);
+    CallPlugins(&PacketInterface::OnUpdateObjectPacketAfter, client, update);
 
     return retVal;
 }
@@ -777,7 +770,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(ClientId client, FLPACKET_D
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_DESTROYOBJECT, client, destroy);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnDestroyObjectPacket, client, destroy);
 
     if (!skip)
     {
@@ -785,7 +778,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(ClientId client, FLPACKET_D
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_DESTROYOBJECT, client, destroy);
+    CallPlugins(&PacketInterface::OnDestroyObjectPacketAfter, client, destroy);
 
     return retVal;
 }
@@ -796,7 +789,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(ClientId client, XActivate
 
                      std::format(L"IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_ACTIVATEOBJECT, client, aq);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnActivateObjectPacket, client, aq);
 
     if (!skip)
     {
@@ -804,7 +797,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(ClientId client, XActivate
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_ACTIVATEOBJECT, client, aq);
+    CallPlugins(&PacketInterface::OnActivateObjectPacketAfter, client, aq);
 
     return retVal;
 }
@@ -848,7 +841,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LAUNCH(ClientId client, FLPACKET_LAUNCH& 
 
                      std::format(L"IClientImpl::Send_FLPACKET_SERVER_LAUNCH(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_LAUNCH, client, launch);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnLaunchPacket, client, launch);
 
     if (!skip)
     {
@@ -856,7 +849,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LAUNCH(ClientId client, FLPACKET_LAUNCH& 
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_LAUNCH, client, launch);
+    CallPlugins(&PacketInterface::OnLaunchPacketAfter, client, launch);
 
     return retVal;
 }
@@ -870,7 +863,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(ClientId client, bo
                     response,
                     shipId));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP, client, response, shipId);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnRequestCreateShipResponsePacket, client, response, shipId);
 
     if (!skip)
     {
@@ -878,7 +871,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(ClientId client, bo
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP, client, response, shipId);
+    CallPlugins(&PacketInterface::OnRequestCreateShipResponsePacketAfter, client, response, shipId);
 
     return retVal;
 }
@@ -917,7 +910,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_USE_ITEM(ClientId client, uint _genArg1)
     Logger::i()->Log(LogLevel::Trace,
                      std::format(L"IClientImpl::Send_FLPACKET_SERVER_USE_ITEM(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_USE_ITEM, client, _genArg1);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnUseItemPacket, client, _genArg1);
 
     if (!skip)
     {
@@ -925,7 +918,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_USE_ITEM(ClientId client, uint _genArg1)
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_USE_ITEM, client, _genArg1);
+    CallPlugins(&PacketInterface::OnUseItemPacketAfter, client, _genArg1);
 
     return retVal;
 }
@@ -934,7 +927,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(ClientId client, FLPACKET_S
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETREPUTATION, client, rep);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetReputationPacket, client, rep);
 
     if (!skip)
     {
@@ -942,7 +935,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(ClientId client, FLPACKET_S
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETREPUTATION, client, rep);
+    CallPlugins(&PacketInterface::OnSetReputationPacketAfter, client, rep);
 
     return retVal;
 }
@@ -960,6 +953,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(ClientId client, uint _genArg1, 
                                                 uint _genArg14, uint _genArg15, uint _genArg16, uint _genArg17, uint _genArg18, uint _genArg19, uint _genArg20,
                                                 uint _genArg21, uint _genArg22)
 {
+    bool retVal;
     Logger::i()->Log(LogLevel::Trace,
                      std::format(L"IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(\n\tClientId client = {}\n\tuint _genArg1 = {}\n\tuint _genArg2 = "
                                  L"{}\n\tuint _genArg3 = {}\n\tuint _genArg4 = {}\n\tuint _genArg5 = {}\n\tuint _genArg6 = {}\n\tuint _genArg7 "
@@ -990,89 +984,33 @@ bool IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(ClientId client, uint _genArg1, 
                                  _genArg20,
                                  _genArg21,
                                  _genArg22));
-
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SENDCOMM,
-                                                  client,
-                                                  _genArg1,
-                                                  _genArg2,
-                                                  _genArg3,
-                                                  _genArg4,
-                                                  _genArg5,
-                                                  _genArg6,
-                                                  _genArg7,
-                                                  _genArg8,
-                                                  _genArg9,
-                                                  _genArg10,
-                                                  _genArg11,
-                                                  _genArg12,
-                                                  _genArg13,
-                                                  _genArg14,
-                                                  _genArg15,
-                                                  _genArg16,
-                                                  _genArg17,
-                                                  _genArg18,
-                                                  _genArg19,
-                                                  _genArg20,
-                                                  _genArg21,
-                                                  _genArg22);
-
-    if (!skip)
+    CALL_CLIENT_PREAMBLE
     {
-        CALL_CLIENT_PREAMBLE
-        {
-            retVal = Send_FLPACKET_SERVER_SENDCOMM(client,
-                                                   _genArg1,
-                                                   _genArg2,
-                                                   _genArg3,
-                                                   _genArg4,
-                                                   _genArg5,
-                                                   _genArg6,
-                                                   _genArg7,
-                                                   _genArg8,
-                                                   _genArg9,
-                                                   _genArg10,
-                                                   _genArg11,
-                                                   _genArg12,
-                                                   _genArg13,
-                                                   _genArg14,
-                                                   _genArg15,
-                                                   _genArg16,
-                                                   _genArg17,
-                                                   _genArg18,
-                                                   _genArg19,
-                                                   _genArg20,
-                                                   _genArg21,
-                                                   _genArg22);
-        }
-        CALL_CLIENT_POSTAMBLE;
+        retVal = Send_FLPACKET_SERVER_SENDCOMM(client,
+                                               _genArg1,
+                                               _genArg2,
+                                               _genArg3,
+                                               _genArg4,
+                                               _genArg5,
+                                               _genArg6,
+                                               _genArg7,
+                                               _genArg8,
+                                               _genArg9,
+                                               _genArg10,
+                                               _genArg11,
+                                               _genArg12,
+                                               _genArg13,
+                                               _genArg14,
+                                               _genArg15,
+                                               _genArg16,
+                                               _genArg17,
+                                               _genArg18,
+                                               _genArg19,
+                                               _genArg20,
+                                               _genArg21,
+                                               _genArg22);
     }
-
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SENDCOMM,
-                     client,
-                     _genArg1,
-                     _genArg2,
-                     _genArg3,
-                     _genArg4,
-                     _genArg5,
-                     _genArg6,
-                     _genArg7,
-                     _genArg8,
-                     _genArg9,
-                     _genArg10,
-                     _genArg11,
-                     _genArg12,
-                     _genArg13,
-                     _genArg14,
-                     _genArg15,
-                     _genArg16,
-                     _genArg17,
-                     _genArg18,
-                     _genArg19,
-                     _genArg20,
-                     _genArg21,
-                     _genArg22);
-
-    return retVal;
+    CALL_CLIENT_POSTAMBLE;
 }
 
 void IClientImpl::unknown_70(ClientId client, uint _genArg1)
@@ -1087,7 +1025,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(ClientId client, FLPA
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SET_MISSION_MESSAGE, client, _genArg1);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetMissionMessagePacket, client, _genArg1);
 
     if (!skip)
     {
@@ -1095,7 +1033,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(ClientId client, FLPA
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SET_MISSION_MESSAGE, client, _genArg1);
+    CallPlugins(&PacketInterface::OnSetMissionMessagePacketAfter, client, _genArg1);
 
     return retVal;
 }
@@ -1114,7 +1052,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(ClientId client, uin
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(\n\tClientId client = {}\n\tuint _genArg1 = {}\n)", client, _genArg1));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES, client, _genArg1);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetMissionObjectivesPacket, client, _genArg1);
 
     if (!skip)
     {
@@ -1122,7 +1060,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(ClientId client, uin
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES, client, _genArg1);
+    CallPlugins(&PacketInterface::OnSetMissionObjectivesPacketAfter, client, _genArg1);
 
     return retVal;
 }
@@ -1169,7 +1107,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETCASH(ClientId client, uint cash)
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETCASH(\n\tClientId client = {}\n\tuint cash = {}\n)", client, cash));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETCASH, client, cash);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetCashPacket, client, cash);
 
     if (!skip)
     {
@@ -1177,7 +1115,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETCASH(ClientId client, uint cash)
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SETCASH, client, cash);
+    CallPlugins(&PacketInterface::OnSetCashPacketAfter, client, cash);
 
     return retVal;
 }
@@ -1283,7 +1221,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(ClientId client, FLPACKET_BURNFU
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_BURNFUSE, client, burnFuse);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnBurnFusePacket, client, burnFuse);
 
     if (!skip)
     {
@@ -1291,7 +1229,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(ClientId client, FLPACKET_BURNFU
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_BURNFUSE, client, burnFuse);
+    CallPlugins(&PacketInterface::OnBurnFusePacketAfter, client, burnFuse);
 
     return retVal;
 }
@@ -1542,7 +1480,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(ClientId client, uint _genArg1
                                  _genArg1,
                                  _genArg2));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SCANNOTIFY, client, _genArg1, _genArg2);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnScanNotifyPacket, client, _genArg1, _genArg2);
 
     if (!skip)
     {
@@ -1550,7 +1488,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(ClientId client, uint _genArg1
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_SCANNOTIFY, client, _genArg1, _genArg2);
+    CallPlugins(&PacketInterface::OnScanNotifyPacketAfter, client, _genArg1, _genArg2);
 
     return retVal;
 }
@@ -1563,7 +1501,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(ClientId client, wchar_t* char
                                  std::wstring(characterName),
                                  _genArg2));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_PLAYERLIST, client, characterName, _genArg2, _genArg3);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnPlayerListPacket, client, characterName, _genArg2, _genArg3);
 
     if (!skip)
     {
@@ -1571,7 +1509,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(ClientId client, wchar_t* char
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_PLAYERLIST, client, characterName, _genArg2, _genArg3);
+    CallPlugins(&PacketInterface::OnPlayerListPacketAfter, client, characterName, _genArg2, _genArg3);
 
     return retVal;
 }
@@ -1588,7 +1526,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(ClientId client)
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_PLAYERLIST_2, client);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnPlayerList2Packet, client);
 
     if (!skip)
     {
@@ -1596,7 +1534,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(ClientId client)
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_PLAYERLIST_2, client);
+    CallPlugins(&PacketInterface::OnPlayerList2PacketAfter, client);
 
     return retVal;
 }
@@ -1609,7 +1547,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(ClientId client, uint _ge
                                  _genArg1,
                                  _genArg2));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_6, client, _genArg1, _genArg2);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdate6Packet, client, _genArg1, _genArg2);
 
     if (!skip)
     {
@@ -1617,7 +1555,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(ClientId client, uint _ge
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_6, client, _genArg1, _genArg2);
+    CallPlugins(&PacketInterface::OnMiscObjectUpdate6PacketAfter, client, _genArg1, _genArg2);
 
     return retVal;
 }
@@ -1630,7 +1568,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(ClientId client, uint _ge
                                  _genArg1,
                                  _genArg2));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_7, client, _genArg1, _genArg2);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdate7Packet, client, _genArg1, _genArg2);
 
     if (!skip)
     {
@@ -1638,7 +1576,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(ClientId client, uint _ge
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_7, client, _genArg1, _genArg2);
+    CallPlugins(&PacketInterface::OnMiscObjectUpdate7PacketAfter, client, _genArg1, _genArg2);
 
     return retVal;
 }
@@ -1647,7 +1585,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(ClientId client, FLPACKET_U
 {
     Logger::i()->Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(\n\tClientId client = {}\n)", client));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE, client, _genArg1);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdatePacket, client, _genArg1);
 
     if (!skip)
     {
@@ -1655,7 +1593,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(ClientId client, FLPACKET_U
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE, client, _genArg1);
+    CallPlugins(&PacketInterface::OnMiscObjectUpdatePacketAfter, client, _genArg1);
 
     return retVal;
 }
@@ -1668,7 +1606,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(ClientId client, uint _ge
                                  _genArg1,
                                  _genArg2));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_2, client, _genArg1, _genArg2);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdate2Packet, client, _genArg1, _genArg2);
 
     if (!skip)
     {
@@ -1676,7 +1614,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(ClientId client, uint _ge
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_2, client, _genArg1, _genArg2);
+    CallPlugins(&PacketInterface::OnMiscObjectUpdate2PacketAfter, client, _genArg1, _genArg2);
 
     return retVal;
 }
@@ -1688,7 +1626,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(ClientId client, uint tar
         std::format(
             L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(\n\tClientId client = {}\n\tuint targetId = {}\n\tuint rank = {}\n)", client, targetId, rank));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_3, client, targetId, rank);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdate3Packet, client, targetId, rank);
 
     if (!skip)
     {
@@ -1696,7 +1634,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(ClientId client, uint tar
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_3, client, targetId, rank);
+    CallPlugins(&PacketInterface::OnMiscObjectUpdate3PacketAfter, client, targetId, rank);
 
     return retVal;
 }
@@ -1710,7 +1648,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(ClientId client, uint _ge
                                  _genArg1,
                                  _genArg2));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_4, client, _genArg1, _genArg2);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdate4Packet, client, _genArg1, _genArg2);
 
     if (!skip)
     {
@@ -1718,7 +1656,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(ClientId client, uint _ge
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_4, client, _genArg1, _genArg2);
+    CallPlugins(&PacketInterface::OnMiscObjectUpdate4PacketAfter, client, _genArg1, _genArg2);
 
     return retVal;
 }
@@ -1731,7 +1669,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(ClientId client, uint _ge
                                  _genArg1,
                                  _genArg2));
 
-    auto [retVal, skip] = CallPluginsBefore<bool>(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_5, client, _genArg1, _genArg2);
+    auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdate5Packet, client, _genArg1, _genArg2);
 
     if (!skip)
     {
@@ -1739,7 +1677,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(ClientId client, uint _ge
         CALL_CLIENT_POSTAMBLE;
     }
 
-    CallPluginsAfter(HookedCall::IClientImpl__Send_FLPACKET_SERVER_MISCOBJUPDATE_5, client, _genArg1, _genArg2);
+    CallPlugins(&PacketInterface::OnMiscObjectUpdate5PacketAfter, client, _genArg1, _genArg2);
 
     return retVal;
 }

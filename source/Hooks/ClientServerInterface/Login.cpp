@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Global.hpp"
 
 #include "API/API.hpp"
 
@@ -94,7 +94,7 @@ namespace IServerImplHook
                 acc->ForceLogout();
             }
             return false;
-        })
+        });
 
         return true;
     }
@@ -102,11 +102,12 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"Login(\n\tClientId client = {}\n)", client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__Login, li, client); !skip && Login__InnerBefore(li, client))
+        if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip && Login__InnerBefore(li, client))
         {
             CALL_SERVER_PREAMBLE { Server.Login(li, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
+
         Login__InnerAfter(li, client);
 
         if (TempBanManager::i()->CheckIfTempBanned(client))
@@ -115,6 +116,6 @@ namespace IServerImplHook
             return;
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__Login, li, client);
+        CallPlugins(&Plugin::OnLoginAfter, client, li);
     }
-}
+} // namespace IServerImplHook

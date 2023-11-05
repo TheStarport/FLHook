@@ -108,8 +108,6 @@ void TimerTempBanCheck()
 //! check if players should be kicked
 void TimerCheckKick()
 {
-    CallPluginsBefore(HookedCall::FLHook__TimerCheckKick);
-
     TRY_HOOK
     {
         // for all players
@@ -175,57 +173,51 @@ void TimerCheckKick()
 Check if NPC spawns should be disabled
 **************************************************************************************************************/
 
-void TimerNPCAndF1Check()
+void TimerNPCAndF1Check(){ TRY_HOOK{ PlayerData* playerData = nullptr;
+while ((playerData = Players.traverse_active(playerData)))
 {
-    CallPluginsBefore(HookedCall::FLHook__TimerNPCAndF1Check);
-
-    TRY_HOOK
+    ClientId client = playerData->onlineId;
+    if (client < 1 || client > MaxClientId)
     {
-        PlayerData* playerData = nullptr;
-        while ((playerData = Players.traverse_active(playerData)))
-        {
-            ClientId client = playerData->onlineId;
-            if (client < 1 || client > MaxClientId)
-            {
-                continue;
-            }
+        continue;
+    }
 
-            if (ClientInfo[client].tmF1Time && TimeUtils::UnixMilliseconds() >= ClientInfo[client].tmF1Time)
-            {
-                // f1
-                Server.CharacterInfoReq(client, false);
-                ClientInfo[client].tmF1Time = 0;
-            }
-            else if (ClientInfo[client].tmF1TimeDisconnect && TimeUtils::UnixMilliseconds() >= ClientInfo[client].tmF1TimeDisconnect)
-            {
-                ulong dataArray[64] = { 0 };
-                dataArray[26] = client;
+    if (ClientInfo[client].tmF1Time && TimeUtils::UnixMilliseconds() >= ClientInfo[client].tmF1Time)
+    {
+        // f1
+        Server.CharacterInfoReq(client, false);
+        ClientInfo[client].tmF1Time = 0;
+    }
+    else if (ClientInfo[client].tmF1TimeDisconnect && TimeUtils::UnixMilliseconds() >= ClientInfo[client].tmF1TimeDisconnect)
+    {
+        ulong dataArray[64] = { 0 };
+        dataArray[26] = client;
 
-                __asm {
+        __asm {
 						pushad
 						lea ecx, dataArray
 						mov eax, [remoteClient]
 						add eax, ADDR_RC_DISCONNECT
 						call eax ; disconncet
 						popad
-                }
-
-                ClientInfo[client].tmF1TimeDisconnect = 0;
-                continue;
-            }
         }
 
-        const auto* config = FLHookConfig::c();
-        if (config->general.disableNPCSpawns && CoreGlobals::c()->serverLoadInMs >= config->general.disableNPCSpawns)
-        {
-            Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs
-        }
-        else
-        {
-            Hk::Admin::ChangeNPCSpawn(false);
-        }
+        ClientInfo[client].tmF1TimeDisconnect = 0;
+        continue;
     }
-    CATCH_HOOK({})
+}
+
+const auto* config = FLHookConfig::c();
+if (config->general.disableNPCSpawns && CoreGlobals::c()->serverLoadInMs >= config->general.disableNPCSpawns)
+{
+    Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs
+}
+else
+{
+    Hk::Admin::ChangeNPCSpawn(false);
+}
+}
+CATCH_HOOK({})
 }
 
 /**************************************************************************************************************

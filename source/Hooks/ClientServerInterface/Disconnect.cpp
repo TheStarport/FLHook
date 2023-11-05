@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -16,11 +16,12 @@ namespace IServerImplHook
             // TODO: implement event for disconnect
         }
     }
+
     void __stdcall DisConnect(ClientId client, EFLConnection conn)
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"DisConnect(\n\tClientId client = {}\n)", client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__DisConnect, client, conn);
+        const auto skip = CallPlugins(&Plugin::OnDisconnect, client, conn);
 
         DisConnect__Inner(client, conn);
 
@@ -30,6 +31,6 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__DisConnect, client, conn);
+        CallPlugins(&Plugin::OnDisconnectAfter, client, conn);
     }
-}
+} // namespace IServerImplHook

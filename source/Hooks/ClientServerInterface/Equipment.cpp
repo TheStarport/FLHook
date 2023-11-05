@@ -1,9 +1,9 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLServer/Client.hpp"
 #include "API/FLServer/Player.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -37,7 +37,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"ActivateEquip(\n\tClientId client = {}\n)", client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateEquip, client, aq);
+        const auto skip = CallPlugins(&Plugin::OnActivateEquip, client, aq);
 
         CHECK_FOR_DISCONNECT;
 
@@ -49,26 +49,26 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__ActivateEquip, client, aq);
+        CallPlugins(&Plugin::OnActivateEquipAfter, client, aq);
     }
 
     void __stdcall ReqEquipment(const EquipDescList& edl, ClientId client)
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"ReqEquipment(\n\tClientId client = {}\n)", client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ReqEquipment, edl, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnRequestEquipment, client, edl); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.ReqEquipment(edl, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__ReqEquipment, edl, client);
+        CallPlugins(&Plugin::OnRequestEquipmentAfter, client, edl);
     }
     void __stdcall FireWeapon(ClientId client, const XFireWeaponInfo& fwi)
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"FireWeapon(\n\tClientId client = {}\n)", client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__FireWeapon, client, fwi);
+        const auto skip = CallPlugins(&Plugin::OnFireWeapon, client, fwi);
 
         CHECK_FOR_DISCONNECT;
 
@@ -78,7 +78,7 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__FireWeapon, client, fwi);
+        CallPlugins(&Plugin::OnFireWeaponAfter, client, fwi);
     }
 
     void __stdcall SetWeaponGroup(ClientId client, uint _genArg1, int _genArg2)
@@ -87,13 +87,13 @@ namespace IServerImplHook
             LogLevel::Trace,
             std::format(L"SetWeaponGroup(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)", client, _genArg1, _genArg2));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SetWeaponGroup, client, _genArg1, _genArg2); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnSetWeaponGroup, client, _genArg1, _genArg2); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.SetWeaponGroup(client, (uchar*)_genArg1, _genArg2); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__SetWeaponGroup, client, _genArg1, _genArg2);
+        CallPlugins(&Plugin::OnSetWeaponGroupAfter, client, _genArg1, _genArg2);
     }
 
     // We think this is hook involving usage of nanobots and shield batteries but not sure.
@@ -101,13 +101,13 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"SPRequestUseItem(\n\tClientId client = {}\n)", client));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__SPRequestUseItem, ui, client); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnSpRequestUseItem, client, ui); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.SPRequestUseItem(ui, client); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__SPRequestUseItem, ui, client);
+        CallPlugins(&Plugin::OnSpRequestUseItemAfter, client, ui);
     }
 
     void ActivateThrusters__Inner(ClientId client, const XActivateThrusters& at)
@@ -120,7 +120,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"ActivateThrusters(\n\tClientId client = {}\n)", client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateThrusters, client, at);
+        const auto skip = CallPlugins(&Plugin::OnActivateThrusters, client, at);
 
         CHECK_FOR_DISCONNECT;
 
@@ -132,7 +132,7 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__ActivateThrusters, client, at);
+        CallPlugins(&Plugin::OnActivateThrustersAfter, client, at);
     }
 
     void ActivateCruise__Inner(ClientId client, const XActivateCruise& ac)
@@ -145,7 +145,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"ActivateCruise(\n\tClientId client = {}\n)", client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__ActivateCruise, client, ac);
+        const auto skip = CallPlugins(&Plugin::OnActivateCruise, client, ac);
 
         CHECK_FOR_DISCONNECT;
 
@@ -157,7 +157,7 @@ namespace IServerImplHook
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__ActivateCruise, client, ac);
+        CallPlugins(&Plugin::OnActivateCruiseAfter, client, ac);
     }
 
 } // namespace IServerImplHook

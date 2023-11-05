@@ -150,7 +150,7 @@ namespace Hk::Player
 
             if (!found)
             {
-                MONEY_FIX mf;
+                MoneyFix mf;
                 mf.character = characterLower;
                 mf.amount = amount;
                 ClientInfo[client].moneyFix.push_back(mf);

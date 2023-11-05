@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Global.hpp"
 
 namespace IServerImplHook
 {
@@ -9,12 +9,12 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"GFObjSelect(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n)", _genArg1, _genArg2));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__GFObjSelect, _genArg1, _genArg2); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnGfObjectSelect, _genArg1, _genArg2); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.GFObjSelect(_genArg1, _genArg2); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__GFObjSelect, _genArg1, _genArg2);
+        CallPlugins(&Plugin::OnGfObjectSelectAfter, _genArg1, _genArg2);
     }
-}
+} // namespace IServerImplHook

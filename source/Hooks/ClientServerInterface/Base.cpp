@@ -1,8 +1,8 @@
 #include "PCH.hpp"
 
+#include "API/API.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Global.hpp"
-#include "API/API.hpp"
 
 namespace IServerImplHook
 {
@@ -45,7 +45,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"BaseEnter(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__BaseEnter, baseId, client);
+        const auto skip = CallPlugins(&Plugin::OnBaseEnter, baseId, client);
 
         CHECK_FOR_DISCONNECT;
 
@@ -58,7 +58,7 @@ namespace IServerImplHook
         }
         BaseEnter__InnerAfter(baseId, client);
 
-        CallPluginsAfter(HookedCall::IServerImpl__BaseEnter, baseId, client);
+        CallPlugins(&Plugin::OnBaseEnterAfter, baseId, client);
     }
     void BaseExit__Inner(uint baseId, ClientId client)
     {
@@ -78,7 +78,7 @@ namespace IServerImplHook
     {
         Logger::i()->Log(LogLevel::Trace, std::format(L"BaseExit(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
 
-        const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__BaseExit, baseId, client);
+        const auto skip = CallPlugins(&Plugin::OnBaseExit, baseId, client);
 
         CHECK_FOR_DISCONNECT;
 
@@ -91,7 +91,7 @@ namespace IServerImplHook
         }
         BaseExit__InnerAfter(baseId, client);
 
-        CallPluginsAfter(HookedCall::IServerImpl__BaseExit, baseId, client);
+        CallPlugins(&Plugin::OnBaseExitAfter, baseId, client);
     }
 
     void __stdcall BaseInfoRequest(unsigned int _genArg1, unsigned int _genArg2, bool _genArg3)
@@ -101,13 +101,13 @@ namespace IServerImplHook
             std::format(
                 L"BaseInfoRequest(\n\tunsigned int _genArg1 = {}\n\tunsigned int _genArg2 = {}\n\tbool _genArg3 = {}\n)", _genArg1, _genArg2, _genArg3));
 
-        if (const auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__BaseInfoRequest, _genArg1, _genArg2, _genArg3); !skip)
+        if (const auto skip = CallPlugins(&Plugin::OnRequestBaseInfo, _genArg1, _genArg2, _genArg3); !skip)
         {
             CALL_SERVER_PREAMBLE { Server.BaseInfoRequest(_genArg1, _genArg2, _genArg3); }
             CALL_SERVER_POSTAMBLE(true, );
         }
 
-        CallPluginsAfter(HookedCall::IServerImpl__BaseInfoRequest, _genArg1, _genArg2, _genArg3);
+        CallPlugins(&Plugin::OnRequestBaseInfoAfter, _genArg1, _genArg2, _genArg3);
     }
 
     void __stdcall Dock([[maybe_unused]] const uint& genArg1, [[maybe_unused]] const uint& genArg2) {}
