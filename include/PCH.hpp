@@ -7,6 +7,7 @@
 
 #include <WinSock2.h>
 #include <Windows.h>
+#include <array>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -50,29 +51,20 @@
 #include "FLCore/FLCoreDALib.h"
 #include "FLCore/FLCoreServer.h"
 
-#include "Defs/Enums.hpp"
-#include "Defs/Structs.hpp"
-
 #include "FLCore/FLCoreRemoteClient.h"
 
-#include "FLHook.hpp"
-
-#include "Core/Commands/AbstractAdminCommandProcessor.hpp"
-#include "Core/Commands/AbstractUserCommandProcessor.hpp"
+#include "Defs/Enums.hpp"
+#include "Defs/SehException.hpp"
+#include "Defs/Structs.hpp"
 
 #include "Concepts.hpp"
 #include "Utils/Utils.hpp"
 
 #include "Core/Codec.hpp"
-#include "Defs/CoreGlobals.hpp"
 #include "Defs/FLHookConfig.hpp"
 #include "Defs/FLPacket.hpp"
 
-#include "Core/TempBan.hpp"
-#include "Defs/ServerStats.hpp"
-
 #include <Core/Logger.hpp>
-
 
 #pragma comment(lib, "pcre2-8.lib")
 #pragma comment(lib, "pcre2-16.lib")
@@ -82,8 +74,11 @@
 using Jp = jpcre2::select<char>;
 using JpWide = jpcre2::select<wchar_t>;
 
-#include "API/FLHook/Plugin.hpp"
-
 #include "Core/PluginManager.hpp"
+
+#ifndef FLHOOK
+    // Only fully load the API for plugins. While working on core loading it makes compile times skyrocket
+    #include "Api/Api.hpp"
+#endif
 
 #pragma warning(pop)

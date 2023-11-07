@@ -1,12 +1,5 @@
 #pragma once
 
-struct HookEntry
-{
-        FARPROC fpProc;
-        long remoteAddress;
-        FARPROC fpOldProc;
-};
-
 struct CargoInfo
 {
         uint id;
@@ -48,15 +41,6 @@ struct IgnoreInfo
 {
         std::wstring character;
         std::wstring flags;
-};
-
-// resolver
-struct RESOLVE_IP
-{
-        ClientId client;
-        uint connects;
-        std::wstring IP;
-        std::wstring hostname;
 };
 
 // taken from directplay
@@ -104,23 +88,6 @@ struct BaseHealth
 {
         float currentHealth;
         float maxHealth;
-};
-
-struct PatchInfoEntry
-{
-        ulong address;
-        void* newValue;
-        uint size;
-        void* oldValue;
-        bool allocated;
-};
-
-struct PatchInfo
-{
-        const char* BinName;
-        ulong baseAddress;
-
-        PatchInfoEntry piEntries[128];
 };
 
 struct DataMarketItem

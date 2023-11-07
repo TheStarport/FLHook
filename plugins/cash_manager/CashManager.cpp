@@ -267,7 +267,7 @@ namespace Plugins::CashManager
 			return;
 		}
 
-		if (ClientInfo[client].iTradePartner)
+		if (ClientInfo::At(client).iTradePartner)
 		{
 			PrintUserCmdText(client, L"Error: You are currently in a trade.");
 			return;

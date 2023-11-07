@@ -16,7 +16,7 @@ namespace Hk
             void CharacterSelect(CHARACTER_ID charId, ClientId client) const;
 #endif
 
-            static cpp::result<std::wstring, Error> GetFromFile(const std::wstring& filePath, const std::wstring& section, const std::wstring& key);
+            cpp::result<std::wstring, Error> GetFromFile(const std::wstring& filePath, const std::wstring& section, const std::wstring& key);
             cpp::result<std::wstring, Error> GetFromPlayerFile(const std::variant<uint, std::wstring_view>& player, const std::wstring& key) const;
             Action<void, Error> WriteToPlayerFile(const std::variant<uint, std::wstring_view>& player, const std::wstring& key,
                                                   const std::wstring& value) const;

@@ -58,6 +58,15 @@
     <Filter Include="Include\API\Utils">
       <UniqueIdentifier>{fc052256-119a-40dc-97f3-85d222cdd71a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SDK">
+      <UniqueIdentifier>{049694ad-e133-484c-8a84-9c952297135e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDK\Exceptions">
+      <UniqueIdentifier>{88bb9fb0-7ab7-41ff-afe6-a882d36a6e38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utils">
+      <UniqueIdentifier>{54e83a7e-d81c-422e-afba-f9f45a507910}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\FLHook.cpp">
@@ -84,9 +93,6 @@
     <ClCompile Include="..\Source\Core\SaveData.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Core\Settings.cpp">
-      <Filter>Source\Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\Core\StartupCache.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
@@ -111,7 +117,7 @@
     <ClCompile Include="..\Source\Hooks\HkIChatServer.cpp">
       <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Hooks\HkIEngine.cpp">
+    <ClCompile Include="..\Source\Hooks\IEngineHook.cpp">
       <Filter>Source\Hooks</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Hooks\HkIEngineDamage.cpp">
@@ -123,7 +129,7 @@
     <ClCompile Include="..\Source\Hooks\HkIEngineDisconnect.cpp">
       <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Hooks\HkInit.cpp">
+    <ClCompile Include="..\Source\Hooks\HookInit.cpp">
       <Filter>Source\Hooks</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Hooks\SendComm.cpp">
@@ -256,6 +262,15 @@
     <ClCompile Include="..\source\API\Utils\FileUtils.cpp">
       <Filter>Source\API\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Core\IpResolver.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Utils\PerfTimer.cpp">
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\API\Api.cpp">
+      <Filter>Source\API</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">
@@ -272,9 +287,6 @@
     </ClInclude>
     <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp">
       <Filter>Include\Core\Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Core\Exceptions\ErrorInfo.hpp">
-      <Filter>Include\Core\Exceptions</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Core\Exceptions\StopProcessingException.hpp">
       <Filter>Include\Core\Exceptions</Filter>
@@ -354,9 +366,6 @@
     <ClInclude Include="..\Include\API\FLHook\Plugin.hpp">
       <Filter>Include\API\FLHook</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\FLHook.hpp">
-      <Filter>Include</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Global.hpp">
       <Filter>Include</Filter>
     </ClInclude>
@@ -383,6 +392,42 @@
     </ClInclude>
     <ClInclude Include="..\Include\Core\PluginManager.hpp">
       <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Core\IpResolver.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\IEngineHook.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\StartupCache.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Defs\SehException.hpp">
+      <Filter>Include\Defs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Exceptions\StopProcessingException.hpp">
+      <Filter>SDK\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Exceptions\UnsupportedException.hpp">
+      <Filter>SDK\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Exceptions\ErrorInfo.hpp">
+      <Filter>SDK\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Exceptions\GameException.hpp">
+      <Filter>SDK\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\AddressList.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\FLHook\ClientInfo.hpp">
+      <Filter>Include\API\FLHook</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\Utils\PerfTimer.hpp">
+      <Filter>Include\API\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\FLHook.hpp">
+      <Filter>Include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

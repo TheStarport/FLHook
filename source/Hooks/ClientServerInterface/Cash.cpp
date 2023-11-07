@@ -3,32 +3,28 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Global.hpp"
 
-namespace IServerImplHook
+void __stdcall IServerImplHook::ReqSetCash(int cash, ClientId client)
 {
-    void __stdcall ReqSetCash(int cash, ClientId client)
+    Logger::i()->Log(LogLevel::Trace, std::format(L"ReqSetCash(\n\tint cash = {}\n\tClientId client = {}\n)", cash, client));
+
+    if (const auto skip = CallPlugins(&Plugin::OnRequestSetCash, client, cash); !skip)
     {
-        Logger::i()->Log(LogLevel::Trace, std::format(L"ReqSetCash(\n\tint cash = {}\n\tClientId client = {}\n)", cash, client));
-
-        if (const auto skip = CallPlugins(&Plugin::OnRequestSetCash, client, cash); !skip)
-        {
-            CALL_SERVER_PREAMBLE { Server.ReqSetCash(cash, client); }
-            CALL_SERVER_POSTAMBLE(true, );
-        }
-
-        CallPlugins(&Plugin::OnRequestSetCashAfter, client, cash);
+        CallServerPreamble { Server.ReqSetCash(cash, client); }
+        CallServerPostamble(true, );
     }
 
-    void __stdcall ReqChangeCash(int cashAdd, ClientId client)
+    CallPlugins(&Plugin::OnRequestSetCashAfter, client, cash);
+}
+
+void __stdcall IServerImplHook::ReqChangeCash(int cashAdd, ClientId client)
+{
+    Logger::i()->Log(LogLevel::Trace, std::format(L"ReqChangeCash(\n\tint cashAdd = {}\n\tClientId client = {}\n)", cashAdd, client));
+
+    if (const auto skip = CallPlugins(&Plugin::OnRequestChangeCash, client, cashAdd); !skip)
     {
-        Logger::i()->Log(LogLevel::Trace, std::format(L"ReqChangeCash(\n\tint cashAdd = {}\n\tClientId client = {}\n)", cashAdd, client));
-
-        if (const auto skip = CallPlugins(&Plugin::OnRequestChangeCash, client, cashAdd); !skip)
-        {
-            CALL_SERVER_PREAMBLE { Server.ReqChangeCash(cashAdd, client); }
-            CALL_SERVER_POSTAMBLE(true, );
-        }
-
-        CallPlugins(&Plugin::OnRequestChangeCashAfter, client, cashAdd);
+        CallServerPreamble { Server.ReqChangeCash(cashAdd, client); }
+        CallServerPostamble(true, );
     }
 
-} // namespace IServerImplHook
+    CallPlugins(&Plugin::OnRequestChangeCashAfter, client, cashAdd);
+}

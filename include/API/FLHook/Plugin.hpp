@@ -266,7 +266,7 @@ class DLL PacketInterface
 #define SetupPlugin(type, info)                                               \
     EXPORT std::shared_ptr<type> PluginFactory()                              \
     {                                                                         \
-        __pragma(comment(linker, "/EXPORT:" __FUNCTION__ "=" __FUNCDNAME__)); \
+        __pragma(comment(linker, "/EXPORT:" __FUNCTION "=" __FUNCDNAME)); \
         return std::move(std::make_shared<type>(info));                       \
     }
 

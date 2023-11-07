@@ -101,7 +101,7 @@ namespace Plugins::KillTracker
 			{
 				const DamageList* dmg = *dmgList;
 				const auto killerId = Hk::Client::GetClientIdByShip(
-				    dmg->get_cause() == DamageCause::Unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
+				    dmg->get_cause() == DamageCause::Unknown ? ClientInfo::At(client).dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
 
 				if (killerId.has_value() && killerId.value() != client)
 				{

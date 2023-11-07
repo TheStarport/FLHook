@@ -71,7 +71,7 @@ namespace Plugins::CargoDrop
 			if (ship.has_error())
 				continue;
 
-			if (ClientInfo[client].tmF1Time || ClientInfo[client].tmF1TimeDisconnect)
+			if (ClientInfo::At(client).tmF1Time || ClientInfo::At(client).tmF1TimeDisconnect)
 			{
 				std::wstring characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 

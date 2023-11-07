@@ -84,7 +84,7 @@ void UserCommandProcessor::SetDieMessage(std::wstring_view param)
         return;
     }
 
-    const auto info = &ClientInfo[client];
+    const auto info = &ClientInfo::At(client);
     info->accountData["settings"]["dieMsg"] = std::to_string(dieMsg);
     info->SaveAccountData();
 
@@ -124,7 +124,7 @@ void UserCommandProcessor::SetDieMessageFontSize(std::wstring_view param)
         return;
     }
 
-    const auto info = &ClientInfo[client];
+    const auto info = &ClientInfo::At(client);
     info->accountData["settings"]["dieMsgSize"] = std::to_string(dieMsgSize);
     info->SaveAccountData();
 
@@ -188,7 +188,7 @@ void UserCommandProcessor::SetChatFont(std::wstring_view fontSize, std::wstring_
     }
 
     // save to ini
-    const auto info = &ClientInfo[client];
+    const auto info = &ClientInfo::At(client);
     info->accountData["settings"]["chatStyle"] = std::to_string(chatStyle);
     info->accountData["settings"]["chatSize"] = std::to_string(chatSize);
     info->SaveAccountData();
@@ -240,14 +240,14 @@ void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstrin
         }
     }
 
-    if (ClientInfo[client].ignoreInfoList.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+    if (ClientInfo::At(client).ignoreInfoList.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
     {
         PrintUserCmdText(client, L"Error: Too many entries in the ignore list, please delete an entry first!");
         return;
     }
 
     // save to ini
-    const auto info = &ClientInfo[client];
+    const auto info = &ClientInfo::At(client);
     auto& list = info->accountData["settings"]["ignoreList"];
     list[StringUtils::wstos(std::wstring(ignoredUser))] = flags;
 
@@ -281,7 +281,7 @@ void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_v
         return;
     }
 
-    if (ClientInfo[client].ignoreInfoList.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+    if (ClientInfo::At(client).ignoreInfoList.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
     {
         PrintUserCmdText(client, L"Error: Too many entries in the ignore list, please delete an entry first!");
         return;
@@ -296,7 +296,7 @@ void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_v
     std::wstring character = Hk::Client::GetCharacterNameByID(ignoredClient).Handle();
 
     // save to ini
-    const auto info = &ClientInfo[client];
+    const auto info = &ClientInfo::At(client);
     auto& list = info->accountData["settings"]["ignoreList"];
     list[StringUtils::wstos(std::wstring(character))] = flags;
 
@@ -305,7 +305,7 @@ void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_v
     IgnoreInfo ii;
     ii.character = character;
     ii.flags = flags;
-    ClientInfo[client].ignoreInfoList.push_back(ii);
+    ClientInfo::At(client).ignoreInfoList.push_back(ii);
 
     PrintUserCmdText(client, std::format(L"OK, \"{}\" added to ignore list", character));
 }
@@ -320,7 +320,7 @@ void UserCommandProcessor::GetIgnoreList()
 
     PrintUserCmdText(client, L"Id | Character Name | flags");
     int i = 1;
-    for (auto& ignore : ClientInfo[client].ignoreInfoList)
+    for (auto& ignore : ClientInfo::At(client).ignoreInfoList)
     {
         PrintUserCmdText(client, std::format(L"{} | %s | %s", i, ignore.character, ignore.flags));
         i++;
@@ -345,7 +345,7 @@ void UserCommandProcessor::RemoveFromIgnored(std::vector<std::wstring_view> char
         return;
     }
 
-    const auto info = &ClientInfo[client];
+    const auto info = &ClientInfo::At(client);
     if (charactersToRemove.front() == L"all")
     {
         info->accountData["settings"]["ignoreList"] = nlohmann::json::object();
@@ -358,7 +358,7 @@ void UserCommandProcessor::RemoveFromIgnored(std::vector<std::wstring_view> char
     for (auto name : charactersToRemove)
     {
         uint id = StringUtils::Cast<uint>(name);
-        if (!id || id > ClientInfo[client].ignoreInfoList.size())
+        if (!id || id > ClientInfo::At(client).ignoreInfoList.size())
         {
             PrintUserCmdText(client, L"Error: Invalid Id");
             return;
@@ -367,26 +367,26 @@ void UserCommandProcessor::RemoveFromIgnored(std::vector<std::wstring_view> char
         idsToBeDeleted.push_back(id);
     }
 
-    ClientInfo[client].ignoreInfoList.reverse();
+    ClientInfo::At(client).ignoreInfoList.reverse();
     for (const auto& del : idsToBeDeleted)
     {
-        uint currId = ClientInfo[client].ignoreInfoList.size();
-        for (auto ignoreIt = ClientInfo[client].ignoreInfoList.begin(); ignoreIt != ClientInfo[client].ignoreInfoList.end(); ++ignoreIt)
+        uint currId = ClientInfo::At(client).ignoreInfoList.size();
+        for (auto ignoreIt = ClientInfo::At(client).ignoreInfoList.begin(); ignoreIt != ClientInfo::At(client).ignoreInfoList.end(); ++ignoreIt)
         {
             if (currId == del)
             {
-                ClientInfo[client].ignoreInfoList.erase(ignoreIt);
+                ClientInfo::At(client).ignoreInfoList.erase(ignoreIt);
                 break;
             }
             currId--;
         }
     }
-    ClientInfo[client].ignoreInfoList.reverse();
+    ClientInfo::At(client).ignoreInfoList.reverse();
 
     // send confirmation msg
     auto newList = nlohmann::json::object();
     int i = 1;
-    for (const auto& ignore : ClientInfo[client].ignoreInfoList)
+    for (const auto& ignore : ClientInfo::At(client).ignoreInfoList)
     {
         newList[StringUtils::wstos(ignore.character)] = ignore.flags;
         i++;

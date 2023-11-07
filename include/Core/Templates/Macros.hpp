@@ -8,37 +8,13 @@
     #endif
 #endif
 
-#define SRV_ADDR(a)      ((char*)server + (a))
-#define DALIB_ADDR(a)    ((char*)hModDaLib + (a))
-#define FLSERVER_ADDR(a) ((char*)hProcFL + (a))
-#define CONTENT_ADDR(a)  ((char*)content + (a))
-
-#pragma warning(disable : 4091)
-#include <DbgHelp.h>
-
-struct SEHException
-{
-        SEHException(unsigned code, EXCEPTION_POINTERS* ep) : code(code), record(*ep->ExceptionRecord), context(*ep->ContextRecord) {}
-
-        SEHException() = default;
-
-        unsigned code;
-        EXCEPTION_RECORD record;
-        CONTEXT context;
-
-        static void Translator(unsigned code, EXCEPTION_POINTERS* ep) { throw SEHException(code, ep); }
-};
-
-DLL void WriteMiniDump(SEHException* ex);
-DLL void AddExceptionInfoLog();
-DLL void AddExceptionInfoLog(SEHException* ex);
-#define TRY_HOOK \
-    try          \
-    {            \
-        _set_se_translator(SEHException::Translator);
-#define CATCH_HOOK(e)                                          \
+#define TryHook \
+    try         \
+    {           \
+        _set_se_translator(SehException::Translator);
+#define CatchHook(e)                                           \
     }                                                          \
-    catch ([[maybe_unused]] SEHException & exc) { e; }         \
+    catch ([[maybe_unused]] SehException & exc) { e; }         \
     catch ([[maybe_unused]] const StopProcessingException&) {} \
     catch (const GameException& ex)                            \
     {                                                          \

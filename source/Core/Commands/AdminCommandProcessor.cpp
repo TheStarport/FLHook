@@ -315,8 +315,7 @@ std::wstring AdminCommandProcessor::Chase(std::wstring_view characterName)
     pos.y += 100.0f;
     Hk::Player::RelocateClient(admin.client, pos, orientation);
 
-    return std::format(
-        L"Jump to system={} x={:.0f} y={:.0f} z={:.0f}", target.systemName, static_cast<float>(pos.x), static_cast<float>(pos.y), static_cast<float>(pos.z));
+    return std::format(L"Jump to system={} x={:.0f} y={:.0f} z={:.0f}", target.systemName, pos.x, pos.y, pos.z);
 }
 
 std::wstring AdminCommandProcessor::Beam(std::wstring_view characterName, std::wstring_view baseName)
@@ -359,12 +358,7 @@ std::wstring AdminCommandProcessor::Pull(std::wstring_view characterName)
 
     Hk::Player::RelocateClient(target.client, pos, orientation);
 
-    return std::format(L"player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}",
-                       characterName,
-                       currentUser,
-                       static_cast<float>(pos.x),
-                       static_cast<float>(pos.y),
-                       static_cast<float>(pos.z));
+    return std::format(L"player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}", characterName, currentUser, pos.x, pos.y, pos.z);
 }
 
 // std::wstring AdminCommandProcessor::Move(std::wstring_view characterName, Vector position)

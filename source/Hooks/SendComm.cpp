@@ -14,7 +14,7 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
     {
         const auto client = ship->GetOwnerPlayer();
 
-        const auto& ci = ClientInfo[client];
+        const auto& ci = ClientInfo::At(client);
         const auto* conf = FLHookConfig::c();
 
         static std::array<byte, 8> num1RewriteBytes = { 0xBA, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90 };

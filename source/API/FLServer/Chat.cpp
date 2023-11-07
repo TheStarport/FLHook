@@ -1,18 +1,9 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLServer/Chat.hpp"
 #include "API/FLServer/Client.hpp"
-#include "API/FLServer/Player.hpp"
 #include "API/FLServer/Math.hpp"
-#include "Core/ClientServerInterface.hpp"
-
-
-bool g_bMsg;
-bool g_bMsgU;
-bool g_bMsgS;
-
-_RCSendChatMsg RCSendChatMsg;
+#include "API/FLServer/Player.hpp"
 
 namespace Hk::Chat
 {
@@ -42,7 +33,7 @@ namespace Hk::Chat
             return { cpp::fail(err.error()) };
         }
 
-        IServerImplHook::SubmitChat(ci, retVal, buf, ciClient, -1);
+        Server.SubmitChat(ci, retVal, buf, ciClient, -1);
         return { {} };
     }
 
@@ -68,7 +59,6 @@ namespace Hk::Chat
 
         // prepare xml
         const std::wstring xml = std::format(L"<TRA data=\"0xE6C68400\" mask=\"-1\"/><TEXT>", StringUtils::XmlText(message));
-       
 
         uint retVal;
         char buffer[1024];
@@ -77,14 +67,14 @@ namespace Hk::Chat
             return { cpp::fail(err.error()) };
         }
 
-        const CHAT_ID ci = { 0 };
+        constexpr CHAT_ID ci = { 0 };
 
         // for all players in system...
 
         for (const auto player : Client::getAllPlayersInSystem(systemId))
         {
             const CHAT_ID ciClient = { player };
-            IServerImplHook::SubmitChat(ci, retVal, buffer, ciClient, -1);
+            Server.SubmitChat(ci, retVal, buffer, ciClient, -1);
         }
 
         return { {} };
@@ -104,7 +94,6 @@ namespace Hk::Chat
 
         const std::wstring xml = std::format(L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>", StringUtils::XmlText(message));
 
- 
         uint retVal;
         char buf[1024];
         if (const auto err = FMsgEncodeXml(xml, buf, sizeof buf, retVal).Raw(); err.has_error())
@@ -112,7 +101,7 @@ namespace Hk::Chat
             return { cpp::fail(err.error()) };
         }
 
-        IServerImplHook::SubmitChat(ci, retVal, buf, ciClient, -1);
+        Server.SubmitChat(ci, retVal, buf, ciClient, -1);
         return { {} };
     }
 

@@ -1,98 +1,96 @@
 #include "PCH.hpp"
 
 #include "API/API.hpp"
+#include "Core/ClientServerInterface.hpp"
 #include "Global.hpp"
 
-namespace IServerImplHook
+bool GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId client)
 {
-    bool GFGoodSell__Inner(const SGFGoodSellInfo& gsi, ClientId client)
+    TryHook
     {
-        TRY_HOOK
+        // anti-cheat check
+
+        int _;
+        const auto cargoList = Hk::Player::EnumCargo(client, _).Raw();
+        bool legalSell = false;
+        for (const auto& cargo : cargoList.value())
         {
-            // anti-cheat check
-
-            int _;
-            const auto cargoList = Hk::Player::EnumCargo(client, _).Raw();
-            bool legalSell = false;
-            for (const auto& cargo : cargoList.value())
+            if (cargo.archId == gsi.archId)
             {
-                if (cargo.archId == gsi.archId)
+                legalSell = true;
+                if (abs(gsi.count) > cargo.count)
                 {
-                    legalSell = true;
-                    if (abs(gsi.count) > cargo.count)
-                    {
-                        const std::wstring charName = Hk::Client::GetCharacterNameByID(client).Handle();
-                        // AddCheaterLog(charName, std::format(L"Sold more good than possible item={} count={}", gsi.archId, gsi.count));
+                    const std::wstring charName = Hk::Client::GetCharacterNameByID(client).Handle();
+                    // AddCheaterLog(charName, std::format(L"Sold more good than possible item={} count={}", gsi.archId, gsi.count));
 
-                        Hk::Chat::MsgU(std::format(L"Possible cheating detected ({})", charName));
-                        Hk::Player::Ban(client, true);
-                        Hk::Player::Kick(client);
-                        return false;
-                    }
-                    break;
+                    Hk::Chat::MsgU(std::format(L"Possible cheating detected ({})", charName));
+                    Hk::Player::Ban(client, true);
+                    Hk::Player::Kick(client);
+                    return false;
                 }
-            }
-            if (!legalSell)
-            {
-                const std::wstring charName = Hk::Client::GetCharacterNameByID(client).Handle();
-                // AddCheaterLog(charName, std::format(L"Sold good player does not have (buggy test), item={}", gsi.archId));
-
-                return false;
+                break;
             }
         }
-        CATCH_HOOK({
-            Logger::i()->Log(
-                LogLevel::Trace,
-                std::format(L"Exception in {} (client={} ({}))", StringUtils::stows(__FUNCTION__), client, Hk::Client::GetCharacterNameByID(client).Unwrap()));
-        })
+        if (!legalSell)
+        {
+            const std::wstring charName = Hk::Client::GetCharacterNameByID(client).Handle();
+            // AddCheaterLog(charName, std::format(L"Sold good player does not have (buggy test), item={}", gsi.archId));
+
+            return false;
+        }
+    }
+    CatchHook({
+        Logger::i()->Log(
+            LogLevel::Trace,
+            std::format(L"Exception in {} (client={} ({}))", StringUtils::stows(__FUNCTION__), client, Hk::Client::GetCharacterNameByID(client).Unwrap()));
+    })
 
         return true;
-    }
-    void __stdcall GFGoodSell(const SGFGoodSellInfo& _genArg1, ClientId client)
+}
+
+void __stdcall IServerImplHook::GFGoodSell(const SGFGoodSellInfo& unk1, ClientId client)
+{
+    Logger::i()->Log(LogLevel::Trace, std::format(L"GFGoodSell(\n\tClientId client = {}\n)", client));
+
+    const auto skip = CallPlugins(&Plugin::OnGfGoodSell, client, unk1);
+
+    CheckForDisconnect;
+
+    if (const bool innerCheck = GFGoodSellInner(unk1, client); !innerCheck)
     {
-        Logger::i()->Log(LogLevel::Trace, std::format(L"GFGoodSell(\n\tClientId client = {}\n)", client));
-
-        const auto skip = CallPlugins(&Plugin::OnGfGoodSell, client, _genArg1);
-
-        CHECK_FOR_DISCONNECT;
-
-        if (const bool innerCheck = GFGoodSell__Inner(_genArg1, client); !innerCheck)
-        {
-            return;
-        }
-        if (!skip)
-        {
-            CALL_SERVER_PREAMBLE { Server.GFGoodSell(_genArg1, client); }
-            CALL_SERVER_POSTAMBLE(true, );
-        }
-
-        CallPlugins(&Plugin::OnGfGoodSellAfter, client, _genArg1);
+        return;
     }
-
-    void __stdcall GFGoodBuy(const SGFGoodBuyInfo& _genArg1, ClientId client)
+    if (!skip)
     {
-        Logger::i()->Log(LogLevel::Trace, std::format(L"GFGoodBuy(\n\tClientId client = {}\n)", client));
-
-        if (const auto skip = CallPlugins(&Plugin::OnGfGoodBuy, client, _genArg1); !skip)
-        {
-            CALL_SERVER_PREAMBLE { Server.GFGoodBuy(_genArg1, client); }
-            CALL_SERVER_POSTAMBLE(true, );
-        }
-
-        CallPlugins(&Plugin::OnGfGoodBuyAfter, client, _genArg1);
+        CallServerPreamble { Server.GFGoodSell(unk1, client); }
+        CallServerPostamble(true, );
     }
 
-    void __stdcall GFGoodVaporized(const SGFGoodVaporizedInfo& gvi, ClientId client)
+    CallPlugins(&Plugin::OnGfGoodSellAfter, client, unk1);
+}
+
+void __stdcall IServerImplHook::GFGoodBuy(const SGFGoodBuyInfo& unk1, ClientId client)
+{
+    Logger::i()->Log(LogLevel::Trace, std::format(L"GFGoodBuy(\n\tClientId client = {}\n)", client));
+
+    if (const auto skip = CallPlugins(&Plugin::OnGfGoodBuy, client, unk1); !skip)
     {
-        Logger::i()->Log(LogLevel::Trace, std::format(L"GFGoodVaporized(\n\tClientId client = {}\n)", client));
-
-        if (const auto skip = CallPlugins(&Plugin::OnGfGoodVaporized, client, gvi); !skip)
-        {
-            CALL_SERVER_PREAMBLE { Server.GFGoodVaporized(gvi, client); }
-            CALL_SERVER_POSTAMBLE(true, );
-        }
-
-        CallPlugins(&Plugin::OnGfGoodVaporizedAfter, client, gvi);
+        CallServerPreamble { Server.GFGoodBuy(unk1, client); }
+        CallServerPostamble(true, );
     }
 
-} // namespace IServerImplHook
+    CallPlugins(&Plugin::OnGfGoodBuyAfter, client, unk1);
+}
+
+void __stdcall IServerImplHook::GFGoodVaporized(const SGFGoodVaporizedInfo& gvi, ClientId client)
+{
+    Logger::i()->Log(LogLevel::Trace, std::format(L"GFGoodVaporized(\n\tClientId client = {}\n)", client));
+
+    if (const auto skip = CallPlugins(&Plugin::OnGfGoodVaporized, client, gvi); !skip)
+    {
+        CallServerPreamble { Server.GFGoodVaporized(gvi, client); }
+        CallServerPostamble(true, );
+    }
+
+    CallPlugins(&Plugin::OnGfGoodVaporizedAfter, client, gvi);
+}

@@ -1,27 +1,25 @@
 #include "PCH.hpp"
 
 #include "API/FLServer/Client.hpp"
+#include "Core/IEngineHook.hpp"
 #include "Global.hpp"
 
 EXPORT uint g_DmgTo = 0;
 EXPORT uint g_DmgToSpaceId = 0;
 DamageList g_LastDmgList;
 
-bool g_NonGunHitsBase = false;
+bool eg_NonGunHitsBase = false;
 float g_LastHitPts;
 
-/**************************************************************************************************************
-Called when a torp/missile/mine/wasp hits a ship
-return 0 -> pass on to server.dll
-return 1 -> suppress
-**************************************************************************************************************/
-
-FARPROC g_OldGuidedHit;
-
-int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
+/*
+ * Called when a torp/missile/mine/wasp hits a ship
+ * return 0 -> pass on to server.dll
+ * return 1 -> suppress
+ */
+int __stdcall IEngineHook::GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 {
     uint retValue = 0;
-    TRY_HOOK
+    TryHook
     {
         char* p;
         memcpy(&p, ecx + 0x10, 4);
@@ -57,7 +55,7 @@ int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 
                 if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour &&
                     ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause() == DamageCause::UnkDisrupter) &&
-                     !ClientInfo[client].cruiseActivated))
+                     !ClientInfo::At(client).cruiseActivated))
                 {
                     dmgList->set_cause(DamageCause::DummyDisrupter); // change to sth else, so client won't recognize it as a disruptor
                 }
@@ -66,11 +64,10 @@ int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 
         CallPlugins(&Plugin::OnGuidedHitAfter, inflictorShip, client, spaceId, dmgList);
     }
-    CATCH_HOOK({})
-    return retValue;
+    CatchHook({}) return retValue;
 }
 
-__declspec(naked) void Naked__GuidedHit()
+__declspec(naked) void IEngineHook::NakedGuidedHit()
 {
     __asm {
 		mov eax, [esp+4]
@@ -91,13 +88,12 @@ __declspec(naked) void Naked__GuidedHit()
     }
 }
 
-/**************************************************************************************************************
-Called when ship was damaged
-however you can't figure out here, which ship is being damaged, that's why i use
-the g_DmgTo variable...
-**************************************************************************************************************/
+/*
+ * Called when ship was damaged
+ * however you can't figure out here, which ship is being damaged, that's why we use the g_DmgTo variable.
+ */
 
-void __stdcall AddDamageEntry(DamageList* dmgList, unsigned short subObjId, float hitPts, DamageEntry::SubObjFate fate)
+void __stdcall IEngineHook::AddDamageEntry(DamageList* dmgList, unsigned short subObjId, float hitPts, DamageEntry::SubObjFate fate)
 {
     if (CallPlugins(&Plugin::OnAddDamageEntry, dmgList, subObjId, hitPts, fate))
     {
@@ -147,7 +143,7 @@ void __stdcall AddDamageEntry(DamageList* dmgList, unsigned short subObjId, floa
         dmgList->add_damage_entry(subObjId, hitPts, fate);
     }
 
-    TRY_HOOK
+    TryHook
     {
         g_LastDmgList = *dmgList; // save
 
@@ -168,15 +164,15 @@ void __stdcall AddDamageEntry(DamageList* dmgList, unsigned short subObjId, floa
             ClientInfo[g_DmgTo].dmgLast = *dmgList;
         }
     }
-    CATCH_HOOK({})
+    CatchHook({})
 
-    CallPlugins(&Plugin::OnAddDamageEntryAfter, dmgList, subObjId, hitPts, fate);
+        CallPlugins(&Plugin::OnAddDamageEntryAfter, dmgList, subObjId, hitPts, fate);
 
     g_DmgTo = 0;
     g_DmgToSpaceId = 0;
 }
 
-__declspec(naked) void Naked__AddDamageEntry()
+__declspec(naked) void IEngineHook::NakedAddDamageEntry()
 {
     __asm {
 		push [esp+0Ch]
@@ -190,15 +186,9 @@ __declspec(naked) void Naked__AddDamageEntry()
     }
 }
 
-/**************************************************************************************************************
-Called when ship was damaged
-**************************************************************************************************************/
-
-FARPROC g_OldDamageHit, g_OldDamageHit2;
-
-void __stdcall DamageHit(char* ecx)
+void __stdcall IEngineHook::DamageHit(char* ecx)
 {
-    TRY_HOOK
+    TryHook
     {
         char* p;
         memcpy(&p, ecx + 0x10, 4);
@@ -212,10 +202,10 @@ void __stdcall DamageHit(char* ecx)
 
         CallPlugins(&Plugin::OnDamageHit, client, spaceId);
     }
-    CATCH_HOOK({})
+    CatchHook({})
 }
 
-__declspec(naked) void Naked__DamageHit()
+__declspec(naked) void IEngineHook::NakedDamageHit()
 {
     __asm {
 		push ecx
@@ -226,7 +216,7 @@ __declspec(naked) void Naked__DamageHit()
     }
 }
 
-__declspec(naked) void Naked__DamageHit2()
+__declspec(naked) void IEngineHook::NakedDamageHit2()
 {
     __asm {
 		push ecx
@@ -237,11 +227,7 @@ __declspec(naked) void Naked__DamageHit2()
     }
 }
 
-/**************************************************************************************************************
-Called when ship was damaged
-**************************************************************************************************************/
-
-bool AllowPlayerDamage(ClientId client, ClientId clientTarget)
+bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
 {
     auto [rval, skip] = CallPlugins<bool>(&Plugin::OnAllowPlayerDamage, client, clientTarget);
     if (skip)
@@ -262,13 +248,13 @@ bool AllowPlayerDamage(ClientId client, ClientId clientTarget)
             }
             ClientInfo[clientTarget].spawnProtected = false;
         }
-        if (ClientInfo[client].spawnProtected)
+        if (ClientInfo::At(client).spawnProtected)
         {
-            if (TimeUtils::UnixMilliseconds() - ClientInfo[client].tmSpawnTime <= config->general.antiDockKill)
+            if (TimeUtils::UnixMilliseconds() - ClientInfo::At(client).tmSpawnTime <= config->general.antiDockKill)
             {
                 return false; // target may not shoot
             }
-            ClientInfo[client].spawnProtected = false;
+            ClientInfo::At(client).spawnProtected = false;
         }
 
         // no-pvp check
@@ -283,25 +269,18 @@ bool AllowPlayerDamage(ClientId client, ClientId clientTarget)
     return true;
 }
 
-/**************************************************************************************************************
-**************************************************************************************************************/
-
-FARPROC g_OldNonGunWeaponHitsBase;
-
-void __stdcall NonGunWeaponHitsBaseBefore(const char* ECX, [[maybe_unused]] const char* p1, const DamageList* dmg)
+void __stdcall IEngineHook::NonGunWeaponHitsBaseBefore(const char* ecx, [[maybe_unused]] const char* p1, const DamageList* dmg)
 {
     CSimple* simple;
-    memcpy(&simple, ECX + 0x10, 4);
+    memcpy(&simple, ecx + 0x10, 4);
     g_LastHitPts = simple->get_hit_pts();
 
     g_NonGunHitsBase = true;
 }
 
-void NonGunWeaponHitsBaseAfter() { g_NonGunHitsBase = false; }
+void IEngineHook::NonGunWeaponHitsBaseAfter() { g_NonGunHitsBase = false; }
 
-ulong g_NonGunWeaponHitsBaseRetAddress;
-
-__declspec(naked) void Naked__NonGunWeaponHitsBase()
+__declspec(naked) void IEngineHook::NakedNonGunWeaponHitsBase()
 {
     __asm {
 		mov eax, [esp+4]
@@ -325,5 +304,3 @@ __declspec(naked) void Naked__NonGunWeaponHitsBase()
 		jmp [g_NonGunWeaponHitsBaseRetAddress]
     }
 }
-
-///////////////////////////

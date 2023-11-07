@@ -138,7 +138,7 @@ namespace Hk::Player
             // money fix in case player logs in with this account
             bool found = false;
             const std::wstring characterLower = StringUtils::ToLower(character);
-            for (auto& money : ClientInfo[client].moneyFix)
+            for (auto& money : ClientInfo::At(client).moneyFix)
             {
                 if (money.character == characterLower)
                 {
@@ -153,7 +153,7 @@ namespace Hk::Player
                 MoneyFix mf;
                 mf.character = characterLower;
                 mf.amount = amount;
-                ClientInfo[client].moneyFix.push_back(mf);
+                ClientInfo::At(client).moneyFix.push_back(mf);
             }
         }
 
@@ -722,11 +722,11 @@ namespace Hk::Player
 
     Action<void, Error> MsgAndKick(ClientId client, const std::wstring_view reason, uint interval)
     {
-        if (!ClientInfo[client].tmKickTime)
+        if (!ClientInfo::At(client).tmKickTime)
         {
             const std::wstring msg = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.kickMsg, L"%reason", StringUtils::XmlText(reason));
             Chat::FMsg(client, msg);
-            ClientInfo[client].tmKickTime = TimeUtils::UnixMilliseconds() + interval;
+            ClientInfo::At(client).tmKickTime = TimeUtils::UnixMilliseconds() + interval;
         }
 
         return { {} };
@@ -1055,7 +1055,7 @@ namespace Hk::Player
         const Quaternion rotation = Math::MatrixToQuaternion(orientation);
 
         FLPACKET_LAUNCH launchPacket;
-        launchPacket.ship = ClientInfo[client].ship;
+        launchPacket.ship = ClientInfo::At(client).ship;
         launchPacket.base = 0;
         launchPacket.state = 0xFFFFFFFF;
         launchPacket.rotate[0] = rotation.w;
@@ -1070,7 +1070,7 @@ namespace Hk::Player
 
         uint system;
         pub::Player::GetSystem(client, system);
-        pub::SpaceObj::Relocate(ClientInfo[client].ship, system, destination, orientation);
+        pub::SpaceObj::Relocate(ClientInfo::At(client).ship, system, destination, orientation);
     }
 
     /** Dock the client immediately */
@@ -1586,9 +1586,9 @@ namespace Hk::Player
     void DelayedKick(ClientId client, uint secs)
     {
         const mstime kick_time = TimeUtils::UnixSeconds() + secs;
-        if (!ClientInfo[client].tmKickTime || ClientInfo[client].tmKickTime > kick_time)
+        if (!ClientInfo::At(client).tmKickTime || ClientInfo::At(client).tmKickTime > kick_time)
         {
-            ClientInfo[client].tmKickTime = kick_time;
+            ClientInfo::At(client).tmKickTime = kick_time;
         }
     }
 

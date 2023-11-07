@@ -15,6 +15,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\source\API\Api.cpp" />
     <ClCompile Include="..\Source\API\FLHook\Mail.cpp" />
     <ClCompile Include="..\Source\API\FLHook\MessageHandler.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Admin.cpp" />
@@ -34,11 +35,11 @@
     <ClCompile Include="..\Source\Core\Commands\UserCommandProcessor.cpp" />
     <ClCompile Include="..\Source\Core\Debug.cpp" />
     <ClCompile Include="..\Source\Core\FLPacket.cpp" />
+    <ClCompile Include="..\source\Core\IpResolver.cpp" />
     <ClCompile Include="..\Source\Core\Logger.cpp" />
     <ClCompile Include="..\Source\Core\MemoryManager.cpp" />
     <ClCompile Include="..\Source\Core\PluginManager.cpp" />
     <ClCompile Include="..\Source\Core\SaveData.cpp" />
-    <ClCompile Include="..\Source\Core\Settings.cpp" />
     <ClCompile Include="..\Source\Core\StartupCache.cpp" />
     <ClCompile Include="..\Source\Core\TempBan.cpp" />
     <ClCompile Include="..\Source\Core\Timers.cpp" />
@@ -74,15 +75,21 @@
     <ClCompile Include="..\Source\Hooks\ClientServerInterface\UserInterface.cpp" />
     <ClCompile Include="..\Source\Hooks\HkDataBaseMarket.cpp" />
     <ClCompile Include="..\Source\Hooks\HkIChatServer.cpp" />
-    <ClCompile Include="..\Source\Hooks\HkIEngine.cpp" />
+    <ClCompile Include="..\Source\Hooks\IEngineHook.cpp" />
     <ClCompile Include="..\Source\Hooks\HkIEngineDamage.cpp" />
     <ClCompile Include="..\Source\Hooks\HkIEngineDeath.cpp" />
     <ClCompile Include="..\Source\Hooks\HkIEngineDisconnect.cpp" />
-    <ClCompile Include="..\Source\Hooks\HkInit.cpp" />
+    <ClCompile Include="..\Source\Hooks\HookInit.cpp" />
     <ClCompile Include="..\Source\Hooks\SendComm.cpp" />
+    <ClCompile Include="..\source\Utils\PerfTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\FLHookSDK\include\Exceptions\ErrorInfo.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Exceptions\GameException.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Exceptions\StopProcessingException.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Exceptions\UnsupportedException.hpp" />
     <ClInclude Include="..\Include\API\API.hpp" />
+    <ClInclude Include="..\include\API\FLHook\ClientInfo.hpp" />
     <ClInclude Include="..\Include\API\FLHook\MailManager.hpp" />
     <ClInclude Include="..\Include\API\FLHook\Plugin.hpp" />
     <ClInclude Include="..\Include\API\FLServer\Admin.hpp" />
@@ -95,6 +102,8 @@
     <ClInclude Include="..\Include\API\FLServer\ZoneUtilities.hpp" />
     <ClInclude Include="..\include\API\Utils\FileUtils.hpp" />
     <ClInclude Include="..\include\API\Utils\IniUtils.hpp" />
+    <ClInclude Include="..\include\API\Utils\PerfTimer.hpp" />
+    <ClInclude Include="..\include\Core\AddressList.hpp" />
     <ClInclude Include="..\Include\Core\Codec.hpp" />
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp" />
     <ClInclude Include="..\include\Core\Commands\AbstractExternalCommandProcessor.hpp" />
@@ -104,14 +113,16 @@
     <ClInclude Include="..\Include\Core\Commands\ExternalCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Detour.hpp" />
-    <ClInclude Include="..\Include\Core\Exceptions\ErrorInfo.hpp" />
     <ClInclude Include="..\Include\Core\Exceptions\StopProcessingException.hpp" />
     <ClInclude Include="..\Include\Core\ClientServerInterface.hpp" />
+    <ClInclude Include="..\include\Core\FLHook.hpp" />
+    <ClInclude Include="..\include\Core\IEngineHook.hpp" />
     <ClInclude Include="..\Include\Core\Logger.hpp" />
     <ClInclude Include="..\Include\Core\MemoryManager.hpp" />
     <ClInclude Include="..\Include\Core\MessageHandler.hpp" />
     <ClInclude Include="..\Include\Core\PluginManager.hpp" />
     <ClInclude Include="..\Include\Core\Serializer.hpp" />
+    <ClInclude Include="..\include\Core\StartupCache.hpp" />
     <ClInclude Include="..\Include\Core\TempBan.hpp" />
     <ClInclude Include="..\Include\Core\Templates\Constexpr.hpp" />
     <ClInclude Include="..\Include\Core\Templates\Macros.hpp" />
@@ -119,11 +130,12 @@
     <ClInclude Include="..\Include\Defs\Enums.hpp" />
     <ClInclude Include="..\Include\Defs\FLHookConfig.hpp" />
     <ClInclude Include="..\Include\Defs\FLPacket.hpp" />
+    <ClInclude Include="..\include\Defs\SehException.hpp" />
     <ClInclude Include="..\Include\Defs\ServerStats.hpp" />
     <ClInclude Include="..\Include\Defs\Structs.hpp" />
-    <ClInclude Include="..\Include\FLHook.hpp" />
     <ClInclude Include="..\Include\Global.hpp" />
     <ClInclude Include="..\Include\PCH.hpp" />
+    <ClInclude Include="..\source\Core\IpResolver.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FE6EB3C9-DA22-4492-AEC3-068C9553A623}</ProjectGuid>

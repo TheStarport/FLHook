@@ -1,7 +1,5 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
-
 namespace Hk::Personalities
 {
     std::map<std::wstring, pub::AI::Personality> pilots;

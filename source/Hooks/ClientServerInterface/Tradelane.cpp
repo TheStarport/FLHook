@@ -1,75 +1,73 @@
 #include "PCH.hpp"
 
 #include "API/API.hpp"
+#include "Core/ClientServerInterface.hpp"
 #include "Global.hpp"
 
-namespace IServerImplHook
+void GoTradelaneInner(ClientId client, [[maybe_unused]] const XGoTradelane& gtl)
 {
-    void GoTradelane__Inner(ClientId client, [[maybe_unused]] const XGoTradelane& gtl)
+    if (client <= MaxClientId && client > 0)
     {
-        if (client <= MaxClientId && client > 0)
-        {
-            ClientInfo[client].tradelane = true;
-        }
+        ClientInfo::At(client).tradelane = true;
+    }
+}
+
+bool GoTradelaneCatch(ClientId client, const XGoTradelane& gtl)
+{
+    uint system;
+    pub::Player::GetSystem(client, system);
+    Logger::i()->Log(LogLevel::Trace,
+                     std::format(L"Exception in IServerImpl::GoTradelane charname={} sys=0x{:08X} arch=0x{:08X} arch2=0x{:08X}",
+                                 Hk::Client::GetCharacterNameByID(client).Unwrap(),
+                                 system,
+                                 gtl.tradelaneSpaceObj1,
+                                 gtl.tradelaneSpaceObj2));
+    return true;
+}
+
+void __stdcall IServerImplHook::GoTradelane(ClientId client, const XGoTradelane& gt)
+{
+    Logger::i()->Log(LogLevel::Trace, std::format(L"GoTradelane(\n\tClientId client = {}\n)", client));
+
+    const auto skip = CallPlugins(&Plugin::OnTradelaneStart, client, gt);
+
+    GoTradelaneInner(client, gt);
+
+    if (!skip)
+    {
+        CallServerPreamble { Server.GoTradelane(client, gt); }
+        CallServerPostamble(GoTradelaneCatch(client, gt), );
     }
 
-    bool GoTradelane__Catch(ClientId client, const XGoTradelane& gtl)
+    CallPlugins(&Plugin::OnTradelaneStartAfter, client, gt);
+}
+
+void StopTradelaneInner(ClientId client, uint, uint, uint)
+{
+    if (client <= MaxClientId && client > 0)
     {
-        uint system;
-        pub::Player::GetSystem(client, system);
-        Logger::i()->Log(LogLevel::Trace,
-                         std::format(L"Exception in IServerImpl::GoTradelane charname={} sys=0x{:08X} arch=0x{:08X} arch2=0x{:08X}",
-                                     Hk::Client::GetCharacterNameByID(client).Unwrap(),
-                                     system,
-                                     gtl.tradelaneSpaceObj1,
-                                     gtl.tradelaneSpaceObj2));
-        return true;
+        ClientInfo::At(client).tradelane = false;
+    }
+}
+
+void __stdcall IServerImplHook::StopTradelane(ClientId client, uint shipId, uint tradelaneRing1, uint tradelaneRing2)
+{
+    Logger::i()->Log(LogLevel::Trace,
+                     std::format(L"StopTradelane(\n\tClientId client = {}\n\tuint shipId = {}\n\tuint tradelaneRing1 = {}\n\tuint tradelaneRing2 = {}\n)",
+                                 client,
+                                 shipId,
+                                 tradelaneRing1,
+                                 tradelaneRing2));
+
+    const auto skip = CallPlugins(&Plugin::OnTradelaneStop, client, shipId, tradelaneRing1, tradelaneRing2);
+
+    StopTradelaneInner(client, shipId, tradelaneRing1, tradelaneRing2);
+
+    if (!skip)
+    {
+        CallServerPreamble { Server.StopTradelane(client, shipId, tradelaneRing1, tradelaneRing2); }
+        CallServerPostamble(true, );
     }
 
-    void __stdcall GoTradelane(ClientId client, const XGoTradelane& gt)
-    {
-        Logger::i()->Log(LogLevel::Trace, std::format(L"GoTradelane(\n\tClientId client = {}\n)", client));
-
-        const auto skip = CallPlugins(&Plugin::OnTradelaneStart, client, gt);
-
-        GoTradelane__Inner(client, gt);
-
-        if (!skip)
-        {
-            CALL_SERVER_PREAMBLE { Server.GoTradelane(client, gt); }
-            CALL_SERVER_POSTAMBLE(GoTradelane__Catch(client, gt), );
-        }
-
-        CallPlugins(&Plugin::OnTradelaneStartAfter, client, gt);
-    }
-
-    void StopTradelane__Inner(ClientId client, uint, uint, uint)
-    {
-        if (client <= MaxClientId && client > 0)
-        {
-            ClientInfo[client].tradelane = false;
-        }
-    }
-
-    void __stdcall StopTradelane(ClientId client, uint shipId, uint tradelaneRing1, uint tradelaneRing2)
-    {
-        Logger::i()->Log(LogLevel::Trace,
-                         std::format(L"StopTradelane(\n\tClientId client = {}\n\tuint shipId = {}\n\tuint tradelaneRing1 = {}\n\tuint tradelaneRing2 = {}\n)",
-                                     client,
-                                     shipId,
-                                     tradelaneRing1,
-                                     tradelaneRing2));
-
-        const auto skip = CallPlugins(&Plugin::OnTradelaneStop, client, shipId, tradelaneRing1, tradelaneRing2);
-
-        StopTradelane__Inner(client, shipId, tradelaneRing1, tradelaneRing2);
-
-        if (!skip)
-        {
-            CALL_SERVER_PREAMBLE { Server.StopTradelane(client, shipId, tradelaneRing1, tradelaneRing2); }
-            CALL_SERVER_POSTAMBLE(true, );
-        }
-
-        CallPlugins(&Plugin::OnTradelaneStopAfter, client, shipId, tradelaneRing1, tradelaneRing2);
-    }
-} // namespace IServerImplHook
+    CallPlugins(&Plugin::OnTradelaneStopAfter, client, shipId, tradelaneRing1, tradelaneRing2);
+}

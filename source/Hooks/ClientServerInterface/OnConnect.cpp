@@ -1,76 +1,73 @@
 #include "PCH.hpp"
 
 #include "Core/ClientServerInterface.hpp"
+#include "Core/FLHook.hpp"
 #include "Global.hpp"
 
-namespace IServerImplHook
+bool IServerImplHook::OnConnectInner(ClientId client)
 {
-    bool OnConnect__Inner(ClientId client)
+    TryHook
     {
-        TRY_HOOK
+        // If Id is too high due to disconnect buffer time then manually drop
+        // the connection.
+        if (client > MaxClientId)
         {
-            // If Id is too high due to disconnect buffer time then manually drop
-            // the connection.
-            if (client > MaxClientId)
+            Logger::i()->Log(LogLevel::Trace, std::format(L"INFO: Blocking connect in {} due to invalid id, id={}", StringUtils::stows(__FUNCTION__), client));
+            CDPClientProxy* cdpClient = clientProxyArray[client - 1];
+            if (!cdpClient)
             {
-                Logger::i()->Log(LogLevel::Trace,
-                                 std::format(L"INFO: Blocking connect in {} due to invalid id, id={}", StringUtils::stows(__FUNCTION__), client));
-                CDPClientProxy* cdpClient = clientProxyArray[client - 1];
-                if (!cdpClient)
-                {
-                    return false;
-                }
-                cdpClient->Disconnect();
                 return false;
             }
-
-            // If this client is in the anti-F1 timeout then force the disconnect.
-            if (ClientInfo[client].tmF1TimeDisconnect > TimeUtils::UnixMilliseconds())
-            {
-                // manual disconnect
-                CDPClientProxy* cdpClient = clientProxyArray[client - 1];
-                if (!cdpClient)
-                {
-                    return false;
-                }
-                cdpClient->Disconnect();
-                return false;
-            }
-
-            ClientInfo[client].connects++;
-            ClearClientInfo(client);
+            cdpClient->Disconnect();
+            return false;
         }
-        CATCH_HOOK({})
+
+        // If this client is in the anti-F1 timeout then force the disconnect.
+        if (ClientInfo::At(client).tmF1TimeDisconnect > TimeUtils::UnixMilliseconds())
+        {
+            // manual disconnect
+            CDPClientProxy* cdpClient = clientProxyArray[client - 1];
+            if (!cdpClient)
+            {
+                return false;
+            }
+            cdpClient->Disconnect();
+            return false;
+        }
+
+        ClientInfo::At(client).connects++;
+        FLHook::ClearClientInfo(client);
+    }
+    CatchHook({})
 
         return true;
-    }
+}
 
-    void OnConnect__InnerAfter([[maybe_unused]] ClientId client)
+void OnConnectInnerAfter([[maybe_unused]] ClientId client)
+{
+    TryHook
     {
-        TRY_HOOK
-        {
-            // TODO: implement event for OnConnect
-        }
-        CATCH_HOOK({})
+        // TODO: implement event for OnConnect
     }
+    CatchHook({})
+}
 
-    void __stdcall OnConnect(ClientId client)
+void __stdcall IServerImplHook::OnConnect(ClientId client)
+{
+    Logger::i()->Log(LogLevel::Trace, std::format(L"OnConnect(\n\tClientId client = {}\n)", client));
+
+    const auto skip = CallPlugins(&Plugin::OnConnect, client);
+
+    if (const bool innerCheck = OnConnectInner(client); !innerCheck)
     {
-        Logger::i()->Log(LogLevel::Trace, std::format(L"OnConnect(\n\tClientId client = {}\n)", client));
-
-        const auto skip = CallPlugins(&Plugin::OnConnect, client);
-
-        if (const bool innerCheck = OnConnect__Inner(client); !innerCheck)
-        {
-            return;
-        }
-        if (!skip)
-        {
-            CALL_SERVER_PREAMBLE { Server.OnConnect(client); }
-            CALL_SERVER_POSTAMBLE(true, );
-        }
-        OnConnect__InnerAfter(client);
-
-        CallPlugins(&Plugin::OnConnectAfter, client);
+        return;
     }
-} // namespace IServerImplHook
+    if (!skip)
+    {
+        CallServerPreamble { Server.OnConnect(client); }
+        CallServerPostamble(true, );
+    }
+    OnConnectInnerAfter(client);
+
+    CallPlugins(&Plugin::OnConnectAfter, client);
+}

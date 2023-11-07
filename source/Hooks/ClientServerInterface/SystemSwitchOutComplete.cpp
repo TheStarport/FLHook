@@ -1,32 +1,29 @@
 #include "PCH.hpp"
 
 #include "API/FLServer/Client.hpp"
+#include "Core/ClientServerInterface.hpp"
 #include "Global.hpp"
 
-namespace IServerImplHook
+void SystemSwitchOutCompleteInnerAfter(uint, ClientId client)
 {
-    void SystemSwitchOutComplete__InnerAfter(uint, ClientId client)
+    TryHook
     {
-        TRY_HOOK
-        {
-            const auto system = Hk::Client::GetPlayerSystem(client);
-            // TODO: Implement event for switch out
-        }
-        CATCH_HOOK({})
+        const auto system = Hk::Client::GetPlayerSystem(client);
+        // TODO: Implement event for switch out
     }
+    CatchHook({})
+}
 
-    void __stdcall SystemSwitchOutComplete(uint shipId, ClientId client)
+void __stdcall IServerImplHook::SystemSwitchOutComplete(uint shipId, ClientId client)
+{
+    Logger::i()->Log(LogLevel::Trace, std::format(L"SystemSwitchOutComplete(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
+
+    if (const auto skip = CallPlugins(&Plugin::OnSystemSwitchOutComplete, client, shipId); !skip)
     {
-        Logger::i()->Log(LogLevel::Trace, std::format(L"SystemSwitchOutComplete(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
-
-        if (const auto skip = CallPlugins(&Plugin::OnSystemSwitchOutComplete, client, shipId); !skip)
-        {
-            CALL_SERVER_PREAMBLE { Server.SystemSwitchOutComplete(shipId, client); }
-            CALL_SERVER_POSTAMBLE(true, );
-        }
-        SystemSwitchOutComplete__InnerAfter(shipId, client);
-
-        CallPlugins(&Plugin::OnSystemSwitchOutCompleteAfter, client, shipId);
+        CallServerPreamble { Server.SystemSwitchOutComplete(shipId, client); }
+        CallServerPostamble(true, );
     }
+    SystemSwitchOutCompleteInnerAfter(shipId, client);
 
-} // namespace IServerImplHook
+    CallPlugins(&Plugin::OnSystemSwitchOutCompleteAfter, client, shipId);
+}

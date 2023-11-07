@@ -4,37 +4,33 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Global.hpp"
 
-namespace IServerImplHook
+void SPMunitionCollisionInner(const SSPMunitionCollisionInfo& mci, uint)
 {
-    void SPMunitionCollision__Inner(const SSPMunitionCollisionInfo& mci, uint)
+    TryHook
     {
-        TRY_HOOK
+        if (const auto isClient = Hk::Client::GetClientIdByShip(mci.targetShip).Raw(); isClient.has_value())
         {
-            if (const auto isClient = Hk::Client::GetClientIdByShip(mci.targetShip).Raw(); isClient.has_value())
-            {
-                CoreGlobals::i()->damageToClientId = isClient.value();
-            }
+            CoreGlobals::i()->damageToClientId = isClient.value();
         }
-        CATCH_HOOK({})
+    }
+    CatchHook({})
+}
+
+void __stdcall IServerImplHook::SpMunitionCollision(const SSPMunitionCollisionInfo& mci, ClientId client)
+{
+    Logger::i()->Log(LogLevel::Trace, std::format(L"SPMunitionCollision(\n\tClientId client = {}\n)", client));
+
+    const auto skip = CallPlugins(&Plugin::OnSpMunitionCollision, client, mci);
+
+    CheckForDisconnect;
+
+    SPMunitionCollisionInner(mci, client);
+
+    if (!skip)
+    {
+        CallServerPreamble { Server.SPMunitionCollision(mci, client); }
+        CallServerPostamble(true, );
     }
 
-    void __stdcall SPMunitionCollision(const SSPMunitionCollisionInfo& mci, ClientId client)
-    {
-        Logger::i()->Log(LogLevel::Trace, std::format(L"SPMunitionCollision(\n\tClientId client = {}\n)", client));
-
-        const auto skip = CallPlugins(&Plugin::OnSpMunitionCollision, client, mci);
-
-        CHECK_FOR_DISCONNECT;
-
-        SPMunitionCollision__Inner(mci, client);
-
-        if (!skip)
-        {
-            CALL_SERVER_PREAMBLE { Server.SPMunitionCollision(mci, client); }
-            CALL_SERVER_POSTAMBLE(true, );
-        }
-
-        CallPlugins(&Plugin::OnSpMunitionCollisionAfter, client, mci);
-    }
-
-} // namespace IServerImplHook
+    CallPlugins(&Plugin::OnSpMunitionCollisionAfter, client, mci);
+}

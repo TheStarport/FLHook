@@ -1,219 +1,9 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/FLServer/Client.hpp"
 
 namespace Hk::Client
 {
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    Action<uint, Error> GetClientIdFromAccount(const CAccount* acc)
-    {
-        PlayerData* playerDb = nullptr;
-        while ((playerDb = Players.traverse_active(playerDb)))
-        {
-            if (playerDb->account == acc)
-            {
-                return { playerDb->onlineId };
-            }
-        }
-
-        return { cpp::fail(Error::PlayerNotLoggedIn) };
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    Action<CAccount*, Error> GetAccountByCharName(std::wstring_view character)
-    {
-        st6::wstring fr((ushort*)character.data(), character.size());
-        CAccount* acc = Players.FindAccountFromCharacterName(fr);
-
-        if (!acc)
-        {
-            return { cpp::fail(Error::CharacterDoesNotExist) };
-        }
-
-        return { acc };
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    Action<uint, Error> GetClientIdFromCharName(std::wstring_view character)
-    {
-        const auto acc = GetAccountByCharName(character).Raw();
-        if (acc.has_error())
-        {
-            return { cpp::fail(acc.error()) };
-        }
-
-        const auto client = GetClientIdFromAccount(acc.value()).Raw();
-        if (client.has_error())
-        {
-            return { cpp::fail(client.error()) };
-        }
-
-        const auto newCharacter = GetCharacterNameByID(client.value()).Raw();
-        if (newCharacter.has_error())
-        {
-            return { cpp::fail(newCharacter.error()) };
-        }
-
-        if (StringUtils::ToLower(newCharacter.value()) == StringUtils::ToLower(character))
-        {
-            return { cpp::fail(Error::CharacterDoesNotExist) };
-        }
-
-        return { client };
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    Action<std::wstring, Error> GetAccountID(CAccount* acc)
-    {
-        if (acc && acc->accId)
-        {
-            return { acc->accId };
-        }
-
-        return { cpp::fail(Error::CannotGetAccount) };
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // TODO: DEPRECATE
-    bool IsEncoded(const std::wstring& fileName)
-    {
-        bool retVal = false;
-
-        auto f = std::wifstream(fileName);
-
-        if (!f)
-        {
-            return false;
-        }
-
-        // Checks first 4 bytes of a file and if the first 4 bytes are the listed string,
-        const wchar_t magic[] = L"FLS1";
-        wchar_t file[sizeof magic] = L"";
-        f.read(0, sizeof magic);
-        if (!wcsncmp(magic, file, sizeof magic - 1))
-        {
-            retVal = true;
-        }
-
-        f.close();
-
-        return retVal;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    bool IsInCharSelectMenu(const uint& player)
-    {
-        ClientId client = ExtractClientID(player);
-        if (client == UINT_MAX)
-        {
-            return false;
-        }
-
-        uint base = 0;
-        uint system = 0;
-        pub::Player::GetBase(client, base);
-        pub::Player::GetSystem(client, system);
-        if (!base && !system)
-        {
-            return true;
-        }
-        return false;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    bool IsValidClientID(ClientId client)
-    {
-        if (client == 0 || client >= 255)
-        {
-            return false;
-        }
-
-        PlayerData* playerDb = nullptr;
-        while ((playerDb = Players.traverse_active(playerDb)))
-        {
-            if (playerDb->onlineId == client)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    Action<std::wstring, Error> GetCharacterNameByID(ClientId client)
-    {
-        if (!IsValidClientID(client) || IsInCharSelectMenu(client))
-        {
-            return { cpp::fail(Error::InvalidClientId) };
-        }
-
-        return { reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client)) };
-    }
-
-    Action<ClientId, Error> ResolveShortCut(const std::wstring& shortcut)
-    {
-        std::wstring shortcutLower = StringUtils::ToLower(shortcut);
-        if (shortcutLower.find(L"sc ") != 0)
-        {
-            return { cpp::fail(Error::InvalidShortcutString) };
-        }
-
-        shortcutLower = shortcutLower.substr(3);
-
-        uint clientFound = UINT_MAX;
-        PlayerData* playerDb = nullptr;
-        while ((playerDb = Players.traverse_active(playerDb)))
-        {
-            const auto characterName = GetCharacterNameByID(playerDb->onlineId).Raw();
-            if (characterName.has_error())
-            {
-                continue;
-            }
-
-            if (StringUtils::ToLower(characterName.value()).find(shortcutLower) != -1)
-            {
-                if (clientFound == UINT_MAX)
-                {
-                    clientFound = playerDb->onlineId;
-                }
-                else
-                {
-                    return { cpp::fail(Error::AmbiguousShortcut) };
-                }
-            }
-        }
-
-        if (clientFound == UINT_MAX)
-        {
-            return { cpp::fail(Error::NoMatchingPlayer) };
-        }
-
-        return { clientFound };
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    Action<ClientId, Error> GetClientIdByShip(const ShipId ship)
-    {
-        if (const auto foundClient = std::ranges::find_if(ClientInfo, [ship](const CLIENT_INFO& ci) { return ci.ship == ship; });
-            foundClient != ClientInfo.end())
-        {
-            return { std::ranges::distance(ClientInfo.begin(), foundClient) };
-        }
-
-        return { cpp::fail(Error::InvalidShip) };
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     std::wstring GetAccountDirName(const CAccount* acc)
     {
         const auto GetFLName = reinterpret_cast<_GetFLName>(reinterpret_cast<char*>(server) + 0x66370);
@@ -390,19 +180,19 @@ namespace Hk::Client
 
     EngineState GetEngineState(ClientId client)
     {
-        if (ClientInfo[client].tradelane)
+        if (ClientInfo::At(client).tradelane)
         {
             return ES_TRADELANE;
         }
-        if (ClientInfo[client].cruiseActivated)
+        if (ClientInfo::At(client).cruiseActivated)
         {
             return ES_CRUISE;
         }
-        if (ClientInfo[client].thrusterActivated)
+        if (ClientInfo::At(client).thrusterActivated)
         {
             return ES_THRUSTER;
         }
-        if (!ClientInfo[client].engineKilled)
+        if (!ClientInfo::At(client).engineKilled)
         {
             return ES_ENGINE;
         }
@@ -493,29 +283,6 @@ namespace Hk::Client
             return ET_TRACTOR;
         }
         return ET_OTHER;
-    }
-
-    
-    uint ExtractClientID(const std::variant<uint, std::wstring_view>& player)
-    {
-        // If index is 0, we just use the client Id we are given
-        if (!player.index())
-        {
-            const uint id = std::get<uint>(player);
-            return IsValidClientID(id) ? id : -1;
-        }
-
-        // Otherwise we have a character name
-        const std::wstring_view characterName = std::get<std::wstring_view>(player);
-
-
-        const auto client = GetClientIdFromCharName(characterName).Raw();
-        if (client.has_error())
-        {
-            return -1;
-        }
-
-        return client.value();
     }
 
     cpp::result<CAccount*, Error> ExtractAccount(const std::variant<uint, std::wstring_view>& player)

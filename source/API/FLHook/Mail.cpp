@@ -1,11 +1,11 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 #include "API/API.hpp"
+#include "Global.hpp"
 
 using namespace sqlite_orm;
 
-std::wstring_view MailManager::GetCharacterName(const std::variant<uint, std::wstring_view>& character) const
+std::wstring_view MailManager::GetCharacterName(const std::variant<uint, std::wstring_view>& character)
 {
     // If character is uint
     if (!character.index())

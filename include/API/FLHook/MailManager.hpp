@@ -7,7 +7,7 @@
 class DLL MailManager : public Singleton<MailManager>
 {
         [[nodiscard]]
-        std::wstring_view GetCharacterName(const std::variant<uint, std::wstring_view>& character) const;
+        static std::wstring_view GetCharacterName(const std::variant<uint, std::wstring_view>& character);
 
     public:
         struct MailItem

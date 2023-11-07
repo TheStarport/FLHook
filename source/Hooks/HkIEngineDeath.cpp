@@ -1,20 +1,16 @@
 #include "PCH.hpp"
 
 #include "API/API.hpp"
+#include "Core/IEngineHook.hpp"
 #include "Global.hpp"
 
-std::wstring SetSizeToSmall(const std::wstring& DataFormat) { return DataFormat.substr(0, 8) + L"90"; }
+std::wstring SetSizeToSmall(const std::wstring& dataFormat) { return dataFormat.substr(0, 8) + L"90"; }
 
-/**************************************************************************************************************
-Send "Death: ..." chat-message
-**************************************************************************************************************/
-
-void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVictim, ClientId clientKiller)
+void IEngineHook::SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVictim, ClientId clientKiller)
 {
     CallPlugins(&Plugin::OnSendDeathMessage, clientKiller, clientVictim, systemId, std::wstring_view(msg));
 
-    // encode xml std::wstring(default and small)
-    // non-sys
+    // encode xml std::wstring(default and small) non-system
     const auto xmlMsg =
         std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyle, StringUtils::XmlText(msg));
 
@@ -35,13 +31,12 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
         return;
     }
 
-    // sys
-    const auto xmlMsgSys =
+    const auto xmlMsgSystem =
         std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyleSys, StringUtils::XmlText(msg));
 
     char bufSys[0xFFFF];
     uint retSys;
-    if (Hk::Chat::FMsgEncodeXml(xmlMsgSys, bufSys, sizeof bufSys, retSys).Raw().has_error())
+    if (Hk::Chat::FMsgEncodeXml(xmlMsgSystem, bufSys, sizeof bufSys, retSys).Raw().has_error())
     {
         return;
     }
@@ -68,7 +63,7 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
         int sendXmlRet;
         char* sendXmlBufSys;
         int sendXmlSysRet;
-        if (FLHookConfig::i()->userCommands.userCmdSetDieMsgSize && ClientInfo[client].dieMsgSize == CS_SMALL)
+        if (FLHookConfig::i()->userCommands.userCmdSetDieMsgSize && ClientInfo::At(client).dieMsgSize == CS_SMALL)
         {
             sendXmlBuf = bufSmall;
             sendXmlRet = retSmall;
@@ -97,19 +92,19 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
             continue;
         }
 
-        if (ClientInfo[client].dieMsg == DIEMSG_NONE)
+        if (ClientInfo::At(client).dieMsg == DIEMSG_NONE)
         {
             continue;
         }
-        if (ClientInfo[client].dieMsg == DIEMSG_SYSTEM && systemId == clientSystemId)
+        if (ClientInfo::At(client).dieMsg == DIEMSG_SYSTEM && systemId == clientSystemId)
         {
             Hk::Chat::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
         }
-        else if (ClientInfo[client].dieMsg == DIEMSG_SELF && (client == clientVictim || client == clientKiller))
+        else if (ClientInfo::At(client).dieMsg == DIEMSG_SELF && (client == clientVictim || client == clientKiller))
         {
             Hk::Chat::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
         }
-        else if (ClientInfo[client].dieMsg == DiemsgAll)
+        else if (ClientInfo::At(client).dieMsg == DiemsgAll)
         {
             if (systemId == clientSystemId)
             {
@@ -126,18 +121,14 @@ void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVic
     CallPlugins(&Plugin::OnSendDeathMessageAfter, clientKiller, clientVictim, systemId, std::wstring_view(formattedMsg));
 }
 
-/**************************************************************************************************************
-Called when ship was destroyed
-**************************************************************************************************************/
-
-void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
+void __stdcall IEngineHook::ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 {
     if (!kill)
     {
         return;
     }
 
-    TRY_HOOK
+    TryHook
     {
         auto cship = (CShip*)ecx[4];
         ClientId client = cship->GetOwnerPlayer();
@@ -164,7 +155,7 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
 
             if (!magic_enum::enum_integer(dmg.get_cause()))
             {
-                dmg = ClientInfo[client].dmgLast;
+                dmg = ClientInfo::At(client).dmgLast;
             }
 
             DamageCause cause = dmg.get_cause();
@@ -259,15 +250,13 @@ void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill)
             }
         }
 
-        ClientInfo[client].shipOld = ClientInfo[client].ship;
-        ClientInfo[client].ship = 0;
+        ClientInfo::At(client).shipOld = ClientInfo::At(client).ship;
+        ClientInfo::At(client).ship = 0;
     }
-    CATCH_HOOK({})
+    CatchHook({})
 }
 
-FARPROC g_OldShipDestroyed;
-
-__declspec(naked) void Naked__ShipDestroyed()
+__declspec(naked) void IEngineHook::NakedShipDestroyed()
 {
     __asm {
 		mov eax, [esp+0Ch] ; +4
@@ -276,18 +265,14 @@ __declspec(naked) void Naked__ShipDestroyed()
 		push edx
 		push ecx
 		push eax
-		call ShipDestroyed
+		call IEngineHook::ShipDestroyed
 		pop ecx
-		mov eax, [g_OldShipDestroyed]
+		mov eax, [IEngineHook::oldShipDestroyed]
 		jmp eax
     }
 }
 
-/**************************************************************************************************************
-Called when base was destroyed
-**************************************************************************************************************/
-
-void BaseDestroyed(uint objectId, ClientId clientBy)
+void IEngineHook::BaseDestroyed(uint objectId, ClientId clientBy)
 {
     CallPlugins(&Plugin::OnBaseDestroyed, clientBy, objectId);
 

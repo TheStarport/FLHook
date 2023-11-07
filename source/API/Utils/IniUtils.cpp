@@ -2,8 +2,9 @@
 
 #include "API/FLServer/Client.hpp"
 #include "API/Utils/FileUtils.hpp"
+#include "API/Utils/IniUtils.hpp"
 
-#include <API/Utils/IniUtils.hpp>
+#include "Core/FLHook.hpp"
 
 namespace Hk
 {
@@ -17,17 +18,17 @@ namespace Hk
 
     std::wstring GetAccountDir(ClientId client)
     {
-        static auto GetFLName = (_GetFLName)((char*)server + 0x66370);
+        static auto getFLName = reinterpret_cast<GetFLName>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
         char dirname[1024];
-        GetFLName(dirname, Players[client].account->accId);
+        getFLName(dirname, Players[client].account->accId);
         return StringUtils::stows(dirname);
     }
 
     std::wstring GetCharfilename(const std::wstring& charname)
     {
-        static auto GetFLName = (_GetFLName)((char*)server + 0x66370);
+        static auto getFLName = reinterpret_cast<GetFLName>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
         char filename[1024];
-        GetFLName(filename, charname.c_str());
+        getFLName(filename, charname.c_str());
         return StringUtils::stows(filename);
     }
 
@@ -54,7 +55,7 @@ namespace Hk
         {
             ClientId client = currPlayer->onlineId;
 
-            std::wstring path = std::format(L"{}{}\\{}", CoreGlobals::c()->accPath, GetAccountDir(client), StringUtils::stows(std::string(filename)));
+            std::wstring path = std::format(L"{}{}\\{}", FLHook::GetAccountPath(), GetAccountDir(client), StringUtils::stows(std::string(filename)));
 
             const bool encryptFiles = !FLHookConfig::c()->general.disableCharfileEncryption;
 
@@ -111,7 +112,7 @@ namespace Hk
     void IniUtils::CharacterSelect(const CHARACTER_ID charId, ClientId client) const
     {
         const auto fileName = StringUtils::stows(std::string(charId.charFilename));
-        const std::wstring path = std::format(L"{}{}\\{}", CoreGlobals::c()->accPath, GetAccountDir(client), fileName);
+        const std::wstring path = std::format(L"{}{}\\{}", FLHook::GetAccountPath(), GetAccountDir(client), fileName);
 
         clients[client].charfilename = fileName;
         clients[client].lines.clear();
@@ -145,8 +146,10 @@ namespace Hk
             return;
         }
 
-        MemUtils::PatchCallAddr((char*)server, 0x6c547, (char*)UpdateFileNaked);
-        MemUtils::PatchCallAddr((char*)server, 0x6c9cd, (char*)UpdateFileNaked);
+        MemUtils::PatchCallAddr(
+            FLHook::Offset(FLHook::BinaryType::Server, AddressList::Absolute), static_cast<DWORD>(AddressList::UpdateCharacterFile), UpdateFileNaked);
+        MemUtils::PatchCallAddr(
+            FLHook::Offset(FLHook::BinaryType::Server, AddressList::Absolute), static_cast<DWORD>(AddressList::UpdateCharacterFile2), UpdateFileNaked);
 
         patched = true;
     }
@@ -158,11 +161,11 @@ namespace Hk
             return;
         }
 
-        const BYTE patch[] = { 0xE8, 0x84, 0x07, 0x00, 0x00 };
-        MemUtils::WriteProcMem((char*)server + 0x6c547, patch, 5);
+        BYTE patch[] = { 0xE8, 0x84, 0x07, 0x00, 0x00 };
+        MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Server, AddressList::UpdateCharacterFile), patch, 5);
 
-        const BYTE patch2[] = { 0xE8, 0xFE, 0x2, 0x00, 0x00 };
-        MemUtils::WriteProcMem((char*)server + 0x6c9cd, patch2, 5);
+        BYTE patch2[] = { 0xE8, 0xFE, 0x2, 0x00, 0x00 };
+        MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Server, AddressList::UpdateCharacterFile2), patch2, 5);
 
         patched = false;
     }

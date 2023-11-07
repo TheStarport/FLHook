@@ -3,34 +3,31 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Global.hpp"
 
-namespace IServerImplHook
+void DisConnectInner(ClientId client, EFLConnection)
 {
-    void DisConnect__Inner(ClientId client, EFLConnection)
+    if (client <= MaxClientId && client > 0 && !ClientInfo::At(client).disconnected)
     {
-        if (client <= MaxClientId && client > 0 && !ClientInfo[client].disconnected)
-        {
-            ClientInfo[client].disconnected = true;
-            ClientInfo[client].moneyFix.clear();
-            ClientInfo[client].tradePartner = 0;
+        ClientInfo::At(client).disconnected = true;
+        ClientInfo::At(client).moneyFix.clear();
+        ClientInfo::At(client).tradePartner = 0;
 
-            // TODO: implement event for disconnect
-        }
+        // TODO: implement event for disconnect
+    }
+}
+
+void __stdcall IServerImplHook::DisConnect(ClientId client, EFLConnection conn)
+{
+    Logger::i()->Log(LogLevel::Trace, std::format(L"DisConnect(\n\tClientId client = {}\n)", client));
+
+    const auto skip = CallPlugins(&Plugin::OnDisconnect, client, conn);
+
+    DisConnectInner(client, conn);
+
+    if (!skip)
+    {
+        CallServerPreamble { Server.DisConnect(client, conn); }
+        CallServerPostamble(true, );
     }
 
-    void __stdcall DisConnect(ClientId client, EFLConnection conn)
-    {
-        Logger::i()->Log(LogLevel::Trace, std::format(L"DisConnect(\n\tClientId client = {}\n)", client));
-
-        const auto skip = CallPlugins(&Plugin::OnDisconnect, client, conn);
-
-        DisConnect__Inner(client, conn);
-
-        if (!skip)
-        {
-            CALL_SERVER_PREAMBLE { Server.DisConnect(client, conn); }
-            CALL_SERVER_POSTAMBLE(true, );
-        }
-
-        CallPlugins(&Plugin::OnDisconnectAfter, client, conn);
-    }
-} // namespace IServerImplHook
+    CallPlugins(&Plugin::OnDisconnectAfter, client, conn);
+}

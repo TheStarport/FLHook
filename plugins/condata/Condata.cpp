@@ -149,7 +149,7 @@ namespace Plugins::ConData
 		{
 			ClientId client = playerData->onlineId;
 			const auto connectionInfo = Hk::Admin::GetConnectionStats(client);
-			if (client < 1 || client > MaxClientId || ClientInfo[client].tmF1TimeDisconnect || connectionInfo.has_error())
+			if (client < 1 || client > MaxClientId || ClientInfo::At(client).tmF1TimeDisconnect || connectionInfo.has_error())
 				continue;
 
 			auto& con = global->connections[client];
@@ -198,7 +198,7 @@ namespace Plugins::ConData
 			if (client < 1 || client > MaxClientId)
 				continue;
 
-			if (ClientInfo[client].tmF1TimeDisconnect)
+			if (ClientInfo::At(client).tmF1TimeDisconnect)
 				continue;
 
 			const auto connectionInfo = Hk::Admin::GetConnectionStats(client);

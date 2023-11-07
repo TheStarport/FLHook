@@ -168,12 +168,12 @@ void TaxPlugin::TimerF1Check()
     {
         ClientId client = playerData->onlineId;
 
-        if (ClientInfo[client].tmF1TimeDisconnect)
+        if (ClientInfo::At(client).tmF1TimeDisconnect)
         {
             continue;
         }
 
-        if (ClientInfo[client].tmF1Time && (TimeUtils::UnixMilliseconds() >= ClientInfo[client].tmF1Time)) // f1
+        if (ClientInfo::At(client).tmF1Time && (TimeUtils::UnixMilliseconds() >= ClientInfo::At(client).tmF1Time)) // f1
         {
             // tax
             for (const auto& it : taxes)
@@ -192,7 +192,7 @@ void TaxPlugin::TimerF1Check()
                 }
             }
         }
-        else if (ClientInfo[client].tmF1TimeDisconnect && (TimeUtils::UnixMilliseconds() >= ClientInfo[client].tmF1TimeDisconnect))
+        else if (ClientInfo::At(client).tmF1TimeDisconnect && (TimeUtils::UnixMilliseconds() >= ClientInfo::At(client).tmF1TimeDisconnect))
         {
             for (const auto& it : taxes)
             {

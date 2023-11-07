@@ -1,8 +1,9 @@
 #pragma once
+
 #include "API/FlHook/Plugin.hpp"
 #include "Commands/AdminCommandProcessor.hpp"
 #include "Commands/UserCommandProcessor.hpp"
-#include <Exceptions/ErrorInfo.hpp>
+#include <Defs/SehException.hpp>
 #include <Singleton.hpp>
 #include <Utils/TemplateHelpers.hpp>
 
@@ -52,13 +53,13 @@ class PluginManager : public Singleton<PluginManager>
             using NoVoidReturnType = std::conditional_t<returnTypeIsVoid, int, ReturnType>;
 
             NoVoidReturnType ret{};
-            TRY_HOOK
+            TryHook
             {
                 for (auto plugin : plugins)
                 {
                     plugin->returnCode = ReturnCode::Default;
 
-                    TRY_HOOK
+                    TryHook
                     {
                         using ClassType = typename MemberFunctionPointerClassType<FuncPtr>::type;
                         if constexpr (std::is_same_v<ClassType, PacketInterface>)
@@ -89,10 +90,10 @@ class PluginManager : public Singleton<PluginManager>
                             }
                         }
                     }
-                    CATCH_HOOK({
+                    CatchHook({
                         auto targetName = typeid(FuncPtr).name();
                         Logger::i()->Log(LogLevel::Err, std::format(L"Exception in plugin '{}' in {}", plugin->name, StringUtils::stows(targetName)));
-                    })
+                    });
 
                     const auto code = plugin->returnCode;
 
@@ -107,7 +108,7 @@ class PluginManager : public Singleton<PluginManager>
                     }
                 }
             }
-            CATCH_HOOK({ Logger::i()->Log(LogLevel::Err, std::format(L"Exception {}", StringUtils::stows(__FUNCTION__))); });
+            CatchHook({ Logger::i()->Log(LogLevel::Err, std::format(L"Exception {}", StringUtils::stows(__FUNCTION__))); });
 
             if constexpr (!returnTypeIsVoid)
             {
