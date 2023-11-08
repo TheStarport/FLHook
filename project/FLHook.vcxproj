@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="ReleaseWithDebug|Win32">
       <Configuration>ReleaseWithDebug</Configuration>
@@ -26,8 +27,10 @@
     <ClCompile Include="..\Source\API\FLServer\Player.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Solar.cpp" />
     <ClCompile Include="..\Source\API\FLServer\ZoneUtilities.cpp" />
+    <ClCompile Include="..\Source\API\Types\ClientId.cpp" />
     <ClCompile Include="..\source\API\Utils\FileUtils.cpp" />
     <ClCompile Include="..\Source\API\Utils\IniUtils.cpp" />
+    <ClCompile Include="..\Source\Core\ApiInternal.cpp" />
     <ClCompile Include="..\Source\Core\Codec.cpp" />
     <ClCompile Include="..\Source\Core\Commands\AdminCommandProcessor.cpp" />
     <ClCompile Include="..\Source\Core\Commands\CommandLineParser.cpp" />
@@ -84,10 +87,29 @@
     <ClCompile Include="..\source\Utils\PerfTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\FLHookSDK\include\Action.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Concepts.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Exceptions\ErrorInfo.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Exceptions\GameException.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Exceptions\StopProcessingException.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Exceptions\UnsupportedException.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDACom.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDALib.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDefs.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreFLServerEXE.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h" />
+    <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h" />
+    <ClInclude Include="..\FLHookSDK\include\ResourcePtr.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Singleton.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Typedefs.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Utils\Detour.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Utils\MemUtils.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Utils\StringUtils.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Utils\TemplateHelpers.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Utils\TimeUtils.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Utils\Utils.hpp" />
     <ClInclude Include="..\Include\API\API.hpp" />
     <ClInclude Include="..\include\API\FLHook\ClientInfo.hpp" />
     <ClInclude Include="..\Include\API\FLHook\MailManager.hpp" />
@@ -98,12 +120,18 @@
     <ClInclude Include="..\Include\API\FLServer\Math.hpp" />
     <ClInclude Include="..\Include\API\FLServer\Personalities.hpp" />
     <ClInclude Include="..\Include\API\FLServer\Player.hpp" />
-    <ClInclude Include="..\Include\API\FLServer\Solar.hpp" />
+    <ClInclude Include="..\Include\API\FLServer\GameObject.hpp" />
     <ClInclude Include="..\Include\API\FLServer\ZoneUtilities.hpp" />
+    <ClInclude Include="..\Include\API\Types\BaseId.hpp" />
+    <ClInclude Include="..\Include\API\Types\ClientId.hpp" />
+    <ClInclude Include="..\Include\API\Types\ObjectId.hpp" />
+    <ClInclude Include="..\Include\API\Types\ShipId.hpp" />
+    <ClInclude Include="..\Include\API\Types\SystemId.hpp" />
     <ClInclude Include="..\include\API\Utils\FileUtils.hpp" />
     <ClInclude Include="..\include\API\Utils\IniUtils.hpp" />
     <ClInclude Include="..\include\API\Utils\PerfTimer.hpp" />
     <ClInclude Include="..\include\Core\AddressList.hpp" />
+    <ClInclude Include="..\Include\Core\ApiInternal.hpp" />
     <ClInclude Include="..\Include\Core\Codec.hpp" />
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp" />
     <ClInclude Include="..\include\Core\Commands\AbstractExternalCommandProcessor.hpp" />
@@ -136,6 +164,9 @@
     <ClInclude Include="..\Include\Global.hpp" />
     <ClInclude Include="..\Include\PCH.hpp" />
     <ClInclude Include="..\source\Core\IpResolver.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FE6EB3C9-DA22-4492-AEC3-068C9553A623}</ProjectGuid>
@@ -321,5 +352,13 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+  </Target>
 </Project>

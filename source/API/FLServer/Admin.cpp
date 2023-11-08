@@ -3,6 +3,8 @@
 #include "API/FLServer/Admin.hpp"
 #include "API/FLServer/Client.hpp"
 #include "Core/FLHook.hpp"
+#include "Core/ApiInternal.hpp"
+
 
 std::wstring GetPlayerIP(ClientId client)
 {
@@ -60,7 +62,7 @@ std::wstring GetPlayerIP(ClientId client)
 
 Action<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring_view>& player, bool alsoCharmenu)
 {
-    ClientId client = Client::ExtractClientID(player);
+    ClientId client = HkApi::ExtractClientID(player);
 
     if (client == UINT_MAX || (Client::IsInCharSelectMenu(client) && !alsoCharmenu))
     {

@@ -27,12 +27,10 @@ namespace Hk::Player
     DLL Action<float, Error> GetRep(const std::variant<uint, std::wstring_view>& player, const std::variant<uint, std::wstring_view>& repGroup);
     DLL Action<std::list<std::wstring>, Error> ReadCharFile(const std::variant<uint, std::wstring_view>& player);
     DLL Action<void, Error> WriteCharFile(const std::variant<uint, std::wstring_view>& player, std::wstring data);
-    DLL Action<void, Error> PlayerRecalculateCRC(ClientId client);
     DLL std::wstring GetPlayerSystemS(ClientId client);
     DLL bool IsInRange(ClientId client, float distance);
     DLL Action<void, Error> SetEquip(const std::variant<uint, std::wstring_view>& player, const st6::list<EquipDesc>& equip);
     DLL Action<void, Error> AddEquip(const std::variant<uint, std::wstring_view>& player, uint goodId, const std::wstring& hardpoint);
-    DLL Action<void, Error> AntiCheat(ClientId client);
     DLL void DelayedKick(ClientId client, uint secs);
     DLL void DeleteCharacter(CAccount* acc, const std::wstring& character);
     DLL Action<void, Error> NewCharacter(CAccount* acc, std::wstring& character);
