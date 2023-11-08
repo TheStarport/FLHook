@@ -46,6 +46,7 @@ enum class AddressList : uint
     FixNpcAnnouncer = 0x173da,
     UpdateCharacterFile = 0x6c547,
     UpdateCharacterFile2 = 0x6c9cd,
+    SaveCharacter = 0x7EFA8,
 
     // Common.dll Offsets
 

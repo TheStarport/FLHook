@@ -2,6 +2,8 @@
 
 #include "API/FLServer/Client.hpp"
 
+#include "Core/ApiInternal.hpp"
+
 namespace Hk::Client
 {
     std::wstring GetAccountDirName(const CAccount* acc)
@@ -26,16 +28,16 @@ namespace Hk::Client
         std::wstring buffer;
         buffer.reserve(1024);
 
-        if (ClientId client = ExtractClientID(player); client != UINT_MAX)
+        if (ClientId client = HkApi::ExtractClientID(player); client != UINT_MAX)
         {
-            if (const auto character = GetCharacterNameByID(client).Raw(); character.has_error())
+            if (const auto character = HkApi::GetCharacterNameByID(client).Raw(); character.has_error())
             {
                 return { cpp::fail(character.error()) };
             }
 
             GetFLName(reinterpret_cast<char*>(buffer.data()), reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client)));
         }
-        else if ((player.index() && GetAccountByCharName(std::get<std::wstring_view>(player)).Raw()) || returnValueIfNoFile)
+        else if ((player.index() && HkApi::GetAccountByCharName(std::get<std::wstring_view>(player)).Raw()) || returnValueIfNoFile)
         {
             GetFLName(reinterpret_cast<char*>(buffer.data()), std::get<std::wstring_view>(player).data());
         }

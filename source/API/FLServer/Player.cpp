@@ -160,7 +160,8 @@ namespace Hk::Player
         return { {} };
     }
 
-    Action<void, Error> AddCash(const std::variant<uint, std::wstring_view>& player, uint amount) { return AdjustCash(player, static_cast<int>(amount)); }
+    Action<void, Error> AddCash(const std::variant<uint, std::wstring_view>& player, uint amount)
+    { return AdjustCash(player, static_cast<int>(amount)); }
 
     Action<void, Error> RemoveCash(const std::variant<uint, std::wstring_view>& player, uint amount) { return AdjustCash(player, -static_cast<int>(amount)); }
 

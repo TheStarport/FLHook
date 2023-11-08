@@ -9,6 +9,7 @@ class ShipId
     public:
         explicit ShipId(const uint val) : value(val) {}
         explicit operator uint() const noexcept { return value; }
+        explicit ShipId() : value(0) {}
         bool operator==(const ShipId next) const { return value == next.value; }
         bool operator!() const; // TODO: Check if shipId is valid
 

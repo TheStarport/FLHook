@@ -1,5 +1,12 @@
 #pragma once
 
+#include "API/Types/ClientId.hpp"
+#include "API/Types/ShipId.hpp"
+
+class ClientId;
+class BaseId;
+class ShipId;
+
 class SystemId
 {
         const uint value;
@@ -7,6 +14,7 @@ class SystemId
     public:
         explicit SystemId(const uint val) : value(val) {}
         explicit operator uint() const noexcept { return value; }
+        explicit SystemId() : value(0) {}
         bool operator==(const SystemId next) const { return value == next.value; }
         bool operator!() const; // TODO: Check if systemId is valid
 
