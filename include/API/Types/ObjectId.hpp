@@ -12,5 +12,5 @@ class ObjectId
 
         ObjectType GetObjectType();
         std::wstring GetNickName();
-
+        Cobject* GetCObject();
 };

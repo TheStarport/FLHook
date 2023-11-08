@@ -2,12 +2,15 @@
 
 class BaseId;
 class ShipId;
+class SystemId;
 
 class ClientId
 {
         const uint value;
 
         Action<void, Error> AdjustCash(int amount);
+
+        bool IsValidClientId();
 
     public:
         explicit ClientId(const uint val) : value(val) {}
@@ -16,19 +19,20 @@ class ClientId
         bool operator==(const ClientId next) const { return value == next.value; }
         bool operator!() const { return !(value > 0 && value < 256); }
 
+
         // Returns the underlying value of the ClientId, it is generally recommended to not use this.
         uint GetValue();
 
         // Type Conversions
 
-        std::wstring_view GetCharacterName();
+        Action<std::wstring,Error> GetCharacterName();
         // TODO: These eventually will be their own types as well
-        BaseId GetBaseId();
+        Action<BaseId, Error> GetCurrentBase();
         SystemId GetSystemId();
         CAccount* GetAccount();
         Archetype::Ship* GetShipArch();
         ShipId GetShipId();
-        // std::list<ArchId> GetEquip();
+        st6::list<EquipDesc>& GetEquipment();
         CPlayerGroup* GetGroup();
         std::optional<std::wstring> GetAffiliation();
         CShip* GetShip();
