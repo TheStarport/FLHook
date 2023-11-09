@@ -518,7 +518,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command to spawn a Fleet
 	 */
-	void AdminCmdAIFleet(CCmds* commands, const std::wstring& FleetName)
+	void AdminCmdAIFleet(CCmds* commands, const std::wstring& fleetName)
 	{
 		if (!(commands->rights & RIGHT_SUPERADMIN))
 		{
@@ -526,7 +526,7 @@ namespace Plugins::Npc
 			return;
 		}
 
-		if (const auto& iter = global->config->fleetInfo.find(FleetName); iter != global->config->fleetInfo.end())
+		if (const auto& iter = global->config->fleetInfo.find(fleetName); iter != global->config->fleetInfo.end())
 			for (auto const& [name, amount] : iter->second.member)
 				AdminCmdAIMake(commands, amount, name);
 		else
@@ -539,7 +539,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command processing
 	 */
-	bool ExecuteCommandString(CCmds* commands, const std::wstring& cmd)
+	bool ExecuteCommandString(CCmds* commands, const std::wstring_view& cmd)
 	{
 		global->returnCode = ReturnCode::SkipAll;
 

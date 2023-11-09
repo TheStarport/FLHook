@@ -82,32 +82,32 @@ namespace Plugins::SolarControl
 	/** @ingroup SolarControl
 	 * @brief Returns a random float between two numbers
 	 */
-	float randomFloatRange(float a, float b)
+	float RandomFloatRange(const float firstNumber, const float secondNumber)
 	{
-		return ((b - a) * (static_cast<float>(rand()) / RAND_MAX)) + a;
+		return ((secondNumber - firstNumber) * (static_cast<float>(rand()) / RAND_MAX)) + firstNumber;
 	}
 
 	/** @ingroup SolarControl
 	 * @brief Sends a custom Solar Packet for the spaceId using the solarInfo struct. A modified packet is needed because vanilla misses the loadout
 	 */
-	void SendSolarPacket(uint& iSpaceID, pub::SpaceObj::SolarInfo& solarInfo)
+	void SendSolarPacket(uint& spaceId, pub::SpaceObj::SolarInfo& solarInfo)
 	{
 		uint unknown;
-		if (IObjInspectImpl * inspect; GetShipInspect(iSpaceID, inspect, unknown))
+		if (IObjInspectImpl * inspect; GetShipInspect(spaceId, inspect, unknown))
 		{
 			auto const* solar = reinterpret_cast<CSolar const*>(inspect->cobject());
 			
 			solar->launch_pos(solarInfo.vPos, solarInfo.mOrientation, 1);
 
-			struct SOLAR_STRUCT
+			struct SolarStruct
 			{
 				std::byte unknown[0x100];
 			};
 
-			SOLAR_STRUCT solarPacket {};
+			SolarStruct solarPacket {};
 
-			char* address1 = reinterpret_cast<char*>(hModServer) + 0x163F0;
-			char* address2 = reinterpret_cast<char*>(hModServer) + 0x27950;
+			const std::byte* address1 = reinterpret_cast<std::byte*>(hModServer) + 0x163F0;
+			const std::byte* address2 = reinterpret_cast<std::byte*>(hModServer) + 0x27950;
 
 			// fill struct
 			__asm
@@ -208,9 +208,9 @@ namespace Plugins::SolarControl
 		si.vPos = position;
 		if (varyPosition)
 		{
-			si.vPos.x = position.x + randomFloatRange(0, 1000);
-			si.vPos.y = position.y + randomFloatRange(0, 1000);
-			si.vPos.z = position.z + randomFloatRange(0, 2000);
+			si.vPos.x = position.x + RandomFloatRange(0, 1000);
+			si.vPos.y = position.y + RandomFloatRange(0, 1000);
+			si.vPos.z = position.z + RandomFloatRange(0, 2000);
 		}
 		else
 		{
