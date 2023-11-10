@@ -2,16 +2,34 @@
 
 #include "API/Types/ObjectId.hpp"
 
-ObjectId::operator bool() const { return GetCObject().Raw().has_value(); }
+ObjectId::operator bool() const { return pub::SpaceObj::ExistsAndAlive(value) == static_cast<int>(ResponseCode::Success); }
 
-CObject::Class ObjectId::GetObjectType() const { return GetCObject().Unwrap()->objectClass; }
+Action<CObject::Class, Error> ObjectId::GetObjectType() const
+{
+    uint type;
+    if (pub::SpaceObj::GetType(value, type) != static_cast<int>(ResponseCode::Success))
+    {
+        return { cpp::fail(Error::InvalidSpaceObjId) };
+    }
 
-std::wstring ObjectId::GetNickName() const { return StringUtils::stows(GetCObject().Unwrap()->get_archetype()->name); }
+    return { static_cast<CObject::Class>(type) };
+}
 
-std::wstring ObjectId::GetName() const
+Action<std::wstring, Error> ObjectId::GetNickName() const
+{
+    auto obj = GetCObject();
+    if (obj.Raw().has_error())
+    {
+        return { cpp::fail(Error::InvalidSpaceObjId) };
+    }
+
+    return { StringUtils::stows(obj.Raw().value()->get_archetype()->name) };
+}
+
+Action<std::wstring, Error> ObjectId::GetName() const
 {
     // TODO: Get Ids name as string
-    return {};
+    return { {} };
 }
 
 Action<CObjPtr, Error> ObjectId::GetCObject(bool increment) const
@@ -25,14 +43,48 @@ Action<CObjPtr, Error> ObjectId::GetCObject(bool increment) const
     return { CObjPtr(obj.get(), increment) };
 }
 
-Archetype::Root* ObjectId::GetArchetype() const { return GetCObject().Unwrap()->get_archetype(); }
+Action<Archetype::Root*, Error> ObjectId::GetArchetype() const
+{
+    auto obj = GetCObject();
+    if (obj.Raw().has_error())
+    {
+        return { cpp::fail(Error::InvalidSpaceObjId) };
+    }
 
-Vector ObjectId::GetVelocity() const { return GetCObject().Unwrap()->get_velocity(); }
+    return { obj.Raw().value()->get_archetype() };
+}
+Action<std::pair<Vector, float>, Error> ObjectId::GetVelocityAndSpeed() const
+{
+    Vector velocity, angularVelocity;
+    if (pub::SpaceObj::GetMotion(value, velocity, angularVelocity) != static_cast<int>(ResponseCode::Success))
+    {
+        return { cpp::fail(Error::InvalidSpaceObjId) };
+    }
 
-Vector ObjectId::GetAngularVelocity() const { return GetCObject().Unwrap()->get_angular_velocity(); }
+    return { std::make_pair(velocity, glm::length<3, float, glm::highp>(velocity)) };
+}
 
-Vector ObjectId::GetPosition() const { return GetCObject().Unwrap()->get_position(); }
+Action<std::pair<Vector, Matrix>, Error> ObjectId::GetPositionAndOrientation() const
+{
+    Vector pos;
+    Matrix rot;
+    if (pub::SpaceObj::GetLocation(value, pos, rot) != static_cast<int>(ResponseCode::Success))
+    {
+        return { cpp::fail(Error::InvalidSpaceObjId) };
+    }
 
-Matrix ObjectId::GetOrientation() const { return GetCObject().Unwrap()->get_orientation(); }
+    return { std::make_pair(pos, rot) };
+}
 
-SystemId ObjectId::GetSystem() const { return SystemId(GetCObject().Unwrap()->system); }
+Action<SystemId, Error> ObjectId::GetSystem() const
+{
+    uint system;
+    pub::SpaceObj::GetSystem(value, system);
+
+    if (!system)
+    {
+        return { cpp::fail(Error::InvalidSpaceObjId) };
+    }
+
+    return { SystemId(system) };
+}

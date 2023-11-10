@@ -1,6 +1,7 @@
 #pragma once
 
-class SystemId;
+#include "SystemId.hpp"
+
 class ObjectId
 {
     protected:
@@ -19,32 +20,29 @@ class ObjectId
         explicit virtual operator bool() const;
 
         [[nodiscard]]
-        CObject::Class GetObjectType() const;
+        Action<CObject::Class, Error> GetObjectType() const;
 
         [[nodiscard]]
-        std::wstring GetNickName() const;
+        Action<std::wstring, Error> GetNickName() const;
 
         [[nodiscard]]
-        std::wstring GetName() const;
+        Action<std::wstring, Error> GetName() const;
 
         [[nodiscard]]
         Action<CObjPtr, Error> GetCObject(bool increment = false) const;
 
         [[nodiscard]]
-        Archetype::Root* GetArchetype() const;
+        Action<Archetype::Root*, Error> GetArchetype() const;
 
         [[nodiscard]]
-        Vector GetVelocity() const;
+        Action<std::pair<Vector, float>, Error> GetVelocityAndSpeed() const;
 
         [[nodiscard]]
-        Vector GetAngularVelocity() const;
+        Action<Vector, Error> GetAngularVelocity() const;
 
         [[nodiscard]]
-        Vector GetPosition() const;
+        Action<std::pair<Vector, Matrix>, Error> GetPositionAndOrientation() const;
 
         [[nodiscard]]
-        Matrix GetOrientation() const;
-
-        [[nodiscard]]
-        SystemId GetSystem() const;
+        Action<SystemId, Error> GetSystem() const;
 };
