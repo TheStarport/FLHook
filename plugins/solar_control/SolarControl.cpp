@@ -75,6 +75,8 @@
 
 #include "SolarControl.h"
 
+#include <ranges>
+
 namespace Plugins::SolarControl
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
@@ -230,41 +232,41 @@ namespace Plugins::SolarControl
 
 		// Define the string used for the scanner name.
 		// Because this is empty, the solar_name will be used instead.
-		FmtStr scanner_name(0, nullptr);
-		scanner_name.begin_mad_lib(0);
-		scanner_name.end_mad_lib();
+		FmtStr scannerName(0, nullptr);
+		scannerName.begin_mad_lib(0);
+		scannerName.end_mad_lib();
 
 		// Define the string used for the solar name.
-		FmtStr solar_name(0, nullptr);
-		solar_name.begin_mad_lib(16163); // ids of "%s0 %s1"
-		solar_name.append_string(arch.infocard);
-		solar_name.end_mad_lib();
+		FmtStr solarName(0, nullptr);
+		solarName.begin_mad_lib(16163); // ids of "%s0 %s1"
+		solarName.append_string(arch.infocard);
+		solarName.end_mad_lib();
 
 		// Set Reputation
-		pub::Reputation::Alloc(si.iRep, scanner_name, solar_name);
+		pub::Reputation::Alloc(si.iRep, scannerName, solarName);
 		uint iff;
 		pub::Reputation::GetReputationGroup(iff, arch.iff.c_str());
 		pub::Reputation::SetAffiliation(si.iRep, iff);
 
 		// Spawn the solar object
-		uint iSpaceObj;
-		CreateSolar(iSpaceObj, si);
+		uint spaceId;
+		CreateSolar(spaceId, si);
 
 		pub::AI::SetPersonalityParams personalityParams = GetPersonality(arch.pilot);
-		pub::AI::SubmitState(iSpaceObj, &personalityParams);
+		pub::AI::SubmitState(spaceId, &personalityParams);
 
 		// Set the visible health for the Space Object
-		pub::SpaceObj::SetRelativeHealth(iSpaceObj, 1);
+		pub::SpaceObj::SetRelativeHealth(spaceId, 1);
 
-		global->spawnedSolars[iSpaceObj] = si;
+		global->spawnedSolars[spaceId] = si;
 
-		return iSpaceObj;
+		return spaceId;
 	}
 
 	/** @ingroup SolarControl
 	 * @brief Admin command to create a user defined solar
 	 */
-	void AdminCmd_SolarMake(CCmds* commands, int amount, const std::wstring& solarType)
+	void AdminCommandSolarCreate(CCmds* commands, int amount, const std::wstring& solarType)
 	{
 		if (!(commands->rights & RIGHT_SUPERADMIN))
 		{
@@ -303,7 +305,7 @@ namespace Plugins::SolarControl
 	/** @ingroup SolarControl
 	 * @brief Admin command to delete all spawned solars
 	 */
-	void AdminCmd_SolarKill(CCmds* commands)
+	void AdminCommandSolarKill(CCmds* commands)
 	{
 		if (!(commands->rights & RIGHT_SUPERADMIN))
 		{
@@ -321,20 +323,20 @@ namespace Plugins::SolarControl
 	}
 
 	/** @ingroup SolarControl
-	 * @brief Proceessing for admin commands
+	 * @brief Processing for admin commands
 	 */
 	bool AdminCommandProcessing(CCmds* commands, const std::wstring& command)
 	{
 		if (command == L"solarcreate")
 		{
 			global->returnCode = ReturnCode::SkipAll;
-			AdminCmd_SolarMake(commands, commands->ArgInt(1), commands->ArgStr(2));
+			AdminCommandSolarCreate(commands, commands->ArgInt(1), commands->ArgStr(2));
 			return true;
 		}
 		else if (command == L"solardestroy")
 		{
 			global->returnCode = ReturnCode::SkipAll;
-			AdminCmd_SolarKill(commands);
+			AdminCommandSolarKill(commands);
 			return true;
 		}
 		else
@@ -350,15 +352,15 @@ namespace Plugins::SolarControl
 	void LoadSettings()
 	{
 		// Hook solar creation to fix fl-bug in MP where loadout is not sent
-		char* pAddressCreateSolar = (reinterpret_cast<char*>(GetModuleHandle("content.dll")) + 0x1134D4);
-		auto const fpHkCreateSolar = reinterpret_cast <FARPROC>(CreateSolar);
-		WriteProcMem(pAddressCreateSolar, &fpHkCreateSolar, 4);
+		std::byte* addressCreateSolar = (reinterpret_cast<std::byte*>(GetModuleHandle("content.dll")) + 0x1134D4);
+		auto const createSolar = reinterpret_cast <FARPROC>(CreateSolar);
+		WriteProcMem(addressCreateSolar, &createSolar, 4);
 
 		auto config = Serializer::JsonToObject<Config>();
 		global->spawnedSolars.clear();
-		global->Log = spdlog::basic_logger_mt<spdlog::async_factory>("solars", "logs/solar.log");
+		global->log = spdlog::basic_logger_mt<spdlog::async_factory>("solars", "logs/solar.log");
 
-		for (auto& [name, solar] : config.solarArches)
+		for (auto& solar : config.solarArches | std::views::values)
 		{
 			solar.baseId = CreateID(solar.base.c_str());
 			solar.loadoutId = CreateID(solar.loadout.c_str());
@@ -376,7 +378,7 @@ namespace Plugins::SolarControl
 			solar.rot = EulerMatrix({solar.rotation[0], solar.rotation[1], solar.rotation[2]});
 		}
 
-		for (auto& [baseFrom, baseTo] : config.baseRedirects)
+		for (const auto& [baseFrom, baseTo] : config.baseRedirects)
 		{
 			config.hashedBaseRedirects[CreateID(baseFrom.c_str())] = CreateID(baseTo.c_str());
 		}
@@ -387,7 +389,7 @@ namespace Plugins::SolarControl
 	/** @ingroup SolarControl
 	 * @brief We have to spawn here since the Startup/LoadSettings hooks are too early
 	 */
-	void Login([[maybe_unused]] struct SLoginInfo const& li, [[maybe_unused]] uint& iClientID)
+	void Login([[maybe_unused]] struct SLoginInfo const& loginInfo, [[maybe_unused]] const uint& client)
 	{
 		if (global->firstRun)
 		{
@@ -419,7 +421,7 @@ namespace Plugins::SolarControl
 	 */
 	void RelativeHealthTimer()
 	{
-		for (const auto& [name, solarInfo]: global->spawnedSolars)
+		for (const auto& name : global->spawnedSolars | std::views::keys)
 		{
 			pub::SpaceObj::SetRelativeHealth(name, 1.0f);
 		}
@@ -438,17 +440,24 @@ namespace Plugins::SolarControl
 
 	void PlayerLaunch([[maybe_unused]] ShipId& shipId, ClientId& client)
 	{
-		if (global->pendingRedirects.find(client) != global->pendingRedirects.end())
+		if (global->pendingRedirects.contains(client))
 		{
-			Hk::Player::Beam(client, global->pendingRedirects[client]);
-			PrintUserCmdText(client, L"Redirecting undock. Please launch again.");
+			const auto beamResult = Hk::Player::Beam(client, global->pendingRedirects[client]);
+			if (beamResult.has_error())
+			{
+				AddLog(LogType::Normal, LogLevel::Err, std::format("Error when beaming player: {}", wstos(Hk::Err::ErrGetText(beamResult.error()))));
+			}
+			else
+			{
+				PrintUserCmdText(client, L"Redirecting undock. Please launch again.");
+			}
 		}
 	}
 
 	//! Base Enter hook
 	void BaseEnter(const uint& baseId, ClientId& client)
 	{
-		if (global->pendingRedirects.find(client) != global->pendingRedirects.end())
+		if (global->pendingRedirects.contains(client))
 		{
 			global->pendingRedirects.erase(client);
 		}
@@ -478,22 +487,24 @@ REFL_AUTO(type(SolarArch), field(solarArch), field(loadout), field(iff), field(i
 REFL_AUTO(type(StartupSolar), field(name), field(system), field(position), field(rotation));
 REFL_AUTO(type(Config), field(startupSolars), field(solarArches), field(baseRedirects));
 
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pluginInfo)
 {
-	pi->name(SolarCommunicator::pluginName);
-	pi->shortName("solar_control");
-	pi->mayUnload(true);
-	pi->returnCode(&global->returnCode);
-	pi->timers(&timers);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::IServerImpl__Login, &Login);
-	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &AdminCommandProcessing);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::IServerImpl__SetTarget, &SetTarget, HookStep::After);
-	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
-	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch, HookStep::After);
-	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
+	pluginInfo->name(SolarCommunicator::pluginName);
+	pluginInfo->shortName("solar_control");
+	pluginInfo->mayUnload(true);
+	pluginInfo->returnCode(&global->returnCode);
+	pluginInfo->timers(&timers);
+	pluginInfo->versionMajor(PluginMajorVersion::VERSION_04);
+	pluginInfo->versionMinor(PluginMinorVersion::VERSION_00);
+
+	using enum HookStep;
+	pluginInfo->emplaceHook(HookedCall::IServerImpl__Login, &Login);
+	pluginInfo->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &AdminCommandProcessing);
+	pluginInfo->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, After);
+	pluginInfo->emplaceHook(HookedCall::IServerImpl__SetTarget, &SetTarget, After);
+	pluginInfo->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
+	pluginInfo->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch, After);
+	pluginInfo->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, After);
 
 	// Register IPC
 	global->communicator = new SolarCommunicator(SolarCommunicator::pluginName);

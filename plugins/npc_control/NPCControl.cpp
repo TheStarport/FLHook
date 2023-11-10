@@ -220,7 +220,7 @@ namespace Plugins::Npc
 
 		constexpr auto level = static_cast<spdlog::level::level_enum>(LogLevel::Info);
 		std::string logMessage = "Created " + wstos(name);
-		global->Log->log(level, logMessage);
+		global->log->log(level, logMessage);
 
 		return spaceObj;
 	}
@@ -230,7 +230,7 @@ namespace Plugins::Npc
 	 */
 	void LoadSettings()
 	{
-		global->Log = spdlog::basic_logger_mt<spdlog::async_factory>("npcs", "logs/npc.log");
+		global->log = spdlog::basic_logger_mt<spdlog::async_factory>("npcs", "logs/npc.log");
 		auto config = Serializer::JsonToObject<Config>();
 
 		for (auto& [name, npc] : config.npcInfo)
@@ -539,7 +539,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command processing
 	 */
-	bool ExecuteCommandString(CCmds* commands, const std::wstring_view& cmd)
+	bool ExecuteCommandString(CCmds* commands, const std::wstring& cmd)
 	{
 		global->returnCode = ReturnCode::SkipAll;
 

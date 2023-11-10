@@ -68,9 +68,9 @@ namespace Plugins::WaveDefence
 			character.costume.righthand = CreateID(character.costumeStrings.righthand.c_str());
 			character.costume.accessories = character.costumeStrings.accessories;
 
-			for (uint i = 0; i < character.costumeStrings.accessory.size(); i++)
+			for (uint index = 0; index < character.costumeStrings.accessory.size(); index++)
 			{
-				character.costume.accessory[i] = CreateID(character.costumeStrings.accessory[i].c_str());
+				character.costume.accessory[index] = CreateID(character.costumeStrings.accessory[index].c_str());
 			}
 		}
 
@@ -169,7 +169,7 @@ namespace Plugins::WaveDefence
 		}
 
 		// Remove game from global
-		auto gameSubRange = std::ranges::remove_if(global->games, [&game](auto& g) { return g.system.systemId == game.system.systemId; });
+		auto gameSubRange = std::ranges::remove_if(global->games, [&game](auto& gameElement) { return gameElement.system.systemId == game.system.systemId; });
 		global->games.erase(gameSubRange.begin(), gameSubRange.end());
 	}
 
@@ -413,7 +413,7 @@ namespace Plugins::WaveDefence
 
 	// TO DO merge the spawnedSolars and spawnedNpcs list.
 
-	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, const DWORD** ecx, [[maybe_unused]] const uint& kill)
+	void ShipDestroyed([[maybe_unused]] DamageList** damage, const DWORD** ecx, [[maybe_unused]] const uint& kill)
 	{
 		// Grab the ship from the ecx
 		const CShip* ship = Hk::Player::CShipFromShipDestroyed(ecx);
@@ -444,7 +444,7 @@ namespace Plugins::WaveDefence
 		// Are they even in a game?
 		for (auto& game : global->games)
 		{
-			if (auto it = std::ranges::find(game.members, client); it != game.members.end())
+			if (auto iterator = std::ranges::find(game.members, client); iterator != game.members.end())
 			{
 				// Remove from group
 				if (game.groupId != 0)
@@ -454,7 +454,7 @@ namespace Plugins::WaveDefence
 				}
 
 				// Remove from member list
-				game.members.erase(it);
+				game.members.erase(iterator);
 
 				// Mission Failed.
 				ShowPlayerMissionText(client, 13085, MissionMessageType_Failure);
@@ -509,22 +509,22 @@ REFL_AUTO(type(Wave), field(npcs), field(variableNpcs), field(reward), field(sta
 REFL_AUTO(type(System), field(system), field(waves), field(posX), field(posY), field(posZ));
 REFL_AUTO(type(Config), field(systems), field(characters), field(victoryMusic), field(failureMusic), field(npcMultiplier));
 
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
+extern "C" EXPORT void ExportPluginInfo(PluginInfo* pluginInfo)
 {
-	pi->name("Wave Defence");
-	pi->shortName("wave_defence");
-	pi->mayUnload(true);
-	pi->returnCode(&global->returnCode);
-	pi->timers(&timers);
-	pi->commands(&commands);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
-	pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
-	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
-	pi->emplaceHook(HookedCall::IEngine__BaseDestroyed, &BaseDestroyed);
-	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
+	pluginInfo->name("Wave Defence");
+	pluginInfo->shortName("wave_defence");
+	pluginInfo->mayUnload(true);
+	pluginInfo->returnCode(&global->returnCode);
+	pluginInfo->timers(&timers);
+	pluginInfo->commands(&commands);
+	pluginInfo->versionMajor(PluginMajorVersion::VERSION_04);
+	pluginInfo->versionMinor(PluginMinorVersion::VERSION_00);
+	pluginInfo->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
+	pluginInfo->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
+	pluginInfo->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);
+	pluginInfo->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);
+	pluginInfo->emplaceHook(HookedCall::IEngine__BaseDestroyed, &BaseDestroyed);
+	pluginInfo->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 
 	global->npcCommunicator = static_cast<Plugins::Npc::NpcCommunicator*>(PluginCommunicator::ImportPluginCommunicator(Plugins::Npc::NpcCommunicator::pluginName));
 	global->solarCommunicator = static_cast<Plugins::SolarControl::SolarCommunicator*>(

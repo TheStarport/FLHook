@@ -61,7 +61,7 @@ namespace Plugins::SolarControl
 		bool firstRun = true;
 		ReturnCode returnCode = ReturnCode::Default;
 		std::unique_ptr<Config> config = nullptr;
-		std::shared_ptr<spdlog::logger> Log = nullptr;
+		std::shared_ptr<spdlog::logger> log = nullptr;
 		SolarCommunicator* communicator = nullptr;
 		std::map<uint, uint> pendingRedirects;
 	};

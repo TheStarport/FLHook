@@ -77,7 +77,7 @@ namespace Plugins::Npc
 		ReturnCode returnCode = ReturnCode::Default;
 		std::vector<const char*> listGraphs {};
 		std::vector<uint> spawnedNpcs {};
-		std::shared_ptr<spdlog::logger> Log = nullptr;
+		std::shared_ptr<spdlog::logger> log = nullptr;
 		uint dockNpc = 0;
 		NpcCommunicator* communicator = nullptr;
 	};
