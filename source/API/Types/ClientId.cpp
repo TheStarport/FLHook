@@ -5,6 +5,27 @@
 
 #include "Core/FLHook.hpp"
 
+#define ClientCheck                                   \
+    if (!IsValidClientId())                           \
+    {                                                 \
+        return { cpp::fail(Error::InvalidClientId) }; \
+    }
+
+#define CharSelectCheck                                    \
+    if (InCharacterSelect())                               \
+    {                                                      \
+        return { cpp::fail(Error::CharacterNotSelected) }; \
+    }
+
+Action<void, Error> ClientId::AdjustCash(const int amount)
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    pub::Player::AdjustCash(value, amount);
+    return { {} };
+}
+
 bool ClientId::IsValidClientId() const
 {
     if (value == 0 || value >= 255)
@@ -23,18 +44,60 @@ bool ClientId::IsValidClientId() const
 
     return false;
 }
-
-#define ClientCheck                                   \
-    if (!IsValidClientId())                           \
-    {                                                 \
-        return { cpp::fail(Error::InvalidClientId) }; \
+uint ClientId::GetClientIdFromCharacterName(std::wstring_view name)
+{
+    // TODO: Validate this can be done with a view
+    auto& ref = name;
+    const auto account = Players.FindAccountFromCharacterName(reinterpret_cast<st6::wstring&>(ref));
+    if (!account)
+    {
+        return 0;
     }
 
-#define CharSelectCheck                                    \
-    if (InCharacterSelect())                               \
-    {                                                      \
-        return { cpp::fail(Error::CharacterNotSelected) }; \
+    uint client = 0;
+    PlayerData* playerDb = nullptr;
+    while ((playerDb = Players.traverse_active(playerDb)))
+    {
+        if (playerDb->account == account)
+        {
+            client = playerDb->onlineId;
+            break;
+        }
     }
+
+    if (!client)
+    {
+        return 0;
+    }
+
+    if (const auto newCharacter = ClientId(client).GetActiveCharacterName().Unwrap(); StringUtils::ToLower(newCharacter) != StringUtils::ToLower(name))
+    {
+        return 0;
+    }
+
+    return client;
+}
+
+bool ClientId::operator!() const
+{
+    if (value > 0 || value < 256)
+    {
+        return false;
+    }
+
+    PlayerData* playerDb = nullptr;
+    while ((playerDb = Players.traverse_active(playerDb)))
+    {
+        if (playerDb->onlineId == value)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+Action<ClientId, Error> ClientId::ClientIdFromCharacterName(std::wstring_view str) {}
 
 Action<std::wstring, Error> ClientId::GetCharacterName()
 {
@@ -214,7 +277,6 @@ Action<std::wstring_view, Error> ClientId::GetActiveCharacterName()
 
     const auto player = Players.GetActiveCharacterName(value);
     const auto wcharPlayer = reinterpret_cast<const wchar_t*>(player);
-    auto length = wcslen(wcharPlayer);
 
     return { std::wstring_view(wcharPlayer, wcslen(wcharPlayer)) };
 }
@@ -333,13 +395,16 @@ Action<void, Error> ClientId::SaveChar()
     MemUtils::WriteProcMem(jmp, nop.data(), nop.size()); // nop the SinglePlayer() check
     pub::Save(value, 1);
     MemUtils::WriteProcMem(jmp, testAl.data(), testAl.size()); // restore
+
+    return { {} };
 }
 
 Action<void, Error> ClientId::SetPvpKills(uint killAmount)
 {
     ClientCheck;
     CharSelectCheck;
-    pub::Player::SetNumKills(value, killAmount);
+
+    pub::Player::SetNumKills(value, static_cast<int>(killAmount));
 
     return { {} };
 }
@@ -372,6 +437,7 @@ Action<void, Error> ClientId::Beam(std::variant<BaseId, std::wstring_view> base)
     {
         return { cpp::fail(Error::PlayerNotInSpace) };
     }
+
     uint baseId;
 
     if (base.index() == 1)
@@ -383,11 +449,12 @@ Action<void, Error> ClientId::Beam(std::variant<BaseId, std::wstring_view> base)
         {
             return { cpp::fail(Error::InvalidBaseName) };
         }
-        else
-        {
-            baseId = std::get<uint>(base);
-        }
     }
+    else
+    {
+        baseId = std::get<uint>(base);
+    }
+
     if (std::ranges::find(BannedBases, baseId) != BannedBases.end())
     {
         return { cpp::fail(Error::InvalidBaseName) };
@@ -432,8 +499,4 @@ Action<void, Error> ClientId::Message(std::wstring message, MessageFormat format
     return { {} };
 }
 
-Action<void, Error> ClientId::SetRep(std::variant<ushort, std::wstring_view> repGroup, float rep)
-{
-
-
-}
+Action<void, Error> ClientId::SetRep(std::variant<ushort, std::wstring_view> repGroup, float rep) {}

@@ -28,6 +28,8 @@
     <ClCompile Include="..\Source\API\FLServer\Solar.cpp" />
     <ClCompile Include="..\Source\API\FLServer\ZoneUtilities.cpp" />
     <ClCompile Include="..\Source\API\Types\ClientId.cpp" />
+    <ClCompile Include="..\source\API\Types\ObjectId.cpp" />
+    <ClCompile Include="..\source\API\Types\ShipId.cpp" />
     <ClCompile Include="..\source\API\Utils\FileUtils.cpp" />
     <ClCompile Include="..\Source\API\Utils\IniUtils.cpp" />
     <ClCompile Include="..\Source\Core\ApiInternal.cpp" />
@@ -91,6 +93,7 @@
     <ClInclude Include="..\FLHookSDK\include\Concepts.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Exceptions\ErrorInfo.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Exceptions\GameException.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Exceptions\InvalidPtrException.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Exceptions\StopProcessingException.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Exceptions\UnsupportedException.hpp" />
     <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h" />
@@ -101,6 +104,7 @@
     <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h" />
     <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h" />
+    <ClInclude Include="..\FLHookSDK\include\FlPtr.hpp" />
     <ClInclude Include="..\FLHookSDK\include\ResourcePtr.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Singleton.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Typedefs.hpp" />

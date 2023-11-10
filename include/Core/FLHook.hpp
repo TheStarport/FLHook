@@ -137,4 +137,5 @@ class FLHook final
         static bool IsReady() { return instance != nullptr && instance->flhookReady; }
         static const std::list<BaseInfo>& GetBases() { return instance->allBases; }
         static std::wstring_view GetAccountPath() { return instance->accPath; }
+        static bool GetShipInspect(uint& ship, IObjInspectImpl*& inspect, uint& dunno) { return getShipInspect(ship, inspect, dunno); }
 };

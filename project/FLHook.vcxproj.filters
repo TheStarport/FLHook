@@ -289,6 +289,12 @@
     <ClCompile Include="..\Source\API\Types\ClientId.cpp">
       <Filter>Source\API\Types</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\API\Types\ObjectId.cpp">
+      <Filter>Source\API\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\API\Types\ShipId.cpp">
+      <Filter>Source\API\Types</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">
@@ -521,6 +527,12 @@
     </ClInclude>
     <ClInclude Include="..\Include\API\Types\ObjectId.hpp">
       <Filter>Include\API\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\FlPtr.hpp">
+      <Filter>Include\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Exceptions\InvalidPtrException.hpp">
+      <Filter>Include\SDK\Exceptions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

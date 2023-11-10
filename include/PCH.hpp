@@ -74,6 +74,9 @@
 using Jp = jpcre2::select<char>;
 using JpWide = jpcre2::select<wchar_t>;
 
+#include "Core/FLHook.hpp"
+#include "FlPtr.hpp"
+
 #include "Core/PluginManager.hpp"
 
 #ifndef FLHOOK

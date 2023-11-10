@@ -1,50 +1,57 @@
 #pragma once
 
 #include "API/Types/BaseId.hpp"
-#include "API/Types/SystemId.hpp"
 #include "API/Types/ShipId.hpp"
+#include "API/Types/SystemId.hpp"
 
 class ShipId;
 
 class ClientId
 {
-        const uint value;
+        const uint value = 0;
 
         Action<void, Error> AdjustCash(int amount);
 
+        [[nodiscard]]
         bool IsValidClientId() const;
+
+        static uint GetClientIdFromCharacterName(std::wstring_view name);
 
     public:
         explicit ClientId(const uint val) : value(val) {}
-        explicit ClientId(std::wstring_view name);
-        explicit operator uint() const noexcept { return value; }
-        explicit ClientId() : value(0) {} 
-        bool operator==(const ClientId next) const { return value == next.value; }
-        bool operator!() const { return !(value > 0 && value < 256); }
+        explicit ClientId(const std::wstring_view str) : value(GetClientIdFromCharacterName(str)){};
+        explicit ClientId() = default;
 
+        explicit operator uint() const noexcept { return value; }
+        bool operator==(const ClientId next) const { return value == next.value; }
+        bool operator!() const;
 
         // Returns the underlying value of the ClientId, it is generally recommended to not use this.
-        uint GetValue();
+
+        [[nodiscard]]
+        uint GetValue() const
+        {
+            return value;
+        }
 
         // Type Conversions
 
-        Action<std::wstring,Error> GetCharacterName();
+        Action<std::wstring, Error> GetCharacterName();
         // TODO: These eventually will be their own types as well
         Action<BaseId, Error> GetCurrentBase();
-        Action<SystemId,Error> GetSystemId();
-        Action<CAccount*,Error> GetAccount();
+        Action<SystemId, Error> GetSystemId();
+        Action<CAccount*, Error> GetAccount();
         Action<const Archetype::Ship*, Error> GetShipArch();
-        Action<ShipId,Error> GetShipId();
+        Action<ShipId, Error> GetShipId();
         Action<std::list<EquipDesc>, Error> GetEquipment();
         Action<CPlayerGroup*, Error> GetGroup();
-        Action<std::optional<std::wstring>,Error> GetAffiliation();
+        Action<std::optional<std::wstring>, Error> GetAffiliation();
         Action<CShip*, Error> GetShip();
-        Action<uint,Error> GetRank();
-        Action<uint,Error> GetWealth();
+        Action<uint, Error> GetRank();
+        Action<uint, Error> GetWealth();
         Action<int, Error> GetPvpKills();
         Action<uint, Error> GetCash();
         Action<std::wstring_view, Error> GetActiveCharacterName();
-
 
         // State Checks
 
