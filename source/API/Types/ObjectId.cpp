@@ -64,6 +64,17 @@ Action<std::pair<Vector, float>, Error> ObjectId::GetVelocityAndSpeed() const
     return { std::make_pair(velocity, glm::length<3, float, glm::highp>(velocity)) };
 }
 
+Action<Vector, Error> ObjectId::GetAngularVelocity() const
+{
+    Vector velocity, angularVelocity;
+    if (pub::SpaceObj::GetMotion(value, velocity, angularVelocity) != static_cast<int>(ResponseCode::Success))
+    {
+        return { cpp::fail(Error::InvalidSpaceObjId) };
+    }
+
+    return { angularVelocity };
+}
+
 Action<std::pair<Vector, Matrix>, Error> ObjectId::GetPositionAndOrientation() const
 {
     Vector pos;
