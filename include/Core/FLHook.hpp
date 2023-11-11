@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/InfocardManager.hpp"
 #include "AddressList.hpp"
 #include "ClientServerInterface.hpp"
 #include "StartupCache.hpp"
@@ -89,6 +90,7 @@ class FLHook final
         // Non-Static things
 
         std::unique_ptr<StartupCache> startupCache;
+        InfocardManager infocardManager;
 
         bool OnServerStart();
         void InitHookExports();
@@ -138,4 +140,6 @@ class FLHook final
         static const std::list<BaseInfo>& GetBases() { return instance->allBases; }
         static std::wstring_view GetAccountPath() { return instance->accPath; }
         static bool GetShipInspect(uint& ship, IObjInspectImpl*& inspect, uint& dunno) { return getShipInspect(ship, inspect, dunno); }
+
+        InfocardManager& GetInfocardManager() { return infocardManager; }
 };

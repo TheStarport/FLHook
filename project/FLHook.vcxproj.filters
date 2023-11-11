@@ -295,6 +295,9 @@
     <ClCompile Include="..\source\API\Types\ShipId.cpp">
       <Filter>Source\API\Types</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\API\FLHook\InfocardManager.cpp">
+      <Filter>Source\API\FLHook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">
@@ -533,6 +536,9 @@
     </ClInclude>
     <ClInclude Include="..\FLHookSDK\include\Exceptions\InvalidPtrException.hpp">
       <Filter>Include\SDK\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\FLHook\InfocardManager.hpp">
+      <Filter>Include\API\FLHook</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
