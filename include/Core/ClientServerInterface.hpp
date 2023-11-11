@@ -160,7 +160,7 @@ class IServerImplHook
         void* vRet;                              \
         char* tmp;                               \
         memcpy(&tmp, &FLHook::oldClientImpl, 4); \
-        memcpy(&FLHook::clientImpl, &FLHook::oldClientImpl, 4);
+        memcpy(&FLHook::hookClientImpl, &FLHook::oldClientImpl, 4);
 
 #define CallClientPostamble   \
     __asm { mov [vRet], eax}  \
@@ -169,7 +169,7 @@ class IServerImplHook
 
 #define CheckForDisconnect                                                                                                                         \
     {                                                                                                                                              \
-        if (ClientInfo::At(client).disconnected)                                                                                                       \
+        if (ClientInfo::At(client).disconnected)                                                                                                   \
         {                                                                                                                                          \
             Logger::i()->Log(LogLevel::Debug, std::format(L"Ignoring disconnected client in {} id={}", StringUtils::stows(__FUNCTION__), client)); \
             return;                                                                                                                                \
