@@ -298,6 +298,15 @@
     <ClCompile Include="..\source\API\FLHook\InfocardManager.cpp">
       <Filter>Source\API\FLHook</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\API\Types\RepGroupId.cpp">
+      <Filter>Source\API\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\API\Types\RepId.cpp">
+      <Filter>Source\API\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\API\Types\GroupId.cpp">
+      <Filter>Source\API\Types</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">
@@ -539,6 +548,15 @@
     </ClInclude>
     <ClInclude Include="..\include\API\FLHook\InfocardManager.hpp">
       <Filter>Include\API\FLHook</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\Types\RepGroupId.hpp">
+      <Filter>Include\API\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\Types\RepId.hpp">
+      <Filter>Include\API\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\Types\GroupId.hpp">
+      <Filter>Include\API\Types</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

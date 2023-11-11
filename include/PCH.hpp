@@ -22,6 +22,7 @@
 #include <string>
 #include <thread>
 #include <tuple>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -53,6 +54,8 @@
 
 #include "FLCore/FLCoreRemoteClient.h"
 
+#include "FlPtr.hpp"
+
 #include "Defs/Enums.hpp"
 #include "Defs/SehException.hpp"
 #include "Defs/Structs.hpp"
@@ -61,6 +64,15 @@
 #include "Utils/Utils.hpp"
 
 #include "Core/Codec.hpp"
+
+#include "API/Types/BaseId.hpp"
+#include "API/Types/ClientId.hpp"
+#include "API/Types/GroupId.hpp"
+#include "API/Types/ObjectId.hpp"
+#include "API/Types/RepGroupId.hpp"
+#include "API/Types/RepId.hpp"
+#include "API/Types/ShipId.hpp"
+
 #include "Defs/FLHookConfig.hpp"
 #include "Defs/FLPacket.hpp"
 
@@ -75,7 +87,6 @@ using Jp = jpcre2::select<char>;
 using JpWide = jpcre2::select<wchar_t>;
 
 #include "Core/FLHook.hpp"
-#include "FlPtr.hpp"
 
 #include "Core/PluginManager.hpp"
 

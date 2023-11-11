@@ -141,5 +141,5 @@ class FLHook final
         static std::wstring_view GetAccountPath() { return instance->accPath; }
         static bool GetShipInspect(uint& ship, IObjInspectImpl*& inspect, uint& dunno) { return getShipInspect(ship, inspect, dunno); }
 
-        InfocardManager& GetInfocardManager() { return infocardManager; }
+        static InfocardManager& GetInfocardManager() { return instance->infocardManager; }
 };

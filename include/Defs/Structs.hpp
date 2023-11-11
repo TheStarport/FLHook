@@ -107,7 +107,7 @@ struct BaseInfo
 
 struct GroupMember
 {
-        ClientId client;
+        uint client;
         std::wstring character;
 };
 

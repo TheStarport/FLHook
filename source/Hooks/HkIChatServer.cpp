@@ -12,7 +12,7 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
 
     TryHook
     {
-        if (chatData->inSubmitChat && clientTo != 0x10004)
+        if (chatData->inSubmitChat && clientTo.GetValue() != 0x10004)
         {
             std::wstring buffer;
             buffer.resize(size);
@@ -26,12 +26,12 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             const int spaceAfterColonOffset = buffer[sender.length() + 1] == ' ' ? sender.length() + 2 : 0;
             const std::wstring text = buffer.substr(spaceAfterColonOffset, buffer.length() - spaceAfterColonOffset);
 
-            if (FLHookConfig::i()->userCommands.userCmdIgnore && (clientTo & 0xFFFF) != 0)
+            if (FLHookConfig::i()->userCommands.userCmdIgnore && (clientTo.GetValue() & 0xFFFF) != 0)
             {
                 // check ignores
                 for (const auto& ci : ClientInfo::At(client).ignoreInfoList)
                 {
-                    if (ci.flags.find(L'p') == std::wstring::npos && clientTo & 0x10000)
+                    if (ci.flags.find(L'p') == std::wstring::npos && clientTo.GetValue() & 0x10000)
                     {
                         continue; // no privchat
                     }

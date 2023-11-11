@@ -160,8 +160,7 @@ namespace Hk::Player
         return { {} };
     }
 
-    Action<void, Error> AddCash(const std::variant<uint, std::wstring_view>& player, uint amount)
-    { return AdjustCash(player, static_cast<int>(amount)); }
+    Action<void, Error> AddCash(const std::variant<uint, std::wstring_view>& player, uint amount) { return AdjustCash(player, static_cast<int>(amount)); }
 
     Action<void, Error> RemoveCash(const std::variant<uint, std::wstring_view>& player, uint amount) { return AdjustCash(player, -static_cast<int>(amount)); }
 
@@ -361,53 +360,6 @@ namespace Hk::Player
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    struct EquipItem
-    {
-            EquipItem* next;
-            uint i2;
-            ushort s1;
-            ushort id;
-            uint goodId;
-            CacheString hardpoint;
-            bool mounted;
-            char unk[3];
-            float status;
-            uint count;
-            bool mission;
-    };
-
-    Action<std::list<CargoInfo>, Error> EnumCargo(const std::variant<uint, std::wstring_view>& player, int& remainingHoldSize)
-    {
-        ClientId client = Client::ExtractClientID(player);
-
-        if (client == UINT_MAX || Client::IsInCharSelectMenu(client))
-        {
-            return { (cpp::fail(Error::PlayerNotLoggedIn)) };
-        }
-
-        std::list<CargoInfo> cargo;
-
-        char* classPtr;
-        memcpy(&classPtr, &Players, 4);
-        classPtr += 0x418 * (client - 1);
-
-        EquipItem* eqList;
-        memcpy(&eqList, classPtr + 0x27C, 4);
-        const EquipItem* eq = eqList->next;
-        while (eq != eqList)
-        {
-            CargoInfo ci = { eq->id, static_cast<int>(eq->count), eq->goodId, eq->status, eq->mission, eq->mounted, eq->hardpoint };
-            cargo.push_back(ci);
-
-            eq = eq->next;
-        }
-
-        float remainingHold;
-        pub::Player::GetRemainingHoldSize(client, remainingHold);
-        remainingHoldSize = static_cast<int>(remainingHold);
-        return { cargo };
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

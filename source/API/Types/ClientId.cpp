@@ -17,7 +17,7 @@
         return { cpp::fail(Error::CharacterNotSelected) }; \
     }
 
-Action<void, Error> ClientId::AdjustCash(const int amount)
+Action<void, Error> ClientId::AdjustCash(const int amount) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -97,15 +97,13 @@ bool ClientId::operator!() const
     return false;
 }
 
-Action<ClientId, Error> ClientId::ClientIdFromCharacterName(std::wstring_view str) {}
-
-Action<std::wstring, Error> ClientId::GetCharacterName()
+Action<std::wstring, Error> ClientId::GetCharacterName() const
 {
     ClientCheck;
     return { reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(value)) };
 }
 
-Action<BaseId, Error> ClientId::GetCurrentBase()
+Action<BaseId, Error> ClientId::GetCurrentBase() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -120,7 +118,7 @@ Action<BaseId, Error> ClientId::GetCurrentBase()
     return { cpp::fail(Error::PlayerNotDocked) };
 }
 
-Action<SystemId, Error> ClientId::GetSystemId()
+Action<SystemId, Error> ClientId::GetSystemId() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -135,7 +133,7 @@ Action<SystemId, Error> ClientId::GetSystemId()
     return { SystemId(sys) };
 }
 
-Action<CAccount*, Error> ClientId::GetAccount()
+Action<CAccount*, Error> ClientId::GetAccount() const
 {
     ClientCheck;
     CAccount* acc = Players.FindAccountFromClientID(value);
@@ -143,28 +141,20 @@ Action<CAccount*, Error> ClientId::GetAccount()
     return { acc };
 }
 
-// TODO: This may fail in base when it shouldn't
 Action<const Archetype::Ship*, Error> ClientId::GetShipArch()
 {
     ClientCheck;
     CharSelectCheck;
 
     uint ship;
-    pub::Player::GetShip(value, ship);
+    pub::Player::GetShipID(value, ship);
 
     if (!ship)
     {
-        return cpp::fail{ Error::InvalidShip };
+        return { cpp::fail{ Error::InvalidShip } };
     }
 
-    const auto cShip = dynamic_cast<CShip*>(CObject::Find(ship, CObject::CSHIP_OBJECT));
-
-    if (!cShip)
-    {
-        return cpp::fail{ Error::InvalidShip };
-    }
-
-    return { cShip->shiparch() };
+    return { Archetype::GetShip(ship) };
 }
 
 Action<ShipId, Error> ClientId::GetShipId()
@@ -177,41 +167,39 @@ Action<ShipId, Error> ClientId::GetShipId()
 
     if (!ship)
     {
-        return cpp::fail{ Error::InvalidShip };
+        return { cpp::fail{ Error::InvalidShip } };
     }
 
     return { ShipId(ship) };
 }
 
-Action<std::list<EquipDesc>, Error> ClientId::GetEquipment()
-{
-    ClientCheck;
-    CharSelectCheck;
-
-    // TODO: Lmao
-}
-
 Action<CPlayerGroup*, Error> ClientId::GetGroup()
 {
     ClientCheck;
-    auto id = Players.GetGroupID(value);
+    const auto id = Players.GetGroupID(value);
 
     if (!id)
     {
-        return cpp::fail{ Error::InvalidGroupId };
+        return { cpp::fail{ Error::PlayerNotInGroup } };
     }
 
     return { CPlayerGroup::FromGroupID(id) };
 }
 
-Action<std::optional<std::wstring>, Error> ClientId::GetAffiliation()
+Action<RepId, Error> ClientId::GetReputation() const
 {
     ClientCheck;
     CharSelectCheck;
 
-    const char* repGroup;
+    int rep;
+    pub::Player::GetRep(value, rep);
 
-    // TODO: Lol said the scorpion.
+    if (!Reputation::Vibe::Verify(rep))
+    {
+        return { cpp::fail(Error::InvalidReputation) };
+    }
+
+    return { RepId(rep) };
 }
 
 Action<CShip*, Error> ClientId::GetShip()
@@ -278,7 +266,7 @@ Action<std::wstring_view, Error> ClientId::GetActiveCharacterName()
     const auto player = Players.GetActiveCharacterName(value);
     const auto wcharPlayer = reinterpret_cast<const wchar_t*>(player);
 
-    return { std::wstring_view(wcharPlayer, wcslen(wcharPlayer)) };
+    return { std::wstring_view(wcharPlayer, wcsnlen_s(wcharPlayer, 36)) };
 }
 
 bool ClientId::InSpace()
@@ -308,13 +296,7 @@ bool ClientId::IsDocked()
     return !InSpace();
 }
 
-bool ClientId::InCharacterSelect()
-{
-    // TODO: This pub function is undocumented and unknown, will require testing.
-    uint character;
-    pub::Player::GetCharacter(value, character);
-    return character == 0;
-}
+bool ClientId::InCharacterSelect() const { return Players.GetActiveCharacterName(value) == nullptr; }
 
 bool ClientId::IsAlive()
 {
@@ -332,8 +314,36 @@ bool ClientId::IsAlive()
     return true;
 }
 
+Action<std::list<CargoInfo>, Error> ClientId::EnumCargo(int& remainingHoldSize) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    std::list<CargoInfo> cargo;
+
+    char* classPtr;
+    memcpy(&classPtr, &Players, 4);
+    classPtr += 0x418 * (value - 1);
+
+    pub::SpaceObj::EquipItem* eqList;
+    memcpy(&eqList, classPtr + 0x27C, 4);
+    const pub::SpaceObj::EquipItem* eq = eqList->next;
+    while (eq != eqList)
+    {
+        CargoInfo ci = { eq->id, static_cast<int>(eq->count), eq->goodId, eq->status, eq->mission, eq->mounted, eq->hardpoint };
+        cargo.push_back(ci);
+
+        eq = eq->next;
+    }
+
+    float remainingHold;
+    pub::Player::GetRemainingHoldSize(value, remainingHold);
+    remainingHoldSize = static_cast<int>(remainingHold);
+    return { cargo };
+}
+
 // Server wide message upon kicking. Delay is defaulted to zero.
-Action<void, Error> ClientId::Kick(std::optional<std::wstring_view> reason, std::optional<uint> delay)
+Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reason, const std::optional<uint> delay)
 {
     ClientCheck;
 
@@ -350,14 +360,15 @@ Action<void, Error> ClientId::Kick(std::optional<std::wstring_view> reason, std:
         return { {} };
     }
     const mstime kickTime = TimeUtils::UnixSeconds() + delay.value();
-    if (!ClientInfo::At(value).kickTime || ClientInfo::At(value).kickTime > kickTime)
+    if (!ClientInfo::At(*this).kickTime || ClientInfo::At(*this).kickTime > kickTime)
     {
-        ClientInfo::At(value).kickTime = kickTime;
+        ClientInfo::At(*this).kickTime = kickTime;
     }
+    return { {} };
 }
 
 // This messages the player directly instead of doing a universe message. Defaults to a delay of 10 seconds.
-Action<void, Error> ClientId::MessageAndKick(std::wstring_view reason, uint delay)
+Action<void, Error> ClientId::MessageAndKick(const std::wstring_view reason, const uint delay)
 {
     ClientCheck;
 
@@ -375,9 +386,9 @@ Action<void, Error> ClientId::MessageAndKick(std::wstring_view reason, uint dela
     }
 
     const mstime kickTime = TimeUtils::UnixSeconds() + delay;
-    if (!ClientInfo::At(value).kickTime || ClientInfo::At(value).kickTime > kickTime)
+    if (!ClientInfo::At(*this).kickTime || ClientInfo::At(*this).kickTime > kickTime)
     {
-        ClientInfo::At(value).kickTime = kickTime;
+        ClientInfo::At(*this).kickTime = kickTime;
     }
 
     return { {} };
@@ -399,7 +410,7 @@ Action<void, Error> ClientId::SaveChar()
     return { {} };
 }
 
-Action<void, Error> ClientId::SetPvpKills(uint killAmount)
+Action<void, Error> ClientId::SetPvpKills(const uint killAmount)
 {
     ClientCheck;
     CharSelectCheck;
@@ -409,8 +420,8 @@ Action<void, Error> ClientId::SetPvpKills(uint killAmount)
     return { {} };
 }
 
-Action<void, Error> ClientId::AddCash(uint amount) { return AdjustCash(static_cast<int>(amount)); }
-Action<void, Error> ClientId::RemoveCash(uint amount) { return AdjustCash(-static_cast<int>(amount)); }
+Action<void, Error> ClientId::AddCash(const uint amount) { return AdjustCash(static_cast<int>(amount)); }
+Action<void, Error> ClientId::RemoveCash(const uint amount) { return AdjustCash(-static_cast<int>(amount)); }
 
 // TODO: This should more accessible throughout the plugin and configurable
 const std::array BannedBases = {
@@ -462,16 +473,16 @@ Action<void, Error> ClientId::Beam(std::variant<BaseId, std::wstring_view> base)
 
     uint sysId;
     pub::Player::GetSystem(value, sysId);
-    const Universe::IBase* base = Universe::get_base(baseId);
+    const Universe::IBase* basePtr = Universe::get_base(baseId);
 
-    if (!base)
+    if (!basePtr)
     {
         return { cpp::fail(Error::InvalidBase) };
     }
 
     pub::Player::ForceLand(value, baseId); // beam
 
-    if (base->systemId != sysId)
+    if (basePtr->systemId != sysId)
     {
         Server.BaseEnter(baseId, value);
         Server.BaseExit(baseId, value);
@@ -489,14 +500,28 @@ Action<void, Error> ClientId::Beam(std::variant<BaseId, std::wstring_view> base)
     return { {} };
 }
 
-Action<void, Error> ClientId::Message(std::wstring message, MessageFormat format, MessageColor color)
+Action<void, Error> ClientId::Message(const std::wstring& message, const MessageFormat format, const MessageColor color) const
 {
     ClientCheck;
     CharSelectCheck;
-    auto formattedMessage = Hk::Chat::FormatMsg(color, format, message);
+
+    const auto formattedMessage = Hk::Chat::FormatMsg(color, format, message);
     Hk::Chat::FMsg(value, formattedMessage);
 
     return { {} };
 }
 
-Action<void, Error> ClientId::SetRep(std::variant<ushort, std::wstring_view> repGroup, float rep) {}
+Action<void, Error> ClientId::MessageFrom(ClientId destinationClient, std::wstring message) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    if (!destinationClient)
+    {
+        return { cpp::fail(Error::InvalidClientId) };
+    }
+
+    // TODO: validate color
+    destinationClient.Message(std::move(message));
+    return { {} };
+}

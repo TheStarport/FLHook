@@ -2,7 +2,7 @@
 
 #include "API/Types/ShipId.hpp"
 
-Action<CShipPtr, Error> ShipId::GetCShip(bool increment) const
+Action<CShipPtr, Error> ShipId::GetCShip(bool increment)
 {
     auto ship = CShipPtr(value);
     if (!ship)
@@ -15,13 +15,13 @@ Action<CShipPtr, Error> ShipId::GetCShip(bool increment) const
 
 Action<Archetype::Ship*, Error> ShipId::GetShipArchetype()
 {
-    auto ship = GetCShip(false);
-    if (ship.Raw().has_error())
+    uint archId;
+    if (pub::SpaceObj::GetArchetypeID(value, archId) != (int)ResponseCode::Success)
     {
-        return { cpp::fail(Error::InvalidShip) };
+        return { cpp::fail(Error::InvalidSpaceObjId) };
     }
 
-    return { reinterpret_cast<Archetype::Ship*>(ship.Raw().value()->get_archetype()) };
+    return { Archetype::GetShip(archId) };
 }
 
 // If provided a value of true in the argument it will provide a percentage value of the ship's health, with 0.0f being no hp and 1.0f being full health.
@@ -47,17 +47,24 @@ Action<float, Error> ShipId::GetHealth(bool percentage)
 
 Action<float, Error> ShipId::GetShields(bool percentage)
 {
-    auto ship = GetCShip(false);
-    if (ship.Raw().has_error())
+    float currentShield, maxShield;
+    bool shieldUp;
+    if (pub::SpaceObj::GetShieldHealth(value, currentShield, maxShield, shieldUp) != (int)ResponseCode::Success)
     {
-        return { cpp::fail(Error::InvalidShip) };
+        return { cpp::fail(Error::InvalidSpaceObjId) };
     }
 
-    auto& shipVal = ship.Raw().value();
-    // TODO: Getting Shield value seems a lot more involved and will likely require crawling ship parts or equipment can't remember which.
+    if (!shieldUp)
+    {
+        return { 0.0f };
+    }
 
-    EquipDescVector equip;
-    shipVal->get_equip_desc_list(equip);
+    if (!percentage)
+    {
+        return { currentShield };
+    }
+
+    return { currentShield / maxShield };
 }
 
 std::optional<ShipId> ShipId::GetTarget()
@@ -71,8 +78,13 @@ std::optional<ShipId> ShipId::GetTarget()
     auto& shipVal = ship.Raw().value();
 
     // Returns IObjectRW*, whatever that is.
-    auto target = shipVal->get_target()->ship;
+    const auto target = shipVal->get_target()->ship;
+    return ShipId(target->get_id());
 }
+
+Action<RepId, Error> ShipId::GetReputation() {}
+
+std::wstring ShipId::GetAffiliation() {}
 
 Action<float, Error> ShipId::GetSpeed()
 {
@@ -130,8 +142,14 @@ Action<void, Error> ShipId::SetHealth(float amount, bool percentage)
     return { {} };
 }
 
-Action<void, Error> ShipId::AddCargo(std::wstring good, int count, bool mission)
+Action<void, Error> ShipId::AddCargo(uint good, uint count, bool mission)
 {
+    const auto goodInfo = GoodList::find_by_id(good);
+    if (!goodInfo)
+    {
+        return { cpp::fail(Error::InvalidGood) };
+    }
+
     auto ship = GetCShip(false);
     if (ship.Raw().has_error())
     {
@@ -139,18 +157,96 @@ Action<void, Error> ShipId::AddCargo(std::wstring good, int count, bool mission)
     }
     auto& shipVal = ship.Raw().value();
 
-
-    const auto goodStr = StringUtils::wstos(good);
-
-    const GoodInfo* goodInfo;
-    if (!(goodInfo = GoodList::find_by_nickname(goodStr.c_str())))
+    if (shipVal->is_player())
     {
-        return { cpp::fail(Error::InvalidGood) };
+        auto client = ClientId(shipVal->ownerPlayer);
+
+        uint base, location = 0;
+        pub::Player::GetBase(client.GetValue(), base);
+        pub::Player::GetLocation(client.GetValue(), location);
+
+        // trick cheat detection
+        if (base)
+        {
+            if (location)
+            {
+                Server.LocationExit(location, client.GetValue());
+            }
+            Server.BaseExit(base, client.GetValue());
+
+            if (!client)
+            {
+                return { cpp::fail(Error::PlayerNotLoggedIn) };
+            }
+        }
+
+        if (goodInfo->multiCount)
+        {
+            // it's a good that can have multiple units(commodities missile ammo, etc)
+            int ret;
+
+            // we need to do this, else server or client may crash
+            for (const auto cargo = client.EnumCargo(ret).Raw(); auto& item : cargo.value())
+            {
+                if (item.archId == good && item.mission != mission)
+                {
+                    pub::Player::RemoveCargo(client.GetValue(), static_cast<ushort>(item.id), item.count);
+                    count += item.count;
+                }
+            }
+
+            pub::Player::AddCargo(client.GetValue(), good, count, 1, mission);
+        }
+        else
+        {
+            for (int i = 0; i < count; i++)
+            {
+                pub::Player::AddCargo(client.GetValue(), good, 1, 1, mission);
+            }
+        }
+
+        if (base)
+        {
+            // player docked on base
+            ///////////////////////////////////////////////////
+            // fix, else we get anti-cheat msg when undocking
+            // this DOES NOT disable anti-cheat-detection, we're
+            // just making some adjustments so that we dont get kicked
+
+            Server.BaseEnter(base, client.GetValue());
+            if (location)
+            {
+                Server.LocationEnter(location, client.GetValue());
+            }
+        }
+        return { {} };
     }
-    bool multiCount;
 
-    //TODO:@Laz Magic number here, need to document goodInfo Offsets.
-    memcpy(&multiCount, (char*)goodInfo + 0x70, 1);
+    EquipDescVector existingEquips;
+    shipVal->get_equip_desc_list(existingEquips);
 
-   //TODO: We don't seem to have any player-agnostic way of adding cargo, every example is assuming the ship is a player.
+    ushort highestId = 0;
+    for (auto& equip : existingEquips.equip)
+    {
+        highestId = equip.id > highestId ? equip.id : highestId;
+
+        if (equip.archId == good)
+        {
+            equip.count += count;
+            return { {} };
+        }
+    }
+
+    EquipDesc desc;
+    desc.count = count;
+    desc.archId = good;
+    desc.health = 1.0f;
+    desc.set_hardpoint(CacheString(EquipDesc::CARGO_BAY_HP_NAME));
+    desc.mounted = false;
+    desc.id = highestId + 1;
+    desc.mission = mission;
+
+    shipVal->add_cargo_item(desc);
+
+    return { {} };
 }

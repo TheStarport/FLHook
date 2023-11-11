@@ -29,7 +29,10 @@
     <ClCompile Include="..\Source\API\FLServer\Solar.cpp" />
     <ClCompile Include="..\Source\API\FLServer\ZoneUtilities.cpp" />
     <ClCompile Include="..\Source\API\Types\ClientId.cpp" />
+    <ClCompile Include="..\source\API\Types\GroupId.cpp" />
     <ClCompile Include="..\source\API\Types\ObjectId.cpp" />
+    <ClCompile Include="..\source\API\Types\RepGroupId.cpp" />
+    <ClCompile Include="..\source\API\Types\RepId.cpp" />
     <ClCompile Include="..\source\API\Types\ShipId.cpp" />
     <ClCompile Include="..\source\API\Utils\FileUtils.cpp" />
     <ClCompile Include="..\Source\API\Utils\IniUtils.cpp" />
@@ -130,7 +133,10 @@
     <ClInclude Include="..\Include\API\FLServer\ZoneUtilities.hpp" />
     <ClInclude Include="..\Include\API\Types\BaseId.hpp" />
     <ClInclude Include="..\Include\API\Types\ClientId.hpp" />
+    <ClInclude Include="..\include\API\Types\GroupId.hpp" />
     <ClInclude Include="..\Include\API\Types\ObjectId.hpp" />
+    <ClInclude Include="..\include\API\Types\RepGroupId.hpp" />
+    <ClInclude Include="..\include\API\Types\RepId.hpp" />
     <ClInclude Include="..\Include\API\Types\ShipId.hpp" />
     <ClInclude Include="..\Include\API\Types\SystemId.hpp" />
     <ClInclude Include="..\include\API\Utils\FileUtils.hpp" />

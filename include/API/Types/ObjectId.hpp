@@ -12,21 +12,20 @@ class ObjectId
         explicit ObjectId() = default;
         virtual ~ObjectId() = default;
         ObjectId(const ObjectId&) = default;
-        ObjectId& operator=(ObjectId) = default;
+        ObjectId& operator=(ObjectId) = delete;
         ObjectId(ObjectId&&) = default;
         ObjectId& operator=(ObjectId&&) = delete;
 
         bool operator==(const ObjectId& next) const { return value == next.value; }
         explicit virtual operator bool() const;
 
+        uint GetValue() const { return value; }
+
         [[nodiscard]]
         Action<CObject::Class, Error> GetObjectType() const;
 
         [[nodiscard]]
         Action<std::wstring, Error> GetNickName() const;
-
-        [[nodiscard]]
-        Action<std::wstring, Error> GetName() const;
 
         [[nodiscard]]
         Action<CObjPtr, Error> GetCObject(bool increment = false) const;
