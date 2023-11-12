@@ -43,6 +43,7 @@
     <ClCompile Include="..\Source\Core\Commands\ExternalCommandProcessor.cpp" />
     <ClCompile Include="..\Source\Core\Commands\UserCommandProcessor.cpp" />
     <ClCompile Include="..\Source\Core\Debug.cpp" />
+    <ClCompile Include="..\source\Core\ExceptionHandler.cpp" />
     <ClCompile Include="..\Source\Core\FLPacket.cpp" />
     <ClCompile Include="..\source\Core\IpResolver.cpp" />
     <ClCompile Include="..\Source\Core\Logger.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="..\Include\Core\Commands\ExternalCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Detour.hpp" />
+    <ClInclude Include="..\include\Core\ExceptionHandler.hpp" />
     <ClInclude Include="..\Include\Core\Exceptions\StopProcessingException.hpp" />
     <ClInclude Include="..\Include\Core\ClientServerInterface.hpp" />
     <ClInclude Include="..\include\Core\FLHook.hpp" />

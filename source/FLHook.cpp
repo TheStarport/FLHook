@@ -15,6 +15,7 @@
 #include "Core/IpResolver.hpp"
 
 #include "Core/ClientServerInterface.hpp"
+#include "Core/ExceptionHandler.hpp"
 
 #include <API/FLHook/Plugin.hpp>
 #include <API/Utils/IniUtils.hpp>
@@ -48,8 +49,6 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
     return TRUE;
 }
 
-// TODO: Reimplement exception handling
-
 FLHook::FLHook()
 {
     flProc = GetModuleHandle(nullptr);
@@ -58,6 +57,9 @@ FLHook::FLHook()
     {
         // Load our settings before anything that might need access to debug mode
         LoadSettings();
+
+        // Replace the global exception filter with our own so we can write exception dumps
+        ExceptionHandler::SetupExceptionHandling();
 
         // Setup needed debug tools
         DebugTools::i()->Init();

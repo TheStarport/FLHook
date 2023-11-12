@@ -307,6 +307,8 @@
     <ClCompile Include="..\source\API\Types\GroupId.cpp">
       <Filter>Source\API\Types</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Core\ExceptionHandler.cpp">
+      <Filter>Source\Core</Filter>
     <ClCompile Include="..\Source\API\FLHook\ClientList.cpp">
       <Filter>Source\API\FLHook</Filter>
     </ClCompile>
@@ -561,6 +563,8 @@
     <ClInclude Include="..\include\API\Types\GroupId.hpp">
       <Filter>Include\API\Types</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\Core\ExceptionHandler.hpp">
+      <Filter>Include\Core</Filter>
     <ClInclude Include="..\Include\API\FLHook\ClientList.hpp">
       <Filter>Include\API\FLHook</Filter>
     </ClInclude>
