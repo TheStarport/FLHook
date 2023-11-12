@@ -20,7 +20,7 @@ class GroupId final
         explicit GroupId() = default;
         ~GroupId() = default;
         GroupId(const GroupId&) = default;
-        GroupId& operator=(GroupId) = default;
+        GroupId& operator=(GroupId) = delete;
         GroupId(GroupId&&) = default;
         GroupId& operator=(GroupId&&) = delete;
 

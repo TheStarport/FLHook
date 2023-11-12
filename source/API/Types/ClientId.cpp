@@ -80,7 +80,7 @@ uint ClientId::GetClientIdFromCharacterName(std::wstring_view name)
 
 bool ClientId::operator!() const
 {
-    if (value > 0 || value < 256)
+    if (value > 0 || value < MaxClientId)
     {
         return false;
     }

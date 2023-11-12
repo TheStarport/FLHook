@@ -84,7 +84,7 @@ class ClientId
         // Manipulation
 
         Action<void, Error> AddToGroup(uint group);
-        Action<void, Error> Kick(const std::optional<std::wstring_view> &reason = {}, std::optional<uint> delay);
+        Action<void, Error> Kick(const std::optional<std::wstring_view> &reason = {}, std::optional<uint> delay = {});
         Action<void, Error> MessageAndKick(std::wstring_view reason, uint delay = 10);
         Action<void, Error> SaveChar();
         Action<void, Error> SetPvpKills(uint killAmount);

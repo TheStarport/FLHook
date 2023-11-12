@@ -54,11 +54,14 @@
 
 #include "FLCore/FLCoreRemoteClient.h"
 
+#include "Defs/Structs.hpp"
+
+#include "Core/FLHook.hpp"
+
 #include "FlPtr.hpp"
 
 #include "Defs/Enums.hpp"
 #include "Defs/SehException.hpp"
-#include "Defs/Structs.hpp"
 
 #include "Concepts.hpp"
 #include "Utils/Utils.hpp"
@@ -85,8 +88,6 @@
 
 using Jp = jpcre2::select<char>;
 using JpWide = jpcre2::select<wchar_t>;
-
-#include "Core/FLHook.hpp"
 
 #include "Core/PluginManager.hpp"
 

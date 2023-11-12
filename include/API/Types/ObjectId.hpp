@@ -28,7 +28,7 @@ class ObjectId
         Action<std::wstring, Error> GetNickName() const;
 
         [[nodiscard]]
-        Action<CObjPtr, Error> GetCObject(bool increment = false) const;
+        Action<CSimplePtr, Error> GetCObject(bool increment = false) const;
 
         [[nodiscard]]
         Action<Archetype::Root*, Error> GetArchetype() const;

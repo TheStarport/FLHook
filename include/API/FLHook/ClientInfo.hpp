@@ -1,13 +1,7 @@
 #pragma once
 
-class FLHook;
-class Api;
 class ClientInfo
 {
-        friend FLHook;
-        friend Api;
-        inline static std::array<ClientInfo, MaxClientId + 1> clients;
-
     public:
         void SaveAccountData() const;
 
@@ -81,13 +75,13 @@ class ClientInfo
 
         static ClientInfo& At(ClientId client)
         {
-            if (client > 256)
+            if (client.GetValue() > MaxClientId)
             {
                 static std::string err;
                 err = std::format("Attempted to access client info with an invalid id. ID: {}", client);
                 throw std::out_of_range(err.c_str());
             }
 
-            return clients[client];
+            return clients[client.GetValue()];
         }
 };

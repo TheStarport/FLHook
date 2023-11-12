@@ -2,7 +2,6 @@
 
 #include "API/FLHook/InfocardManager.hpp"
 #include "AddressList.hpp"
-#include "ClientServerInterface.hpp"
 #include "StartupCache.hpp"
 
 class IServerImplHook;
@@ -74,8 +73,8 @@ class FLHook final
         static void Startup() { instance = new FLHook(); }
 
         static void LoadSettings();
-        static void ClearClientInfo(ClientId client);
-        void LoadUserSettings(ClientId client);
+        static void ClearClientInfo(uint client);
+        void LoadUserSettings(uint client);
         static void ProcessPendingCommands();
 
         // Timers

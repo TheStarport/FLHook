@@ -4,7 +4,7 @@
 
 bool Api::IsValidClientId(ClientId id)
 {
-    if (id == 0 || id >= 255)
+    if (id == 0 || id >= MaxClientId)
     {
         return false;
     }

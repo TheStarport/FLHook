@@ -23,5 +23,5 @@ class InfocardManager
          * string that you would like to replace it with. \param client An optional client id to only override an infocard for one client in particular.
          * Otherwise the change will be sent to all connected clients.
          */
-        void OverrideInfocard(uint ids, const std::wstring& override, ClientId client = ClientId());
+        void OverrideInfocard(uint ids, const std::wstring& override, uint client = 0);
 };

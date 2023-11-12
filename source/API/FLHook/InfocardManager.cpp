@@ -62,7 +62,7 @@ std::wstring_view InfocardManager::GetInfocard(const uint ids) const
     return { destStr, length };
 }
 
-void InfocardManager::OverrideInfocard(const uint ids, const std::wstring& override, ClientId client)
+void InfocardManager::OverrideInfocard(const uint ids, const std::wstring& override, uint client)
 {
     infocardOverride[ids] = override;
     // TODO: Send update to client

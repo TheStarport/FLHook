@@ -26,15 +26,15 @@ Action<std::wstring, Error> ObjectId::GetNickName() const
     return { StringUtils::stows(obj.Raw().value()->get_archetype()->name) };
 }
 
-Action<CObjPtr, Error> ObjectId::GetCObject(bool increment) const
+Action<CSimplePtr, Error> ObjectId::GetCObject(bool increment) const
 {
-    auto obj = CObjPtr(value);
+    auto obj = CSimplePtr(value);
     if (!obj)
     {
         return { cpp::fail(Error::InvalidSpaceObjId) };
     }
 
-    return { CObjPtr(obj.get(), increment) };
+    return { CSimplePtr(obj.get(), increment) };
 }
 
 Action<Archetype::Root*, Error> ObjectId::GetArchetype() const

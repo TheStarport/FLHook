@@ -14,6 +14,8 @@
 #include "Core/Commands/ExternalCommandProcessor.hpp"
 #include "Core/IpResolver.hpp"
 
+#include "Core/ClientServerInterface.hpp"
+
 #include <API/FLHook/Plugin.hpp>
 #include <API/Utils/IniUtils.hpp>
 

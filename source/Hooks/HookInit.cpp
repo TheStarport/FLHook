@@ -114,9 +114,9 @@ bool FLHook::RevertPatch(PatchInfo& pi)
 
 inline static char repFreeFixOld[5];
 
-void FLHook::ClearClientInfo(ClientId client)
+void FLHook::ClearClientInfo(uint client)
 {
-    auto* info = &ClientInfo::At(client);
+    auto* info = &ClientInfo::At(ClientId(client));
 
     info->characterName = L"";
     info->characterFile = L"";
@@ -161,14 +161,14 @@ void FLHook::ClearClientInfo(ClientId client)
         }
     }
 
-    Hk::IniUtils::CharacterClearClientInfo(client);
+    Hk::IniUtils::CharacterClearClientInfo(ClientId(client));
 
     CallPlugins(&Plugin::OnClearClientInfo, client);
 }
 
-void FLHook::LoadUserSettings(ClientId client)
+void FLHook::LoadUserSettings(uint client)
 {
-    auto* info = &ClientInfo::At(client);
+    auto* info = &ClientInfo::At(ClientId(client));
 
     const CAccount* acc = Players.FindAccountFromClientID(client);
     const std::wstring dir = Hk::Client::GetAccountDirName(acc);
