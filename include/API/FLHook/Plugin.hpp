@@ -1,7 +1,7 @@
 #pragma once
 
-constexpr PluginMajorVersion CurrentMajorVersion = PluginMajorVersion::VERSION_04;
-constexpr PluginMinorVersion CurrentMinorVersion = PluginMinorVersion::VERSION_01;
+constexpr PluginMajorVersion CurrentMajorVersion = PluginMajorVersion::V04;
+constexpr PluginMinorVersion CurrentMinorVersion = PluginMinorVersion::V01;
 
 const std::wstring VersionInformation = std::to_wstring(static_cast<int>(CurrentMajorVersion)) + L"." + std::to_wstring(static_cast<int>(CurrentMinorVersion));
 
@@ -21,8 +21,8 @@ struct PluginInfo
 {
         std::wstring name;
         std::wstring shortName;
-        PluginMajorVersion versionMajor = PluginMajorVersion::UNDEFINED;
-        PluginMinorVersion versionMinor = PluginMinorVersion::UNDEFINED;
+        PluginMajorVersion versionMajor = PluginMajorVersion::Undefined;
+        PluginMinorVersion versionMinor = PluginMinorVersion::Undefined;
         bool mayUnload;
 
         PluginInfo() = delete;
@@ -43,8 +43,8 @@ class DLL Plugin
         friend PluginManager;
 #endif
 
-        PluginMajorVersion versionMajor = PluginMajorVersion::UNDEFINED;
-        PluginMinorVersion versionMinor = PluginMinorVersion::UNDEFINED;
+        PluginMajorVersion versionMajor = PluginMajorVersion::Undefined;
+        PluginMinorVersion versionMinor = PluginMinorVersion::Undefined;
 
         std::wstring name;
         std::wstring shortName;

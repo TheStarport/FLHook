@@ -40,19 +40,19 @@ namespace Plugins::Wardrobe
 
 		if (StringUtils::ToLower(type) == L"head")
 		{
-			PrintUserCmdText(client, L"Heads:");
+			client.Message(L"Heads:");
 			std::wstring heads;
 			for (const auto& [name, id] : global->config->heads)
 				heads += (StringUtils::stows(name) + L" | ");
-			PrintUserCmdText(client, heads);
+			client.Message(heads);
 		}
 		else if (StringUtils::ToLower(type) == L"body")
 		{
-			PrintUserCmdText(client, L"Bodies:");
+			client.Message(L"Bodies:");
 			std::wstring bodies;
 			for (const auto& [name, id] : global->config->bodies)
 				bodies += (StringUtils::stows(name) + L" | ");
-			PrintUserCmdText(client, bodies);
+			client.Message(bodies);
 		}
 	}
 
@@ -63,7 +63,7 @@ namespace Plugins::Wardrobe
 
 		if (type.empty() || costume.empty())
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
+			client.Message(L"ERR Invalid parameters");
 			return;
 		}
 
@@ -73,7 +73,7 @@ namespace Plugins::Wardrobe
 		{
 			if (!global->config->heads.contains(StringUtils::wstos(costume)))
 			{
-				PrintUserCmdText(client, L"ERR Head not found. Use \"/warehouse show head\" to get available heads.");
+				client.Message(L"ERR Head not found. Use \"/warehouse show head\" to get available heads.");
 				return;
 			}
 			restart.head = true;
@@ -83,7 +83,7 @@ namespace Plugins::Wardrobe
 		{
 			if (!global->config->bodies.contains(StringUtils::wstos(costume)))
 			{
-				PrintUserCmdText(client, L"ERR Body not found. Use \"/warehouse show body\" to get available bodies.");
+				client.Message(L"ERR Body not found. Use \"/warehouse show body\" to get available bodies.");
 				return;
 			}
 			restart.head = false;
@@ -91,7 +91,7 @@ namespace Plugins::Wardrobe
 		}
 		else
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
+			client.Message(L"ERR Invalid parameters");
 			return;
 		}
 
@@ -155,7 +155,7 @@ namespace Plugins::Wardrobe
 		// Check character is in base
 		if (const auto base = Hk::Player::GetCurrentBase(client); base.has_error())
 		{
-			PrintUserCmdText(client, L"ERR Not in base");
+			client.Message(L"ERR Not in base");
 			return;
 		}
 
@@ -170,9 +170,9 @@ namespace Plugins::Wardrobe
 		}
 		else
 		{
-			PrintUserCmdText(client, L"Command usage:");
-			PrintUserCmdText(client, L"/wardrobe list <head/body> - lists available bodies/heads");
-			PrintUserCmdText(client, L"/wardrobe change <head/body> <name> - changes your head/body to the chosen model");
+			client.Message(L"Command usage:");
+			client.Message(L"/wardrobe list <head/body> - lists available bodies/heads");
+			client.Message(L"/wardrobe change <head/body> <name> - changes your head/body to the chosen model");
 		}
 	}
 
@@ -210,7 +210,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->commands(&commands);
 	pi->timers(&timers);
 	pi->returnCode(&global->returncode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 }

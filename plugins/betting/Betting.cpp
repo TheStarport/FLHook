@@ -104,7 +104,7 @@ namespace Plugins
         // Check its a valid amount of cash
         if (amount == 0)
         {
-            PrintUserCmdText(client, L"Must specify a cash amount. Usage: /ffa <amount> e.g. /ffa 5000");
+            client.Message(L"Must specify a cash amount. Usage: /ffa <amount> e.g. /ffa 5000");
             return;
         }
 
@@ -113,7 +113,7 @@ namespace Plugins
         const auto cash = Hk::Player::GetCash(client).Unwrap();
         if (amount > 0 && cash < amount)
         {
-            PrintUserCmdText(client, L"You don't have enough credits to create this FFA.");
+            client.Message(L"You don't have enough credits to create this FFA.");
             return;
         }
 
@@ -156,7 +156,7 @@ namespace Plugins
             // Are there any other players in this system?
             if (!freeForAlls[systemId].contestants.empty())
             {
-                PrintUserCmdText(client, L"Challenge issued. Waiting for others to accept.");
+                client.Message(L"Challenge issued. Waiting for others to accept.");
                 freeForAlls[systemId].entryAmount = amount;
                 freeForAlls[systemId].pot = amount;
                 Hk::Player::RemoveCash(characterName, amount);
@@ -164,12 +164,12 @@ namespace Plugins
             else
             {
                 freeForAlls.erase(systemId);
-                PrintUserCmdText(client, L"There are no other players in this system.");
+                client.Message(L"There are no other players in this system.");
             }
         }
         else
         {
-            PrintUserCmdText(client, L"There is an FFA already happening in this system.");
+            client.Message(L"There is an FFA already happening in this system.");
         }
     }
 
@@ -181,7 +181,7 @@ namespace Plugins
         // Is player in space?
         if (const uint ship = Hk::Player::GetShip(client).Unwrap(); !ship)
         {
-            PrintUserCmdText(client, L"You must be in space to accept this.");
+            client.Message(L"You must be in space to accept this.");
             return;
         }
 
@@ -190,7 +190,7 @@ namespace Plugins
 
         if (!freeForAlls.contains(systemId))
         {
-            PrintUserCmdText(client, L"There isn't an FFA in this system. Use /ffa to create one.");
+            client.Message(L"There isn't an FFA in this system. Use /ffa to create one.");
         }
         else
         {
@@ -200,7 +200,7 @@ namespace Plugins
             const auto cash = Hk::Player::GetCash(client).Unwrap();
             if (freeForAlls[systemId].entryAmount > 0 && cash < freeForAlls[systemId].entryAmount)
             {
-                PrintUserCmdText(client, L"You don't have enough credits to join this FFA.");
+                client.Message(L"You don't have enough credits to join this FFA.");
                 return;
             }
 
@@ -221,7 +221,7 @@ namespace Plugins
             }
             else
             {
-                PrintUserCmdText(client, L"You have already accepted the FFA.");
+                client.Message(L"You have already accepted the FFA.");
             }
         }
     }
@@ -303,7 +303,7 @@ namespace Plugins
 
         if (amount > 0 && cash < amount)
         {
-            PrintUserCmdText(client, L"You don't have enough credits to issue this challenge.");
+            client.Message(L"You don't have enough credits to issue this challenge.");
             return;
         }
 
@@ -313,13 +313,13 @@ namespace Plugins
             // Target already has a bet
             if (duel.client == clientTarget || duel.client2 == clientTarget)
             {
-                PrintUserCmdText(client, L"This player already has an ongoing duel.");
+                client.Message(L"This player already has an ongoing duel.");
                 return;
             }
             // Player already has a bet
             if (duel.client == client || duel.client2 == client)
             {
-                PrintUserCmdText(client, L"You already have an ongoing duel. Type /cancel");
+                client.Message(L"You already have an ongoing duel. Type /cancel");
                 return;
             }
         }
@@ -347,7 +347,7 @@ namespace Plugins
         // Is player in space?
         if (const uint ship = Hk::Player::GetShip(client).Unwrap(); !ship)
         {
-            PrintUserCmdText(client, L"You must be in space to accept this.");
+            client.Message(L"You must be in space to accept this.");
             return;
         }
 
@@ -358,7 +358,7 @@ namespace Plugins
                 // Has player already accepted the bet?
                 if (duel.accepted == true)
                 {
-                    PrintUserCmdText(client, L"You have already accepted the challenge.");
+                    client.Message(L"You have already accepted the challenge.");
                     return;
                 }
 
@@ -368,7 +368,7 @@ namespace Plugins
 
                 if (cash < duel.amount)
                 {
-                    PrintUserCmdText(client, L"You don't have enough credits to accept this challenge");
+                    client.Message(L"You don't have enough credits to accept this challenge");
                     return;
                 }
 
@@ -446,7 +446,7 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Betting", L"betting", PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
+const PluginInfo Info(L"Betting", L"betting", PluginMajorVersion::V04, PluginMinorVersion::V01);
 
 
 Betting::Betting(const PluginInfo& info) : Plugin(info)

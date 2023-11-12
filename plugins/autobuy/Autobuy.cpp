@@ -94,13 +94,13 @@ namespace Plugins
 
         if (const uint playerCash = Hk::Player::GetCash(client).Unwrap(); playerCash < repairCost)
         {
-            PrintUserCmdText(client, L"Insufficient Cash");
+            client.Message(L"Insufficient Cash");
             return;
         }
 
         if (repairCost)
         {
-            PrintUserCmdText(client, std::format(L"Auto-Buy: Ship repair costed {}$", repairCost));
+            client.Message(std::format(L"Auto-Buy: Ship repair costed {}$", repairCost));
             Hk::Player::RemoveCash(client, repairCost);
         }
 
@@ -143,7 +143,7 @@ namespace Plugins
                 newColGrp->componentHp = 1.0f;
                 componentList.push_back(*newColGrp);
             }
-            PrintUserCmdText(client, std::format(L"Attempting to repair {} components.", playerCollision.size()));
+            client.Message(std::format(L"Attempting to repair {} components.", playerCollision.size()));
             HookClient->Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(client, componentList);
         }
 
@@ -389,7 +389,7 @@ namespace Plugins
                 auto newCount = static_cast<uint>(static_cast<float>(remHoldSize) / eq->volume);
                 if (!newCount)
                 {
-                    PrintUserCmdText(client, std::format(L"Auto-Buy({}): FAILED! Insufficient Cargo Space", buy.description));
+                    client.Message(std::format(L"Auto-Buy({}): FAILED! Insufficient Cargo Space", buy.description));
                     continue;
                 }
                 else
@@ -400,7 +400,7 @@ namespace Plugins
 
             if (uint uCost = (static_cast<uint>(goodPrice.value()) * buy.count); cash < uCost)
             {
-                PrintUserCmdText(client, std::format(L"Auto-Buy({}): FAILED! Insufficient Credits", buy.description));
+                client.Message(std::format(L"Auto-Buy({}): FAILED! Insufficient Credits", buy.description));
             }
             else
             {
@@ -411,7 +411,7 @@ namespace Plugins
                 // assume we only mount multicount goods (missiles, ammo, bots
                 Hk::Player::AddCargo(client, buy.archId, buy.count, false);
 
-                PrintUserCmdText(client, std::format(L"Auto-Buy({}): Bought {} unit(s), cost: {}$", buy.description, buy.count, StringUtils::ToMoneyStr(uCost)));
+                client.Message(std::format(L"Auto-Buy({}): Bought {} unit(s), cost: {}$", buy.description, buy.count, StringUtils::ToMoneyStr(uCost)));
             }
         }
         Hk::Player::SaveChar(client);
@@ -428,39 +428,39 @@ namespace Plugins
         AutobuyInfo& autobuyInfo = LoadAutobuyInfo(client);
         if (autobuyType.empty())
         {
-            PrintUserCmdText(client, L"Error: Invalid parameters");
-            PrintUserCmdText(client, L"Usage: /autobuy <param> [<on/off>]");
-            PrintUserCmdText(client, L"<Param>:");
-            PrintUserCmdText(client, L"|  info - display current autobuy-settings");
-            PrintUserCmdText(client, L"|  missiles - enable/disable autobuy for missiles");
-            PrintUserCmdText(client, L"|  torps - enable/disable autobuy for torpedos");
-            PrintUserCmdText(client, L"|  mines - enable/disable autobuy for mines");
-            PrintUserCmdText(client, L"|  cd - enable/disable autobuy for cruise disruptors");
-            PrintUserCmdText(client, L"|  cm - enable/disable autobuy for countermeasures");
-            PrintUserCmdText(client, L"|  bb - enable/disable autobuy for nanobots/shield batteries");
-            PrintUserCmdText(client, L"|  repairs - enable/disable automatic repair of ship and equipment");
-            PrintUserCmdText(client, L"|  all: enable/disable autobuy for all of the above");
-            PrintUserCmdText(client, L"Examples:");
-            PrintUserCmdText(client, L"|  \"/autobuy missiles on\" enable autobuy for missiles");
-            PrintUserCmdText(client, L"|  \"/autobuy all off\" completely disable autobuy");
-            PrintUserCmdText(client, L"|  \"/autobuy info\" show autobuy info");
+            client.Message(L"Error: Invalid parameters");
+            client.Message(L"Usage: /autobuy <param> [<on/off>]");
+            client.Message(L"<Param>:");
+            client.Message(L"|  info - display current autobuy-settings");
+            client.Message(L"|  missiles - enable/disable autobuy for missiles");
+            client.Message(L"|  torps - enable/disable autobuy for torpedos");
+            client.Message(L"|  mines - enable/disable autobuy for mines");
+            client.Message(L"|  cd - enable/disable autobuy for cruise disruptors");
+            client.Message(L"|  cm - enable/disable autobuy for countermeasures");
+            client.Message(L"|  bb - enable/disable autobuy for nanobots/shield batteries");
+            client.Message(L"|  repairs - enable/disable automatic repair of ship and equipment");
+            client.Message(L"|  all: enable/disable autobuy for all of the above");
+            client.Message(L"Examples:");
+            client.Message(L"|  \"/autobuy missiles on\" enable autobuy for missiles");
+            client.Message(L"|  \"/autobuy all off\" completely disable autobuy");
+            client.Message(L"|  \"/autobuy info\" show autobuy info");
         }
 
         if (autobuyType == L"info")
         {
-            PrintUserCmdText(client, std::format(L"Missiles: {}", autobuyInfo.missiles ? L"On" : L"Off"));
-            PrintUserCmdText(client, std::format(L"Mines: {}", autobuyInfo.mines ? L"On" : L"Off"));
-            PrintUserCmdText(client, std::format(L"Torpedos: {}", autobuyInfo.torps ? L"On" : L"Off"));
-            PrintUserCmdText(client, std::format(L"Cruise Disruptors: {}", autobuyInfo.cd ? L"On" : L"Off"));
-            PrintUserCmdText(client, std::format(L"Countermeasures: {}", autobuyInfo.cm ? L"On" : L"Off"));
-            PrintUserCmdText(client, std::format(L"Nanobots/Shield Batteries: {}", autobuyInfo.bb ? L"On" : L"Off"));
-            PrintUserCmdText(client, std::format(L"Repairs: {}", autobuyInfo.repairs ? L"On" : L"Off"));
+            client.Message(std::format(L"Missiles: {}", autobuyInfo.missiles ? L"On" : L"Off"));
+            client.Message(std::format(L"Mines: {}", autobuyInfo.mines ? L"On" : L"Off"));
+            client.Message(std::format(L"Torpedos: {}", autobuyInfo.torps ? L"On" : L"Off"));
+            client.Message(std::format(L"Cruise Disruptors: {}", autobuyInfo.cd ? L"On" : L"Off"));
+            client.Message(std::format(L"Countermeasures: {}", autobuyInfo.cm ? L"On" : L"Off"));
+            client.Message(std::format(L"Nanobots/Shield Batteries: {}", autobuyInfo.bb ? L"On" : L"Off"));
+            client.Message(std::format(L"Repairs: {}", autobuyInfo.repairs ? L"On" : L"Off"));
             return;
         }
 
         if (newState.empty() || (newState != L"on" && newState != L"off"))
         {
-            PrintUserCmdText(client, L"ERR invalid parameters");
+            client.Message(L"ERR invalid parameters");
             return;
         }
 
@@ -522,12 +522,12 @@ namespace Plugins
         }
         else
         {
-            PrintUserCmdText(client, L"ERR invalid parameters");
+            client.Message(L"ERR invalid parameters");
             return;
         }
 
         Hk::Player::SaveChar(client);
-        PrintUserCmdText(client, L"OK");
+        client.Message(L"OK");
     }
 
 
@@ -535,7 +535,7 @@ namespace Plugins
 
     DefaultDllMain();
 
-    const PluginInfo Info(L"Autobuy", L"autobuy", PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
+    const PluginInfo Info(L"Autobuy", L"autobuy", PluginMajorVersion::V04, PluginMinorVersion::V01);
     void Autobuy::LoadSettings() { config = Serializer::LoadFromJson<Config>(L"config/autobuy.json"); }
     Autobuy::Autobuy(const PluginInfo info) : Plugin(Info)
     {

@@ -110,7 +110,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
     plugin->dll = dll;
     plugin->dllName = dllName;
 
-    if (plugin->versionMinor == PluginMinorVersion::UNDEFINED || plugin->versionMajor == PluginMajorVersion::UNDEFINED)
+    if (plugin->versionMinor == PluginMinorVersion::Undefined || plugin->versionMajor == PluginMajorVersion::Undefined)
     {
         Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR plugin {} does not have defined API version. Unloading.", dllName));
         FreeLibrary(dll);

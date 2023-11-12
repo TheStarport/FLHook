@@ -18,7 +18,7 @@ bool GoTradelaneCatch(ClientId client, const XGoTradelane& gtl)
     pub::Player::GetSystem(client, system);
     Logger::i()->Log(LogLevel::Trace,
                      std::format(L"Exception in IServerImpl::GoTradelane charname={} sys=0x{:08X} arch=0x{:08X} arch2=0x{:08X}",
-                                 Hk::Client::GetCharacterNameByID(client).Unwrap(),
+                                 client.GetCharacterName().Unwrap(),
                                  system,
                                  gtl.tradelaneSpaceObj1,
                                  gtl.tradelaneSpaceObj2));

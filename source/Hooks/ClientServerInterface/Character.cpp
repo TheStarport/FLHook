@@ -13,7 +13,7 @@ bool IServerImplHook::CharacterSelectInner(const CHARACTER_ID& cid, ClientId cli
     try
     {
         const auto info = &ClientInfo::At(client);
-        auto charName = Hk::Client::GetCharacterNameByID(client).Unwrap();
+        auto charName = client.GetCharacterName().Unwrap();
         charBefore = !charName.empty() ? charName : L"";
         info->lastExitedBaseId = 0;
         info->tradePartner = 0;
@@ -36,7 +36,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
     {
         auto& info = ClientInfo::At(client);
         info.characterFile = StringUtils::stows(charId.charFilename);
-        const std::wstring charName = Hk::Client::GetCharacterNameByID(client).Handle();
+        const std::wstring charName = client.GetCharacterName().Handle();
 
         if (charBefore != charName)
         {
@@ -181,7 +181,7 @@ bool CharacterInfoReqInner(ClientId client, bool)
     {
         if (!ClientInfo::At(client).charMenuEnterTime)
         {
-            ClientInfo::At(client).characterName = Hk::Client::GetCharacterNameByID(client).Unwrap();
+            ClientInfo::At(client).characterName = client.GetCharacterName().Unwrap();
         }
         else
         {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/InfocardManager.hpp"
 #include "AddressList.hpp"
 #include "StartupCache.hpp"
@@ -31,9 +32,9 @@ class FLHook final
         inline static FARPROC oldDisconnectPacketSent;
         inline static FARPROC oldGuidedHit;
 
-        inline static RCSendChatMsg rcSendChatMsg;
-        inline static CRCAntiCheat crcAntiCheat;
-        inline static GetShipInspect getShipInspect;
+        inline static RCSendChatMsgT rcSendChatMsg;
+        inline static CRCAntiCheatT crcAntiCheat;
+        inline static GetShipInspectT getShipInspect;
 
         inline static bool g_NonGunHitsBase;
         inline static float g_LastHitPts;
@@ -89,6 +90,7 @@ class FLHook final
         // Non-Static things
 
         std::unique_ptr<StartupCache> startupCache;
+        ClientList clientList;
         InfocardManager infocardManager;
 
         bool OnServerStart();
@@ -141,4 +143,5 @@ class FLHook final
         static bool GetShipInspect(uint& ship, IObjInspectImpl*& inspect, uint& dunno) { return getShipInspect(ship, inspect, dunno); }
 
         static InfocardManager& GetInfocardManager() { return instance->infocardManager; }
+        static ClientList& Clients() { return instance->clientList; }
 };

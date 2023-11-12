@@ -44,7 +44,7 @@ namespace Plugins
 
         Hk::Chat::FMsgS(systemId, message);
 
-        PrintUserCmdText(client, L"Use the /back command to stop sending automatic replies to PMs.");
+        client.Message(L"Use the /back command to stop sending automatic replies to PMs.");
     }
 
     /** @ingroup AwayFromKeyboard
@@ -72,7 +72,7 @@ namespace Plugins
     {
         if (std::ranges::find(awayClients, targetClient) != awayClients.end())
         {
-            PrintUserCmdText(client, L"This user is away from keyboard.");
+            client.Message(L"This user is away from keyboard.");
         }
     }
 
@@ -104,5 +104,5 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"AFK", L"afk", PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
+const PluginInfo Info(L"AFK", L"afk", PluginMajorVersion::V04, PluginMinorVersion::V01);
 SetupPlugin(AfkPlugin, Info);

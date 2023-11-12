@@ -52,31 +52,31 @@ namespace Plugins::SystemSensor
 		const std::wstring mode = StringUtils::ToLower(GetParam(param, ' ', 0));
 		if (mode.empty())
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, L"Usage: /net [all|jumponly|off]");
+			client.Message(L"ERR Invalid parameters");
+			client.Message(L"Usage: /net [all|jumponly|off]");
 			return;
 		}
 
 		if (!global->networks[client].availableNetworkId)
 		{
-			PrintUserCmdText(client, L"ERR Sensor network monitoring is not available");
+			client.Message(L"ERR Sensor network monitoring is not available");
 			global->networks[client].mode = Mode::Off;
 			return;
 		}
 
 		if (mode == L"all")
 		{
-			PrintUserCmdText(client, L"OK Sensor network monitoring all traffic");
+			client.Message(L"OK Sensor network monitoring all traffic");
 			global->networks[client].mode = Mode::Both;
 		}
 		else if (mode == L"jumponly")
 		{
-			PrintUserCmdText(client, L"OK Sensor network monitoring jumpgate traffic only");
+			client.Message(L"OK Sensor network monitoring jumpgate traffic only");
 			global->networks[client].mode = Mode::JumpGate;
 		}
 		else
 		{
-			PrintUserCmdText(client, L"OK Sensor network monitoring disabled");
+			client.Message(L"OK Sensor network monitoring disabled");
 			global->networks[client].mode = Mode::Off;
 		}
 		return;
@@ -88,17 +88,17 @@ namespace Plugins::SystemSensor
 
 		if (targetCharname.empty())
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, L"Usage:");
-			PrintUserCmdText(client, L"/shoan <charname>");
-			PrintUserCmdText(client, L"/shoan$ <playerID>");
+			client.Message(L"ERR Invalid parameters");
+			client.Message(L"Usage:");
+			client.Message(L"/shoan <charname>");
+			client.Message(L"/shoan$ <playerID>");
 			return;
 		}
 
 		const auto targetClientId = Hk::Client::GetClientIdFromCharName(targetCharname);
 		if (targetClientId.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(targetClientId.error()));
+			client.Message(Hk::Err::ErrGetText(targetClientId.error()));
 			return;
 		}
 
@@ -106,7 +106,7 @@ namespace Plugins::SystemSensor
 		if (!targetSensorClientId || !global->networks[client].availableNetworkId || !targetSensor.lastScanNetworkId ||
 		    global->networks[client].availableNetworkId != targetSensor.lastScanNetworkId)
 		{
-			PrintUserCmdText(client, L"ERR Scan data not available");
+			client.Message(L"ERR Scan data not available");
 			return;
 		}
 
@@ -139,8 +139,8 @@ namespace Plugins::SystemSensor
 				}
 			}
 		}
-		PrintUserCmdText(client, eqList);
-		PrintUserCmdText(client, L"OK");
+		client.Message(eqList);
+		client.Message(L"OK");
 	}
 
 	void UserCmd_ShoanID(ClientId& client, const std::wstring& param)
@@ -197,7 +197,7 @@ namespace Plugins::SystemSensor
 				    L"Connection to tradelane sensor network "
 				    L"established. Type /net access network.");
 			else
-				PrintUserCmdText(client, L"Connection to tradelane sensor network lost.");
+				client.Message(L"Connection to tradelane sensor network lost.");
 		}
 	}
 
@@ -240,7 +240,7 @@ namespace Plugins::SystemSensor
 					const Vector& position = location.value().first;
 					const std::wstring curLocation = Hk::Math::VectorToSectorCoord<std::wstring>(playerSystem.value(), position);
 					PrintUserCmdText(
-					    playerId, std::format(L"{}[${}] {} at {} {}", Hk::Client::GetCharacterNameByID(client).value(), client, type, sysName, curLocation));
+					    playerId, std::format(L"{}[${}] {} at {} {}", client.GetCharacterName().value(), client, type, sysName, curLocation));
 				}
 			}
 		}
@@ -310,8 +310,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->mayUnload(true);
 	pi->commands(&commands);
 	pi->returnCode(&global->returnCode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
 	pi->emplaceHook(HookedCall::IEngine__DockCall, &Dock_Call);
 	pi->emplaceHook(HookedCall::IServerImpl__GoTradelane, &GoTradelane);

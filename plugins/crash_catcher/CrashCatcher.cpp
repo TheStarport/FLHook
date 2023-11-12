@@ -621,8 +621,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->mayUnload(true);
 	pi->timers(&timers);
 	pi->returnCode(&global->returncode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &Init, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__RequestBestPath, &RequestBestPath);
 	pi->emplaceHook(HookedCall::IServerImpl__TractorObjects, &TractorObjects);

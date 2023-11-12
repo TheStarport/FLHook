@@ -40,9 +40,6 @@
     <Filter Include="Include\Core\Commands">
       <UniqueIdentifier>{4ad4d98b-8ea5-454e-b3f5-b89982de3e5c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\Core\Exceptions">
-      <UniqueIdentifier>{75a8fdfe-f862-41c2-b934-ba212a1ef238}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Include\Core\Templates">
       <UniqueIdentifier>{96409414-b01c-4aed-8048-580c200c91ee}</UniqueIdentifier>
     </Filter>
@@ -78,6 +75,9 @@
     </Filter>
     <Filter Include="Include\SDK\Utils">
       <UniqueIdentifier>{f3128d54-b8dc-44b4-b1cd-d6b0e7cfaa3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Utils">
+      <UniqueIdentifier>{571ab53e-fdcb-4549-b448-b4a6a35069c6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -309,6 +309,7 @@
     </ClCompile>
     <ClCompile Include="..\source\Core\ExceptionHandler.cpp">
       <Filter>Source\Core</Filter>
+    </ClCompile>
     <ClCompile Include="..\Source\API\FLHook\ClientList.cpp">
       <Filter>Source\API\FLHook</Filter>
     </ClCompile>
@@ -328,9 +329,6 @@
     </ClInclude>
     <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp">
       <Filter>Include\Core\Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Core\Exceptions\StopProcessingException.hpp">
-      <Filter>Include\Core\Exceptions</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Core\Templates\Constexpr.hpp">
       <Filter>Include\Core\Templates</Filter>
@@ -461,9 +459,6 @@
     <ClInclude Include="..\include\Core\AddressList.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\API\FLHook\ClientInfo.hpp">
-      <Filter>Include\API\FLHook</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\API\Utils\PerfTimer.hpp">
       <Filter>Include\API\Utils</Filter>
     </ClInclude>
@@ -548,9 +543,6 @@
     <ClInclude Include="..\FLHookSDK\include\FlPtr.hpp">
       <Filter>Include\SDK</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Exceptions\InvalidPtrException.hpp">
-      <Filter>Include\SDK\Exceptions</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\API\FLHook\InfocardManager.hpp">
       <Filter>Include\API\FLHook</Filter>
     </ClInclude>
@@ -565,8 +557,15 @@
     </ClInclude>
     <ClInclude Include="..\include\Core\ExceptionHandler.hpp">
       <Filter>Include\Core</Filter>
+    </ClInclude>
     <ClInclude Include="..\Include\API\FLHook\ClientList.hpp">
       <Filter>Include\API\FLHook</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FLHookSDK\include\Exceptions\InvalidParameterException.hpp">
+      <Filter>Include\SDK\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Utils\TransformArgs.hpp">
+      <Filter>Include\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

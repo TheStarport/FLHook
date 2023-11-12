@@ -57,7 +57,7 @@ namespace Plugins::Warehouse
 
 		if (!databaseItemId)
 		{
-			PrintUserCmdText(client, L"Error Invalid Item Number");
+			client.Message(L"Error Invalid Item Number");
 			return;
 		}
 
@@ -76,18 +76,18 @@ namespace Plugins::Warehouse
 
 		if (databaseItemId > filteredCargo.size())
 		{
-			PrintUserCmdText(client, L"Error Invalid Item Number");
+			client.Message(L"Error Invalid Item Number");
 			return;
 		}
 		const auto& item = filteredCargo[databaseItemId - 1];
 		if (itemCount > static_cast<uint>(item.count))
 		{
-			PrintUserCmdText(client, L"Error Invalid Item Quantity");
+			client.Message(L"Error Invalid Item Quantity");
 			return;
 		}
 		if (std::ranges::find(global->config.restrictedItemsHashed, item.archId) != global->config.restrictedItemsHashed.end())
 		{
-			PrintUserCmdText(client, L"Error: This item is restricted from being stored.");
+			client.Message(L"Error: This item is restricted from being stored.");
 			return;
 		}
 
@@ -106,7 +106,7 @@ namespace Plugins::Warehouse
 		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
 		const auto wareHouseItem = GetOrAddItem(item.archId, sqlPlayerId, itemCount);
 
-		PrintUserCmdText(client, std::format(L"Successfully stored {} item(s) for a total of {}", itemCount, wareHouseItem.quantity, wareHouseItem.id));
+		client.Message(std::format(L"Successfully stored {} item(s) for a total of {}", itemCount, wareHouseItem.quantity, wareHouseItem.id));
 
 		Hk::Player::SaveChar(client);
 	}
@@ -124,7 +124,7 @@ namespace Plugins::Warehouse
 
 			const auto* equip = Archetype::GetEquipment(info.archId);
 			index++;
-			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Chat::GetWStringFromIdS(equip->idsName), info.count));
+			client.Message(std::format(L"{}) {} x{}", index, Hk::Chat::GetWStringFromIdS(equip->idsName), info.count));
 		}
 	}
 	void UserCmdGetWarehouseItems(uint client, [[maybe_unused]] const std::wstring& param, uint base)
@@ -136,7 +136,7 @@ namespace Plugins::Warehouse
 
 		if (itemList.empty())
 		{
-			PrintUserCmdText(client, L"You have no items stored at this warehouse.");
+			client.Message(L"You have no items stored at this warehouse.");
 			return;
 		}
 
@@ -150,7 +150,7 @@ namespace Plugins::Warehouse
 				continue;
 			}
 			index++;
-			PrintUserCmdText(client, std::format(L"{}) {} x{}", index, Hk::Chat::GetWStringFromIdS(equip->idsName), info.quantity));
+			client.Message(std::format(L"{}) {} x{}", index, Hk::Chat::GetWStringFromIdS(equip->idsName), info.quantity));
 		}
 	}
 
@@ -161,7 +161,7 @@ namespace Plugins::Warehouse
 
 		if (!itemId)
 		{
-			PrintUserCmdText(client, L"Error Invalid Item Number");
+			client.Message(L"Error Invalid Item Number");
 			return;
 		}
 
@@ -184,7 +184,7 @@ namespace Plugins::Warehouse
 
 		if (itemId > itemList.size())
 		{
-			PrintUserCmdText(client, L"Error Invalid Item Number");
+			client.Message(L"Error Invalid Item Number");
 			return;
 		}
 
@@ -194,13 +194,13 @@ namespace Plugins::Warehouse
 		if (!itemArch)
 		{
 			Logger::i()->Log(LogLevel::Warn, "User tried to withdraw an item that no longer exists");
-			PrintUserCmdText(client, L"Internal server error. Item does not exist.");
+			client.Message(L"Internal server error. Item does not exist.");
 			return;
 		}
 
 		if (itemArch->volume * static_cast<float>(itemCount) >= std::floor(remainingCargo))
 		{
-			PrintUserCmdText(client, L"Withdraw request denied. Your ship cannot accomodate cargo of this size");
+			client.Message(L"Withdraw request denied. Your ship cannot accomodate cargo of this size");
 			return;
 		}
 
@@ -208,7 +208,7 @@ namespace Plugins::Warehouse
 
 		if (withdrawnQuantity == 0)
 		{
-			PrintUserCmdText(client, L"Invalid item Id");
+			client.Message(L"Invalid item Id");
 			return;
 		}
 
@@ -237,13 +237,13 @@ namespace Plugins::Warehouse
 		auto base = Hk::Player::GetCurrentBase(client);
 		if (base.has_error())
 		{
-			PrintUserCmdText(client, L"You must be docked in order to use this command.");
+			client.Message(L"You must be docked in order to use this command.");
 			return;
 		}
 		if (const auto baseVal = base.value(); 
 			std::ranges::find(global->config.restrictedBasesHashed, baseVal) != global->config.restrictedBasesHashed.end())
 		{
-			PrintUserCmdText(client, L"Error: The base you're attempting to use warehouse on is restricted.");
+			client.Message(L"Error: The base you're attempting to use warehouse on is restricted.");
 			return;
 		}
 
@@ -265,7 +265,7 @@ namespace Plugins::Warehouse
 		}
 		else
 		{
-			PrintUserCmdText(client, L"Invalid Command. Refer to /warehouse to see usage.");
+			client.Message(L"Invalid Command. Refer to /warehouse to see usage.");
 		}
 	}
 
@@ -299,6 +299,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->returnCode(&global->returnCode);
 	pi->commands(&commands);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 }

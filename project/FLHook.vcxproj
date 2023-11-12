@@ -98,7 +98,7 @@
     <ClInclude Include="..\FLHookSDK\include\Concepts.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Exceptions\ErrorInfo.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Exceptions\GameException.hpp" />
-    <ClInclude Include="..\FLHookSDK\include\Exceptions\InvalidPtrException.hpp" />
+    <ClInclude Include="..\FLHookSDK\include\Exceptions\InvalidParameterException.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Exceptions\StopProcessingException.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Exceptions\UnsupportedException.hpp" />
     <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h" />
@@ -120,7 +120,6 @@
     <ClInclude Include="..\FLHookSDK\include\Utils\TimeUtils.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Utils\Utils.hpp" />
     <ClInclude Include="..\Include\API\API.hpp" />
-    <ClInclude Include="..\include\API\FLHook\ClientInfo.hpp" />
     <ClInclude Include="..\Include\API\FLHook\ClientList.hpp" />
     <ClInclude Include="..\include\API\FLHook\InfocardManager.hpp" />
     <ClInclude Include="..\Include\API\FLHook\MailManager.hpp" />
@@ -156,7 +155,6 @@
     <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Detour.hpp" />
     <ClInclude Include="..\include\Core\ExceptionHandler.hpp" />
-    <ClInclude Include="..\Include\Core\Exceptions\StopProcessingException.hpp" />
     <ClInclude Include="..\Include\Core\ClientServerInterface.hpp" />
     <ClInclude Include="..\include\Core\FLHook.hpp" />
     <ClInclude Include="..\include\Core\IEngineHook.hpp" />
@@ -178,6 +176,7 @@
     <ClInclude Include="..\Include\Defs\Structs.hpp" />
     <ClInclude Include="..\Include\Global.hpp" />
     <ClInclude Include="..\Include\PCH.hpp" />
+    <ClInclude Include="..\include\Utils\TransformArgs.hpp" />
     <ClInclude Include="..\source\Core\IpResolver.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

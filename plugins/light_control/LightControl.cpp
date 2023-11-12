@@ -89,10 +89,10 @@ namespace Plugins::LightControl
 		}
 
 		if (!global->config->introMessage1.empty())
-			PrintUserCmdText(client, global->config->introMessage1);
+			client.Message(global->config->introMessage1);
 
 		if (!global->config->introMessage2.empty())
-			PrintUserCmdText(client, global->config->introMessage2);
+			client.Message(global->config->introMessage2);
 	}
 
 	/** @ingroup LightControl
@@ -104,13 +104,13 @@ namespace Plugins::LightControl
 		if (baseId.has_error())
 		{
 			const std::wstring errorString = Hk::Err::ErrGetText(baseId.error());
-			PrintUserCmdText(client, L"ERR:" + errorString);
+			client.Message(L"ERR:" + errorString);
 			return 0;
 		}
 
 		if (!global->config->baseIdHashes.empty() && std::ranges::find(global->config->baseIdHashes, baseId.value()) == global->config->baseIdHashes.end())
 		{
-			PrintUserCmdText(client, L"Light customization is not available at this facility.");
+			client.Message(L"Light customization is not available at this facility.");
 			return 0;
 		}
 
@@ -122,7 +122,7 @@ namespace Plugins::LightControl
 	 */
 	void UserCmdShowSetup(ClientId& client)
 	{
-		PrintUserCmdText(client, L"Current light setup:");
+		client.Message(L"Current light setup:");
 
 		std::vector<EquipDesc> lights;
 		const st6::list<EquipDesc>& eq = Players[client].equipDescList.equip;
@@ -138,7 +138,7 @@ namespace Plugins::LightControl
 
 		if (lights.empty())
 		{
-			PrintUserCmdText(client, L"Error: You have no valid hard points that can be changed. ");
+			client.Message(L"Error: You have no valid hard points that can be changed. ");
 			return;
 		}
 
@@ -167,7 +167,7 @@ namespace Plugins::LightControl
 	{
 		if (global->config->lights.empty())
 		{
-			PrintUserCmdText(client, L"Error: There are no available options. ");
+			client.Message(L"Error: There are no available options. ");
 			return;
 		}
 
@@ -188,11 +188,11 @@ namespace Plugins::LightControl
 
 		if (pageNumber >= maxPages)
 		{
-			PrintUserCmdText(client, std::format(L"Error, invalid page number, the valid page numbers are any integer between 1 and {}", maxPages));
+			client.Message(std::format(L"Error, invalid page number, the valid page numbers are any integer between 1 and {}", maxPages));
 			return;
 		}
 
-		PrintUserCmdText(client, std::format(L"Displaying {} items from page {} of {}", global->config->itemsPerPage, pageNumber + 1, maxPages));
+		client.Message(std::format(L"Displaying {} items from page {} of {}", global->config->itemsPerPage, pageNumber + 1, maxPages));
 
 		uint j = 0;
 		for (uint i = pageNumber * global->config->itemsPerPage; (i < lightsSize && j < global->config->itemsPerPage); i++, j++)
@@ -209,7 +209,7 @@ namespace Plugins::LightControl
 	{
 		if (const auto cash = Hk::Player::GetCash(client); cash.has_value() && cash.value() < global->config->cost)
 		{
-			PrintUserCmdText(client, std::format(L"Error: Not enough credits, the cost is {}", global->config->cost));
+			client.Message(std::format(L"Error: Not enough credits, the cost is {}", global->config->cost));
 			return;
 		}
 
@@ -247,7 +247,7 @@ namespace Plugins::LightControl
 		}
 		if (lights.empty())
 		{
-			PrintUserCmdText(client, L"Error: You have no valid hard points that can be changed. ");
+			client.Message(L"Error: You have no valid hard points that can be changed. ");
 			return;
 		}
 
@@ -276,14 +276,14 @@ namespace Plugins::LightControl
 			const auto hardPointId = ToUInt(hardPointIdString) - 1;
 			if (hardPointId > lights.size())
 			{
-				PrintUserCmdText(client, L"Error: Invalid light point");
+				client.Message(L"Error: Invalid light point");
 				return;
 			}
 
 			const auto lightId = CreateID(StringUtils::wstos(selectedLight).c_str());
 			if (std::ranges::find(global->config->lightsHashed, lightId) == global->config->lightsHashed.end())
 			{
-				PrintUserCmdText(client, std::format(L"ERR: {} is not a valid option", selectedLight));
+				client.Message(std::format(L"ERR: {} is not a valid option", selectedLight));
 				return;
 			}
 
@@ -296,7 +296,7 @@ namespace Plugins::LightControl
 			auto err = Hk::Player::SetEquip(client, eq);
 			if (err.has_error())
 			{
-				PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));
+				client.Message(L"ERR: " + Hk::Err::ErrGetText(err.error()));
 				return;
 			}
 		}
@@ -306,13 +306,13 @@ namespace Plugins::LightControl
 			const auto err = Hk::Player::RemoveCash(client, global->config->cost * hardPointIds.size());
 			if (err.has_error())
 			{
-				PrintUserCmdText(client, L"ERR: " + Hk::Err::ErrGetText(err.error()));
+				client.Message(L"ERR: " + Hk::Err::ErrGetText(err.error()));
 				return;
 			}
 		}
 
 		Hk::Player::SaveChar(client);
-		PrintUserCmdText(client, L"Light(s) successfully changed, when you are finished with all your changes, log off for them to take effect. ");
+		client.Message(L"Light(s) successfully changed, when you are finished with all your changes, log off for them to take effect. ");
 	}
 
 	/** @ingroup LightControl
@@ -345,9 +345,9 @@ namespace Plugins::LightControl
 			    L"Usage: /lights change <Light Point> <Item>");
 			if (global->config->cost > 0)
 			{
-				PrintUserCmdText(client, std::format(L"Each light changed will cost {} credits.", global->config->cost));
+				client.Message(std::format(L"Each light changed will cost {} credits.", global->config->cost));
 			}
-			PrintUserCmdText(client, L"Please log off for light changes to take effect.");
+			client.Message(L"Please log off for light changes to take effect.");
 		}
 	}
 
@@ -371,8 +371,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->mayUnload(true);
 	pi->commands(&commands);
 	pi->returnCode(&global->returnCode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 }

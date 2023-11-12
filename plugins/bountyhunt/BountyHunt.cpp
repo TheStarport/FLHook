@@ -65,7 +65,7 @@ namespace Plugins
             {
                 PrintUserCmdText(client,
                                  std::format(L"Kill {} and earn {} credits ({} minutes left)",
-                                             Hk::Client::GetCharacterNameByID(i.first).Unwrap(),
+                                             i.first.GetCharacterName().Unwrap(),
                                              j.cash,
                                              ((j.end - TimeUtils::UnixSeconds()) / 60)));
             }
@@ -79,7 +79,7 @@ namespace Plugins
     {
         if (target.empty() || prize == 0)
         {
-            PrintUserCmdText(client, L"Usage: /bountyhunt <playername> <credits> <time>");
+            client.Message(L"Usage: /bountyhunt <playername> <credits> <time>");
             PrintBountyHunts(client);
             return;
         }
@@ -91,13 +91,13 @@ namespace Plugins
         const int rankTarget = Hk::Player::GetRank(targetId).Unwrap();
         if (targetId == UINT_MAX || Hk::Client::IsInCharSelectMenu(targetId))
         {
-            PrintUserCmdText(client, std::format(L"{} is not online.", target));
+            client.Message(std::format(L"{} is not online.", target));
             return;
         }
 
         if (rankTarget < config->levelProtect)
         {
-            PrintUserCmdText(client, L"Low level players may not be hunted.");
+            client.Message(L"Low level players may not be hunted.");
             return;
         }
 
@@ -113,17 +113,17 @@ namespace Plugins
 
         if (const uint clientCash = Hk::Player::GetCash(client).Unwrap(); clientCash < prize)
         {
-            PrintUserCmdText(client, L"You do not possess enough credits.");
+            client.Message(L"You do not possess enough credits.");
             return;
         }
 
         auto vec = bountiesOnPlayers[targetId];
 
-        const auto clientName = Hk::Client::GetCharacterNameByID(client).Handle();
+        const auto clientName = client.GetCharacterName().Handle();
 
         if (std::ranges::find_if(vec, [&clientName](const Bounty b) { return b.issuer == clientName; }) != vec.end())
         {
-            PrintUserCmdText(client, L"You already have a bounty on this player.");
+            client.Message(L"You already have a bounty on this player.");
             return;
         }
 
@@ -131,7 +131,7 @@ namespace Plugins
         const std::wstring initiator = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
 
         Bounty bounty;
-        bounty.issuer = Hk::Client::GetCharacterNameByID(client).Unwrap();
+        bounty.issuer = client.GetCharacterName().Unwrap();
         bounty.end = TimeUtils::UnixMilliseconds() + (static_cast<mstime>(time) * 60000);
         bounty.cash = prize;
 
@@ -164,7 +164,7 @@ namespace Plugins
                                        if (b.end < time)
                                        {
                                            Hk::Player::AddCash(b.issuer, b.cash);
-                                           auto targetName = Hk::Client::GetCharacterNameByID(i.first).Unwrap();
+                                           auto targetName = i.first.GetCharacterName().Unwrap();
                                            Hk::Chat::MsgU(std::format(L"{} was not hunted down and earned {} credits.", targetName, b.cash));
                                            return true;
                                        }
@@ -178,10 +178,10 @@ namespace Plugins
      */
     void BountyHunt::BillCheck(ClientId& client, ClientId& killer)
     {
-        auto victimName = Hk::Client::GetCharacterNameByID(client).Unwrap();
+        auto victimName = client.GetCharacterName().Unwrap();
         if (killer == 0 || client == killer)
         {
-            Hk::Chat::MsgU(std::format(L"The hunt for {} still goes on.", Hk::Client::GetCharacterNameByID(client).Unwrap()));
+            Hk::Chat::MsgU(std::format(L"The hunt for {} still goes on.", client.GetCharacterName().Unwrap()));
             return;
         }
         auto bountyRewards = ClearPlayerOfBounties(client);
@@ -192,7 +192,7 @@ namespace Plugins
             reward += i.second;
         }
         Hk::Player::AddCash(killer, reward);
-        auto killerName = Hk::Client::GetCharacterNameByID(killer).Unwrap();
+        auto killerName = killer.GetCharacterName().Unwrap();
         Hk::Chat::MsgU(std::format(L"{} has killed {} and earned {} credits", killerName, victimName, reward));
     }
 
@@ -216,7 +216,7 @@ namespace Plugins
         }
 
         const auto refunds = ClearPlayerOfBounties(client);
-        Hk::Chat::MsgU(std::format(L"The coward {} has fled. Issuers of this bounty have been refunded.", Hk::Client::GetCharacterNameByID(client).Unwrap()));
+        Hk::Chat::MsgU(std::format(L"The coward {} has fled. Issuers of this bounty have been refunded.", client.GetCharacterName().Unwrap()));
 
         for (const auto& i : refunds)
         {
@@ -244,7 +244,7 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"bounty hunt", L"bountyhunt", PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
+const PluginInfo Info(L"bounty hunt", L"bountyhunt", PluginMajorVersion::V04, PluginMinorVersion::V01);
 
 BountyHunt::BountyHunt(PluginInfo& info) : Plugin(info)
 {
@@ -264,8 +264,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
     pi->commands(&commands);
     pi->timers(&timers);
     pi->returnCode(&returnCode);
-    pi->versionMajor(PluginMajorVersion::VERSION_04);
-    pi->versionMinor(PluginMinorVersion::VERSION_00);
+    pi->versionMajor(PluginMajorVersion::V04);
+    pi->versionMinor(PluginMinorVersion::V00);
     pi->emplaceHook(HookedCall::IEngine__SendDeathMessage, &SendDeathMsg);
     pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
     pi->emplaceHook(HookedCall::IServerImpl__DisConnect, &DisConnect);

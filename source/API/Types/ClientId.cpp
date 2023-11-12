@@ -28,21 +28,12 @@ Action<void, Error> ClientId::AdjustCash(const int amount) const
 
 bool ClientId::IsValidClientId() const
 {
-    if (value == 0 || value >= 255)
+    if (value == 0 || value > MaxClientId)
     {
         return false;
     }
 
-    PlayerData* playerDb = nullptr;
-    while ((playerDb = Players.traverse_active(playerDb)))
-    {
-        if (playerDb->onlineId == value)
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return FLHook::Clients()[value].isValid;
 }
 uint ClientId::GetClientIdFromCharacterName(std::wstring_view name)
 {
@@ -65,12 +56,12 @@ uint ClientId::GetClientIdFromCharacterName(std::wstring_view name)
         }
     }
 
-    if (!client)
+    if (!client || ClientId(client).InCharacterSelect())
     {
         return 0;
     }
 
-    if (const auto newCharacter = ClientId(client).GetActiveCharacterName().Unwrap(); StringUtils::ToLower(newCharacter) != StringUtils::ToLower(name))
+    if (const auto newCharacter = ClientId(client).GetCharacterName().Unwrap(); StringUtils::ToLower(newCharacter) != StringUtils::ToLower(name))
     {
         return 0;
     }
@@ -78,7 +69,7 @@ uint ClientId::GetClientIdFromCharacterName(std::wstring_view name)
     return client;
 }
 
-bool ClientId::operator!() const
+ClientId::operator bool() const
 {
     if (value > 0 || value < MaxClientId)
     {
@@ -95,12 +86,6 @@ bool ClientId::operator!() const
     }
 
     return false;
-}
-
-Action<std::wstring, Error> ClientId::GetCharacterName() const
-{
-    ClientCheck;
-    return { reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(value)) };
 }
 
 Action<BaseId, Error> ClientId::GetCurrentBase() const
@@ -212,7 +197,7 @@ Action<CShip*, Error> ClientId::GetShip()
 
     if (!ship)
     {
-        return cpp::fail{ Error::InvalidShip };
+        return { cpp::fail{ Error::InvalidShip } };
     }
 
     return { dynamic_cast<CShip*>(CObject::Find(ship, CObject::CSHIP_OBJECT)) };
@@ -258,7 +243,7 @@ Action<uint, Error> ClientId::GetCash()
     return { cash };
 }
 
-Action<std::wstring_view, Error> ClientId::GetActiveCharacterName()
+Action<std::wstring_view, Error> ClientId::GetCharacterName() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -269,7 +254,7 @@ Action<std::wstring_view, Error> ClientId::GetActiveCharacterName()
     return { std::wstring_view(wcharPlayer, wcsnlen_s(wcharPlayer, 36)) };
 }
 
-bool ClientId::InSpace()
+bool ClientId::InSpace() const
 {
     if (InCharacterSelect())
     {
@@ -286,7 +271,7 @@ bool ClientId::InSpace()
     return false;
 }
 
-bool ClientId::IsDocked()
+bool ClientId::IsDocked() const
 {
     if (InCharacterSelect())
     {
@@ -298,7 +283,7 @@ bool ClientId::IsDocked()
 
 bool ClientId::InCharacterSelect() const { return Players.GetActiveCharacterName(value) == nullptr; }
 
-bool ClientId::IsAlive()
+bool ClientId::IsAlive() const
 {
     bool charMenu = InCharacterSelect();
     bool docked = IsDocked();
@@ -342,6 +327,8 @@ Action<std::list<CargoInfo>, Error> ClientId::EnumCargo(int& remainingHoldSize) 
     return { cargo };
 }
 
+ClientData& ClientId::GetData() const { return FLHook::Clients()[value]; }
+
 // Server wide message upon kicking. Delay is defaulted to zero.
 Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reason, const std::optional<uint> delay)
 {
@@ -359,10 +346,11 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
         acc->ForceLogout();
         return { {} };
     }
-    const mstime kickTime = TimeUtils::UnixSeconds() + delay.value();
-    if (!ClientInfo::At(*this).kickTime || ClientInfo::At(*this).kickTime > kickTime)
+
+    const mstime kickTime = TimeUtils::UnixTime<std::chrono::seconds>() + delay.value();
+    if (auto& client = FLHook::Clients()[value]; !client.kickTime || client.kickTime > kickTime)
     {
-        ClientInfo::At(*this).kickTime = kickTime;
+        client.kickTime = kickTime;
     }
     return { {} };
 }
@@ -385,10 +373,10 @@ Action<void, Error> ClientId::MessageAndKick(const std::wstring_view reason, con
         return { {} };
     }
 
-    const mstime kickTime = TimeUtils::UnixSeconds() + delay;
-    if (!ClientInfo::At(*this).kickTime || ClientInfo::At(*this).kickTime > kickTime)
+    const mstime kickTime = TimeUtils::UnixTime<std::chrono::seconds>() + delay;
+    if (auto& client = FLHook::Clients()[value]; !client.kickTime || client.kickTime > kickTime)
     {
-        ClientInfo::At(*this).kickTime = kickTime;
+        client.kickTime = kickTime;
     }
 
     return { {} };
@@ -500,7 +488,7 @@ Action<void, Error> ClientId::Beam(std::variant<BaseId, std::wstring_view> base)
     return { {} };
 }
 
-Action<void, Error> ClientId::Message(const std::wstring& message, const MessageFormat format, const MessageColor color) const
+Action<void, Error> ClientId::Message(const std::wstring_view message, const MessageFormat format, const MessageColor color) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -524,4 +512,21 @@ Action<void, Error> ClientId::MessageFrom(ClientId destinationClient, std::wstri
     // TODO: validate color
     destinationClient.Message(std::move(message));
     return { {} };
+}
+
+void ClientId::Save()
+{
+    // Save character file
+    pub::Save(value, 1);
+
+    auto& data = FLHook::Clients()[value];
+
+    // Save account data
+    const CAccount* acc = Players.FindAccountFromClientID(value);
+    const std::wstring dir = Hk::Client::GetAccountDirName(acc);
+    const std::wstring userFile = std::format(L"{}{}\\accData.json", FLHook::GetAccountPath(), dir);
+
+    const auto content = data.accountData.dump(4);
+    std::ofstream of(userFile);
+    of.write(content.c_str(), content.size());
 }

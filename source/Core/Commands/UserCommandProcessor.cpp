@@ -1,9 +1,9 @@
 #include "PCH.hpp"
 
-#include <Core/Logger.hpp>
-#include "Defs/FLHookConfig.hpp"
 #include "API/FLHook/MailManager.hpp"
-#include "Global.hpp"
+#include "Defs/FLHookConfig.hpp"
+
+#include <Core/Logger.hpp>
 
 #include "API/API.hpp"
 
@@ -11,7 +11,7 @@
 
 bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstring_view commandStr)
 {
-    this->client = triggeringClient;
+    this->userCmdClient = triggeringClient;
 
     auto params = StringUtils::GetParams(commandStr, ' ');
 
@@ -20,7 +20,7 @@ bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstrin
     std::vector<std::wstring> paramsFiltered(params.begin(), params.end());
     paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
 
-    const std::wstring character = Hk::Client::GetCharacterNameByID(triggeringClient).Unwrap();
+    const auto character = triggeringClient.GetCharacterName().Unwrap();
     Logger::i()->Log(LogLevel::Info, std::format(L"{}: {}", character, commandStr));
 
     return ProcessCommand(triggeringClient, command, paramsFiltered);
@@ -50,7 +50,7 @@ void UserCommandProcessor::SetDieMessage(std::wstring_view param)
 {
     if (!FLHookConfig::i()->chatConfig.dieMsg)
     {
-        PrintUserCmdText(client, L"command disabled");
+        userCmdClient.Message(L"Command disabled");
         return;
     }
 
@@ -61,44 +61,42 @@ void UserCommandProcessor::SetDieMessage(std::wstring_view param)
     auto params = StringUtils::GetParams(param, ' ');
     const std::wstring dieMsgParam = StringUtils::ToLower(StringUtils::GetParam(params, 0));
 
-    DIEMSGTYPE dieMsg;
+    DieMsgType dieMsg;
     if (dieMsgParam == L"all")
     {
-        dieMsg = DiemsgAll;
+        dieMsg = DieMsgType::All;
     }
     else if (dieMsgParam == L"system")
     {
-        dieMsg = DIEMSG_SYSTEM;
+        dieMsg = DieMsgType::System;
     }
     else if (dieMsgParam == L"none")
     {
-        dieMsg = DIEMSG_NONE;
+        dieMsg = DieMsgType::None;
     }
     else if (dieMsgParam == L"self")
     {
-        dieMsg = DIEMSG_SELF;
+        dieMsg = DieMsgType::Self;
     }
     else
     {
-        PrintUserCmdText(client, errorMsg);
+        userCmdClient.Message(errorMsg);
         return;
     }
 
-    const auto info = &ClientInfo::At(client);
-    info->accountData["settings"]["dieMsg"] = std::to_string(dieMsg);
-    info->SaveAccountData();
-
-    info->dieMsg = dieMsg;
+    auto& info = userCmdClient.GetData();
+    info.accountData["settings"]["dieMsg"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(dieMsg)));
+    info.dieMsg = dieMsg;
 
     // send confirmation msg
-    PrintOk(client);
+    PrintOk();
 }
 
 void UserCommandProcessor::SetDieMessageFontSize(std::wstring_view param)
 {
     if (!FLHookConfig::i()->userCommands.userCmdSetDieMsgSize)
     {
-        PrintUserCmdText(client, L"command disabled");
+        userCmdClient.Message(L"command disabled");
         return;
     }
 
@@ -109,35 +107,34 @@ void UserCommandProcessor::SetDieMessageFontSize(std::wstring_view param)
     auto params = StringUtils::GetParams(param, ' ');
     const std::wstring dieMsgSizeParam = StringUtils::ToLower(StringUtils::GetParam(params, 0));
 
-    CHATSIZE dieMsgSize;
-    if (!dieMsgSizeParam.compare(L"small"))
+    ChatSize dieMsgSize;
+    if (dieMsgSizeParam == L"small")
     {
-        dieMsgSize = CS_SMALL;
+        dieMsgSize = ChatSize::Small;
     }
-    else if (!dieMsgSizeParam.compare(L"default"))
+    else if (dieMsgSizeParam == L"default")
     {
-        dieMsgSize = CS_DEFAULT;
+        dieMsgSize = ChatSize::Default;
     }
     else
     {
-        PrintUserCmdText(client, errorMsg);
+        userCmdClient.Message(errorMsg);
         return;
     }
 
-    const auto info = &ClientInfo::At(client);
-    info->accountData["settings"]["dieMsgSize"] = std::to_string(dieMsgSize);
-    info->SaveAccountData();
+    auto& info = FLHook::Clients()[userCmdClient];
+    info.accountData["settings"]["dieMsgSize"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(dieMsgSize)));
 
-    info->dieMsgSize = dieMsgSize;
+    info.dieMsgSize = dieMsgSize;
 
-    // send confirmation msg
+    PrintOk();
 }
 
 void UserCommandProcessor::SetChatFont(std::wstring_view fontSize, std::wstring_view fontType)
 {
     if (!FLHookConfig::i()->userCommands.userCmdSetChatFont)
     {
-        PrintUserCmdText(client, L"command disabled");
+        userCmdClient.Message(L"command disabled");
         return;
     }
 
@@ -145,59 +142,58 @@ void UserCommandProcessor::SetChatFont(std::wstring_view fontSize, std::wstring_
                                          L"Usage: /set chatfont <size> <style>\n"
                                          L"<size>: small, default or big\n"
                                          L"<style>: default, bold, italic or underline";
-    CHATSIZE chatSize;
+    ChatSize chatSize;
     if (fontSize == L"small")
     {
-        chatSize = CS_SMALL;
+        chatSize = ChatSize::Small;
     }
     else if (fontSize == L"default")
     {
-        chatSize = CS_DEFAULT;
+        chatSize = ChatSize::Default;
     }
     else if (fontSize == L"big")
     {
-        chatSize = CS_BIG;
+        chatSize = ChatSize::Big;
     }
     else
     {
-        PrintUserCmdText(client, errorMsg);
+        userCmdClient.Message(errorMsg);
         return;
     }
 
-    CHATSTYLE chatStyle;
+    ChatStyle chatStyle;
     if (fontType == L"default")
     {
-        chatStyle = CST_DEFAULT;
+        chatStyle = ChatStyle::Default;
     }
     else if (fontType == L"bold")
     {
-        chatStyle = CST_BOLD;
+        chatStyle = ChatStyle::Bold;
     }
     else if (fontType == L"italic")
     {
-        chatStyle = CST_ITALIC;
+        chatStyle = ChatStyle::Italic;
     }
     else if (fontType == L"underline")
     {
-        chatStyle = CST_UNDERLINE;
+        chatStyle = ChatStyle::Underline;
     }
     else
     {
-        PrintUserCmdText(client, errorMsg);
+        userCmdClient.Message(errorMsg);
         return;
     }
 
     // save to ini
-    const auto info = &ClientInfo::At(client);
-    info->accountData["settings"]["chatStyle"] = std::to_string(chatStyle);
-    info->accountData["settings"]["chatSize"] = std::to_string(chatSize);
-    info->SaveAccountData();
+    auto& info = userCmdClient.GetData();
+    info.accountData["settings"]["chatStyle"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(chatStyle)));
+    info.accountData["settings"]["chatSize"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(chatSize)));
 
-    info->chatSize = chatSize;
-    info->chatStyle = chatStyle;
+    info.chatSize = chatSize;
+    info.chatStyle = chatStyle;
 
     // send confirmation msg
-    PrintOk(client);
+    PrintOk();
 }
 
 void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstring_view flags)
@@ -226,7 +222,7 @@ void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstrin
 
     if (ignoredUser.empty())
     {
-        PrintUserCmdText(client, errorMsg);
+        userCmdClient.Message(errorMsg);
         return;
     }
 
@@ -235,104 +231,102 @@ void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstrin
     {
         if (allowedFlags.find_first_of(flag) == std::wstring::npos)
         {
-            PrintUserCmdText(client, errorMsg);
+            userCmdClient.Message(errorMsg);
             return;
         }
     }
 
-    if (ClientInfo::At(client).ignoreInfoList.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+    auto& info = userCmdClient.GetData();
+    if (info.ignoreInfoList.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
     {
-        PrintUserCmdText(client, L"Error: Too many entries in the ignore list, please delete an entry first!");
+        userCmdClient.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
         return;
     }
 
-    // save to ini
-    const auto info = &ClientInfo::At(client);
-    auto& list = info->accountData["settings"]["ignoreList"];
+    auto& list = info.accountData["settings"]["ignoreList"];
     list[StringUtils::wstos(std::wstring(ignoredUser))] = flags;
-
-    info->SaveAccountData();
 
     IgnoreInfo ii;
     ii.character = ignoredUser;
     ii.flags = flags;
-    info->ignoreInfoList.push_back(ii);
+    info.ignoreInfoList.push_back(ii);
 
-    PrintOk(client);
+    PrintOk();
 }
 
 void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_view flags)
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {
-        PrintUserCmdText(client, L"Command disabled");
+        userCmdClient.Message(L"Command disabled");
         return;
     }
 
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
-                                         L"Usage: /ignoreid <client-id> [<flags>]\n"
-                                         L"<client-id>: client-id of character which should be ignored\n"
+                                         L"Usage: /ignoreid <userCmdClient-id> [<flags>]\n"
+                                         L"<userCmdClient-id>: userCmdClient-id of character which should be ignored\n"
                                          L"<flags>: if \"p\"(without quotation marks) then only affect private\n"
                                          L"chat";
 
-    if (ignoredClient == UINT_MAX || !flags.empty() && flags != L"p")
+    if (!ignoredClient || !flags.empty() && flags != L"p")
     {
-        PrintUserCmdText(client, errorMsg);
+        userCmdClient.Message(errorMsg);
         return;
     }
 
-    if (ClientInfo::At(client).ignoreInfoList.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+    auto& data = userCmdClient.GetData();
+    if (data.ignoreInfoList.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
     {
-        PrintUserCmdText(client, L"Error: Too many entries in the ignore list, please delete an entry first!");
+        userCmdClient.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
         return;
     }
 
-    if (!Hk::Client::IsValidClientID(ignoredClient) || Hk::Client::IsInCharSelectMenu(ignoredClient))
+    if (ignoredClient.InCharacterSelect())
     {
-        PrintUserCmdText(client, L"Error: Invalid client-id");
+        userCmdClient.Message(L"Error: Invalid client id");
         return;
     }
 
-    std::wstring character = Hk::Client::GetCharacterNameByID(ignoredClient).Handle();
+    auto character = ignoredClient.GetCharacterName().Handle();
 
     // save to ini
-    const auto info = &ClientInfo::At(client);
-    auto& list = info->accountData["settings"]["ignoreList"];
-    list[StringUtils::wstos(std::wstring(character))] = flags;
 
-    info->SaveAccountData();
+    auto& info = userCmdClient.GetData();
+    auto& list = info.accountData["settings"]["ignoreList"];
+    list[StringUtils::wstos(std::wstring(character))] = flags;
 
     IgnoreInfo ii;
     ii.character = character;
     ii.flags = flags;
-    ClientInfo::At(client).ignoreInfoList.push_back(ii);
+    info.ignoreInfoList.push_back(ii);
 
-    PrintUserCmdText(client, std::format(L"OK, \"{}\" added to ignore list", character));
+    userCmdClient.Message(std::format(L"OK, \"{}\" added to ignore list", character));
 }
 
 void UserCommandProcessor::GetIgnoreList()
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {
-        PrintUserCmdText(client, L"command disabled");
+        userCmdClient.Message(L"command disabled");
         return;
     }
 
-    PrintUserCmdText(client, L"Id | Character Name | flags");
+    userCmdClient.Message(L"Id | Character Name | flags");
     int i = 1;
-    for (auto& ignore : ClientInfo::At(client).ignoreInfoList)
+    auto& info = userCmdClient.GetData();
+    for (auto& ignore : info.ignoreInfoList)
     {
-        PrintUserCmdText(client, std::format(L"{} | %s | %s", i, ignore.character, ignore.flags));
+        userCmdClient.Message(std::format(L"{} | %s | %s", i, ignore.character, ignore.flags));
         i++;
     }
-    PrintOk(client);
+    PrintOk();
 }
 
 void UserCommandProcessor::RemoveFromIgnored(std::vector<std::wstring_view> charactersToRemove)
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {
-        PrintUserCmdText(client, L"Command disabled");
+        userCmdClient.Message(L"Command disabled");
         return;
     }
 
@@ -341,72 +335,72 @@ void UserCommandProcessor::RemoveFromIgnored(std::vector<std::wstring_view> char
                                          L"<id>: id of ignore-entry(see /ignorelist) or *(delete all)";
     if (charactersToRemove.empty())
     {
-        PrintUserCmdText(client, errorMsg);
+        userCmdClient.Message(errorMsg);
         return;
     }
 
-    const auto info = &ClientInfo::At(client);
+    auto& info = userCmdClient.GetData();
     if (charactersToRemove.front() == L"all")
     {
-        info->accountData["settings"]["ignoreList"] = nlohmann::json::object();
-        info->SaveAccountData();
-        PrintOk(client);
+        info.accountData["settings"]["ignoreList"] = nlohmann::json::object();
+        PrintOk();
         return;
     }
 
     std::vector<uint> idsToBeDeleted;
-    for (auto name : charactersToRemove)
+    for (const auto name : charactersToRemove)
     {
         uint id = StringUtils::Cast<uint>(name);
-        if (!id || id > ClientInfo::At(client).ignoreInfoList.size())
+        if (!id || id > info.ignoreInfoList.size())
         {
-            PrintUserCmdText(client, L"Error: Invalid Id");
+            userCmdClient.Message(L"Error: Invalid Id");
             return;
         }
 
         idsToBeDeleted.push_back(id);
     }
 
-    ClientInfo::At(client).ignoreInfoList.reverse();
+    info.ignoreInfoList.reverse();
     for (const auto& del : idsToBeDeleted)
     {
-        uint currId = ClientInfo::At(client).ignoreInfoList.size();
-        for (auto ignoreIt = ClientInfo::At(client).ignoreInfoList.begin(); ignoreIt != ClientInfo::At(client).ignoreInfoList.end(); ++ignoreIt)
+        uint currId = info.ignoreInfoList.size();
+        for (auto ignoreIt = info.ignoreInfoList.begin(); ignoreIt != info.ignoreInfoList.end(); ++ignoreIt)
         {
             if (currId == del)
             {
-                ClientInfo::At(client).ignoreInfoList.erase(ignoreIt);
+                info.ignoreInfoList.erase(ignoreIt);
                 break;
             }
             currId--;
         }
     }
-    ClientInfo::At(client).ignoreInfoList.reverse();
+
+    info.ignoreInfoList.reverse();
 
     // send confirmation msg
     auto newList = nlohmann::json::object();
     int i = 1;
-    for (const auto& ignore : ClientInfo::At(client).ignoreInfoList)
+    for (const auto& ignore : info.ignoreInfoList)
     {
         newList[StringUtils::wstos(ignore.character)] = ignore.flags;
         i++;
     }
 
-    info->accountData["settings"]["ignoreList"] = newList;
-    info->SaveAccountData();
-    PrintOk(client);
+    info.accountData["settings"]["ignoreList"] = newList;
+    PrintOk();
 }
 
 void UserCommandProcessor::GetClientIds()
 {
-    for (auto& player : Hk::Admin::GetPlayers())
+    for (auto& client : FLHook::Clients())
     {
-        PrintUserCmdText(client, std::format(L"| {} = {}", player.character, player.client));
+        userCmdClient.Message(std::format(L"| {} = {}", client.characterName, client.id));
     }
-    PrintUserCmdText(client, L"OK");
+
+    userCmdClient.Message(L"OK");
 }
 
-void UserCommandProcessor::GetSelfClientId() { PrintUserCmdText(client, std::format(L"Your client-id: {}", client)); }
+void UserCommandProcessor::GetSelfClientId() { userCmdClient.Message(std::format(L"Your userCmdClient-id: {}", userCmdClient)); }
 
 // TODO: Move to utils.
 void UserCommandProcessor::InvitePlayer(const std::wstring_view& characterName)
@@ -420,14 +414,14 @@ void UserCommandProcessor::InvitePlayer(const std::wstring_view& characterName)
     uint retVal;
     if (Hk::Chat::FMsgEncodeXml(XML, buf.data(), sizeof buf, retVal).Raw().has_error())
     {
-        PrintUserCmdText(client, L"Error: Could not encode XML");
+        userCmdClient.Message(L"Error: Could not encode XML");
         return;
     }
     // Mimics Freelancer's ingame invite system by using their chatID and chat commands from pressing the invite target button.
     CHAT_ID chatId;
-    chatId.id = client;
+    chatId.id = userCmdClient.GetValue();
     CHAT_ID chatIdTo;
-    chatIdTo.id = 0x00010001;
+    chatIdTo.id = (int)SpecialChatIds::System;
     Server.SubmitChat(chatId, retVal, buf.data(), chatIdTo, -1);
 }
 
@@ -439,34 +433,42 @@ void UserCommandProcessor::InvitePlayerByName(std::wstring_view invitee)
             inviteeId.has_value() && !Hk::Client::IsInCharSelectMenu(inviteeId.value()))
         {
             InvitePlayer(invitee);
+            return;
         }
     }
-    else
+
+    auto ship = userCmdClient.GetShipId().Raw();
+    if (ship.has_error())
     {
-        auto targetClientId = Hk::Player::GetTargetClientID(client).Raw();
-        if (targetClientId.has_value())
-        {
-            InvitePlayer(Hk::Client::GetCharacterNameByID(targetClientId.value()).Unwrap());
-        }
+        userCmdClient.Message(L"No invitee was provided and no target selected.");
+        return;
     }
+
+    auto target = ship.value().GetTarget();
+    if (!target.has_value())
+    {
+        userCmdClient.Message(L"No invitee was provided and no target selected.");
+        return;
+    }
+
+    if (const auto targetClient = target->GetPlayer(); targetClient.has_value())
+    {
+        InvitePlayer(targetClient.value().GetCharacterName().Unwrap());
+        return;
+    }
+
+    userCmdClient.Message(L"You cannot invite an NPC.");
 }
 
-void UserCommandProcessor::InvitePlayerById(ClientId inviteeId)
+void UserCommandProcessor::InvitePlayerById(const ClientId inviteeId)
 {
-
-    if (inviteeId == UINT_MAX || inviteeId == 0)
+    if (inviteeId.InCharacterSelect())
     {
-        PrintUserCmdText(client, L"Error: Invalid parameters\nUsage: /invite$ <client-id>");
+        userCmdClient.Message(L"Error: Invalid client id");
         return;
     }
 
-    if (!Hk::Client::IsValidClientID(inviteeId) || Hk::Client::IsInCharSelectMenu(inviteeId))
-    {
-        PrintUserCmdText(client, L"Error: Invalid client-id");
-        return;
-    }
-
-    InvitePlayer(Hk::Client::GetCharacterNameByID(inviteeId).Unwrap());
+    InvitePlayer(inviteeId.GetCharacterName().Unwrap());
 }
 
 void UserCommandProcessor::FactionInvite(std::wstring_view factionTag)
@@ -476,30 +478,30 @@ void UserCommandProcessor::FactionInvite(std::wstring_view factionTag)
 
     if (factionTag.size() < 3)
     {
-        PrintUserCmdText(client, L"ERR Invalid parameters");
-        PrintUserCmdText(client, L"Usage: /factioninvite <tag> or /fi ...");
+        userCmdClient.Message(L"ERR Invalid parameters");
+        userCmdClient.Message(L"Usage: /factioninvite <tag> or /fi ...");
         return;
     }
 
-    for (const auto& player : Hk::Admin::GetPlayers())
+    for (const auto& player : FLHook::Clients())
     {
-        if (StringUtils::ToLower(player.character).find(factionTag) == std::wstring::npos)
+        if (StringUtils::ToLower(player.characterName).find(factionTag) == std::wstring::npos)
         {
             continue;
         }
 
-        if (player.client == client)
+        if (player.id == userCmdClient)
         {
             continue;
         }
 
-        InvitePlayer(player.character);
+        InvitePlayer(player.characterName);
         msgSent = true;
     }
 
     if (msgSent == false)
     {
-        PrintUserCmdText(client, L"ERR No chars found");
+        userCmdClient.Message(L"ERR No chars found");
     }
 }
 
@@ -507,25 +509,25 @@ void UserCommandProcessor::DeleteMail(const std::wstring_view mailID, const std:
 {
     if (mailID == L"all")
     {
-        const auto count = MailManager::i()->PurgeAllMail(client, readOnlyDel == L"readonly");
+        const auto count = MailManager::i()->PurgeAllMail(userCmdClient, readOnlyDel == L"readonly");
         if (count.has_error())
         {
-            PrintUserCmdText(client, std::format(L"Error deleting mail: {}", count.error()));
+            userCmdClient.Message(std::format(L"Error deleting mail: {}", count.error()));
             return;
         }
 
-        PrintUserCmdText(client, std::format(L"Deleted {} mail", count.value()));
+        userCmdClient.Message(std::format(L"Deleted {} mail", count.value()));
     }
     else
     {
         const auto index = StringUtils::Cast<int64>(mailID);
-        if (const auto err = MailManager::i()->DeleteMail(client, index); err.has_error())
+        if (const auto err = MailManager::i()->DeleteMail(userCmdClient, index); err.has_error())
         {
-            PrintUserCmdText(client, std::format(L"Error deleting mail: {}", err.error()));
+            userCmdClient.Message(std::format(L"Error deleting mail: {}", err.error()));
             return;
         }
 
-        PrintUserCmdText(client, L"Mail deleted");
+        userCmdClient.Message(L"Mail deleted");
     }
 }
 
@@ -533,22 +535,22 @@ void UserCommandProcessor::ReadMail(uint mailId)
 {
     if (mailId <= 0)
     {
-        PrintUserCmdText(client, L"Id was not provided or was invalid.");
+        userCmdClient.Message(L"Id was not provided or was invalid.");
         return;
     }
 
-    const auto mail = MailManager::i()->GetMailById(client, mailId);
+    const auto mail = MailManager::i()->GetMailById(userCmdClient, mailId);
     if (mail.has_error())
     {
-        PrintUserCmdText(client, std::format(L"Error retreiving mail: {}", mail.error()));
+        userCmdClient.Message(std::format(L"Error retreiving mail: {}", mail.error()));
         return;
     }
 
     const auto& item = mail.value();
-    PrintUserCmdText(client, std::format(L"From: {}", item.author));
-    PrintUserCmdText(client, std::format(L"Subject: {}", item.subject));
-    PrintUserCmdText(client, std::format(L"Date: {:%F %T}", TimeUtils::UnixToSysTime(item.timestamp)));
-    PrintUserCmdText(client, item.body);
+    userCmdClient.Message(std::format(L"From: {}", item.author));
+    userCmdClient.Message(std::format(L"Subject: {}", item.subject));
+    userCmdClient.Message(std::format(L"Date: {:%F %T}", TimeUtils::UnixToSysTime(item.timestamp)));
+    userCmdClient.Message(item.body);
 }
 
 void UserCommandProcessor::ListMail(int pageNumber, std::wstring_view unread)
@@ -556,37 +558,32 @@ void UserCommandProcessor::ListMail(int pageNumber, std::wstring_view unread)
 
     if (pageNumber <= 0)
     {
-        PrintUserCmdText(client, L"Page was not provided or was invalid.");
+        userCmdClient.Message(L"Page was not provided or was invalid.");
         return;
     }
 
     const bool unreadOnly = (unread == L"unread");
 
-    const auto mail = MailManager::i()->GetMail(client, unreadOnly, pageNumber);
+    const auto mail = MailManager::i()->GetMail(userCmdClient, unreadOnly, pageNumber);
     if (mail.has_error())
     {
-        PrintUserCmdText(client, std::format(L"Error retrieving mail: {}", mail.error()));
+        userCmdClient.Message(std::format(L"Error retrieving mail: {}", mail.error()));
         return;
     }
 
     const auto& mailList = mail.value();
     if (mailList.empty())
     {
-        PrintUserCmdText(client, L"You have no mail.");
+        userCmdClient.Message(L"You have no mail.");
         return;
     }
 
-    PrintUserCmdText(client, std::format(L"Printing mail of page {}", mailList.size()));
+    userCmdClient.Message(std::format(L"Printing mail of page {}", mailList.size()));
     for (const auto& item : mailList)
     {
         // |    Id.) Subject (unread) - Author - Time
-        PrintUserCmdText(client,
-                         std::format(L"|    {}.) {} {}- {} - {:%F %T}",
-                                     item.id,
-                                     item.subject,
-                                     item.unread ? L"(unread) " : L"",
-                                     item.author,
-                                     TimeUtils::UnixToSysTime(item.timestamp)));
+        userCmdClient.Message(std::format(
+            L"|    {}.) {} {}- {} - {:%F %T}", item.id, item.subject, item.unread ? L"(unread) " : L"", item.author, TimeUtils::UnixToSysTime(item.timestamp)));
     }
 }
 
@@ -596,30 +593,30 @@ void UserCommandProcessor::GiveCash(std::wstring_view characterName, std::wstrin
 
     const auto targetPlayer = Hk::Client::GetClientIdFromCharName(characterName).Unwrap();
     const auto cash = StringUtils::MultiplyUIntBySuffix(amount);
-    const auto clientCash = Hk::Player::GetCash(client).Unwrap();
+    const auto clientCash = Hk::Player::GetCash(userCmdClient).Unwrap();
 
-    if (client == targetPlayer)
+    if (userCmdClient == targetPlayer)
     {
-        PrintUserCmdText(client, L"Not sure this really accomplishes much, (Don't give cash to yourself.)");
+        userCmdClient.Message(L"Not sure this really accomplishes much, (Don't give cash to yourself.)");
         return;
     }
 
     if (cash == 0)
     {
-        PrintUserCmdText(client, std::format(L"Err: Invalid cash amount."));
+        userCmdClient.Message(std::format(L"Err: Invalid cash amount."));
         return;
     }
 
     if (clientCash < cash)
     {
-        PrintUserCmdText(client, std::format(L"Err: You do not have enough cash, you only have {}, and are trying to give {}.", clientCash, cash));
+        userCmdClient.Message(std::format(L"Err: You do not have enough cash, you only have {}, and are trying to give {}.", clientCash, cash));
         return;
     }
 
-    Hk::Player::RemoveCash(client, cash).Handle();
+    Hk::Player::RemoveCash(userCmdClient, cash).Handle();
     Hk::Player::AddCash(targetPlayer, cash).Handle();
 
-    Hk::Player::SaveChar(client);
+    Hk::Player::SaveChar(userCmdClient);
     Hk::Player::SaveChar(targetPlayer);
 }
 
@@ -629,15 +626,15 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
 {
     if (const auto* config = FLHookConfig::c(); !config->userCommands.userCmdHelp)
     {
-        PrintUserCmdText(client, L"The help command is disabled.");
+        userCmdClient.Message(L"The help command is disabled.");
         return;
     }
 
     const auto& pm = PluginManager::i();
     if (module.empty())
     {
-        PrintUserCmdText(client, L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
-        PrintUserCmdText(client, L"core");
+        userCmdClient.Message(L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
+        userCmdClient.Message(L"core");
         for (const auto& plugin : pm->plugins)
         {
             if (dynamic_cast<const AbstractUserCommandProcessor*>(plugin.get()) == nullptr)
@@ -645,7 +642,7 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
                 continue;
             }
 
-            PrintUserCmdText(client, StringUtils::ToLower(plugin->GetShortName()));
+            userCmdClient.Message(StringUtils::ToLower(plugin->GetShortName()));
         }
         return;
     }
@@ -660,19 +657,19 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
         {
             for (const auto& i : commands)
             {
-                PrintUserCmdText(client, i.cmd);
+                userCmdClient.Message(i.cmd);
             }
         }
         else if (const auto& userCommand =
                      std::ranges::find_if(commands, [&cmd](const auto& userCmd) { return cmd == userCmd.cmd.substr(1, userCmd.cmd.size() - 1); });
                  userCommand != commands.end())
         {
-            PrintUserCmdText(client, userCommand->usage);
-            PrintUserCmdText(client, userCommand->description);
+            userCmdClient.Message(userCommand->usage);
+            userCmdClient.Message(userCommand->description);
         }
         else
         {
-            PrintUserCmdText(client, std::format(L"Command '{}' not found within module 'core'", cmd));
+            userCmdClient.Message(std::format(L"Command '{}' not found within module 'core'", cmd));
         }
         return;
     }
@@ -682,7 +679,7 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
 
     if (pluginIterator == pm->plugins.end())
     {
-        PrintUserCmdText(client, L"Command module not found.");
+        userCmdClient.Message(L"Command module not found.");
         return;
     }
 
@@ -691,7 +688,7 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
     const auto cmdProcessor = dynamic_cast<AbstractUserCommandProcessor*>(plugin.get());
     if (cmdProcessor == nullptr)
     {
-        PrintUserCmdText(client, L"Command module not found.");
+        userCmdClient.Message(L"Command module not found.");
         return;
     }
 
@@ -699,18 +696,18 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
     {
         for (const auto& [fullCmd, usage, description] : cmdProcessor->GetCommands())
         {
-            PrintUserCmdText(client, fullCmd);
+            userCmdClient.Message(fullCmd);
         }
     }
     else if (const auto& userCommand =
                  std::ranges::find_if(commands, [&cmd](const auto& userCmd) { return cmd == userCmd.cmd.substr(1, userCmd.cmd.size() - 1); });
              userCommand != commands.end())
     {
-        PrintUserCmdText(client, userCommand->usage);
-        PrintUserCmdText(client, userCommand->description);
+        userCmdClient.Message(userCommand->usage);
+        userCmdClient.Message(userCommand->description);
     }
     else
     {
-        PrintUserCmdText(client, std::format(L"Command '{}' not found within module '{}'", cmd, std::wstring(plugin->GetShortName())));
+        userCmdClient.Message(std::format(L"Command '{}' not found within module '{}'", cmd, std::wstring(plugin->GetShortName())));
     }
 }

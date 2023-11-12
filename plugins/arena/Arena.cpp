@@ -133,7 +133,7 @@ namespace Plugins
         {
             if (!ValidateCargo(client))
             {
-                PrintUserCmdText(client, cargoErrorText);
+                client.Message(cargoErrorText);
                 return;
             }
 
@@ -146,7 +146,7 @@ namespace Plugins
         {
             if (!ValidateCargo(client))
             {
-                PrintUserCmdText(client, cargoErrorText);
+                client.Message(cargoErrorText);
                 return;
             }
 
@@ -175,24 +175,24 @@ namespace Plugins
         // Prohibit jump if in a restricted system or in the target system
         if (SystemId system = Hk::Player::GetSystem(client).Unwrap(); system == restrictedSystemId || system == targetSystemId)
         {
-            PrintUserCmdText(client, L"ERR Cannot use command in this system or base");
+            client.Message(L"ERR Cannot use command in this system or base");
             return;
         }
 
         if (!IsDockedClient(client))
         {
-            PrintUserCmdText(client, dockErrorText);
+            client.Message(dockErrorText);
             return;
         }
 
         if (!ValidateCargo(client))
         {
-            PrintUserCmdText(client, cargoErrorText);
+            client.Message(cargoErrorText);
             return;
         }
 
         StoreReturnPointForClient(client);
-        PrintUserCmdText(client, L"Redirecting undock to Arena.");
+        client.Message(L"Redirecting undock to Arena.");
         transferFlags[client] = ClientState::Transfer;
     }
 
@@ -203,29 +203,29 @@ namespace Plugins
     {
         if (!ReadReturnPointForClient(client))
         {
-            PrintUserCmdText(client, L"No return possible");
+            client.Message(L"No return possible");
             return;
         }
 
         if (!IsDockedClient(client))
         {
-            PrintUserCmdText(client, dockErrorText);
+            client.Message(dockErrorText);
             return;
         }
 
         if (!CheckReturnDock(client, targetBaseId))
         {
-            PrintUserCmdText(client, L"Not in correct base");
+            client.Message(L"Not in correct base");
             return;
         }
 
         if (!ValidateCargo(client))
         {
-            PrintUserCmdText(client, cargoErrorText);
+            client.Message(cargoErrorText);
             return;
         }
 
-        PrintUserCmdText(client, L"Redirecting undock to previous base");
+        client.Message(L"Redirecting undock to previous base");
         transferFlags[client] = ClientState::Return;
     }
 } // namespace Plugins
@@ -234,7 +234,7 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Arena", L"arena", PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
+const PluginInfo Info(L"Arena", L"arena", PluginMajorVersion::V04, PluginMinorVersion::V01);
 
 
 Arena::Arena(const PluginInfo& info) : Plugin(info)

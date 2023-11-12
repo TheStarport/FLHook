@@ -83,60 +83,60 @@ namespace Plugins::CashManager
 		if (const auto currentValue = Hk::Player::GetShipValue(client);
 		    currentValue.has_error() || (global->config->cashThreshold > 0 && currentValue.value() > global->config->cashThreshold))
 		{
-			PrintUserCmdText(client, L"Error: Your ship value is too high. Unload some credits or decrease ship value before withdrawing.");
+			client.Message(L"Error: Your ship value is too high. Unload some credits or decrease ship value before withdrawing.");
 		}
 
 		if (bank.cash < withdrawal)
 		{
-			PrintUserCmdText(client, std::format(L"Error: Not enough credits, this bank only has {} credits", bank.cash));
+			client.Message(std::format(L"Error: Not enough credits, this bank only has {} credits", bank.cash));
 			return;
 		}
 
 		if (withdrawal == 0)
 		{
-			PrintUserCmdText(client, std::format(L"Error: Invalid withdraw amount, please input a positive number. {}", bank.cash));
+			client.Message(std::format(L"Error: Invalid withdraw amount, please input a positive number. {}", bank.cash));
 			return;
 		}
 
 		const int64 fee = static_cast<long long>(withdrawal) + global->config->transferFee;
 		if (global->config->transferFee > 0 && static_cast<int64>(bank.cash) - fee < 0)
 		{
-			PrintUserCmdText(client, std::format(L"Error: Not enough cash in bank for withdrawal and fee ({}).", ToMoneyStr(static_cast<int>(fee))));
+			client.Message(std::format(L"Error: Not enough cash in bank for withdrawal and fee ({}).", ToMoneyStr(static_cast<int>(fee))));
 			return;
 		}
 
 		if (Sql::WithdrawCash(bank, fee))
 		{
 			Hk::Player::AddCash(client, withdrawal);
-			PrintUserCmdText(client, std::format(L"Successfully withdrawn {} credits", ToMoneyStr(withdrawal)));
+			client.Message(std::format(L"Successfully withdrawn {} credits", ToMoneyStr(withdrawal)));
 			return;
 		}
 
-		PrintUserCmdText(client, L"unknown error. Unable to withdraw cash.");
+		client.Message(L"unknown error. Unable to withdraw cash.");
 	}
 
 	void DepositMoney(const Bank& bank, uint deposit, ClientId client)
 	{
 		if (deposit == 0)
 		{
-			PrintUserCmdText(client, L"Error: Invalid deposit amount, please input a positive number.");
+			client.Message(L"Error: Invalid deposit amount, please input a positive number.");
 			return;
 		}
 
 		if (const uint playerCash = Hk::Player::GetCash(client).value(); playerCash < deposit)
 		{
-			PrintUserCmdText(client, L"Error: Not enough credits, make sure to input a deposit number less than your balance.");
+			client.Message(L"Error: Not enough credits, make sure to input a deposit number less than your balance.");
 			return;
 		}
 
 		if (Sql::DepositCash(bank, deposit))
 		{
 			Hk::Player::RemoveCash(client, deposit);
-			PrintUserCmdText(client, std::format(L"Successfully deposited {} credits", ToMoneyStr(deposit)));
+			client.Message(std::format(L"Successfully deposited {} credits", ToMoneyStr(deposit)));
 			return;
 		}
 
-		PrintUserCmdText(client, L"unknown Error. Unable to deposit cash.");
+		client.Message(L"unknown Error. Unable to deposit cash.");
 	}
 
 	// /bank withdraw account password amount
@@ -148,19 +148,19 @@ namespace Plugins::CashManager
 
 		if (withdrawal == 0)
 		{
-			PrintUserCmdText(client, L"Error: Invalid withdraw amount, please input a positive number.");
+			client.Message(L"Error: Invalid withdraw amount, please input a positive number.");
 			return;
 		}
 
 		const auto bank = Sql::GetBankByIdentifier(accountIdentifier);
 		if (!bank.has_value())
 		{
-			PrintUserCmdText(client, L"Error: Bank identifier could was not valid.");
+			client.Message(L"Error: Bank identifier could was not valid.");
 			return;
 		}
 		if (password != bank->bankPassword)
 		{
-			PrintUserCmdText(client, L"Error: Invalid Password.");
+			client.Message(L"Error: Invalid Password.");
 			return;
 		}
 
@@ -175,13 +175,13 @@ namespace Plugins::CashManager
 
 		if (targetBankIdentifier.empty() || bank.identifier.empty())
 		{
-			PrintUserCmdText(client, L"Error: No bank identifier provided or sending from a bank without an identifier.");
+			client.Message(L"Error: No bank identifier provided or sending from a bank without an identifier.");
 			return;
 		}
 
 		if (amount == 0)
 		{
-			PrintUserCmdText(client, L"Error: Invalid amount, please input a positive number.");
+			client.Message(L"Error: Invalid amount, please input a positive number.");
 			return;
 		}
 
@@ -189,24 +189,24 @@ namespace Plugins::CashManager
 		if (static_cast<int64>(bank.cash) - (amount + fee) < 0)
 		{
 			const auto ifFee = std::format(L"and fee ({})", amount + fee);
-			PrintUserCmdText(client, std::format(L"Error: Not enough cash in bank for transfer {}.", fee > 0 ? ifFee : L""));
+			client.Message(std::format(L"Error: Not enough cash in bank for transfer {}.", fee > 0 ? ifFee : L""));
 			return;
 		}
 
 		const auto targetBank = Sql::GetBankByIdentifier(targetBankIdentifier);
 		if (!targetBank)
 		{
-			PrintUserCmdText(client, L"Error: Target Bank not found");
+			client.Message(L"Error: Target Bank not found");
 			return;
 		}
 
 		if (!Sql::TransferCash(bank, targetBank.value(), amount, fee))
 		{
-			PrintUserCmdText(client, L"Internal server error. Failed to transfer cash.");
+			client.Message(L"Internal server error. Failed to transfer cash.");
 			return;
 		}
 
-		PrintUserCmdText(client, std::format(L"Successfully transferred {} credits to {}", ToMoneyStr(amount), bank.identifier));
+		client.Message(std::format(L"Successfully transferred {} credits to {}", ToMoneyStr(amount), bank.identifier));
 		Sql::AddTransaction(
 		    bank, std::format("Bank {} -> Bank {}", StringUtils::wstos(bank.identifier), StringUtils::wstos(targetBank->identifier)), -(static_cast<int>((amount + fee))));
 	}
@@ -224,7 +224,7 @@ namespace Plugins::CashManager
 
 		if (!showPass)
 		{
-			PrintUserCmdText(client, L"Use /bank info pass to make the password visible.");
+			client.Message(L"Use /bank info pass to make the password visible.");
 		}
 	}
 
@@ -252,7 +252,7 @@ namespace Plugins::CashManager
 				Hk::Player::SaveChar(client);
 				return;
 			}
-			PrintUserCmdText(client, L"Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.");
+			client.Message(L"Transaction barred. Your ship value is too high. Deposit some cash into your bank using the /bank command.");
 			global->returnCode = ReturnCode::SkipAll;
 		}
 	}
@@ -260,29 +260,29 @@ namespace Plugins::CashManager
 	void UserCommandHandler(ClientId& client, const std::wstring& param)
 	{
 		// Checks before we handle any sort of command or process.
-		if (const int secs = Hk::Player::GetOnlineTime(Hk::Client::GetCharacterNameByID(client).value()).value();
+		if (const int secs = Hk::Player::GetOnlineTime(client.GetCharacterName().value()).value();
 		    static_cast<uint>(secs) < global->config->minimumTime / 60)
 		{
-			PrintUserCmdText(client, L"Error: You cannot interact with the bank. This character is too new.");
+			client.Message(L"Error: You cannot interact with the bank. This character is too new.");
 			return;
 		}
 
 		if (ClientInfo::At(client).iTradePartner)
 		{
-			PrintUserCmdText(client, L"Error: You are currently in a trade.");
+			client.Message(L"Error: You are currently in a trade.");
 			return;
 		}
 
 		const auto currentSystem = Hk::Player::GetSystem(client);
 		if (currentSystem.has_error())
 		{
-			PrintUserCmdText(client, L"Unable to decipher player location.");
+			client.Message(L"Unable to decipher player location.");
 			return;
 		}
 
 		if (const auto& blockedSystems = global->config->blockedSystemsHashed; std::ranges::find(blockedSystems, currentSystem.value()) != blockedSystems.end())
 		{
-			PrintUserCmdText(client, L"Error: You are in a blocked system, you are unable to access the bank.");
+			client.Message(L"Error: You are in a blocked system, you are unable to access the bank.");
 			return;
 		}
 
@@ -305,7 +305,7 @@ namespace Plugins::CashManager
 				return;
 			}
 
-			PrintUserCmdText(client, L"This will generate a new password and the previous will be invalid");
+			client.Message(L"This will generate a new password and the previous will be invalid");
 			PrintUserCmdText(client,
 			    std::format(L"Your currently set password is {} if you are sure you want to regenerate your password type \"/bank password confirm\". ",
 			        bank.bankPassword));
@@ -326,12 +326,12 @@ namespace Plugins::CashManager
 
 			if (const auto existingBank = Sql::GetBankByIdentifier(identifier); existingBank.has_value())
 			{
-				PrintUserCmdText(client, L"Another bank is already using this identifier. Identifiers must be unique.");
+				client.Message(L"Another bank is already using this identifier. Identifiers must be unique.");
 				return;
 			}
 
 			Sql::SetOrClearIdentifier(bank, StringUtils::wstos(identifier));
-			PrintUserCmdText(client, std::format(L"Bank identifier set to: {}", identifier));
+			client.Message(std::format(L"Bank identifier set to: {}", identifier));
 		}
 		else if (cmd == L"withdraw")
 		{
@@ -378,14 +378,14 @@ namespace Plugins::CashManager
 
 				if (page > totalTransactions / TransactionsPerPage)
 				{
-					PrintUserCmdText(client, L"Page not found.");
+					client.Message(L"Page not found.");
 					return;
 				}
 
 				uint i = page * TransactionsPerPage;
 				for (const auto transactions = Sql::ListTransactions(bank, TransactionsPerPage, i); const auto& transaction : transactions)
 				{
-					PrintUserCmdText(client, std::format(L"%{}.) {} {}", i, transaction.accessor, transaction.amount));
+					client.Message(std::format(L"%{}.) {} {}", i, transaction.accessor, transaction.amount));
 					i++;
 				}
 				return;
@@ -394,18 +394,18 @@ namespace Plugins::CashManager
 			const auto transactions = Sql::ListTransactions(bank, TransactionsPerPage);
 			if (transactions.empty())
 			{
-				PrintUserCmdText(client, L"You have no transactions for this bank currently.");
+				client.Message(L"You have no transactions for this bank currently.");
 				return;
 			}
 
 			int currentTransactions = Sql::CountTransactions(bank);
-			PrintUserCmdText(client, std::format(L"Showing you {} of {} total transactions (most recent):", transactions.size(), currentTransactions));
+			client.Message(std::format(L"Showing you {} of {} total transactions (most recent):", transactions.size(), currentTransactions));
 
 			uint i = 0;
 			for (const auto& transaction : transactions)
 			{
 				i++;
-				PrintUserCmdText(client, std::format(L"{}.) {} {}", i, transaction.accessor, transaction.amount));
+				client.Message(std::format(L"{}.) {} {}", i, transaction.accessor, transaction.amount));
 			}
 		}
 		else
@@ -511,8 +511,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->mayUnload(true);
 	pi->commands(&commands);
 	pi->returnCode(&global->returnCode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch, HookStep::After);

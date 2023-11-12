@@ -100,5 +100,5 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"AFK", L"afk", PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
+const PluginInfo Info(L"AFK", L"afk", PluginMajorVersion::V04, PluginMinorVersion::V01);
 SetupPlugin(AntiJumpDisconnect, Info);

@@ -67,6 +67,22 @@ Action<float, Error> ShipId::GetShields(bool percentage)
     return { currentShield / maxShield };
 }
 
+std::optional<ClientId> ShipId::GetPlayer()
+{
+    auto ship = GetCShip(false);
+    if (ship.Raw().has_error())
+    {
+        return {};
+    }
+
+    if (const auto res = ship.Unwrap(); res->is_player())
+    {
+        return ClientId(res->ownerPlayer);
+    }
+
+    return {};
+}
+
 std::optional<ShipId> ShipId::GetTarget()
 {
     auto ship = GetCShip(false);

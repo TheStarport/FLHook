@@ -48,14 +48,14 @@ void TaxPlugin::UserCmdTax(const std::wstring_view taxAmount)
     // no-pvp check
     if (SystemId system = Hk::Player::GetSystem(client).Unwrap(); std::ranges::find(noPvpSystems, system) == noPvpSystems.end())
     {
-        PrintUserCmdText(client, L"Error: You cannot tax in a No-PvP system.");
+        client.Message(L"Error: You cannot tax in a No-PvP system.");
         return;
     }
 
     if (taxAmount.empty())
     {
-        PrintUserCmdText(client, L"Usage:");
-        PrintUserCmdText(client, L"/tax <credits>");
+        client.Message(L"Usage:");
+        client.Message(L"/tax <credits>");
         return;
     }
 
@@ -63,7 +63,7 @@ void TaxPlugin::UserCmdTax(const std::wstring_view taxAmount)
 
     if (taxValue > config->maxTax)
     {
-        PrintUserCmdText(client, std::format(L"Error: Maximum tax value is {} credits.", config->maxTax));
+        client.Message(std::format(L"Error: Maximum tax value is {} credits.", config->maxTax));
         return;
     }
 
@@ -71,14 +71,14 @@ void TaxPlugin::UserCmdTax(const std::wstring_view taxAmount)
 
     if (!clientTargetObject)
     {
-        PrintUserCmdText(client, L"Error: You are not targeting a player.");
+        client.Message(L"Error: You are not targeting a player.");
         return;
     }
 
     const auto clientTarget = clientTargetObject;
     if (const auto secs = Hk::Player::GetOnlineTime(client).Unwrap(); secs < config->minplaytimeSec)
     {
-        PrintUserCmdText(client, L"Error: This player doesn't have enough playtime.");
+        client.Message(L"Error: This player doesn't have enough playtime.");
         return;
     }
 
@@ -86,7 +86,7 @@ void TaxPlugin::UserCmdTax(const std::wstring_view taxAmount)
     {
         if (targetId == clientTarget)
         {
-            PrintUserCmdText(client, L"Error: There already is a tax request pending for this player.");
+            client.Message(L"Error: There already is a tax request pending for this player.");
             return;
         }
     }
@@ -98,7 +98,7 @@ void TaxPlugin::UserCmdTax(const std::wstring_view taxAmount)
     taxes.push_back(tax);
 
     std::wstring msg;
-    const auto characterName = Hk::Client::GetCharacterNameByID(client).Handle();
+    const auto characterName = client.GetCharacterName().Handle();
 
     if (taxValue == 0)
     {
@@ -112,16 +112,16 @@ void TaxPlugin::UserCmdTax(const std::wstring_view taxAmount)
 
     Hk::Chat::FMsg(clientTarget, msg);
 
-    const auto targetCharacterName = Hk::Client::GetCharacterNameByID(clientTarget).Handle();
+    const auto targetCharacterName = clientTarget.GetCharacterName().Handle();
 
     // send confirmation msg
     if (taxValue > 0)
     {
-        PrintUserCmdText(client, std::format(L"Tax request of {} credits sent to {}!", taxValue, targetCharacterName));
+        client.Message(std::format(L"Tax request of {} credits sent to {}!", taxValue, targetCharacterName));
     }
     else
     {
-        PrintUserCmdText(client, std::vformat(config->huntingMessageOriginator, std::make_wformat_args(targetCharacterName)));
+        client.Message(std::vformat(config->huntingMessageOriginator, std::make_wformat_args(targetCharacterName)));
     }
 }
 
@@ -133,22 +133,22 @@ void TaxPlugin::UserCmdPay()
         {
             if (it.cash == 0)
             {
-                PrintUserCmdText(client, config->cannotPay);
+                client.Message(config->cannotPay);
                 return;
             }
 
             if (const auto cash = Hk::Player::GetCash(client).Unwrap(); cash < it.cash)
             {
-                PrintUserCmdText(client, L"You have not enough money to pay the tax.");
+                client.Message(L"You have not enough money to pay the tax.");
                 PrintUserCmdText(it.initiatorId, L"The player does not have enough money to pay the tax.");
                 return;
             }
             Hk::Player::RemoveCash(client, it.cash).Handle();
-            PrintUserCmdText(client, L"You paid the tax.");
+            client.Message(L"You paid the tax.");
 
             Hk::Player::AddCash(it.initiatorId, it.cash).Handle();
 
-            const auto characterName = Hk::Client::GetCharacterNameByID(client).Handle();
+            const auto characterName = client.GetCharacterName().Handle();
             PrintUserCmdText(it.initiatorId, std::format(L"{} paid the tax!", characterName));
             RemoveTax(it);
 
@@ -158,7 +158,7 @@ void TaxPlugin::UserCmdPay()
         }
     }
 
-    PrintUserCmdText(client, L"Error: No tax request was found that could be accepted!");
+    client.Message(L"Error: No tax request was found that could be accepted!");
 }
 
 void TaxPlugin::TimerF1Check()
@@ -185,7 +185,7 @@ void TaxPlugin::TimerF1Check()
                         // F1 -> Kill
                         pub::SpaceObj::SetRelativeHealth(ship, 0.0);
                     }
-                    const auto characterName = Hk::Client::GetCharacterNameByID(it.targetId).Handle();
+                    const auto characterName = it.targetId.GetCharacterName().Handle();
                     PrintUserCmdText(it.initiatorId, std::format(L"Tax request to {} aborted.", characterName));
                     RemoveTax(it);
                     break;
@@ -203,7 +203,7 @@ void TaxPlugin::TimerF1Check()
                         // F1 -> Kill
                         pub::SpaceObj::SetRelativeHealth(ship, 0.0);
                     }
-                    const auto characterName = Hk::Client::GetCharacterNameByID(it.targetId).Handle();
+                    const auto characterName = it.targetId.GetCharacterName().Handle();
                     PrintUserCmdText(it.initiatorId, std::format(L"Tax request to {} aborted.", characterName));
                     RemoveTax(it);
                     break;
@@ -219,7 +219,7 @@ void TaxPlugin::LoadSettings() { config = Serializer::LoadFromJson<Config>(L"con
 
 DefaultDllMain();
 
-const PluginInfo Info(TaxPlugin::pluginName, TaxPlugin::pluginShortName, PluginMajorVersion::VERSION_04, PluginMinorVersion::VERSION_01);
+const PluginInfo Info(TaxPlugin::pluginName, TaxPlugin::pluginShortName, PluginMajorVersion::V04, PluginMinorVersion::V01);
 SetupPlugin(TaxPlugin, Info);
 
 TaxPlugin::TaxPlugin(const PluginInfo& info) : Plugin(info)

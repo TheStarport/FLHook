@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/MailManager.hpp"
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/FLHook.hpp"
 #include "Global.hpp"
@@ -21,7 +22,8 @@ void IServerImplHook::UpdateInner()
         firstTime = false;
     }
 
-    const auto currentTime = TimeUtils::UnixMilliseconds();
+    // TODO: ensure flhook timers are also 1 second timers
+    const auto currentTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
     for (const auto& timer : Timer::timers)
     {
         // This one isn't actually in seconds, but the plugins should be
@@ -50,11 +52,11 @@ void IServerImplHook::UpdateInner()
         }
     }
 
-    const auto globals = CoreGlobals::i();
+    const auto hook = FLHook::instance;
     char* data;
     memcpy(&data, dataPtr + 0x40, 4);
-    memcpy(&globals->serverLoadInMs, data + 0x204, 4);
-    memcpy(&globals->playerCount, data + 0x208, 4);
+    memcpy(&hook->serverLoadInMs, data + 0x204, 4);
+    memcpy(&hook->playerCount, data + 0x208, 4);
 }
 
 void IServerImplHook::StartupInner(SStartupInfo& si)
@@ -88,7 +90,7 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
 
     Logger::i()->Log(LogLevel::Info, L"FLHook Ready");
 
-    CoreGlobals::i()->flhookReady = true;
+    FLHook::instance->flhookReady = true;
 }
 
 int __stdcall IServerImplHook::Update()

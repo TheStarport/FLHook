@@ -91,7 +91,7 @@ class IServerImplHook
         static void __stdcall SpRequestInvincibility(uint shipId, bool enable, InvincibilityReason reason, ClientId client);
 
         static void __stdcall SpObjUpdate(const SSPObjUpdateInfo& ui, ClientId client);
-        static bool SubmitChatInner(ClientId from, ulong size, const void* rdlReader, uint& to, int);
+        static bool SubmitChatInner(ClientId from, ulong size, const void* rdlReader, ClientId to, int);
         static void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, const void* rdlReader, CHAT_ID cidTo, int unk1);
         static void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl);
         static void __stdcall SystemSwitchOutComplete(uint shipId, ClientId client);

@@ -109,7 +109,7 @@ namespace Plugins::Rename
 		if (!global->config->enableTagProtection)
 			return;
 
-		const auto charName = Hk::Client::GetCharacterNameByID(client);
+		const auto charName = client.GetCharacterName();
 		if (const auto& tag = global->tagList.FindTagPartial(charName.value()); tag != global->tagList.tags.end() && !tag->renamePassword.empty())
 		{
 			tag->lastAccess = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -120,7 +120,7 @@ namespace Plugins::Rename
 	{
 		if (!global->config->enableTagProtection)
 		{
-			PrintUserCmdText(client, L"Command disabled");
+			client.Message(L"Command disabled");
 			return;
 		}
 
@@ -129,14 +129,14 @@ namespace Plugins::Rename
 		// correctly and stop processing but tell FLHook that we processed the command.
 		if (param.empty())
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, usage);
+			client.Message(L"ERR Invalid parameters");
+			client.Message(usage);
 			return;
 		}
 
 		if (auto base = Hk::Player::GetCurrentBase(client); base.has_error())
 		{
-			PrintUserCmdText(client, L"ERR Not in base");
+			client.Message(L"ERR Not in base");
 			return;
 		}
 
@@ -146,22 +146,22 @@ namespace Plugins::Rename
 
 		if (tag.size() < MinCharacterNameLength)
 		{
-			PrintUserCmdText(client, L"ERR Tag too short");
-			PrintUserCmdText(client, usage);
+			client.Message(L"ERR Tag too short");
+			client.Message(usage);
 			return;
 		}
 
 		if (pass.empty())
 		{
-			PrintUserCmdText(client, L"ERR Password not set");
-			PrintUserCmdText(client, usage);
+			client.Message(L"ERR Password not set");
+			client.Message(usage);
 			return;
 		}
 
 		if (description.empty())
 		{
-			PrintUserCmdText(client, L"ERR Description not set");
-			PrintUserCmdText(client, usage);
+			client.Message(L"ERR Description not set");
+			client.Message(usage);
 			return;
 		}
 
@@ -170,20 +170,20 @@ namespace Plugins::Rename
 		{
 			if (tag.find(i.tag) == 0 || i.tag.find(tag) == 0)
 			{
-				PrintUserCmdText(client, L"ERR Tag already exists or conflicts with existing tag");
+				client.Message(L"ERR Tag already exists or conflicts with existing tag");
 				return;
 			}
 		}
 
 		// Save character and exit if kicked on save.
-		const auto charName = Hk::Client::GetCharacterNameByID(client);
+		const auto charName = client.GetCharacterName();
 		Hk::Player::SaveChar(charName.value());
 		if (Hk::Client::GetClientIdFromCharName(charName.value()) == UINT_MAX)
 			return;
 
 		if (const auto cash = Hk::Player::GetCash(client); global->config->makeTagCost > 0 && cash < global->config->makeTagCost)
 		{
-			PrintUserCmdText(client, L"ERR Insufficient credits");
+			client.Message(L"ERR Insufficient credits");
 			return;
 		}
 
@@ -198,7 +198,7 @@ namespace Plugins::Rename
 		data.tag = tag;
 		global->tagList.tags.emplace_back(data);
 
-		PrintUserCmdText(client, std::format(L"Created faction tag {} with master password {}", tag, pass));
+		client.Message(std::format(L"Created faction tag {} with master password {}", tag, pass));
 		Logger::i()->Log(
 		    LogLevel::Info,
 		    StringUtils::wstos(std::format(L"Tag {} created by {} ({})", tag.c_str(), charName.value().c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
@@ -209,7 +209,7 @@ namespace Plugins::Rename
 	{
 		if (!global->config->enableTagProtection)
 		{
-			PrintUserCmdText(client, L"Command disabled");
+			client.Message(L"Command disabled");
 			return;
 		}
 
@@ -218,8 +218,8 @@ namespace Plugins::Rename
 		// command.
 		if (param.empty())
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, L"Usage: /droptag <tag> <master password>");
+			client.Message(L"ERR Invalid parameters");
+			client.Message(L"Usage: /droptag <tag> <master password>");
 			return;
 		}
 
@@ -233,14 +233,14 @@ namespace Plugins::Rename
 			const auto [first, last] = std::ranges::remove_if(global->tagList.tags, [&tag](const TagData& tg) { return tg.tag == tag; });
 			global->tagList.tags.erase(first, last);
 			SaveSettings();
-			PrintUserCmdText(client, L"OK Tag dropped");
+			client.Message(L"OK Tag dropped");
 			Logger::i()->Log(
 			    LogLevel::Info,
 			    StringUtils::wstos(std::format(L"Tag {} dropped by {} ({})", tag.c_str(), charname.c_str(), Hk::Client::GetAccountIdByClientID(client).c_str())));
 			return;
 		}
 
-		PrintUserCmdText(client, L"ERR tag or master password are invalid");
+		client.Message(L"ERR tag or master password are invalid");
 	}
 
 	// Make tag password
@@ -252,8 +252,8 @@ namespace Plugins::Rename
 			// correctly and stop processing but tell FLHook that we processed the command.
 			if (param.empty())
 			{
-				PrintUserCmdText(client, L"ERR Invalid parameters");
-				PrintUserCmdText(client, L"Usage: /settagpass <tag> <master password> <rename password>");
+				client.Message(L"ERR Invalid parameters");
+				client.Message(L"Usage: /settagpass <tag> <master password> <rename password>");
 				return;
 			}
 
@@ -266,14 +266,14 @@ namespace Plugins::Rename
 			{
 				data->renamePassword = renamePassword;
 				SaveSettings();
-				PrintUserCmdText(client, std::format(L"OK Created rename password {} for tag {}", renamePassword, tag));
+				client.Message(std::format(L"OK Created rename password {} for tag {}", renamePassword, tag));
 				return;
 			}
-			PrintUserCmdText(client, L"ERR tag or master password are invalid");
+			client.Message(L"ERR tag or master password are invalid");
 		}
 		else
 		{
-			PrintUserCmdText(client, L"Command disabled");
+			client.Message(L"Command disabled");
 		}
 	}
 
@@ -408,7 +408,7 @@ namespace Plugins::Rename
 	{
 		if (!global->config->enableRename)
 		{
-			PrintUserCmdText(client, L"Command disabled");
+			client.Message(L"Command disabled");
 			return;
 		}
 
@@ -417,14 +417,14 @@ namespace Plugins::Rename
 		// command.
 		if (param.empty())
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, L"Usage: /renameme <charname> [password]");
+			client.Message(L"ERR Invalid parameters");
+			client.Message(L"Usage: /renameme <charname> [password]");
 			return;
 		}
 
 		if (auto base = Hk::Player::GetCurrentBase(client); base.has_error())
 		{
-			PrintUserCmdText(client, L"ERR Not in base");
+			client.Message(L"ERR Not in base");
 			return;
 		}
 
@@ -433,25 +433,25 @@ namespace Plugins::Rename
 		std::wstring newCharName = Trim(GetParam(param, L' ', 0));
 		if (newCharName.find(L" ") != -1)
 		{
-			PrintUserCmdText(client, L"ERR Space characters not allowed in name");
+			client.Message(L"ERR Space characters not allowed in name");
 			return;
 		}
 
 		if (Hk::Client::GetAccountByCharName(newCharName).has_value())
 		{
-			PrintUserCmdText(client, L"ERR Name already exists");
+			client.Message(L"ERR Name already exists");
 			return;
 		}
 
 		if (newCharName.length() > 23)
 		{
-			PrintUserCmdText(client, L"ERR Name too long");
+			client.Message(L"ERR Name too long");
 			return;
 		}
 
 		if (newCharName.length() < MinCharacterNameLength)
 		{
-			PrintUserCmdText(client, L"ERR Name too short");
+			client.Message(L"ERR Name too short");
 			return;
 		}
 
@@ -465,12 +465,12 @@ namespace Plugins::Rename
 				{
 					if (!password.length())
 					{
-						PrintUserCmdText(client, L"ERR Name starts with an owned tag. Password is required.");
+						client.Message(L"ERR Name starts with an owned tag. Password is required.");
 						return;
 					}
 					else if (password != i.masterPassword && password != i.renamePassword)
 					{
-						PrintUserCmdText(client, L"ERR Name starts with an owned tag. Password is wrong.");
+						client.Message(L"ERR Name starts with an owned tag. Password is wrong.");
 						return;
 					}
 					// Password is valid for owned tag.
@@ -493,12 +493,12 @@ namespace Plugins::Rename
 		const auto cash = Hk::Player::GetCash(charname);
 		if (cash.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(cash.error()));
+			client.Message(Hk::Err::ErrGetText(cash.error()));
 			return;
 		}
 		if (global->config->renameCost > 0 && cash < global->config->renameCost)
 		{
-			PrintUserCmdText(client, L"ERR Insufficient credits");
+			client.Message(L"ERR Insufficient credits");
 			return;
 		}
 
@@ -512,7 +512,7 @@ namespace Plugins::Rename
 		if (uint lastRenameTime = IniGetI(renameFile, "General", StringUtils::wstos(charname), 0);
 		    (lastRenameTime + 300) < Hk::Time::GetUnixSeconds() && (lastRenameTime + global->config->renameTimeLimit) > Hk::Time::GetUnixSeconds())
 		{
-			PrintUserCmdText(client, L"ERR Rename time limit");
+			client.Message(L"ERR Rename time limit");
 			return;
 		}
 
@@ -521,14 +521,14 @@ namespace Plugins::Rename
 		const auto sourceFile = Hk::Client::GetCharFileName(charname);
 		if (sourceFile.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(sourceFile.error()));
+			client.Message(Hk::Err::ErrGetText(sourceFile.error()));
 			return;
 		}
 
 		const auto destFile = Hk::Client::GetCharFileName(newCharName, true);
 		if (destFile.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(destFile.error()));
+			client.Message(Hk::Err::ErrGetText(destFile.error()));
 			return;
 		}
 
@@ -552,14 +552,14 @@ namespace Plugins::Rename
 	{
 		if (!global->config->enableMoveChar)
 		{
-			PrintUserCmdText(client, L"Command disabled");
+			client.Message(L"Command disabled");
 			return;
 		}
 
 		if (param.empty())
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, L"Usage: /setmovecode <code>");
+			client.Message(L"ERR Invalid parameters");
+			client.Message(L"Usage: /setmovecode <code>");
 			return;
 		}
 
@@ -567,19 +567,19 @@ namespace Plugins::Rename
 		std::string file = GetUserFilePath(charname, "-movechar.ini");
 		if (file.empty())
 		{
-			PrintUserCmdText(client, L"ERR Character does not exist");
+			client.Message(L"ERR Character does not exist");
 			return;
 		}
 
 		if (const std::wstring code = Trim(GetParam(param, L' ', 0)); code == L"none")
 		{
 			IniWriteW(file, "Settings", "Code", L"");
-			PrintUserCmdText(client, L"OK Movechar code cleared");
+			client.Message(L"OK Movechar code cleared");
 		}
 		else
 		{
 			IniWriteW(file, "Settings", "Code", code);
-			PrintUserCmdText(client, L"OK Movechar code set to " + code);
+			client.Message(L"OK Movechar code set to " + code);
 		}
 		return;
 	}
@@ -608,7 +608,7 @@ namespace Plugins::Rename
 	{
 		if (!global->config->enableMoveChar)
 		{
-			PrintUserCmdText(client, L"Command disabled");
+			client.Message(L"Command disabled");
 			return;
 		}
 
@@ -617,14 +617,14 @@ namespace Plugins::Rename
 		// command.
 		if (param.empty())
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, L"Usage: /movechar <charname> <code>");
+			client.Message(L"ERR Invalid parameters");
+			client.Message(L"Usage: /movechar <charname> <code>");
 			return;
 		}
 
 		if (auto base = Hk::Player::GetCurrentBase(client); base.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(base.error()));
+			client.Message(Hk::Err::ErrGetText(base.error()));
 			return;
 		}
 
@@ -633,7 +633,7 @@ namespace Plugins::Rename
 		std::string file = GetUserFilePath(movingCharName, "-movechar.ini");
 		if (file.empty())
 		{
-			PrintUserCmdText(client, L"ERR Character does not exist");
+			client.Message(L"ERR Character does not exist");
 			return;
 		}
 
@@ -641,14 +641,14 @@ namespace Plugins::Rename
 		std::wstring code = Trim(GetParam(param, L' ', 1));
 		if (std::wstring targetCode = IniGetWS(file, "Settings", "Code", L""); targetCode != code)
 		{
-			PrintUserCmdText(client, L"ERR Move character access denied");
+			client.Message(L"ERR Move character access denied");
 			return;
 		}
 
 		// Prevent ships from banned accounts from being moved.
 		if (IsBanned(movingCharName))
 		{
-			PrintUserCmdText(client, L"ERR not permitted");
+			client.Message(L"ERR not permitted");
 			return;
 		}
 
@@ -664,13 +664,13 @@ namespace Plugins::Rename
 		const auto cash = Hk::Player::GetCash(charname);
 		if (cash.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(cash.error()));
+			client.Message(Hk::Err::ErrGetText(cash.error()));
 			return;
 		}
 
 		if (global->config->moveCost > 0 && cash.value() < global->config->moveCost)
 		{
-			PrintUserCmdText(client, L"ERR Insufficient credits");
+			client.Message(L"ERR Insufficient credits");
 			return;
 		}
 
@@ -678,7 +678,7 @@ namespace Plugins::Rename
 		CAccount const* acc = Players.FindAccountFromClientID(client);
 		if (acc && acc->numberOfCharacters >= 5)
 		{
-			PrintUserCmdText(client, L"ERR Too many characters in account");
+			client.Message(L"ERR Too many characters in account");
 			return;
 		}
 
@@ -692,7 +692,7 @@ namespace Plugins::Rename
 		const auto sourceFile = Hk::Client::GetCharFileName(movingCharName);
 		if (sourceFile.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(sourceFile.error()));
+			client.Message(Hk::Err::ErrGetText(sourceFile.error()));
 			return;
 		}
 
@@ -955,8 +955,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->commands(&commands);
 	pi->timers(&timers);
 	pi->returnCode(&global->returnCode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &CharacterSelect_AFTER, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__CreateNewCharacter, &CreateNewCharacter);
 	pi->emplaceHook(HookedCall::IServerImpl__DestroyCharacter, &DeleteCharacter);

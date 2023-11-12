@@ -188,14 +188,14 @@ namespace Plugins::DeathPenalty
 					PrintUserCmdText(killerId,
 					    std::format(L"Death penalty: given {} credits from {}'s death penalty.",
 					        ToMoneyStr(killerReward),
-					        Hk::Client::GetCharacterNameByID(client).value()));
+					        client.GetCharacterName().value()));
 				}
 			}
 
 			if (cashOwed)
 			{
 				// Print message to the player and remove cash
-				PrintUserCmdText(client, L"Death penalty: charged " + ToMoneyStr(cashOwed) + L" credits.");
+				client.Message(L"Death penalty: charged " + ToMoneyStr(cashOwed) + L" credits.");
 				Hk::Player::RemoveCash(client, cashOwed);
 			}
 		}
@@ -263,34 +263,34 @@ namespace Plugins::DeathPenalty
 			{
 				global->MapClients[client].displayDPOnLaunch = false;
 				SaveDPNoticeToCharFile(client, "no");
-				PrintUserCmdText(client, L"Death penalty notices disabled.");
+				client.Message(L"Death penalty notices disabled.");
 			}
 			else if (StringUtils::ToLower(Trim(param)) == L"on")
 			{
 				global->MapClients[client].displayDPOnLaunch = true;
 				SaveDPNoticeToCharFile(client, "yes");
-				PrintUserCmdText(client, L"Death penalty notices enabled.");
+				client.Message(L"Death penalty notices enabled.");
 			}
 			else
 			{
-				PrintUserCmdText(client, L"ERR Invalid parameters");
-				PrintUserCmdText(client, L"/dp on | /dp off");
+				client.Message(L"ERR Invalid parameters");
+				client.Message(L"/dp on | /dp off");
 			}
 		}
 		else
 		{
-			PrintUserCmdText(client, L"The death penalty is charged immediately when you die.");
+			client.Message(L"The death penalty is charged immediately when you die.");
 			if (!IsInExcludedSystem(client))
 			{
 				auto shipValue = Hk::Player::GetShipValue(client);
 				if (shipValue.has_error())
 				{
-					PrintUserCmdText(client, Hk::Err::ErrGetText(shipValue.error()));
+					client.Message(Hk::Err::ErrGetText(shipValue.error()));
 				}
 				const auto cashOwed = static_cast<uint>(static_cast<float>(shipValue.value()) * GetShipFractionOverride(client));
 				const uint playerCash = Hk::Player::GetCash(client).value();
 
-				PrintUserCmdText(client, std::format(L"The death penalty for your ship will be {} credits.", ToMoneyStr(std::min(cashOwed, playerCash))));
+				client.Message(std::format(L"The death penalty for your ship will be {} credits.", ToMoneyStr(std::min(cashOwed, playerCash))));
 				PrintUserCmdText(client,
 				    L"If you would like to turn off the death penalty notices, run "
 				    L"this command with the argument \"off\".");
@@ -324,8 +324,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->mayUnload(true);
 	pi->commands(&commands);
 	pi->returnCode(&global->returncode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);

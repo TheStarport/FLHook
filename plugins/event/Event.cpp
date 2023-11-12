@@ -193,11 +193,11 @@ namespace Plugins::Event
 				{
 					mission.current_amount += gsi.count;
 					needed = mission.required_amount - mission.current_amount;
-					PrintUserCmdText(client, std::format(L"{} units remaining to complete mission objective", needed));
+					client.Message(std::format(L"{} units remaining to complete mission objective", needed));
 				}
 				else
 				{
-					PrintUserCmdText(client, L"Mission objective completed");
+					client.Message(L"Mission objective completed");
 				}
 			}
 		}
@@ -221,8 +221,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->mayUnload(true);
 	pi->timers(&timers);
 	pi->returnCode(&global->returncode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::IServerImpl__Startup, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &GFGoodBuy);

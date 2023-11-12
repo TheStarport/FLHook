@@ -7,23 +7,23 @@ namespace Plugins::Mark
 		auto target = Hk::Player::GetTarget(client);
 		if (target.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(target.error()));
+			client.Message(Hk::Err::ErrGetText(target.error()));
 			return;
 		}
 		const char err = MarkObject(client, target.value());
 		switch (err)
 		{
 			case 0:
-				PrintUserCmdText(client, L"OK");
+				client.Message(L"OK");
 				break;
 			case 1:
-				PrintUserCmdText(client, L"Error: You must have something targeted to mark it.");
+				client.Message(L"Error: You must have something targeted to mark it.");
 				break;
 			case 2:
-				PrintUserCmdText(client, L"Error: You cannot mark cloaked ships.");
+				client.Message(L"Error: You cannot mark cloaked ships.");
 				break;
 			case 3:
-				PrintUserCmdText(client, L"Error: Object is already marked.");
+				client.Message(L"Error: Object is already marked.");
 				break;
 		}
 	}
@@ -33,20 +33,20 @@ namespace Plugins::Mark
 		auto target = Hk::Player::GetTarget(client);
 		if (target.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(target.error()));
+			client.Message(Hk::Err::ErrGetText(target.error()));
 			return;
 		}
 		const char err = UnMarkObject(client, target.value());
 		switch (err)
 		{
 			case 0:
-				PrintUserCmdText(client, L"OK");
+				client.Message(L"OK");
 				break;
 			case 1:
-				PrintUserCmdText(client, L"Error: You must have something targeted to unmark it.");
+				client.Message(L"Error: You must have something targeted to unmark it.");
 				break;
 			case 2:
-				PrintUserCmdText(client, L"Error: Object is not marked.");
+				client.Message(L"Error: Object is not marked.");
 				break;
 		}
 	}
@@ -62,7 +62,7 @@ namespace Plugins::Mark
 		char err = MarkObject(client, target.value());
 		if (target.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(target.error()));
+			client.Message(Hk::Err::ErrGetText(target.error()));
 			return;
 		}
 
@@ -92,7 +92,7 @@ namespace Plugins::Mark
 		char err = UnMarkObject(client, target.value());
 		if (target.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(target.error()));
+			client.Message(Hk::Err::ErrGetText(target.error()));
 			return;
 		}
 		const auto Members = Hk::Player::GetGroupMembers(client);
@@ -123,7 +123,7 @@ namespace Plugins::Mark
 				std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
 				std::string section = "general_" + StringUtils::wstos(fileName.value());
 				IniWrite(userFile, section, "automarkenabled", "no");
-				PrintUserCmdText(client, L"Accepting marks from the group");
+				client.Message(L"Accepting marks from the group");
 			}
 		}
 		else if (StringUtils::ToLower(param) == L"on")
@@ -137,7 +137,7 @@ namespace Plugins::Mark
 				std::string userFile = CoreGlobals::c()->accPath + StringUtils::wstos(dir) + "\\flhookuser.ini";
 				std::string section = "general_" + StringUtils::wstos(fileName.value());
 				IniWrite(userFile, section, "automarkenabled", "yes");
-				PrintUserCmdText(client, L"Ignoring marks from the group");
+				client.Message(L"Ignoring marks from the group");
 			}
 		}
 		else
@@ -152,7 +152,7 @@ namespace Plugins::Mark
 	{
 		if (global->config->AutoMarkRadiusInM <= 0.0f) // automarking disabled
 		{
-			PrintUserCmdText(client, L"Command disabled");
+			client.Message(L"Command disabled");
 			return;
 		}
 
@@ -192,7 +192,7 @@ namespace Plugins::Mark
 					if (!radiusString.empty())
 						IniWrite(userFile, section, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
-				PrintUserCmdText(client, std::format(L"Automarking turned on within a {:.2f} KM radius", global->Mark[client].AutoMarkRadius / 1000));
+				client.Message(std::format(L"Automarking turned on within a {:.2f} KM radius", global->Mark[client].AutoMarkRadius / 1000));
 			}
 			else if (!radiusString.empty())
 			{
@@ -205,7 +205,7 @@ namespace Plugins::Mark
 					std::string section = "general_" + StringUtils::wstos(fileName.value());
 					IniWrite(userFile, section, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
-				PrintUserCmdText(client, std::format(L"Radius changed to {:.2f} KMs", radius));
+				client.Message(std::format(L"Radius changed to {:.2f} KMs", radius));
 			}
 		}
 		else
@@ -227,9 +227,9 @@ namespace Plugins::Mark
 						IniWrite(userFile, section, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
 				if (!radiusString.empty())
-					PrintUserCmdText(client, std::format(L"Automarking turned off; radius changed to {:.2f} KMs", global->Mark[client].AutoMarkRadius / 1000));
+					client.Message(std::format(L"Automarking turned off; radius changed to {:.2f} KMs", global->Mark[client].AutoMarkRadius / 1000));
 				else
-					PrintUserCmdText(client, L"Automarking turned off");
+					client.Message(L"Automarking turned off");
 			}
 			else if (!radiusString.empty())
 			{
@@ -242,7 +242,7 @@ namespace Plugins::Mark
 					std::string section = "general_" + StringUtils::wstos(fileName.value());
 					IniWrite(userFile, section, "automarkradius", std::to_string(global->Mark[client].AutoMarkRadius));
 				}
-				PrintUserCmdText(client, std::format(L"Radius changed to {:.2f} KMs", radius));
+				client.Message(std::format(L"Radius changed to {:.2f} KMs", radius));
 			}
 		}
 	}

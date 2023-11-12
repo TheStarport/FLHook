@@ -93,7 +93,7 @@ namespace Plugins::Message
 			if (line.find(L"<TRA") == 0)
 				Hk::Chat::FMsg(client, line);
 			else
-				PrintUserCmdText(client, line);
+				client.Message(line);
 		}
 	}
 
@@ -120,7 +120,7 @@ namespace Plugins::Message
 				if (line.find(L"<TRA") == 0)
 					Hk::Chat::FMsg(client, line);
 				else
-					PrintUserCmdText(client, line);
+					client.Message(line);
 			}
 		}
 	}
@@ -145,7 +145,7 @@ namespace Plugins::Message
 			if (global->config->standardBannerLines[curStandardBanner].find(L"<TRA") == 0)
 				Hk::Chat::FMsg(client, global->config->standardBannerLines[curStandardBanner]);
 			else
-				PrintUserCmdText(client, global->config->standardBannerLines[curStandardBanner].c_str());
+				client.Message(global->config->standardBannerLines[curStandardBanner].c_str());
 		}
 	}
 
@@ -158,11 +158,11 @@ namespace Plugins::Message
 		{
 			if (clientData.targetClientId == UINT_MAX)
 			{
-				PrintUserCmdText(client, L"ERR Target not available");
+				client.Message(L"ERR Target not available");
 				return false;
 			}
 
-			const auto targetName = Hk::Client::GetCharacterNameByID(clientData.targetClientId);
+			const auto targetName = clientData.targetClientId.GetCharacterName();
 			msg = StringUtils::ReplaceStr(msg, L"#t", targetName.value());
 		}
 
@@ -178,7 +178,7 @@ namespace Plugins::Message
 			}
 			else
 			{
-				PrintUserCmdText(client, L"ERR Target not available");
+				client.Message(L"ERR Target not available");
 				return false;
 			}
 		}
@@ -194,7 +194,7 @@ namespace Plugins::Message
 		const auto iter = global->info.find(client);
 		if (iter == global->info.end() || iter->second.slots[msgSlot].empty())
 		{
-			PrintUserCmdText(client, L"ERR No message defined");
+			client.Message(L"ERR No message defined");
 			return L"";
 		}
 
@@ -213,13 +213,13 @@ namespace Plugins::Message
 	{
 		if (!global->config->enableSetMessage)
 		{
-			PrintUserCmdText(client, L"Set commands disabled");
+			client.Message(L"Set commands disabled");
 			return;
 		}
 		if (msgSlot < 0 || msgSlot > 9)
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, L"Usage: /ln (n=0-9)");
+			client.Message(L"ERR Invalid parameters");
+			client.Message(L"Usage: /ln (n=0-9)");
 			return;
 		}
 
@@ -233,7 +233,7 @@ namespace Plugins::Message
 	{
 		if (!global->config->enableSetMessage)
 		{
-			PrintUserCmdText(client, L"Set commands disabled");
+			client.Message(L"Set commands disabled");
 			return;
 		}
 		UserCmd_SendToLastTarget(client, GetPresetMessage(client, msgSlot));
@@ -246,7 +246,7 @@ namespace Plugins::Message
 	{
 		if (!global->config->enableSetMessage)
 		{
-			PrintUserCmdText(client, L"Set commands disabled");
+			client.Message(L"Set commands disabled");
 			return;
 		}
 		Hk::Chat::SendSystemChat(client, GetPresetMessage(client, msgSlot));
@@ -259,7 +259,7 @@ namespace Plugins::Message
 	{
 		if (!global->config->enableSetMessage)
 		{
-			PrintUserCmdText(client, L"Set commands disabled");
+			client.Message(L"Set commands disabled");
 			return;
 		}
 
@@ -273,7 +273,7 @@ namespace Plugins::Message
 	{
 		if (!global->config->enableSetMessage)
 		{
-			PrintUserCmdText(client, L"Set commands disabled");
+			client.Message(L"Set commands disabled");
 			return;
 		}
 
@@ -397,8 +397,8 @@ namespace Plugins::Message
 			{
 				if (chatMsg.find(word) != -1)
 				{
-					PrintUserCmdText(client, L"This is an automated message.");
-					PrintUserCmdText(client, L"Please do not swear or you may be sanctioned.");
+					client.Message(L"This is an automated message.");
+					client.Message(L"Please do not swear or you may be sanctioned.");
 
 					global->info[client].swearWordWarnings++;
 					if (global->info[client].swearWordWarnings > 2)
@@ -514,7 +514,7 @@ namespace Plugins::Message
 	{
 		if (!global->config->enableSetMessage)
 		{
-			PrintUserCmdText(client, L"Set commands disabled");
+			client.Message(L"Set commands disabled");
 			return;
 		}
 
@@ -523,8 +523,8 @@ namespace Plugins::Message
 
 		if (msgSlot < 0 || msgSlot > 9 || msg.empty())
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, L"Usage: /setmsg <n> <msg text>");
+			client.Message(L"ERR Invalid parameters");
+			client.Message(L"Usage: /setmsg <n> <msg text>");
 			return;
 		}
 
@@ -532,7 +532,7 @@ namespace Plugins::Message
 
 		// Update the character cache
 		global->info[client].slots[msgSlot] = msg;
-		PrintUserCmdText(client, L"OK");
+		client.Message(L"OK");
 	}
 
 	/** @ingroup Message
@@ -542,21 +542,21 @@ namespace Plugins::Message
 	{
 		if (!global->config->enableSetMessage)
 		{
-			PrintUserCmdText(client, L"Set commands disabled");
+			client.Message(L"Set commands disabled");
 			return;
 		}
 		const auto iter = global->info.find(client);
 		if (iter == global->info.end())
 		{
-			PrintUserCmdText(client, L"ERR No messages");
+			client.Message(L"ERR No messages");
 			return;
 		}
 
 		for (int i = 0; i < NumberOfSlots; i++)
 		{
-			PrintUserCmdText(client, std::format(L"{}: {}", i, iter->second.slots[i]));
+			client.Message(std::format(L"{}: {}", i, iter->second.slots[i]));
 		}
-		PrintUserCmdText(client, L"OK");
+		client.Message(L"OK");
 	}
 
 	/** @ingroup Message
@@ -631,7 +631,7 @@ namespace Plugins::Message
 		if (iter == global->info.end())
 		{
 			// There's no way for this to happen! yeah right.
-			PrintUserCmdText(client, L"ERR No message defined");
+			client.Message(L"ERR No message defined");
 			return;
 		}
 
@@ -639,7 +639,7 @@ namespace Plugins::Message
 
 		if (iter->second.lastPmClientId == UINT_MAX)
 		{
-			PrintUserCmdText(client, L"ERR PM sender not available");
+			client.Message(L"ERR PM sender not available");
 			return;
 		}
 
@@ -656,7 +656,7 @@ namespace Plugins::Message
 		if (iter == global->info.end())
 		{
 			// There's no way for this to happen! yeah right.
-			PrintUserCmdText(client, L"ERR No message defined");
+			client.Message(L"ERR No message defined");
 			return;
 		}
 
@@ -668,7 +668,7 @@ namespace Plugins::Message
 		if (iter->second.targetClientId != -1 && Hk::Client::IsValidClientID(iter->second.targetClientId))
 			targetCharname = (const wchar_t*)Players.GetActiveCharacterName(iter->second.targetClientId);
 
-		PrintUserCmdText(client, L"OK sender=" + senderCharname + L" target=" + targetCharname);
+		client.Message(L"OK sender=" + senderCharname + L" target=" + targetCharname);
 	}
 
 	/** @ingroup Message
@@ -680,7 +680,7 @@ namespace Plugins::Message
 		if (iter == global->info.end())
 		{
 			// There's no way for this to happen! yeah right.
-			PrintUserCmdText(client, L"ERR No message defined");
+			client.Message(L"ERR No message defined");
 			return;
 		}
 
@@ -688,7 +688,7 @@ namespace Plugins::Message
 
 		if (iter->second.targetClientId == UINT_MAX)
 		{
-			PrintUserCmdText(client, L"ERR PM target not available");
+			client.Message(L"ERR PM target not available");
 			return;
 		}
 
@@ -708,14 +708,14 @@ namespace Plugins::Message
 
 		if (charname.size() == 0 || msg.size() == 0)
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, usage);
+			client.Message(L"ERR Invalid parameters");
+			client.Message(usage);
 			return;
 		}
 
 		if (!Hk::Client::GetAccountByCharName(targetCharname))
 		{
-			PrintUserCmdText(client, L"ERR charname does not exist");
+			client.Message(L"ERR charname does not exist");
 			return;
 		}
 
@@ -728,7 +728,7 @@ namespace Plugins::Message
 			item.body = StringUtils::wstos(msg);
 			MailManager::i()->SendNewMail(targetCharname, item);
 			MailManager::i()->SendMailNotification(targetCharname);
-			PrintUserCmdText(client, L"OK message saved to mailbox");
+			client.Message(L"OK message saved to mailbox");
 		}
 		else
 		{
@@ -749,7 +749,7 @@ namespace Plugins::Message
 		const uint toClientId = StringUtils::Cast<int>(clientId);
 		if (!Hk::Client::IsValidClientID(toClientId) || Hk::Client::IsInCharSelectMenu(toClientId))
 		{
-			PrintUserCmdText(client, L"ERR Invalid client-id");
+			client.Message(L"ERR Invalid client-id");
 			return;
 		}
 
@@ -768,8 +768,8 @@ namespace Plugins::Message
 
 		if (charnamePrefix.size() < 3 || msg.empty())
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, L"Usage: /factionmsg <tag> <message> or /fm ...");
+			client.Message(L"ERR Invalid parameters");
+			client.Message(L"Usage: /factionmsg <tag> <message> or /fm ...");
 			return;
 		}
 
@@ -790,7 +790,7 @@ namespace Plugins::Message
 			Hk::Chat::FormatSendChat(client, sender, ViewToWString(msg), L"FF7BFF");
 
 		if (msgSent == false)
-			PrintUserCmdText(client, L"ERR No chars found");
+			client.Message(L"ERR No chars found");
 	}
 
 	/** @ingroup Message
@@ -806,8 +806,8 @@ namespace Plugins::Message
 			showChatTime = false;
 		else
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, L"Usage: /set chattime [on|off]");
+			client.Message(L"ERR Invalid parameters");
+			client.Message(L"Usage: /set chattime [on|off]");
 		}
 
 		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
@@ -819,7 +819,7 @@ namespace Plugins::Message
 			iter->second.showChatTime = showChatTime;
 
 		// Send confirmation msg
-		PrintUserCmdText(client, L"OK");
+		client.Message(L"OK");
 	}
 
 	/** @ingroup Message
@@ -828,7 +828,7 @@ namespace Plugins::Message
 	void UserCmd_Time(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		// Send time with gray color (BEBEBE) in small text (90) above the chat line.
-		PrintUserCmdText(client, GetTimeString(FLHookConfig::i()->general.localTime));
+		client.Message(GetTimeString(FLHookConfig::i()->general.localTime));
 	}
 
 	/** @ingroup Message
@@ -851,7 +851,7 @@ namespace Plugins::Message
 		}
 		else
 		{
-			PrintUserCmdText(client, L"Command not enabled.");
+			client.Message(L"Command not enabled.");
 		}
 	}
 
@@ -873,7 +873,7 @@ namespace Plugins::Message
 		}
 		else
 		{
-			PrintUserCmdText(client, L"Command not enabled.");
+			client.Message(L"Command not enabled.");
 		}
 	}
 
@@ -927,8 +927,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->mayUnload(true);
 	pi->commands(&commands);
 	pi->returnCode(&global->returncode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::IServerImpl__SubmitChat, &SubmitChat);
 	pi->emplaceHook(HookedCall::IChat__SendChat, &SendChat);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);

@@ -31,11 +31,11 @@
 #define PRINT_ERROR()                                                        \
 	{                                                                        \
 		for (uint i = 0; (i < sizeof(Error) / sizeof(std::wstring)); i++) \
-			PrintUserCmdText(client, Error[i]);                           \
+			client.Message(Error[i]);                           \
 		return;                                                              \
 	}
-#define PRINT_OK() PrintUserCmdText(client, L"OK");
-#define PRINT_DISABLED() PrintUserCmdText(client, L"Command disabled");
+#define PRINT_OK() client.Message(L"OK");
+#define PRINT_DISABLED() client.Message(L"Command disabled");
 
 namespace Plugins::ConData
 {
@@ -388,7 +388,7 @@ namespace Plugins::ConData
 		}
 
 		// Send the message to the user
-		PrintUserCmdText(client, response);
+		client.Message(response);
 	}
 
 	const std::vector commands = {{
@@ -440,7 +440,7 @@ namespace Plugins::ConData
 				auto saturation = static_cast<int>(cdpClient->GetLinkSaturation() * 100);
 				int txqueue = cdpClient->GetSendQSize();
 				classptr->Print(StringUtils::wstos(std::format(L"charname={} clientid={} loss={} lag={} pingfluct={} saturation={} txqueue={}\n",
-				    Hk::Client::GetCharacterNameByID(client).value(),
+				    client.GetCharacterName().value(),
 				    client,
 				    con.averageLoss,
 				    con.lags,
@@ -520,8 +520,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->commands(&commands);
 	pi->timers(&timers);
 	pi->returnCode(&global->returncode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__TimerCheckKick, &TimerCheckKick);

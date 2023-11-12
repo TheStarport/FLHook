@@ -3,6 +3,7 @@
 #include "Core/FLHook.hpp"
 
 #include "API/API.hpp"
+#include "Core/ClientServerInterface.hpp"
 #include "Core/IEngineHook.hpp"
 #include "Core/IpResolver.hpp"
 
@@ -121,7 +122,7 @@ void FLHook::ClearClientInfo(uint client)
     info->characterName = L"";
     info->characterFile = L"";
 
-    info->dieMsg = DiemsgAll;
+    info->dieMsg = All;
     info->ship = 0;
     info->shipOld = 0;
     info->spawnTime = 0;
@@ -140,7 +141,7 @@ void FLHook::ClearClientInfo(uint client)
     info->dmgLast = {};
     info->dieMsgSize = CS_DEFAULT;
     info->chatSize = CS_DEFAULT;
-    info->chatStyle = CST_DEFAULT;
+    info->chatStyle = Default;
 
     info->ignoreInfoList.clear();
     info->killsInARow = 0;
@@ -168,20 +169,20 @@ void FLHook::ClearClientInfo(uint client)
 
 void FLHook::LoadUserSettings(uint client)
 {
-    auto* info = &ClientInfo::At(ClientId(client));
+    auto& info = ClientId(client).GetData();
 
     const CAccount* acc = Players.FindAccountFromClientID(client);
     const std::wstring dir = Hk::Client::GetAccountDirName(acc);
     const std::wstring userFile = std::format(L"{}{}\\accData.json", accPath, dir);
 
-    info->accountData = nlohmann::json::object();
+    info.accountData = nlohmann::json::object();
 
     try
     {
         if (std::wifstream ifs(userFile); !ifs.fail())
         {
             std::wstring fileData((std::istreambuf_iterator(ifs)), (std::istreambuf_iterator<wchar_t>()));
-            info->accountData = nlohmann::json::parse(fileData);
+            info.accountData = nlohmann::json::parse(fileData);
         }
     }
     catch (nlohmann::json::exception& ex)
@@ -191,15 +192,15 @@ void FLHook::LoadUserSettings(uint client)
                          std::format(L"Error while loading account data from account file ({}): {}", userFile, StringUtils::stows(std::string(ex.what()))));
     }
 
-    auto settings = info->accountData.value("settings", nlohmann::json::object());
+    auto settings = info.accountData.value("settings", nlohmann::json::object());
 
-    info->dieMsg = settings.value("dieMsg", DiemsgAll);
-    info->dieMsgSize = settings.value("dieMsgSize", CS_DEFAULT);
-    info->chatSize = settings.value("chatSize", CS_DEFAULT);
-    info->chatStyle = settings.value("chatStyle", CST_DEFAULT);
+    info.dieMsg = magic_enum::enum_cast<DieMsgType>(StringUtils::stows(settings.value("dieMsg", "All"))).value_or(DieMsgType::All);
+    info.dieMsgSize = magic_enum::enum_cast<ChatSize>(StringUtils::stows(settings.value("dieMsgSize", "Default"))).value_or(ChatSize::Default);
+    info.chatSize = magic_enum::enum_cast<ChatSize>(StringUtils::stows(settings.value("chatSize", "Default"))).value_or(ChatSize::Default);
+    info.chatStyle = magic_enum::enum_cast<ChatStyle>(StringUtils::stows(settings.value("chatStyle", "Default"))).value_or(ChatStyle::Default);
 
     // read ignorelist
-    info->ignoreInfoList.clear();
+    info.ignoreInfoList.clear();
 
     for (const auto ignoreList = settings.value("ignoreList", nlohmann::json::object()); const auto& [key, value] : ignoreList.items())
     {
@@ -208,7 +209,7 @@ void FLHook::LoadUserSettings(uint client)
             IgnoreInfo ii;
             ii.character = StringUtils::stows(key);
             ii.flags = value.get<std::wstring>();
-            info->ignoreInfoList.emplace_back(ii);
+            info.ignoreInfoList.emplace_back(ii);
         }
         catch (...)
         {
@@ -217,14 +218,14 @@ void FLHook::LoadUserSettings(uint client)
     }
 
     // Don't know if this is a reference or copy - write again to be safe
-    info->accountData["settings"] = settings;
+    info.accountData["settings"] = settings;
 }
 
 void FLHook::InitHookExports()
 {
     IpResolver::resolveThread = std::thread(IpResolver::ThreadResolver);
 
-    getShipInspect = reinterpret_cast<GetShipInspect>(Offset(BinaryType::Server, AddressList::GetInspect));
+    getShipInspect = reinterpret_cast<GetShipInspectT>(Offset(BinaryType::Server, AddressList::GetInspect));
 
     // install IServerImpl callbacks in remoteclient.dll
     auto* serverPointer = reinterpret_cast<char*>(&Server);
@@ -275,7 +276,7 @@ void FLHook::InitHookExports()
         Offset(BinaryType::Server, static_cast<AddressList>(static_cast<DWORD>(AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 1)));
 
     // crc anti-cheat
-    crcAntiCheat = reinterpret_cast<CRCAntiCheat>(Offset(BinaryType::Server, AddressList::CrcAntiCheat));
+    crcAntiCheat = reinterpret_cast<CRCAntiCheatT>(Offset(BinaryType::Server, AddressList::CrcAntiCheat));
 
     // get CDPServer
     address = Offset(BinaryType::DaLib, AddressList::CdpServer);
@@ -405,15 +406,4 @@ void FLHook::UnloadHookExports()
 
     // plugins
     PluginManager::i()->UnloadAll();
-}
-
-void ClientInfo::SaveAccountData() const
-{
-    const CAccount* acc = Players.FindAccountFromClientID(client);
-    const std::wstring dir = Hk::Client::GetAccountDirName(acc);
-    const std::wstring userFile = std::format(L"{}{}\\accData.json", FLHook::GetAccountPath(), dir);
-
-    const auto content = accountData.dump(4);
-    std::ofstream of(userFile);
-    of.write(content.c_str(), content.size());
 }

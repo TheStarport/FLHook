@@ -260,9 +260,9 @@ namespace Hk::Chat
         // adjust chatstyle
         switch (ClientInfo[toClientId].chatStyle)
         {
-            case CST_BOLD: format += 0x01; break;
-            case CST_ITALIC: format += 0x02; break;
-            case CST_UNDERLINE: format += 0x04; break;
+            case Bold: format += 0x01; break;
+            case Italic: format += 0x02; break;
+            case Underline: format += 0x04; break;
             default: format += 0x00; break;
         }
 

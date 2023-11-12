@@ -138,8 +138,8 @@ void Api::PrintUserCmdText(ClientId client, std::wstring_view text)
     {
         // Split text into two strings, one from the beginning to the character before newLineChar, and one after newLineChar till the end.
         // It will then recursively call itself for each new line char until the original text is all displayed.
-        PrintUserCmdText(client, text.substr(0, newLineChar));
-        PrintUserCmdText(client, text.substr(newLineChar + 1, std::wstring::npos));
+        client.Message(text.substr(0, newLineChar));
+        client.Message(text.substr(newLineChar + 1, std::wstring::npos));
     }
 }
 

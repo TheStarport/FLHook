@@ -31,17 +31,17 @@ namespace Plugins::Template
 			std::mt19937 rng(dev());
 			std::uniform_int_distribution<std::mt19937::result_type> dist(1, 6); // distribution in range [1, 1000]
 
-			PrintUserCmdText(client, std::format(L"The gods decided your number is actually: {}", dist(rng)));
+			client.Message(std::format(L"The gods decided your number is actually: {}", dist(rng)));
 			return;
 		}
 
 		if (const auto number = StringUtils::Cast<int>(GetParam(param, ' ', 0)); number > 0)
 		{
-			PrintUserCmdText(client, L"You put in the following number: " + std::to_wstring(number));
+			client.Message(L"You put in the following number: " + std::to_wstring(number));
 		}
 		else
 		{
-			PrintUserCmdText(client, L"ERR: You must provide a valid positive non-zero number.");
+			client.Message(L"ERR: You must provide a valid positive non-zero number.");
 		}
 	}
 
@@ -102,8 +102,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->mayUnload(true);
 	pi->commands(&commands);
 	pi->returnCode(&global->returnCode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 }

@@ -188,11 +188,11 @@ namespace Hk::Client
         }
         if (ClientInfo::At(client).cruiseActivated)
         {
-            return ES_CRUISE;
+            return Cruise;
         }
         if (ClientInfo::At(client).thrusterActivated)
         {
-            return ES_THRUSTER;
+            return Thruster;
         }
         if (!ClientInfo::At(client).engineKilled)
         {
@@ -238,7 +238,7 @@ namespace Hk::Client
             {
                 return ET_MISSILE;
             }
-            return ET_GUN;
+            return Gun;
         }
         if (VFTable == VFTableCM)
         {

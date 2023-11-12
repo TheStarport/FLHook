@@ -5,8 +5,8 @@
 class AbstractUserCommandProcessor
 {
     protected:
-        uint client = 0;
-        static void PrintOk(ClientId client) { HkApi::PrintUserCmdText(client, L"OK"); }
+        ClientId userCmdClient;
+        void PrintOk() const { userCmdClient.Message(L"OK"); }
 
     public:
         virtual ~AbstractUserCommandProcessor() = default;

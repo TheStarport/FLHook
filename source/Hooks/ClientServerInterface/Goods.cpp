@@ -20,7 +20,7 @@ bool GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId client)
                 legalSell = true;
                 if (abs(gsi.count) > cargo.count)
                 {
-                    const std::wstring charName = Hk::Client::GetCharacterNameByID(client).Handle();
+                    const std::wstring charName = client.GetCharacterName().Handle();
                     // AddCheaterLog(charName, std::format(L"Sold more good than possible item={} count={}", gsi.archId, gsi.count));
 
                     Hk::Chat::MsgU(std::format(L"Possible cheating detected ({})", charName));
@@ -33,7 +33,7 @@ bool GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId client)
         }
         if (!legalSell)
         {
-            const std::wstring charName = Hk::Client::GetCharacterNameByID(client).Handle();
+            const std::wstring charName = client.GetCharacterName().Handle();
             // AddCheaterLog(charName, std::format(L"Sold good player does not have (buggy test), item={}", gsi.archId));
 
             return false;
@@ -42,7 +42,7 @@ bool GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId client)
     CatchHook({
         Logger::i()->Log(
             LogLevel::Trace,
-            std::format(L"Exception in {} (client={} ({}))", StringUtils::stows(__FUNCTION__), client, Hk::Client::GetCharacterNameByID(client).Unwrap()));
+            std::format(L"Exception in {} (client={} ({}))", StringUtils::stows(__FUNCTION__), client, client.GetCharacterName().Unwrap()));
     })
 
         return true;

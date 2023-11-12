@@ -33,7 +33,7 @@ namespace Plugins::KillTracker
 
 	void UserCmd_Help(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
-		PrintUserCmdText(client, L"/kills <player name>");
+		client.Message(L"/kills <player name>");
 	}
 
 	void PrintNPCKills(uint client, std::wstring& charFile, int& numKills)
@@ -48,10 +48,10 @@ namespace Plugins::KillTracker
 				const Archetype::Ship* ship = Archetype::GetShip(shipArchId);
 				if (!ship)
 					continue;
-				PrintUserCmdText(client, std::format(L"NPC kills:  {} {}", Hk::Chat::GetWStringFromIdS(ship->idsName), count));
+				client.Message(std::format(L"NPC kills:  {} {}", Hk::Chat::GetWStringFromIdS(ship->idsName), count));
 			}
 		}
-		PrintUserCmdText(client, std::format(L"Total kills: {}", numKills));
+		client.Message(std::format(L"Total kills: {}", numKills));
 	}
 
 	/** @ingroup KillTracker
@@ -67,7 +67,7 @@ namespace Plugins::KillTracker
 			const auto clientPlayer = Hk::Client::GetClientIdFromCharName(targetCharName);
 			if (clientPlayer.has_error())
 			{
-				PrintUserCmdText(client, Hk::Err::ErrGetText(clientPlayer.error()));
+				client.Message(Hk::Err::ErrGetText(clientPlayer.error()));
 				return;
 			}
 			clientId = clientPlayer.value();
@@ -78,14 +78,14 @@ namespace Plugins::KillTracker
 		}
 
 		int numKills = Hk::Player::GetPvpKills(client).value();
-		PrintUserCmdText(client, std::format(L"PvP kills: {}", numKills));
+		client.Message(std::format(L"PvP kills: {}", numKills));
 		if (global->config->enableNPCKillOutput)
 		{
-			std::wstring printCharname = Hk::Client::GetCharacterNameByID(clientId).value();
+			std::wstring printCharname = clientId.GetCharacterName().value();
 			PrintNPCKills(client, printCharname, numKills);
 		}
 		int rank = Hk::Player::GetRank(client).value();
-		PrintUserCmdText(client, std::format(L"Level: {}", rank));
+		client.Message(std::format(L"Level: {}", rank));
 	}
 
 	/** @ingroup KillTracker
@@ -157,8 +157,8 @@ namespace Plugins::KillTracker
 			ClearDamageTaken(clientVictim);
 			if (totalDamageTaken == 0.0f || greatestInflictorId == 0)
 				return;
-			std::wstring victimName = Hk::Client::GetCharacterNameByID(clientVictim).value();
-			std::wstring greatestInflictorName = Hk::Client::GetCharacterNameByID(greatestInflictorId).value();
+			std::wstring victimName = clientVictim.GetCharacterName().value();
+			std::wstring greatestInflictorName = greatestInflictorId.GetCharacterName().value();
 			const std::wformat_args templateArgs =
 			    std::make_wformat_args(victimName, greatestInflictorName, static_cast<uint>(ceil((greatestDamageDealt / totalDamageTaken) * 100)));
 			std::wstring greatestDamageMessage = std::vformat(global->config->deathDamageTemplate, templateArgs);
@@ -228,8 +228,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->mayUnload(true);
 	pi->commands(&commands);
 	pi->returnCode(&global->returncode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 	pi->emplaceHook(HookedCall::IEngine__AddDamageEntry, &AddDamageEntry, HookStep::After);

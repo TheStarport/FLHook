@@ -1,27 +1,5 @@
 #pragma once
 
-#include "API/FLServer/Admin.hpp"
-#include "API/FLServer/Chat.hpp"
-#include "API/FLServer/Client.hpp"
-#include "API/FLServer/GameObject.hpp"
-#include "API/FLServer/Math.hpp"
-#include "API/FLServer/Personalities.hpp"
-#include "API/FLServer/Player.hpp"
-#include "API/FLServer/ZoneUtilities.hpp"
-
-#include "API/FLHook/ClientInfo.hpp"
-#include "API/FLHook/MailManager.hpp"
-#include "API/FLHook/Plugin.hpp"
-
-#include "API/Utils/FileUtils.hpp"
-#include "API/Utils/IniUtils.hpp"
-#include "API/Utils/PerfTimer.hpp"
-#include "API/Types/ClientId.hpp"
-#include "API/Types/BaseId.hpp"
-#include "Api/Types/ShipId.hpp"
-#include "Api/Types/SystemId.hpp"
-
-
 namespace HkApi
 {
     // Making sure these functions is only accessible within Flhook
@@ -80,7 +58,6 @@ namespace HkApi
     DLL void PrintLocalUserCmdText(ClientId client, std::wstring_view msg, float distance);
 
 #ifdef FLHOOK
-
 
 #endif
 

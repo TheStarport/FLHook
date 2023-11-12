@@ -425,7 +425,7 @@ namespace Plugins::MiningControl
 						{
 							miningBonusEligible = false;
 							if (cd.Debug)
-								PrintUserCmdText(client, L"* Wrong ship/equip/rep");
+								client.Message(L"* Wrong ship/equip/rep");
 						}
 						// If this minable commodity was not hit by the right type
 						// of gun, flag as no bonus
@@ -433,7 +433,7 @@ namespace Plugins::MiningControl
 						{
 							miningBonusEligible = false;
 							if (cd.Debug)
-								PrintUserCmdText(client, L"* Wrong gun");
+								client.Message(L"* Wrong gun");
 						}
 
 						// If either no mining gun was used in the shot, or the
@@ -564,8 +564,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->mayUnload(true);
 	pi->timers(&timers);
 	pi->returnCode(&global->returnCode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::IServerImpl__Startup, &LoadSettingsAfterStartup, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &PlayerLaunch);

@@ -5,10 +5,11 @@
 #include "API/Types/SystemId.hpp"
 
 class ShipId;
+class ClientData;
 
 class ClientId
 {
-        const uint value = 0;
+        uint value = 0;
 
         [[nodiscard]]
         Action<void, Error> AdjustCash(int amount) const;
@@ -21,12 +22,13 @@ class ClientId
 
     public:
         explicit ClientId(const uint val) : value(val) {}
+        explicit ClientId(const SpecialChatIds id) { value = static_cast<const uint>(id); }
         explicit ClientId(const std::wstring_view str) : value(GetClientIdFromCharacterName(str)){};
         explicit ClientId() = default;
 
         explicit operator uint() const noexcept { return value; }
         bool operator==(const ClientId next) const { return value == next.value; }
-        bool operator!() const;
+        explicit operator bool() const;
 
         // Returns the underlying value of the ClientId, it is generally recommended to not use this.
 
@@ -39,8 +41,7 @@ class ClientId
         // Type Conversions
 
         [[nodiscard]]
-        Action<std::wstring, Error> GetCharacterName() const;
-        // TODO: These eventually will be their own types as well
+        Action<std::wstring_view, Error> GetCharacterName() const;
         [[nodiscard]]
         Action<BaseId, Error> GetCurrentBase() const;
         [[nodiscard]]
@@ -66,20 +67,20 @@ class ClientId
         [[nodiscard]]
         Action<uint, Error> GetCash();
         [[nodiscard]]
-        Action<std::wstring_view, Error> GetActiveCharacterName();
-        [[nodiscard]]
         Action<std::list<CargoInfo>, Error> EnumCargo(int &remainingHoldSize) const;
+        [[nodiscard]]
+        ClientData &GetData() const;
 
         // State Checks
 
         [[nodiscard]]
-        bool InSpace();
+        bool InSpace() const;
         [[nodiscard]]
-        bool IsDocked();
+        bool IsDocked() const;
         [[nodiscard]]
         bool InCharacterSelect() const;
         [[nodiscard]]
-        bool IsAlive();
+        bool IsAlive() const;
 
         // Manipulation
 
@@ -96,6 +97,9 @@ class ClientId
 
         // Chat
 
-        Action<void, Error> Message(const std::wstring &message, MessageFormat format = MessageFormat::Normal, MessageColor color = MessageColor::Green) const;
+        Action<void, Error> Message(const std::wstring_view message, const MessageFormat format = MessageFormat::Normal,
+                                    const MessageColor color = MessageColor::Default) const;
         Action<void, Error> MessageFrom(ClientId destinationClient, std::wstring message) const;
+
+        void Save();
 };

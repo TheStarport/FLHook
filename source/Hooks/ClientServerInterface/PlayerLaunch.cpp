@@ -17,7 +17,7 @@ void PlayerLaunchInner(uint shipId, ClientId client)
         ClientInfo::At(client).tradelane = false;
 
         // adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
-        std::wstring charName = StringUtils::ToLower(Hk::Client::GetCharacterNameByID(client).Handle());
+        std::wstring charName = StringUtils::ToLower(client.GetCharacterName().Handle());
         for (const auto& i : ClientInfo::At(client).moneyFix)
         {
             if (i.character == charName)

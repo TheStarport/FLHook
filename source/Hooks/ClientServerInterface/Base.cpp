@@ -15,7 +15,7 @@ void BaseEnterInnerAfter([[maybe_unused]] uint baseId, ClientId client)
     {
         // adjust cash, this is necessary when cash was added while use was in
         // charmenu/had other char selected
-        std::wstring charName = StringUtils::ToLower(Hk::Client::GetCharacterNameByID(client).Unwrap());
+        std::wstring charName = StringUtils::ToLower(client.GetCharacterName().Unwrap());
         for (const auto& i : ClientInfo::At(client).moneyFix)
         {
             if (i.character == charName)

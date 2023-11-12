@@ -104,7 +104,7 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, uint systemId, Clien
         {
             Hk::Chat::FMsgSendChat(client, sendXmlBufSys, sendXmlSysRet);
         }
-        else if (ClientInfo::At(client).dieMsg == DiemsgAll)
+        else if (ClientInfo::At(client).dieMsg == All)
         {
             if (systemId == clientSystemId)
             {
@@ -161,7 +161,7 @@ void __stdcall IEngineHook::ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint 
             DamageCause cause = dmg.get_cause();
             const auto clientKiller = Hk::Client::GetClientIdByShip(dmg.get_inflictor_id()).Raw();
 
-            std::wstring victimName = Hk::Client::GetCharacterNameByID(client).Handle();
+            std::wstring victimName = client.GetCharacterName().Handle();
             if (clientKiller.has_value())
             {
                 std::wstring killType;
@@ -189,7 +189,7 @@ void __stdcall IEngineHook::ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint 
                 }
                 else
                 {
-                    std::wstring killer = Hk::Client::GetCharacterNameByID(client).Handle();
+                    std::wstring killer = client.GetCharacterName().Handle();
 
                     deathMessage = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextPlayerKill, L"%victim", victimName);
                     deathMessage = StringUtils::ReplaceStr(deathMessage, L"%killer", killer);

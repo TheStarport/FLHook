@@ -76,7 +76,7 @@ namespace Plugins::Mark
 #define PRINT_ERROR()                                                        \
 	{                                                                        \
 		for (uint i = 0; (i < sizeof(Error) / sizeof(std::wstring)); i++) \
-			PrintUserCmdText(client, Error[i]);                           \
+			client.Message(Error[i]);                           \
 		return;                                                              \
 	}
 } // namespace Plugins::Mark

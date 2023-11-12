@@ -111,24 +111,6 @@ struct GroupMember
         std::wstring character;
 };
 
-struct SpecialChatIds
-{
-        enum : uint
-        {
-            CONSOLE = 0,
-
-            PLAYER_MIN = 1,
-            PLAYER_MAX = 249,
-
-            SPECIAL_BASE = 0x10000,
-            UNIVERSE = SPECIAL_BASE | 0,
-            SYSTEM = SPECIAL_BASE | 1,
-            LOCAL = SPECIAL_BASE | 2,
-            GROUP = SPECIAL_BASE | 3,
-            GROUP_EVENT = SPECIAL_BASE | 4
-        };
-};
-
 struct SystemInfo
 {
         /** The system nickname */

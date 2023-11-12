@@ -10,7 +10,7 @@ std::wstring_view MailManager::GetCharacterName(const std::variant<uint, std::ws
     // If character is uint
     if (!character.index())
     {
-        const auto name = Hk::Client::GetCharacterNameByID(std::get<uint>(character)).Raw();
+        const auto name = std::get<uint>(character.GetCharacterName()).Raw();
         if (name.has_error())
         {
             return L""; // TODO: Get error
@@ -164,7 +164,7 @@ void MailManager::SendMailNotification(const std::variant<uint, std::wstring_vie
     }
     else if (mailCount.value() > 0)
     {
-        PrintUserCmdText(client, std::format(L"You have {} unread mail! Read it via /mailread.", mailCount.value()));
+        client.Message(std::format(L"You have {} unread mail! Read it via /mailread.", mailCount.value()));
     }
 }
 

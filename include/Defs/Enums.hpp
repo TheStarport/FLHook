@@ -11,79 +11,79 @@ enum class LogType : int
     PerfTimers
 };
 
-enum DIEMSGTYPE
+enum class DieMsgType
 {
-    DiemsgAll = 0,
-    DIEMSG_SYSTEM = 1,
-    DIEMSG_NONE = 2,
-    DIEMSG_SELF = 3,
+    All = 0,
+    System = 1,
+    None = 2,
+    Self = 3,
 };
 
-enum CHATSIZE
+enum class ChatSize
 {
-    CS_DEFAULT = 0,
-    CS_SMALL = 1,
-    CS_BIG = 2,
+    Default = 0,
+    Small = 1,
+    Big = 2,
 };
 
-enum CHATSTYLE
+enum class ChatStyle
 {
-    CST_DEFAULT = 0,
-    CST_BOLD = 1,
-    CST_ITALIC = 2,
-    CST_UNDERLINE = 3,
+    Default = 0,
+    Bold = 1,
+    Italic = 2,
+    Underline = 3,
 };
 
-enum EngineState
+enum class EngineState
 {
-    ES_CRUISE,
-    ES_THRUSTER,
-    ES_ENGINE,
-    ES_KILLED,
-    ES_TRADELANE
+    Cruise,
+    Thruster,
+    Engine,
+    Killed,
+    Tradelane
 };
 
-enum EquipmentType
+enum class EquipmentType
 {
-    ET_GUN,
-    ET_TORPEDO,
-    ET_CD,
-    ET_MISSILE,
-    ET_MINE,
-    ET_CM,
-    ET_SHIELDGEN,
-    ET_THRUSTER,
-    ET_SHIELDBAT,
-    ET_NANOBOT,
-    ET_MUNITION,
-    ET_ENGINE,
-    ET_OTHER,
-    ET_SCANNER,
-    ET_TRACTOR,
-    ET_LIGHT
+    Gun,
+    Torpedo,
+    Cd,
+    Missile,
+    Mine,
+    Cm,
+    ShieldGen,
+    Thruster,
+    ShieldBattery,
+    Nanobot,
+    Munition,
+    Engine,
+    Other,
+    Scanner,
+    Tractor,
+    Light
 };
 
 enum class PluginMajorVersion
 {
-    UNDEFINED = -1,
+    Undefined = -1,
     // We started doing this from 4 onwards
-    VERSION_04 = 4,
+    V04 = 4,
 };
 
 // Define most ahead of time
 enum class PluginMinorVersion
 {
-    UNDEFINED = -1,
-    VERSION_00 = 0,
-    VERSION_01,
-    VERSION_02,
-    VERSION_03,
-    VERSION_04,
-    VERSION_05,
-    VERSION_06,
-    VERSION_07,
-    VERSION_08,
-    VERSION_09,
+    Undefined = -1,
+    V00 = 0,
+    V01,
+    V02,
+    V03,
+    V04,
+    V05,
+    V06,
+    V07,
+    V08,
+    V09,
 };
 
 enum class ReturnCode
@@ -104,6 +104,7 @@ enum class HookStep
 
 enum class MessageColor
 {
+    Default = 0x0,
     AliceBlue = 0xF0F8FF,
     AntiqueWhite = 0xFAEBD7,
     Aqua = 0x00FFFF,
@@ -244,6 +245,21 @@ enum class MessageColor
     WhiteSmoke = 0xF5F5F5,
     Yellow = 0xFFFF00,
     YellowGreen = 0x9ACD32,
+};
+
+enum class SpecialChatIds : uint
+{
+    Console = 0,
+
+    PlayerMin = 1,
+    PlayerMax = 249,
+
+    SpecialBase = 0x10000,
+    Universe = SpecialBase | 0,
+    System = SpecialBase | 1,
+    Local = SpecialBase | 2,
+    Group = SpecialBase | 3,
+    GroupEvent = SpecialBase | 4
 };
 
 enum class MessageFormat

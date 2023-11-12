@@ -15,6 +15,7 @@ class ShipId final : ObjectId
         Action<float, Error> GetHealth(bool percentage = false);
         Action<float, Error> GetShields(bool percentage = false);
         void* GetNpcPersonality();
+        std::optional<ClientId> GetPlayer();
         std::optional<ShipId> GetTarget();
         Action<RepId, Error> GetReputation();
         std::wstring GetAffiliation();

@@ -53,7 +53,7 @@ namespace Plugins::PurchaseRestrictions
 		const auto iter = global->itemsOfInterestHashed.find(goodId);
 		if (iter != global->itemsOfInterestHashed.end())
 		{
-			const auto charName = Hk::Client::GetCharacterNameByID(client);
+			const auto charName = client.GetCharacterName();
 			Logger::i()->Log(LogLevel::Info,
 			    std::format("Item '{}' found in cargo of {} - {}", iter->second.c_str(), StringUtils::wstos(charName.value()), details.c_str()));
 		}
@@ -134,7 +134,7 @@ namespace Plugins::PurchaseRestrictions
 		{
 			suppress = true;
 			pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
-			PrintUserCmdText(client, global->config->goodPurchaseDenied);
+			client.Message(global->config->goodPurchaseDenied);
 			global->returnCode = ReturnCode::SkipAll;
 			return;
 		}
@@ -147,12 +147,12 @@ namespace Plugins::PurchaseRestrictions
 			{
 				if (!CheckIdEquipRestrictions(client, gbi.goodId, false))
 				{
-					const auto charName = Hk::Client::GetCharacterNameByID(client);
+					const auto charName = client.GetCharacterName();
 					Logger::i()->Log(LogLevel::Info, 
 						std::format("{} attempting to buy {} without correct Id", StringUtils::wstos(charName.value()), gbi.goodId));
 					if (global->config->enforceItemRestrictions)
 					{
-						PrintUserCmdText(client, global->config->goodPurchaseDenied);
+						client.Message(global->config->goodPurchaseDenied);
 						pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
 						suppress = true;
 						global->returnCode = ReturnCode::SkipAll;
@@ -176,12 +176,12 @@ namespace Plugins::PurchaseRestrictions
 
 				if (global->shipItemRestrictionsHashed.contains(hullInfo->shipGoodId) && !CheckIdEquipRestrictions(client, hullInfo->shipGoodId, true))
 				{
-					const auto charName = Hk::Client::GetCharacterNameByID(client);
+					const auto charName = client.GetCharacterName();
 					Logger::i()->Log(LogLevel::Info,
 					    std::format("{} attempting to buy {} without correct Id", StringUtils::wstos(charName.value()), hullInfo->shipGoodId));
 					if (global->config->enforceItemRestrictions)
 					{
-						PrintUserCmdText(client, global->config->shipPurchaseDenied);
+						client.Message(global->config->shipPurchaseDenied);
 						pub::Player::SendNNMessage(client, pub::GetNicknameId("info_access_denied"));
 						suppress = true;
 						global->returnCode = ReturnCode::SkipAll;
@@ -267,8 +267,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->shortName("PurchaseRestrictions");
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &BaseEnter);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &GFGoodBuy);

@@ -63,7 +63,7 @@ namespace Plugins::MiscCommands
 		// Drop player shields and keep them down.
 		for (const auto& [id, info] : global->mapInfo)
 		{
-			if (auto charName = Hk::Client::GetCharacterNameByID(id); info.shieldsDown && charName.has_value())
+			if (auto charName = id.GetCharacterName(); info.shieldsDown && charName.has_value())
 			{
 				if (const auto playerInfo = Hk::Admin::GetPlayerInfo(charName.value(), false); playerInfo.has_value() && playerInfo.value().ship)
 				{
@@ -80,7 +80,7 @@ namespace Plugins::MiscCommands
 		auto ship = Hk::Player::GetShip(client);
 		if (ship.has_error())
 		{
-			PrintUserCmdText(client, L"ERR Not in space");
+			client.Message(L"ERR Not in space");
 			return;
 		}
 
@@ -100,9 +100,9 @@ namespace Plugins::MiscCommands
 		}
 
 		if (lights)
-			PrintUserCmdText(client, std::format(L" Lights {}", lightsStatus ? L"on" : L"off"));
+			client.Message(std::format(L" Lights {}", lightsStatus ? L"on" : L"off"));
 		else
-			PrintUserCmdText(client, L"Light control not available");
+			client.Message(L"Light control not available");
 	}
 
 	/** @ingroup MiscCommands
@@ -110,10 +110,10 @@ namespace Plugins::MiscCommands
 	 */
 	void UserCmdPos(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
-		const auto playerInfo = Hk::Admin::GetPlayerInfo(Hk::Client::GetCharacterNameByID(client).value(), false);
+		const auto playerInfo = Hk::Admin::GetPlayerInfo(client.GetCharacterName().value(), false);
 		if (playerInfo.has_error() || !playerInfo.value().ship)
 		{
-			PrintUserCmdText(client, L"ERR Not in space");
+			client.Message(L"ERR Not in space");
 			return;
 		}
 
@@ -123,7 +123,7 @@ namespace Plugins::MiscCommands
 
 		wchar_t buf[100];
 		_snwprintf_s(buf, sizeof(buf), L"Position %0.0f %0.0f %0.0f Orient %0.0f %0.0f %0.0f", pos.x, pos.y, pos.z, erot.x, erot.y, erot.z);
-		PrintUserCmdText(client, buf);
+		client.Message(buf);
 	}
 
 	/** @ingroup MiscCommands
@@ -133,10 +133,10 @@ namespace Plugins::MiscCommands
 	{
 		std::wstring Charname = (const wchar_t*)Players.GetActiveCharacterName(client);
 
-		const auto playerInfo = Hk::Admin::GetPlayerInfo(Hk::Client::GetCharacterNameByID(client).value(), false);
+		const auto playerInfo = Hk::Admin::GetPlayerInfo(client.GetCharacterName().value(), false);
 		if (playerInfo.has_error() || !playerInfo.value().ship)
 		{
-			PrintUserCmdText(client, L"ERR Not in space");
+			client.Message(L"ERR Not in space");
 			return;
 		}
 
@@ -149,7 +149,7 @@ namespace Plugins::MiscCommands
 
 		if (dir1.x > 5 || dir1.y > 5 || dir1.z > 5)
 		{
-			PrintUserCmdText(client, L"ERR Ship is moving");
+			client.Message(L"ERR Ship is moving");
 			return;
 		}
 
@@ -171,14 +171,14 @@ namespace Plugins::MiscCommands
 	{
 		if (!global->config->enableDropRep)
 		{
-			PrintUserCmdText(client, L"Command Disabled");
+			client.Message(L"Command Disabled");
 			return;
 		}
 
 		auto repGroupNick = Hk::Ini::GetFromPlayerFile(client, L"rep_group");
 		if (repGroupNick.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(repGroupNick.error()));
+			client.Message(Hk::Err::ErrGetText(repGroupNick.error()));
 			return;
 		}
 
@@ -187,24 +187,24 @@ namespace Plugins::MiscCommands
 		const auto cash = Hk::Player::GetCash(client);
 		if (cash.has_error())
 		{
-			PrintUserCmdText(client, std::format(L"ERR {}", Hk::Err::ErrGetText(cash.error())));
+			client.Message(std::format(L"ERR {}", Hk::Err::ErrGetText(cash.error())));
 			return;
 		}
 
 		if (global->config->repDropCost > 0 && cash < global->config->repDropCost)
 		{
-			PrintUserCmdText(client, L"ERR Insufficient credits");
+			client.Message(L"ERR Insufficient credits");
 			return;
 		}
 
 		if (const auto repValue = Hk::Player::GetRep(client, repGroupNick.value()); repValue.has_error())
 		{
-			PrintUserCmdText(client, std::format(L"ERR {}", Hk::Err::ErrGetText(repValue.error())));
+			client.Message(std::format(L"ERR {}", Hk::Err::ErrGetText(repValue.error())));
 			return;
 		}
 
 		Hk::Player::SetRep(client, repGroupNick.value(), 0.599f);
-		PrintUserCmdText(client, L"OK Reputation dropped, logout for change to take effect.");
+		client.Message(L"OK Reputation dropped, logout for change to take effect.");
 
 		// Remove cash if we're charging for it.
 		if (global->config->repDropCost > 0)
@@ -251,11 +251,11 @@ namespace Plugins::MiscCommands
 		auto shipValue = Hk::Player::GetShipValue(client);
 		if (shipValue.has_error())
 		{
-			PrintUserCmdText(client, Hk::Err::ErrGetText(shipValue.error()));
+			client.Message(Hk::Err::ErrGetText(shipValue.error()));
 		}
 		else
 		{
-			PrintUserCmdText(client, StringUtils::stows(std::format("{}", shipValue.value())));
+			client.Message(StringUtils::stows(std::format("{}", shipValue.value())));
 		}
 	}
 
@@ -274,7 +274,7 @@ namespace Plugins::MiscCommands
 	void UserCmdShields(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		global->mapInfo[client].shieldsDown = !global->mapInfo[client].shieldsDown;
-		PrintUserCmdText(client, std::format(L"Shields {}", global->mapInfo[client].shieldsDown ? L"Disabled" : L"Enabled"));
+		client.Message(std::format(L"Shields {}", global->mapInfo[client].shieldsDown ? L"Disabled" : L"Enabled"));
 	}
 
 	// Client command processing
@@ -389,8 +389,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->commands(&commands);
 	pi->timers(&timers);
 	pi->returnCode(&global->returncode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::FLHook__ClearClientInfo, &ClearClientInfo, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);

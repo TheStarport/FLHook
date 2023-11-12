@@ -45,20 +45,20 @@ namespace Plugins::Restart
 	{
 		if (global->config->availableRestarts.empty())
 		{
-			PrintUserCmdText(client, L"There are no restarts available.");
+			client.Message(L"There are no restarts available.");
 			return;
 		}
 
-		PrintUserCmdText(client, L"You can use these restarts:");
+		client.Message(L"You can use these restarts:");
 		for (const auto& [key, value] : global->config->availableRestarts)
 		{
 			if (global->config->enableRestartCost)
 			{
-				PrintUserCmdText(client, std::format(L"{} - ${}", key, value));
+				client.Message(std::format(L"{} - ${}", key, value));
 			}
 			else
 			{
-				PrintUserCmdText(client, key);
+				client.Message(key);
 			}
 		}
 	}
@@ -68,8 +68,8 @@ namespace Plugins::Restart
 		const std::wstring restartTemplate = GetParam(param, ' ', 0);
 		if (!restartTemplate.length())
 		{
-			PrintUserCmdText(client, L"ERR Invalid parameters");
-			PrintUserCmdText(client, L"/restart <template>");
+			client.Message(L"ERR Invalid parameters");
+			client.Message(L"/restart <template>");
 		}
 
 		// Get the character name for this connection.
@@ -80,7 +80,7 @@ namespace Plugins::Restart
 		const std::filesystem::path directory = "config\\restarts";
 		if (!std::filesystem::exists(directory))
 		{
-			PrintUserCmdText(client, L"There has been an error with the restarts plugin. Please contact an Administrator.");
+			client.Message(L"There has been an error with the restarts plugin. Please contact an Administrator.");
 			Logger::i()->Log(LogLevel::Err, "Missing restarts folder in config folder.");
 			return;
 		}
@@ -98,7 +98,7 @@ namespace Plugins::Restart
 		}
 		if (restart.restartFile.empty())
 		{
-			PrintUserCmdText(client, L"ERR Template does not exist");
+			client.Message(L"ERR Template does not exist");
 			return;
 		}
 
@@ -110,7 +110,7 @@ namespace Plugins::Restart
 
 		if (const auto base = Hk::Player::GetCurrentBase(client); base.has_error())
 		{
-			PrintUserCmdText(client, L"ERR Not in base");
+			client.Message(L"ERR Not in base");
 			return;
 		}
 
@@ -129,7 +129,7 @@ namespace Plugins::Restart
 		const auto cash = Hk::Player::GetCash(restart.characterName);
 		if (cash.has_error())
 		{
-			PrintUserCmdText(client, L"ERR " + Hk::Err::ErrGetText(cash.error()));
+			client.Message(L"ERR " + Hk::Err::ErrGetText(cash.error()));
 			return;
 		}
 
@@ -230,7 +230,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->commands(&commands);
 	pi->timers(&timers);
 	pi->returnCode(&global->returnCode);
-	pi->versionMajor(PluginMajorVersion::VERSION_04);
-	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->versionMajor(PluginMajorVersion::V04);
+	pi->versionMinor(PluginMinorVersion::V00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 }
