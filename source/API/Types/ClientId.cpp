@@ -35,6 +35,7 @@ bool ClientId::IsValidClientId() const
 
     return FLHook::Clients()[value].isValid;
 }
+
 uint ClientId::GetClientIdFromCharacterName(std::wstring_view name)
 {
     // TODO: Validate this can be done with a view
@@ -197,7 +198,7 @@ Action<CShip*, Error> ClientId::GetShip() const
 
     if (!ship)
     {
-        return { cpp::fail{ Error::InvalidShip } };
+        return { cpp::fail(Error::PlayerNotInSpace) };
     }
 
     return { dynamic_cast<CShip*>(CObject::Find(ship, CObject::CSHIP_OBJECT)) };
@@ -355,32 +356,6 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
     return { {} };
 }
 
-// This messages the player directly instead of doing a universe message. Defaults to a delay of 10 seconds.
-Action<void, Error> ClientId::MessageAndKick(const std::wstring_view reason, const uint delay) const
-{
-    ClientCheck;
-
-    if (reason.length())
-    {
-        const std::wstring msg = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.kickMsg, L"%reason", StringUtils::XmlText(reason));
-        Hk::Chat::Msg(value, msg);
-    }
-
-    if (!delay)
-    {
-        CAccount* acc = Players.FindAccountFromClientID(value);
-        acc->ForceLogout();
-        return { {} };
-    }
-
-    const mstime kickTime = TimeUtils::UnixTime<std::chrono::seconds>() + delay;
-    if (auto& client = FLHook::Clients()[value]; !client.kickTime || client.kickTime > kickTime)
-    {
-        client.kickTime = kickTime;
-    }
-
-    return { {} };
-}
 
 Action<void, Error> ClientId::SaveChar() const
 {
