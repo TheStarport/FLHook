@@ -6,6 +6,7 @@
 #include "Logger.hpp"
 #include "StartupCache.hpp"
 
+class InternalApi;
 class IServerImplHook;
 // ReSharper disable twice CppInconsistentNaming
 
@@ -13,6 +14,7 @@ class FLHook final
 {
         friend IServerImplHook;
         friend IClientImpl;
+        friend InternalApi;
 
         // Static things
 
@@ -147,4 +149,6 @@ class FLHook final
         static InfocardManager& GetInfocardManager() { return instance->infocardManager; }
         static ClientList& Clients() { return instance->clientList; }
         static Logger& GetLogger() { return instance->logger; }
+
+        static Action<void, Error> MessageUniverse(std::wstring_view message);
 };

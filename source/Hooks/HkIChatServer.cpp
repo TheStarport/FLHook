@@ -1,6 +1,6 @@
 #include "PCH.hpp"
 
-#include "API/FLServer/Chat.hpp"
+#include "API/InternalApi.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Global.hpp"
 
@@ -26,10 +26,11 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             const int spaceAfterColonOffset = buffer[sender.length() + 1] == ' ' ? sender.length() + 2 : 0;
             const std::wstring text = buffer.substr(spaceAfterColonOffset, buffer.length() - spaceAfterColonOffset);
 
+            auto& data = client.GetData();
             if (FLHookConfig::i()->userCommands.userCmdIgnore && (clientTo.GetValue() & 0xFFFF) != 0)
             {
                 // check ignores
-                for (const auto& ci : ClientInfo::At(client).ignoreInfoList)
+                for (const auto& ci : data.ignoreInfoList)
                 {
                     if (ci.flags.find(L'p') == std::wstring::npos && clientTo.GetValue() & 0x10000)
                     {
@@ -49,20 +50,21 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             uchar format = 0x00;
             if (FLHookConfig::i()->userCommands.userCmdSetChatFont)
             {
+
                 // adjust chat size
-                switch (ClientInfo::At(client).chatSize)
+                switch (data.chatSize)
                 {
-                    case CS_SMALL: format = 0x90; break;
-                    case CS_BIG: format = 0x10; break;
+                    case ChatSize::Small: format = 0x90; break;
+                    case ChatSize::Big: format = 0x10; break;
                     default: format = 0x00; break;
                 }
 
                 // adjust chat style
-                switch (ClientInfo::At(client).chatStyle)
+                switch (data.chatStyle)
                 {
-                    case Bold: format += 0x01; break;
-                    case Italic: format += 0x02; break;
-                    case Underline: format += 0x04; break;
+                    case ChatStyle::Bold: format += 0x01; break;
+                    case ChatStyle::Italic: format += 0x02; break;
+                    case ChatStyle::Underline: format += 0x04; break;
                     default: format += 0x00; break;
                 }
             }
@@ -72,33 +74,33 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             std::wstring traDataFormat = formatBuf;
             std::wstring traDataColor;
             std::wstring traDataSenderColor = L"FFFFFF";
-            if (CoreGlobals::c()->messagePrivate)
+            if (FLHook::instance->messagePrivate)
             {
                 traDataColor = L"19BD3A"; // pm chat color
             }
-            else if (CoreGlobals::c()->messageSystem)
+            else if (FLHook::instance->messageSystem)
             {
                 traDataSenderColor = L"00FF00";
                 traDataColor = L"E6C684"; // system chat color
             }
-            else if (CoreGlobals::c()->messageUniverse)
+            else if (FLHook::instance->messageUniverse)
             {
                 traDataSenderColor = L"00FF00";
                 traDataColor = L"FFFFFF"; // universe chat color
             }
-            else if (!clientTo || clientTo == 0x10000)
+            else if (!clientTo || clientTo.GetValue() == 0x10000)
             {
                 traDataColor = L"FFFFFF"; // universe chat color
             }
-            else if (clientTo == 0x10003)
+            else if (clientTo.GetValue() == 0x10003)
             {
                 traDataColor = L"FF7BFF"; // group chat
             }
-            else if (clientTo == 0x10002)
+            else if (clientTo.GetValue() == 0x10002)
             {
                 traDataColor = L"FF8F40"; // local chat color
             }
-            else if (clientTo & 0x10000)
+            else if (clientTo.GetValue() & 0x10000)
             {
                 traDataColor = L"E6C684"; // system chat color
             }
@@ -111,7 +113,7 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             wos << L"<TRA data=\"0x" << traDataSenderColor + traDataFormat << L"\" mask=\"-1\"/><TEXT>" << StringUtils::XmlText(sender) << L": </TEXT>"
                 << L"<TRA data =\"0x" << traDataColor + traDataFormat << L"\" mask=\"-1\"/>" << "<TEXT>" << StringUtils::XmlText(text) + L"</TEXT>";
 
-            Hk::Chat::FMsg(client, wos.str());
+            InternalApi::SendMessage(client, wos.str());
         }
         else
         {

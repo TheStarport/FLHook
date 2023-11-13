@@ -3,6 +3,7 @@
 #include "API/API.hpp"
 #include "API/Types/ClientId.hpp"
 
+#include "API/InternalApi.hpp"
 #include "Core/FLHook.hpp"
 
 #define ClientCheck                                   \
@@ -127,7 +128,7 @@ Action<CAccount*, Error> ClientId::GetAccount() const
     return { acc };
 }
 
-Action<const Archetype::Ship*, Error> ClientId::GetShipArch()
+Action<const Archetype::Ship*, Error> ClientId::GetShipArch() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -156,7 +157,7 @@ Action<ShipId, Error> ClientId::GetShipId() const
         return { cpp::fail{ Error::InvalidShip } };
     }
 
-    return { ShipId(ship) }; 
+    return cpp::result<ShipId, Error>(ShipId(ship));
 }
 
 Action<CPlayerGroup*, Error> ClientId::GetGroup() const
@@ -388,7 +389,6 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
     return { {} };
 }
 
-
 Action<void, Error> ClientId::SaveChar() const
 {
     ClientCheck;
@@ -446,7 +446,7 @@ const std::array BannedBases = {
     CreateID("li01_15_base"),
 };
 
-Action<void, Error> ClientId::Beam(std::variant<BaseId, std::wstring_view> base) const
+Action<void, Error> ClientId::Beam(BaseId base) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -455,48 +455,32 @@ Action<void, Error> ClientId::Beam(std::variant<BaseId, std::wstring_view> base)
         return { cpp::fail(Error::PlayerNotInSpace) };
     }
 
-    uint baseId;
-
-    if (base.index() == 1)
+    if (std::ranges::find(BannedBases, base.GetValue()) != BannedBases.end())
     {
-        const std::string baseName = StringUtils::wstos(std::wstring(std::get<std::wstring_view>(base)));
-
-        // get base id
-        if (pub::GetBaseID(baseId, baseName.c_str()) == -4)
-        {
-            return { cpp::fail(Error::InvalidBaseName) };
-        }
-    }
-    else
-    {
-        baseId = std::get<uint>(base);
-    }
-
-    if (std::ranges::find(BannedBases, baseId) != BannedBases.end())
-    {
-        return { cpp::fail(Error::InvalidBaseName) };
+        return { cpp::fail(Error::InvalidBase) };
     }
 
     uint sysId;
     pub::Player::GetSystem(value, sysId);
-    const Universe::IBase* basePtr = Universe::get_base(baseId);
+    const Universe::IBase* basePtr = Universe::get_base(base.GetValue());
 
     if (!basePtr)
     {
         return { cpp::fail(Error::InvalidBase) };
     }
 
-    pub::Player::ForceLand(value, baseId); // beam
+    pub::Player::ForceLand(value, base.GetValue()); // beam
 
     if (basePtr->systemId != sysId)
     {
-        Server.BaseEnter(baseId, value);
-        Server.BaseExit(baseId, value);
+        Server.BaseEnter(base.GetValue(), value);
+        Server.BaseExit(base.GetValue(), value);
         auto fileName = Hk::Client::GetCharFileName(value).Raw();
         if (fileName.has_error())
         {
             return { cpp::fail(fileName.error()) };
         }
+
         const std::wstring newFile = std::format(L"{}.fl", fileName.value());
         CHARACTER_ID charId;
         strcpy_s(charId.charFilename, StringUtils::wstos(newFile.substr(0, 14)).c_str());
@@ -511,8 +495,8 @@ Action<void, Error> ClientId::Message(const std::wstring_view message, const Mes
     ClientCheck;
     CharSelectCheck;
 
-    const auto formattedMessage = Hk::Chat::FormatMsg(color, format, message);
-    Hk::Chat::FMsg(value, formattedMessage);
+    const auto formattedMessage = StringUtils::FormatMsg(color, format, std::wstring(message));
+    InternalApi::SendMessage(L"", *this, formattedMessage);
 
     return { {} };
 }

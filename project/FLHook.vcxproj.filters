@@ -271,7 +271,7 @@
     <ClCompile Include="..\source\Utils\PerfTimer.cpp">
       <Filter>Source\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\API\Api.cpp">
+    <ClCompile Include="..\source\API\InternalApi.cpp">
       <Filter>Source\API</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Core\ApiInternal.cpp">
@@ -405,7 +405,7 @@
     <ClInclude Include="..\Include\Core\ClientServerInterface.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\API\API.hpp">
+    <ClInclude Include="..\Include\API\InternalApi.hpp">
       <Filter>Include\API</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Core\Commands\ExternalCommandProcessor.hpp">

@@ -27,6 +27,8 @@
 #include <variant>
 #include <vector>
 
+#undef SendMessage
+
 #ifndef DLL
     #ifndef FLHOOK
         #define DLL __declspec(dllimport)

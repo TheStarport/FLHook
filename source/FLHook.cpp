@@ -2,6 +2,7 @@
 
 #include "Core/FLHook.hpp"
 
+#include "API/InternalApi.hpp"
 #include "Core/MemoryManager.hpp"
 #include <Core/Logger.hpp>
 #include <Core/MessageHandler.hpp>
@@ -207,6 +208,31 @@ DWORD __stdcall FLHook::Offset(const BinaryType type, AddressList address)
         case BinaryType::RemoteClient: return reinterpret_cast<DWORD>(remoteClient) + offset;
         default: throw std::runtime_error("Provided BinaryType is not loaded."); // NOLINT(clang-diagnostic-covered-switch-default)
     }
+}
+
+Action<void, Error> FLHook::MessageUniverse(std::wstring_view message)
+{
+    if (message.empty())
+    {
+        return { {} };
+    }
+
+    constexpr CHAT_ID ci = { 0 };
+    constexpr CHAT_ID ciClient = { 0x00010000 };
+
+    const std::wstring xml = std::format(L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>", StringUtils::XmlText(message));
+
+    uint retVal;
+    static std::array<char, 1024> buffer;
+    std::fill_n(buffer, buffer.size(), '\0');
+
+    if (const auto err = InternalApi::FMsgEncodeXml(xml, buffer.data(), buffer.size(), retVal).Raw(); err.has_error())
+    {
+        return { cpp::fail(err.error()) };
+    }
+
+    Server.SubmitChat(ci, retVal, buffer.data(), ciClient, -1);
+    return { {} };
 }
 
 bool FLHook::OnServerStart()

@@ -15,6 +15,8 @@ class BaseId
         bool operator==(const BaseId next) const { return value == next.value; }
         explicit operator bool() const;
 
+        uint GetValue() const { return value; }
+
         Action<ObjectId, Error> GetSpaceId() const;
         Action<RepId, Error> GetAffiliation() const;
         Action<std::wstring_view, Error> GetName() const;

@@ -1,9 +1,7 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
+#include "API/InternalApi.hpp"
 
-#include "API/FLServer/Chat.hpp"
-#include "API/FLServer/Client.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/Commands/AdminCommandProcessor.hpp"
@@ -17,13 +15,14 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
         const auto* config = FLHookConfig::i();
 
         // Group join/leave commands are not parsed
-        if (to.GetValue() == SpecialChatIds::GroupEvent)
+        if (to.GetValue() == static_cast<uint>(SpecialChatIds::GroupEvent))
         {
             return true;
         }
 
         // Anything outside normal bounds is aborted to prevent crashes
-        if (to.GetValue() > SpecialChatIds::GroupEvent || to.GetValue() > SpecialChatIds::PlayerMax && to.GetValue() < SpecialChatIds::SpecialBase)
+        if (to.GetValue() > static_cast<uint>(SpecialChatIds::GroupEvent) ||
+            to.GetValue() > static_cast<uint>(SpecialChatIds::PlayerMax) && to.GetValue() < static_cast<uint>(SpecialChatIds::SpecialBase))
         {
             return false;
         }
@@ -66,7 +65,7 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
                 {
                     const std::wstring xml = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
                                              StringUtils::XmlText(buffer) + L"</TEXT>";
-                    Hk::Chat::FMsg(from, xml);
+                    InternalApi::SendMessage(from, xml);
                 }
 
                 return false;
@@ -95,9 +94,9 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
         {
             if (FLHookConfig::c()->chatConfig.echoCommands)
             {
-                const std::wstring XML = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
+                const std::wstring xml = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
                                          StringUtils::XmlText(buffer) + L"</TEXT>";
-                Hk::Chat::FMsg(from, XML);
+                InternalApi::SendMessage(from, xml);
             }
 
             const auto processor = AdminCommandProcessor::i();
@@ -111,9 +110,9 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
         {
             if (FLHookConfig::c()->chatConfig.echoCommands)
             {
-                const std::wstring XML = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
+                const std::wstring xml = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
                                          StringUtils::XmlText(buffer) + L"</TEXT>";
-                Hk::Chat::FMsg(from, XML);
+                InternalApi::SendMessage(from, xml);
             }
 
             if (config->chatConfig.suppressInvalidCommands && !foundCommand)

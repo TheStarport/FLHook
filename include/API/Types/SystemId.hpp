@@ -14,6 +14,8 @@ class SystemId
         bool operator==(const SystemId next) const { return value == next.value; }
         explicit operator bool() const;
 
+        uint GetValue() const { return value; }
+
         Action<std::wstring_view, Error> GetName() const;
         Action<std::wstring, Error> GetNickName() const;
         Action<std::vector<Universe::IZone*>, Error> GetZones() const;
@@ -22,6 +24,6 @@ class SystemId
         Action<std::vector<ClientId>, Error> GetPlayersInSystem(bool includeDocked = false) const;
 
         Action<void, Error> Message(std::wstring_view msg, MessageColor color = MessageColor::Default, MessageFormat format = MessageFormat::Normal);
-        Action<void, Error> PlaySoundOrMusic(std::wstring trackNickNameSound,bool isMusic = false, std::optional<std::pair<Vector, float>> sphere = {});
+        Action<void, Error> PlaySoundOrMusic(std::wstring trackNickNameSound, bool isMusic = false, std::optional<std::pair<Vector, float>> sphere = {});
         Action<uint, Error> KillAllPlayers() const;
 };

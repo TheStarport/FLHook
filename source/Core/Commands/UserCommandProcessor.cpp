@@ -6,6 +6,7 @@
 #include <Core/Logger.hpp>
 
 #include "API/API.hpp"
+#include "API/InternalApi.hpp"
 
 #include <Core/Commands/UserCommandProcessor.hpp>
 
@@ -200,23 +201,21 @@ void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstrin
 {
     if (!FLHookConfig::i()->userCommands.userCmdIgnore)
     {
-
         return;
     }
 
-    static const std::wstring errorMsg = L"Error: Invalid parameters\n"
-                                         L"Usage: /ignore <charname> [<flags>]\n"
-                                         L"<charname>: character name which should be ignored(case insensitive)\n"
-                                         L"<flags>: combination of the following flags:\n"
-                                         L" p - only affect private chat\n"
-                                         L" i - <charname> may match partially\n"
-                                         L"Examples:\n"
-                                         L"\"/ignore SomeDude\" ignores all chatmessages from SomeDude\n"
-                                         L"\"/ignore PlayerX p\" ignores all private-chatmessages from PlayerX\n"
-                                         L"\"/ignore idiot i\" ignores all chatmessages from players whose \n"
-                                         L"charname contain \"idiot\" (e.g. \"[XYZ]IdIOT\", \"MrIdiot\", etc)\n"
-                                         L"\"/ignore Fool pi\" ignores all private-chatmessages from players \n"
-                                         L"whose charname contain \"fool\"";
+    static const std::wstring errorMsg =
+        L"Error: Invalid parameters\n"
+        L"Usage: /ignore <charname> [<flags>]\n"
+        L"<charname>: character name which should be ignored(case insensitive)\n"
+        L"<flags>: combination of the following flags:\n"
+        L" p - only affect private chat\n"
+        L" i - <charname> may match partially\n"
+        L"Examples:\n"
+        L"\"/ignore SomeDude\" ignores all chatmessages from SomeDude\n"
+        L"\"/ignore PlayerX p\" ignores all private-chatmessages from PlayerX\n"
+        L"\"/ignore idiot i\" ignores all chatmessages from players whose charname contain \"idiot\" (e.g. \"[XYZ]IdIOT\", \"MrIdiot\", etc)\n"
+        L"\"/ignore Fool pi\" ignores all private-chatmessages from players whose charname contain \"fool\"";
 
     const std::wstring allowedFlags = L"pi";
 
@@ -225,6 +224,8 @@ void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstrin
         userCmdClient.Message(errorMsg);
         return;
     }
+
+    auto ignoredLower = StringUtils::ToLower(ignoredUser);
 
     // check if flags are valid
     for (const auto flag : flags)
@@ -244,10 +245,10 @@ void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstrin
     }
 
     auto& list = info.accountData["settings"]["ignoreList"];
-    list[StringUtils::wstos(std::wstring(ignoredUser))] = flags;
+    list[StringUtils::wstos(std::wstring(ignoredLower))] = flags;
 
     IgnoreInfo ii;
-    ii.character = ignoredUser;
+    ii.character = ignoredLower;
     ii.flags = flags;
     info.ignoreInfoList.push_back(ii);
 
@@ -263,10 +264,9 @@ void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_v
     }
 
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
-                                         L"Usage: /ignoreid <userCmdClient-id> [<flags>]\n"
-                                         L"<userCmdClient-id>: userCmdClient-id of character which should be ignored\n"
-                                         L"<flags>: if \"p\"(without quotation marks) then only affect private\n"
-                                         L"chat";
+                                         L"Usage: /ignoreid <id> [<flags>]\n"
+                                         L"<id>: client id of character which should be ignored\n"
+                                         L"<flags>: if \"p\"(without quotation marks) then only affect private chat";
 
     if (!ignoredClient || !flags.empty() && flags != L"p")
     {
@@ -287,7 +287,7 @@ void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_v
         return;
     }
 
-    auto character = ignoredClient.GetCharacterName().Handle();
+    auto character = StringUtils::ToLower(ignoredClient.GetCharacterName().Handle());
 
     // save to ini
 
@@ -412,7 +412,7 @@ void UserCommandProcessor::InvitePlayer(const std::wstring_view& characterName)
     std::ranges::fill(buf, 0);
 
     uint retVal;
-    if (Hk::Chat::FMsgEncodeXml(XML, buf.data(), sizeof buf, retVal).Raw().has_error())
+    if (InternalApi::FMsgEncodeXml(XML, buf.data(), sizeof buf, retVal).Raw().has_error())
     {
         userCmdClient.Message(L"Error: Could not encode XML");
         return;

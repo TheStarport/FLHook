@@ -254,7 +254,7 @@ class ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect or PlayerNotInSpace
          */
-        Action<void, Error> Beam(std::variant<BaseId, std::wstring_view> base) const;
+        Action<void, Error> Beam(BaseId base) const;
 
         /**
          * Renames and kicks the character the player is logged in as.
