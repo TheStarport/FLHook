@@ -20,12 +20,8 @@ class SystemId
         Action<std::vector<SystemId>, Error> GetNeighboringSystems() const; // TODO: Look into Freelancer System Enumerator.
         Action<std::vector<CSolar*>, Error> GetSolars(bool onlyDockables = false);
         Action<std::vector<ClientId>, Error> GetPlayersInSystem(bool includeDocked = false) const;
-        Action<std::vector<ShipId>, Error> GetShipsInSystem();
 
-        Action<void, Error> Message(std::wstring_view, std::optional<MessageFormat> format = {}, std::optional<MessageColor> color = {});
-        Action<void, Error> SetSystemMusic(std::wstring trackNickName, std::optional<std::pair<Vector, float>> sphere = {});
-        Action<void, Error> PlaySound(std::wstring trackNickNameSound, std::optional<std::pair<Vector, float>> sphere = {});
-        Action<void, Error> ToggleSystemLock(bool locked); // TODO: Check into finding ways to lock gates.
-        Action<void, Error> ToggleDockables(bool locked);
+        Action<void, Error> Message(std::wstring_view msg, MessageColor color = MessageColor::Default, MessageFormat format = MessageFormat::Normal);
+        Action<void, Error> PlaySoundOrMusic(std::wstring trackNickNameSound,bool isMusic = false, std::optional<std::pair<Vector, float>> sphere = {});
         Action<uint, Error> KillAllPlayers() const;
 };

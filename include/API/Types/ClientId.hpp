@@ -52,13 +52,13 @@ class ClientId
         [[nodiscard]]
         Action<const Archetype::Ship *, Error> GetShipArch();
         [[nodiscard]]
-        Action<ShipId, Error> GetShipId();
+        Action<ShipId, Error> GetShipId() const;
         [[nodiscard]]
         Action<CPlayerGroup *, Error> GetGroup();
         [[nodiscard]]
         Action<RepId, Error> GetReputation() const;
         [[nodiscard]]
-        Action<CShip *, Error> GetShip();
+        Action<CShip *, Error> GetShip() const;
         [[nodiscard]]
         Action<uint, Error> GetRank();
         [[nodiscard]]

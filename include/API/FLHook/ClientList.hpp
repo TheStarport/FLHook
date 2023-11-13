@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/ClientServerInterface.hpp"
 
 struct ClientData
 {
@@ -93,9 +94,48 @@ class ClientList
 
         std::array<ClientData, MaxClientId + 1> clients;
 
-        void PlayerConnect(uint clientId);
-        void PlayerDisconnect(uint clientId);
-        void PlayerCharacterSelect();
+        void PlayerConnect(uint clientId)
+        {
+            clients[clientId].isValid = true;
+            if (clientId > largestClientId )
+            {
+                largestClientId = clientId;
+          
+            }
+            if (clientId <  smallestClientId)
+            {
+                smallestClientId = clientId;
+            }
+        }
+
+        void PlayerDisconnect(uint clientId)
+        {
+            clients[clientId].isValid = false;
+            if (largestClientId == clientId)
+            {
+                for (uint i = largestClientId - 1; i != smallestClientId; i--)
+                {
+                    if (clients[i].isValid == true)
+                    {
+                        largestClientId = i;
+                        break;
+                    }
+                }
+            }
+            if (smallestClientId == clientId)
+            {
+                for (uint i = smallestClientId + 1; i != smallestClientId; i++)
+                {
+                    if (clients[i].isValid == true)
+                    {
+                        smallestClientId = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        void PlayerCharacterSelect(); // TODO: Figure when player data is valid
         void PlayerLogout();
 
         inline static uint largestClientId = 0;
@@ -149,4 +189,5 @@ class ClientList
             client++;
             return Iterator(client, this);
         }
+
 };

@@ -75,39 +75,127 @@ Action<std::vector<ClientId>, Error> SystemId::GetPlayersInSystem(bool includeDo
 
     return { clients };
 }
-Action<std::vector<ShipId>, Error> SystemId::GetShipsInSystem()
-{
-    //
-    //
-}
 
-Action<void, Error> SystemId::Message(std::wstring_view, std::optional<MessageFormat> format, std::optional<MessageColor> color)
+Action<void, Error> SystemId::Message(std::wstring_view msg, MessageColor color, MessageFormat format)
 {
-    //
-    //
+    ValidSystemCheck;
+
+    const auto clientsInSystem = GetPlayersInSystem().Raw();
+
+    if (clientsInSystem.has_error())
+    {
+        return { cpp::fail(clientsInSystem.error()) };
+    }
+
+    Error err = Error::Default;
+
+    for (auto& client : clientsInSystem.value())
+    {
+        const auto res = client.Message(msg, format, color).Raw();
+        if (res.has_error() && err != Error::Default)
+        {
+            err = res.error();
+        }
+    }
+    if (err != Error::Default)
+    {
+        return { cpp::fail(err) };
+    }
+    return { {} };
 }
 Action<void, Error> SystemId::SetSystemMusic(std::wstring trackNickName, std::optional<std::pair<Vector, float>> sphere)
 {
-    //
-    //
+    ValidSystemCheck;
+    auto music = pub::Audio::Tryptich();
+    uint id = InternalAPI::CreateID(trackNickName);
+    music.musicId = id;
+    const auto clientsInSystem = GetPlayersInSystem().Raw();
+
+    if (clientsInSystem.has_error())
+    {
+        return { cpp::fail(clientsInSystem.error()) };
+    }
+
+    if (!sphere.has_value())
+    {
+
+        for (const auto& client : clientsInSystem.value())
+        {
+            if (pub::Audio::SetMusic(client.GetValue(), music) != (int)ResponseCode::Success)
+            {
+                return { cpp::fail(Error::InvalidSoundId) };
+            }
+        }
+        return { {} };
+    }
+    for (const auto& client : clientsInSystem.value())
+    {
+        const auto clientPos = client.GetShipId().Unwrap().GetPositionAndOrientation().Unwrap().first;
+
+        if (glm::length<3, float, glm::packed_highp>(clientPos - sphere.value().first) < sphere.value().second)
+        {
+            if (pub::Audio::SetMusic(client.GetValue(), music) != (int)ResponseCode::Success)
+            {
+                return { cpp::fail(Error::InvalidSoundId) };
+            }
+        }
+    }
 }
 
-Action<void, Error> SystemId::PlaySound(std::wstring trackNickNameSound, std::optional<std::pair<Vector, float>> sphere)
+Action<void, Error> SystemId::PlaySoundOrMusic(std::wstring trackNickNameSound, bool isMusic, std::optional<std::pair<Vector, float>> sphere)
 {
-    //
-    //
-}
+    ValidSystemCheck;
+    auto sound = pub::Audio::Tryptich();
+    uint id = InternalAPI::CreateID(trackNickName);
+    sound.musicId = id;
+    const auto clientsInSystem = GetPlayersInSystem().Raw();
 
-Action<void, Error> SystemId::ToggleSystemLock(bool locked)
-{
-    //
-    //
-}
+    if (clientsInSystem.has_error())
+    {
+        return { cpp::fail(clientsInSystem.error()) };
+    }
 
-Action<void, Error> SystemId::ToggleDockables(bool locked)
-{
-    //
-    //
+    if (!sphere.has_value())
+    {
+
+        for (const auto& client : clientsInSystem.value())
+        {
+            if (isMusic)
+            {
+                if (pub::Audio::SetMusic(client.GetValue(), sound) != (int)ResponseCode::Success)
+                {
+                    return { cpp::fail(Error::InvalidSoundId) };
+                }
+            }
+            else if (pub::Audio::PlaySoundEffect(client.GetValue(), id) != (int)ResponseCode::Success)
+            {
+                return { cpp::fail(Error::InvalidSoundId) };
+            }
+        }
+        return { {} };
+    }
+    for (const auto& client : clientsInSystem.value())
+    {
+        const auto clientPos = client.GetShipId().Unwrap().GetPositionAndOrientation().Unwrap().first;
+
+        if (glm::length<3, float, glm::packed_highp>(clientPos - sphere.value().first) < sphere.value().second)
+        {
+            if (isMusic)
+            {
+                if (isMusic)
+                {
+                    if (pub::Audio::SetMusic(client.GetValue(), sound) != (int)ResponseCode::Success)
+                    {
+                        return { cpp::fail(Error::InvalidSoundId) };
+                    }
+                }
+                else if (pub::Audio::PlaySoundEffect(client.GetValue(), id) != (int)ResponseCode::Success)
+                {
+                    return { cpp::fail(Error::InvalidSoundId) };
+                }
+            }
+        }
+    }
 }
 
 Action<uint, Error> SystemId::KillAllPlayers() const
