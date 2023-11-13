@@ -13,9 +13,9 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, uint systemId, Clien
     const auto xmlMsg =
         std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyle, StringUtils::XmlText(msg));
 
-    char xmlBuf[0xFFFF];
+   static std::array<char, 0xFFFF> xmlBuf;
     uint ret;
-    if (InternalApi::FMsgEncodeXml(xmlMsg, xmlBuf, sizeof xmlBuf, ret).Raw().has_error())
+    if (InternalApi::FMsgEncodeXml(xmlMsg, xmlBuf.data(), xmlBuf.size(), ret).Raw().has_error())
     {
         return;
     }
@@ -23,9 +23,9 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, uint systemId, Clien
     const auto xmlMsgSmall = std::format(
         L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", SetSizeToSmall(FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyle), StringUtils::XmlText(msg));
 
-    char bufSmall[0xFFFF];
+    static std::array<char, 0xFFFF> bufSmall;
     uint retSmall;
-    if (InternalApi::FMsgEncodeXml(xmlMsgSmall, bufSmall, sizeof bufSmall, retSmall).Raw().has_error())
+    if (InternalApi::FMsgEncodeXml(xmlMsgSmall, bufSmall.data(), bufSmall.size(), retSmall).Raw().has_error())
     {
         return;
     }
@@ -33,9 +33,9 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, uint systemId, Clien
     const auto xmlMsgSystem =
         std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyleSys, StringUtils::XmlText(msg));
 
-    char bufSys[0xFFFF];
+    static std::array<char, 0xFFFF> bufSys;
     uint retSys;
-    if (InternalApi::FMsgEncodeXml(xmlMsgSystem, bufSys, sizeof bufSys, retSys).Raw().has_error())
+    if (InternalApi::FMsgEncodeXml(xmlMsgSystem, bufSys.data(), bufSys.size(), retSys).Raw().has_error())
     {
         return;
     }
@@ -43,9 +43,9 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, uint systemId, Clien
     const auto xmlMsgSmallSys =
         std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}", FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyleSys, StringUtils::XmlText(msg));
 
-    char BufSmallSys[0xFFFF];
+    static std::array<char, 0xFFFF> BufSmallSys;
     uint retSmallSys;
-    if (InternalApi::FMsgEncodeXml(xmlMsgSmallSys, BufSmallSys, sizeof BufSmallSys, retSmallSys).Raw().has_error())
+    if (InternalApi::FMsgEncodeXml(xmlMsgSmallSys, BufSmallSys.data(), BufSmallSys.size(), retSmallSys).Raw().has_error())
     {
         return;
     }
@@ -62,16 +62,16 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, uint systemId, Clien
         int sendXmlSysRet;
         if (FLHookConfig::i()->userCommands.userCmdSetDieMsgSize && data.dieMsgSize == ChatSize::Small)
         {
-            sendXmlBuf = bufSmall;
+            sendXmlBuf = bufSmall.data();
             sendXmlRet = retSmall;
-            sendXmlBufSys = BufSmallSys;
+            sendXmlBufSys = BufSmallSys.data();
             sendXmlSysRet = retSmallSys;
         }
         else
         {
-            sendXmlBuf = xmlBuf;
+            sendXmlBuf = xmlBuf.data();
             sendXmlRet = ret;
-            sendXmlBufSys = bufSys;
+            sendXmlBufSys = bufSys.data();
             sendXmlSysRet = retSys;
         }
 
@@ -113,9 +113,14 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, uint systemId, Clien
                 InternalApi::FMsgSendChat(client.id, sendXmlBuf, sendXmlRet);
             }
         }
+
+        std::fill_n(xmlBuf, xmlBuf.size(), "\0");
+        std::fill_n(bufSmall, bufSmall.size(), "\0");
+        std::fill_n(bufSys, bufSys.size(), "\0");
+        std::fill_n(BufSmallSys, BufSmallSys.size(), "\0");
     }
 
-    const std::wstring formattedMsg = StringUtils::stows(BufSmallSys);
+    const std::wstring formattedMsg = StringUtils::stows(BufSmallSys.data());
     CallPlugins(&Plugin::OnSendDeathMessageAfter, clientKiller, clientVictim, systemId, std::wstring_view(formattedMsg));
 }
 
@@ -252,6 +257,8 @@ void __stdcall IEngineHook::ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint 
         data.shipOld = data.ship;
         data.ship = ShipId();
     }
+    
+
     CatchHook({})
 }
 
