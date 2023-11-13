@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Global.hpp"
 
 void __stdcall IServerImplHook::GfObjSelect(unsigned int unk1, unsigned int unk2)
 {

@@ -1,8 +1,7 @@
 #include "PCH.hpp"
 
-#include "API/API.hpp"
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Global.hpp"
 
 void LaunchCompleteInner(uint, uint shipId)
 {

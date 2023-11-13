@@ -4,7 +4,6 @@
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/FLHook.hpp"
-#include "Global.hpp"
 
 void IServerImplHook::ServerReady()
 {

@@ -24,7 +24,7 @@ Updated 2022 to use proper C++ syntax and work in memory ~ Laz
 
 */
 
-#include "Core/Codec.hpp"
+#include "API/Utils/Codec.hpp"
 
 /* Very Secret Key - this is Microsoft Security In Action[tm] */
 const char gene[] = "Gene";

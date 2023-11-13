@@ -2,7 +2,6 @@
 
 #include "API/API.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Global.hpp"
 
 void BaseEnterInner([[maybe_unused]] uint baseId, [[maybe_unused]] ClientId client)
 {

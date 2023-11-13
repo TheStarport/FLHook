@@ -1,7 +1,6 @@
 #include "PCH.hpp"
 
 #include "Core/ClientServerInterface.hpp"
-#include "Global.hpp"
 
 void __stdcall IServerImplHook::SetManeuver(ClientId client, const XSetManeuver& sm)
 {

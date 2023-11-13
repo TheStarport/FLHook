@@ -1,7 +1,6 @@
 #include "PCH.hpp"
 
 #include "API/FLServer/Player.hpp"
-#include "Global.hpp"
 
 #include "API/FLServer/Chat.hpp"
 #include "API/FLServer/Client.hpp"

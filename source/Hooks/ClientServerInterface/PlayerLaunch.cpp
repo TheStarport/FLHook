@@ -1,7 +1,6 @@
 #include "PCH.hpp"
 
 #include "Core/ClientServerInterface.hpp"
-#include "Global.hpp"
 
 #include "API/API.hpp"
 #include "API/Utils/PerfTimer.hpp"

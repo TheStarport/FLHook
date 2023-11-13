@@ -1,6 +1,5 @@
 #include "PCH.hpp"
 
-#include "Global.hpp"
 
 #define SPDLOG_USE_STD_FORMAT
 #include "spdlog/async.h"

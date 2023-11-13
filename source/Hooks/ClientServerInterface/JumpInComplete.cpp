@@ -2,7 +2,6 @@
 
 #include "API/FLServer/Client.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Global.hpp"
 
 void JumpInCompleteInnerAfter(uint systemId, uint shipId)
 {

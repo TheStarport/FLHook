@@ -3,7 +3,6 @@
 #include "PCH.hpp"
 
 #include "Core/Commands/AdminCommandProcessor.hpp"
-#include "Global.hpp"
 
 #include "API/API.hpp"
 

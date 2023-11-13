@@ -1,16 +1,15 @@
 #include "PCH.hpp"
 
-#include "API/FLServer/Client.hpp"
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Global.hpp"
 
-void SPMunitionCollisionInner(const SSPMunitionCollisionInfo& mci, uint)
+void IServerImplHook::SpMunitionCollisionInner(const SSPMunitionCollisionInfo& mci, uint)
 {
     TryHook
     {
-        if (const auto isClient = Hk::Client::GetClientIdByShip(mci.targetShip).Raw(); isClient.has_value())
+        if (const auto isClient = ShipId(mci.targetShip).GetPlayer(); isClient.has_value())
         {
-            CoreGlobals::i()->damageToClientId = isClient.value();
+            FLHook::instance->damageToClientId = isClient.value().GetValue();
         }
     }
     CatchHook({})
@@ -24,11 +23,11 @@ void __stdcall IServerImplHook::SpMunitionCollision(const SSPMunitionCollisionIn
 
     CheckForDisconnect;
 
-    SPMunitionCollisionInner(mci, client);
+    SpMunitionCollisionInner(mci, client.GetValue());
 
     if (!skip)
     {
-        CallServerPreamble { Server.SPMunitionCollision(mci, client); }
+        CallServerPreamble { Server.SPMunitionCollision(mci, client.GetValue()); }
         CallServerPostamble(true, );
     }
 

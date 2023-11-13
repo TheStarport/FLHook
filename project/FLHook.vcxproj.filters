@@ -31,9 +31,6 @@
     <Filter Include="Include\Core">
       <UniqueIdentifier>{06ab4515-4028-4d15-8cf7-091decd8a2a7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\API\FLServer">
-      <UniqueIdentifier>{657872d9-2450-4008-961d-b2a239a620d0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Include\API\FLHook">
       <UniqueIdentifier>{2e200967-c2c2-454b-a852-04208121f548}</UniqueIdentifier>
     </Filter>
@@ -148,9 +145,6 @@
       <Filter>Source\API\FLHook</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\API\FLServer\Admin.cpp">
-      <Filter>Source\API\FLServer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\API\FLServer\Chat.cpp">
       <Filter>Source\API\FLServer</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\API\FLServer\Client.cpp">
@@ -368,27 +362,6 @@
     </ClInclude>
     <ClInclude Include="..\Include\Defs\Structs.hpp">
       <Filter>Include\Defs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\API\FLServer\Admin.hpp">
-      <Filter>Include\API\FLServer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\API\FLServer\Chat.hpp">
-      <Filter>Include\API\FLServer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\API\FLServer\Client.hpp">
-      <Filter>Include\API\FLServer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\API\FLServer\Math.hpp">
-      <Filter>Include\API\FLServer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\API\FLServer\Personalities.hpp">
-      <Filter>Include\API\FLServer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\API\FLServer\Player.hpp">
-      <Filter>Include\API\FLServer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\API\FLServer\GameObject.hpp">
-      <Filter>Include\API\FLServer</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\API\FLHook\MailManager.hpp">
       <Filter>Include\API\FLHook</Filter>

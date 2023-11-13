@@ -21,7 +21,6 @@
     <ClCompile Include="..\Source\API\FLHook\Mail.cpp" />
     <ClCompile Include="..\Source\API\FLHook\MessageHandler.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Admin.cpp" />
-    <ClCompile Include="..\Source\API\FLServer\Chat.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Client.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Math.cpp" />
     <ClCompile Include="..\Source\API\FLServer\PilotPersonalities.cpp" />
@@ -126,13 +125,6 @@
     <ClInclude Include="..\include\API\FLHook\InfocardManager.hpp" />
     <ClInclude Include="..\Include\API\FLHook\MailManager.hpp" />
     <ClInclude Include="..\Include\API\FLHook\Plugin.hpp" />
-    <ClInclude Include="..\Include\API\FLServer\Admin.hpp" />
-    <ClInclude Include="..\Include\API\FLServer\Chat.hpp" />
-    <ClInclude Include="..\Include\API\FLServer\Client.hpp" />
-    <ClInclude Include="..\Include\API\FLServer\Math.hpp" />
-    <ClInclude Include="..\Include\API\FLServer\Personalities.hpp" />
-    <ClInclude Include="..\Include\API\FLServer\Player.hpp" />
-    <ClInclude Include="..\Include\API\FLServer\GameObject.hpp" />
     <ClInclude Include="..\Include\API\Types\BaseId.hpp" />
     <ClInclude Include="..\Include\API\Types\ClientId.hpp" />
     <ClInclude Include="..\include\API\Types\GroupId.hpp" />

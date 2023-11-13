@@ -1,7 +1,5 @@
 #pragma once
 
-#include "API/API.hpp"
-
 class AbstractUserCommandProcessor
 {
     protected:

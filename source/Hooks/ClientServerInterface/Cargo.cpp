@@ -1,7 +1,6 @@
 #include "PCH.hpp"
 
 #include "Core/ClientServerInterface.hpp"
-#include "Global.hpp"
 
 void __stdcall IServerImplHook::SpScanCargo(const uint& unk1, const uint& unk2, uint unk3)
 {

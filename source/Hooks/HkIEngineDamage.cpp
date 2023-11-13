@@ -2,7 +2,6 @@
 
 #include "API/FLServer/Client.hpp"
 #include "Core/IEngineHook.hpp"
-#include "Global.hpp"
 
 EXPORT uint g_DmgTo = 0;
 EXPORT uint g_DmgToSpaceId = 0;

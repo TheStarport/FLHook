@@ -1,15 +1,12 @@
 #include "PCH.hpp"
 
-#include "API/FLServer/Client.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Global.hpp"
 
 void SystemSwitchOutCompleteInnerAfter(uint, ClientId client)
 {
     TryHook
     {
-        const auto system = Hk::Client::GetPlayerSystem(client);
         // TODO: Implement event for switch out
     }
     CatchHook({})

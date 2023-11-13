@@ -1,8 +1,8 @@
 #include "PCH.hpp"
 
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/FLHook.hpp"
-#include "Global.hpp"
 
 bool IServerImplHook::OnConnectInner(ClientId client)
 {
@@ -12,7 +12,8 @@ bool IServerImplHook::OnConnectInner(ClientId client)
         // the connection.
         if (client > MaxClientId)
         {
-            FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"INFO: Blocking connect in {} due to invalid id, id={}", StringUtils::stows(__FUNCTION__), client));
+            FLHook::GetLogger().Log(LogLevel::Trace,
+                                    std::format(L"INFO: Blocking connect in {} due to invalid id, id={}", StringUtils::stows(__FUNCTION__), client));
             CDPClientProxy* cdpClient = clientProxyArray[client - 1];
             if (!cdpClient)
             {
@@ -64,7 +65,7 @@ void __stdcall IServerImplHook::OnConnect(ClientId client)
     }
     if (!skip)
     {
-        CallServerPreamble { Server.OnConnect(client); }
+        CallServerPreamble { Server.OnConnect(client.GetValue()); }
         CallServerPostamble(true, );
     }
     OnConnectInnerAfter(client);

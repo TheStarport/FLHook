@@ -4,7 +4,6 @@
 
 #include "Core/ClientServerInterface.hpp"
 
-#include "Global.hpp"
 
 #include <API/Utils/IniUtils.hpp>
 

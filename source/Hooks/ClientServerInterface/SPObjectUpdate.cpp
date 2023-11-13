@@ -1,9 +1,7 @@
 #include "PCH.hpp"
 
-#include "API/FLServer/Player.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Global.hpp"
 
 bool SPObjUpdateInner(const SSPObjUpdateInfo& ui, ClientId client)
 {

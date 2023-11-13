@@ -79,6 +79,7 @@ class IServerImplHook
         static void __stdcall AbortMission(ClientId client, uint unk1);
         static void __stdcall MissionResponse(unsigned int unk1, unsigned long unk2, bool unk3, ClientId client);
 
+        static void SpMunitionCollisionInner(const SSPMunitionCollisionInfo& mci, uint);
         static void __stdcall SpMunitionCollision(const SSPMunitionCollisionInfo& mci, ClientId client);
         static void __stdcall SpObjCollision(const SSPObjCollisionInfo& oci, ClientId client);
         static void __stdcall GfObjSelect(unsigned int unk1, unsigned int unk2);

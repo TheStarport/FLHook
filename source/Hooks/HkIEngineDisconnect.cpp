@@ -3,7 +3,6 @@
 
 #include "Core/IEngineHook.hpp"
 #include "Defs/FLHookConfig.hpp"
-#include "Global.hpp"
 
 int __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
 {

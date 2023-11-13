@@ -2,7 +2,6 @@
 
 #include "API/API.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Global.hpp"
 
 bool GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId client)
 {

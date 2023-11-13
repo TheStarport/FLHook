@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Global.hpp"
 
 void __stdcall IServerImplHook::SpObjCollision(const SSPObjCollisionInfo& oci, ClientId client)
 {
@@ -13,7 +13,7 @@ void __stdcall IServerImplHook::SpObjCollision(const SSPObjCollisionInfo& oci, C
 
     if (!skip)
     {
-        CallServerPreamble { Server.SPObjCollision(oci, client); }
+        CallServerPreamble { Server.SPObjCollision(oci, client.GetValue()); }
         CallServerPostamble(true, );
     }
 

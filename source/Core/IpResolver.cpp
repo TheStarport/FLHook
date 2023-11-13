@@ -2,9 +2,7 @@
 
 #include <ws2tcpip.h>
 
-#include "IpResolver.hpp"
-
-#include "API/FLServer/Player.hpp"
+#include "Core/IpResolver.hpp"
 
 void IpResolver::ThreadResolver()
 {
@@ -56,7 +54,9 @@ void IpResolver::TimerCheckResolveResults()
         mutex.lock();
         for (const auto& [client, connects, IP, hostname] : resolveIPsResult)
         {
-            if (connects != ClientInfo::At(client).connects)
+            auto cl = ClientId(client);
+            auto& data = cl.GetData();
+            if (connects != data.connects)
             {
                 continue; // outdated
             }
@@ -69,13 +69,13 @@ void IpResolver::TimerCheckResolveResults()
                     // AddKickLog(ip.client, StringUtils::wstos(std::format(L"IP/hostname ban({} matches {})", ip.hostname.c_str(), ban.c_str())));
                     if (config->bans.banAccountOnMatch)
                     {
-                        Hk::Player::Ban(client, true);
+                        cl.Ban(true);
                     }
 
-                    Hk::Player::Kick(client);
+                    cl.Kick();
                 }
             }
-            ClientInfo::At(client).hostname = hostname;
+            data.hostname = hostname;
         }
 
         resolveIPsResult.clear();

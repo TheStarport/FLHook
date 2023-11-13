@@ -1,7 +1,6 @@
 #include "PCH.hpp"
 
 #include "API/API.hpp"
-#include "Global.hpp"
 
 using namespace sqlite_orm;
 
