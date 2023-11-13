@@ -36,6 +36,7 @@ enum class ChatStyle
 
 enum class EngineState
 {
+    NotInSpace,
     Cruise,
     Thruster,
     Engine,

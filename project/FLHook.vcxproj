@@ -27,6 +27,7 @@
     <ClCompile Include="..\Source\API\FLServer\PilotPersonalities.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Player.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Solar.cpp" />
+    <ClCompile Include="..\source\API\Types\BaseId.cpp" />
     <ClCompile Include="..\Source\API\Types\ClientId.cpp" />
     <ClCompile Include="..\source\API\Types\GroupId.cpp" />
     <ClCompile Include="..\source\API\Types\ObjectId.cpp" />

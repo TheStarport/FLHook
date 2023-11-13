@@ -161,6 +161,8 @@ class ClientId
          */
         [[nodiscard]]
         ClientData &GetData() const;
+        [[nodiscard]]
+        EngineState GetEngineState() const;
 
         // State Checks
 

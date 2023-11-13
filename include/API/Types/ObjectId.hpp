@@ -5,14 +5,18 @@
 class ObjectId
 {
     protected:
-        const uint value = 0;
+        uint value = 0;
 
     public:
         explicit ObjectId(const uint val) : value(val) {}
         explicit ObjectId() = default;
         virtual ~ObjectId() = default;
         ObjectId(const ObjectId&) = default;
-        ObjectId& operator=(const ObjectId obj) : value(obj.GetValue()) { return *this; }
+        ObjectId& operator=(const ObjectId obj)
+        {
+            value = obj.GetValue();
+            return *this;
+        }
         ObjectId(ObjectId&&) = default;
         ObjectId& operator=(ObjectId&&) = delete;
 

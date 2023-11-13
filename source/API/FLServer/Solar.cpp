@@ -93,7 +93,7 @@ namespace Hk::Solar
             char baseNickname[1024] = "";
             pub::GetBaseNickname(baseNickname, sizeof baseNickname, baseinfo->baseId);
 
-            if (const std::wstring basename = Chat::GetWStringFromIdS(baseinfo->baseIdS);
+            if (const auto basename = FLHook::GetInfocardManager().GetInfocard(baseinfo->baseIdS);
                 StringUtils::ToLower(StringUtils::stows(baseNickname)) == StringUtils::ToLower(targetBaseName) ||
                 StringUtils::ToLower(basename).find(StringUtils::ToLower(targetBaseName)) == 0)
             {

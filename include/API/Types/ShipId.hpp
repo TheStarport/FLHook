@@ -19,7 +19,6 @@ class ShipId final : public ObjectId
         std::optional<ClientId> GetPlayer();
         std::optional<ShipId> GetTarget();
         Action<RepId, Error> GetReputation();
-        std::wstring GetAffiliation();
         // TODO: AI states such as formation, go to, dock etc.
         Action<float, Error> GetSpeed();
 

@@ -95,12 +95,18 @@ std::optional<ShipId> ShipId::GetTarget()
 
     // Returns IObjectRW*, whatever that is.
     const auto target = shipVal->get_target()->ship;
-    return ShipId(target->get_id());
+    return std::optional(ShipId(target->get_id()));
 }
 
-Action<RepId, Error> ShipId::GetReputation() {}
-
-std::wstring ShipId::GetAffiliation() {}
+Action<RepId, Error> ShipId::GetReputation()
+{
+    auto repId = RepId(*this, false);
+    if (!repId)
+    {
+        return { cpp::fail(Error::InvalidShip) };
+    }
+    return { repId };
+}
 
 Action<float, Error> ShipId::GetSpeed()
 {

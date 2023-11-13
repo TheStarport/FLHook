@@ -128,8 +128,6 @@ namespace Hk::Client
         return { {} };
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     Action<void, Error> UnlockAccountAccess(CAccount* acc)
     {
         const auto accountId = GetAccountID(acc).Raw();
@@ -143,28 +141,6 @@ namespace Hk::Client
         return { {} };
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    void GetItemsForSale(uint baseId, std::list<uint>& items)
-    {
-        items.clear();
-        const std::array<char, 2> nop = { '\x90', '\x90' };
-        const std::array<char, 2> jnz = { '\x75', '\x1D' };
-        MemUtils::WriteProcMem(SRV_ADDR(ADDR_SRV_GETCOMMODITIES), nop.data(), 2); // patch, else we only get commodities
-
-        std::array<int, 1024> arr;
-        int size = 256;
-        pub::Market::GetCommoditiesForSale(baseId, reinterpret_cast<uint* const>(arr.data()), &size);
-        MemUtils::WriteProcMem(SRV_ADDR(ADDR_SRV_GETCOMMODITIES), jnz.data(), 2);
-
-        for (int i = 0; i < size; i++)
-        {
-            items.push_back(arr[i]);
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     Action<IObjInspectImpl*, Error> GetInspect(ClientId client)
     {
         uint ship;
@@ -176,29 +152,6 @@ namespace Hk::Client
             return { cpp::fail(Error::InvalidShip) };
         }
         return { inspect };
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    EngineState GetEngineState(ClientId client)
-    {
-        if (ClientInfo::At(client).tradelane)
-        {
-            return ES_TRADELANE;
-        }
-        if (ClientInfo::At(client).cruiseActivated)
-        {
-            return Cruise;
-        }
-        if (ClientInfo::At(client).thrusterActivated)
-        {
-            return Thruster;
-        }
-        if (!ClientInfo::At(client).engineKilled)
-        {
-            return ES_ENGINE;
-        }
-        return ES_KILLED;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

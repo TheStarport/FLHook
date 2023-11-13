@@ -330,6 +330,38 @@ Action<std::list<CargoInfo>, Error> ClientId::EnumCargo(int& remainingHoldSize) 
 
 ClientData& ClientId::GetData() const { return FLHook::Clients()[value]; }
 
+EngineState ClientId::GetEngineState() const
+{
+    const auto& data = GetData();
+
+    if (!data.ship)
+    {
+        return EngineState::NotInSpace;
+    }
+
+    if (data.inTradelane)
+    {
+        return EngineState::Tradelane;
+    }
+
+    if (data.cruiseActivated)
+    {
+        return EngineState::Cruise;
+    }
+
+    if (data.thrusterActivated)
+    {
+        return EngineState::Thruster;
+    }
+
+    if (!data.engineKilled)
+    {
+        return EngineState::Engine;
+    }
+
+    return EngineState::Killed;
+}
+
 // Server wide message upon kicking. Delay is defaulted to zero.
 Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reason, const std::optional<uint> delay) const
 {

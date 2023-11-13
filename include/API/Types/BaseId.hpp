@@ -1,9 +1,11 @@
 #pragma once
 
-class ClientId;
+#include "ObjectId.hpp"
+#include "RepId.hpp"
+
 class BaseId
 {
-        const uint value;
+        uint value;
 
     public:
         explicit BaseId(const uint val) : value(val) {}
@@ -11,14 +13,16 @@ class BaseId
         explicit operator uint() const noexcept { return value; }
         explicit BaseId() : value(0) {}
         bool operator==(const BaseId next) const { return value == next.value; }
-        bool operator!() const; // TODO: Check if BaseId is valid here
+        explicit operator bool() const;
+
+        Action<ObjectId, Error> GetSpaceId() const;
+        Action<RepId, Error> GetAffiliation() const;
+        Action<std::wstring_view, Error> GetName() const;
+        Action<std::pair<std::wstring_view, std::wstring_view>, Error> GetDescription();
+
+        Action<std::vector<uint>, Error> GetItemsForSale() const;
 
         Action<std::vector<ClientId>, Error> GetDockedPlayers();
-        void* GetMarket(); // Grab the bases market data.
-        std::optional<std::wstring> GetAffiliation();
-        // TODO: @Laz, look into getting the physical base from abstract baseID.
-        std::wstring GetName();
-        // std::pair<std::wstring, uint> GetDescription();
 
         bool ToggleDocking(bool locked); // TODO: THis would be done via the CSolar.
 };

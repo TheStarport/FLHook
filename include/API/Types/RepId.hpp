@@ -1,4 +1,5 @@
 #pragma once
+
 #include "RepGroupId.hpp"
 
 class RepId final

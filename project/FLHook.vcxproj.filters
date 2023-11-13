@@ -313,6 +313,9 @@
     <ClCompile Include="..\source\Core\ZoneUtilities.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\API\Types\BaseId.cpp">
+      <Filter>Source\API\Types</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">
