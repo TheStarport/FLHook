@@ -142,7 +142,7 @@ Action<const Archetype::Ship*, Error> ClientId::GetShipArch()
     return { Archetype::GetShip(ship) };
 }
 
-Action<ShipId, Error> ClientId::GetShipId()
+Action<ShipId, Error> ClientId::GetShipId() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -155,10 +155,10 @@ Action<ShipId, Error> ClientId::GetShipId()
         return { cpp::fail{ Error::InvalidShip } };
     }
 
-    return { ShipId(ship) };
+    return { ShipId(ship) }; 
 }
 
-Action<CPlayerGroup*, Error> ClientId::GetGroup()
+Action<CPlayerGroup*, Error> ClientId::GetGroup() const
 {
     ClientCheck;
     const auto id = Players.GetGroupID(value);
@@ -187,7 +187,7 @@ Action<RepId, Error> ClientId::GetReputation() const
     return { RepId(rep) };
 }
 
-Action<CShip*, Error> ClientId::GetShip()
+Action<CShip*, Error> ClientId::GetShip() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -203,7 +203,7 @@ Action<CShip*, Error> ClientId::GetShip()
     return { dynamic_cast<CShip*>(CObject::Find(ship, CObject::CSHIP_OBJECT)) };
 }
 
-Action<uint, Error> ClientId::GetRank()
+Action<uint, Error> ClientId::GetRank() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -212,7 +212,7 @@ Action<uint, Error> ClientId::GetRank()
     return { rank };
 }
 
-Action<uint, Error> ClientId::GetWealth()
+Action<uint, Error> ClientId::GetWealth() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -223,7 +223,7 @@ Action<uint, Error> ClientId::GetWealth()
     return { static_cast<uint>(wealth) };
 }
 
-Action<int, Error> ClientId::GetPvpKills()
+Action<int, Error> ClientId::GetPvpKills() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -233,7 +233,7 @@ Action<int, Error> ClientId::GetPvpKills()
     return { kills };
 }
 
-Action<uint, Error> ClientId::GetCash()
+Action<uint, Error> ClientId::GetCash() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -330,7 +330,7 @@ Action<std::list<CargoInfo>, Error> ClientId::EnumCargo(int& remainingHoldSize) 
 ClientData& ClientId::GetData() const { return FLHook::Clients()[value]; }
 
 // Server wide message upon kicking. Delay is defaulted to zero.
-Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reason, const std::optional<uint> delay)
+Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reason, const std::optional<uint> delay) const
 {
     ClientCheck;
 
@@ -356,7 +356,7 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
 }
 
 // This messages the player directly instead of doing a universe message. Defaults to a delay of 10 seconds.
-Action<void, Error> ClientId::MessageAndKick(const std::wstring_view reason, const uint delay)
+Action<void, Error> ClientId::MessageAndKick(const std::wstring_view reason, const uint delay) const
 {
     ClientCheck;
 
@@ -382,7 +382,7 @@ Action<void, Error> ClientId::MessageAndKick(const std::wstring_view reason, con
     return { {} };
 }
 
-Action<void, Error> ClientId::SaveChar()
+Action<void, Error> ClientId::SaveChar() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -409,7 +409,7 @@ Action<void, Error> ClientId::SaveChar()
     return { {} };
 }
 
-Action<void, Error> ClientId::SetPvpKills(const uint killAmount)
+Action<void, Error> ClientId::SetPvpKills(const uint killAmount) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -419,8 +419,8 @@ Action<void, Error> ClientId::SetPvpKills(const uint killAmount)
     return { {} };
 }
 
-Action<void, Error> ClientId::AddCash(const uint amount) { return AdjustCash(static_cast<int>(amount)); }
-Action<void, Error> ClientId::RemoveCash(const uint amount) { return AdjustCash(-static_cast<int>(amount)); }
+Action<void, Error> ClientId::AddCash(const uint amount) const { return AdjustCash(static_cast<int>(amount)); }
+Action<void, Error> ClientId::RemoveCash(const uint amount) const { return AdjustCash(-static_cast<int>(amount)); }
 
 // TODO: This should more accessible throughout the plugin and configurable
 const std::array BannedBases = {
@@ -439,7 +439,7 @@ const std::array BannedBases = {
     CreateID("li01_15_base"),
 };
 
-Action<void, Error> ClientId::Beam(std::variant<BaseId, std::wstring_view> base)
+Action<void, Error> ClientId::Beam(std::variant<BaseId, std::wstring_view> base) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -510,7 +510,7 @@ Action<void, Error> ClientId::Message(const std::wstring_view message, const Mes
     return { {} };
 }
 
-Action<void, Error> ClientId::MessageLocal(std::wstring_view message, float range, MessageFormat format, MessageColor color)
+Action<void, Error> ClientId::MessageLocal(std::wstring_view message, float range, MessageFormat format, MessageColor color) const
 {
     ClientCheck;
     CharSelectCheck;

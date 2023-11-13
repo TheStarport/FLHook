@@ -60,13 +60,13 @@ class ClientId
         [[nodiscard]]
         Action<CShip *, Error> GetShip() const;
         [[nodiscard]]
-        Action<uint, Error> GetRank();
+        Action<uint, Error> GetRank() const;
         [[nodiscard]]
-        Action<uint, Error> GetWealth();
+        Action<uint, Error> GetWealth() const;
         [[nodiscard]]
-        Action<int, Error> GetPvpKills();
+        Action<int, Error> GetPvpKills() const;
         [[nodiscard]]
-        Action<uint, Error> GetCash();
+        Action<uint, Error> GetCash() const;
         [[nodiscard]]
         Action<std::list<CargoInfo>, Error> EnumCargo(int &remainingHoldSize) const;
         [[nodiscard]]
@@ -85,21 +85,21 @@ class ClientId
 
         // Manipulation
 
-        Action<void, Error> AddToGroup(GroupId group);
-        Action<void, Error> Kick(const std::optional<std::wstring_view> &reason = {}, std::optional<uint> delay = {});
-        Action<void, Error> MessageAndKick(std::wstring_view reason, uint delay = 10);
-        Action<void, Error> SaveChar();
-        Action<void, Error> SetPvpKills(uint killAmount);
-        Action<void, Error> AddCash(uint amount);
-        Action<void, Error> RemoveCash(uint amount);
-        Action<void, Error> Beam(std::variant<BaseId, std::wstring_view> base);
-        Action<void, Error> Rename(std::wstring_view);
-        void MarkObject(uint objId, int markStatus);
+        Action<void, Error> AddToGroup(GroupId group) const;
+        Action<void, Error> Kick(const std::optional<std::wstring_view> &reason = {}, std::optional<uint> delay = {}) const;
+        Action<void, Error> MessageAndKick(std::wstring_view reason, uint delay = 10) const;
+        Action<void, Error> SaveChar() const;
+        Action<void, Error> SetPvpKills(uint killAmount) const;
+        Action<void, Error> AddCash(uint amount) const;
+        Action<void, Error> RemoveCash(uint amount) const;
+        Action<void, Error> Beam(std::variant<BaseId, std::wstring_view> base) const;
+        Action<void, Error> Rename(std::wstring_view) const;
+        void MarkObject(uint objId, int markStatus) const;
 
         // Chat
 
         Action<void, Error> Message(std::wstring_view message, MessageFormat format = MessageFormat::Normal, MessageColor color = MessageColor::Default) const;
         Action<void, Error> MessageLocal(std::wstring_view message, float range = 10'000.0f, MessageFormat format = MessageFormat::Normal,
-                                         MessageColor color = MessageColor::Default);
+                                         MessageColor color = MessageColor::Default) const;
         Action<void, Error> MessageFrom(ClientId destinationClient, std::wstring message) const;
 };
