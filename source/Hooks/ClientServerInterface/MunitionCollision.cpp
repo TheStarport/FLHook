@@ -18,7 +18,7 @@ void SPMunitionCollisionInner(const SSPMunitionCollisionInfo& mci, uint)
 
 void __stdcall IServerImplHook::SpMunitionCollision(const SSPMunitionCollisionInfo& mci, ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"SPMunitionCollision(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"SPMunitionCollision(\n\tClientId client = {}\n)", client));
 
     const auto skip = CallPlugins(&Plugin::OnSpMunitionCollision, client, mci);
 

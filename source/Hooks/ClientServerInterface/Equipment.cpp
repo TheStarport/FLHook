@@ -33,7 +33,7 @@ void ActivateEquipInner(ClientId client, const XActivateEquip& aq)
 }
 void __stdcall IServerImplHook::ActivateEquip(ClientId client, const XActivateEquip& aq)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"ActivateEquip(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"ActivateEquip(\n\tClientId client = {}\n)", client));
 
     const auto skip = CallPlugins(&Plugin::OnActivateEquip, client, aq);
 
@@ -52,7 +52,7 @@ void __stdcall IServerImplHook::ActivateEquip(ClientId client, const XActivateEq
 
 void __stdcall IServerImplHook::ReqEquipment(const EquipDescList& edl, ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"ReqEquipment(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"ReqEquipment(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestEquipment, client, edl); !skip)
     {
@@ -65,7 +65,7 @@ void __stdcall IServerImplHook::ReqEquipment(const EquipDescList& edl, ClientId 
 
 void __stdcall IServerImplHook::FireWeapon(ClientId client, const XFireWeaponInfo& fwi)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"FireWeapon(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"FireWeapon(\n\tClientId client = {}\n)", client));
 
     const auto skip = CallPlugins(&Plugin::OnFireWeapon, client, fwi);
 
@@ -82,7 +82,7 @@ void __stdcall IServerImplHook::FireWeapon(ClientId client, const XFireWeaponInf
 
 void __stdcall IServerImplHook::SetWeaponGroup(ClientId client, uint unk1, int unk2)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"SetWeaponGroup(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"SetWeaponGroup(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
 
     if (const auto skip = CallPlugins(&Plugin::OnSetWeaponGroup, client, unk1, unk2); !skip)
     {
@@ -96,7 +96,7 @@ void __stdcall IServerImplHook::SetWeaponGroup(ClientId client, uint unk1, int u
 // We think this is hook involving usage of nanobots and shield batteries but not sure.
 void __stdcall IServerImplHook::SpRequestUseItem(const SSPUseItem& ui, ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"SPRequestUseItem(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"SPRequestUseItem(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnSpRequestUseItem, client, ui); !skip)
     {
@@ -115,7 +115,7 @@ void ActivateThrustersInner(ClientId client, const XActivateThrusters& at)
 
 void __stdcall IServerImplHook::ActivateThrusters(ClientId client, const XActivateThrusters& at)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"ActivateThrusters(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"ActivateThrusters(\n\tClientId client = {}\n)", client));
 
     const auto skip = CallPlugins(&Plugin::OnActivateThrusters, client, at);
 
@@ -140,7 +140,7 @@ void ActivateCruiseInner(ClientId client, const XActivateCruise& ac)
 
 void __stdcall IServerImplHook::ActivateCruise(ClientId client, const XActivateCruise& ac)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"ActivateCruise(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"ActivateCruise(\n\tClientId client = {}\n)", client));
 
     const auto skip = CallPlugins(&Plugin::OnActivateCruise, client, ac);
 

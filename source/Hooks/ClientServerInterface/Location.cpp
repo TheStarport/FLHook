@@ -5,7 +5,7 @@
 
 void __stdcall IServerImplHook::SetVisitedState(ClientId client, uint objHash, int state)
 {
-    Logger::i()->Log(LogLevel::Trace,
+    FLHook::GetLogger().Log(LogLevel::Trace,
                      std::format(L"SetVisitedState(\n\tClientId client = {}\n\tuint objHash = {}\n\tint state = {}\n)", client, objHash, state));
 
     if (const auto skip = CallPlugins(&Plugin::OnSetVisitedState, client, objHash, state); !skip)
@@ -19,7 +19,7 @@ void __stdcall IServerImplHook::SetVisitedState(ClientId client, uint objHash, i
 
 void __stdcall IServerImplHook::RequestBestPath(ClientId client, uint unk1, int unk2)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"RequestBestPath(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"RequestBestPath(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestBestPath, client, unk1, unk2); !skip)
     {
@@ -32,7 +32,7 @@ void __stdcall IServerImplHook::RequestBestPath(ClientId client, uint unk1, int 
 
 void __stdcall IServerImplHook::LocationInfoRequest(unsigned int unk1, unsigned int unk2, bool unk3)
 {
-    Logger::i()->Log(LogLevel::Trace,
+    FLHook::GetLogger().Log(LogLevel::Trace,
                      std::format(L"LocationInfoRequest(\n\tunsigned int unk1 = {}\n\tunsigned int unk2 = {}\n\tbool unk3 = {}\n)", unk1, unk2, unk3));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestLocationInfo, unk1, unk2, unk3); !skip)
@@ -46,7 +46,7 @@ void __stdcall IServerImplHook::LocationInfoRequest(unsigned int unk1, unsigned 
 
 void __stdcall IServerImplHook::LocationExit(uint locationId, ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"LocationExit(\n\tuint locationId = {}\n\tClientId client = {}\n)", locationId, client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"LocationExit(\n\tuint locationId = {}\n\tClientId client = {}\n)", locationId, client));
 
     if (const auto skip = CallPlugins(&Plugin::OnLocationExit, client, locationId); !skip)
     {
@@ -59,7 +59,7 @@ void __stdcall IServerImplHook::LocationExit(uint locationId, ClientId client)
 
 void __stdcall IServerImplHook::LocationEnter(uint locationId, ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"LocationEnter(\n\tuint locationId = {}\n\tClientId client = {}\n)", locationId, client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"LocationEnter(\n\tuint locationId = {}\n\tClientId client = {}\n)", locationId, client));
 
     if (const auto skip = CallPlugins(&Plugin::OnLocationEnter, client, locationId); !skip)
     {

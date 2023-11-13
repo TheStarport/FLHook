@@ -34,14 +34,14 @@ cpp::result<std::wstring, Error> PluginManager::Unload(std::wstring_view name)
 
     if (!plugin->mayUnload)
     {
-        Logger::i()->Log(LogLevel::Warn, L"Plugin may not be unloaded.");
+        FLHook::GetLogger().Log(LogLevel::Warn, L"Plugin may not be unloaded.");
         return {};
     }
 
     HMODULE dllAddr = plugin->dll;
 
     std::wstring unloadedPluginDll = plugin->dllName;
-    Logger::i()->Log(LogLevel::Info, std::format(L"Unloading {} ({})", plugin->name, plugin->dllName));
+    FLHook::GetLogger().Log(LogLevel::Info, std::format(L"Unloading {} ({})", plugin->name, plugin->dllName));
 
     plugins.erase(pluginIterator);
 
@@ -77,7 +77,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
     {
         if (plugin->dllName == dllName)
         {
-            Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format(L"Plugin {} already loaded, skipping\n", plugin->dllName));
+            FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Info, std::format(L"Plugin {} already loaded, skipping\n", plugin->dllName));
             return false;
         }
     }
@@ -86,7 +86,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (!std::filesystem::exists(pathToDll))
     {
-        Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR plugin {} not found", dllName));
+        FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR plugin {} not found", dllName));
         return false;
     }
 
@@ -94,14 +94,14 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (!dll)
     {
-        Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR can't load plugin DLL {}", dllName));
+        FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR can't load plugin DLL {}", dllName));
     }
 
     const auto pluginFactory = reinterpret_cast<PluginFactoryT>(GetProcAddress(dll, "PluginFactory"));
 
     if (!pluginFactory)
     {
-        Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR could not create plugin instance for {}", dllName));
+        FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR could not create plugin instance for {}", dllName));
         FreeLibrary(dll);
         return false;
     }
@@ -112,49 +112,49 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (plugin->versionMinor == PluginMinorVersion::Undefined || plugin->versionMajor == PluginMajorVersion::Undefined)
     {
-        Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR plugin {} does not have defined API version. Unloading.", dllName));
+        FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR plugin {} does not have defined API version. Unloading.", dllName));
         FreeLibrary(dll);
         return false;
     }
 
     if (plugin->versionMajor != CurrentMajorVersion)
     {
-        Logger::i()->Log(LogFile::ConsoleOnly,
-                         LogLevel::Err,
-                         std::format(L"ERR incompatible plugin API (major) version for {}: expected {}, got {}",
-                                     dllName,
-                                     static_cast<int>(CurrentMajorVersion),
-                                     static_cast<int>(plugin->versionMajor)));
+        FLHook::GetLogger().Log(LogFile::ConsoleOnly,
+                                LogLevel::Err,
+                                std::format(L"ERR incompatible plugin API (major) version for {}: expected {}, got {}",
+                                            dllName,
+                                            static_cast<int>(CurrentMajorVersion),
+                                            static_cast<int>(plugin->versionMajor)));
         FreeLibrary(dll);
         return false;
     }
 
     if (static_cast<int>(plugin->versionMinor) > static_cast<int>(CurrentMinorVersion))
     {
-        Logger::i()->Log(LogFile::ConsoleOnly,
-                         LogLevel::Err,
-                         std::format(L"ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
-                                     dllName,
-                                     static_cast<int>(CurrentMinorVersion),
-                                     static_cast<int>(plugin->versionMinor)));
+        FLHook::GetLogger().Log(LogFile::ConsoleOnly,
+                                LogLevel::Err,
+                                std::format(L"ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
+                                            dllName,
+                                            static_cast<int>(CurrentMinorVersion),
+                                            static_cast<int>(plugin->versionMinor)));
         FreeLibrary(dll);
         return false;
     }
 
     if (static_cast<int>(plugin->versionMinor) != static_cast<int>(CurrentMinorVersion))
     {
-        Logger::i()->Log(LogFile::ConsoleOnly,
-                         LogLevel::Warn,
-                         std::format(L"Warning, incompatible plugin API version for {}: expected {}, got {}",
-                                     dllName,
-                                     static_cast<int>(CurrentMinorVersion),
-                                     static_cast<int>(plugin->versionMinor)));
-        Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, L"Processing will continue, but plugin should be considered unstable.");
+        FLHook::GetLogger().Log(LogFile::ConsoleOnly,
+                                LogLevel::Warn,
+                                std::format(L"Warning, incompatible plugin API version for {}: expected {}, got {}",
+                                            dllName,
+                                            static_cast<int>(CurrentMinorVersion),
+                                            static_cast<int>(plugin->versionMinor)));
+        FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Info, L"Processing will continue, but plugin should be considered unstable.");
     }
 
     if (plugin->shortName.empty() || plugin->name.empty())
     {
-        Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR missing name/short name for {}", dllName));
+        FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR missing name/short name for {}", dllName));
         FreeLibrary(dll);
         return false;
     }
@@ -163,7 +163,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
     // also not be loaded after FLServer startup
     if (!plugin->mayUnload && !startup)
     {
-        Logger::i()->Log(
+        FLHook::GetLogger().Log(
             LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", dllName));
         FreeLibrary(dll);
         return false;
@@ -184,7 +184,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     std::ranges::sort(plugins, [](const std::shared_ptr<Plugin>& a, const std::shared_ptr<Plugin>& b) { return a->name < b->name; });
 
-    Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, std::format(L"Plugin {} loaded ({})", plugin->shortName, plugin->dllName));
+    FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Info, std::format(L"Plugin {} loaded ({})", plugin->shortName, plugin->dllName));
     return true;
 }
 

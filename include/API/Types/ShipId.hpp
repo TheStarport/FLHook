@@ -3,11 +3,12 @@
 #include "ObjectId.hpp"
 #include "RepId.hpp"
 
-class ShipId final : ObjectId
+class ShipId final : public ObjectId
 {
     public:
         explicit ShipId(const uint val) : ObjectId(val) {}
         explicit ShipId() {}
+        explicit ShipId(const ShipId& id) : ObjectId(id.GetValue()) {}
 
         [[nodiscard]]
         Action<CShipPtr, Error> GetCShip(bool increment);

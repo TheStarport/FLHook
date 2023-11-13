@@ -101,7 +101,7 @@ Action<PlayerInfo, Error> GetPlayerInfo(const std::variant<uint, std::wstring_vi
     auto ci = GetConnectionStats(client).Raw();
     if (ci.has_error())
     {
-        Logger::i()->Log(LogLevel::Warn, L"Invalid client ID provided when getting connection stats");
+        FLHook::GetLogger().Log(LogLevel::Warn, L"Invalid client ID provided when getting connection stats");
         return { cpp::fail(Error::PlayerNotLoggedIn) };
     }
     pi.connectionInfo = ci.value();
@@ -294,7 +294,7 @@ Action<void, Error> AddRoles(std::wstring_view characterName, const std::vector<
     catch (nlohmann::json::parse_error&)
     {
         // TODO: Log error character error to specific file
-        Logger::i()->Log(LogLevel::Err, std::format(L"Unable to parse account data for character: {}.", characterName));
+        FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Unable to parse account data for character: {}.", characterName));
         accountData = nlohmann::json::object();
     }
 
@@ -400,7 +400,7 @@ Action<void, Error> RemoveRoles(std::wstring_view characterName, const std::vect
     catch (nlohmann::json::parse_error&)
     {
         // TODO: Log error character error to specific file
-        Logger::i()->Log(LogLevel::Err, std::format(L"Unable to parse account data for character: {}.", characterName));
+        FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Unable to parse account data for character: {}.", characterName));
         accountData = nlohmann::json::object();
     }
 

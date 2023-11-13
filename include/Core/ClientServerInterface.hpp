@@ -142,17 +142,17 @@ class IServerImplHook
         timer.Start();                                                 \
         TryHook                                                        \
         {
-#define CallServerPostamble(catchArgs, rval)                                                                               \
-    }                                                                                                                      \
-    CatchHook({                                                                                                            \
-        Logger::i()->Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__))); \
-        bool ret = catchArgs;                                                                                              \
-        if (!ret)                                                                                                          \
-        {                                                                                                                  \
-            timer.Stop();                                                                                                  \
-            return rval;                                                                                                   \
-        }                                                                                                                  \
-    }) timer.Stop();                                                                                                       \
+#define CallServerPostamble(catchArgs, rval)                                                                                      \
+    }                                                                                                                             \
+    CatchHook({                                                                                                                   \
+        FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__))); \
+        bool ret = catchArgs;                                                                                                     \
+        if (!ret)                                                                                                                 \
+        {                                                                                                                         \
+            timer.Stop();                                                                                                         \
+            return rval;                                                                                                          \
+        }                                                                                                                         \
+    }) timer.Stop();                                                                                                              \
     }
 
 #define CallClientPreamble                       \
@@ -167,11 +167,11 @@ class IServerImplHook
     memcpy(&Client, &tmp, 4); \
     }
 
-#define CheckForDisconnect                                                                                                                         \
-    {                                                                                                                                              \
-        if (ClientInfo::At(client).disconnected)                                                                                                   \
-        {                                                                                                                                          \
-            Logger::i()->Log(LogLevel::Debug, std::format(L"Ignoring disconnected client in {} id={}", StringUtils::stows(__FUNCTION__), client)); \
-            return;                                                                                                                                \
-        };                                                                                                                                         \
+#define CheckForDisconnect                                                                                                                                \
+    {                                                                                                                                                     \
+        if (client.GetData().disconnected)                                                                                                                \
+        {                                                                                                                                                 \
+            FLHook::GetLogger().Log(LogLevel::Debug, std::format(L"Ignoring disconnected client in {} id={}", StringUtils::stows(__FUNCTION__), client)); \
+            return;                                                                                                                                       \
+        };                                                                                                                                                \
     }

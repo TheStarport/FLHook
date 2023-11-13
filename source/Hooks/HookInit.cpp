@@ -188,7 +188,7 @@ void FLHook::LoadUserSettings(uint client)
     catch (nlohmann::json::exception& ex)
     {
         // TODO: Log to a special error file
-        Logger::i()->Log(LogLevel::Err,
+        FLHook::GetLogger().Log(LogLevel::Err,
                          std::format(L"Error while loading account data from account file ({}): {}", userFile, StringUtils::stows(std::string(ex.what()))));
     }
 
@@ -213,7 +213,7 @@ void FLHook::LoadUserSettings(uint client)
         }
         catch (...)
         {
-            Logger::i()->Log(LogLevel::Err, std::format(L"Error while loading ignore list from account file: {}", userFile));
+            FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Error while loading ignore list from account file: {}", userFile));
         }
     }
 

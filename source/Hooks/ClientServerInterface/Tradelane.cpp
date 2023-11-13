@@ -16,7 +16,7 @@ bool GoTradelaneCatch(ClientId client, const XGoTradelane& gtl)
 {
     uint system;
     pub::Player::GetSystem(client, system);
-    Logger::i()->Log(LogLevel::Trace,
+    FLHook::GetLogger().Log(LogLevel::Trace,
                      std::format(L"Exception in IServerImpl::GoTradelane charname={} sys=0x{:08X} arch=0x{:08X} arch2=0x{:08X}",
                                  client.GetCharacterName().Unwrap(),
                                  system,
@@ -27,7 +27,7 @@ bool GoTradelaneCatch(ClientId client, const XGoTradelane& gtl)
 
 void __stdcall IServerImplHook::GoTradelane(ClientId client, const XGoTradelane& gt)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"GoTradelane(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"GoTradelane(\n\tClientId client = {}\n)", client));
 
     const auto skip = CallPlugins(&Plugin::OnTradelaneStart, client, gt);
 
@@ -52,7 +52,7 @@ void StopTradelaneInner(ClientId client, uint, uint, uint)
 
 void __stdcall IServerImplHook::StopTradelane(ClientId client, uint shipId, uint tradelaneRing1, uint tradelaneRing2)
 {
-    Logger::i()->Log(LogLevel::Trace,
+    FLHook::GetLogger().Log(LogLevel::Trace,
                      std::format(L"StopTradelane(\n\tClientId client = {}\n\tuint shipId = {}\n\tuint tradelaneRing1 = {}\n\tuint tradelaneRing2 = {}\n)",
                                  client,
                                  shipId,

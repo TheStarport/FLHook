@@ -5,6 +5,8 @@
 #include "API/API.hpp"
 #include "Core/FLHook.hpp"
 #include "Core/MessageHandler.hpp"
+#include "Core/TempBan.hpp"
+#include "Defs/ServerStats.hpp"
 
 std::vector<std::shared_ptr<Timer>> Timer::timers;
 
@@ -36,10 +38,9 @@ void Timer::Remove(const DWORD funcAddr)
 void FLHook::PublishServerStats()
 {
     ServerStats stats;
-    const auto globals = CoreGlobals::c();
 
-    stats.npcsEnabled = !globals->disableNpcs;
-    stats.serverLoad = globals->serverLoadInMs;
+    stats.npcsEnabled = instance->disableNpcs;
+    stats.serverLoad = instance->serverLoadInMs;
 
     PROCESS_MEMORY_COUNTERS memCounter;
     GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof memCounter);

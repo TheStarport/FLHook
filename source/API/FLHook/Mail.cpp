@@ -160,7 +160,7 @@ void MailManager::SendMailNotification(const std::variant<uint, std::wstring_vie
     const auto mailCount = GetUnreadMailCount(client);
     if (mailCount.has_error())
     {
-        Logger::i()->Log(LogLevel::Err, mailCount.error());
+        FLHook::GetLogger().Log(LogLevel::Err, mailCount.error());
     }
     else if (mailCount.value() > 0)
     {

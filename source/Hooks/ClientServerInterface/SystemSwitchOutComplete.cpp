@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 
 #include "API/FLServer/Client.hpp"
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Global.hpp"
 
@@ -16,11 +17,11 @@ void SystemSwitchOutCompleteInnerAfter(uint, ClientId client)
 
 void __stdcall IServerImplHook::SystemSwitchOutComplete(uint shipId, ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"SystemSwitchOutComplete(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"SystemSwitchOutComplete(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
 
     if (const auto skip = CallPlugins(&Plugin::OnSystemSwitchOutComplete, client, shipId); !skip)
     {
-        CallServerPreamble { Server.SystemSwitchOutComplete(shipId, client); }
+        CallServerPreamble { Server.SystemSwitchOutComplete(shipId, client.GetValue()); }
         CallServerPostamble(true, );
     }
     SystemSwitchOutCompleteInnerAfter(shipId, client);

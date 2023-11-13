@@ -6,6 +6,7 @@
 
 class ShipId;
 class ClientData;
+class GroupId;
 
 class ClientId
 {
@@ -84,7 +85,7 @@ class ClientId
 
         // Manipulation
 
-        Action<void, Error> AddToGroup(uint group);
+        Action<void, Error> AddToGroup(GroupId group);
         Action<void, Error> Kick(const std::optional<std::wstring_view> &reason = {}, std::optional<uint> delay = {});
         Action<void, Error> MessageAndKick(std::wstring_view reason, uint delay = 10);
         Action<void, Error> SaveChar();
@@ -97,9 +98,8 @@ class ClientId
 
         // Chat
 
-        Action<void, Error> Message(const std::wstring_view message, const MessageFormat format = MessageFormat::Normal,
-                                    const MessageColor color = MessageColor::Default) const;
+        Action<void, Error> Message(std::wstring_view message, MessageFormat format = MessageFormat::Normal, MessageColor color = MessageColor::Default) const;
+        Action<void, Error> MessageLocal(std::wstring_view message, float range = 10'000.0f, MessageFormat format = MessageFormat::Normal,
+                                         MessageColor color = MessageColor::Default);
         Action<void, Error> MessageFrom(ClientId destinationClient, std::wstring message) const;
-
-        void Save();
 };

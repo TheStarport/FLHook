@@ -133,17 +133,16 @@ Logger::Logger()
     consoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 
     // change version number here:
-    // https://patorjk.com/software/taag/#p=display&f=Big&t=FLHook%204.1
+    // https://patorjk.com/software/taag/#p=display&f=Doom&t=FLHook%204.1%20pallas
     std::wstring welcomeText = LR"(
-  __ _      _    _             _      _  _  __                 _ _           
- |  __| |    | |  | |           | |    | || |/_ |               | | |          
- | |__  | |    | |__| | _   _ | | __ | || |_| |    _ __   __ _| | | __ _ _ 
- |  __| | |    |  __  |/ _ \ / _ \| |/ / |__   _| |   | '_ \ / _` | | |/ _` / __|
- | |    | |__| |  | | (_) | (_) |   <     | |_| |   | |_) | (_| | | | (_| \__ \
- |_|    |__|_|  |_|\_/ \_/|_|\_\    |_(_)_|   | .__/ \__,_|_|_|\__,_|_/
-                                                      | |                        
-                                                      |_|                        
-                                                                       )";
+______ _      _   _             _        ___   __                _ _           
+|  ___| |    | | | |           | |      /   | /  |              | | |          
+| |_  | |    | |_| | ___   ___ | | __  / /| | `| |   _ __   __ _| | | __ _ ___ 
+|  _| | |    |  _  |/ _ \ / _ \| |/ / / /_| |  | |  | '_ \ / _` | | |/ _` / __|
+| |   | |____| | | | (_) | (_) |   <  \___  |__| |_ | |_) | (_| | | | (_| \__ \
+\_|   \_____/\_| |_/\___/ \___/|_|\_\     |_(_)___/ | .__/ \__,_|_|_|\__,_|___/
+                                                    | |                        
+                                                    |_|                        )";
     welcomeText += L"\n\n";
     DWORD _;
     WriteConsole(consoleOutput, welcomeText.c_str(), welcomeText.length(), &_, nullptr);
@@ -184,7 +183,7 @@ void Logger::Log(LogFile file, LogLevel level, std::wstring_view str)
 void Logger::Log(LogLevel level, std::wstring_view str)
 {
     SetLogSource(_ReturnAddress());
-    Log(LogFile::Default, level, str);
+    FLHook::GetLogger().Log(LogFile::Default, level, str);
 }
 
 std::optional<std::wstring> Logger::GetCommand()

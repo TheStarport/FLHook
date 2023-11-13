@@ -24,7 +24,7 @@ enum class LogFile
     ConsoleOnly,
 };
 
-class DLL Logger final : public Singleton<Logger>
+class DLL Logger final
 {
         bool consoleAllocated = true;
         HANDLE consoleInput;

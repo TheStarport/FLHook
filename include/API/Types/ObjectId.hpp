@@ -12,7 +12,7 @@ class ObjectId
         explicit ObjectId() = default;
         virtual ~ObjectId() = default;
         ObjectId(const ObjectId&) = default;
-        ObjectId& operator=(ObjectId) = delete;
+        ObjectId& operator=(const ObjectId obj) : value(obj.GetValue()) { return *this; }
         ObjectId(ObjectId&&) = default;
         ObjectId& operator=(ObjectId&&) = delete;
 

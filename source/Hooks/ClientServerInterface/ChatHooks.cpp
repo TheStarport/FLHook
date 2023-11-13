@@ -154,7 +154,7 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
     catch ([[maybe_unused]] const StopProcessingException&) {}
     catch (const GameException& ex)
     {
-        Logger::i()->Log(LogLevel::Info, ex.Msg());
+        FLHook::GetLogger().Log(LogLevel::Info, ex.Msg());
         {};
     }
     catch ([[maybe_unused]] std::exception& exc) { {}; }
@@ -167,7 +167,7 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
 
 void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, const void* rdlReader, CHAT_ID cidTo, int genArg1)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.id, size, cidTo.id));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.id, size, cidTo.id));
 
     const auto skip = CallPlugins(&Plugin::OnSubmitChat, cidFrom.id, size, rdlReader, cidTo.id, genArg1);
 

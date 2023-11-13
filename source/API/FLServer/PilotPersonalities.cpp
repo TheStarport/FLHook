@@ -1249,11 +1249,11 @@ namespace Hk::Personalities
         INI_Reader ini;
         if (!ini.open(R"(..\DATA\MISSIONS\pilots_population.ini)", false))
         {
-            Logger::i()->Log(LogLevel::Warn, L"Unable to parse pilot_population");
+            FLHook::GetLogger().Log(LogLevel::Warn, L"Unable to parse pilot_population");
             return;
         }
 
-        Logger::i()->Log(LogLevel::Info, L"Parsing Pilot Population");
+        FLHook::GetLogger().Log(LogLevel::Info, L"Parsing Pilot Population");
 
         while (ini.read_header())
         {
@@ -1327,6 +1327,6 @@ namespace Hk::Personalities
             }
         }
 
-        Logger::i()->Log(LogLevel::Info, std::format(L"Parsed Pilot Population: {} personalities", pilots.size()));
+        FLHook::GetLogger().Log(LogLevel::Info, std::format(L"Parsed Pilot Population: {} personalities", pilots.size()));
     }
 } // namespace Hk::Personalities

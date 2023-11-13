@@ -5,7 +5,7 @@
 
 void __stdcall IServerImplHook::SpScanCargo(const uint& unk1, const uint& unk2, uint unk3)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"SPScanCargo(\n\tuint const& unk1 = {}\n\tuint const& unk2 = {}\n\tuint unk3 = {}\n)", unk1, unk2, unk3));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"SPScanCargo(\n\tuint const& unk1 = {}\n\tuint const& unk2 = {}\n\tuint unk3 = {}\n)", unk1, unk2, unk3));
 
     if (const auto skip = CallPlugins(&Plugin::OnSpScanCargo, unk1, unk2, unk3); !skip)
     {
@@ -19,7 +19,7 @@ void __stdcall IServerImplHook::SpScanCargo(const uint& unk1, const uint& unk2, 
 void __stdcall IServerImplHook::ReqAddItem(uint goodId, const char* hardpoint, int count, float status, bool mounted, ClientId client)
 {
     const std::wstring hp = StringUtils::stows(hardpoint);
-    Logger::i()->Log(LogLevel::Trace,
+    FLHook::GetLogger().Log(LogLevel::Trace,
                      std::format(L"ReqAddItem(\n\tuint goodId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
                                  L"{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
                                  goodId,
@@ -40,7 +40,7 @@ void __stdcall IServerImplHook::ReqAddItem(uint goodId, const char* hardpoint, i
 
 void __stdcall IServerImplHook::ReqRemoveItem(ushort slotId, int count, ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"ReqRemoveItem(\n\tushort slotId = {}\n\tint count = {}\n\tClientId client = {}\n)", slotId, count, client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"ReqRemoveItem(\n\tushort slotId = {}\n\tint count = {}\n\tClientId client = {}\n)", slotId, count, client));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestRemoveItem, client, slotId, count); !skip)
     {
@@ -54,7 +54,7 @@ void __stdcall IServerImplHook::ReqRemoveItem(ushort slotId, int count, ClientId
 void __stdcall IServerImplHook::ReqModifyItem(ushort slotId, const char* hardpoint, int count, float status, bool mounted, ClientId client)
 {
     std::wstring hp = StringUtils::stows(hardpoint);
-    Logger::i()->Log(LogLevel::Trace,
+    FLHook::GetLogger().Log(LogLevel::Trace,
                      std::format(L"ReqModifyItem(\n\tushort slotId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
                                  "{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
                                  slotId,
@@ -75,7 +75,7 @@ void __stdcall IServerImplHook::ReqModifyItem(ushort slotId, const char* hardpoi
 
 void __stdcall IServerImplHook::JettisonCargo(ClientId client, const XJettisonCargo& jc)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"JettisonCargo(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"JettisonCargo(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnCargoJettison, client, jc); !skip)
     {
@@ -88,7 +88,7 @@ void __stdcall IServerImplHook::JettisonCargo(ClientId client, const XJettisonCa
 
 void __stdcall IServerImplHook::TractorObjects(ClientId client, const XTractorObjects& to)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"TractorObjects(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"TractorObjects(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnTractorObjects, client, to); !skip)
     {

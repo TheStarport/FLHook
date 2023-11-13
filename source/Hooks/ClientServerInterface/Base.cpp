@@ -34,14 +34,14 @@ void BaseEnterInnerAfter([[maybe_unused]] uint baseId, ClientId client)
             value.has_value() && value.value() > 2000000000)
         {
             const std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-            Logger::i()->Log(LogLevel::Trace, std::format(L"Possible corrupt ship charname={} asset_value={}", charname, value.value()));
+            FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"Possible corrupt ship charname={} asset_value={}", charname, value.value()));
         }
     }
     CatchHook({})
 }
 void __stdcall IServerImplHook::BaseEnter(uint baseId, ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"BaseEnter(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"BaseEnter(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
 
     const auto skip = CallPlugins(&Plugin::OnBaseEnter, baseId, client);
 
@@ -74,7 +74,7 @@ void BaseExitInnerAfter([[maybe_unused]] uint baseId, [[maybe_unused]] ClientId 
 }
 void __stdcall IServerImplHook::BaseExit(uint baseId, ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"BaseExit(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"BaseExit(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
 
     const auto skip = CallPlugins(&Plugin::OnBaseExit, baseId, client);
 
@@ -94,7 +94,7 @@ void __stdcall IServerImplHook::BaseExit(uint baseId, ClientId client)
 
 void __stdcall IServerImplHook::BaseInfoRequest(unsigned int unk1, unsigned int unk2, bool unk3)
 {
-    Logger::i()->Log(LogLevel::Trace,
+    FLHook::GetLogger().Log(LogLevel::Trace,
                      std::format(L"BaseInfoRequest(\n\tunsigned int unk1 = {}\n\tunsigned int unk2 = {}\n\tbool unk3 = {}\n)", unk1, unk2, unk3));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestBaseInfo, unk1, unk2, unk3); !skip)

@@ -4,19 +4,21 @@
 #include "Global.hpp"
 
 #include "API/API.hpp"
+#include "API/Utils/PerfTimer.hpp"
 
-void InitiateTradeInner(ClientId client1, ClientId client2)
+void InitiateTradeInner(const ClientId client1, const ClientId client2)
 {
-    if (client1 <= MaxClientId && client2 <= MaxClientId)
+    if (client1 && client2)
     {
-        ClientInfo[client1].tradePartner = client2;
-        ClientInfo[client2].tradePartner = client1;
+        auto& clients = FLHook::Clients();
+        clients[client1].tradePartner = client2;
+        clients[client2].tradePartner = client1;
     }
 }
 
 void __stdcall IServerImplHook::InitiateTrade(ClientId client1, ClientId client2)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"InitiateTrade(\n\tClientId client1 = {}\n\tClientId client2 = {}\n)", client1, client2));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"InitiateTrade(\n\tClientId client1 = {}\n\tClientId client2 = {}\n)", client1, client2));
 
     const auto skip = CallPlugins(&Plugin::OnInitiateTrade, client1, client2);
 
@@ -24,7 +26,7 @@ void __stdcall IServerImplHook::InitiateTrade(ClientId client1, ClientId client2
 
     if (!skip)
     {
-        CallServerPreamble { Server.InitiateTrade(client1, client2); }
+        CallServerPreamble { Server.InitiateTrade(client1.GetValue(), client2.GetValue()); }
         CallServerPostamble(true, );
     }
 
@@ -32,11 +34,11 @@ void __stdcall IServerImplHook::InitiateTrade(ClientId client1, ClientId client2
 }
 void __stdcall IServerImplHook::AcceptTrade(ClientId client, bool unk1)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"AcceptTrade(\n\tClientId client = {}\n\tbool unk1 = {}\n)", client, unk1));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"AcceptTrade(\n\tClientId client = {}\n\tbool unk1 = {}\n)", client, unk1));
 
     if (const auto skip = CallPlugins(&Plugin::OnAcceptTrade, client, unk1); !skip)
     {
-        CallServerPreamble { Server.AcceptTrade(client, unk1); }
+        CallServerPreamble { Server.AcceptTrade(client.GetValue(), unk1); }
         CallServerPostamble(true, );
     }
 
@@ -45,11 +47,11 @@ void __stdcall IServerImplHook::AcceptTrade(ClientId client, bool unk1)
 
 void __stdcall IServerImplHook::SetTradeMoney(ClientId client, ulong unk1)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"SetTradeMoney(\n\tClientId client = {}\n\tulong unk1 = {}\n)", client, unk1));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"SetTradeMoney(\n\tClientId client = {}\n\tulong unk1 = {}\n)", client, unk1));
 
     if (const auto skip = CallPlugins(&Plugin::OnSetTradeMoney, client, unk1); !skip)
     {
-        CallServerPreamble { Server.SetTradeMoney(client, unk1); }
+        CallServerPreamble { Server.SetTradeMoney(client.GetValue(), unk1); }
         CallServerPostamble(true, );
     }
 
@@ -58,11 +60,11 @@ void __stdcall IServerImplHook::SetTradeMoney(ClientId client, ulong unk1)
 
 void __stdcall IServerImplHook::AddTradeEquip(ClientId client, const EquipDesc& ed)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"AddTradeEquip(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"AddTradeEquip(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnAddTradeEquip, client, ed); !skip)
     {
-        CallServerPreamble { Server.AddTradeEquip(client, ed); }
+        CallServerPreamble { Server.AddTradeEquip(client.GetValue(), ed); }
         CallServerPostamble(true, );
     }
 
@@ -71,11 +73,11 @@ void __stdcall IServerImplHook::AddTradeEquip(ClientId client, const EquipDesc& 
 
 void __stdcall IServerImplHook::DelTradeEquip(ClientId client, const EquipDesc& ed)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"DelTradeEquip(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"DelTradeEquip(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnRemoveTradeEquip, client, ed); !skip)
     {
-        CallServerPreamble { Server.DelTradeEquip(client, ed); }
+        CallServerPreamble { Server.DelTradeEquip(client.GetValue(), ed); }
         CallServerPostamble(true, );
     }
 
@@ -84,7 +86,7 @@ void __stdcall IServerImplHook::DelTradeEquip(ClientId client, const EquipDesc& 
 
 void __stdcall IServerImplHook::RequestTrade(uint unk1, uint unk2)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"RequestTrade(\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", unk1, unk2));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"RequestTrade(\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", unk1, unk2));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestTrade, unk1, unk2); !skip)
     {
@@ -97,11 +99,11 @@ void __stdcall IServerImplHook::RequestTrade(uint unk1, uint unk2)
 
 void __stdcall IServerImplHook::StopTradeRequest(ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"StopTradeRequest(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"StopTradeRequest(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnStopTradeRequest, client); !skip)
     {
-        CallServerPreamble { Server.StopTradeRequest(client); }
+        CallServerPreamble { Server.StopTradeRequest(client.GetValue()); }
         CallServerPostamble(true, );
     }
 
@@ -110,47 +112,49 @@ void __stdcall IServerImplHook::StopTradeRequest(ClientId client)
 
 void __stdcall IServerImplHook::TradeResponse(const unsigned char* unk1, int unk2, ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace,
-                     std::format(L"TradeResponse(\n\tunsigned char const* unk1 = {}\n\tint unk2 = {}\n\tClientId client = {}\n)",
-                                 StringUtils::stows(std::string(reinterpret_cast<const char*>(unk1))),
-                                 unk2,
-                                 client));
+    FLHook::GetLogger().Log(LogLevel::Trace,
+                            std::format(L"TradeResponse(\n\tunsigned char const* unk1 = {}\n\tint unk2 = {}\n\tClientId client = {}\n)",
+                                        StringUtils::stows(std::string(reinterpret_cast<const char*>(unk1))),
+                                        unk2,
+                                        client));
 
     if (const auto skip = CallPlugins(&Plugin::OnTradeResponse, client, unk1, unk2); !skip)
     {
-        CallServerPreamble { Server.TradeResponse(unk1, unk2, client); }
+        CallServerPreamble { Server.TradeResponse(unk1, unk2, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
     CallPlugins(&Plugin::OnTradeResponseAfter, client, unk1, unk2);
 }
 
-void TerminateTradeInnerAfter(ClientId client, int accepted)
+void TerminateTradeInnerAfter(ClientId client, const int accepted)
 {
     TryHook
     {
+        auto partner = client.GetData().tradePartner;
         if (accepted)
         {
             // save both chars to prevent cheating in case of server crash
-            Hk::Player::SaveChar(client);
-            if (ClientInfo::At(client).tradePartner)
+            client.SaveChar();
+            if (partner)
             {
-                Hk::Player::SaveChar(ClientInfo::At(client).tradePartner);
+                partner.SaveChar();
             }
         }
 
-        if (ClientInfo::At(client).tradePartner)
+        if (partner)
         {
-            ClientInfo[ClientInfo::At(client).tradePartner].tradePartner = 0;
+            partner.GetData().tradePartner = ClientId();
         }
-        ClientInfo::At(client).tradePartner = 0;
+
+        client.GetData().tradePartner = ClientId();
     }
     CatchHook({})
 }
 
 void __stdcall IServerImplHook::TerminateTrade(ClientId client, int accepted)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"TerminateTrade(\n\tClientId client = {}\n\tint accepted = {}\n)", client, accepted));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"TerminateTrade(\n\tClientId client = {}\n\tint accepted = {}\n)", client, accepted));
 
     const auto skip = CallPlugins(&Plugin::OnTerminateTrade, client, accepted);
 
@@ -158,7 +162,7 @@ void __stdcall IServerImplHook::TerminateTrade(ClientId client, int accepted)
 
     if (!skip)
     {
-        CallServerPreamble { Server.TerminateTrade(client, accepted); }
+        CallServerPreamble { Server.TerminateTrade(client.GetValue(), accepted); }
         CallServerPostamble(true, );
     }
     TerminateTradeInnerAfter(client, accepted);

@@ -21,7 +21,7 @@ struct ClientData
         std::list<MoneyFix> moneyFix{};
 
         // anticheat
-        uint tradePartner = 0;
+        ClientId tradePartner{};
 
         // change cruise disruptor behaviour
         bool cruiseActivated = false;

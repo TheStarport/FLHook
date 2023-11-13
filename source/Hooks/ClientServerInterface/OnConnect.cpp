@@ -12,7 +12,7 @@ bool IServerImplHook::OnConnectInner(ClientId client)
         // the connection.
         if (client > MaxClientId)
         {
-            Logger::i()->Log(LogLevel::Trace, std::format(L"INFO: Blocking connect in {} due to invalid id, id={}", StringUtils::stows(__FUNCTION__), client));
+            FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"INFO: Blocking connect in {} due to invalid id, id={}", StringUtils::stows(__FUNCTION__), client));
             CDPClientProxy* cdpClient = clientProxyArray[client - 1];
             if (!cdpClient)
             {
@@ -54,7 +54,7 @@ void OnConnectInnerAfter([[maybe_unused]] ClientId client)
 
 void __stdcall IServerImplHook::OnConnect(ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"OnConnect(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"OnConnect(\n\tClientId client = {}\n)", client));
 
     const auto skip = CallPlugins(&Plugin::OnConnect, client);
 

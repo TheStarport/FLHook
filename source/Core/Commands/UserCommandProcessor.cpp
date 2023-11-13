@@ -21,7 +21,7 @@ bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstrin
     paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
 
     const auto character = triggeringClient.GetCharacterName().Unwrap();
-    Logger::i()->Log(LogLevel::Info, std::format(L"{}: {}", character, commandStr));
+    FLHook::GetLogger().Log(LogLevel::Info, std::format(L"{}: {}", character, commandStr));
 
     return ProcessCommand(triggeringClient, command, paramsFiltered);
 }

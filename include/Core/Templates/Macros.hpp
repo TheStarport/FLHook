@@ -18,7 +18,7 @@
     catch ([[maybe_unused]] const StopProcessingException&) {} \
     catch (const GameException& ex)                            \
     {                                                          \
-        Logger::i()->Log(LogLevel::Info, ex.Msg());            \
+        FLHook::GetLogger().Log(LogLevel::Info, ex.Msg());     \
         e;                                                     \
     }                                                          \
     catch ([[maybe_unused]] std::exception & exc) { e; }       \

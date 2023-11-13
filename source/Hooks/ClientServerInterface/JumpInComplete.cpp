@@ -21,7 +21,7 @@ void JumpInCompleteInnerAfter(uint systemId, uint shipId)
 
 void __stdcall IServerImplHook::JumpInComplete(uint systemId, uint shipId)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"JumpInComplete(\n\tuint systemId = {}\n\tuint shipId = {}\n)", systemId, shipId));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"JumpInComplete(\n\tuint systemId = {}\n\tuint shipId = {}\n)", systemId, shipId));
 
     if (const auto skip = CallPlugins(&Plugin::OnJumpInComplete, systemId, shipId); !skip)
     {

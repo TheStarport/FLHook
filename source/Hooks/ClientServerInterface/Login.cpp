@@ -99,7 +99,7 @@ bool LoginInnerAfter(const SLoginInfo& li, ClientId client)
 
 void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"Login(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"Login(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip && LoginInnerBefore(li, client))
     {

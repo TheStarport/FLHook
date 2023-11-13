@@ -11,7 +11,7 @@ MessageHandler::MessageHandler()
         return;
     }
 
-    Logger::i()->Log(LogLevel::Info, L"Attempting connection to RabbitMQ");
+    FLHook::GetLogger().Log(LogLevel::Info, L"Attempting connection to RabbitMQ");
 
     loop = uvw::Loop::getDefault();
     connectHandle = loop->resource<uvw::TCPHandle>();
@@ -21,7 +21,7 @@ MessageHandler::MessageHandler()
         {
             // Just die on error, the message director always needs a connection to RabbitMQ.
             // TODO: Add proper error handling and reconnects in the event of connection loss
-            Logger::i()->Log(LogLevel::Err, std::format(L"Socket error: {}", StringUtils::stows(event.what())));
+            FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Socket error: {}", StringUtils::stows(event.what())));
             throw std::runtime_error("Unable to connect to socket");
         });
 
@@ -51,7 +51,7 @@ void MessageHandler::onData(AMQP::Connection* conn, const char* data, size_t siz
 
 void MessageHandler::onReady(AMQP::Connection* conn)
 {
-    Logger::i()->Log(LogLevel::Info, L"Connected to RabbitMQ!");
+    FLHook::GetLogger().Log(LogLevel::Info, L"Connected to RabbitMQ!");
     isInitalizing = false;
 
     channel = std::make_unique<AMQP::Channel>(conn);
@@ -60,7 +60,7 @@ void MessageHandler::onReady(AMQP::Connection* conn)
 void MessageHandler::onError(AMQP::Connection* conn, const char* message)
 {
     isInitalizing = false;
-    Logger::i()->Log(LogLevel::Err, std::format(L"AMQP error: {}", StringUtils::stows(message)));
+    FLHook::GetLogger().Log(LogLevel::Err, std::format(L"AMQP error: {}", StringUtils::stows(message)));
 }
 
 void MessageHandler::onClosed(AMQP::Connection* conn) { std::cout << "closed" << std::endl; }
@@ -87,7 +87,7 @@ void MessageHandler::Subscribe(const std::wstring& queue, QueueOnData callback, 
         }
 
         channel->consume(StringUtils::wstos(queue))
-            .onSuccess([queue]() { Logger::i()->Log(LogLevel::Info, std::format(L"successfully subscribed to {}", queue)); })
+            .onSuccess([queue]() { FLHook::GetLogger().Log(LogLevel::Info, std::format(L"successfully subscribed to {}", queue)); })
             .onReceived(
                 [this, queue](const AMQP::Message& message, uint64_t deliveryTag, bool redelivered)
                 {
@@ -112,7 +112,7 @@ void MessageHandler::Subscribe(const std::wstring& queue, QueueOnData callback, 
             .onError(
                 [this, queue](const char* msg)
                 {
-                    Logger::i()->Log(LogLevel::Warn, std::format(L"connection terminated with {} - {}", queue, StringUtils::stows(std::string(msg))));
+                    FLHook::GetLogger().Log(LogLevel::Warn, std::format(L"connection terminated with {} - {}", queue, StringUtils::stows(std::string(msg))));
                     const auto callbacks = onFailCallbacks.find(queue);
                     for (const auto& cb : callbacks->second)
                     {

@@ -27,17 +27,16 @@
     <ClCompile Include="..\Source\API\FLServer\PilotPersonalities.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Player.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Solar.cpp" />
-    <ClCompile Include="..\Source\API\FLServer\ZoneUtilities.cpp" />
     <ClCompile Include="..\Source\API\Types\ClientId.cpp" />
     <ClCompile Include="..\source\API\Types\GroupId.cpp" />
     <ClCompile Include="..\source\API\Types\ObjectId.cpp" />
     <ClCompile Include="..\source\API\Types\RepGroupId.cpp" />
     <ClCompile Include="..\source\API\Types\RepId.cpp" />
     <ClCompile Include="..\source\API\Types\ShipId.cpp" />
+    <ClCompile Include="..\source\API\Types\SystemId.cpp" />
     <ClCompile Include="..\source\API\Utils\FileUtils.cpp" />
     <ClCompile Include="..\Source\API\Utils\IniUtils.cpp" />
     <ClCompile Include="..\Source\Core\ApiInternal.cpp" />
-    <ClCompile Include="..\Source\Core\Codec.cpp" />
     <ClCompile Include="..\Source\Core\Commands\AdminCommandProcessor.cpp" />
     <ClCompile Include="..\Source\Core\Commands\CommandLineParser.cpp" />
     <ClCompile Include="..\Source\Core\Commands\ExternalCommandProcessor.cpp" />
@@ -53,6 +52,7 @@
     <ClCompile Include="..\Source\Core\StartupCache.cpp" />
     <ClCompile Include="..\Source\Core\TempBan.cpp" />
     <ClCompile Include="..\Source\Core\Timers.cpp" />
+    <ClCompile Include="..\source\Core\ZoneUtilities.cpp" />
     <ClCompile Include="..\Source\FLHook.cpp" />
     <ClCompile Include="..\Source\Hooks\ClientServerInterface\Cash.cpp" />
     <ClCompile Include="..\Source\Hooks\ClientServerInterface\Equipment.cpp" />
@@ -91,6 +91,7 @@
     <ClCompile Include="..\Source\Hooks\HkIEngineDisconnect.cpp" />
     <ClCompile Include="..\Source\Hooks\HookInit.cpp" />
     <ClCompile Include="..\Source\Hooks\SendComm.cpp" />
+    <ClCompile Include="..\source\Utils\Codec.cpp" />
     <ClCompile Include="..\source\Utils\PerfTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -131,7 +132,6 @@
     <ClInclude Include="..\Include\API\FLServer\Personalities.hpp" />
     <ClInclude Include="..\Include\API\FLServer\Player.hpp" />
     <ClInclude Include="..\Include\API\FLServer\GameObject.hpp" />
-    <ClInclude Include="..\Include\API\FLServer\ZoneUtilities.hpp" />
     <ClInclude Include="..\Include\API\Types\BaseId.hpp" />
     <ClInclude Include="..\Include\API\Types\ClientId.hpp" />
     <ClInclude Include="..\include\API\Types\GroupId.hpp" />
@@ -140,12 +140,14 @@
     <ClInclude Include="..\include\API\Types\RepId.hpp" />
     <ClInclude Include="..\Include\API\Types\ShipId.hpp" />
     <ClInclude Include="..\Include\API\Types\SystemId.hpp" />
+    <ClInclude Include="..\include\API\Utils\Codec.hpp" />
     <ClInclude Include="..\include\API\Utils\FileUtils.hpp" />
     <ClInclude Include="..\include\API\Utils\IniUtils.hpp" />
     <ClInclude Include="..\include\API\Utils\PerfTimer.hpp" />
+    <ClInclude Include="..\include\API\Utils\Serializer.hpp" />
+    <ClInclude Include="..\include\API\Utils\TransformArgs.hpp" />
     <ClInclude Include="..\include\Core\AddressList.hpp" />
     <ClInclude Include="..\Include\Core\ApiInternal.hpp" />
-    <ClInclude Include="..\Include\Core\Codec.hpp" />
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp" />
     <ClInclude Include="..\include\Core\Commands\AbstractExternalCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Commands\AbstractUserCommandProcessor.hpp" />
@@ -153,20 +155,20 @@
     <ClInclude Include="..\Include\Core\Commands\CommandLineParser.hpp" />
     <ClInclude Include="..\Include\Core\Commands\ExternalCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp" />
-    <ClInclude Include="..\Include\Core\Detour.hpp" />
     <ClInclude Include="..\include\Core\ExceptionHandler.hpp" />
     <ClInclude Include="..\Include\Core\ClientServerInterface.hpp" />
     <ClInclude Include="..\include\Core\FLHook.hpp" />
     <ClInclude Include="..\include\Core\IEngineHook.hpp" />
+    <ClInclude Include="..\include\Core\IpResolver.hpp" />
     <ClInclude Include="..\Include\Core\Logger.hpp" />
     <ClInclude Include="..\Include\Core\MemoryManager.hpp" />
     <ClInclude Include="..\Include\Core\MessageHandler.hpp" />
     <ClInclude Include="..\Include\Core\PluginManager.hpp" />
-    <ClInclude Include="..\Include\Core\Serializer.hpp" />
     <ClInclude Include="..\include\Core\StartupCache.hpp" />
     <ClInclude Include="..\Include\Core\TempBan.hpp" />
     <ClInclude Include="..\Include\Core\Templates\Constexpr.hpp" />
     <ClInclude Include="..\Include\Core\Templates\Macros.hpp" />
+    <ClInclude Include="..\include\Core\ZoneUtilities.hpp" />
     <ClInclude Include="..\Include\Defs\CoreGlobals.hpp" />
     <ClInclude Include="..\Include\Defs\Enums.hpp" />
     <ClInclude Include="..\Include\Defs\FLHookConfig.hpp" />
@@ -176,8 +178,7 @@
     <ClInclude Include="..\Include\Defs\Structs.hpp" />
     <ClInclude Include="..\Include\Global.hpp" />
     <ClInclude Include="..\Include\PCH.hpp" />
-    <ClInclude Include="..\include\Utils\TransformArgs.hpp" />
-    <ClInclude Include="..\source\Core\IpResolver.hpp" />
+    <ClInclude Include="..\include\Utils\Codec.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FE6EB3C9-DA22-4492-AEC3-068C9553A623}</ProjectGuid>

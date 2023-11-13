@@ -1,14 +1,17 @@
 #pragma once
 
 #include "API/FlHook/Plugin.hpp"
-#include "Commands/AdminCommandProcessor.hpp"
-#include "Commands/UserCommandProcessor.hpp"
-#include <Defs/SehException.hpp>
-#include <Singleton.hpp>
-#include <Utils/TemplateHelpers.hpp>
+#include "FLHook.hpp"
 
-class PluginManager : public Singleton<PluginManager>
+#ifdef FLHOOK
+    #include "Commands/AdminCommandProcessor.hpp"
+    #include "Commands/UserCommandProcessor.hpp"
+    #include <Utils/TemplateHelpers.hpp>
+#endif
+
+class DLL PluginManager final : public Singleton<PluginManager>
 {
+#ifdef FLHOOK
         friend AdminCommandProcessor;
         friend UserCommandProcessor;
 
@@ -43,8 +46,6 @@ class PluginManager : public Singleton<PluginManager>
         {
             return plugins.end();
         }
-
-        std::optional<std::weak_ptr<Plugin>> GetPlugin(std::wstring_view shortName);
 
         template <typename ReturnType, typename FuncPtr, typename... Args>
         ReturnType CallPlugins(FuncPtr target, bool& skipFunctionCall, Args... args) const
@@ -92,7 +93,7 @@ class PluginManager : public Singleton<PluginManager>
                     }
                     CatchHook({
                         auto targetName = typeid(FuncPtr).name();
-                        Logger::i()->Log(LogLevel::Err, std::format(L"Exception in plugin '{}' in {}", plugin->name, StringUtils::stows(targetName)));
+                        FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Exception in plugin '{}' in {}", plugin->name, StringUtils::stows(targetName)));
                     });
 
                     const auto code = plugin->returnCode;
@@ -108,7 +109,7 @@ class PluginManager : public Singleton<PluginManager>
                     }
                 }
             }
-            CatchHook({ Logger::i()->Log(LogLevel::Err, std::format(L"Exception {}", StringUtils::stows(__FUNCTION__))); });
+            CatchHook({ FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Exception {}", StringUtils::stows(__FUNCTION__))); });
 
             if constexpr (!returnTypeIsVoid)
             {
@@ -119,6 +120,10 @@ class PluginManager : public Singleton<PluginManager>
                 return void();
             }
         }
+#endif
+        // ReSharper disable once CppRedundantAccessSpecifier
+    public:
+        std::optional<std::weak_ptr<Plugin>> GetPlugin(std::wstring_view shortName);
 };
 
 template <typename ReturnType = void, typename FuncPtr, typename... Args>

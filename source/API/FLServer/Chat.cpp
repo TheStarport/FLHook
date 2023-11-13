@@ -293,7 +293,7 @@ namespace Hk::Chat
         const auto Sender = Client::GetCharacterNameByID(fromClientId).Raw();
         if (Sender.has_error())
         {
-            Logger::i()->Log(LogLevel::Err, std::format(L"Unable to send private chat message from client {}", fromClientId));
+            FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Unable to send private chat message from client {}", fromClientId));
             return { {} };
         }
 
@@ -353,7 +353,7 @@ namespace Hk::Chat
         const auto Sender = Client::GetCharacterNameByID(fromClientId).Raw();
         if (Sender.has_error())
         {
-            Logger::i()->Log(LogLevel::Err, std::format(L"Unable to send local system chat message from client {}", fromClientId));
+            FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Unable to send local system chat message from client {}", fromClientId));
             return;
         }
 

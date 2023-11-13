@@ -395,6 +395,17 @@ Action<void, Error> ClientId::SaveChar()
     pub::Save(value, 1);
     MemUtils::WriteProcMem(jmp, testAl.data(), testAl.size()); // restore
 
+    auto& data = FLHook::Clients()[value];
+
+    // Save account data
+    const CAccount* acc = Players.FindAccountFromClientID(value);
+    const std::wstring dir = Hk::Client::GetAccountDirName(acc);
+    const std::wstring userFile = std::format(L"{}{}\\accData.json", FLHook::GetAccountPath(), dir);
+
+    const auto content = data.accountData.dump(4);
+    std::ofstream of(userFile);
+    of.write(content.c_str(), content.size());
+
     return { {} };
 }
 
@@ -499,6 +510,37 @@ Action<void, Error> ClientId::Message(const std::wstring_view message, const Mes
     return { {} };
 }
 
+Action<void, Error> ClientId::MessageLocal(std::wstring_view message, float range, MessageFormat format, MessageColor color)
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    auto ship = GetShipId().Raw();
+    if (ship.has_error())
+    {
+        return { cpp::fail(ship.error()) };
+    }
+
+    const auto system = ship->GetSystem().Unwrap();
+    const auto position = ship->GetPositionAndOrientation().Unwrap();
+    for (auto& client : FLHook::Clients())
+    {
+        if (client.id == *this || !client.ship || system != client.ship.GetSystem().Unwrap())
+        {
+            continue;
+        }
+
+        auto otherPos = client.ship.GetPositionAndOrientation().Unwrap();
+        const auto distance = glm::abs(glm::distance<3, float, glm::packed_highp>(position.first, otherPos.first));
+        if (distance <= range)
+        {
+            Message(message, format, color);
+        }
+    }
+
+    return { {} };
+}
+
 Action<void, Error> ClientId::MessageFrom(ClientId destinationClient, std::wstring message) const
 {
     ClientCheck;
@@ -512,21 +554,4 @@ Action<void, Error> ClientId::MessageFrom(ClientId destinationClient, std::wstri
     // TODO: validate color
     destinationClient.Message(std::move(message));
     return { {} };
-}
-
-void ClientId::Save()
-{
-    // Save character file
-    pub::Save(value, 1);
-
-    auto& data = FLHook::Clients()[value];
-
-    // Save account data
-    const CAccount* acc = Players.FindAccountFromClientID(value);
-    const std::wstring dir = Hk::Client::GetAccountDirName(acc);
-    const std::wstring userFile = std::format(L"{}{}\\accData.json", FLHook::GetAccountPath(), dir);
-
-    const auto content = data.accountData.dump(4);
-    std::ofstream of(userFile);
-    of.write(content.c_str(), content.size());
 }

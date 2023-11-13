@@ -15,6 +15,8 @@
 
 #include "Core/ClientServerInterface.hpp"
 #include "Core/ExceptionHandler.hpp"
+#include "Core/ZoneUtilities.hpp"
+#include "Exceptions/InvalidParameterException.hpp"
 
 #include <API/FLHook/Plugin.hpp>
 #include <API/Utils/IniUtils.hpp>
@@ -98,9 +100,9 @@ FLHook::FLHook()
                                    response = {
                                        {"err", ex.what()}
                                    };
-                                   Logger::i()->Log(LogLevel::Warn,
-                                                    std::format(L"An json exception was encountered while trying to process an external command. EX: {}",
-                                                                StringUtils::stows(ex.what())));
+                                   instance->logger.Log(LogLevel::Warn,
+                                                        std::format(L"An json exception was encountered while trying to process an external command. EX: {}",
+                                                                    StringUtils::stows(ex.what())));
                                    return true;
                                }
                                catch (GameException& ex)
@@ -146,7 +148,7 @@ FLHook::FLHook()
             LoadLibraryA(lib);
         }
 
-        Logger::i()->Log(LogLevel::Info, L"Loading Freelancer INIs");
+        logger.Log(LogLevel::Info, L"Loading Freelancer INIs");
 
         // Force constructor to run
         Hk::IniUtils::i();
@@ -158,12 +160,12 @@ FLHook::FLHook()
     }
     catch (char* error)
     {
-        Logger::i()->Log(LogLevel::Err, StringUtils::stows(std::format("CRITICAL! {}\n", std::string(error))));
+        logger.Log(LogLevel::Err, StringUtils::stows(std::format("CRITICAL! {}\n", std::string(error))));
         std::quick_exit(EXIT_FAILURE);
     }
     catch (std::filesystem::filesystem_error& error)
     {
-        Logger::i()->Log(LogLevel::Err, StringUtils::stows(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what())));
+        logger.Log(LogLevel::Err, StringUtils::stows(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what())));
     }
 }
 
@@ -223,12 +225,14 @@ bool FLHook::OnServerStart()
         Timer::Add(TimerNpcAndF1Check, &TimerCheckKick, 1000);
         Timer::Add(IpResolver::TimerCheckResolveResults, &IpResolver::TimerCheckResolveResults, 0);
         Timer::Add(TimerTempBanCheck, &TimerTempBanCheck, 15000);
+
+        ZoneUtilities::Init();
     }
     catch (std::runtime_error& err)
     {
         UnloadHookExports();
 
-        Logger::i()->Log(LogLevel::Err, StringUtils::stows(err.what()));
+        logger.Log(LogLevel::Err, StringUtils::stows(err.what()));
         return false;
     }
 
@@ -257,8 +261,6 @@ DWORD __stdcall Unload(const LPVOID module)
 {
     Sleep(1000);
 
-    Logger::del();
-
     FreeLibraryAndExitThread(static_cast<HMODULE>(module), 0);
 }
 
@@ -279,8 +281,7 @@ FLHook::~FLHook()
 
 void FLHook::ProcessPendingCommands()
 {
-    const auto logger = Logger::i();
-    auto cmd = logger->GetCommand();
+    auto cmd = instance->logger.GetCommand();
     while (cmd.has_value())
     {
         const auto processor = AdminCommandProcessor::i();
@@ -289,12 +290,16 @@ void FLHook::ProcessPendingCommands()
         try
         {
             const auto response = AdminCommandProcessor::i()->ProcessCommand(cmd.value());
-            Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Info, response);
+            instance->logger.Log(LogFile::ConsoleOnly, LogLevel::Info, response);
+        }
+        catch (InvalidParameterException& ex)
+        {
+            instance->logger.Log(LogFile::ConsoleOnly, LogLevel::Warn, ex.Msg());
         }
         catch (GameException& ex)
         {
             // TODO: Log to admin command file
-            Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Warn, ex.Msg());
+            instance->logger.Log(LogFile::ConsoleOnly, LogLevel::Warn, ex.Msg());
         }
         catch (StopProcessingException&)
         {
@@ -304,9 +309,9 @@ void FLHook::ProcessPendingCommands()
         {
             // Anything else critically log
             // TODO: Log to error log file
-            Logger::i()->Log(LogFile::ConsoleOnly, LogLevel::Err, StringUtils::stows(ex.what()));
+            instance->logger.Log(LogFile::ConsoleOnly, LogLevel::Err, StringUtils::stows(ex.what()));
         }
 
-        cmd = logger->GetCommand();
+        cmd = instance->logger.GetCommand();
     }
 }

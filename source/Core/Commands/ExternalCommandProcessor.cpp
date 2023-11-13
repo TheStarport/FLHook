@@ -19,7 +19,7 @@ std::optional<nlohmann::json> ExternalCommandProcessor::ProcessCommand(const nlo
     }
     catch (nlohmann::json::exception& ex)
     {
-        Logger::i()->Log(LogLevel::Warn, std::format(L"Exception was thrown while trying to process an external command. {}", StringUtils::stows(ex.what())));
+        FLHook::GetLogger().Log(LogLevel::Warn, std::format(L"Exception was thrown while trying to process an external command. {}", StringUtils::stows(ex.what())));
     }
 
     return std::nullopt;

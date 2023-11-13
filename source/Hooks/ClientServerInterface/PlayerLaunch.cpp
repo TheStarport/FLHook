@@ -4,26 +4,28 @@
 #include "Global.hpp"
 
 #include "API/API.hpp"
+#include "API/Utils/PerfTimer.hpp"
 
 void PlayerLaunchInner(uint shipId, ClientId client)
 {
     TryHook
     {
-        ClientInfo::At(client).ship = shipId;
-        ClientInfo::At(client).killsInARow = 0;
-        ClientInfo::At(client).cruiseActivated = false;
-        ClientInfo::At(client).thrusterActivated = false;
-        ClientInfo::At(client).engineKilled = false;
-        ClientInfo::At(client).tradelane = false;
+        auto& data = client.GetData();
+        data.ship = ShipId(shipId);
+        data.killsInARow = 0;
+        data.cruiseActivated = false;
+        data.thrusterActivated = false;
+        data.engineKilled = false;
+        data.inTradelane = false;
 
         // adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
         std::wstring charName = StringUtils::ToLower(client.GetCharacterName().Handle());
-        for (const auto& i : ClientInfo::At(client).moneyFix)
+        for (const auto& i : data.moneyFix)
         {
             if (i.character == charName)
             {
                 Hk::Player::AddCash(charName, i.amount);
-                ClientInfo::At(client).moneyFix.remove(i);
+                data.moneyFix.remove(i);
                 break;
             }
         }
@@ -35,9 +37,10 @@ void PlayerLaunchInnerAfter([[maybe_unused]] uint shipId, ClientId client)
 {
     TryHook
     {
-        if (!ClientInfo::At(client).lastExitedBaseId)
+        auto& data = client.GetData();
+        if (!data.lastExitedBaseId)
         {
-            ClientInfo::At(client).lastExitedBaseId = 1;
+            data.lastExitedBaseId = 1;
         }
     }
     CatchHook({})
@@ -45,7 +48,7 @@ void PlayerLaunchInnerAfter([[maybe_unused]] uint shipId, ClientId client)
 
 void __stdcall IServerImplHook::PlayerLaunch(uint shipId, ClientId client)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"PlayerLaunch(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"PlayerLaunch(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
 
     const auto skip = CallPlugins(&Plugin::OnPlayerLaunch, client, shipId);
 
@@ -55,7 +58,7 @@ void __stdcall IServerImplHook::PlayerLaunch(uint shipId, ClientId client)
 
     if (!skip)
     {
-        CallServerPreamble { Server.PlayerLaunch(shipId, client); }
+        CallServerPreamble { Server.PlayerLaunch(shipId, client.GetValue()); }
         CallServerPostamble(true, );
     }
     PlayerLaunchInnerAfter(shipId, client);

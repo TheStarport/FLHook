@@ -17,7 +17,7 @@ void DisConnectInner(ClientId client, EFLConnection)
 
 void __stdcall IServerImplHook::DisConnect(ClientId client, EFLConnection conn)
 {
-    Logger::i()->Log(LogLevel::Trace, std::format(L"DisConnect(\n\tClientId client = {}\n)", client));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"DisConnect(\n\tClientId client = {}\n)", client));
 
     const auto skip = CallPlugins(&Plugin::OnDisconnect, client, conn);
 

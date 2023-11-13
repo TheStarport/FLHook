@@ -88,7 +88,7 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
 
     FLHook::instance->startupCache->Done();
 
-    Logger::i()->Log(LogLevel::Info, L"FLHook Ready");
+    FLHook::GetLogger().Log(LogLevel::Info, L"FLHook Ready");
 
     FLHook::instance->flhookReady = true;
 }
@@ -112,7 +112,7 @@ int __stdcall IServerImplHook::Update()
 
 void __stdcall IServerImplHook::Shutdown()
 {
-    Logger::i()->Log(LogLevel::Trace, L"Shutdown()");
+    FLHook::GetLogger().Log(LogLevel::Trace, L"Shutdown()");
 
     if (const auto skip = CallPlugins(&Plugin::OnServerShutdown); !skip)
     {

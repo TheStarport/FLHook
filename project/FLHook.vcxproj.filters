@@ -76,16 +76,10 @@
     <Filter Include="Include\SDK\Utils">
       <UniqueIdentifier>{f3128d54-b8dc-44b4-b1cd-d6b0e7cfaa3c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\Utils">
-      <UniqueIdentifier>{571ab53e-fdcb-4549-b448-b4a6a35069c6}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\FLHook.cpp">
       <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Core\Codec.cpp">
-      <Filter>Source\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Core\Debug.cpp">
       <Filter>Source\Core</Filter>
@@ -172,9 +166,6 @@
       <Filter>Source\API\FLServer</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\API\FLServer\Solar.cpp">
-      <Filter>Source\API\FLServer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\API\FLServer\ZoneUtilities.cpp">
       <Filter>Source\API\FLServer</Filter>
     </ClCompile>
     <ClCompile Include="..\Include\PCH.cpp" />
@@ -313,6 +304,15 @@
     <ClCompile Include="..\Source\API\FLHook\ClientList.cpp">
       <Filter>Source\API\FLHook</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\API\Types\SystemId.cpp">
+      <Filter>Source\API\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Utils\Codec.cpp">
+      <Filter>Source\API\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Core\ZoneUtilities.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">
@@ -336,12 +336,6 @@
     <ClInclude Include="..\Include\Core\Templates\Macros.hpp">
       <Filter>Include\Core\Templates</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Core\Codec.hpp">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Core\Detour.hpp">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Core\Logger.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
@@ -349,9 +343,6 @@
       <Filter>Include\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Core\MessageHandler.hpp">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Core\Serializer.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Core\TempBan.hpp">
@@ -396,9 +387,6 @@
     <ClInclude Include="..\Include\API\FLServer\GameObject.hpp">
       <Filter>Include\API\FLServer</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\API\FLServer\ZoneUtilities.hpp">
-      <Filter>Include\API\FLServer</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\API\FLHook\MailManager.hpp">
       <Filter>Include\API\FLHook</Filter>
     </ClInclude>
@@ -430,9 +418,6 @@
       <Filter>Include\API\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Core\PluginManager.hpp">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\Core\IpResolver.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Core\IEngineHook.hpp">
@@ -564,8 +549,23 @@
     <ClInclude Include="..\FLHookSDK\include\Exceptions\InvalidParameterException.hpp">
       <Filter>Include\SDK\Exceptions</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Utils\TransformArgs.hpp">
-      <Filter>Include\Utils</Filter>
+    <ClInclude Include="..\include\Core\IpResolver.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Utils\Codec.hpp">
+      <Filter>Include\API\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\ZoneUtilities.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\Utils\Serializer.hpp">
+      <Filter>Include\API\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\Utils\TransformArgs.hpp">
+      <Filter>Include\API\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\Utils\Codec.hpp">
+      <Filter>Include\API\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
