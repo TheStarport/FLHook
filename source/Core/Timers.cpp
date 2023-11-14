@@ -2,7 +2,6 @@
 
 #include <Psapi.h>
 
-#include "API/API.hpp"
 #include "Core/FLHook.hpp"
 #include "Core/MessageHandler.hpp"
 #include "Core/TempBan.hpp"
@@ -46,21 +45,21 @@ void FLHook::PublishServerStats()
     GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof memCounter);
     stats.memoryUsage = memCounter.WorkingSetSize;
 
-    PlayerData* pd = nullptr;
-    for (pd = Players.traverse_active(pd); pd; pd = Players.traverse_active(pd))
+    for (auto client : Clients())
     {
-        const auto info = Hk::Admin::GetPlayerInfo(pd->onlineId, false).Raw();
-        if (info.has_error())
+        if (client.characterName.empty())
         {
             continue;
         }
 
+        auto system = client.id.GetSystemId().Unwrap();
+
         ServerStats::Player player;
-        player.clientId = pd->onlineId;
-        player.playerName = info.value().character;
-        player.systemName = info.value().systemName;
-        player.systemNick = StringUtils::stows(Universe::get_system(info.value().system)->nickname);
-        player.ipAddress = info.value().IP;
+        player.clientId = client.id.GetValue();
+        player.playerName = client.characterName;
+        player.systemName = system.GetName().Unwrap();
+        player.systemNick = system.GetNickName().Unwrap();
+        player.ipAddress = client.id.GetPlayerIp().Unwrap();
 
         stats.players.emplace_back(player);
     }
@@ -81,58 +80,49 @@ void FLHook::TimerCheckKick()
 {
     TryHook
     {
-        // for all players
-        PlayerData* playerData = nullptr;
-        while ((playerData = Players.traverse_active(playerData)))
+        auto time = TimeUtils::UnixTime<std::chrono::milliseconds>();
+        for (auto client : Clients())
         {
-            ClientId client = playerData->onlineId;
-            if (client < 1 || client > MaxClientId)
+            if (client.kickTime)
             {
+                if (time >= client.kickTime)
+                {
+                    client.id.Kick();
+                    client.kickTime = 0;
+                }
+
                 continue;
             }
 
-            if (ClientInfo::At(client).tmKickTime)
-            {
-                if (TimeUtils::UnixMilliseconds() >= ClientInfo::At(client).tmKickTime)
-                {
-                    Hk::Player::Kick(client); // kick time expired
-                    ClientInfo::At(client).tmKickTime = 0;
-                }
-                continue; // player will be kicked anyway
-            }
             const auto* config = FLHookConfig::c();
             if (config->general.antiBaseIdle)
             {
                 // anti base-idle check
-                uint baseId;
-                pub::Player::GetBase(client, baseId);
-                if (baseId && ClientInfo::At(client).baseEnterTime && time(nullptr) - ClientInfo::At(client).baseEnterTime >= config->general.antiBaseIdle)
+                if (client.baseEnterTime && time(nullptr) - client.baseEnterTime >= config->general.antiBaseIdle)
                 {
-                    // AddKickLog(client, "base idling");
-                    Hk::Player::MsgAndKick(client, L"Base idling", 10);
-                    ClientInfo::At(client).baseEnterTime = 0;
+                    client.id.Kick(L"Base idling", 10);
+                    client.baseEnterTime = 0;
                 }
             }
 
             if (config->general.antiCharMenuIdle)
             {
                 // anti charmenu-idle check
-                if (Hk::Client::IsInCharSelectMenu(client))
+                if (!client.characterName.empty())
                 {
-                    if (!ClientInfo::At(client).charMenuEnterTime)
+                    if (!client.charMenuEnterTime)
                     {
-                        ClientInfo::At(client).charMenuEnterTime = static_cast<uint>(time(nullptr));
+                        client.charMenuEnterTime = static_cast<uint>(time(nullptr));
                     }
-                    else if (time(nullptr) - ClientInfo::At(client).charMenuEnterTime >= config->general.antiCharMenuIdle)
+                    else if (time(nullptr) - client.charMenuEnterTime >= config->general.antiCharMenuIdle)
                     {
-                        // AddKickLog(client, "Charmenu idling");
-                        Hk::Player::Kick(client);
-                        ClientInfo::At(client).charMenuEnterTime = 0;
+                        client.id.Kick();
+                        client.charMenuEnterTime = 0;
                     }
                 }
                 else
                 {
-                    ClientInfo::At(client).charMenuEnterTime = 0;
+                    client.charMenuEnterTime = 0;
                 }
             }
         }
@@ -146,42 +136,36 @@ void FLHook::TimerNpcAndF1Check()
     ;
     TryHook
     {
-        PlayerData* playerData = nullptr;
-        while ((playerData = Players.traverse_active(playerData)))
+        auto time = TimeUtils::UnixTime<std::chrono::milliseconds>();
+        for (auto& client : Clients())
         {
-            ClientId client = playerData->onlineId;
-            if (client < 1 || client > MaxClientId)
-            {
-                continue;
-            }
-
-            if (ClientInfo::At(client).tmF1Time && TimeUtils::UnixMilliseconds() >= ClientInfo::At(client).tmF1Time)
+            if (client.f1Time && time >= client.f1Time)
             {
                 // f1
-                Server.CharacterInfoReq(client, false);
-                ClientInfo::At(client).tmF1Time = 0;
+                Server.CharacterInfoReq(client.id.GetValue(), false);
+                client.f1Time = 0;
             }
-            else if (ClientInfo::At(client).tmF1TimeDisconnect && TimeUtils::UnixMilliseconds() >= ClientInfo::At(client).tmF1TimeDisconnect)
+            else if (client.timeDisconnect && time >= client.timeDisconnect)
             {
                 ulong dataArray[64] = { 0 };
-                dataArray[26] = client;
-
+                dataArray[26] = client.id.GetValue();
+                DWORD rcDisconnect = static_cast<DWORD>(AddressList::RcDisconnect);
                 __asm {
 						pushad
 						lea ecx, dataArray
 						mov eax, [remoteClient]
-						add eax, ADDR_RC_DISCONNECT
+						add eax, rcDisconnect
 						call eax // disconnect
 						popad
                 }
 
-                ClientInfo::At(client).tmF1TimeDisconnect = 0;
+                client.timeDisconnect = 0;
                 continue;
             }
         }
 
         const auto* config = FLHookConfig::c();
-        if (config->general.disableNPCSpawns && CoreGlobals::c()->serverLoadInMs >= config->general.disableNPCSpawns)
+        if (config->general.disableNPCSpawns && instance->serverLoadInMs >= config->general.disableNPCSpawns)
         {
             Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs
         }

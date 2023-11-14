@@ -272,3 +272,75 @@ Action<void, Error> ShipId::AddCargo(uint good, uint count, bool mission)
 
     return { {} };
 }
+
+Action<void, Error> ShipId::IgniteFuse(uint fuseId, float id) const
+{
+    auto tempVal = value;
+    IObjInspectImpl* inspect;
+
+    if (uint _; !FLHook::GetShipInspect(tempVal, inspect, _))
+    {
+        return { cpp::fail(Error::InvalidShip) };
+    }
+
+    // ReSharper disable once CppTooWideScopeInitStatement
+    bool success = false;
+    __asm
+    {
+        push ecx
+        lea eax, fuseId
+        push 0 // this was previously a float called skip. It is unknown what it does.
+        push id
+        push 0 // SUBOBJ_Id_NONE
+        push eax
+        push 0 // this was previously a float called lifetime. It is unknown what it does.
+        mov ecx, inspect
+        mov eax, [ecx]
+        call[eax + 0x1E4]
+        mov success, al
+        pop ecx
+    }
+
+    // TODO: Validate the above asm left the stack in the correct way
+    if (!success)
+    {
+        return { cpp::fail(Error::InvalidInput) };
+    }
+
+    return { {} };
+}
+
+Action<void, Error> ShipId::ExtinguishFuse(uint fuseId, float id) const
+{
+    auto tempVal = value;
+    IObjInspectImpl* inspect;
+
+    if (uint _; !FLHook::GetShipInspect(tempVal, inspect, _))
+    {
+        return { cpp::fail(Error::InvalidShip) };
+    }
+
+    // ReSharper disable once CppTooWideScopeInitStatement
+    bool success = false;
+    __asm
+    {
+        push ecx
+        mov ecx, inspect
+		lea eax, fuseId
+		push id
+		push 0 // SUBOBJ_Id_NONE
+		push eax
+		mov eax, [ecx]
+		call [eax+0x1E8]
+        mov success, al
+        pop ecx
+    }
+
+    // TODO: Validate the above asm left the stack in the correct way
+    if (!success)
+    {
+        return { cpp::fail(Error::InvalidInput) };
+    }
+
+    return { {} };
+}

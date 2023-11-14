@@ -125,6 +125,7 @@
     <ClInclude Include="..\include\API\FLHook\InfocardManager.hpp" />
     <ClInclude Include="..\Include\API\FLHook\MailManager.hpp" />
     <ClInclude Include="..\Include\API\FLHook\Plugin.hpp" />
+    <ClInclude Include="..\include\API\Types\AccountId.hpp" />
     <ClInclude Include="..\Include\API\Types\BaseId.hpp" />
     <ClInclude Include="..\Include\API\Types\ClientId.hpp" />
     <ClInclude Include="..\include\API\Types\GroupId.hpp" />

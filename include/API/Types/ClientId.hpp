@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/Types/AccountId.hpp"
 #include "API/Types/BaseId.hpp"
 #include "API/Types/ShipId.hpp"
 #include "API/Types/SystemId.hpp"
@@ -33,7 +34,6 @@ class ClientId
         explicit operator bool() const;
 
         // Returns the underlying value of the ClientId, it is generally recommended to not use this.
-
         [[nodiscard]]
         uint GetValue() const
         {
@@ -68,11 +68,11 @@ class ClientId
 
         /**
          * @brief Gets the Account of the clientId
-         * @returns On success : CAccount pointer of the Account.
+         * @returns On success : An account id class representing the Account.
          * @returns On fail : InvalidClientId if the client check fails.
          */
         [[nodiscard]]
-        Action<CAccount *, Error> GetAccount() const;
+        Action<AccountId, Error> GetAccount() const;
 
         /**
          * @brief Gets the Shiparch of the ship the client is using
@@ -161,6 +161,19 @@ class ClientId
          */
         [[nodiscard]]
         ClientData &GetData() const;
+
+        /**
+         * @brief Gets the ip of the connected client
+         * @returns On success : A string containing the player's ip address
+         * @returns On fail : InvalidClientId
+         */
+        [[nodiscard]]
+        Action<std::wstring, Error> GetPlayerIp() const;
+
+        /**
+         * @brief Get's the current engine state of the client
+         * @returns A enum representing the engine state, defaulting to the player not being in space.
+         */
         [[nodiscard]]
         EngineState GetEngineState() const;
 

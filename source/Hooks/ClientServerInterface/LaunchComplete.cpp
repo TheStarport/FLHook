@@ -8,17 +8,18 @@ void LaunchCompleteInner(uint, uint shipId)
     TryHook
     {
 
-        if (ClientId client = Hk::Client::GetClientIdByShip(shipId).Unwrap())
+        if (const auto client = ShipId(shipId).GetPlayer().value_or(ClientId()))
         {
-            ClientInfo::At(client).tmSpawnTime = TimeUtils::UnixMilliseconds(); // save for anti-dockkill
+            auto& data = client.GetData();
+            data.spawnTime = TimeUtils::UnixTime<std::chrono::milliseconds>(); // save for anti-dockkill
             // is there spawnprotection?
             if (FLHookConfig::i()->general.antiDockKill > 0)
             {
-                ClientInfo::At(client).spawnProtected = true;
+                data.spawnProtected = true;
             }
             else
             {
-                ClientInfo::At(client).spawnProtected = false;
+                data.spawnProtected = false;
             }
         }
     }

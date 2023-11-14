@@ -2,7 +2,6 @@
 
 #include "Core/ClientServerInterface.hpp"
 
-#include "API/API.hpp"
 #include "API/Utils/PerfTimer.hpp"
 
 void InitiateTradeInner(const ClientId client1, const ClientId client2)

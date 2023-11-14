@@ -543,5 +543,8 @@
     <ClInclude Include="..\include\API\Utils\Codec.hpp">
       <Filter>Include\API\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\API\Types\AccountId.hpp">
+      <Filter>Include\API\Types</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

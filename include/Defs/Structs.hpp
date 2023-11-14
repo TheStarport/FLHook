@@ -84,12 +84,6 @@ struct PlayerInfo
         std::wstring hostname;
 };
 
-struct BaseHealth
-{
-        float currentHealth;
-        float maxHealth;
-};
-
 struct DataMarketItem
 {
         uint archId;

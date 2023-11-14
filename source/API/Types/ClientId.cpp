@@ -1,6 +1,5 @@
 #include "PCH.hpp"
 
-#include "API/API.hpp"
 #include "API/Types/ClientId.hpp"
 
 #include "API/InternalApi.hpp"
@@ -78,10 +77,9 @@ ClientId::operator bool() const
         return false;
     }
 
-    PlayerData* playerDb = nullptr;
-    while ((playerDb = Players.traverse_active(playerDb)))
+    for (auto client : FLHook::Clients())
     {
-        if (playerDb->onlineId == value)
+        if (client.id.GetValue() == value)
         {
             return true;
         }
@@ -287,8 +285,8 @@ bool ClientId::InCharacterSelect() const { return Players.GetActiveCharacterName
 
 bool ClientId::IsAlive() const
 {
-    bool charMenu = InCharacterSelect();
-    bool docked = IsDocked();
+    const bool charMenu = InCharacterSelect();
+    const bool docked = IsDocked();
     uint ship;
     pub::Player::GetShip(value, ship);
 
@@ -331,6 +329,65 @@ Action<std::list<CargoInfo>, Error> ClientId::EnumCargo(int& remainingHoldSize) 
 
 ClientData& ClientId::GetData() const { return FLHook::Clients()[value]; }
 
+Action<std::wstring, Error> ClientId::GetPlayerIp() const
+{
+    const CDPClientProxy* cdpClient = FLHook::clientProxyArray[value - 1];
+    // clang-format off
+    if (!cdpClient)
+    {
+    
+        // I hate labels, but it allows our inline asm to escape properly
+        invalid:
+        return { cpp::fail(Error::InvalidClientId) };
+        // clang-format on
+    }
+
+    // get ip
+    char* p1;
+    char* address;
+    // ReSharper disable once CppVariableCanBeMadeConstexpr
+    static const wchar_t hostname[] = L"hostname";
+    memcpy(&p1, reinterpret_cast<void*>(reinterpret_cast<DWORD>(FLHook::cdpServer) + 4), 4);
+
+    wchar_t wIp[1024] = L"";
+    long sizeOfIp = sizeof wIp;
+    long dataType = 1;
+    __asm {
+		push 0 ; flags
+		lea edx, address
+		push edx ; address
+		mov edx, [cdpClient]
+		mov edx, [edx+8]
+		push edx ; dpnid
+		mov eax, [p1]
+		push eax
+		mov ecx, [eax]
+		call dword ptr[ecx + 0x28] ; GetClientAddress
+		cmp eax, 0
+		jnz invalid
+
+		lea eax, dataType
+		push eax
+		lea eax, sizeOfIp
+		push eax
+		lea eax, wIP
+		push eax
+		lea eax, hostname
+		push eax
+		mov ecx, [address]
+		push ecx
+		mov ecx, [ecx]
+		call dword ptr[ecx+0x40] ; GetComponentByName
+
+		mov ecx, [address]
+		push ecx
+		mov ecx, [ecx]
+		call dword ptr[ecx+0x08] ; Release
+    }
+
+    return { std::wstring(wIp) };
+}
+
 EngineState ClientId::GetEngineState() const
 {
     const auto& data = GetData();
@@ -371,7 +428,7 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
     if (reason.has_value())
     {
         const std::wstring msg = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.kickMsg, L"%reason", StringUtils::XmlText(reason.value()));
-        Hk::Chat::MsgU(msg);
+        FLHook::MessageUniverse(msg);
     }
 
     if (!delay.has_value())
@@ -394,7 +451,7 @@ Action<void, Error> ClientId::SaveChar() const
     ClientCheck;
     CharSelectCheck;
 
-    DWORD jmp = FLHook::Offset(FLHook::BinaryType::Server, AddressList::SaveCharacter);
+    const DWORD jmp = FLHook::Offset(FLHook::BinaryType::Server, AddressList::SaveCharacter);
 
     std::array<byte, 2> nop = { 0x90, 0x90 };
     std::array<byte, 2> testAl = { 0x74, 0x44 };
@@ -402,7 +459,7 @@ Action<void, Error> ClientId::SaveChar() const
     pub::Save(value, 1);
     MemUtils::WriteProcMem(jmp, testAl.data(), testAl.size()); // restore
 
-    auto& data = FLHook::Clients()[value];
+    const auto& data = FLHook::Clients()[value];
 
     // Save account data
     const CAccount* acc = Players.FindAccountFromClientID(value);
@@ -496,7 +553,7 @@ Action<void, Error> ClientId::Message(const std::wstring_view message, const Mes
     CharSelectCheck;
 
     const auto formattedMessage = StringUtils::FormatMsg(color, format, std::wstring(message));
-    InternalApi::SendMessage(L"", *this, formattedMessage);
+    InternalApi::SendMessage(*this, formattedMessage);
 
     return { {} };
 }

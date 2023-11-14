@@ -20,7 +20,8 @@ class BaseId
         Action<ObjectId, Error> GetSpaceId() const;
         Action<RepId, Error> GetAffiliation() const;
         Action<std::wstring_view, Error> GetName() const;
-        Action<std::pair<std::wstring_view, std::wstring_view>, Error> GetDescription();
+        Action<std::pair<float, float>, Error> GetBaseHealth() const;
+        Action<std::pair<std::wstring_view, std::wstring_view>, Error> GetDescription() const;
 
         Action<std::vector<uint>, Error> GetItemsForSale() const;
 

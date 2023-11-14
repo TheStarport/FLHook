@@ -82,9 +82,26 @@ Action<std::wstring_view, Error> BaseId::GetName() const
 
     return { FLHook::GetInfocardManager().GetInfocard(base->baseIdS) };
 }
-Action<std::pair<std::wstring_view, std::wstring_view>, Error> BaseId::GetDescription()
+
+Action<std::pair<float, float>, Error> BaseId::GetBaseHealth() const
+{
+    float curHealth;
+    float maxHealth;
+    const Universe::IBase* base = Universe::get_base(value);
+
+    if (!base)
+    {
+        return { cpp::fail(Error::InvalidBase) };
+    }
+
+    pub::SpaceObj::GetHealth(base->spaceObjId, curHealth, maxHealth);
+    return { std::make_pair(curHealth, maxHealth) };
+}
+
+Action<std::pair<std::wstring_view, std::wstring_view>, Error> BaseId::GetDescription() const
 {
     ValidBaseCheck;
+
     // TODO: Get internal description of base
 }
 

@@ -1,6 +1,6 @@
 #include "PCH.hpp"
 
-#include "API/API.hpp"
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 
 void BaseEnterInner([[maybe_unused]] uint baseId, [[maybe_unused]] ClientId client)
@@ -12,28 +12,26 @@ void BaseEnterInnerAfter([[maybe_unused]] uint baseId, ClientId client)
 {
     TryHook
     {
-        // adjust cash, this is necessary when cash was added while use was in
-        // charmenu/had other char selected
-        std::wstring charName = StringUtils::ToLower(client.GetCharacterName().Unwrap());
-        for (const auto& i : ClientInfo::At(client).moneyFix)
+        auto& data = client.GetData();
+        // adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
+        const std::wstring charName = StringUtils::ToLower(client.GetCharacterName().Unwrap());
+        for (const auto& i : data.moneyFix)
         {
             if (i.character == charName)
             {
-                Hk::Player::AddCash(charName, i.amount);
-                ClientInfo::At(client).moneyFix.remove(i);
+                client.AddCash(i.amount);
+                data.moneyFix.remove(i);
                 break;
             }
         }
 
         // anti base-idle
-        ClientInfo::At(client).baseEnterTime = static_cast<uint>(time(nullptr));
+        data.baseEnterTime = static_cast<uint>(time(nullptr));
 
         // print to log if the char has too much money
-        if (const auto value = Hk::Player::GetShipValue((const wchar_t*)Players.GetActiveCharacterName(client)).Raw();
-            value.has_value() && value.value() > 2000000000)
+        if (const auto value = client.GetWealth().Unwrap(); value > 2000000000)
         {
-            const std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-            FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"Possible corrupt ship charname={} asset_value={}", charname, value.value()));
+            FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"Possible corrupt ship charname={} asset_value={}", charName, value));
         }
     }
     CatchHook({})
@@ -50,7 +48,7 @@ void __stdcall IServerImplHook::BaseEnter(uint baseId, ClientId client)
 
     if (!skip)
     {
-        CallServerPreamble { Server.BaseEnter(baseId, client); }
+        CallServerPreamble { Server.BaseEnter(baseId, client.GetValue()); }
         CallServerPostamble(true, );
     }
     BaseEnterInnerAfter(baseId, client);
@@ -61,8 +59,9 @@ void BaseExitInner(uint baseId, ClientId client)
 {
     TryHook
     {
-        ClientInfo::At(client).baseEnterTime = 0;
-        ClientInfo::At(client).lastExitedBaseId = baseId;
+        auto& data = client.GetData();
+        data.baseEnterTime = 0;
+        data.lastExitedBaseId = baseId;
     }
     CatchHook({})
 }
@@ -83,7 +82,7 @@ void __stdcall IServerImplHook::BaseExit(uint baseId, ClientId client)
 
     if (!skip)
     {
-        CallServerPreamble { Server.BaseExit(baseId, client); }
+        CallServerPreamble { Server.BaseExit(baseId, client.GetValue()); }
         CallServerPostamble(true, );
     }
     BaseExitInnerAfter(baseId, client);
@@ -94,7 +93,7 @@ void __stdcall IServerImplHook::BaseExit(uint baseId, ClientId client)
 void __stdcall IServerImplHook::BaseInfoRequest(unsigned int unk1, unsigned int unk2, bool unk3)
 {
     FLHook::GetLogger().Log(LogLevel::Trace,
-                     std::format(L"BaseInfoRequest(\n\tunsigned int unk1 = {}\n\tunsigned int unk2 = {}\n\tbool unk3 = {}\n)", unk1, unk2, unk3));
+                            std::format(L"BaseInfoRequest(\n\tunsigned int unk1 = {}\n\tunsigned int unk2 = {}\n\tbool unk3 = {}\n)", unk1, unk2, unk3));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestBaseInfo, unk1, unk2, unk3); !skip)
     {

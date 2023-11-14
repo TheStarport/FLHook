@@ -15,6 +15,7 @@ class FLHook final
         friend IServerImplHook;
         friend IClientImpl;
         friend InternalApi;
+        friend ClientId;
 
         // Static things
 

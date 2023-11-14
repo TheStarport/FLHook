@@ -7,7 +7,7 @@ class ShipId final : public ObjectId
 {
     public:
         explicit ShipId(const uint val) : ObjectId(val) {}
-        explicit ShipId() {}
+        explicit ShipId() = default;
         explicit ShipId(const ShipId& id) : ObjectId(id.GetValue()) {}
 
         [[nodiscard]]
@@ -57,4 +57,7 @@ class ShipId final : public ObjectId
 
             return { equipment };
         }
+
+        Action<void, Error> IgniteFuse(uint fuseId, float id = 0.0f) const;
+        Action<void, Error> ExtinguishFuse(uint fuseId, float id = 0.0f) const;
 };
