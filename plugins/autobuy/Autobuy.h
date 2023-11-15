@@ -44,11 +44,11 @@ namespace Plugins::Autobuy
 		{
 			R"(..\data\equipment\light_equip.ini)",
 			R"(..\data\equipment\select_equip.ini)",
-			R"(..\data\equipment\misc_equip.ini"),
-		    R"(..\data\equipment\engine_equip.ini)",
-		    R"(..\data\equipment\ST_equip.ini)",
-		    R"(..\data\equipment\weapon_equip.ini)",
-		    R"(..\data\equipment\prop_equip.ini)"
+			R"(..\data\equipment\misc_equip.ini)",
+			R"(..\data\equipment\engine_equip.ini)",
+			R"(..\data\equipment\ST_equip.ini)",
+			R"(..\data\equipment\weapon_equip.ini)",
+			R"(..\data\equipment\prop_equip.ini)"
 		};
 	};
 
