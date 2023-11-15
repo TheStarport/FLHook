@@ -1,7 +1,9 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/ClientList.hpp"
 #include "API/InternalApi.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/Logger.hpp"
 
 // called when chat-text is being sent to a player, we reformat it(/set chatfont)
 

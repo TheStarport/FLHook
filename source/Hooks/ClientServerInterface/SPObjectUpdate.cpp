@@ -1,7 +1,9 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/ClientList.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/Logger.hpp"
 
 bool SPObjUpdateInner(const SSPObjUpdateInfo& ui, ClientId client)
 {

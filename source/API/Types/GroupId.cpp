@@ -46,3 +46,25 @@ Action<uint, Error> GroupId::GetGroupSize() const
 
     return { group->GetMemberCount() };
 }
+
+Action<void, Error> GroupId::InviteMember(ClientId client)
+{
+    const auto group = CPlayerGroup::FromGroupID(value);
+    if (!group)
+    {
+        return { cpp::fail(Error::InvalidGroupId) };
+    }
+
+    group->AddInvite(client.GetValue());
+}
+
+Action<void, Error> GroupId::AddMember(ClientId client)
+{
+    const auto group = CPlayerGroup::FromGroupID(value);
+    if (!group)
+    {
+        return { cpp::fail(Error::InvalidGroupId) };
+    }
+
+    group->AddMember(client.GetValue());
+}

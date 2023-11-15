@@ -29,9 +29,7 @@ class ShipId final : public ObjectId
         void Destroy(DestroyType type = DestroyType::Fuse);
         Action<void, Error> SetHealth(float amount, bool percentage = false);
         Action<void, Error> AddCargo(uint good, uint count, bool mission);
-        void SetEquip(const st6::list<EquipDesc>& equip);
-        void AddEquip(uint goodId, const std::wstring& hardpoint);
-        void Relocate(Vector, std::optional<Matrix> orientation);
+        void Relocate(const Vector& pos, const std::optional<Matrix>& orientation, bool sendPlayerLaunchPacket = false);
 
         template <typename EquipType = CEquip>
             requires std::is_base_of_v<CEquip, EquipType>

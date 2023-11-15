@@ -38,4 +38,7 @@ class GroupId final
         {
             return ForEachGroupMember([ptr, args](ClientId client) { Proxy<void (ClientId::*)(), ptr>::Call(client, args...); }, stopIfErr);
         }
+
+        Action<void, Error> InviteMember(ClientId client);
+        Action<void, Error> AddMember(ClientId client);
 };

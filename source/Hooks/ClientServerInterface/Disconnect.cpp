@@ -1,14 +1,18 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/ClientList.hpp"
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/Logger.hpp"
 
 void DisConnectInner(ClientId client, EFLConnection)
 {
-    if (client <= MaxClientId && client > 0 && !ClientInfo::At(client).disconnected)
+    auto& data = client.GetData();
+    if (!data.disconnected)
     {
-        ClientInfo::At(client).disconnected = true;
-        ClientInfo::At(client).moneyFix.clear();
-        ClientInfo::At(client).tradePartner = 0;
+        data.disconnected = true;
+        data.moneyFix.clear();
+        data.tradePartner = ClientId();
 
         // TODO: implement event for disconnect
     }
@@ -24,7 +28,7 @@ void __stdcall IServerImplHook::DisConnect(ClientId client, EFLConnection conn)
 
     if (!skip)
     {
-        CallServerPreamble { Server.DisConnect(client, conn); }
+        CallServerPreamble { Server.DisConnect(client.GetValue(), conn); }
         CallServerPostamble(true, );
     }
 

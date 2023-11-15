@@ -6,6 +6,7 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Core/Commands/AdminCommandProcessor.hpp"
 #include "Core/Commands/UserCommandProcessor.hpp"
+#include "Core/Logger.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
 
 bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdlReader, ClientId to, int)

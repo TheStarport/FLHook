@@ -2,6 +2,7 @@
 
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/Logger.hpp"
 
 void __stdcall IServerImplHook::Hail(unsigned int unk1, unsigned int unk2, unsigned int unk3)
 {
@@ -31,7 +32,7 @@ void __stdcall IServerImplHook::RequestEvent(int eventType, uint shipId, uint do
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestEvent, client, eventType, shipId, dockTarget, unk1, unk2); !skip)
     {
-        CallServerPreamble { Server.RequestEvent(eventType, shipId, dockTarget, unk1, unk2, client); }
+        CallServerPreamble { Server.RequestEvent(eventType, shipId, dockTarget, unk1, unk2, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
@@ -51,7 +52,7 @@ void __stdcall IServerImplHook::RequestCancel(int eventType, uint shipId, uint u
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestCancel, client, eventType, shipId, unk1, unk2); !skip)
     {
-        CallServerPreamble { Server.RequestCancel(eventType, shipId, unk1, unk2, client); }
+        CallServerPreamble { Server.RequestCancel(eventType, shipId, unk1, unk2, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
@@ -77,7 +78,7 @@ void __stdcall IServerImplHook::PopupDialog(ClientId client, uint buttonClicked)
 
     if (const auto skip = CallPlugins(&Plugin::OnPopupDialogueConfirm, client, buttonClicked); !skip)
     {
-        CallServerPreamble { Server.PopUpDialog(client, buttonClicked); }
+        CallServerPreamble { Server.PopUpDialog(client.GetValue(), buttonClicked); }
         CallServerPostamble(true, );
     }
 
@@ -91,7 +92,7 @@ void __stdcall IServerImplHook::SetInterfaceState(ClientId client, uint unk1, in
 
     if (const auto skip = CallPlugins(&Plugin::OnSetInterfaceState, client, unk1, unk2); !skip)
     {
-        CallServerPreamble { Server.SetInterfaceState(client, (uchar*)unk1, unk2); }
+        CallServerPreamble { Server.SetInterfaceState(client.GetValue(), (uchar*)unk1, unk2); }
         CallServerPostamble(true, );
     }
 
@@ -105,7 +106,7 @@ void __stdcall IServerImplHook::RequestGroupPositions(ClientId client, uint unk1
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestGroupPositions, client, unk1, unk2); !skip)
     {
-        CallServerPreamble { Server.RequestGroupPositions(client, (uchar*)unk1, unk2); }
+        CallServerPreamble { Server.RequestGroupPositions(client.GetValue(), (uchar*)unk1, unk2); }
         CallServerPostamble(true, );
     }
 
@@ -118,7 +119,7 @@ void __stdcall IServerImplHook::SetTarget(ClientId client, const XSetTarget& st)
 
     if (const auto skip = CallPlugins(&Plugin::OnSetTarget, client, st); !skip)
     {
-        CallServerPreamble { Server.SetTarget(client, st); }
+        CallServerPreamble { Server.SetTarget(client.GetValue(), st); }
         CallServerPostamble(true, );
     }
 

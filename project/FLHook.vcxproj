@@ -21,13 +21,14 @@
     <ClCompile Include="..\Source\API\FLHook\Mail.cpp" />
     <ClCompile Include="..\Source\API\FLHook\MessageHandler.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Admin.cpp" />
-    <ClCompile Include="..\Source\API\FLServer\Client.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Math.cpp" />
     <ClCompile Include="..\Source\API\FLServer\PilotPersonalities.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Player.cpp" />
     <ClCompile Include="..\Source\API\FLServer\Solar.cpp" />
+    <ClCompile Include="..\source\API\Types\AccountId.cpp" />
     <ClCompile Include="..\source\API\Types\BaseId.cpp" />
     <ClCompile Include="..\Source\API\Types\ClientId.cpp" />
+    <ClCompile Include="..\source\API\Types\EquipmentId.cpp" />
     <ClCompile Include="..\source\API\Types\GroupId.cpp" />
     <ClCompile Include="..\source\API\Types\ObjectId.cpp" />
     <ClCompile Include="..\source\API\Types\RepGroupId.cpp" />
@@ -128,6 +129,7 @@
     <ClInclude Include="..\include\API\Types\AccountId.hpp" />
     <ClInclude Include="..\Include\API\Types\BaseId.hpp" />
     <ClInclude Include="..\Include\API\Types\ClientId.hpp" />
+    <ClInclude Include="..\include\API\Types\EquipmentId.hpp" />
     <ClInclude Include="..\include\API\Types\GroupId.hpp" />
     <ClInclude Include="..\Include\API\Types\ObjectId.hpp" />
     <ClInclude Include="..\include\API\Types\RepGroupId.hpp" />

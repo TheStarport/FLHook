@@ -4,6 +4,8 @@
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/FLHook.hpp"
+#include "Core/Logger.hpp"
+#include "Core/StartupCache.hpp"
 
 void IServerImplHook::ServerReady()
 {
@@ -60,8 +62,6 @@ void IServerImplHook::UpdateInner()
 
 void IServerImplHook::StartupInner(SStartupInfo& si)
 {
-    FLHook::Startup();
-
     // Startup the server with this number of players.
     const auto address = FLHook::Offset(FLHook::BinaryType::Server, AddressList::PlayerDbMaxPlayersPatch);
     std::array<byte, 1> nop = { 0x90 };
@@ -70,7 +70,7 @@ void IServerImplHook::StartupInner(SStartupInfo& si)
     MemUtils::WriteProcMem(address + 1, &maxPlayers, sizeof maxPlayers);
     MemUtils::WriteProcMem(address + 5, nop.data(), 1);
 
-    FLHook::instance->startupCache = std::make_unique<StartupCache>();
+    FLHook::Startup();
 }
 
 void IServerImplHook::StartupInnerAfter(SStartupInfo& si)

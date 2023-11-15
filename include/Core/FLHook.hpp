@@ -1,14 +1,14 @@
 #pragma once
 
-#include "API/FLHook/ClientList.hpp"
-#include "API/FLHook/InfocardManager.hpp"
 #include "AddressList.hpp"
-#include "Logger.hpp"
-#include "StartupCache.hpp"
 
 class InternalApi;
 class IServerImplHook;
-// ReSharper disable twice CppInconsistentNaming
+class StartupCache;
+class ClientList;
+class InfocardManager;
+class Logger;
+class TempBanManager;
 
 class FLHook final
 {
@@ -16,6 +16,7 @@ class FLHook final
         friend IClientImpl;
         friend InternalApi;
         friend ClientId;
+        friend ShipId;
 
         // Static things
 
@@ -78,7 +79,7 @@ class FLHook final
         static void Startup() { instance = new FLHook(); }
 
         static void LoadSettings();
-        static void ClearClientInfo(uint client);
+        static void ClearClientInfo(ClientId client);
         void LoadUserSettings(uint client);
         static void ProcessPendingCommands();
 
@@ -93,10 +94,11 @@ class FLHook final
 
         // Non-Static things
 
-        std::unique_ptr<StartupCache> startupCache;
-        ClientList clientList;
-        InfocardManager infocardManager;
-        Logger logger;
+        StartupCache* startupCache;
+        ClientList* clientList;
+        InfocardManager* infocardManager;
+        Logger* logger;
+        TempBanManager* tempbanManager;
 
         bool OnServerStart();
         void InitHookExports();
@@ -147,9 +149,10 @@ class FLHook final
         static std::wstring_view GetAccountPath() { return instance->accPath; }
         static bool GetShipInspect(uint& ship, IObjInspectImpl*& inspect, uint& dunno) { return getShipInspect(ship, inspect, dunno); }
 
-        static InfocardManager& GetInfocardManager() { return instance->infocardManager; }
-        static ClientList& Clients() { return instance->clientList; }
-        static Logger& GetLogger() { return instance->logger; }
+        static ClientList& Clients() { return *instance->clientList; }
+        static InfocardManager& GetInfocardManager() { return *instance->infocardManager; }
+        static Logger& GetLogger() { return *instance->logger; }
+        static TempBanManager& GetTempBanManager() { return *instance->tempbanManager; }
 
         static Action<void, Error> MessageUniverse(std::wstring_view message);
 };

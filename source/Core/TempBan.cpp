@@ -9,8 +9,9 @@ void TempBanManager::ClearFinishedTempBans()
     auto it = tempBanList.begin();
     while (it != tempBanList.end())
     {
-        if ((*it).banEnd < timeNow)
+        if (it->banEnd < timeNow)
         {
+            AccountId(it->accountId).UnBan();
             it = tempBanList.erase(it);
         }
         else
@@ -20,44 +21,27 @@ void TempBanManager::ClearFinishedTempBans()
     }
 }
 
-void TempBanManager::AddTempBan(ClientId client, uint durationInMin, const std::wstring& banReason)
+void TempBanManager::AddTempBan(const AccountId account, const uint durationInDays)
 {
     if (!FLHookConfig::i()->general.tempBansEnabled)
     {
         return;
     }
 
-    auto acc = client.GetAccount().Unwrap();
-    const auto accId = Hk::Client::GetAccountID(account).Unwrap();
-
     TempBanInfo banInfo;
     banInfo.banStart = TimeUtils::UnixTime<std::chrono::milliseconds>();
-    banInfo.banEnd = banInfo.banStart + durationInMin * 1000 * 60;
-    banInfo.accountId = accId;
-
-    if (!banReason.empty())
-    {
-        client.Kick(banReason, 10);
-    }
-    else
-    {
-        client.Kick();
-    }
+    banInfo.banEnd = banInfo.banStart + static_cast<uint64>(durationInDays) * 1000 * 60 * 60 * 24; // 1000ms = 1s, 60s = 1 min, 60 min = 1 hour, 24 hour = 1d
+    banInfo.accountId = account.GetValue()->accId;
 
     tempBanList.push_back(banInfo);
 }
 
-void TempBanManager::AddTempBan(ClientId client, uint durationInMin) { AddTempBan(client, durationInMin, L""); }
-
-bool TempBanManager::CheckIfTempBanned(ClientId client)
+bool TempBanManager::CheckIfTempBanned(AccountId account) const
 {
     if (!FLHookConfig::i()->general.tempBansEnabled)
     {
         return false;
     }
 
-    CAccount* acc = client.GetAccount().Unwrap();
-    const auto id = Hk::Client::GetAccountID(acc).Unwrap();
-
-    return std::ranges::any_of(tempBanList, [&id](const TempBanInfo& ban) { return ban.accountId == id; });
+    return std::ranges::any_of(tempBanList, [&account](const TempBanInfo& ban) { return ban.accountId == account.GetValue()->accId; });
 }

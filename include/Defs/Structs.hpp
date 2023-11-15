@@ -99,12 +99,6 @@ struct BaseInfo
         std::list<DataMarketItem> MarketMisc;
 };
 
-struct GroupMember
-{
-        uint client;
-        std::wstring character;
-};
-
 struct Light
 {
         std::wstring nickname;

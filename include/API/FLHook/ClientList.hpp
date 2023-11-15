@@ -1,5 +1,4 @@
 #pragma once
-#include "Core/ClientServerInterface.hpp"
 
 struct ClientData
 {
@@ -31,6 +30,7 @@ struct ClientData
         bool inTradelane = false;
 
         // idle kicks
+        BaseId baseId{};
         uint baseEnterTime = 0;
         uint charMenuEnterTime = 0;
 
@@ -97,12 +97,11 @@ class ClientList
         void PlayerConnect(uint clientId)
         {
             clients[clientId].isValid = true;
-            if (clientId > largestClientId )
+            if (clientId > largestClientId)
             {
                 largestClientId = clientId;
-          
             }
-            if (clientId <  smallestClientId)
+            if (clientId < smallestClientId)
             {
                 smallestClientId = clientId;
             }
@@ -189,5 +188,4 @@ class ClientList
             client++;
             return Iterator(client, this);
         }
-
 };

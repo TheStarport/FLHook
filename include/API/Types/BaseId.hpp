@@ -22,10 +22,8 @@ class BaseId
         Action<std::wstring_view, Error> GetName() const;
         Action<std::pair<float, float>, Error> GetBaseHealth() const;
         Action<std::pair<std::wstring_view, std::wstring_view>, Error> GetDescription() const;
-
         Action<std::vector<uint>, Error> GetItemsForSale() const;
+        Action<float, Error> GetCommodityPrice(GoodId goodId) const;
 
         Action<std::vector<ClientId>, Error> GetDockedPlayers();
-
-        bool ToggleDocking(bool locked); // TODO: THis would be done via the CSolar.
 };

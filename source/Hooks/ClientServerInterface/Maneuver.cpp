@@ -1,6 +1,8 @@
 #include "PCH.hpp"
 
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/Logger.hpp"
 
 void __stdcall IServerImplHook::SetManeuver(ClientId client, const XSetManeuver& sm)
 {
@@ -8,7 +10,7 @@ void __stdcall IServerImplHook::SetManeuver(ClientId client, const XSetManeuver&
 
     if (const auto skip = CallPlugins(&Plugin::OnSetManeuver, client, sm); !skip)
     {
-        CallServerPreamble { Server.SetManeuver(client, sm); }
+        CallServerPreamble { Server.SetManeuver(client.GetValue(), sm); }
         CallServerPostamble(true, );
     }
 

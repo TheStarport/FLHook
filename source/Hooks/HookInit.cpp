@@ -2,10 +2,11 @@
 
 #include "Core/FLHook.hpp"
 
-#include "API/API.hpp"
+#include "API/FLHook/ClientList.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/IEngineHook.hpp"
 #include "Core/IpResolver.hpp"
+#include "Core/Logger.hpp"
 
 #include <API/Utils/IniUtils.hpp>
 
@@ -115,48 +116,48 @@ bool FLHook::RevertPatch(PatchInfo& pi)
 
 inline static char repFreeFixOld[5];
 
-void FLHook::ClearClientInfo(uint client)
+void FLHook::ClearClientInfo(ClientId client)
 {
-    auto* info = &ClientInfo::At(ClientId(client));
+    auto& info = client.GetData();
 
-    info->characterName = L"";
-    info->characterFile = L"";
+    info.characterName = L"";
+    info.characterFile = L"";
 
-    info->dieMsg = All;
-    info->ship = 0;
-    info->shipOld = 0;
-    info->spawnTime = 0;
-    info->moneyFix.clear();
-    info->tradePartner = 0;
-    info->baseEnterTime = 0;
-    info->charMenuEnterTime = 0;
-    info->cruiseActivated = false;
-    info->kickTime = 0;
-    info->lastExitedBaseId = 0;
-    info->disconnected = false;
-    info->characterName = L"";
-    info->f1Time = 0;
-    info->timeDisconnect = 0;
+    info.dieMsg = DieMsgType::All;
+    info.ship = ShipId();
+    info.shipOld = ShipId();
+    info.spawnTime = 0;
+    info.moneyFix.clear();
+    info.tradePartner = ClientId();
+    info.baseEnterTime = 0;
+    info.charMenuEnterTime = 0;
+    info.cruiseActivated = false;
+    info.kickTime = 0;
+    info.lastExitedBaseId = 0;
+    info.disconnected = false;
+    info.characterName = L"";
+    info.f1Time = 0;
+    info.timeDisconnect = 0;
 
-    info->dmgLast = {};
-    info->dieMsgSize = CS_DEFAULT;
-    info->chatSize = CS_DEFAULT;
-    info->chatStyle = Default;
+    info.dmgLast = {};
+    info.dieMsgSize = ChatSize::Default;
+    info.chatSize = ChatSize::Default;
+    info.chatStyle = ChatStyle::Default;
 
-    info->ignoreInfoList.clear();
-    info->killsInARow = 0;
-    info->hostname = L"";
-    info->engineKilled = false;
-    info->thrusterActivated = false;
-    info->tradelane = false;
-    info->groupId = 0;
+    info.ignoreInfoList.clear();
+    info.killsInARow = 0;
+    info.hostname = L"";
+    info.engineKilled = false;
+    info.thrusterActivated = false;
+    info.inTradelane = false;
+    info.groupId = 0;
 
-    info->spawnProtected = false;
+    info.spawnProtected = false;
 
     // Reset the dmg list if this client was the inflictor
-    for (auto& i : ClientInfo::clients)
+    for (auto& i : Clients())
     {
-        if (i.dmgLast.inflictorPlayerId == client)
+        if (i.dmgLast.inflictorPlayerId == client.GetValue())
         {
             i.dmgLast = {};
         }
@@ -171,8 +172,8 @@ void FLHook::LoadUserSettings(uint client)
 {
     auto& info = ClientId(client).GetData();
 
-    const CAccount* acc = Players.FindAccountFromClientID(client);
-    const std::wstring dir = Hk::Client::GetAccountDirName(acc);
+    CAccount* acc = Players.FindAccountFromClientID(client);
+    const std::wstring dir = AccountId(acc).GetDirectoryName().Unwrap();
     const std::wstring userFile = std::format(L"{}{}\\accData.json", accPath, dir);
 
     info.accountData = nlohmann::json::object();
@@ -188,8 +189,8 @@ void FLHook::LoadUserSettings(uint client)
     catch (nlohmann::json::exception& ex)
     {
         // TODO: Log to a special error file
-        FLHook::GetLogger().Log(LogLevel::Err,
-                         std::format(L"Error while loading account data from account file ({}): {}", userFile, StringUtils::stows(std::string(ex.what()))));
+        GetLogger().Log(LogLevel::Err,
+                        std::format(L"Error while loading account data from account file ({}): {}", userFile, StringUtils::stows(std::string(ex.what()))));
     }
 
     auto settings = info.accountData.value("settings", nlohmann::json::object());
@@ -323,16 +324,12 @@ void FLHook::InitHookExports()
     GetUserDataPath(dataPath);
     accPath = StringUtils::stows(std::format(R"({}\Accts\MultiPlayer\)", std::string(dataPath)));
 
-    // Load DLLs for strings
-    Hk::Chat::LoadStringDLLs();
-
     // clear ClientInfo
-    for (uint i = 0; i < ClientInfo::clients.size(); i++)
+
+    for (auto client : Clients())
     {
-        auto& client = ClientInfo::At(i);
-        client.client = i;   // Set every client id struct to know of its own id
         client.connects = 0; // only set to 0 on start
-        ClearClientInfo(i);
+        ClearClientInfo(client.id);
     }
 
     std::array<byte, 22> refireBytes = { 0x75, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 00, 00, 00, 00, 00, 00, 00, 0x41, 0x83, 0xC2, 0x04, 0x39, 0xC1, 0x7C, 0xE9, 0xEB };

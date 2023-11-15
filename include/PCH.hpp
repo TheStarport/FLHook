@@ -66,6 +66,7 @@
 
 #include "API/Types/BaseId.hpp"
 #include "API/Types/ClientId.hpp"
+#include "API/Types/EquipmentId.hpp"
 #include "API/Types/GroupId.hpp"
 #include "API/Types/ObjectId.hpp"
 #include "API/Types/RepGroupId.hpp"

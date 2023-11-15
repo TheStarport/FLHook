@@ -1,7 +1,9 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/ClientList.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/Logger.hpp"
 
 void ActivateEquipInner(ClientId client, const XActivateEquip& aq)
 {
@@ -14,10 +16,10 @@ void ActivateEquipInner(ClientId client, const XActivateEquip& aq)
         {
             if (cargo.id == aq.id)
             {
-                Archetype::Equipment* eq = Archetype::GetEquipment(cargo.archId);
-                const EquipmentType eqType = Hk::Client::GetEqType(eq);
+                auto eq = EquipmentId(cargo.archId);
+                const EquipmentType eqType = eq.GetType().Unwrap();
 
-                if (eqType == EngineState::Engine)
+                if (eqType == EquipmentType::Engine)
                 {
                     data.engineKilled = !aq.activate;
                     if (!aq.activate)

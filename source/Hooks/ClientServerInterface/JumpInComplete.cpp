@@ -1,17 +1,13 @@
 #include "PCH.hpp"
 
-#include "API/FLServer/Client.hpp"
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/Logger.hpp"
 
 void JumpInCompleteInnerAfter(uint systemId, uint shipId)
 {
     TryHook
     {
-        const auto client = Hk::Client::GetClientIdByShip(shipId).Raw();
-        if (client.has_error())
-        {
-            return;
-        }
 
         // TODO: Implement event for jump in
     }

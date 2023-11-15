@@ -2,8 +2,9 @@
 
 #include "Core/ClientServerInterface.hpp"
 
-#include "API/API.hpp"
+#include "API/FLHook/ClientList.hpp"
 #include "API/Utils/PerfTimer.hpp"
+#include "Core/Logger.hpp"
 
 void PlayerLaunchInner(uint shipId, ClientId client)
 {
@@ -23,7 +24,7 @@ void PlayerLaunchInner(uint shipId, ClientId client)
         {
             if (i.character == charName)
             {
-                Hk::Player::AddCash(charName, i.amount);
+                client.AddCash(i.amount);
                 data.moneyFix.remove(i);
                 break;
             }

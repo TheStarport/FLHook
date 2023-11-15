@@ -1,10 +1,13 @@
 #include "PCH.hpp"
 
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/Logger.hpp"
 
 void __stdcall IServerImplHook::SpScanCargo(const uint& unk1, const uint& unk2, uint unk3)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"SPScanCargo(\n\tuint const& unk1 = {}\n\tuint const& unk2 = {}\n\tuint unk3 = {}\n)", unk1, unk2, unk3));
+    FLHook::GetLogger().Log(LogLevel::Trace,
+                            std::format(L"SPScanCargo(\n\tuint const& unk1 = {}\n\tuint const& unk2 = {}\n\tuint unk3 = {}\n)", unk1, unk2, unk3));
 
     if (const auto skip = CallPlugins(&Plugin::OnSpScanCargo, unk1, unk2, unk3); !skip)
     {
@@ -19,18 +22,18 @@ void __stdcall IServerImplHook::ReqAddItem(uint goodId, const char* hardpoint, i
 {
     const std::wstring hp = StringUtils::stows(hardpoint);
     FLHook::GetLogger().Log(LogLevel::Trace,
-                     std::format(L"ReqAddItem(\n\tuint goodId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
-                                 L"{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
-                                 goodId,
-                                 StringUtils::stows(std::string(hardpoint)),
-                                 count,
-                                 status,
-                                 mounted,
-                                 client));
+                            std::format(L"ReqAddItem(\n\tuint goodId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
+                                        L"{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
+                                        goodId,
+                                        StringUtils::stows(std::string(hardpoint)),
+                                        count,
+                                        status,
+                                        mounted,
+                                        client));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestAddItem, client, goodId, std::wstring_view(hp), count, status, mounted); !skip)
     {
-        CallServerPreamble { Server.ReqAddItem(goodId, hardpoint, count, status, mounted, client); }
+        CallServerPreamble { Server.ReqAddItem(goodId, hardpoint, count, status, mounted, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
@@ -39,11 +42,12 @@ void __stdcall IServerImplHook::ReqAddItem(uint goodId, const char* hardpoint, i
 
 void __stdcall IServerImplHook::ReqRemoveItem(ushort slotId, int count, ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"ReqRemoveItem(\n\tushort slotId = {}\n\tint count = {}\n\tClientId client = {}\n)", slotId, count, client));
+    FLHook::GetLogger().Log(LogLevel::Trace,
+                            std::format(L"ReqRemoveItem(\n\tushort slotId = {}\n\tint count = {}\n\tClientId client = {}\n)", slotId, count, client));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestRemoveItem, client, slotId, count); !skip)
     {
-        CallServerPreamble { Server.ReqRemoveItem(slotId, count, client); }
+        CallServerPreamble { Server.ReqRemoveItem(slotId, count, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
@@ -54,18 +58,18 @@ void __stdcall IServerImplHook::ReqModifyItem(ushort slotId, const char* hardpoi
 {
     std::wstring hp = StringUtils::stows(hardpoint);
     FLHook::GetLogger().Log(LogLevel::Trace,
-                     std::format(L"ReqModifyItem(\n\tushort slotId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
-                                 "{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
-                                 slotId,
-                                 hp,
-                                 count,
-                                 status,
-                                 mounted,
-                                 client));
+                            std::format(L"ReqModifyItem(\n\tushort slotId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
+                                        "{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
+                                        slotId,
+                                        hp,
+                                        count,
+                                        status,
+                                        mounted,
+                                        client));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestModifyItem, client, slotId, std::wstring_view(hp), count, status, mounted); !skip)
     {
-        CallServerPreamble { Server.ReqModifyItem(slotId, hardpoint, count, status, mounted, client); }
+        CallServerPreamble { Server.ReqModifyItem(slotId, hardpoint, count, status, mounted, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
@@ -78,7 +82,7 @@ void __stdcall IServerImplHook::JettisonCargo(ClientId client, const XJettisonCa
 
     if (const auto skip = CallPlugins(&Plugin::OnCargoJettison, client, jc); !skip)
     {
-        CallServerPreamble { Server.JettisonCargo(client, jc); }
+        CallServerPreamble { Server.JettisonCargo(client.GetValue(), jc); }
         CallServerPostamble(true, );
     }
 
@@ -91,7 +95,7 @@ void __stdcall IServerImplHook::TractorObjects(ClientId client, const XTractorOb
 
     if (const auto skip = CallPlugins(&Plugin::OnTractorObjects, client, to); !skip)
     {
-        CallServerPreamble { Server.TractorObjects(client, to); }
+        CallServerPreamble { Server.TractorObjects(client.GetValue(), to); }
         CallServerPostamble(true, );
     }
 

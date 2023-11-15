@@ -2,15 +2,17 @@
 
 #include "Core/ClientServerInterface.hpp"
 
-#include "API/API.hpp"
+#include "API/Utils/PerfTimer.hpp"
+#include "Core/Logger.hpp"
+#include "Core/TempBan.hpp"
 
 bool LoginInnerBefore(const SLoginInfo& li, ClientId client)
 {
     // The startup cache disables reading of the banned file. Check this manually on login and boot the player if they are banned.
 
-    if (CAccount* acc = Players.FindAccountFromClientID(client))
+    if (auto acc = client.GetAccount().Unwrap())
     {
-        const std::wstring dir = Hk::Client::GetAccountDirName(acc);
+        const auto dir = acc.GetDirectoryName();
 
         char DataPath[MAX_PATH];
         GetUserDataPath(DataPath);
@@ -19,12 +21,8 @@ bool LoginInnerBefore(const SLoginInfo& li, ClientId client)
 
         if (std::filesystem::exists(path))
         {
-            // Ban the player
-            st6::wstring fr(reinterpret_cast<ushort*>(acc->accId));
-            Players.BanAccount(fr, true);
-
-            // Kick them
-            acc->ForceLogout();
+            acc.Ban();
+            acc.Logout();
             return false;
         }
     }
@@ -36,22 +34,16 @@ bool LoginInnerAfter(const SLoginInfo& li, ClientId client)
 {
     TryHook
     {
-        if (client > MaxClientId)
+        if (!client)
         {
             return false; // DisconnectDelay bug
         }
 
-        if (!Hk::Client::IsValidClientID(client))
+        // Kick the player if the account Id doesn't exist. This is caused by a duplicate log on.
+        auto acc = client.GetAccount().Unwrap();
+        if (acc)
         {
-            return false; // player was kicked
-        }
-
-        // Kick the player if the account Id doesn't exist. This is caused
-        // by a duplicate log on.
-        CAccount* acc = Players.FindAccountFromClientID(client);
-        if (acc && !acc->accId)
-        {
-            acc->ForceLogout();
+            acc.Logout();
             return false;
         }
 
@@ -85,7 +77,7 @@ bool LoginInnerAfter(const SLoginInfo& li, ClientId client)
         // AddConnectLog(client, ip));
     }
     CatchHook({
-        CAccount* acc = Players.FindAccountFromClientID(client);
+        CAccount* acc = Players.FindAccountFromClientID(client.GetValue());
         if (acc)
         {
             acc->ForceLogout();
@@ -102,15 +94,16 @@ void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
 
     if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip && LoginInnerBefore(li, client))
     {
-        CallServerPreamble { Server.Login(li, client); }
+        CallServerPreamble { Server.Login(li, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
     LoginInnerAfter(li, client);
 
-    if (TempBanManager::i()->CheckIfTempBanned(client))
+    auto acc = client.GetAccount().Unwrap();
+    if (FLHook::GetTempBanManager().CheckIfTempBanned(acc))
     {
-        Hk::Player::Kick(client);
+        client.Kick();
         return;
     }
 

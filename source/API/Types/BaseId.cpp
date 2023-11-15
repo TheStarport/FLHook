@@ -2,6 +2,8 @@
 
 #include "API/Types/BaseId.hpp"
 
+#include "API/FLHook/ClientList.hpp"
+
 #define ValidBaseCheck                            \
     if (!this->operator bool())                   \
     {                                             \
@@ -121,4 +123,38 @@ Action<std::vector<uint>, Error> BaseId::GetItemsForSale() const
     MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetCommodities), jnz.data(), 2);
 
     return { std::vector(arr.begin(), arr.begin() + size) };
+}
+
+Action<float, Error> BaseId::GetCommodityPrice(GoodId goodId) const
+{
+    float nomPrice;
+    if (pub::Market::GetNominalPrice(goodId, nomPrice) != (int)ResponseCode::Success)
+    {
+        return { cpp::fail(Error::InvalidGood) };
+    }
+
+    float price;
+    if (pub::Market::GetPrice(value, goodId, price) != (int)ResponseCode::Success)
+    {
+        return { cpp::fail(Error::InvalidBase) };
+    }
+
+    return { price };
+}
+
+Action<std::vector<ClientId>, Error> BaseId::GetDockedPlayers()
+{
+    ValidBaseCheck;
+
+    std::vector<ClientId> players;
+
+    for (auto& client : FLHook::Clients())
+    {
+        if (client.baseId == *this)
+        {
+            players.emplace_back(client.id);
+        }
+    }
+
+    return { players };
 }

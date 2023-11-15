@@ -6,7 +6,7 @@
 #include "API/Types/SystemId.hpp"
 
 class ShipId;
-class ClientData;
+struct ClientData;
 class GroupId;
 
 // All methods associated with ClientId will return a failure of Invalid clientId if the client Id is not an active client or outside acceptable range (1 -255)
@@ -214,14 +214,6 @@ class ClientId
         // Manipulation
 
         /**
-         * Adds the player to the group associated with the GroupId
-         * @param group the group you want to add the player to
-         * @returns On success : void
-         * @returns On fail : InCharacterSelect or InvalidGroup
-         */
-        Action<void, Error> AddToGroup(GroupId group) const;
-
-        /**
          * Kicks the player
          * @param  reason if provided will post a global message, delay: if provided will kick them after that in seconds.
          * @param  delay if provided will kick them after that in seconds.
@@ -272,12 +264,19 @@ class ClientId
         /**
          * Renames and kicks the character the player is logged in as.
          * @param name the name you wish to rename the character to.
-         * @returns On success :
+         * @returns On success : void
          * @returns On fail : InCharacterSelect.
          */
         Action<void, Error> Rename(std::wstring_view name) const;
 
-        void MarkObject(uint objId, int markStatus) const;
+        /**
+         * Marks a specific object to make it easier to notice among other targets.
+         * @param objId The id of the object that you intend to mark for this client.
+         * @param markStatus The new state of the mark.
+         * @returns On success : void
+         * @returns On fail : InCharacterSelect or InvalidInput.
+         */
+        Action<void, Error> MarkObject(uint objId, int markStatus) const;
 
         // Chat
 
@@ -311,4 +310,14 @@ class ClientId
          * @returns On fail : InCharacterSelect.
          */
         Action<void, Error> MessageFrom(ClientId destinationClient, std::wstring message) const;
+
+        /**
+         * Force the ships equipment list to match the one provided. May cause undefined behaviour if the target is in space.
+         * @param equip the client you wish to send the message to.
+         * @returns On success : void
+         * @returns On fail : InCharacterSelect, UnknownError (when packet sending fails).
+         */
+        Action<void, Error> SetEquip(const st6::list<EquipDesc> &equip);
+
+        Action<void, Error> AddEquip(uint goodId, const std::wstring &hardpoint) const;
 };

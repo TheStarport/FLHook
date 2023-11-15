@@ -147,9 +147,6 @@
     <ClCompile Include="..\Source\API\FLServer\Admin.cpp">
       <Filter>Source\API\FLServer</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\API\FLServer\Client.cpp">
-      <Filter>Source\API\FLServer</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\API\FLServer\Math.cpp">
       <Filter>Source\API\FLServer</Filter>
     </ClCompile>
@@ -308,6 +305,12 @@
       <Filter>Source\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\source\API\Types\BaseId.cpp">
+      <Filter>Source\API\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\API\Types\AccountId.cpp">
+      <Filter>Source\API\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\API\Types\EquipmentId.cpp">
       <Filter>Source\API\Types</Filter>
     </ClCompile>
   </ItemGroup>
@@ -544,6 +547,9 @@
       <Filter>Include\API\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\include\API\Types\AccountId.hpp">
+      <Filter>Include\API\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\Types\EquipmentId.hpp">
       <Filter>Include\API\Types</Filter>
     </ClInclude>
   </ItemGroup>

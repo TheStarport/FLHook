@@ -1,7 +1,9 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/ClientList.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/Logger.hpp"
 
 void BaseEnterInner([[maybe_unused]] uint baseId, [[maybe_unused]] ClientId client)
 {
@@ -25,6 +27,8 @@ void BaseEnterInnerAfter([[maybe_unused]] uint baseId, ClientId client)
             }
         }
 
+        data.baseId = BaseId(baseId);
+
         // anti base-idle
         data.baseEnterTime = static_cast<uint>(time(nullptr));
 
@@ -36,6 +40,7 @@ void BaseEnterInnerAfter([[maybe_unused]] uint baseId, ClientId client)
     }
     CatchHook({})
 }
+
 void __stdcall IServerImplHook::BaseEnter(uint baseId, ClientId client)
 {
     FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"BaseEnter(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
@@ -55,6 +60,7 @@ void __stdcall IServerImplHook::BaseEnter(uint baseId, ClientId client)
 
     CallPlugins(&Plugin::OnBaseEnterAfter, baseId, client);
 }
+
 void BaseExitInner(uint baseId, ClientId client)
 {
     TryHook

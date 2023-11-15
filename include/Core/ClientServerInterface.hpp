@@ -45,7 +45,7 @@ class IServerImplHook
 
         static void __stdcall CharacterInfoReq(ClientId client, bool unk1);
         static bool CharacterSelectInner(const CHARACTER_ID& cid, ClientId client);
-        static void CharacterSelectInnerAfter(const CHARACTER_ID& charId, unsigned client);
+        static void CharacterSelectInnerAfter(const CHARACTER_ID& charId, ClientId client);
         static void __stdcall CharacterSelect(const CHARACTER_ID& cid, ClientId client);
         static void __stdcall CreateNewCharacter(const SCreateCharacterInfo& unk1, ClientId client);
         static void __stdcall DestroyCharacter(const CHARACTER_ID& unk1, ClientId client);

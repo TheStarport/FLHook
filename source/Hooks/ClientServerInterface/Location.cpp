@@ -2,6 +2,7 @@
 
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/Logger.hpp"
 
 void __stdcall IServerImplHook::SetVisitedState(ClientId client, uint objHash, int state)
 {

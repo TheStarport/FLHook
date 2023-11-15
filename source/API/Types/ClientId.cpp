@@ -2,6 +2,7 @@
 
 #include "API/Types/ClientId.hpp"
 
+#include "API/FLHook/ClientList.hpp"
 #include "API/InternalApi.hpp"
 #include "Core/FLHook.hpp"
 
@@ -118,12 +119,11 @@ Action<SystemId, Error> ClientId::GetSystemId() const
     return { SystemId(sys) };
 }
 
-Action<CAccount*, Error> ClientId::GetAccount() const
+Action<AccountId, Error> ClientId::GetAccount() const
 {
     ClientCheck;
-    CAccount* acc = Players.FindAccountFromClientID(value);
 
-    return { acc };
+    return { AccountId(*this) };
 }
 
 Action<const Archetype::Ship*, Error> ClientId::GetShipArch() const
@@ -448,8 +448,7 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
 
 Action<void, Error> ClientId::SaveChar() const
 {
-    ClientCheck;
-    CharSelectCheck;
+    // We do not validate the client id here because new/delete characters make use of this method with an invalid, transient, id
 
     const DWORD jmp = FLHook::Offset(FLHook::BinaryType::Server, AddressList::SaveCharacter);
 
@@ -462,8 +461,7 @@ Action<void, Error> ClientId::SaveChar() const
     const auto& data = FLHook::Clients()[value];
 
     // Save account data
-    const CAccount* acc = Players.FindAccountFromClientID(value);
-    const std::wstring dir = Hk::Client::GetAccountDirName(acc);
+    auto dir = GetAccount().Unwrap().GetDirectoryName();
     const std::wstring userFile = std::format(L"{}{}\\accData.json", FLHook::GetAccountPath(), dir);
 
     const auto content = data.accountData.dump(4);
@@ -532,16 +530,24 @@ Action<void, Error> ClientId::Beam(BaseId base) const
     {
         Server.BaseEnter(base.GetValue(), value);
         Server.BaseExit(base.GetValue(), value);
-        auto fileName = Hk::Client::GetCharFileName(value).Raw();
-        if (fileName.has_error())
-        {
-            return { cpp::fail(fileName.error()) };
-        }
 
-        const std::wstring newFile = std::format(L"{}.fl", fileName.value());
+        const std::wstring newFile = std::format(L"{}.fl", GetCharacterName().Unwrap());
         CHARACTER_ID charId;
         strcpy_s(charId.charFilename, StringUtils::wstos(newFile.substr(0, 14)).c_str());
         Server.CharacterSelect(charId, value);
+    }
+
+    return { {} };
+}
+
+Action<void, Error> ClientId::MarkObject(uint objId, int markStatus) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    if (pub::Player::MarkObj(value, objId, markStatus) != (int)ResponseCode::Success)
+    {
+        return { cpp::fail(Error::InvalidInput) };
     }
 
     return { {} };
@@ -601,5 +607,105 @@ Action<void, Error> ClientId::MessageFrom(ClientId destinationClient, std::wstri
 
     // TODO: validate color
     destinationClient.Message(std::move(message));
+    return { {} };
+}
+
+void ClientId::SetEquip(const st6::list<EquipDesc>& equip)
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    auto& data = GetData();
+
+    // Update FLHook's lists to make anticheat pleased.
+    if (&equip != &data.playerData->shadowEquipDescList.equip)
+    {
+        data.playerData->shadowEquipDescList.equip = equip;
+    }
+
+    if (&equip != &data.playerData->equipDescList.equip)
+    {
+        data.playerData->equipDescList.equip = equip;
+    }
+
+    // Calculate packet size. First two bytes reserved for items count.
+    uint itemBufSize = 2;
+    for (const auto& item : equip)
+    {
+        itemBufSize += sizeof(SetEquipmentItem) + strlen(item.hardPoint.value) + 1;
+    }
+
+    FlPacket* packet = FlPacket::Create(itemBufSize, FlPacket::FLPACKET_SERVER_SETEQUIPMENT);
+    const auto setEquipmentPacket = reinterpret_cast<FlPacketSetEquipment*>(packet->content);
+
+    // Add items to packet as array of variable size.
+    uint index = 0;
+    for (const auto& item : equip)
+    {
+        SetEquipmentItem setEquipItem;
+        setEquipItem.count = item.count;
+        setEquipItem.health = item.health;
+        setEquipItem.archId = item.archId;
+        setEquipItem.id = item.id;
+        setEquipItem.mounted = item.mounted;
+        setEquipItem.mission = item.mission;
+
+        if (const uint len = strlen(item.hardPoint.value); len && item.hardPoint.value != "BAY")
+        {
+            setEquipItem.hardPointLen = static_cast<ushort>(len + 1); // add 1 for the null - char* is a null-terminated string in C++
+        }
+        else
+        {
+            setEquipItem.hardPointLen = 0;
+        }
+        setEquipmentPacket->count++;
+
+        const byte* buf = (byte*)&setEquipItem;
+        for (int i = 0; i < sizeof(SetEquipmentItem); i++)
+        {
+            setEquipmentPacket->items[index++] = buf[i];
+        }
+
+        const byte* hardPoint = (byte*)item.hardPoint.value;
+        for (int i = 0; i < setEquipItem.hardPointLen; i++)
+        {
+            setEquipmentPacket->items[index++] = hardPoint[i];
+        }
+    }
+
+    if (packet->SendTo(*this))
+    {
+        return { {} };
+    }
+
+    return { cpp::fail(Error::UnknownError) };
+}
+
+Action<void, Error> ClientId::AddEquip(uint goodId, const std::wstring& hardpoint) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    const auto& data = GetData();
+
+    if (!data.playerData->enteredBase)
+    {
+        data.playerData->enteredBase = data.playerData->baseId;
+        Server.ReqAddItem(goodId, StringUtils::wstos(hardpoint).c_str(), 1, 1.0f, true, value);
+        data.playerData->enteredBase = 0;
+    }
+    else
+    {
+        Server.ReqAddItem(goodId, StringUtils::wstos(hardpoint).c_str(), 1, 1.0f, true, value);
+    }
+
+    // Add to check-list which is being compared to the users equip-list when
+    // saving char to fix "Ship or Equipment not sold on base" kick
+    EquipDesc ed;
+    ed.id = data.playerData->lastEquipId;
+    ed.count = 1;
+    ed.archId = goodId;
+    data.playerData->shadowEquipDescList.add_equipment_item(ed, false);
+
     return { {} };
 }

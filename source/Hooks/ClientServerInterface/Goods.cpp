@@ -1,7 +1,9 @@
 #include "PCH.hpp"
 
-#include "API/API.hpp"
+#include "API/FLHook/ClientList.hpp"
+#include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/Logger.hpp"
 
 bool GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId client)
 {
@@ -10,7 +12,7 @@ bool GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId client)
         // anti-cheat check
 
         int _;
-        const auto cargoList = Hk::Player::EnumCargo(client, _).Raw();
+        const auto cargoList = client.EnumCargo(_).Raw();
         bool legalSell = false;
         for (const auto& cargo : cargoList.value())
         {
@@ -19,12 +21,12 @@ bool GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId client)
                 legalSell = true;
                 if (abs(gsi.count) > cargo.count)
                 {
-                    const std::wstring charName = client.GetCharacterName().Handle();
+                    auto charName = client.GetCharacterName().Handle();
                     // AddCheaterLog(charName, std::format(L"Sold more good than possible item={} count={}", gsi.archId, gsi.count));
 
-                    Hk::Chat::MsgU(std::format(L"Possible cheating detected ({})", charName));
-                    Hk::Player::Ban(client, true);
-                    Hk::Player::Kick(client);
+                    FLHook::MessageUniverse(std::format(L"Possible cheating detected ({})", charName));
+                    client.Kick();
+                    client.GetAccount().Unwrap().Ban();
                     return false;
                 }
                 break;
@@ -32,16 +34,14 @@ bool GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId client)
         }
         if (!legalSell)
         {
-            const std::wstring charName = client.GetCharacterName().Handle();
             // AddCheaterLog(charName, std::format(L"Sold good player does not have (buggy test), item={}", gsi.archId));
 
             return false;
         }
     }
     CatchHook({
-        FLHook::GetLogger().Log(
-            LogLevel::Trace,
-            std::format(L"Exception in {} (client={} ({}))", StringUtils::stows(__FUNCTION__), client, client.GetCharacterName().Unwrap()));
+        FLHook::GetLogger().Log(LogLevel::Trace,
+                                std::format(L"Exception in {} (client={} ({}))", StringUtils::stows(__FUNCTION__), client, client.GetCharacterName().Unwrap()));
     })
 
         return true;
@@ -61,7 +61,7 @@ void __stdcall IServerImplHook::GFGoodSell(const SGFGoodSellInfo& unk1, ClientId
     }
     if (!skip)
     {
-        CallServerPreamble { Server.GFGoodSell(unk1, client); }
+        CallServerPreamble { Server.GFGoodSell(unk1, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
@@ -74,7 +74,7 @@ void __stdcall IServerImplHook::GFGoodBuy(const SGFGoodBuyInfo& unk1, ClientId c
 
     if (const auto skip = CallPlugins(&Plugin::OnGfGoodBuy, client, unk1); !skip)
     {
-        CallServerPreamble { Server.GFGoodBuy(unk1, client); }
+        CallServerPreamble { Server.GFGoodBuy(unk1, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
@@ -87,7 +87,7 @@ void __stdcall IServerImplHook::GFGoodVaporized(const SGFGoodVaporizedInfo& gvi,
 
     if (const auto skip = CallPlugins(&Plugin::OnGfGoodVaporized, client, gvi); !skip)
     {
-        CallServerPreamble { Server.GFGoodVaporized(gvi, client); }
+        CallServerPreamble { Server.GFGoodVaporized(gvi, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
