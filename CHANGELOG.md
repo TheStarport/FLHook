@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.15
+- Fixed a typo in the Autobuy plugin header that caused incorrect configs to be generated.
+
 ## 4.0.14
 - Fix the description of a release created by the build pipeline.
 
