@@ -1,5 +1,6 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/ClientList.hpp"
 #include "API/InternalApi.hpp"
 #include "Core/IEngineHook.hpp"
 
@@ -13,7 +14,7 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, uint systemId, Clien
     const auto xmlMsg =
         std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHookConfig::i()->chatConfig.msgStyle.deathMsgStyle, StringUtils::XmlText(msg));
 
-   static std::array<char, 0xFFFF> xmlBuf;
+    static std::array<char, 0xFFFF> xmlBuf;
     uint ret;
     if (InternalApi::FMsgEncodeXml(xmlMsg, xmlBuf.data(), xmlBuf.size(), ret).Raw().has_error())
     {
@@ -114,10 +115,10 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, uint systemId, Clien
             }
         }
 
-        std::fill_n(xmlBuf, xmlBuf.size(), "\0");
-        std::fill_n(bufSmall, bufSmall.size(), "\0");
-        std::fill_n(bufSys, bufSys.size(), "\0");
-        std::fill_n(BufSmallSys, BufSmallSys.size(), "\0");
+        std::fill_n(xmlBuf.begin(), xmlBuf.size(), "\0");
+        std::fill_n(bufSmall.begin(), bufSmall.size(), "\0");
+        std::fill_n(bufSys.begin(), bufSys.size(), "\0");
+        std::fill_n(BufSmallSys.begin(), BufSmallSys.size(), "\0");
     }
 
     const std::wstring formattedMsg = StringUtils::stows(BufSmallSys.data());
@@ -257,7 +258,6 @@ void __stdcall IEngineHook::ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint 
         data.shipOld = data.ship;
         data.ship = ShipId();
     }
-    
 
     CatchHook({})
 }

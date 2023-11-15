@@ -80,7 +80,7 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
     MemUtils::WriteProcMem(address, &si.maxPlayers, sizeof maxPlayers);
 
     // read base market data from ini
-    LoadBaseMarket();
+    FLHook::instance->LoadBaseMarket();
 
     // Clean up any mail to chars that no longer exist
     MailManager::i()->CleanUpOldMail();

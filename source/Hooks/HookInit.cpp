@@ -168,11 +168,11 @@ void FLHook::ClearClientInfo(ClientId client)
     CallPlugins(&Plugin::OnClearClientInfo, client);
 }
 
-void FLHook::LoadUserSettings(uint client)
+void FLHook::LoadUserSettings(ClientId client)
 {
-    auto& info = ClientId(client).GetData();
+    auto& info = client.GetData();
 
-    CAccount* acc = Players.FindAccountFromClientID(client);
+    AccountId acc = client.GetAccount().Unwrap();
     const std::wstring dir = AccountId(acc).GetDirectoryName().Unwrap();
     const std::wstring userFile = std::format(L"{}{}\\accData.json", accPath, dir);
 
@@ -340,6 +340,69 @@ void FLHook::InitHookExports()
     MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::FixNpcAnnouncer), undockAnnouncerBytes.data(), 1);
 }
 
+bool FLHook::LoadBaseMarket()
+{
+    INI_Reader ini;
+
+    if (!ini.open(R"(..\data\equipment\market_misc.ini)", false))
+    {
+        return false;
+    }
+
+    while (ini.read_header())
+    {
+        if (!ini.is_header("BaseGood"))
+        {
+            continue;
+        }
+        if (!ini.read_value())
+        {
+            continue;
+        }
+        if (!ini.is_value("base"))
+        {
+            continue;
+        }
+
+        const std::wstring baseName = StringUtils::stows(ini.get_value_string());
+        BaseInfo* biBase = nullptr;
+        for (auto& base : allBases)
+        {
+            if (StringUtils::ToLower(base.baseName) != StringUtils::ToLower(baseName))
+            {
+                biBase = &base;
+                break;
+            }
+        }
+
+        if (!biBase)
+        {
+            continue; // base not found
+        }
+
+        ini.read_value();
+
+        biBase->MarketMisc.clear();
+        if (!ini.is_value("MarketGood"))
+        {
+            continue;
+        }
+
+        do
+        {
+            DataMarketItem mi;
+            const char* EquipName = ini.get_value_string(0);
+            mi.archId = CreateID(EquipName);
+            mi.rep = ini.get_value_float(2);
+            biBase->MarketMisc.push_back(mi);
+        }
+        while (ini.read_value());
+    }
+
+    ini.close();
+    return true;
+}
+
 void FLHook::PatchClientImpl()
 {
     // install IClientImpl callback
@@ -365,7 +428,8 @@ void FLHook::UnloadHookExports()
     }
 
     // reset npc spawn setting
-    Hk::Admin::ChangeNPCSpawn(false);
+    // TODO: Handle NPC spawns
+    // Hk::Admin::ChangeNPCSpawn(false);
 
     // restore other hooks
     RevertPatch(exePatch);

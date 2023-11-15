@@ -21,4 +21,6 @@ class InternalApi
         static Action<void, Error> FMsgEncodeXml(std::wstring_view xml, char* buffer, uint size, uint& ret);
         static void FMsgSendChat(ClientId client, char* buffer, uint size);
         static Action<void, Error> SendMessage(ClientId to, std::wstring_view message, ClientId from = ClientId(), std::wstring_view = L"");
+
+        static uint CreateID(const std::wstring& nickname);
 };

@@ -9,6 +9,7 @@ class ClientList;
 class InfocardManager;
 class Logger;
 class TempBanManager;
+class FlPacket;
 
 class FLHook final
 {
@@ -17,6 +18,7 @@ class FLHook final
         friend InternalApi;
         friend ClientId;
         friend ShipId;
+        friend FlPacket;
 
         // Static things
 
@@ -80,7 +82,6 @@ class FLHook final
 
         static void LoadSettings();
         static void ClearClientInfo(ClientId client);
-        void LoadUserSettings(uint client);
         static void ProcessPendingCommands();
 
         // Timers
@@ -102,8 +103,11 @@ class FLHook final
 
         bool OnServerStart();
         void InitHookExports();
-        void PatchClientImpl();
+        static void PatchClientImpl();
         void UnloadHookExports();
+
+        void LoadUserSettings(ClientId client);
+        bool LoadBaseMarket();
 
         uint damageToClientId;
         uint damageToSpaceId;

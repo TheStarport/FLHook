@@ -1,14 +1,6 @@
 #include "PCH.hpp"
 
-#include "API/FLServer/Client.hpp"
 #include "Core/IEngineHook.hpp"
-
-EXPORT uint g_DmgTo = 0;
-EXPORT uint g_DmgToSpaceId = 0;
-DamageList g_LastDmgList;
-
-bool eg_NonGunHitsBase = false;
-float g_LastHitPts;
 
 /*
  * Called when a torp/missile/mine/wasp hits a ship

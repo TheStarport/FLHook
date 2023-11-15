@@ -3,6 +3,7 @@
 #include "API/Types/BaseId.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/InfocardManager.hpp"
 
 #define ValidBaseCheck                            \
     if (!this->operator bool())                   \
@@ -20,7 +21,7 @@ BaseId::BaseId(const std::wstring_view name, const bool isWildCard)
         while (baseInfo)
         {
             static std::array<char, 1024> baseNickname;
-            std::fill_n(baseNickname, baseNickname.size(), '\0');
+            std::fill_n(baseNickname.begin(), baseNickname.size(), '\0');
             pub::GetBaseNickname(baseNickname.data(), baseNickname.size(), baseInfo->baseId);
 
             if (const auto basename = FLHook::GetInfocardManager().GetInfocard(baseInfo->baseIdS);
@@ -116,7 +117,7 @@ Action<std::vector<uint>, Error> BaseId::GetItemsForSale() const
     MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetCommodities), nop.data(), 2); // patch, else we only get commodities
 
     static std::array<uint, 1024> arr;
-    std::fill_n(arr, arr.size(), 0);
+    std::fill_n(arr.begin(), arr.size(), 0);
 
     int size = 256;
     pub::Market::GetCommoditiesForSale(value, arr.data(), &size);

@@ -18,12 +18,14 @@ class SystemId
 
         Action<std::wstring_view, Error> GetName() const;
         Action<std::wstring, Error> GetNickName() const;
-        Action<std::vector<Universe::IZone*>, Error> GetZones() const;
+        Action<std::vector<Universe::IZone *>, Error> GetZones() const;
+        Action<std::wstring, Error> PositionToSectorCoord(const Vector &pos) const;
         Action<std::vector<SystemId>, Error> GetNeighboringSystems() const; // TODO: Look into Freelancer System Enumerator.
-        Action<std::vector<CSolar*>, Error> GetSolars(bool onlyDockables = false);
+        Action<std::vector<CSolar *>, Error> GetSolars(bool onlyDockables = false);
         Action<std::vector<ClientId>, Error> GetPlayersInSystem(bool includeDocked = false) const;
 
         Action<void, Error> Message(std::wstring_view msg, MessageColor color = MessageColor::Default, MessageFormat format = MessageFormat::Normal);
-        Action<void, Error> PlaySoundOrMusic(std::wstring trackNickNameSound, bool isMusic = false, std::optional<std::pair<Vector, float>> sphere = {});
+        Action<void, Error> PlaySoundOrMusic(const std::wstring &trackNickNameSound, bool isMusic = false,
+                                             const std::optional<std::pair<Vector, float>> &sphere = {});
         Action<uint, Error> KillAllPlayers() const;
 };

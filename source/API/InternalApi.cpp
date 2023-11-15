@@ -2,6 +2,8 @@
 
 #include "API/InternalApi.hpp"
 
+#include "API/FLHook/ClientList.hpp"
+
 Action<void, Error> InternalApi::FMsgEncodeXml(std::wstring_view xml, char* buffer, const uint size, uint& ret)
 {
     XMLReader rdr;
@@ -57,7 +59,7 @@ Action<void, Error> InternalApi::SendMessage(const ClientId to, const std::wstri
     }
 
     static std::array<char, 0xFFFF> buffer;
-    std::fill_n(buffer, buffer.size(), '\0');
+    std::fill_n(buffer.begin(), buffer.size(), '\0');
 
     const auto xml = std::format(L"{}{}", fromXml, message);
 
@@ -70,3 +72,5 @@ Action<void, Error> InternalApi::SendMessage(const ClientId to, const std::wstri
     FMsgSendChat(to, buffer.data(), ret);
     return { {} };
 }
+
+uint InternalApi::CreateID(const std::wstring& nickname) { return ::CreateID(StringUtils::wstos(nickname).c_str()); }

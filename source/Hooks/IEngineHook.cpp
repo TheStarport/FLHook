@@ -2,8 +2,6 @@
 
 #include "Core/IEngineHook.hpp"
 
-#include "API/API.hpp"
-
 void __stdcall IEngineHook::CShipInit(CShip* ship) { CallPlugins(&Plugin::OnCShipInit, ship); }
 
 __declspec(naked) void IEngineHook::NakedCShipInit()
@@ -26,7 +24,7 @@ __declspec(naked) void IEngineHook::NakedCShipDestroy()
 			push ecx
 			call CShipDestroy
 			pop ecx
-			jmp g_OldDestroyCShip
+			jmp oldDestroyCShip
     }
 }
 
@@ -35,7 +33,7 @@ int IEngineHook::FreeReputationVibe(const int& p1)
     __asm {
 			mov eax, p1
 			push eax
-			mov eax, [FLHook::server]
+            mov eax, [FLHook::serverDll]
 			add eax, 0x65C20
 			call eax
 			add esp, 4
@@ -89,11 +87,11 @@ int IEngineHook::DockCall(const uint& shipId, const uint& spaceId, int dockPortI
         // Print out a message when a player ship docks.
         if (FLHookConfig::c()->chatConfig.dockingMessages && response == DOCK_HOST_RESPONSE::Dock)
         {
-            if (const auto client = Hk::Client::GetClientIdByShip(shipId).Raw(); client.has_value())
+            if (const auto client = ShipId(shipId).GetPlayer().value_or(ClientId()))
             {
                 std::wstring msg = L"Traffic control alert: %player has docked.";
-                msg = StringUtils::ReplaceStr(msg, L"%player", (const wchar_t*)Players.GetActiveCharacterName(client.value()));
-                PrintLocalUserCmdText(client.value(), msg, 15000.0f);
+                msg = StringUtils::ReplaceStr(msg, L"%player", client.GetCharacterName());
+                client.MessageLocal(msg, 15000.0f);
             }
         }
         // Actually dock

@@ -22,9 +22,6 @@
     <Filter Include="Source\API\FLHook">
       <UniqueIdentifier>{876be2ae-78a1-4080-970d-c0ea7773b25c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\API\FLServer">
-      <UniqueIdentifier>{3ec9ac72-9554-4f7f-83ef-85c47f948d0e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Include\API">
       <UniqueIdentifier>{a18e4208-124a-4ccd-9fda-632fa9238c6d}</UniqueIdentifier>
     </Filter>
@@ -114,9 +111,6 @@
     <ClCompile Include="..\Source\Core\Commands\UserCommandProcessor.cpp">
       <Filter>Source\Core\Commands</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Hooks\HkDataBaseMarket.cpp">
-      <Filter>Source\Hooks</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\Hooks\HkIChatServer.cpp">
       <Filter>Source\Hooks</Filter>
     </ClCompile>
@@ -138,26 +132,8 @@
     <ClCompile Include="..\Source\Hooks\SendComm.cpp">
       <Filter>Source\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\API\FLHook\Mail.cpp">
-      <Filter>Source\API\FLHook</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\API\FLHook\MessageHandler.cpp">
       <Filter>Source\API\FLHook</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\API\FLServer\Admin.cpp">
-      <Filter>Source\API\FLServer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\API\FLServer\Math.cpp">
-      <Filter>Source\API\FLServer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\API\FLServer\PilotPersonalities.cpp">
-      <Filter>Source\API\FLServer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\API\FLServer\Player.cpp">
-      <Filter>Source\API\FLServer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\API\FLServer\Solar.cpp">
-      <Filter>Source\API\FLServer</Filter>
     </ClCompile>
     <ClCompile Include="..\Include\PCH.cpp" />
     <ClCompile Include="..\Source\Hooks\ClientServerInterface\Hooks.cpp">
@@ -250,12 +226,6 @@
     <ClCompile Include="..\Source\Core\Commands\ExternalCommandProcessor.cpp">
       <Filter>Source\Core\Commands</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\API\Utils\IniUtils.cpp">
-      <Filter>Source\API\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\API\Utils\FileUtils.cpp">
-      <Filter>Source\API\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\Core\IpResolver.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
@@ -264,9 +234,6 @@
     </ClCompile>
     <ClCompile Include="..\source\API\InternalApi.cpp">
       <Filter>Source\API</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Core\ApiInternal.cpp">
-      <Filter>Source\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\API\Types\ClientId.cpp">
       <Filter>Source\API\Types</Filter>

@@ -2,6 +2,7 @@
 
 #include <Psapi.h>
 
+#include "API/FLHook/ClientList.hpp"
 #include "Core/FLHook.hpp"
 #include "Core/MessageHandler.hpp"
 #include "Core/TempBan.hpp"
@@ -72,7 +73,7 @@ void FLHook::TimerTempBanCheck()
 {
     if (const auto* config = FLHookConfig::c(); config->general.tempBansEnabled)
     {
-        TempBanManager::i()->ClearFinishedTempBans();
+        GetTempBanManager().ClearFinishedTempBans();
     }
 }
 
@@ -81,7 +82,7 @@ void FLHook::TimerCheckKick()
     TryHook
     {
         auto time = TimeUtils::UnixTime<std::chrono::milliseconds>();
-        for (auto client : Clients())
+        for (auto& client : Clients())
         {
             if (client.kickTime)
             {
@@ -167,11 +168,12 @@ void FLHook::TimerNpcAndF1Check()
         const auto* config = FLHookConfig::c();
         if (config->general.disableNPCSpawns && instance->serverLoadInMs >= config->general.disableNPCSpawns)
         {
-            Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs
+            // TODO: NPC SPAWN TIME!!
+            // Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs
         }
         else
         {
-            Hk::Admin::ChangeNPCSpawn(false);
+            // Hk::Admin::ChangeNPCSpawn(false);
         }
     }
     CatchHook({})

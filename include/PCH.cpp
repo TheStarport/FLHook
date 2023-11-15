@@ -2,6 +2,7 @@
 
 // Dummy file to force build!
 
+#include "API/FLHook/ClientList.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
 
 // Template specializations for arg transformations

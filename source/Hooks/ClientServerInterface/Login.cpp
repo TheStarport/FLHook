@@ -1,8 +1,10 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/ClientList.hpp"
 #include "Core/ClientServerInterface.hpp"
 
 #include "API/Utils/PerfTimer.hpp"
+#include "Core/IpResolver.hpp"
 #include "Core/Logger.hpp"
 #include "Core/TempBan.hpp"
 
@@ -30,7 +32,7 @@ bool LoginInnerBefore(const SLoginInfo& li, ClientId client)
     return true;
 }
 
-bool LoginInnerAfter(const SLoginInfo& li, ClientId client)
+bool IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
 {
     TryHook
     {
@@ -48,7 +50,7 @@ bool LoginInnerAfter(const SLoginInfo& li, ClientId client)
         }
 
         // check for ip ban
-        const auto ip = Hk::Admin::GetPlayerIP(client);
+        const auto ip = client.GetPlayerIp().Unwrap();
 
         for (const auto& ban : FLHookConfig::i()->bans.banWildcardsAndIPs)
         {
@@ -57,22 +59,23 @@ bool LoginInnerAfter(const SLoginInfo& li, ClientId client)
                 // AddKickLog(client, std::format(L"IP/hostname ban({} matches {})", ip.c_str(), ban.c_str()));
                 if (FLHookConfig::i()->bans.banAccountOnMatch)
                 {
-                    Hk::Player::Ban(client, true);
+                    client.GetAccount().Handle().Ban();
                 }
-                Hk::Player::Kick(client);
+                client.Kick();
             }
         }
 
         // resolve
-        const RESOLVE_IP rip = { client, ClientInfo::At(client).connects, ip };
 
-        EnterCriticalSection(&csIPResolve);
-        resolveIPs.push_back(rip);
-        LeaveCriticalSection(&csIPResolve);
+        {
+            const IpResolver::ResolvedIp resolved = { client.GetValue(), client.GetData().connects, ip };
+            std::scoped_lock lock(IpResolver::mutex);
+            IpResolver::resolveIPs.push_back(resolved);
+        }
 
         // TODO: Move almost all loading and character state functions to a global class for proper management,
         // bonus points for proper threading support / accessors @Nen
-        LoadUserSettings(client);
+        FLHook::instance->LoadUserSettings(client);
 
         // AddConnectLog(client, ip));
     }

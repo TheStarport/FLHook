@@ -127,7 +127,7 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
 					push [client]
 					mov ecx, [Client]
 					add ecx, 4
-					call [RCSendChatMsg]
+					call [FLHook::rcSendChatMsg]
 					popad
             }
         }

@@ -68,7 +68,7 @@ Action<std::pair<FmtStr, FmtStr>, Error> RepId::GetName() const
         return { cpp::fail(Error::InvalidReputation) };
     }
 
-    return { std::make_pair<FmtStr, FmtStr>(*pilot, *scanner) };
+    return { std::make_pair(pilot, scanner) };
 }
 
 Action<void, Error> RepId::SetRank(const int rank) const

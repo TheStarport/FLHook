@@ -1,6 +1,5 @@
 #include "PCH.hpp"
 
-#include "API/API.hpp"
 #include "Core/Commands/ExternalCommandProcessor.hpp"
 
 std::optional<nlohmann::json> ExternalCommandProcessor::ProcessCommand(const nlohmann::json& command)
@@ -19,7 +18,8 @@ std::optional<nlohmann::json> ExternalCommandProcessor::ProcessCommand(const nlo
     }
     catch (nlohmann::json::exception& ex)
     {
-        FLHook::GetLogger().Log(LogLevel::Warn, std::format(L"Exception was thrown while trying to process an external command. {}", StringUtils::stows(ex.what())));
+        FLHook::GetLogger().Log(LogLevel::Warn,
+                                std::format(L"Exception was thrown while trying to process an external command. {}", StringUtils::stows(ex.what())));
     }
 
     return std::nullopt;

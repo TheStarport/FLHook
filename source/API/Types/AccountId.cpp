@@ -37,7 +37,7 @@ Action<std::wstring, Error> AccountId::GetDirectoryName() const
     const auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
 
     static std::array<char, 64> buffer;
-    std::fill_n(buffer, buffer.size(), '\0');
+    std::fill_n(buffer.begin(), buffer.size(), '\0');
     getFlName(buffer.data(), value->accId);
     return { StringUtils::stows(buffer.data()) };
 }

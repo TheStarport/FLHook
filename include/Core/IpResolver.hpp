@@ -4,6 +4,7 @@ class FLHook;
 class IpResolver
 {
         friend FLHook;
+        friend IServerImplHook;
 
         struct ResolvedIp
         {

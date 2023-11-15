@@ -18,13 +18,7 @@
     <ClCompile Include="..\source\API\InternalApi.cpp" />
     <ClCompile Include="..\Source\API\FLHook\ClientList.cpp" />
     <ClCompile Include="..\source\API\FLHook\InfocardManager.cpp" />
-    <ClCompile Include="..\Source\API\FLHook\Mail.cpp" />
     <ClCompile Include="..\Source\API\FLHook\MessageHandler.cpp" />
-    <ClCompile Include="..\Source\API\FLServer\Admin.cpp" />
-    <ClCompile Include="..\Source\API\FLServer\Math.cpp" />
-    <ClCompile Include="..\Source\API\FLServer\PilotPersonalities.cpp" />
-    <ClCompile Include="..\Source\API\FLServer\Player.cpp" />
-    <ClCompile Include="..\Source\API\FLServer\Solar.cpp" />
     <ClCompile Include="..\source\API\Types\AccountId.cpp" />
     <ClCompile Include="..\source\API\Types\BaseId.cpp" />
     <ClCompile Include="..\Source\API\Types\ClientId.cpp" />
@@ -35,9 +29,6 @@
     <ClCompile Include="..\source\API\Types\RepId.cpp" />
     <ClCompile Include="..\source\API\Types\ShipId.cpp" />
     <ClCompile Include="..\source\API\Types\SystemId.cpp" />
-    <ClCompile Include="..\source\API\Utils\FileUtils.cpp" />
-    <ClCompile Include="..\Source\API\Utils\IniUtils.cpp" />
-    <ClCompile Include="..\Source\Core\ApiInternal.cpp" />
     <ClCompile Include="..\Source\Core\Commands\AdminCommandProcessor.cpp" />
     <ClCompile Include="..\Source\Core\Commands\CommandLineParser.cpp" />
     <ClCompile Include="..\Source\Core\Commands\ExternalCommandProcessor.cpp" />
@@ -84,7 +75,6 @@
     <ClCompile Include="..\Source\Hooks\ClientServerInterface\Trade.cpp" />
     <ClCompile Include="..\Source\Hooks\ClientServerInterface\Hooks.cpp" />
     <ClCompile Include="..\Source\Hooks\ClientServerInterface\UserInterface.cpp" />
-    <ClCompile Include="..\Source\Hooks\HkDataBaseMarket.cpp" />
     <ClCompile Include="..\Source\Hooks\HkIChatServer.cpp" />
     <ClCompile Include="..\Source\Hooks\IEngineHook.cpp" />
     <ClCompile Include="..\Source\Hooks\HkIEngineDamage.cpp" />

@@ -27,39 +27,72 @@ Action<EquipmentType, Error> EquipmentId::GetType() const
     static const uint vftTractor = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableTractor);
     static const uint vftLight = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableLight);
 
-    switch (const uint vft = *reinterpret_cast<uint*>(Archetype::GetEquipment(value))) // NOLINT
+    const uint vft = *reinterpret_cast<uint*>(Archetype::GetEquipment(value)); // NOLINT
+    if (vft == vftGun)
     {
-        case vftGun:
-            const Archetype::Gun* gun = reinterpret_cast<Archetype::Gun*>(vft);
-            Archetype::Equipment* eqAmmo = Archetype::GetEquipment(gun->projectileArchId);
-            int missile;
-            memcpy(&missile, reinterpret_cast<char*>(eqAmmo) + 0x90, 4);
-            const uint gunType = gun->get_hp_type_by_index(0);
-            if (gunType == 36)
-            {
-                return { EquipmentType::Torpedo };
-            }
-            if (gunType == 35)
-            {
-                return { EquipmentType::Cd };
-            }
-            if (missile)
-            {
-                return { EquipmentType::Missile };
-            }
+        const Archetype::Gun* gun = reinterpret_cast<Archetype::Gun*>(vft);
+        Archetype::Equipment* eqAmmo = Archetype::GetEquipment(gun->projectileArchId);
+        int missile;
+        memcpy(&missile, reinterpret_cast<char*>(eqAmmo) + 0x90, 4);
+        const uint gunType = gun->get_hp_type_by_index(0);
+        if (gunType == 36)
+        {
+            return { EquipmentType::Torpedo };
+        }
+        if (gunType == 35)
+        {
+            return { EquipmentType::Cd };
+        }
+        if (missile)
+        {
+            return { EquipmentType::Missile };
+        }
 
-            return { EquipmentType::Gun };
-        case vftCm: return { EquipmentType::Cm };
-        case vftShieldGen: return { EquipmentType::ShieldGen };
-        case vftThruster: return { EquipmentType::Thruster };
-        case vftShieldBat: return { EquipmentType::ShieldBattery };
-        case vftNanobot: return { EquipmentType::Nanobot };
-        case vftMunition: return { EquipmentType::Munition };
-        case vftMine: return { EquipmentType::Mine };
-        case vftEngine: return { EquipmentType::Engine };
-        case vftLight: return { EquipmentType::Light };
-        case vftScanner: return { EquipmentType::Scanner };
-        case vftTractor: return { EquipmentType::Tractor };
-        default: return { EquipmentType::Other };
+        return { EquipmentType::Gun };
     }
+    if (vft == vftCm)
+    {
+        return { EquipmentType::Cm };
+    }
+    if (vft == vftShieldGen)
+    {
+        return { EquipmentType::ShieldGen };
+    }
+    if (vft == vftThruster)
+    {
+        return { EquipmentType::Thruster };
+    }
+    if (vft == vftShieldBat)
+    {
+        return { EquipmentType::ShieldBattery };
+    }
+    if (vft == vftNanobot)
+    {
+        return { EquipmentType::Nanobot };
+    }
+    if (vft == vftMunition)
+    {
+        return { EquipmentType::Munition };
+    }
+    if (vft == vftMine)
+    {
+        return { EquipmentType::Mine };
+    }
+    if (vft == vftEngine)
+    {
+        return { EquipmentType::Engine };
+    }
+    if (vft == vftLight)
+    {
+        return { EquipmentType::Light };
+    }
+    if (vft == vftScanner)
+    {
+        return { EquipmentType::Scanner };
+    }
+    if (vft == vftTractor)
+    {
+        return { EquipmentType::Tractor };
+    }
+    return { EquipmentType::Other };
 }

@@ -136,7 +136,7 @@ Action<const Archetype::Ship*, Error> ClientId::GetShipArch() const
 
     if (!ship)
     {
-        return { cpp::fail{ Error::InvalidShip } };
+        return { cpp::fail(Error::InvalidShip) };
     }
 
     return { Archetype::GetShip(ship) };
@@ -152,7 +152,7 @@ Action<ShipId, Error> ClientId::GetShipId() const
 
     if (!ship)
     {
-        return { cpp::fail{ Error::InvalidShip } };
+        return { cpp::fail(Error::InvalidShip) };
     }
 
     return cpp::result<ShipId, Error>(ShipId(ship));
@@ -165,7 +165,7 @@ Action<CPlayerGroup*, Error> ClientId::GetGroup() const
 
     if (!id)
     {
-        return { cpp::fail{ Error::PlayerNotInGroup } };
+        return { cpp::fail(Error::PlayerNotInGroup) };
     }
 
     return { CPlayerGroup::FromGroupID(id) };

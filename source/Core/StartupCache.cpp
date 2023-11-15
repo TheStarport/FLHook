@@ -92,7 +92,7 @@ StartupCache::StartupCache()
     }
 
     // Hook the read character name and replace it with the caching version
-    MemUtils::PatchCallAddr((char*)FLHook::Offset(FLHook::BinaryType::Server, 0), 0x717be, ReadCharacterNameHook);
+    MemUtils::PatchCallAddr((char*)FLHook::Offset(FLHook::BinaryType::Server, AddressList::Absolute), 0x717be, ReadCharacterNameHook);
 
     // Keep a reference to the old read character name function.
     readCharName = reinterpret_cast<ReadCharacterName>(FLHook::Offset(FLHook::BinaryType::Server, 0x72fe0));

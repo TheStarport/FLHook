@@ -4,6 +4,8 @@
 
 #include "Core/IpResolver.hpp"
 
+#include "API/FLHook/ClientList.hpp"
+
 void IpResolver::ThreadResolver()
 {
     TryHook
@@ -43,8 +45,6 @@ void IpResolver::ThreadResolver()
         }
     }
     CatchHook({});
-
-    return 0;
 }
 
 void IpResolver::TimerCheckResolveResults()
@@ -69,7 +69,7 @@ void IpResolver::TimerCheckResolveResults()
                     // AddKickLog(ip.client, StringUtils::wstos(std::format(L"IP/hostname ban({} matches {})", ip.hostname.c_str(), ban.c_str())));
                     if (config->bans.banAccountOnMatch)
                     {
-                        cl.Ban(true);
+                        cl.GetAccount().Unwrap().Ban(true);
                     }
 
                     cl.Kick();

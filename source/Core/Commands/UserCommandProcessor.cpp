@@ -5,7 +5,7 @@
 
 #include <Core/Logger.hpp>
 
-#include "API/API.hpp"
+#include "API/FLHook/ClientList.hpp"
 #include "API/InternalApi.hpp"
 
 #include <Core/Commands/UserCommandProcessor.hpp>
@@ -429,8 +429,7 @@ void UserCommandProcessor::InvitePlayerByName(std::wstring_view invitee)
 {
     if (!invitee.empty())
     {
-        if (auto inviteeId = Hk::Client::GetClientIdFromCharName(std::wstring(invitee)).Raw();
-            inviteeId.has_value() && !Hk::Client::IsInCharSelectMenu(inviteeId.value()))
+        if (const auto inviteeId = ClientId(invitee); inviteeId && !inviteeId.InCharacterSelect())
         {
             InvitePlayer(invitee);
             return;
@@ -505,7 +504,7 @@ void UserCommandProcessor::FactionInvite(std::wstring_view factionTag)
     }
 }
 
-void UserCommandProcessor::DeleteMail(const std::wstring_view mailID, const std::wstring_view readOnlyDel)
+/*void UserCommandProcessor::DeleteMail(const std::wstring_view mailID, const std::wstring_view readOnlyDel)
 {
     if (mailID == L"all")
     {
@@ -585,12 +584,12 @@ void UserCommandProcessor::ListMail(int pageNumber, std::wstring_view unread)
         userCmdClient.Message(std::format(
             L"|    {}.) {} {}- {} - {:%F %T}", item.id, item.subject, item.unread ? L"(unread) " : L"", item.author, TimeUtils::UnixToSysTime(item.timestamp)));
     }
-}
+}*/
 
 // TODO: Implement GiveCash Target and by ID
 void UserCommandProcessor::GiveCash(std::wstring_view characterName, std::wstring_view amount)
 {
-
+    // TODO: resolve sending money to offline people
     const auto targetPlayer = Hk::Client::GetClientIdFromCharName(characterName).Unwrap();
     const auto cash = StringUtils::MultiplyUIntBySuffix(amount);
     const auto clientCash = Hk::Player::GetCash(userCmdClient).Unwrap();

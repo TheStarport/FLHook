@@ -1,7 +1,10 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/InfocardManager.hpp"
 #include "API/Types/SystemId.hpp"
 
+#include "API/FLHook/ClientList.hpp"
+#include "API/InternalApi.hpp"
 #include "Core/FLHook.hpp"
 
 #define ValidSystemCheck                            \
@@ -34,6 +37,29 @@ Action<std::vector<Universe::IZone*>, Error> SystemId::GetZones() const
 
     const auto system = Universe::get_system(value);
     return { std::vector<Universe::IZone*>(system->zones.begin(), system->zones.end()) };
+}
+
+Action<std::wstring, Error> SystemId::PositionToSectorCoord(const Vector& pos) const
+{
+    const Universe::ISystem* system = Universe::get_system(value);
+    if (!system)
+    {
+        return { cpp::fail(Error::InvalidSystem) };
+    }
+
+    const float scale = system->navMapScale;
+
+    const float gridSize = 34000.0f / scale;
+    int gridRefX = static_cast<int>((pos.x + gridSize * 5) / gridSize) - 1;
+    int gridRefZ = static_cast<int>((pos.z + gridSize * 5) / gridSize) - 1;
+
+    gridRefX = std::min(std::max(gridRefX, 0), 7);
+    char xPos = 'A' + static_cast<char>(gridRefX); // NOLINT
+
+    gridRefZ = std::min(std::max(gridRefZ, 0), 7);
+    char zPos = '1' + static_cast<char>(gridRefZ); // NOLINT
+
+    return { std::format(L"{}-{}", xPos, zPos) };
 }
 
 Action<std::vector<SystemId>, Error> SystemId::GetNeighboringSystems() const
@@ -103,50 +129,12 @@ Action<void, Error> SystemId::Message(std::wstring_view msg, MessageColor color,
     }
     return { {} };
 }
-Action<void, Error> SystemId::SetSystemMusic(std::wstring trackNickName, std::optional<std::pair<Vector, float>> sphere)
-{
-    ValidSystemCheck;
-    auto music = pub::Audio::Tryptich();
-    uint id = InternalAPI::CreateID(trackNickName);
-    music.musicId = id;
-    const auto clientsInSystem = GetPlayersInSystem().Raw();
 
-    if (clientsInSystem.has_error())
-    {
-        return { cpp::fail(clientsInSystem.error()) };
-    }
-
-    if (!sphere.has_value())
-    {
-
-        for (const auto& client : clientsInSystem.value())
-        {
-            if (pub::Audio::SetMusic(client.GetValue(), music) != (int)ResponseCode::Success)
-            {
-                return { cpp::fail(Error::InvalidSoundId) };
-            }
-        }
-        return { {} };
-    }
-    for (const auto& client : clientsInSystem.value())
-    {
-        const auto clientPos = client.GetShipId().Unwrap().GetPositionAndOrientation().Unwrap().first;
-
-        if (glm::length<3, float, glm::packed_highp>(clientPos - sphere.value().first) < sphere.value().second)
-        {
-            if (pub::Audio::SetMusic(client.GetValue(), music) != (int)ResponseCode::Success)
-            {
-                return { cpp::fail(Error::InvalidSoundId) };
-            }
-        }
-    }
-}
-
-Action<void, Error> SystemId::PlaySoundOrMusic(std::wstring trackNickNameSound, bool isMusic, std::optional<std::pair<Vector, float>> sphere)
+Action<void, Error> SystemId::PlaySoundOrMusic(const std::wstring& trackNickNameSound, bool isMusic, const std::optional<std::pair<Vector, float>>& sphere)
 {
     ValidSystemCheck;
     auto sound = pub::Audio::Tryptich();
-    uint id = InternalAPI::CreateID(trackNickName);
+    uint id = InternalApi::CreateID(trackNickNameSound);
     sound.musicId = id;
     const auto clientsInSystem = GetPlayersInSystem().Raw();
 
@@ -157,7 +145,6 @@ Action<void, Error> SystemId::PlaySoundOrMusic(std::wstring trackNickNameSound, 
 
     if (!sphere.has_value())
     {
-
         for (const auto& client : clientsInSystem.value())
         {
             if (isMusic)
@@ -174,6 +161,7 @@ Action<void, Error> SystemId::PlaySoundOrMusic(std::wstring trackNickNameSound, 
         }
         return { {} };
     }
+
     for (const auto& client : clientsInSystem.value())
     {
         const auto clientPos = client.GetShipId().Unwrap().GetPositionAndOrientation().Unwrap().first;
@@ -182,20 +170,20 @@ Action<void, Error> SystemId::PlaySoundOrMusic(std::wstring trackNickNameSound, 
         {
             if (isMusic)
             {
-                if (isMusic)
+                if (pub::Audio::SetMusic(client.GetValue(), sound) != (int)ResponseCode::Success)
                 {
-                    if (pub::Audio::SetMusic(client.GetValue(), sound) != (int)ResponseCode::Success)
-                    {
-                        return { cpp::fail(Error::InvalidSoundId) };
-                    }
+                    return { cpp::fail(Error::InvalidSoundId) };
                 }
-                else if (pub::Audio::PlaySoundEffect(client.GetValue(), id) != (int)ResponseCode::Success)
+
+                if (pub::Audio::PlaySoundEffect(client.GetValue(), id) != (int)ResponseCode::Success)
                 {
                     return { cpp::fail(Error::InvalidSoundId) };
                 }
             }
         }
     }
+
+    return { {} };
 }
 
 Action<uint, Error> SystemId::KillAllPlayers() const

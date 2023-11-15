@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/FLHook.hpp"
+#include "Core/Logger.hpp"
 
 namespace nlohmann
 {

@@ -2,6 +2,8 @@
 
 #include "API/Types/RepGroupId.hpp"
 
+#include "API/FLHook/InfocardManager.hpp"
+
 Action<std::wstring_view, Error> RepGroupId::GetName() const
 {
     uint ids;

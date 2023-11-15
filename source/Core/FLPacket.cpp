@@ -2,7 +2,7 @@
 
 #include "Defs/FLPacket.hpp"
 
-//TODO: BURN
+// TODO: BURN
 
 // Common packets are being sent from server to client and from client to server.
 FlPacket* FlPacket::Create(uint size, CommonPacket kind)
@@ -40,7 +40,7 @@ FlPacket* FlPacket::Create(uint size, ClientPacket kind)
 // Returns true if sent succesfully, false if not. Frees memory allocated for packet.
 bool FlPacket::SendTo(ClientId client)
 {
-    CDPClientProxy* cdpClient = clientProxyArray[client - 1];
+    CDPClientProxy* cdpClient = FLHook::clientProxyArray[client.GetValue() - 1];
 
     // We don't include first 4 bytes directly in packet, it is info about size. type and kind are already included.
     const bool result = cdpClient->Send((byte*)this + 4, size);

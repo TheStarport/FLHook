@@ -72,6 +72,7 @@ class IServerImplHook
         static void __stdcall LocationExit(uint locationId, ClientId client);
         static void __stdcall LocationEnter(uint locationId, ClientId client);
 
+        static bool LoginInnerAfter(const SLoginInfo& li, ClientId client);
         static void __stdcall Login(const SLoginInfo& li, ClientId client);
         static void __stdcall SetManeuver(ClientId client, const XSetManeuver& sm);
         static void __stdcall MineAsteroid(uint systemId, const Vector& pos, uint crateId, uint lootId, uint count, ClientId client);

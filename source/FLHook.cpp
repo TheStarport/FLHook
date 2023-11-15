@@ -250,10 +250,7 @@ bool FLHook::OnServerStart()
     try
     {
         // Init Hooks
-        if (!InitHookExports())
-        {
-            throw std::runtime_error("InitHookExports failed");
-        }
+        InitHookExports();
 
         // Setup timers
         Timer::Add(ProcessPendingCommands, &ProcessPendingCommands, 50);
