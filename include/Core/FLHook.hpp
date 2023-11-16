@@ -4,6 +4,7 @@
 
 class InternalApi;
 class IServerImplHook;
+class IEngineHook;
 class StartupCache;
 class ClientList;
 class InfocardManager;
@@ -13,6 +14,7 @@ class FlPacket;
 
 class FLHook final
 {
+        friend IEngineHook;
         friend IServerImplHook;
         friend IClientImpl;
         friend InternalApi;
@@ -43,8 +45,10 @@ class FLHook final
         inline static CRCAntiCheatT crcAntiCheat;
         inline static GetShipInspectT getShipInspect;
 
-        inline static bool g_NonGunHitsBase;
-        inline static float g_LastHitPts;
+        inline static bool nonGunHitsBase;
+        inline static float lastHitPts;
+        inline static ClientId dmgToClient;
+        inline static ObjectId dmgToSpaceId;
 
         inline static CDPServer* cdpServer;
         inline static CDPClientProxy** clientProxyArray;
@@ -146,6 +150,14 @@ class FLHook final
             RemoteClient,
         };
 
+        struct LastHitInformation
+        {
+                bool nonGunHitsBase;
+                float lastHitPts;
+                ClientId lastHitClient;
+                ObjectId lastHitObject;
+        };
+
         static DWORD __stdcall Offset(BinaryType type, AddressList address);
 
         static bool IsReady() { return instance != nullptr && instance->flhookReady; }
@@ -157,6 +169,7 @@ class FLHook final
         static InfocardManager& GetInfocardManager() { return *instance->infocardManager; }
         static Logger& GetLogger() { return *instance->logger; }
         static TempBanManager& GetTempBanManager() { return *instance->tempbanManager; }
+        static LastHitInformation GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }
 
         static Action<void, Error> MessageUniverse(std::wstring_view message);
 };

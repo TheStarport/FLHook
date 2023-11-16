@@ -135,7 +135,7 @@ void __stdcall IEngineHook::ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint 
     TryHook
     {
         auto cship = (CShip*)ecx[4];
-        ClientId client = ClientId(cship->GetOwnerPlayer());
+        auto client = ClientId(cship->GetOwnerPlayer());
 
         CallPlugins(&Plugin::OnShipDestroyed, client, dmgList, cship);
 
@@ -278,12 +278,12 @@ __declspec(naked) void IEngineHook::NakedShipDestroyed()
     }
 }
 
-void IEngineHook::BaseDestroyed(uint objectId, ClientId clientBy)
+void IEngineHook::BaseDestroyed(ObjectId objectId, ClientId clientBy)
 {
     CallPlugins(&Plugin::OnBaseDestroyed, clientBy, objectId);
 
     uint baseId;
-    pub::SpaceObj::GetDockingTarget(objectId, baseId);
+    pub::SpaceObj::GetDockingTarget(objectId.GetValue(), baseId);
     Universe::IBase* base = Universe::get_base(baseId);
 
     auto baseName = "";

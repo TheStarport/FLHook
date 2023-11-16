@@ -55,9 +55,9 @@ class IEngineHook
 
         static bool __stdcall LoadReputationFromCharacterFile(const RepDataList* savedReps, const LoadRepData* repToSave);
         static void NonGunWeaponHitsBaseAfter();
-        static void BaseDestroyed(uint objectId, ClientId clientBy);
+        static void BaseDestroyed(ObjectId objectId, ClientId clientBy);
         static void __stdcall DamageHit(char* ecx);
-        static int __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList);
+        static bool __stdcall GuidedHit(char* ecx, char* p1, DamageList* dmgList);
         static void __stdcall AddDamageEntry(DamageList* dmgList, unsigned short subObjId, float hitPts, DamageEntry::SubObjFate fate);
         static void __stdcall NonGunWeaponHitsBaseBefore(const char* ECX, const char* p1, const DamageList* dmg);
         static int __stdcall DisconnectPacketSent(ClientId client);

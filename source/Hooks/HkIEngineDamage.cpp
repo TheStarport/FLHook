@@ -1,15 +1,20 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/ClientList.hpp"
 #include "Core/IEngineHook.hpp"
+
+#include <magic_enum.hpp>
+
+using namespace magic_enum::bitwise_operators;
 
 /*
  * Called when a torp/missile/mine/wasp hits a ship
- * return 0 -> pass on to server.dll
- * return 1 -> suppress
+ * return false -> pass on to server.dll
+ * return true -> suppress
  */
-int __stdcall IEngineHook::GuidedHit(char* ecx, char* p1, DamageList* dmgList)
+bool __stdcall IEngineHook::GuidedHit(char* ecx, char* p1, DamageList* dmgList)
 {
-    uint retValue = 0;
+    bool retValue = false;
     TryHook
     {
         char* p;
@@ -21,41 +26,42 @@ int __stdcall IEngineHook::GuidedHit(char* ecx, char* p1, DamageList* dmgList)
         uint inflictorShip;
         memcpy(&inflictorShip, p1 + 4, 4);
 
-        auto [rval, skip] = CallPlugins<bool>(&Plugin::OnGuidedHit, inflictorShip, client, spaceId, dmgList);
+        auto [rval, skip] = CallPlugins<bool>(&Plugin::OnGuidedHit, inflictorShip, ClientId(client), ObjectId(spaceId), dmgList);
         if (skip)
         {
             return rval;
         }
 
-        g_DmgTo = client;
-        g_DmgToSpaceId = spaceId;
+        FLHook::dmgToClient = ClientId(client);
+        FLHook::dmgToSpaceId = ObjectId(spaceId);
         if (client)
         {
             // a player was hit
-            const auto clientInflictor = Hk::Client::GetClientIdByShip(inflictorShip).Raw();
-            if (clientInflictor.has_error())
+            if (const auto inflictorId = ShipId(inflictorShip).GetPlayer(); !inflictorId.has_value())
             {
-                retValue = 0; // hit by npc
+                retValue = false; // hit by npc
             }
             else
             {
-                if (!AllowPlayerDamage(clientInflictor.value(), client))
+                if (!AllowPlayerDamage(inflictorId.value(), ClientId(client)))
                 {
-                    retValue = 1;
+                    retValue = true;
                 }
 
                 if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour &&
                     ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause() == DamageCause::UnkDisrupter) &&
-                     !ClientInfo::At(client).cruiseActivated))
+                     ClientId(client).GetData().cruiseActivated))
                 {
-                    dmgList->set_cause(DamageCause::DummyDisrupter); // change to sth else, so client won't recognize it as a disruptor
+                    dmgList->set_cause(DamageCause::DummyDisrupter); // change to something else, so client won't recognize it as a disruptor
                 }
             }
         }
 
-        CallPlugins(&Plugin::OnGuidedHitAfter, inflictorShip, client, spaceId, dmgList);
+        CallPlugins(&Plugin::OnGuidedHitAfter, inflictorShip, ClientId(client), ObjectId(spaceId), dmgList);
     }
-    CatchHook({}) return retValue;
+    CatchHook({});
+
+    return retValue;
 }
 
 __declspec(naked) void IEngineHook::NakedGuidedHit()
@@ -69,13 +75,13 @@ __declspec(naked) void IEngineHook::NakedGuidedHit()
 		push ecx
 		call GuidedHit
 		pop ecx
-		cmp eax, 1
+		test al, al
 		jnz go_ahead
 		mov edx, [esp] ; suppress
 		add esp, 0Ch
 		jmp edx
 		go_ahead:
-		jmp [g_OldGuidedHit]
+		jmp [oldGuidedHit]
     }
 }
 
@@ -98,7 +104,7 @@ void __stdcall IEngineHook::AddDamageEntry(DamageList* dmgList, unsigned short s
         bool unk1 = false;
         bool unk2 = false;
         float unk;
-        pub::SpaceObj::GetInvincible(ClientInfo[g_DmgTo].ship, unk1, unk2, unk);
+        pub::SpaceObj::GetInvincible(FLHook::dmgToSpaceId.GetValue(), unk1, unk2, unk);
         // if so, suppress the damage
         if (unk1 && unk2)
         {
@@ -106,10 +112,10 @@ void __stdcall IEngineHook::AddDamageEntry(DamageList* dmgList, unsigned short s
         }
     }
 
-    if (g_NonGunHitsBase && dmgList->get_cause() == DamageCause::MissileTorpedo)
+    if (FLHook::nonGunHitsBase && dmgList->get_cause() == DamageCause::MissileTorpedo)
     {
-        const float damage = g_LastHitPts - hitPts;
-        hitPts = g_LastHitPts - damage * FLHookConfig::i()->general.torpMissileBaseDamageMultiplier;
+        const float damage = FLHook::lastHitPts - hitPts;
+        hitPts = FLHook::lastHitPts - damage * FLHookConfig::i()->general.torpMissileBaseDamageMultiplier;
         if (hitPts < 0)
         {
             hitPts = 0;
@@ -120,11 +126,11 @@ void __stdcall IEngineHook::AddDamageEntry(DamageList* dmgList, unsigned short s
     {
         dmgList->add_damage_entry(subObjId, hitPts, fate);
     }
-    else if (g_DmgTo)
+    else if (FLHook::dmgToClient)
     {
         // lets see if player should do damage to other player
-        const auto dmgFrom = Hk::Client::GetClientIdByShip(dmgList->get_inflictor_id()).Raw();
-        if (dmgFrom.has_value() && AllowPlayerDamage(dmgFrom.value(), g_DmgTo))
+        const auto dmgFrom = ShipId(dmgList->get_inflictor_id()).GetPlayer();
+        if (dmgFrom.has_value() && AllowPlayerDamage(dmgFrom.value(), FLHook::dmgToClient))
         {
             dmgList->add_damage_entry(subObjId, hitPts, fate);
         }
@@ -136,31 +142,29 @@ void __stdcall IEngineHook::AddDamageEntry(DamageList* dmgList, unsigned short s
 
     TryHook
     {
-        g_LastDmgList = *dmgList; // save
-
         // check for base kill (when hull health = 0)
         if (hitPts == 0 && subObjId == 1)
         {
             uint type;
-            pub::SpaceObj::GetType(g_DmgToSpaceId, type);
-            const auto clientKiller = Hk::Client::GetClientIdByShip(dmgList->get_inflictor_id()).Raw();
+            pub::SpaceObj::GetType(FLHook::dmgToSpaceId.GetValue(), type);
+            const auto clientKiller = ShipId(dmgList->get_inflictor_id()).GetPlayer();
             if (clientKiller.has_value() && type & static_cast<uint>(ObjectType::DockingRing | ObjectType::Station | ObjectType::WeaponPlatform))
             {
-                BaseDestroyed(g_DmgToSpaceId, clientKiller.value());
+                BaseDestroyed(FLHook::dmgToSpaceId, clientKiller.value());
             }
         }
 
-        if (g_DmgTo && subObjId == 1) // only save hits on the hull (subObjId=1)
+        if (FLHook::dmgToClient && subObjId == 1) // only save hits on the hull (subObjId=1)
         {
-            ClientInfo[g_DmgTo].dmgLast = *dmgList;
+            FLHook::dmgToClient.GetData().dmgLast = *dmgList;
         }
     }
-    CatchHook({})
+    CatchHook({});
 
-        CallPlugins(&Plugin::OnAddDamageEntryAfter, dmgList, subObjId, hitPts, fate);
+    CallPlugins(&Plugin::OnAddDamageEntryAfter, dmgList, subObjId, hitPts, fate);
 
-    g_DmgTo = 0;
-    g_DmgToSpaceId = 0;
+    FLHook::dmgToClient = ClientId();
+    FLHook::dmgToSpaceId = ObjectId();
 }
 
 __declspec(naked) void IEngineHook::NakedAddDamageEntry()
@@ -188,12 +192,12 @@ void __stdcall IEngineHook::DamageHit(char* ecx)
         uint spaceId;
         memcpy(&spaceId, p + 0xB0, 4);
 
-        g_DmgTo = client;
-        g_DmgToSpaceId = spaceId;
+        FLHook::dmgToClient = ClientId(client);
+        FLHook::dmgToSpaceId = ObjectId(spaceId);
 
         CallPlugins(&Plugin::OnDamageHit, client, spaceId);
     }
-    CatchHook({})
+    CatchHook({});
 }
 
 __declspec(naked) void IEngineHook::NakedDamageHit()
@@ -230,27 +234,32 @@ bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
 
     if (clientTarget)
     {
+        auto time = TimeUtils::UnixTime<std::chrono::milliseconds>();
+
         // anti-dockkill check
-        if (ClientInfo[clientTarget].spawnProtected)
+        if (auto& targetData = clientTarget.GetData(); targetData.spawnProtected)
         {
-            if (TimeUtils::UnixMilliseconds() - ClientInfo[clientTarget].tmSpawnTime <= config->general.antiDockKill)
+            if (time - targetData.spawnTime <= config->general.antiDockKill)
             {
                 return false; // target is protected
             }
-            ClientInfo[clientTarget].spawnProtected = false;
+
+            targetData.spawnProtected = false;
         }
-        if (ClientInfo::At(client).spawnProtected)
+
+        if (auto& clientData = client.GetData(); clientData.spawnProtected)
         {
-            if (TimeUtils::UnixMilliseconds() - ClientInfo::At(client).tmSpawnTime <= config->general.antiDockKill)
+            if (time - clientData.spawnTime <= config->general.antiDockKill)
             {
                 return false; // target may not shoot
             }
-            ClientInfo::At(client).spawnProtected = false;
+
+            clientData.spawnProtected = false;
         }
 
         // no-pvp check
         uint systemId;
-        pub::Player::GetSystem(client, systemId);
+        pub::Player::GetSystem(client.GetValue(), systemId);
         if (std::ranges::find(config->general.noPVPSystemsHashed, systemId) != config->general.noPVPSystemsHashed.end())
         {
             return false;
@@ -264,12 +273,11 @@ void __stdcall IEngineHook::NonGunWeaponHitsBaseBefore(const char* ecx, [[maybe_
 {
     CSimple* simple;
     memcpy(&simple, ecx + 0x10, 4);
-    g_LastHitPts = simple->get_hit_pts();
-
-    g_NonGunHitsBase = true;
+    FLHook::lastHitPts = simple->get_hit_pts();
+    FLHook::nonGunHitsBase = true;
 }
 
-void IEngineHook::NonGunWeaponHitsBaseAfter() { g_NonGunHitsBase = false; }
+void IEngineHook::NonGunWeaponHitsBaseAfter() { FLHook::nonGunHitsBase = false; }
 
 __declspec(naked) void IEngineHook::NakedNonGunWeaponHitsBase()
 {

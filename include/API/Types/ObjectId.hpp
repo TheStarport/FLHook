@@ -9,16 +9,14 @@ class ObjectId
 
     public:
         explicit ObjectId(const uint val) : value(val) {}
+        ObjectId(const ObjectId& obj) : value(obj.value) {}
         explicit ObjectId() = default;
         virtual ~ObjectId() = default;
-        ObjectId(const ObjectId&) = default;
-        ObjectId& operator=(const ObjectId obj)
+        ObjectId& operator=(const ObjectId& obj)
         {
             value = obj.GetValue();
             return *this;
         }
-        ObjectId(ObjectId&&) = default;
-        ObjectId& operator=(ObjectId&&) = delete;
 
         bool operator==(const ObjectId& next) const { return value == next.value; }
         explicit virtual operator bool() const;
