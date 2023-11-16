@@ -49,3 +49,9 @@ class ObjectId
         [[nodiscard]]
         Action<SystemId, Error> GetSystem() const;
 };
+
+template <>
+struct std::formatter<ObjectId> : std::formatter<uint>
+{
+        auto format(const ObjectId& value, std::format_context& ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+};

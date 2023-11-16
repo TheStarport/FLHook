@@ -481,6 +481,15 @@ Action<void, Error> ClientId::SetPvpKills(const uint killAmount) const
     return { {} };
 }
 
+Action<void, Error> ClientId::SetCash(uint amount) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+
+
+}
+
 Action<void, Error> ClientId::AddCash(const uint amount) const { return AdjustCash(static_cast<int>(amount)); }
 Action<void, Error> ClientId::RemoveCash(const uint amount) const { return AdjustCash(-static_cast<int>(amount)); }
 

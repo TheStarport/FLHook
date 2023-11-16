@@ -1,11 +1,15 @@
 #pragma once
 
+class RepId;
+
 class RepGroupId final
 {
         uint value = 0;
 
     public:
         explicit RepGroupId(const uint val) : value(val) {}
+        explicit RepGroupId(std::wstring_view nickName);
+  
         explicit RepGroupId() = default;
         ~RepGroupId() = default;
         RepGroupId(const RepGroupId&) = default;
@@ -20,4 +24,12 @@ class RepGroupId final
 
         Action<std::wstring_view, Error> GetName() const;
         Action<std::wstring_view, Error> GetShortName() const;
+        Action<float, Error> GetAttitudeTowardsRepId(RepId target) const;
+
+};
+
+template <>
+struct std::formatter<RepGroupId> : std::formatter<uint>
+{
+        auto format(const RepGroupId& value, std::format_context& ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
 };

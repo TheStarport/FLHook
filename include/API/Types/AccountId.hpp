@@ -31,4 +31,7 @@ class AccountId final
         Action<void, Error> AddRoles(const std::vector<std::wstring_view>& roles);
         Action<void, Error> RemoveRoles(const std::vector<std::wstring_view>& roles, bool clear);
         Action<void, Error> SetRoles(const std::vector<std::wstring_view>& roles);
+
+        Action<uint, Error> GetCash(std::wstring_view characterName) const; //TODO: Implement this as part of the account reworks.
+        Action<void, Error> SetCash(std::wstring_view characterName, uint amount) const;  //TODO: Implement this as part of the account reworks.
 };

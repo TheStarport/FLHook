@@ -5,6 +5,9 @@
 #include "API/Types/ShipId.hpp"
 #include "API/Types/SystemId.hpp"
 
+#include <string>
+#include <format>
+
 class ShipId;
 struct ClientData;
 class GroupId;
@@ -26,7 +29,7 @@ class ClientId
     public:
         explicit ClientId(const uint val) : value(val) {}
         explicit ClientId(const SpecialChatIds id) { value = static_cast<const uint>(id); }
-        explicit ClientId(const std::wstring_view str) : value(GetClientIdFromCharacterName(str)){};
+        explicit ClientId(const std::wstring_view str) : value(GetClientIdFromCharacterName(str)){}
         explicit ClientId() = default;
 
         explicit operator uint() const noexcept { return value; }
@@ -89,6 +92,9 @@ class ClientId
          */
         [[nodiscard]]
         Action<ShipId, Error> GetShipId() const;
+
+    //TODO: Implement.
+        Action<uint, Error> GetLatency() const;
 
         /**
          * @brief Gets the Group of the player
@@ -237,6 +243,8 @@ class ClientId
          */
         Action<void, Error> SetPvpKills(uint killAmount) const;
 
+        Action<void, Error> SetCash(uint amount) const;
+
         /**
          * Adds specified amount of cash to the character the client is logged in as.
          * @param amount the amount of cash you wish to add to the character.
@@ -320,4 +328,11 @@ class ClientId
         Action<void, Error> SetEquip(const st6::list<EquipDesc> &equip);
 
         Action<void, Error> AddEquip(uint goodId, const std::wstring &hardpoint) const;
+};
+
+
+template <>
+struct std::formatter<ClientId> : std::formatter<uint>
+{
+        auto format(const ClientId &client, std::format_context &ctx) { return std::formatter<uint>::format(client.GetValue(), ctx); }
 };

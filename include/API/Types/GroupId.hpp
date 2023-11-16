@@ -42,3 +42,9 @@ class GroupId final
         Action<void, Error> InviteMember(ClientId client);
         Action<void, Error> AddMember(ClientId client);
 };
+
+template <>
+struct std::formatter<GroupId> : std::formatter<uint>
+{
+        auto format(const GroupId& value, std::format_context& ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+};

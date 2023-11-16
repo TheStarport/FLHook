@@ -29,5 +29,12 @@ class RepId final
 
         Action<void, Error> SetRank(int rank) const;
         Action<void, Error> SetAttitudeTowardsRepId(RepId target, float newAttitude) const;
+        Action<void, Error> SetAttitudeTowardsRepGroupId(RepGroupId target, float newAttitude) const;
         Action<void, Error> SetAffiliation(RepGroupId group) const;
+};
+
+template <>
+struct std::formatter<RepId> : std::formatter<uint>
+{
+        auto format(const RepId& value, std::format_context& ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
 };

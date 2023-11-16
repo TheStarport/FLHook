@@ -1,5 +1,6 @@
 
 #include "PCH.hpp"
+#include "API/FLHook/ClientList.hpp"
 
 #include "Core/IEngineHook.hpp"
 #include "Defs/FLHookConfig.hpp"
@@ -9,11 +10,11 @@ int __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
     TryHook
     {
         uint ship = 0;
-        pub::Player::GetShip(client, ship);
+        pub::Player::GetShip(client.GetValue(), ship);
         if (FLHookConfig::i()->general.disconnectDelay && ship)
         {
             // in space
-            ClientInfo::At(client).tmF1TimeDisconnect = TimeUtils::UnixMilliseconds() + FLHookConfig::i()->general.disconnectDelay;
+            client.GetData().timeDisconnect = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHookConfig::i()->general.disconnectDelay;
             return 0; // don't pass on
         }
     }

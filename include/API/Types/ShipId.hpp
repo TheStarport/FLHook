@@ -59,3 +59,9 @@ class ShipId final : public ObjectId
         Action<void, Error> IgniteFuse(uint fuseId, float id = 0.0f) const;
         Action<void, Error> ExtinguishFuse(uint fuseId, float id = 0.0f) const;
 };
+
+template <>
+struct std::formatter<ShipId> : std::formatter<uint>
+{
+        auto format(const ShipId& value, std::format_context& ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+};

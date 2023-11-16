@@ -19,3 +19,9 @@ class EquipmentId
 
         Action<EquipmentType, Error> GetType() const;
 };
+
+template <>
+struct std::formatter<EquipmentId> : std::formatter<uint>
+{
+        auto format(const EquipmentId &value, std::format_context &ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+};

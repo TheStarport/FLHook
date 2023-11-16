@@ -27,3 +27,9 @@ class BaseId
 
         Action<std::vector<ClientId>, Error> GetDockedPlayers();
 };
+
+template <>
+struct std::formatter<BaseId> : std::formatter<uint>
+{
+        auto format(const BaseId &value, std::format_context &ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+};

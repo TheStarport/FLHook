@@ -10,6 +10,9 @@ class SystemId
 
     public:
         explicit SystemId(const uint val) : value(val) {}
+
+         explicit SystemId(std::wstring_view nickName, bool isInfoCardName = false);
+    
         explicit SystemId() : value(0) {}
         bool operator==(const SystemId next) const { return value == next.value; }
         explicit operator bool() const;
@@ -28,4 +31,10 @@ class SystemId
         Action<void, Error> PlaySoundOrMusic(const std::wstring &trackNickNameSound, bool isMusic = false,
                                              const std::optional<std::pair<Vector, float>> &sphere = {});
         Action<uint, Error> KillAllPlayers() const;
+};
+
+template <>
+struct std::formatter<SystemId> : std::formatter<uint>
+{
+        auto format(const SystemId &value, std::format_context &ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
 };

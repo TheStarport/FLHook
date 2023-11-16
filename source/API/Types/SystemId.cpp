@@ -13,6 +13,14 @@
         return { cpp::fail(Error::InvalidSystem) }; \
     }
 
+SystemId::SystemId(std::wstring_view nickName, bool isInfoCardName)
+{
+    if (!isInfoCardName)
+    {
+        value = CreateID(StringUtils::wstos(std::wstring(nickName)).c_str());
+    }
+    //TODO: Construct systemID from the infocard name.
+}
 SystemId::operator bool() const { return Universe::get_system(value) != nullptr; }
 
 Action<std::wstring_view, Error> SystemId::GetName() const

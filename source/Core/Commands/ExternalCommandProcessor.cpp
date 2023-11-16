@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
 #include "Core/Commands/ExternalCommandProcessor.hpp"
-
+/*
 std::optional<nlohmann::json> ExternalCommandProcessor::ProcessCommand(const nlohmann::json& command)
 {
     try
@@ -44,3 +44,4 @@ nlohmann::json ExternalCommandProcessor::Beam(const nlohmann::json& parameters)
 
     return {};
 }
+*/

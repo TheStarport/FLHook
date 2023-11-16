@@ -103,6 +103,21 @@ Action<void, Error> RepId::SetAttitudeTowardsRepId(RepId target, float newAttitu
     return { {} };
 }
 
+Action<void, Error> RepId::SetAttitudeTowardsRepGroupId(RepGroupId target, float newAttitude) const
+{
+    const auto ret = static_cast<ResponseCode>(pub::Reputation::SetReputation(value, target.GetValue(), newAttitude));
+    if (ret == ResponseCode::InvalidInput)
+    {
+        return { cpp::fail(Error::InvalidInput) };
+    }
+
+    if (ret == ResponseCode::Failure)
+    {
+        return { cpp::fail(Error::InvalidReputation) };
+    }
+    return { {} };
+}
+
 Action<void, Error> RepId::SetAffiliation(RepGroupId group) const
 {
     const auto ret = static_cast<ResponseCode>(pub::Reputation::SetAffiliation(value, group.GetValue()));
