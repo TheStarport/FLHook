@@ -107,7 +107,7 @@ int IEngineHook::DockCall(const uint& shipId, const uint& spaceId, int dockPortI
 bool __stdcall IEngineHook::LaunchPosition(const uint spaceId, CEqObj& obj, Vector& position, Matrix& orientation, int dock)
 {
     const LaunchData data = { &obj, position, orientation, dock };
-    if (auto [retVal, skip] = CallPlugins<std::optional<LaunchData>>(&Plugin::OnLaunchPosition, spaceId, data); skip && retVal.has_value())
+    if (auto [retVal, skip] = CallPlugins<std::optional<LaunchData>>(&Plugin::OnLaunchPosition, ObjectId(spaceId), data); skip && retVal.has_value())
     {
         const auto& val = retVal.value();
         position = val.pos;

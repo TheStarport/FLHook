@@ -1,6 +1,5 @@
 #include "PCH.hpp"
 
-#include "API/FLHook/MailManager.hpp"
 #include "Defs/FLHookConfig.hpp"
 
 #include <Core/Logger.hpp>
@@ -594,7 +593,6 @@ void UserCommandProcessor::GiveCash(std::wstring_view characterName, std::wstrin
     const auto targetPlayer = ClientId(characterName);
     const auto client = ClientId(userCmdClient);
     const auto clientCash = client.GetCash().Unwrap();
-
 
     if (userCmdClient == targetPlayer)
     {

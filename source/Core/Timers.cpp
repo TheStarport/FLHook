@@ -81,7 +81,7 @@ void FLHook::TimerCheckKick()
 {
     TryHook
     {
-        auto time = TimeUtils::UnixTime<std::chrono::milliseconds>();
+        const auto time = TimeUtils::UnixTime<std::chrono::milliseconds>();
         for (auto& client : Clients())
         {
             if (client.kickTime)
@@ -99,7 +99,7 @@ void FLHook::TimerCheckKick()
             if (config->general.antiBaseIdle)
             {
                 // anti base-idle check
-                if (client.baseEnterTime && time(nullptr) - client.baseEnterTime >= config->general.antiBaseIdle)
+                if (client.baseEnterTime && time - client.baseEnterTime >= config->general.antiBaseIdle)
                 {
                     client.id.Kick(L"Base idling", 10);
                     client.baseEnterTime = 0;
@@ -113,9 +113,9 @@ void FLHook::TimerCheckKick()
                 {
                     if (!client.charMenuEnterTime)
                     {
-                        client.charMenuEnterTime = static_cast<uint>(time(nullptr));
+                        client.charMenuEnterTime = time;
                     }
-                    else if (time(nullptr) - client.charMenuEnterTime >= config->general.antiCharMenuIdle)
+                    else if (time - client.charMenuEnterTime >= config->general.antiCharMenuIdle)
                     {
                         client.id.Kick();
                         client.charMenuEnterTime = 0;

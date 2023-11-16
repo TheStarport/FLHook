@@ -171,7 +171,7 @@ Action<void, Error> SystemId::PlaySoundOrMusic(const std::wstring& trackNickName
 
     for (const auto& client : clientsInSystem.value())
     {
-        const auto clientPos = client.GetShipId().Unwrap().GetPositionAndOrientation().Unwrap().first;
+        const auto clientPos = client.GetShipId().Handle().GetPositionAndOrientation().Handle().first;
 
         if (glm::length<3, float, glm::packed_highp>(clientPos - sphere.value().first) < sphere.value().second)
         {

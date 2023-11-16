@@ -5,12 +5,12 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Core/Logger.hpp"
 
-void BaseEnterInner([[maybe_unused]] uint baseId, [[maybe_unused]] ClientId client)
+void BaseEnterInner([[maybe_unused]] BaseId baseId, [[maybe_unused]] ClientId client)
 {
     // TODO: implement base enter event
 }
 
-void BaseEnterInnerAfter([[maybe_unused]] uint baseId, ClientId client)
+void BaseEnterInnerAfter([[maybe_unused]] BaseId baseId, ClientId client)
 {
     TryHook
     {
@@ -41,11 +41,11 @@ void BaseEnterInnerAfter([[maybe_unused]] uint baseId, ClientId client)
     CatchHook({})
 }
 
-void __stdcall IServerImplHook::BaseEnter(uint baseId, ClientId client)
+void __stdcall IServerImplHook::BaseEnter(BaseId baseId, ClientId client)
 {
     FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"BaseEnter(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
 
-    const auto skip = CallPlugins(&Plugin::OnBaseEnter, baseId, client);
+    const auto skip = CallPlugins(&Plugin::OnBaseEnter, BaseId(baseId), ClientId(client));
 
     CheckForDisconnect;
 
@@ -53,7 +53,7 @@ void __stdcall IServerImplHook::BaseEnter(uint baseId, ClientId client)
 
     if (!skip)
     {
-        CallServerPreamble { Server.BaseEnter(baseId, client.GetValue()); }
+        CallServerPreamble { Server.BaseEnter(baseId.GetValue(), client.GetValue()); }
         CallServerPostamble(true, );
     }
     BaseEnterInnerAfter(baseId, client);
@@ -61,22 +61,22 @@ void __stdcall IServerImplHook::BaseEnter(uint baseId, ClientId client)
     CallPlugins(&Plugin::OnBaseEnterAfter, baseId, client);
 }
 
-void BaseExitInner(uint baseId, ClientId client)
+void BaseExitInner(BaseId baseId, ClientId client)
 {
     TryHook
     {
         auto& data = client.GetData();
         data.baseEnterTime = 0;
-        data.lastExitedBaseId = baseId;
+        data.lastExitedBaseId = baseId.GetValue();
     }
     CatchHook({})
 }
 
-void BaseExitInnerAfter([[maybe_unused]] uint baseId, [[maybe_unused]] ClientId client)
+void BaseExitInnerAfter([[maybe_unused]] BaseId baseId, [[maybe_unused]] ClientId client)
 {
     // TODO: implement base exit event
 }
-void __stdcall IServerImplHook::BaseExit(uint baseId, ClientId client)
+void __stdcall IServerImplHook::BaseExit(BaseId baseId, ClientId client)
 {
     FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"BaseExit(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
 
@@ -88,7 +88,7 @@ void __stdcall IServerImplHook::BaseExit(uint baseId, ClientId client)
 
     if (!skip)
     {
-        CallServerPreamble { Server.BaseExit(baseId, client.GetValue()); }
+        CallServerPreamble { Server.BaseExit(baseId.GetValue(), client.GetValue()); }
         CallServerPostamble(true, );
     }
     BaseExitInnerAfter(baseId, client);

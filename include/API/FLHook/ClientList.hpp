@@ -166,6 +166,9 @@ class ClientList
 
                 Pointer operator->() const { return data; }
                 Reference operator*() const { return *data; }
+
+                friend bool operator==(const Iterator& a, const Iterator& b) { return a.data == b.data; }
+                friend bool operator!=(const Iterator& a, const Iterator& b) { return a.data != b.data; }
         };
 
         ClientData& operator[](const size_t index)

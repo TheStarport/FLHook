@@ -163,7 +163,7 @@ FLHook::FLHook()
 
         // Force constructor to run
         Hk::IniUtils::i();
-        Hk::Personalities::LoadPersonalities();
+        //TODO:NPC Personalities. Hk::Personalities::LoadPersonalities();
 
         PatchClientImpl();
 

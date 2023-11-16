@@ -18,7 +18,7 @@ void __stdcall IServerImplHook::SpScanCargo(const uint& unk1, const uint& unk2, 
     CallPlugins(&Plugin::OnSpScanCargoAfter, unk1, unk2, unk3);
 }
 
-void __stdcall IServerImplHook::ReqAddItem(uint goodId, const char* hardpoint, int count, float status, bool mounted, ClientId client)
+void __stdcall IServerImplHook::ReqAddItem(GoodId goodId, const char* hardpoint, int count, float status, bool mounted, ClientId client)
 {
     const std::wstring hp = StringUtils::stows(hardpoint);
     FLHook::GetLogger().Log(LogLevel::Trace,

@@ -78,7 +78,7 @@ ClientId::operator bool() const
         return false;
     }
 
-    for (auto client : FLHook::Clients())
+    for (auto& client : FLHook::Clients())
     {
         if (client.id.GetValue() == value)
         {
