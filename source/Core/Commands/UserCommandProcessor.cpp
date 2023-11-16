@@ -590,9 +590,11 @@ void UserCommandProcessor::ListMail(int pageNumber, std::wstring_view unread)
 void UserCommandProcessor::GiveCash(std::wstring_view characterName, std::wstring_view amount)
 {
     // TODO: resolve sending money to offline people
-    const auto targetPlayer = Hk::Client::GetClientIdFromCharName(characterName).Unwrap();
     const auto cash = StringUtils::MultiplyUIntBySuffix(amount);
-    const auto clientCash = Hk::Player::GetCash(userCmdClient).Unwrap();
+    const auto targetPlayer = ClientId(characterName);
+    const auto client = ClientId(userCmdClient);
+    const auto clientCash = client.GetCash().Unwrap();
+
 
     if (userCmdClient == targetPlayer)
     {
@@ -612,11 +614,11 @@ void UserCommandProcessor::GiveCash(std::wstring_view characterName, std::wstrin
         return;
     }
 
-    Hk::Player::RemoveCash(userCmdClient, cash).Handle();
-    Hk::Player::AddCash(targetPlayer, cash).Handle();
+    client.RemoveCash(cash).Handle();
+    targetPlayer.AddCash(cash).Handle();
 
-    Hk::Player::SaveChar(userCmdClient);
-    Hk::Player::SaveChar(targetPlayer);
+    client.SaveChar().Handle();
+    targetPlayer.SaveChar().Handle();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -47,6 +47,9 @@ enum class AddressList : uint
     UpdateCharacterFile = 0x6c547,
     UpdateCharacterFile2 = 0x6c9cd,
     SaveCharacter = 0x7EFA8,
+    BannedFileCheck = 0x76b3e,
+    ReadCharacterName1 = 0x72fe0,
+    ReadCharacterName2 = 0x717be,
 
     // Common.dll Offsets
 

@@ -111,7 +111,7 @@ class ZoneUtilities
         static void ReadUniverse();
 
         static bool InZone(uint system, const Vector& pos, Zone& rlz);
-        static std::optional<const Zone&> InDeathZone(uint system, const Vector& pos, float requiredDamage = 250);
+        static std::optional<const Zone*> InDeathZone(uint system, const Vector& pos, float requiredDamage = 250);
 
         static void Init();
 };

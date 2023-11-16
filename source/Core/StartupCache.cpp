@@ -88,14 +88,14 @@ StartupCache::StartupCache()
     // Disable the admin and banned file checks.
     {
         std::array<byte, 13> patch = { 0x5f, 0x5e, 0x5d, 0x5b, 0x81, 0xC4, 0x08, 0x11, 0x00, 0x00, 0xC2, 0x04, 0x00 }; // pop regs, restore esp, ret 4
-        MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Server, 0x76b3e), patch.data(), patch.size());
+        MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Server, AddressList::BannedFileCheck), patch.data(), patch.size());
     }
 
     // Hook the read character name and replace it with the caching version
     MemUtils::PatchCallAddr((char*)FLHook::Offset(FLHook::BinaryType::Server, AddressList::Absolute), 0x717be, ReadCharacterNameHook);
 
     // Keep a reference to the old read character name function.
-    readCharName = reinterpret_cast<ReadCharacterName>(FLHook::Offset(FLHook::BinaryType::Server, 0x72fe0));
+    readCharName = reinterpret_cast<ReadCharacterName>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::ReadCharacterName2));
 
     // Calculate our base path
     char DataPath[MAX_PATH];
@@ -115,12 +115,12 @@ void StartupCache::Done()
     // Restore admin and banned file checks
     {
         std::array<byte, 13> patch = { 0x8b, 0x35, 0xc0, 0x4b, 0xd6, 0x06, 0x6a, 0x00, 0x68, 0xB0, 0xB8, 0xD6, 0x06 };
-        MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Server, 0x76b3e), patch.data(), patch.size());
+        MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Server, AddressList::BannedFileCheck), patch.data(), patch.size());
     }
 
     // Unhook the read character name function.
     {
         std::array<byte, 5> patch = { 0xe8, 0x1d, 0x18, 0x00, 0x00 };
-        MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Server, 0x717be), patch.data(), patch.size());
+        MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Server, AddressList::ReadCharacterName2), patch.data(), patch.size());
     }
 }

@@ -333,9 +333,6 @@
     <ClInclude Include="..\Include\Defs\Structs.hpp">
       <Filter>Include\Defs</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\API\FLHook\MailManager.hpp">
-      <Filter>Include\API\FLHook</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\API\FLHook\Plugin.hpp">
       <Filter>Include\API\FLHook</Filter>
     </ClInclude>

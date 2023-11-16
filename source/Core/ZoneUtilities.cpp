@@ -388,7 +388,7 @@ bool ZoneUtilities::InZone(uint system, const Vector& pos, Zone& rlz)
     return false;
 }
 
-std::optional<const ZoneUtilities::Zone&> ZoneUtilities::InDeathZone(uint system, const Vector& pos, const float requiredDamage)
+std::optional<const ZoneUtilities::Zone*> ZoneUtilities::InDeathZone(uint system, const Vector& pos, const float requiredDamage)
 {
     // For each zone in the system test that pos is inside the zone.
     const auto start = allZones.lower_bound(system);
@@ -407,7 +407,7 @@ std::optional<const ZoneUtilities::Zone&> ZoneUtilities::InDeathZone(uint system
         const float result = sqrt(powf(x / lz.size.x, 2) + powf(y / lz.size.y, 2) + powf(z / lz.size.z, 2));
         if (result <= 1 && lz.damage > requiredDamage)
         {
-            return { lz };
+            return {  &lz };
         }
     }
 

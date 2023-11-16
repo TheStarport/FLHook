@@ -6,7 +6,8 @@
 
 #include "API/FLHook/ClientList.hpp"
 
-//TODO: General, a lot of these functions are agnostic about whether or not the player is online and thus has a clientId, so along with the player database rework a lot of these functions need to be reworked to account for that.
+// TODO: General, a lot of these functions are agnostic about whether or not the player is online and thus has a clientId, so along with the player database
+// rework a lot of these functions need to be reworked to account for that.
 
 std::wstring AdminCommandProcessor::ProcessCommand(std::wstring_view commandString)
 {
@@ -67,7 +68,8 @@ cpp::result<void, std::wstring> AdminCommandProcessor::Validate(const AllowedCon
     return {};
 }
 
-std::wstring AdminCommandProcessor::SetCash(std::wstring_view characterName, uint amount) //TODO: Need to implement functionality here for offline chars as well.
+std::wstring AdminCommandProcessor::SetCash(std::wstring_view characterName,
+                                            uint amount) // TODO: Need to implement functionality here for offline chars as well.
 {
     // Rights check here.
     const auto account = AccountId(characterName);
@@ -103,10 +105,7 @@ std::wstring AdminCommandProcessor::UnBanPlayer(std::wstring_view characterName)
     return std::format(L"{} has been successfully unbanned.", characterName);
 }
 
-std::wstring AdminCommandProcessor::GetClientId(std::wstring_view characterName)
-{
-    return std::to_wstring(ClientId(characterName).GetValue());
-}
+std::wstring AdminCommandProcessor::GetClientId(std::wstring_view characterName) { return std::to_wstring(ClientId(characterName).GetValue()); }
 
 std::wstring AdminCommandProcessor::KillPlayer(std::wstring_view characterName)
 {
@@ -125,7 +124,7 @@ std::wstring AdminCommandProcessor::SetRep(std::wstring_view characterName, std:
 
 std::wstring AdminCommandProcessor::ResetRep(std::wstring_view characterName, std::wstring_view repGroup)
 {
-    //TODO: Implement as part of character database rework due to removal of iniUtils.
+    // TODO: Implement as part of character database rework due to removal of iniUtils.
 
     return std::format(L"{}'rep to {} reset", characterName, repGroup);
 }
@@ -186,7 +185,7 @@ std::wstring AdminCommandProcessor::AddCargo(std::wstring_view characterName, st
 
 std::wstring AdminCommandProcessor::RenameChar(std::wstring_view characterName, std::wstring_view newName)
 {
-   //TODO: Rename is to be reimplemented
+    // TODO: Rename is to be reimplemented
     return std::format(L"{} has been renamed to {}", characterName, newName);
 }
 
@@ -199,7 +198,6 @@ std::wstring AdminCommandProcessor::DeleteChar(std::wstring_view characterName)
 std::wstring AdminCommandProcessor::GetPlayerInfo(std::wstring_view characterName)
 {
     auto res = ClientId(characterName);
-
 
     return std::format(L"Name: {}, Id: {}, IP: {}, Ping: {}, Base: {}, System: {}\n",
                        res.GetCharacterName(),
@@ -313,21 +311,22 @@ std::wstring AdminCommandProcessor::ListPlugins()
 
 std::wstring AdminCommandProcessor::Chase(std::wstring_view characterName)
 {
-    const auto admin = Hk::Admin::GetPlayerInfo(currentUser, false).Handle();
-    const auto target = Hk::Admin::GetPlayerInfo(characterName, false).Handle();
-    if (target.ship == 0)
+    const auto admin = ClientId(currentUser);
+    const auto target = ClientId(characterName);
+    if (!target.InSpace())
     {
         return L"Player not found or not in space";
     }
-    Vector pos;
-    Matrix orientation;
 
-    pub::SpaceObj::GetLocation(target.ship, pos, orientation);
+    const auto transform = target.GetShipId().Handle().GetPositionAndOrientation().Handle();
+
+    Vector pos = transform.first;
+    Matrix orientation = transform.second;
 
     pos.y += 100.0f;
-    Hk::Player::RelocateClient(admin.client, pos, orientation);
+    admin.GetShipId().Handle().Relocate(pos, orientation);
 
-    return std::format(L"Jump to system={} x={:.0f} y={:.0f} z={:.0f}", target.systemName, pos.x, pos.y, pos.z);
+    return std::format(L"Jump to system={} x={:.0f} y={:.0f} z={:.0f}", target.GetSystemId().Handle().GetName().Handle(), pos.x, pos.y, pos.z);
 }
 
 std::wstring AdminCommandProcessor::Beam(std::wstring_view characterName, std::wstring_view baseName)
@@ -348,27 +347,33 @@ std::wstring AdminCommandProcessor::Beam(std::wstring_view characterName, std::w
         return L"Invalid Base Name";
     }
 
-    const auto base = Hk::Solar::GetBaseByWildcard(baseName).Handle();
+    const auto player = ClientId(targetPlayer);
+    const auto base = BaseId(baseName, true);
+    player.Beam(base).Handle();
 
-    Hk::Player::Beam(targetPlayer, base->baseId).Handle();
-    return std::format(L"{} beamed to {}", targetPlayer, base->baseId);
+    return std::format(L"{} beamed to {}", targetPlayer, base.GetName());
 }
 
 std::wstring AdminCommandProcessor::Pull(std::wstring_view characterName)
 {
-    const auto admin = Hk::Admin::GetPlayerInfo(currentUser, false).Handle();
-    const auto target = Hk::Admin::GetPlayerInfo(characterName, false).Handle();
-    if (target.ship == 0)
+    const auto admin = ClientId(currentUser);
+    const auto target = ClientId(characterName);
+
+    if (!target.InSpace())
     {
         return L"Player not found or not in space ";
     }
+    if (!admin.InSpace())
+    {
+        return L"You are currently not in space.";
+    }
 
-    Vector pos;
-    Matrix orientation;
-    pub::SpaceObj::GetLocation(target.ship, pos, orientation);
+    const auto transform = target.GetShipId().Handle().GetPositionAndOrientation().Handle();
+    Vector pos = transform.first;
+    Matrix orientation = transform.second;
+
     pos.y += 400;
-
-    Hk::Player::RelocateClient(target.client, pos, orientation);
+    target.GetShipId().Handle().Relocate(pos, orientation);
 
     return std::format(L"player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}", characterName, currentUser, pos.x, pos.y, pos.z);
 }

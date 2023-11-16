@@ -106,7 +106,6 @@ Action<std::vector<ClientId>, Error> SystemId::GetPlayersInSystem(bool includeDo
             clients.emplace_back(client.id);
         }
     }
-
     return { clients };
 }
 
