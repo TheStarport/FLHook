@@ -1,7 +1,6 @@
-
 #include "PCH.hpp"
-#include "API/FLHook/ClientList.hpp"
 
+#include "API/FLHook/ClientList.hpp"
 #include "Core/IEngineHook.hpp"
 #include "Defs/FLHookConfig.hpp"
 
@@ -23,6 +22,7 @@ int __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
         return 1; // pass on
 }
 
+static constexpr DWORD dalibAddr = static_cast<DWORD>(AddressList::DalibDiscSuppress); // NOLINT
 __declspec(naked) void IEngineHook::NakedDisconnectPacketSent()
 {
     __asm {
@@ -37,8 +37,8 @@ __declspec(naked) void IEngineHook::NakedDisconnectPacketSent()
 
 		suppress:
 		popad
-		mov eax, [hModDaLib]
-		add eax, ADDR_DALIB_DISC_SUPPRESS
+		mov eax, [FLHook::dalibDll]
+		add eax, dalibAddr
 		jmp eax
     }
 }

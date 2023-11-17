@@ -14,7 +14,7 @@ bool LoginInnerBefore(const SLoginInfo& li, ClientId client)
 
     if (auto acc = client.GetAccount().Unwrap())
     {
-        const auto dir = acc.GetDirectoryName();
+        const auto dir = acc.GetDirectoryName().Unwrap();
 
         char DataPath[MAX_PATH];
         GetUserDataPath(DataPath);

@@ -169,7 +169,7 @@ void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, const vo
 {
     FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.id, size, cidTo.id));
 
-    const auto skip = CallPlugins(&Plugin::OnSubmitChat, cidFrom.id, size, rdlReader, cidTo.id, genArg1);
+    const auto skip = CallPlugins(&Plugin::OnSubmitChat, ClientId(cidFrom.id), size, rdlReader, ClientId(cidTo.id), genArg1);
 
     if (const bool innerCheck = SubmitChatInner(ClientId(cidFrom.id), size, rdlReader, ClientId(cidTo.id), genArg1); !innerCheck)
     {
@@ -183,5 +183,5 @@ void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, const vo
     }
     chatData->inSubmitChat = false;
 
-    CallPlugins(&Plugin::OnSubmitChatAfter, cidFrom.id, size, rdlReader, cidTo.id, genArg1);
+    CallPlugins(&Plugin::OnSubmitChatAfter, ClientId(cidFrom.id), size, rdlReader, ClientId(cidTo.id), genArg1);
 }

@@ -6,7 +6,7 @@
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/Logger.hpp"
 
-void PlayerLaunchInner(uint shipId, ClientId client)
+void PlayerLaunchInner(ShipId shipId, ClientId client)
 {
     TryHook
     {
@@ -33,7 +33,7 @@ void PlayerLaunchInner(uint shipId, ClientId client)
     CatchHook({})
 }
 
-void PlayerLaunchInnerAfter([[maybe_unused]] uint shipId, ClientId client)
+void PlayerLaunchInnerAfter([[maybe_unused]] ShipId shipId, ClientId client)
 {
     TryHook
     {
@@ -46,7 +46,7 @@ void PlayerLaunchInnerAfter([[maybe_unused]] uint shipId, ClientId client)
     CatchHook({})
 }
 
-void __stdcall IServerImplHook::PlayerLaunch(uint shipId, ClientId client)
+void __stdcall IServerImplHook::PlayerLaunch(ShipId shipId, ClientId client)
 {
     FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"PlayerLaunch(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
 
@@ -58,7 +58,7 @@ void __stdcall IServerImplHook::PlayerLaunch(uint shipId, ClientId client)
 
     if (!skip)
     {
-        CallServerPreamble { Server.PlayerLaunch(shipId, client.GetValue()); }
+        CallServerPreamble { Server.PlayerLaunch(shipId.GetValue(), client.GetValue()); }
         CallServerPostamble(true, );
     }
     PlayerLaunchInnerAfter(shipId, client);

@@ -83,17 +83,17 @@ void __stdcall IServerImplHook::DelTradeEquip(ClientId client, const EquipDesc& 
     CallPlugins(&Plugin::OnRemoveTradeEquipAfter, client, ed);
 }
 
-void __stdcall IServerImplHook::RequestTrade(uint unk1, uint unk2)
+void __stdcall IServerImplHook::RequestTrade(ClientId client1, ClientId client2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"RequestTrade(\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", unk1, unk2));
+    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"RequestTrade(\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client1, client2));
 
-    if (const auto skip = CallPlugins(&Plugin::OnRequestTrade, unk1, unk2); !skip)
+    if (const auto skip = CallPlugins(&Plugin::OnRequestTrade, client1, client2); !skip)
     {
-        CallServerPreamble { Server.RequestTrade(unk1, unk2); }
+        CallServerPreamble { Server.RequestTrade(client1.GetValue(), client2.GetValue()); }
         CallServerPostamble(true, );
     }
 
-    CallPlugins(&Plugin::OnRequestTradeAfter, unk1, unk2);
+    CallPlugins(&Plugin::OnRequestTradeAfter, client1, client2);
 }
 
 void __stdcall IServerImplHook::StopTradeRequest(ClientId client)

@@ -56,7 +56,7 @@ void __stdcall IServerImplHook::ReqHullStatus(float status, ClientId client)
     CallPlugins(&Plugin::OnRequestHullStatusAfter, client, status);
 }
 
-void __stdcall IServerImplHook::SpRequestInvincibility(uint shipId, bool enable, InvincibilityReason reason, ClientId client)
+void __stdcall IServerImplHook::SpRequestInvincibility(ShipId shipId, bool enable, InvincibilityReason reason, ClientId client)
 {
     FLHook::GetLogger().Log(
         LogLevel::Trace,
@@ -68,7 +68,7 @@ void __stdcall IServerImplHook::SpRequestInvincibility(uint shipId, bool enable,
 
     if (const auto skip = CallPlugins(&Plugin::OnSpRequestInvincibility, client, shipId, enable, reason); !skip)
     {
-        CallServerPreamble { Server.SPRequestInvincibility(shipId, enable, reason, client.GetValue()); }
+        CallServerPreamble { Server.SPRequestInvincibility(shipId.GetValue(), enable, reason, client.GetValue()); }
         CallServerPostamble(true, );
     }
 

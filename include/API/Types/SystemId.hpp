@@ -11,8 +11,8 @@ class SystemId
     public:
         explicit SystemId(const uint val) : value(val) {}
 
-         explicit SystemId(std::wstring_view nickName, bool isInfoCardName = false);
-    
+        explicit SystemId(std::wstring_view nickName, bool isInfoCardName = false);
+
         explicit SystemId() : value(0) {}
         bool operator==(const SystemId next) const { return value == next.value; }
         explicit operator bool() const;
@@ -34,7 +34,8 @@ class SystemId
 };
 
 template <>
-struct std::formatter<SystemId> : std::formatter<uint>
+struct std::formatter<SystemId, wchar_t>
 {
-        auto format(const SystemId &value, std::format_context &ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+        constexpr auto parse(std::wformat_parse_context &ctx) { return ctx.begin(); }
+        auto format(const SystemId &value, std::wformat_context &ctx) { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
 };

@@ -8,7 +8,8 @@ class ShipId final : public ObjectId
     public:
         explicit ShipId(const uint val) : ObjectId(val) {}
         explicit ShipId() = default;
-        explicit ShipId(const ShipId& id) : ObjectId(id.GetValue()) {}
+
+        ~ShipId() override = default;
 
         [[nodiscard]]
         Action<CShipPtr, Error> GetCShip(bool increment);
@@ -61,7 +62,8 @@ class ShipId final : public ObjectId
 };
 
 template <>
-struct std::formatter<ShipId> : std::formatter<uint>
+struct std::formatter<ShipId, wchar_t>
 {
-        auto format(const ShipId& value, std::format_context& ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+        constexpr auto parse(std::wformat_parse_context& ctx) { return ctx.begin(); }
+        auto format(const ShipId& value, std::wformat_context& ctx) { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
 };

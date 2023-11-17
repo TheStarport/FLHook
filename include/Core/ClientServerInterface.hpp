@@ -81,10 +81,10 @@ class IServerImplHook
         static bool __stdcall Startup(SStartupInfo& si);
 
         // JumpInComplete.cpp
-        static void __stdcall JumpInComplete(uint systemId, uint shipId);
+        static void __stdcall JumpInComplete(SystemId systemId, ShipId shipId);
 
         // LaunchComplete.cpp
-        static void __stdcall LaunchComplete(uint baseId, uint shipId);
+        static void __stdcall LaunchComplete(BaseId baseId, ShipId shipId);
 
         // Location.cpp
         static void __stdcall SetVisitedState(ClientId client, uint objHash, int state);
@@ -101,7 +101,7 @@ class IServerImplHook
         static void __stdcall SetManeuver(ClientId client, const XSetManeuver& sm);
 
         // MineAsteroid.cpp
-        static void __stdcall MineAsteroid(uint systemId, const Vector& pos, uint crateId, uint lootId, uint count, ClientId client);
+        static void __stdcall MineAsteroid(SystemId systemId, const Vector& pos, ArchId crateId, ArchId lootId, uint count, ClientId client);
 
         // Mission.cpp
         static void __stdcall AbortMission(ClientId client, uint unk1);
@@ -121,20 +121,20 @@ class IServerImplHook
         static void __stdcall OnConnect(ClientId client);
 
         // PlayerLaunch.cpp
-        static void __stdcall PlayerLaunch(uint shipId, ClientId client);
+        static void __stdcall PlayerLaunch(ShipId shipId, ClientId client);
 
         // Ship.cpp
         static void __stdcall RequestCreateShip(ClientId client);
         static void __stdcall ReqCollisionGroups(const st6::list<CollisionGroupDesc>& collisionGroups, ClientId client);
         static void __stdcall ReqShipArch(uint archId, ClientId client);
         static void __stdcall ReqHullStatus(float status, ClientId client);
-        static void __stdcall SpRequestInvincibility(uint shipId, bool enable, InvincibilityReason reason, ClientId client);
+        static void __stdcall SpRequestInvincibility(ShipId shipId, bool enable, InvincibilityReason reason, ClientId client);
 
         // SpObjectUpdate.cpp
         static void __stdcall SpObjUpdate(const SSPObjUpdateInfo& ui, ClientId client);
 
         // SystemSwitchOutComplete.cpp
-        static void __stdcall SystemSwitchOutComplete(uint shipId, ClientId client);
+        static void __stdcall SystemSwitchOutComplete(ShipId shipId, ClientId client);
 
         // Trade.cpp
         static void __stdcall InitiateTrade(ClientId client1, ClientId client2);
@@ -142,21 +142,21 @@ class IServerImplHook
         static void __stdcall SetTradeMoney(ClientId client, ulong unk1);
         static void __stdcall AddTradeEquip(ClientId client, const EquipDesc& ed);
         static void __stdcall DelTradeEquip(ClientId client, const EquipDesc& ed);
-        static void __stdcall RequestTrade(uint unk1, uint unk2);
+        static void __stdcall RequestTrade(ClientId client1, ClientId client2);
         static void __stdcall StopTradeRequest(ClientId client);
         static void __stdcall TradeResponse(const unsigned char* unk1, int unk2, ClientId client);
         static void __stdcall TerminateTrade(ClientId client, int accepted);
 
         // Tradelane.cpp
         static void __stdcall GoTradelane(ClientId client, const XGoTradelane& gt);
-        static void __stdcall StopTradelane(ClientId client, uint shipId, uint tradelaneRing1, uint tradelaneRing2);
+        static void __stdcall StopTradelane(ClientId client, ShipId shipId, ObjectId tradelaneRing1, ObjectId tradelaneRing2);
 
         // UserInterface.cpp
         static void __stdcall Hail(unsigned int unk1, unsigned int unk2, unsigned int unk3);
-        static void __stdcall RequestEvent(int eventType, uint shipId, uint dockTarget, uint unk1, ulong unk2, ClientId client);
-        static void __stdcall RequestCancel(int eventType, uint shipId, uint unk1, ulong unk2, ClientId client);
+        static void __stdcall RequestEvent(int eventType, ShipId shipId, ObjectId dockTarget, uint unk1, ulong unk2, ClientId client);
+        static void __stdcall RequestCancel(int eventType, ShipId shipId, ObjectId dockTarget, ulong unk2, ClientId client);
         static void __stdcall InterfaceItemUsed(uint unk1, uint unk2);
-        static void __stdcall PopupDialog(ClientId client, uint buttonClicked);
+        static void __stdcall PopupDialog(ClientId client, PopupDialog buttonClicked);
         static void __stdcall SetInterfaceState(ClientId client, uint unk1, int unk2);
         static void __stdcall RequestGroupPositions(ClientId client, uint unk1, int unk2);
         static void __stdcall SetTarget(ClientId client, const XSetTarget& st);

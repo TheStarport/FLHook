@@ -43,15 +43,7 @@ void __stdcall IServerImplHook::GoTradelane(ClientId client, const XGoTradelane&
     CallPlugins(&Plugin::OnTradelaneStartAfter, client, gt);
 }
 
-void StopTradelaneInner(ClientId client, uint, uint, uint)
-{
-    if (client)
-    {
-        client.GetData().inTradelane = false;
-    }
-}
-
-void __stdcall IServerImplHook::StopTradelane(ClientId client, uint shipId, uint tradelaneRing1, uint tradelaneRing2)
+void __stdcall IServerImplHook::StopTradelane(ClientId client, ShipId shipId, ObjectId tradelaneRing1, ObjectId tradelaneRing2)
 {
     FLHook::GetLogger().Log(
         LogLevel::Trace,
@@ -63,11 +55,14 @@ void __stdcall IServerImplHook::StopTradelane(ClientId client, uint shipId, uint
 
     const auto skip = CallPlugins(&Plugin::OnTradelaneStop, client, shipId, tradelaneRing1, tradelaneRing2);
 
-    StopTradelaneInner(client, shipId, tradelaneRing1, tradelaneRing2);
+    if (client)
+    {
+        client.GetData().inTradelane = false;
+    }
 
     if (!skip)
     {
-        CallServerPreamble { Server.StopTradelane(client.GetValue(), shipId, tradelaneRing1, tradelaneRing2); }
+        CallServerPreamble { Server.StopTradelane(client.GetValue(), shipId.GetValue(), tradelaneRing1.GetValue(), tradelaneRing2.GetValue()); }
         CallServerPostamble(true, );
     }
 

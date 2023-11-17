@@ -106,6 +106,7 @@ Action<std::pair<std::wstring_view, std::wstring_view>, Error> BaseId::GetDescri
     ValidBaseCheck;
 
     // TODO: Get internal description of base
+    return { {} };
 }
 
 Action<std::vector<uint>, Error> BaseId::GetItemsForSale() const

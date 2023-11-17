@@ -69,7 +69,7 @@ int IEngineHook::DockCall(const uint& shipId, const uint& spaceId, int dockPortI
     //	dockPortIndex != -1, response -> 4 --> Dock ok, proceed (dockPortIndex starts from 0 for docking point 1)
     //	dockPortIndex == -1, response -> 5 --> now DOCK!
 
-    auto [override, skip] = CallPlugins<std::optional<DOCK_HOST_RESPONSE>>(&Plugin::OnDockCall, shipId, spaceId, dockPortIndex, response);
+    auto [override, skip] = CallPlugins<std::optional<DOCK_HOST_RESPONSE>>(&Plugin::OnDockCall, ShipId(shipId), ObjectId(spaceId), dockPortIndex, response);
 
     if (skip)
     {
@@ -99,7 +99,7 @@ int IEngineHook::DockCall(const uint& shipId, const uint& spaceId, int dockPortI
     }
     CatchHook({})
 
-        CallPlugins(&Plugin::OnDockCallAfter, shipId, spaceId, dockPortIndex, response);
+        CallPlugins(&Plugin::OnDockCallAfter, ShipId(shipId), ObjectId(spaceId), dockPortIndex, response);
 
     return retVal;
 }

@@ -9,15 +9,10 @@ class ObjectId
 
     public:
         explicit ObjectId(const uint val) : value(val) {}
-        ObjectId(const ObjectId& obj) : value(obj.value) {}
         explicit ObjectId() = default;
         virtual ~ObjectId() = default;
-        ObjectId& operator=(const ObjectId& obj)
-        {
-            value = obj.GetValue();
-            return *this;
-        }
 
+        explicit operator uint() const noexcept { return value; }
         bool operator==(const ObjectId& next) const { return value == next.value; }
         explicit virtual operator bool() const;
 
@@ -49,7 +44,8 @@ class ObjectId
 };
 
 template <>
-struct std::formatter<ObjectId> : std::formatter<uint>
+struct std::formatter<ObjectId, wchar_t>
 {
-        auto format(const ObjectId& value, std::format_context& ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+        constexpr auto parse(std::wformat_parse_context& ctx) { return ctx.begin(); }
+        auto format(const ObjectId& value, std::wformat_context& ctx) { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
 };

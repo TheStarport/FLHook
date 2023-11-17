@@ -19,7 +19,7 @@ SystemId::SystemId(std::wstring_view nickName, bool isInfoCardName)
     {
         value = CreateID(StringUtils::wstos(std::wstring(nickName)).c_str());
     }
-    //TODO: Construct systemID from the infocard name.
+    // TODO: Construct systemID from the infocard name.
 }
 SystemId::operator bool() const { return Universe::get_system(value) != nullptr; }
 
@@ -84,7 +84,11 @@ Action<std::vector<SystemId>, Error> SystemId::GetNeighboringSystems() const
     return { vector };
 }
 
-Action<std::vector<CSolar*>, Error> SystemId::GetSolars(bool onlyDockables) {}
+Action<std::vector<CSolar*>, Error> SystemId::GetSolars(bool onlyDockables)
+{
+    // TODO: Implement
+    return { {} };
+}
 
 Action<std::vector<ClientId>, Error> SystemId::GetPlayersInSystem(bool includeDocked) const
 {

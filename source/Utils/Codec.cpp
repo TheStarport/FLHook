@@ -89,7 +89,7 @@ std::wstring FlCodec::Encode(std::wstring_view input)
     uint i = 0;
     while (i < length)
     {
-        const byte c = input.data()[i];
+        const byte c = static_cast<byte>(input.data()[i]);
         const auto k = static_cast<byte>((gene[i % 4] + i) % 256);
 
         const byte r = c ^ (k | 0x80);

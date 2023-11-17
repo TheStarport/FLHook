@@ -5,7 +5,7 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Core/Logger.hpp"
 
-void LaunchCompleteInner(uint, uint shipId)
+void LaunchCompleteInner(BaseId, ShipId shipId)
 {
     TryHook
     {
@@ -28,7 +28,7 @@ void LaunchCompleteInner(uint, uint shipId)
     CatchHook({});
 }
 
-void __stdcall IServerImplHook::LaunchComplete(uint baseId, uint shipId)
+void __stdcall IServerImplHook::LaunchComplete(BaseId baseId, ShipId shipId)
 {
     FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"LaunchComplete(\n\tuint baseId = {}\n\tuint shipId = {}\n)", baseId, shipId));
 
@@ -38,7 +38,7 @@ void __stdcall IServerImplHook::LaunchComplete(uint baseId, uint shipId)
 
     if (!skip)
     {
-        CallServerPreamble { Server.LaunchComplete(baseId, shipId); }
+        CallServerPreamble { Server.LaunchComplete(baseId.GetValue(), shipId.GetValue()); }
         CallServerPostamble(true, );
     }
 

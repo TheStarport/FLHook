@@ -21,7 +21,8 @@ class EquipmentId
 };
 
 template <>
-struct std::formatter<EquipmentId> : std::formatter<uint>
+struct std::formatter<EquipmentId, wchar_t>
 {
-        auto format(const EquipmentId &value, std::format_context &ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+        constexpr auto parse(std::wformat_parse_context &ctx) { return ctx.begin(); }
+        auto format(const EquipmentId &value, std::wformat_context &ctx) { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
 };

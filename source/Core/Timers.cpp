@@ -46,7 +46,7 @@ void FLHook::PublishServerStats()
     GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof memCounter);
     stats.memoryUsage = memCounter.WorkingSetSize;
 
-    for (auto client : Clients())
+    for (auto& client : Clients())
     {
         if (client.characterName.empty())
         {
@@ -113,7 +113,7 @@ void FLHook::TimerCheckKick()
                 {
                     if (!client.charMenuEnterTime)
                     {
-                        client.charMenuEnterTime = time;
+                        client.charMenuEnterTime = static_cast<uint>(time);
                     }
                     else if (time - client.charMenuEnterTime >= config->general.antiCharMenuIdle)
                     {

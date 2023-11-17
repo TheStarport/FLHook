@@ -1,6 +1,5 @@
 #include "PCH.hpp"
 
-#include "API/FLHook/MailManager.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/FLHook.hpp"
@@ -55,7 +54,7 @@ void IServerImplHook::UpdateInner()
 
     const auto hook = FLHook::instance;
     char* data;
-    memcpy(&data, dataPtr + 0x40, 4);
+    memcpy(&data, static_cast<char*>(dataPtr) + 0x40, 4);
     memcpy(&hook->serverLoadInMs, data + 0x204, 4);
     memcpy(&hook->playerCount, data + 0x208, 4);
 }
@@ -83,7 +82,7 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
     FLHook::instance->LoadBaseMarket();
 
     // Clean up any mail to chars that no longer exist
-    MailManager::i()->CleanUpOldMail();
+    // TODO: Mail Rework MailManager::i()->CleanUpOldMail();
 
     FLHook::instance->startupCache->Done();
 

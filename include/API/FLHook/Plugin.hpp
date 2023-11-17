@@ -193,7 +193,7 @@ class DLL Plugin
         Aft(void, OnSpRequestInvincibility, (ClientId client, ShipId shipId, bool enable, InvincibilityReason reason));
         Aft(void, OnRequestEvent, (ClientId client, int eventType, ShipId ship, ObjectId dockTarget, uint unk1, uint unk2));
         Aft(void, OnRequestCancel, (ClientId client, int eventType, ShipId ship, ObjectId dockTarget, uint unk1));
-        Aft(void, OnMineAsteroid, (ClientId client, SystemId system, const Vector& pos, ObjectId crateId, ObjectId lootId, uint count));
+        Aft(void, OnMineAsteroid, (ClientId client, SystemId system, const Vector& pos, ArchId crateId, ArchId lootId, uint count));
         Aft(void, OnRequestCreateShip, (ClientId client));
         Aft(void, OnSetManeuver, (ClientId client, const XSetManeuver& maneuver));
         Aft(void, OnInterfaceItemUsed, (uint unk1, uint unk2));
@@ -202,7 +202,7 @@ class DLL Plugin
         Aft(void, OnSetVisitedState, (ClientId client, uint objectHash, int state));
         Aft(void, OnRequestBestPath, (ClientId client, uint unk1, int unk2));
         Aft(void, OnRequestPlayerStats, (ClientId id, uint unk1, int unk2));
-        Aft(void, OnPopupDialogueConfirm, (ClientId client, uint buttonClicked));
+        Aft(void, OnPopupDialogueConfirm, (ClientId client, PopupDialog buttonClicked));
         Aft(void, OnRequestGroupPositions, (ClientId client, uint unk1, int unk2));
         Aft(void, OnSetInterfaceState, (ClientId client, uint unk1, int unk2));
         Aft(void, OnRequestRankLevel, (ClientId client, uint unk1, int unk2));
@@ -263,11 +263,11 @@ class DLL PacketInterface
 
 #undef Aft
 
-#define SetupPlugin(type, info)                                               \
-    EXPORT std::shared_ptr<type> PluginFactory()                              \
-    {                                                                         \
+#define SetupPlugin(type, info)                                           \
+    EXPORT std::shared_ptr<type> PluginFactory()                          \
+    {                                                                     \
         __pragma(comment(linker, "/EXPORT:" __FUNCTION "=" __FUNCDNAME)); \
-        return std::move(std::make_shared<type>(info));                       \
+        return std::move(std::make_shared<type>(info));                   \
     }
 
 #define AddPluginTimer(func, time) AddTimer(static_cast<void (Plugin::*)()>(func), time)

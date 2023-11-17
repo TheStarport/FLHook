@@ -34,7 +34,8 @@ class RepId final
 };
 
 template <>
-struct std::formatter<RepId> : std::formatter<uint>
+struct std::formatter<RepId, wchar_t>
 {
-        auto format(const RepId& value, std::format_context& ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+        constexpr auto parse(std::wformat_parse_context& ctx) { return ctx.begin(); }
+        auto format(const RepId& value, std::wformat_context& ctx) { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
 };

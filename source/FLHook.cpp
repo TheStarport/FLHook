@@ -163,7 +163,7 @@ FLHook::FLHook()
 
         // Force constructor to run
         Hk::IniUtils::i();
-        //TODO:NPC Personalities. Hk::Personalities::LoadPersonalities();
+        // TODO:NPC Personalities. Hk::Personalities::LoadPersonalities();
 
         PatchClientImpl();
 
@@ -234,7 +234,7 @@ Action<void, Error> FLHook::MessageUniverse(std::wstring_view message)
 
     uint retVal;
     static std::array<char, 1024> buffer;
-    std::fill_n(buffer, buffer.size(), '\0');
+    std::fill_n(buffer.begin(), buffer.size(), '\0');
 
     if (const auto err = InternalApi::FMsgEncodeXml(xml, buffer.data(), buffer.size(), retVal).Raw(); err.has_error())
     {

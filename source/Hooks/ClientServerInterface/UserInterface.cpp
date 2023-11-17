@@ -18,7 +18,7 @@ void __stdcall IServerImplHook::Hail(unsigned int unk1, unsigned int unk2, unsig
     CallPlugins(&Plugin::OnHail, unk1, unk2, unk3);
 }
 
-void __stdcall IServerImplHook::RequestEvent(int eventType, uint shipId, uint dockTarget, uint unk1, ulong unk2, ClientId client)
+void __stdcall IServerImplHook::RequestEvent(int eventType, ShipId shipId, ObjectId dockTarget, uint unk1, ulong unk2, ClientId client)
 {
     FLHook::GetLogger().Log(LogLevel::Trace,
                             std::format(L"RequestEvent(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint dockTarget = {}\n\tuint unk1 = {}\n\tulong unk2 = "
@@ -32,31 +32,31 @@ void __stdcall IServerImplHook::RequestEvent(int eventType, uint shipId, uint do
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestEvent, client, eventType, shipId, dockTarget, unk1, unk2); !skip)
     {
-        CallServerPreamble { Server.RequestEvent(eventType, shipId, dockTarget, unk1, unk2, client.GetValue()); }
+        CallServerPreamble { Server.RequestEvent(eventType, shipId.GetValue(), dockTarget.GetValue(), unk1, unk2, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
     CallPlugins(&Plugin::OnRequestEventAfter, client, eventType, shipId, dockTarget, unk1, unk2);
 }
 
-void __stdcall IServerImplHook::RequestCancel(int eventType, uint shipId, uint unk1, ulong unk2, ClientId client)
+void __stdcall IServerImplHook::RequestCancel(int eventType, ShipId shipId, ObjectId dockTarget, ulong unk2, ClientId client)
 {
     FLHook::GetLogger().Log(
         LogLevel::Trace,
         std::format(L"RequestCancel(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint unk1 = {}\n\tulong unk2 = {}\n\tClientId client = {}\n)",
                     eventType,
                     shipId,
-                    unk1,
+                    dockTarget,
                     unk2,
                     client));
 
-    if (const auto skip = CallPlugins(&Plugin::OnRequestCancel, client, eventType, shipId, unk1, unk2); !skip)
+    if (const auto skip = CallPlugins(&Plugin::OnRequestCancel, client, eventType, shipId, dockTarget, unk2); !skip)
     {
-        CallServerPreamble { Server.RequestCancel(eventType, shipId, unk1, unk2, client.GetValue()); }
+        CallServerPreamble { Server.RequestCancel(eventType, shipId.GetValue(), dockTarget.GetValue(), unk2, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
-    CallPlugins(&Plugin::OnRequestCancelAfter, client, eventType, shipId, unk1, unk2);
+    CallPlugins(&Plugin::OnRequestCancelAfter, client, eventType, shipId, dockTarget, unk2);
 }
 
 void __stdcall IServerImplHook::InterfaceItemUsed(uint unk1, uint unk2)
@@ -72,13 +72,14 @@ void __stdcall IServerImplHook::InterfaceItemUsed(uint unk1, uint unk2)
     CallPlugins(&Plugin::OnInterfaceItemUsedAfter, unk1, unk2);
 }
 
-void __stdcall IServerImplHook::PopupDialog(ClientId client, uint buttonClicked)
+void __stdcall IServerImplHook::PopupDialog(ClientId client, ::PopupDialog buttonClicked)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"PopupDialog(\n\tClientId client = {}\n\tuint buttonClicked = {}\n)", client, buttonClicked));
+    FLHook::GetLogger().Log(LogLevel::Trace,
+                            std::format(L"PopupDialog(\n\tClientId client = {}\n\tuint buttonClicked = {}\n)", client, static_cast<uint>(buttonClicked)));
 
     if (const auto skip = CallPlugins(&Plugin::OnPopupDialogueConfirm, client, buttonClicked); !skip)
     {
-        CallServerPreamble { Server.PopUpDialog(client.GetValue(), buttonClicked); }
+        CallServerPreamble { Server.PopUpDialog(client.GetValue(), static_cast<uint>(buttonClicked)); }
         CallServerPostamble(true, );
     }
 

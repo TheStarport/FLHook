@@ -370,7 +370,7 @@ Action<std::wstring, Error> ClientId::GetPlayerIp() const
 		push eax
 		lea eax, sizeOfIp
 		push eax
-		lea eax, wIP
+		lea eax, wIp
 		push eax
 		lea eax, hostname
 		push eax
@@ -461,7 +461,7 @@ Action<void, Error> ClientId::SaveChar() const
     const auto& data = FLHook::Clients()[value];
 
     // Save account data
-    auto dir = GetAccount().Unwrap().GetDirectoryName();
+    auto dir = GetAccount().Unwrap().GetDirectoryName().Unwrap();
     const std::wstring userFile = std::format(L"{}{}\\accData.json", FLHook::GetAccountPath(), dir);
 
     const auto content = data.accountData.dump(4);
@@ -486,8 +486,8 @@ Action<void, Error> ClientId::SetCash(uint amount) const
     ClientCheck;
     CharSelectCheck;
 
-
-
+    // TODO: Implement me!
+    return { {} };
 }
 
 Action<void, Error> ClientId::AddCash(const uint amount) const { return AdjustCash(static_cast<int>(amount)); }
@@ -619,7 +619,7 @@ Action<void, Error> ClientId::MessageFrom(ClientId destinationClient, std::wstri
     return { {} };
 }
 
-void ClientId::SetEquip(const st6::list<EquipDesc>& equip)
+Action<void, Error> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
 {
     ClientCheck;
     CharSelectCheck;

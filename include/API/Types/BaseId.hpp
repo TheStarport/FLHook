@@ -29,7 +29,8 @@ class BaseId
 };
 
 template <>
-struct std::formatter<BaseId> : std::formatter<uint>
+struct std::formatter<BaseId, wchar_t>
 {
-        auto format(const BaseId &value, std::format_context &ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+        constexpr auto parse(std::wformat_parse_context &ctx) { return ctx.begin(); }
+        auto format(const BaseId &value, std::wformat_context &ctx) { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
 };

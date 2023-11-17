@@ -246,7 +246,7 @@ void FLHook::InitHookExports()
     ApplyPatch(remoteClientPatch);
     ApplyPatch(dalibPatch);
 
-    DetourSendComm();
+    // DetourSendComm();
 
     // patch rep array free
     DWORD address = Offset(BinaryType::Server, AddressList::RepArrayFree);
@@ -326,7 +326,7 @@ void FLHook::InitHookExports()
 
     // clear ClientInfo
 
-    for (auto client : Clients())
+    for (auto& client : Clients())
     {
         client.connects = 0; // only set to 0 on start
         ClearClientInfo(client.id);
@@ -439,7 +439,7 @@ void FLHook::UnloadHookExports()
     RevertPatch(remoteClientPatch);
     RevertPatch(dalibPatch);
 
-    UnDetourSendComm();
+    // UnDetourSendComm();
 
     // unpatch rep array free
     DWORD address = Offset(BinaryType::Server, AddressList::RepArrayFree);

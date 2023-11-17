@@ -1,8 +1,8 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/ClientList.hpp"
 #include "API/Utils/IniUtils.hpp"
 
-#include <Global.hpp>
 #include <Utils/Detour.hpp>
 
 using SendCommType = int(__cdecl*)(uint, uint, uint, const Costume*, uint, uint*, int, uint, float, bool);
@@ -12,9 +12,9 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
 {
     if (const CShip* ship = dynamic_cast<CShip*>(CObject::Find(toShipId, CObject::Class::CSHIP_OBJECT)); ship && ship->is_player())
     {
-        const auto client = ship->GetOwnerPlayer();
+        const auto client = ClientId(ship->GetOwnerPlayer());
 
-        const auto& ci = ClientInfo::At(client);
+        auto& ci = client.GetData();
         const auto* conf = FLHookConfig::c();
 
         static std::array<byte, 8> num1RewriteBytes = { 0xBA, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90 };
@@ -37,12 +37,12 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
             MemUtils::WriteProcMem(playerNumber2, &ci.formationNumber2, 1);
             DWORD _;
             VirtualProtect(playerFormation, 2, PAGE_READWRITE, &_);
-            std::sprintf(playerFormation, "%02d", ci.formationTag);
+            sprintf_s(playerFormation, 2, "%02d", ci.formationTag); // NOLINT
         }
 
         if (!conf->callsign.disableUsingAffiliationForCallsign)
         {
-            if (auto repGroupNick = Hk::IniUtils::i()->GetFromPlayerFile(client, L"rep_group");
+            if (auto repGroupNick = Hk::IniUtils::i()->GetFromPlayerFile(client.GetValue(), L"rep_group");
                 repGroupNick.has_value() && repGroupNick.value().length() - 4 <= 6)
             {
                 auto val = StringUtils::wstos(repGroupNick.value());

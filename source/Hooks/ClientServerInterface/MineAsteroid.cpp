@@ -4,7 +4,7 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Core/Logger.hpp"
 
-void __stdcall IServerImplHook::MineAsteroid(uint systemId, const Vector& pos, uint crateId, uint lootId, uint count, ClientId client)
+void __stdcall IServerImplHook::MineAsteroid(SystemId systemId, const Vector& pos, ArchId crateId, ArchId lootId, uint count, ClientId client)
 {
     FLHook::GetLogger().Log(LogLevel::Trace,
                             std::format(L"MineAsteroid(\n\tuint systemId = {}\n\tuint crateId = {}\n\tuint lootId = {}\n\tuint count = "
@@ -17,7 +17,7 @@ void __stdcall IServerImplHook::MineAsteroid(uint systemId, const Vector& pos, u
 
     if (const auto skip = CallPlugins(&Plugin::OnMineAsteroid, client, systemId, pos, crateId, lootId, count); !skip)
     {
-        CallServerPreamble { Server.MineAsteroid(systemId, pos, crateId, lootId, count, client.GetValue()); }
+        CallServerPreamble { Server.MineAsteroid(systemId.GetValue(), pos, crateId, lootId, count, client.GetValue()); }
         CallServerPostamble(true, );
     }
 

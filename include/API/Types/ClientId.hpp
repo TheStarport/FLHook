@@ -5,8 +5,8 @@
 #include "API/Types/ShipId.hpp"
 #include "API/Types/SystemId.hpp"
 
-#include <string>
 #include <format>
+#include <string>
 
 class ShipId;
 struct ClientData;
@@ -29,8 +29,9 @@ class ClientId
     public:
         explicit ClientId(const uint val) : value(val) {}
         explicit ClientId(const SpecialChatIds id) { value = static_cast<const uint>(id); }
-        explicit ClientId(const std::wstring_view str) : value(GetClientIdFromCharacterName(str)){}
+        explicit ClientId(const std::wstring_view str) : value(GetClientIdFromCharacterName(str)) {}
         explicit ClientId() = default;
+        ClientId(const ClientId &client) : value(client.value){};
 
         explicit operator uint() const noexcept { return value; }
         bool operator==(const ClientId next) const { return value == next.value; }
@@ -93,7 +94,7 @@ class ClientId
         [[nodiscard]]
         Action<ShipId, Error> GetShipId() const;
 
-    //TODO: Implement.
+        // TODO: Implement.
         Action<uint, Error> GetLatency() const;
 
         /**
@@ -325,14 +326,14 @@ class ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect, UnknownError (when packet sending fails).
          */
-        Action<void, Error> SetEquip(const st6::list<EquipDesc> &equip);
+        Action<void, Error> SetEquip(const st6::list<EquipDesc> &equip) const;
 
         Action<void, Error> AddEquip(uint goodId, const std::wstring &hardpoint) const;
 };
 
-
 template <>
-struct std::formatter<ClientId> : std::formatter<uint>
+struct std::formatter<ClientId, wchar_t>
 {
-        auto format(const ClientId &client, std::format_context &ctx) { return std::formatter<uint>::format(client.GetValue(), ctx); }
+        constexpr auto parse(std::wformat_parse_context &ctx) { return ctx.begin(); }
+        auto format(const ClientId &client, std::wformat_context &ctx) { return std::format_to(ctx.out(), L"{}", client.GetValue()); }
 };

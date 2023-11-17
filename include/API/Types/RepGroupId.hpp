@@ -9,7 +9,7 @@ class RepGroupId final
     public:
         explicit RepGroupId(const uint val) : value(val) {}
         explicit RepGroupId(std::wstring_view nickName);
-  
+
         explicit RepGroupId() = default;
         ~RepGroupId() = default;
         RepGroupId(const RepGroupId&) = default;
@@ -25,11 +25,11 @@ class RepGroupId final
         Action<std::wstring_view, Error> GetName() const;
         Action<std::wstring_view, Error> GetShortName() const;
         Action<float, Error> GetAttitudeTowardsRepId(RepId target) const;
-
 };
 
 template <>
-struct std::formatter<RepGroupId> : std::formatter<uint>
+struct std::formatter<RepGroupId, wchar_t>
 {
-        auto format(const RepGroupId& value, std::format_context& ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+        constexpr auto parse(std::wformat_parse_context& ctx) { return ctx.begin(); }
+        auto format(const RepGroupId& value, std::wformat_context& ctx) { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
 };

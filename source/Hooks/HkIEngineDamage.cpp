@@ -26,7 +26,7 @@ bool __stdcall IEngineHook::GuidedHit(char* ecx, char* p1, DamageList* dmgList)
         uint inflictorShip;
         memcpy(&inflictorShip, p1 + 4, 4);
 
-        auto [rval, skip] = CallPlugins<bool>(&Plugin::OnGuidedHit, inflictorShip, ClientId(client), ObjectId(spaceId), dmgList);
+        auto [rval, skip] = CallPlugins<bool>(&Plugin::OnGuidedHit, ShipId(inflictorShip), ClientId(client), ObjectId(spaceId), dmgList);
         if (skip)
         {
             return rval;
@@ -57,7 +57,7 @@ bool __stdcall IEngineHook::GuidedHit(char* ecx, char* p1, DamageList* dmgList)
             }
         }
 
-        CallPlugins(&Plugin::OnGuidedHitAfter, inflictorShip, ClientId(client), ObjectId(spaceId), dmgList);
+        CallPlugins(&Plugin::OnGuidedHitAfter, ShipId(inflictorShip), ClientId(client), ObjectId(spaceId), dmgList);
     }
     CatchHook({});
 
@@ -195,7 +195,7 @@ void __stdcall IEngineHook::DamageHit(char* ecx)
         FLHook::dmgToClient = ClientId(client);
         FLHook::dmgToSpaceId = ObjectId(spaceId);
 
-        CallPlugins(&Plugin::OnDamageHit, client, spaceId);
+        CallPlugins(&Plugin::OnDamageHit, ClientId(client), ObjectId(spaceId));
     }
     CatchHook({});
 }
@@ -207,7 +207,7 @@ __declspec(naked) void IEngineHook::NakedDamageHit()
 		push ecx
 		call DamageHit
 		pop ecx
-		jmp [g_OldDamageHit]
+		jmp [oldDamageHit]
     }
 }
 
@@ -218,7 +218,7 @@ __declspec(naked) void IEngineHook::NakedDamageHit2()
 		push ecx
 		call DamageHit
 		pop ecx
-		jmp [g_OldDamageHit2]
+		jmp [oldDamageHit2]
     }
 }
 
@@ -292,14 +292,14 @@ __declspec(naked) void IEngineHook::NakedNonGunWeaponHitsBase()
 		pop ecx
 
 		mov eax, [esp]
-		mov [g_NonGunWeaponHitsBaseRetAddress], eax
+		mov [nonGunWeaponHitsBaseRetAddress], eax
 		lea eax, return_here
 		mov [esp], eax
-		jmp [g_OldNonGunWeaponHitsBase]
+		jmp [oldNonGunWeaponHitsBase]
 		return_here:
 		pushad
 		call NonGunWeaponHitsBaseAfter
 		popad
-		jmp [g_NonGunWeaponHitsBaseRetAddress]
+		jmp [nonGunWeaponHitsBaseRetAddress]
     }
 }

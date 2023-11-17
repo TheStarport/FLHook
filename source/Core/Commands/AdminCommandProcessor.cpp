@@ -80,7 +80,7 @@ std::wstring AdminCommandProcessor::SetCash(std::wstring_view characterName,
 
 std::wstring AdminCommandProcessor::GetCash(std::wstring_view characterName)
 {
-    const auto res = AccountId(characterName).GetCash(characterName);
+    const auto res = AccountId(characterName).GetCash(characterName).Handle();
     return std::format(L"{} has been set {} credits.", characterName, res);
 }
 
@@ -200,12 +200,12 @@ std::wstring AdminCommandProcessor::GetPlayerInfo(std::wstring_view characterNam
     auto res = ClientId(characterName);
 
     return std::format(L"Name: {}, Id: {}, IP: {}, Ping: {}, Base: {}, System: {}\n",
-                       res.GetCharacterName(),
+                       res.GetCharacterName().Unwrap(),
                        res.GetValue(),
-                       res.GetPlayerIp(),
-                       res.GetLatency(),
-                       res.GetCurrentBase().Handle().GetName(),
-                       res.GetSystemId().Handle().GetName());
+                       res.GetPlayerIp().Unwrap(),
+                       res.GetLatency().Unwrap(),
+                       res.GetCurrentBase().Handle().GetName().Unwrap(),
+                       res.GetSystemId().Handle().GetName().Unwrap());
 }
 
 std::wstring AdminCommandProcessor::AddRoles(std::wstring_view characterName, std::vector<std::wstring_view> roles)
@@ -351,7 +351,7 @@ std::wstring AdminCommandProcessor::Beam(std::wstring_view characterName, std::w
     const auto base = BaseId(baseName, true);
     player.Beam(base).Handle();
 
-    return std::format(L"{} beamed to {}", targetPlayer, base.GetName());
+    return std::format(L"{} beamed to {}", targetPlayer, base.GetName().Unwrap());
 }
 
 std::wstring AdminCommandProcessor::Pull(std::wstring_view characterName)

@@ -56,6 +56,7 @@ Action<void, Error> GroupId::InviteMember(ClientId client)
     }
 
     group->AddInvite(client.GetValue());
+    return { {} };
 }
 
 Action<void, Error> GroupId::AddMember(ClientId client)
@@ -67,4 +68,5 @@ Action<void, Error> GroupId::AddMember(ClientId client)
     }
 
     group->AddMember(client.GetValue());
+    return { {} };
 }

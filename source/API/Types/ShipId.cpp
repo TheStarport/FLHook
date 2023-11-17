@@ -298,7 +298,7 @@ void ShipId::Relocate(const Vector& pos, const std::optional<Matrix>& orientatio
     }
 
     const auto system = GetSystem().Unwrap();
-    pub::SpaceObj::Relocate(value, system.GetValue(), pos, orientation.value_or(glm::mat3()));
+    pub::SpaceObj::Relocate(value, system.GetValue(), pos, orientation.value_or(Matrix::Identity()));
 }
 
 Action<void, Error> ShipId::IgniteFuse(uint fuseId, float id) const

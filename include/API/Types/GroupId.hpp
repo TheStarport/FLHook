@@ -44,7 +44,8 @@ class GroupId final
 };
 
 template <>
-struct std::formatter<GroupId> : std::formatter<uint>
+struct std::formatter<GroupId, wchar_t>
 {
-        auto format(const GroupId& value, std::format_context& ctx) { return std::formatter<uint>::format(value.GetValue(), ctx); }
+        constexpr auto parse(std::wformat_parse_context& ctx) { return ctx.begin(); }
+        auto format(const GroupId& value, std::wformat_context& ctx) { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
 };

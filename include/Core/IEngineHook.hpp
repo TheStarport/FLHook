@@ -61,6 +61,6 @@ class IEngineHook
         static void __stdcall AddDamageEntry(DamageList* dmgList, unsigned short subObjId, float hitPts, DamageEntry::SubObjFate fate);
         static void __stdcall NonGunWeaponHitsBaseBefore(const char* ECX, const char* p1, const DamageList* dmg);
         static int __stdcall DisconnectPacketSent(ClientId client);
-        static void SendDeathMessage(const std::wstring& msg, uint systemId, ClientId clientVictim, ClientId clientKiller);
+        static void SendDeathMessage(const std::wstring& msg, SystemId systemId, ClientId clientVictim, ClientId clientKiller);
         static void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill);
 };
