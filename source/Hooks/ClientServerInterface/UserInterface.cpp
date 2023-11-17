@@ -1,12 +1,12 @@
 #include "PCH.hpp"
 
+#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Core/Logger.hpp"
 
 void __stdcall IServerImplHook::Hail(unsigned int unk1, unsigned int unk2, unsigned int unk3)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"Hail(\n\tunsigned int unk1 = {}\n\tunsigned int unk2 = {}\n\tunsigned int unk3 = {}\n)", unk1, unk2, unk3));
 
     if (const auto skip = CallPlugins(&Plugin::OnHail, unk1, unk2, unk3); !skip)
@@ -20,7 +20,7 @@ void __stdcall IServerImplHook::Hail(unsigned int unk1, unsigned int unk2, unsig
 
 void __stdcall IServerImplHook::RequestEvent(int eventType, ShipId shipId, ObjectId dockTarget, uint unk1, ulong unk2, ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"RequestEvent(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint dockTarget = {}\n\tuint unk1 = {}\n\tulong unk2 = "
                                         "{}\n\tClientId client = {}\n)",
                                         eventType,
@@ -41,7 +41,7 @@ void __stdcall IServerImplHook::RequestEvent(int eventType, ShipId shipId, Objec
 
 void __stdcall IServerImplHook::RequestCancel(int eventType, ShipId shipId, ObjectId dockTarget, ulong unk2, ClientId client)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"RequestCancel(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint unk1 = {}\n\tulong unk2 = {}\n\tClientId client = {}\n)",
                     eventType,
@@ -61,7 +61,7 @@ void __stdcall IServerImplHook::RequestCancel(int eventType, ShipId shipId, Obje
 
 void __stdcall IServerImplHook::InterfaceItemUsed(uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"InterfaceItemUsed(\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", unk1, unk2));
+    Logger::Log(LogLevel::Trace, std::format(L"InterfaceItemUsed(\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", unk1, unk2));
 
     if (const auto skip = CallPlugins(&Plugin::OnInterfaceItemUsed, unk1, unk2); !skip)
     {
@@ -74,7 +74,7 @@ void __stdcall IServerImplHook::InterfaceItemUsed(uint unk1, uint unk2)
 
 void __stdcall IServerImplHook::PopupDialog(ClientId client, ::PopupDialog buttonClicked)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"PopupDialog(\n\tClientId client = {}\n\tuint buttonClicked = {}\n)", client, static_cast<uint>(buttonClicked)));
 
     if (const auto skip = CallPlugins(&Plugin::OnPopupDialogueConfirm, client, buttonClicked); !skip)
@@ -88,7 +88,7 @@ void __stdcall IServerImplHook::PopupDialog(ClientId client, ::PopupDialog butto
 
 void __stdcall IServerImplHook::SetInterfaceState(ClientId client, uint unk1, int unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"SetInterfaceState(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
 
     if (const auto skip = CallPlugins(&Plugin::OnSetInterfaceState, client, unk1, unk2); !skip)
@@ -102,7 +102,7 @@ void __stdcall IServerImplHook::SetInterfaceState(ClientId client, uint unk1, in
 
 void __stdcall IServerImplHook::RequestGroupPositions(ClientId client, uint unk1, int unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"RequestGroupPositions(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestGroupPositions, client, unk1, unk2); !skip)
@@ -116,7 +116,7 @@ void __stdcall IServerImplHook::RequestGroupPositions(ClientId client, uint unk1
 
 void __stdcall IServerImplHook::SetTarget(ClientId client, const XSetTarget& st)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"SetTarget(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"SetTarget(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnSetTarget, client, st); !skip)
     {

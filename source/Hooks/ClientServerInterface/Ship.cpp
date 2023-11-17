@@ -2,11 +2,11 @@
 
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Core/Logger.hpp"
+#include "API/Utils/Logger.hpp"
 
 void __stdcall IServerImplHook::RequestCreateShip(ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"RequestCreateShip(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"RequestCreateShip(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestCreateShip, client); !skip)
     {
@@ -19,7 +19,7 @@ void __stdcall IServerImplHook::RequestCreateShip(ClientId client)
 
 void __stdcall IServerImplHook::ReqCollisionGroups(const st6::list<CollisionGroupDesc>& collisionGroups, ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"ReqCollisionGroups(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"ReqCollisionGroups(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestCollisionGroups, client, collisionGroups); !skip)
     {
@@ -32,7 +32,7 @@ void __stdcall IServerImplHook::ReqCollisionGroups(const st6::list<CollisionGrou
 
 void __stdcall IServerImplHook::ReqShipArch(ArchId archId, ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"ReqShipArch(\n\tuint archId = {}\n\tClientId client = {}\n)", archId, client));
+    Logger::Log(LogLevel::Trace, std::format(L"ReqShipArch(\n\tuint archId = {}\n\tClientId client = {}\n)", archId, client));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestShipArch, client, archId); !skip)
     {
@@ -45,7 +45,7 @@ void __stdcall IServerImplHook::ReqShipArch(ArchId archId, ClientId client)
 
 void __stdcall IServerImplHook::ReqHullStatus(float status, ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"ReqHulatus(\n\tfloat status = {}\n\tClientId client = {}\n)", status, client));
+    Logger::Log(LogLevel::Trace, std::format(L"ReqHulatus(\n\tfloat status = {}\n\tClientId client = {}\n)", status, client));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestHullStatus, client, status); !skip)
     {
@@ -58,7 +58,7 @@ void __stdcall IServerImplHook::ReqHullStatus(float status, ClientId client)
 
 void __stdcall IServerImplHook::SpRequestInvincibility(ShipId shipId, bool enable, InvincibilityReason reason, ClientId client)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"SPRequestInvincibility(\n\tuint shipId = {}\n\tbool enable = {}\n\tInvincibilityReason reason = {}\n\tClientId client = {}\n)",
                     shipId,

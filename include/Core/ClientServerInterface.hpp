@@ -22,6 +22,8 @@ class IServerImplHook
 
         // Base.cpp
         static void __stdcall BaseEnter(BaseId baseId, ClientId client);
+        static void BaseEnterInnerAfter(BaseId baseId, ClientId client);
+        static void BaseExitInner(BaseId baseId, ClientId client);
         static void __stdcall BaseExit(BaseId baseId, ClientId client);
         static void __stdcall BaseInfoRequest(unsigned int unk1, unsigned int unk2, bool unk3);
         static void __stdcall Dock([[maybe_unused]] const uint& unk1, [[maybe_unused]] const uint& unk2);
@@ -47,6 +49,7 @@ class IServerImplHook
         static void __stdcall DestroyCharacter(const CHARACTER_ID& unk1, ClientId client);
         static void __stdcall RequestRankLevel(ClientId client, uint unk1, int unk2);
         static void __stdcall RequestPlayerStats(ClientId client, uint unk1, int unk2);
+        static bool CharacterInfoReqInner(ClientId client, bool);
 
         // ChatHooks.cpp
         static bool SubmitChatInner(ClientId from, ulong size, const void* rdlReader, ClientId to, int);
@@ -58,15 +61,19 @@ class IServerImplHook
         static bool OnConnectInner(ClientId client);
 
         // Equipment.cpp
+        static void ActivateEquipInner(ClientId client, const XActivateEquip& aq);
         static void __stdcall ActivateEquip(ClientId client, const XActivateEquip& aq);
         static void __stdcall ReqEquipment(const EquipDescList& edl, ClientId client);
         static void __stdcall FireWeapon(ClientId client, const XFireWeaponInfo& fwi);
         static void __stdcall SetWeaponGroup(ClientId client, uint unk1, int unk2);
         static void __stdcall SpRequestUseItem(const SSPUseItem& ui, ClientId client);
+        static void ActivateThrustersInner(ClientId client, const XActivateThrusters& at);
         static void __stdcall ActivateThrusters(ClientId client, const XActivateThrusters& at);
+        static void ActivateCruiseInner(ClientId client, const XActivateCruise& ac);
         static void __stdcall ActivateCruise(ClientId client, const XActivateCruise& ac);
 
         // Goods.cpp
+        static bool GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId client);
         static void __stdcall GFGoodSell(const SGFGoodSellInfo& unk1, ClientId client);
         static void __stdcall GFGoodBuy(const SGFGoodBuyInfo& unk1, ClientId client);
         static void __stdcall GFGoodVaporized(const SGFGoodVaporizedInfo& gvi, ClientId client);
@@ -84,6 +91,7 @@ class IServerImplHook
         static void __stdcall JumpInComplete(SystemId systemId, ShipId shipId);
 
         // LaunchComplete.cpp
+        static void LaunchCompleteInner(BaseId, ShipId shipId);
         static void __stdcall LaunchComplete(BaseId baseId, ShipId shipId);
 
         // Location.cpp
@@ -120,6 +128,8 @@ class IServerImplHook
         // OnConnect.cpp
         static void __stdcall OnConnect(ClientId client);
 
+        static void PlayerLaunchInner(ShipId shipId, ClientId client);
+        static void PlayerLaunchInnerAfter(ShipId shipId, ClientId client);
         // PlayerLaunch.cpp
         static void __stdcall PlayerLaunch(ShipId shipId, ClientId client);
 
@@ -145,6 +155,7 @@ class IServerImplHook
         static void __stdcall RequestTrade(ClientId client1, ClientId client2);
         static void __stdcall StopTradeRequest(ClientId client);
         static void __stdcall TradeResponse(const unsigned char* unk1, int unk2, ClientId client);
+        static void TerminateTradeInnerAfter(ClientId client, int accepted);
         static void __stdcall TerminateTrade(ClientId client, int accepted);
 
         // Tradelane.cpp
@@ -183,7 +194,7 @@ class IServerImplHook
 #define CallServerPostamble(catchArgs, rval)                                                                                      \
     }                                                                                                                             \
     CatchHook({                                                                                                                   \
-        FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__))); \
+        Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__))); \
         bool ret = catchArgs;                                                                                                     \
         if (!ret)                                                                                                                 \
         {                                                                                                                         \
@@ -209,7 +220,7 @@ class IServerImplHook
     {                                                                                                                                                     \
         if (client.GetData().disconnected)                                                                                                                \
         {                                                                                                                                                 \
-            FLHook::GetLogger().Log(LogLevel::Debug, std::format(L"Ignoring disconnected client in {} id={}", StringUtils::stows(__FUNCTION__), client)); \
+            Logger::Log(LogLevel::Debug, std::format(L"Ignoring disconnected client in {} id={}", StringUtils::stows(__FUNCTION__), client)); \
             return;                                                                                                                                       \
         };                                                                                                                                                \
     }

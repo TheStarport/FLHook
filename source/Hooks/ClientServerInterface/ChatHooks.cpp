@@ -6,7 +6,7 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Core/Commands/AdminCommandProcessor.hpp"
 #include "Core/Commands/UserCommandProcessor.hpp"
-#include "Core/Logger.hpp"
+#include "API/Utils/Logger.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
 
 bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdlReader, ClientId to, int)
@@ -154,7 +154,7 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
     catch ([[maybe_unused]] const StopProcessingException&) {}
     catch (const GameException& ex)
     {
-        FLHook::GetLogger().Log(LogLevel::Info, ex.Msg());
+        Logger::Log(LogLevel::Info, ex.Msg());
         {};
     }
     catch ([[maybe_unused]] std::exception& exc) { {}; }
@@ -167,7 +167,7 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
 
 void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, const void* rdlReader, CHAT_ID cidTo, int genArg1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.id, size, cidTo.id));
+    Logger::Log(LogLevel::Trace, std::format(L"SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.id, size, cidTo.id));
 
     const auto skip = CallPlugins(&Plugin::OnSubmitChat, ClientId(cidFrom.id), size, rdlReader, ClientId(cidTo.id), genArg1);
 

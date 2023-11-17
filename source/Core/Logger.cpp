@@ -24,7 +24,7 @@ enum class ConsoleColor
 
 BOOL WINAPI ConsoleHandler(DWORD ctrlType) { return ctrlType == CTRL_CLOSE_EVENT; }
 
-void Logger::SetLogSource(void* addr)
+std::wstring Logger::SetLogSource(void* addr)
 {
     if (HMODULE dll; RtlPcToFileHeader(addr, (void**)&dll))
     {
@@ -33,11 +33,14 @@ void Logger::SetLogSource(void* addr)
         if (GetModuleFileNameW(dll, maxPath, MAX_PATH))
         {
             const std::wstring path = maxPath;
-            logPrefix = std::format(L"({} {}) ", TimeUtils::CurrentDate(), path.substr(path.find_last_of(L"\\") + 1));
+            return std::format(L"({} {}) ", TimeUtils::CurrentDate(), path.substr(path.find_last_of(L"\\") + 1));
         }
     }
+
+    return L"";
 }
 
+using namespace std::chrono_literals;
 void Logger::GetConsoleInput(std::stop_token st)
 {
     while (!st.stop_requested())
@@ -58,59 +61,71 @@ void Logger::GetConsoleInput(std::stop_token st)
 
             if (!cmd.empty())
             {
-                queue.push(cmd);
+                commandQueue.push(cmd);
             }
+        }
+
+        std::this_thread::sleep_for(1s);
+    }
+}
+
+void Logger::PrintToConsole(std::stop_token st)
+{
+    while (!st.stop_requested())
+    {
+        std::this_thread::sleep_for(0.25s);
+
+        LogMessage logMessage;
+        while (logQueue.try_pop(logMessage))
+        {
+            auto log = std::format(L"{}{}\n", SetLogSource(logMessage.retAddress), logMessage.message);
+            switch (logMessage.level)
+            {
+                case LogLevel::Trace:
+                    {
+                        SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongWhite));
+                        break;
+                    }
+                case LogLevel::Debug:
+                    {
+
+                        SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::Green));
+                        break;
+                    }
+                case LogLevel::Info:
+                    {
+                        SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongCyan));
+                        break;
+                    }
+                case LogLevel::Warn:
+                    {
+                        SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongYellow));
+                        break;
+                    }
+                case LogLevel::Err:
+                    {
+                        SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongRed));
+                        break;
+                    }
+            }
+
+            if (consoleAllocated)
+            {
+                ulong _;
+                WriteConsoleW(consoleOutput, log.data(), log.length(), &_, nullptr);
+            }
+            else
+            {
+                std::wcout << log << std::endl << std::flush;
+            }
+
+            // Reset
+            SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::White));
         }
     }
 }
 
-void Logger::PrintToConsole(LogLevel level, std::wstring_view str) const
-{
-    switch (level)
-    {
-        case LogLevel::Trace:
-            {
-                SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongWhite));
-                break;
-            }
-        case LogLevel::Debug:
-            {
-
-                SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::Green));
-                break;
-            }
-        case LogLevel::Info:
-            {
-                SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongCyan));
-                break;
-            }
-        case LogLevel::Warn:
-            {
-                SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongYellow));
-                break;
-            }
-        case LogLevel::Err:
-            {
-                SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongRed));
-                break;
-            }
-    }
-
-    if (consoleAllocated)
-    {
-        ulong _;
-        WriteConsoleW(consoleOutput, str.data(), str.length(), &_, nullptr);
-    }
-    else
-    {
-        std::wcout << str << std::endl << std::flush;
-    }
-
-    // Reset
-    SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::White));
-}
-
-Logger::Logger()
+void Logger::Init()
 {
     if (const CommandLineParser cmd; cmd.CmdOptionExists(L"-noconsole"))
     {
@@ -147,13 +162,8 @@ ______ _      _   _             _        ___   __                _ _
     DWORD _;
     WriteConsole(consoleOutput, welcomeText.c_str(), welcomeText.length(), &_, nullptr);
 
-    consoleThread = std::jthread(std::bind_front(&Logger::GetConsoleInput, this));
-}
-
-Logger::~Logger()
-{
-    SetConsoleCtrlHandler(ConsoleHandler, FALSE);
-    FreeConsole();
+    commandThread = std::jthread(std::bind_front(&Logger::GetConsoleInput));
+    loggingThread = std::jthread(std::bind_front(&Logger::PrintToConsole));
 }
 
 void Logger::Log(LogFile file, LogLevel level, std::wstring_view str)
@@ -163,38 +173,28 @@ void Logger::Log(LogFile file, LogLevel level, std::wstring_view str)
         return;
     }
 
-    if (logPrefix.empty())
-    {
-        SetLogSource(_ReturnAddress());
-    }
-
-    const std::wstring log = std::format(L"{}{}\n", logPrefix, str);
-    logPrefix.clear();
-
-    PrintToConsole(level, log);
-
-    // TODO: Finish setting up log files
-    if (file == LogFile::ConsoleOnly)
-    {
-        return;
-    }
+    logQueue.push({ level, file, std::wstring(str), _ReturnAddress() });
 }
 
 void Logger::Log(LogLevel level, std::wstring_view str)
 {
-    SetLogSource(_ReturnAddress());
-    FLHook::GetLogger().Log(LogFile::Default, level, str);
+    if ((!FLHookConfig::i()->debug.logTraceLevel && level == LogLevel::Trace) || (!FLHookConfig::i()->debug.debugMode && level == LogLevel::Debug))
+    {
+        return;
+    }
+
+    logQueue.push({ level, LogFile::Default, std::wstring(str), _ReturnAddress() });
 }
 
 std::optional<std::wstring> Logger::GetCommand()
 {
-    if (queue.empty())
+    if (commandQueue.empty())
     {
         return {};
     }
 
     std::wstring ret;
-    if (const auto val = queue.try_pop(ret); !val)
+    if (const auto val = commandQueue.try_pop(ret); !val)
     {
         return {};
     }

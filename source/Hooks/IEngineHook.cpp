@@ -90,7 +90,7 @@ int IEngineHook::DockCall(const uint& shipId, const uint& spaceId, int dockPortI
             if (const auto client = ShipId(shipId).GetPlayer().value_or(ClientId()))
             {
                 std::wstring msg = L"Traffic control alert: %player has docked.";
-                msg = StringUtils::ReplaceStr(msg, L"%player", client.GetCharacterName());
+                msg = StringUtils::ReplaceStr(msg, std::wstring_view(L"%player"), client.GetCharacterName().Unwrap());
                 client.MessageLocal(msg, 15000.0f);
             }
         }

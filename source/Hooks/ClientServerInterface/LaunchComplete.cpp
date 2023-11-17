@@ -1,11 +1,11 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Core/Logger.hpp"
 
-void LaunchCompleteInner(BaseId, ShipId shipId)
+void IServerImplHook::LaunchCompleteInner(BaseId, ShipId shipId)
 {
     TryHook
     {
@@ -30,7 +30,7 @@ void LaunchCompleteInner(BaseId, ShipId shipId)
 
 void __stdcall IServerImplHook::LaunchComplete(BaseId baseId, ShipId shipId)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"LaunchComplete(\n\tuint baseId = {}\n\tuint shipId = {}\n)", baseId, shipId));
+    Logger::Log(LogLevel::Trace, std::format(L"LaunchComplete(\n\tuint baseId = {}\n\tuint shipId = {}\n)", baseId, shipId));
 
     const auto skip = CallPlugins(&Plugin::OnLaunchComplete, baseId, shipId);
 

@@ -3,10 +3,10 @@
 #include "Core/ClientServerInterface.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
-#include "Core/Logger.hpp"
 
-void PlayerLaunchInner(ShipId shipId, ClientId client)
+void IServerImplHook::PlayerLaunchInner(ShipId shipId, ClientId client)
 {
     TryHook
     {
@@ -33,7 +33,7 @@ void PlayerLaunchInner(ShipId shipId, ClientId client)
     CatchHook({})
 }
 
-void PlayerLaunchInnerAfter([[maybe_unused]] ShipId shipId, ClientId client)
+void IServerImplHook::PlayerLaunchInnerAfter([[maybe_unused]] ShipId shipId, ClientId client)
 {
     TryHook
     {
@@ -48,7 +48,7 @@ void PlayerLaunchInnerAfter([[maybe_unused]] ShipId shipId, ClientId client)
 
 void __stdcall IServerImplHook::PlayerLaunch(ShipId shipId, ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"PlayerLaunch(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
+    Logger::Log(LogLevel::Trace, std::format(L"PlayerLaunch(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
 
     const auto skip = CallPlugins(&Plugin::OnPlayerLaunch, client, shipId);
 

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "API/Utils/Logger.hpp"
 #include "Core/FLHook.hpp"
-#include "Core/Logger.hpp"
 
 namespace nlohmann
 {
@@ -39,7 +39,7 @@ class Serializer
             // If no file is provided, we can search the class metadata.
             if (fileToSave.empty())
             {
-                FLHook::GetLogger().Log(LogLevel::Err, L"While trying to serialize, a file the fileName was empty.");
+                Logger::Log(LogLevel::Err, L"While trying to serialize, a file the fileName was empty.");
                 throw std::invalid_argument("While trying to serialize, a file the fileName was empty.");
             }
 
@@ -51,7 +51,7 @@ class Serializer
                 folderPath.remove_filename();
                 if (!create_directories(folderPath) && !exists(folderPath))
                 {
-                    FLHook::GetLogger().Log(LogLevel::Warn, std::format(L"Unable to create directories for {} when serializing json.", folderPath.wstring()));
+                    Logger::Log(LogLevel::Warn, std::format(L"Unable to create directories for {} when serializing json.", folderPath.wstring()));
                     return;
                 }
             }
@@ -59,7 +59,7 @@ class Serializer
             std::ofstream out(fileToSave);
             if (!out.good() || !out.is_open())
             {
-                FLHook::GetLogger().Log(LogLevel::Warn, std::format(L"Unable to open {} for writing.", fileToSave));
+                Logger::Log(LogLevel::Warn, std::format(L"Unable to open {} for writing.", fileToSave));
                 return;
             }
 
@@ -78,15 +78,15 @@ class Serializer
             }
             catch ([[maybe_unused]] nlohmann::json::parse_error& exc)
             {
-                FLHook::GetLogger().Log(LogLevel::Err, L"Unable to process JSON. It could not be parsed. See log for more detail.");
+                Logger::Log(LogLevel::Err, L"Unable to process JSON. It could not be parsed. See log for more detail.");
             }
             catch ([[maybe_unused]] nlohmann::json::type_error& exc)
             {
-                FLHook::GetLogger().Log(LogLevel::Err, L"Unable to process JSON. It could not be parsed. See log for more detail.");
+                Logger::Log(LogLevel::Err, L"Unable to process JSON. It could not be parsed. See log for more detail.");
             }
             catch ([[maybe_unused]] nlohmann::json::exception& exc)
             {
-                FLHook::GetLogger().Log(LogLevel::Err, L"Unable to process JSON. It could not be parsed. See log for more detail.");
+                Logger::Log(LogLevel::Err, L"Unable to process JSON. It could not be parsed. See log for more detail.");
             }
 
             return std::make_unique<T>();
@@ -100,14 +100,14 @@ class Serializer
             if (fileName.empty())
             {
                 std::string err = "While trying to deserialize, a file, the fileName was empty.";
-                FLHook::GetLogger().Log(LogLevel::Err, StringUtils::stows(err));
+                Logger::Log(LogLevel::Err, StringUtils::stows(err));
                 throw std::invalid_argument(err);
             }
 
             const bool exists = std::filesystem::exists(fileName);
             if (!exists && !createIfNotExists)
             {
-                FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Couldn't load JSON File ({})", fileName));
+                Logger::Log(LogLevel::Err, std::format(L"Couldn't load JSON File ({})", fileName));
                 return std::make_unique<T>();
             }
 
@@ -122,7 +122,7 @@ class Serializer
             std::wifstream file(fileName);
             if (!file || !file.is_open() || !file.good())
             {
-                FLHook::GetLogger().Log(LogLevel::Warn, std::format(L"Unable to open JSON file {}", fileName));
+                Logger::Log(LogLevel::Warn, std::format(L"Unable to open JSON file {}", fileName));
                 return std::make_unique<T>();
             }
 

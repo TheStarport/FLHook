@@ -1,12 +1,12 @@
 #include "PCH.hpp"
 
+#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Core/Logger.hpp"
 
 void __stdcall IServerImplHook::MineAsteroid(SystemId systemId, const Vector& pos, ArchId crateId, ArchId lootId, uint count, ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"MineAsteroid(\n\tuint systemId = {}\n\tuint crateId = {}\n\tuint lootId = {}\n\tuint count = "
                                         L"{}\n\tClientId client = {}\n)",
                                         systemId,

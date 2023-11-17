@@ -1,7 +1,6 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/ClientList.hpp"
-#include "API/Utils/IniUtils.hpp"
 
 #include <Utils/Detour.hpp>
 
@@ -42,7 +41,8 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
 
         if (!conf->callsign.disableUsingAffiliationForCallsign)
         {
-            if (auto repGroupNick = Hk::IniUtils::i()->GetFromPlayerFile(client.GetValue(), L"rep_group");
+            // TODO: Extract rep group for callsign
+            /*if (auto repGroupNick = Hk::IniUtils::i()->GetFromPlayerFile(client.GetValue(), L"rep_group");
                 repGroupNick.has_value() && repGroupNick.value().length() - 4 <= 6)
             {
                 auto val = StringUtils::wstos(repGroupNick.value());
@@ -51,7 +51,7 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
             else
             {
                 MemUtils::WriteProcMem(playerFactionAddr, "player", 6);
-            }
+            }*/
         }
     }
 

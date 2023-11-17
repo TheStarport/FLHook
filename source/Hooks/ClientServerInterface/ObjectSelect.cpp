@@ -2,11 +2,11 @@
 
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Core/Logger.hpp"
+#include "API/Utils/Logger.hpp"
 
 void __stdcall IServerImplHook::GfObjSelect(unsigned int unk1, unsigned int unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"GFObjSelect(\n\tunsigned int unk1 = {}\n\tunsigned int unk2 = {}\n)", unk1, unk2));
+    Logger::Log(LogLevel::Trace, std::format(L"GFObjSelect(\n\tunsigned int unk1 = {}\n\tunsigned int unk2 = {}\n)", unk1, unk2));
 
     if (const auto skip = CallPlugins(&Plugin::OnGfObjectSelect, unk1, unk2); !skip)
     {

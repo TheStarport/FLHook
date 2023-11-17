@@ -1,23 +1,21 @@
 #pragma once
 
-#include <Global.hpp>
-
 class SaveGameDetour
 {
-	std::wstring path;
+        std::wstring path;
 
-	static bool GetUserDataPathDetour(char* retPtr);
-	std::wstring GetSaveDataPath() const;
+        static bool GetUserDataPathDetour(char* retPtr);
+        std::wstring GetSaveDataPath() const;
 
-protected:
-	void InitHook();
-	void DestroyHook();
+    protected:
+        void InitHook();
+        void DestroyHook();
 };
 
 class MemoryManager final : public SaveGameDetour, public Singleton<MemoryManager>
 {
-public:
-	MemoryManager() = default;
-	void AddHooks();
-	void RemoveHooks();
+    public:
+        MemoryManager() = default;
+        void AddHooks();
+        void RemoveHooks();
 };

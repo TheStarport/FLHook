@@ -4,7 +4,7 @@
 
 bool IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint client, XFireWeaponInfo& fwi)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnFireWeaponPacket, ClientId(client), fwi);
 
@@ -21,7 +21,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint client, XFireWeaponInfo& 
 
 bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(uint client, XActivateEquip& aq)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnActivateEquipPacket, ClientId(client), aq);
 
@@ -38,7 +38,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(uint client, XActivateEquip
 
 bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(uint client, XActivateCruise& aq)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnActivateCruisePacket, ClientId(client), aq);
 
@@ -55,7 +55,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(uint client, XActivateCrui
 
 bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(uint client, XActivateThrusters& aq)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnActivateThrusterPacket, ClientId(client), aq);
 
@@ -72,7 +72,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(uint client, XActivateT
 
 bool IClientImpl::Send_FLPACKET_COMMON_SETTARGET(uint client, XSetTarget& st)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_SETTARGET(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_SETTARGET(\n\tClientId client = {}\n)", client));
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_SETTARGET(client, st); }
@@ -83,7 +83,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SETTARGET(uint client, XSetTarget& st)
 
 void IClientImpl::unknown_6(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_6(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_6(\n\tClientId client = {}\n)", client));
 
     CallClientPreamble { unknown_6(client, unk1); }
     CallClientPostamble;
@@ -91,7 +91,7 @@ void IClientImpl::unknown_6(uint client, FLPACKET_UNKNOWN& unk1)
 
 bool IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(uint client, XGoTradelane& tl)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(\n\tClientId client = {}\n)", client));
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_GOTRADELANE(client, tl); }
@@ -102,7 +102,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(uint client, XGoTradelane& tl
 
 bool IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(uint client, uint shipId, uint archTradelane1, uint archTradelane2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(\n\tClientId client = {}\n\tuint shipId = {}\n\tuint archTradelane1 = {}\n\tuint "
                     L"archTradelane2 = {}\n)",
@@ -120,7 +120,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(uint client, uint shipId, u
 
 bool IClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(uint client, XJettisonCargo& jc)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(\n\tClientId client = {}\n)", client));
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_JETTISONCARGO(client, jc); }
@@ -178,7 +178,7 @@ bool IClientImpl::Startup(uint unk1, uint unk2)
 
 void IClientImpl::nullsub(uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::nullsub(\n\tuint unk1 = {}\n)", unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::nullsub(\n\tuint unk1 = {}\n)", unk1));
 
     CallClientPreamble { nullsub(unk1); }
     CallClientPostamble;
@@ -186,7 +186,7 @@ void IClientImpl::nullsub(uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(\n\tClientId client = {}\n)", client));
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_LOGINRESPONSE(client, unk1); }
@@ -197,7 +197,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(uint client, FLPACKET_UNKNO
 
 bool IClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(\n\tClientId client = {}\n)", client));
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_CHARACTERINFO(client, unk1); }
@@ -208,7 +208,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(uint client, FLPACKET_UNKNO
 
 bool IClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(\n\tClientId client = {}\n)", client));
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_CHARSELECTVERIFIED(client, unk1); }
@@ -225,7 +225,7 @@ void IClientImpl::Shutdown()
 
 bool IClientImpl::CDPClientProxyDisconnect(uint client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::CDPClientProxyDisconnect(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::CDPClientProxyDisconnect(\n\tClientId client = {}\n)", client));
 
     bool retVal;
     CallClientPreamble { retVal = CDPClientProxyDisconnect(client); }
@@ -236,7 +236,7 @@ bool IClientImpl::CDPClientProxyDisconnect(uint client)
 
 uint IClientImpl::CDPClientProxyGetSendQSize(uint client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::CDPClientProxyGetSendQSize(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::CDPClientProxyGetSendQSize(\n\tClientId client = {}\n)", client));
 
     uint retVal;
     CallClientPreamble { retVal = CDPClientProxyGetSendQSize(client); }
@@ -247,7 +247,7 @@ uint IClientImpl::CDPClientProxyGetSendQSize(uint client)
 
 uint IClientImpl::CDPClientProxyGetSendQBytes(uint client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::CDPClientProxyGetSendQBytes(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::CDPClientProxyGetSendQBytes(\n\tClientId client = {}\n)", client));
 
     uint retVal;
     CallClientPreamble { retVal = CDPClientProxyGetSendQBytes(client); }
@@ -266,7 +266,7 @@ double IClientImpl::CDPClientProxyGetLinkSaturation(uint client)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(uint client, uint shipArch)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(\n\tClientId client = {}\n\tuint shipArch = {}\n)", client, shipArch));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetShipArchPacket, ClientId(client), shipArch);
@@ -284,7 +284,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(uint client, uint shipArch)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(uint client, float status)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETHULATUS(\n\tClientId client = {}\n\tfloat status = {}\n)", client, status));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetHullStatusPacket, ClientId(client), status);
@@ -302,7 +302,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(uint client, float status)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(uint client, st6::list<XCollision>& collisionGroupList)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetCollisionGroupsPacket, ClientId(client), collisionGroupList);
 
@@ -319,7 +319,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(uint client, st6::list
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(uint client, st6::vector<EquipDesc>& equipmentVector)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetEquipmentPacket, ClientId(client), equipmentVector);
 
@@ -336,7 +336,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(uint client, st6::vector<Equ
 
 void IClientImpl::unknown_26(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_26(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_26(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_26(client, unk1); }
     CallClientPostamble;
@@ -344,7 +344,7 @@ void IClientImpl::unknown_26(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(uint client, FLPACKET_UNKNOWN& unk1, FLPACKET_UNKNOWN& unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetAddItemPacket, ClientId(client), unk1, unk2);
 
@@ -361,7 +361,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(uint client, FLPACKET_UNKNOWN&
 
 void IClientImpl::unknown_28(uint client, uint unk1, uint unk2, uint unk3)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::unknown_28(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n\tuint unk3 = {}\n)", client, unk1, unk2, unk3));
 
@@ -371,7 +371,7 @@ void IClientImpl::unknown_28(uint client, uint unk1, uint unk2, uint unk3)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
@@ -390,7 +390,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(uint client, uint unk1, uint
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(
             L"IClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
@@ -404,7 +404,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(uint client, uint unk1
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATECHAR(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFUPDATECHAR(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
@@ -417,7 +417,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATECHAR(uint client, uint unk1, uint
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     bool retVal;
@@ -429,7 +429,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(uint client, uint unk1
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
@@ -442,7 +442,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(uint client, uint unk1, 
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(\n\tClientId client = {}\n\tuint unk1 = "
                                         L"{}\n\tuint unk2 = {}\n)",
                                         client,
@@ -458,7 +458,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(uint client, uint
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
@@ -471,7 +471,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(uint client,
 
 void IClientImpl::unknown_36(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::unknown_36(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
     CallClientPreamble { unknown_36(client, unk1, unk2); }
@@ -480,7 +480,7 @@ void IClientImpl::unknown_36(uint client, uint unk1, uint unk2)
 
 void IClientImpl::unknown_37(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::unknown_37(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
     CallClientPreamble { unknown_37(client, unk1, unk2); }
@@ -489,7 +489,7 @@ void IClientImpl::unknown_37(uint client, uint unk1, uint unk2)
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
 
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
@@ -503,7 +503,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(uint client, 
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(\n\tClientId client = {}\n\tuint unk1 = "
                                         L"{}\n\tuint unk2 = {}\n)",
                                         client,
@@ -519,7 +519,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(uint client, uin
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(
             L"IClientImpl::Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
@@ -533,7 +533,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(uint client, uint
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(\n\tClientId client = {}\n\tuint unk1 = "
                                         L"{}\n)",
                                         client,
@@ -548,7 +548,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(uint client
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(\n\tClientId client = {}\n\tuint unk1 = "
                                         L"{}\n\tuint unk2 = {}\n)",
                                         client,
@@ -564,7 +564,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(uint client, ui
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(uint client, uint reason)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(\n\tClientId client = {}\n\tuint reason = {}\n)", client, reason));
 
@@ -577,7 +577,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(uint client, uint
 
 void IClientImpl::unknown_44(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::unknown_44(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
     CallClientPreamble { unknown_44(client, unk1, unk2); }
@@ -586,7 +586,7 @@ void IClientImpl::unknown_44(uint client, uint unk1, uint unk2)
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(\n\tClientId client = {}\n\tuint unk1 = "
                                         L"{}\n\tuint unk2 = {}\n)",
                                         client,
@@ -602,7 +602,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(uint client, uint u
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(\n\tClientId client = {}\n\tuint unk1 = "
                                         L"{}\n)",
                                         client,
@@ -617,7 +617,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(uint client, 
 
 bool IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(uint client, FLPACKET_CREATESOLAR& solar)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateSolarPacket, ClientId(client), solar);
 
@@ -634,7 +634,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(uint client, FLPACKET_CREATES
 
 bool IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(uint client, FLPACKET_CREATESHIP& ship)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateShipPacket, ClientId(client), ship);
 
@@ -651,7 +651,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(uint client, FLPACKET_CREATESH
 
 bool IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateLootPacket, ClientId(client), unk1);
 
@@ -668,7 +668,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(uint client, FLPACKET_UNKNOWN&
 
 bool IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateMinePacket, ClientId(client), unk1);
 
@@ -685,7 +685,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(uint client, FLPACKET_UNKNOWN&
 
 bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(uint& client, FLPACKET_CREATEGUIDED& guided)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateGuidedPacket, ClientId(client), guided);
 
@@ -702,7 +702,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(uint& client, FLPACKET_CREAT
 
 bool IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateCounterPacket, ClientId(client), unk1);
 
@@ -719,7 +719,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(uint client, FLPACKET_UNKNO
 
 void IClientImpl::unknown_53(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_53(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_53(\n\tClientId client = {}\n)", client));
 
     CallClientPreamble { unknown_53(client, unk1); }
     CallClientPostamble;
@@ -727,7 +727,7 @@ void IClientImpl::unknown_53(uint client, FLPACKET_UNKNOWN& unk1)
 
 void IClientImpl::unknown_54(uint client, uint unk1, uint unk2, uint unk3)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::unknown_54(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n\tuint unk3 = {}\n)", client, unk1, unk2, unk3));
 
@@ -752,7 +752,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_UPDATEOBJECT(uint client, SSPObjUpdateInf
 
 bool IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(uint client, FLPACKET_DESTROYOBJECT& destroy)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnDestroyObjectPacket, ClientId(client), destroy);
 
@@ -769,7 +769,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(uint client, FLPACKET_DESTR
 
 bool IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(uint client, XActivateEquip& aq)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
 
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(\n\tClientId client = {}\n)", client));
 
@@ -788,7 +788,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(uint client, XActivateEqui
 
 bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(uint client, FLPACKET_SYSTEM_SWITCH_OUT& systemSwitchOut)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(\n\tClientId client = {}\n)", client));
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(client, systemSwitchOut); }
@@ -799,7 +799,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(uint client, FLPACKET_S
 
 bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(uint client, FLPACKET_SYSTEM_SWITCH_IN& systemSwitchIn)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(\n\tClientId client = {}\n)", client));
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(client, systemSwitchIn); }
@@ -810,7 +810,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(uint client, FLPACKET_SY
 
 bool IClientImpl::Send_FLPACKET_SERVER_LAND(uint client, FLPACKET_LAND& land)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_LAND(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_LAND(\n\tClientId client = {}\n)", client));
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_LAND(client, land); }
@@ -821,7 +821,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LAND(uint client, FLPACKET_LAND& land)
 
 bool IClientImpl::Send_FLPACKET_SERVER_LAUNCH(uint client, FLPACKET_LAUNCH& launch)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
 
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_LAUNCH(\n\tClientId client = {}\n)", client));
 
@@ -840,7 +840,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LAUNCH(uint client, FLPACKET_LAUNCH& laun
 
 bool IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint client, bool response, uint shipId)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(\n\tClientId client = {}\n\tbool response = {}\n\tuint shipId = {}\n)",
                     client,
@@ -862,7 +862,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint client, bool r
 
 void IClientImpl::unknown_63(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_63(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_63(\n\tClientId client = {}\n)", client));
 
     CallClientPreamble { unknown_63(client, unk1); }
     CallClientPostamble;
@@ -879,7 +879,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_DAMAGEOBJECT(uint client, uint objId, Dam
 
 bool IClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     bool retVal;
@@ -891,7 +891,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_USE_ITEM(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_USE_ITEM(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnUseItemPacket, ClientId(client), unk1);
@@ -909,7 +909,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_USE_ITEM(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(uint client, FLPACKET_SETREPUTATION& rep)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetReputationPacket, ClientId(client), rep);
 
@@ -926,7 +926,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(uint client, FLPACKET_SETRE
 
 void IClientImpl::unknown_68(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_68(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_68(\n\tClientId client = {}\n)", client));
 
     CallClientPreamble { unknown_68(client, unk1); }
     CallClientPostamble;
@@ -937,7 +937,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(uint client, uint unk1, uint unk
                                                 uint unk19, uint unk20, uint unk21, uint unk22)
 {
     bool retVal;
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = "
                                         L"{}\n\tuint unk3 = {}\n\tuint unk4 = {}\n\tuint unk5 = {}\n\tuint unk6 = {}\n\tuint unk7 "
                                         L"= {}\n\tuint unk8 = {}\n\tuint unk9 = {}\n\tuint unk10 = {}\n\tuint unk11 = {}\n\tuint "
@@ -998,7 +998,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(uint client, uint unk1, uint unk
 
 void IClientImpl::unknown_70(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_70(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_70(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_70(client, unk1); }
     CallClientPostamble;
@@ -1006,7 +1006,7 @@ void IClientImpl::unknown_70(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetMissionMessagePacket, ClientId(client), unk1);
 
@@ -1023,7 +1023,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(uint client, FLPACKET
 
 void IClientImpl::unknown_72(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_72(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_72(\n\tClientId client = {}\n)", client));
 
     CallClientPreamble { unknown_72(client, unk1); }
     CallClientPostamble;
@@ -1031,7 +1031,7 @@ void IClientImpl::unknown_72(uint client, FLPACKET_UNKNOWN& unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetMissionObjectivesPacket, ClientId(client), unk1);
@@ -1049,7 +1049,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(uint client, uint un
 
 void IClientImpl::unknown_74(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_74(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_74(\n\tClientId client = {}\n)", client));
 
     CallClientPreamble { unknown_74(client, unk1); }
     CallClientPostamble;
@@ -1057,7 +1057,7 @@ void IClientImpl::unknown_74(uint client, FLPACKET_UNKNOWN& unk1)
 
 void IClientImpl::unknown_75(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_75(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_75(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_75(client, unk1); }
     CallClientPostamble;
@@ -1065,7 +1065,7 @@ void IClientImpl::unknown_75(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_MARKOBJ(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_MARKOBJ(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
@@ -1078,7 +1078,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MARKOBJ(uint client, uint unk1, uint unk2
 
 void IClientImpl::unknown_77(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_77(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_77(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_77(client, unk1); }
     CallClientPostamble;
@@ -1086,7 +1086,7 @@ void IClientImpl::unknown_77(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETCASH(uint client, uint cash)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETCASH(\n\tClientId client = {}\n\tuint cash = {}\n)", client, cash));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetCashPacket, ClientId(client), cash);
@@ -1104,7 +1104,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETCASH(uint client, uint cash)
 
 void IClientImpl::unknown_79(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_79(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_79(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_79(client, unk1); }
     CallClientPostamble;
@@ -1112,7 +1112,7 @@ void IClientImpl::unknown_79(uint client, uint unk1)
 
 void IClientImpl::unknown_80(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_80(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_80(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_80(client, unk1); }
     CallClientPostamble;
@@ -1120,7 +1120,7 @@ void IClientImpl::unknown_80(uint client, uint unk1)
 
 void IClientImpl::unknown_81(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_81(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_81(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_81(client, unk1); }
     CallClientPostamble;
@@ -1128,7 +1128,7 @@ void IClientImpl::unknown_81(uint client, uint unk1)
 
 void IClientImpl::unknown_82(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_82(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_82(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_82(client, unk1); }
     CallClientPostamble;
@@ -1136,7 +1136,7 @@ void IClientImpl::unknown_82(uint client, uint unk1)
 
 void IClientImpl::unknown_83(uint client, char* unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::unknown_83(\n\tClientId client = {}\n\tchar* unk1 = {}\n)", client, StringUtils::stows(unk1)));
 
     CallClientPreamble { unknown_83(client, unk1); }
@@ -1145,7 +1145,7 @@ void IClientImpl::unknown_83(uint client, char* unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(uint& client, uint shipId, uint flag, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(\n\tClientId client = {}\n\tuint shipId = {}\n\tuint flag = {}\n\tuint unk1 "
                     L"= {}\n\tuint unk2 = {}\n)",
@@ -1164,7 +1164,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(uint& client, uint shipI
 
 void IClientImpl::unknown_85(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_85(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_85(\n\tClientId client = {}\n)", client));
 
     CallClientPreamble { unknown_85(client, unk1); }
     CallClientPostamble;
@@ -1172,7 +1172,7 @@ void IClientImpl::unknown_85(uint client, FLPACKET_UNKNOWN& unk1)
 
 void IClientImpl::unknown_86(uint client, uint unk1, uint unk2, uint unk3)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::unknown_86(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n\tuint unk3 = {}\n)", client, unk1, unk2, unk3));
 
@@ -1182,7 +1182,7 @@ void IClientImpl::unknown_86(uint client, uint unk1, uint unk2, uint unk3)
 
 bool IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(SObjectCargoUpdate& cargoUpdate, uint dunno1, uint dunno2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(\n\tSObjectCargoUpdate client = {}\n\tuint dunno1 = {}\n\tuint dunno2 = {}\n)",
                     cargoUpdate.client,
@@ -1198,7 +1198,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(SObjectCargoUpdate& car
 
 bool IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(uint client, FLPACKET_BURNFUSE& burnFuse)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnBurnFusePacket, ClientId(client), burnFuse);
 
@@ -1215,7 +1215,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(uint client, FLPACKET_BURNFUSE& 
 
 void IClientImpl::unknown_89(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_89(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_89(\n\tClientId client = {}\n)", client));
 
     CallClientPreamble { unknown_89(client, unk1); }
     CallClientPostamble;
@@ -1223,7 +1223,7 @@ void IClientImpl::unknown_89(uint client, FLPACKET_UNKNOWN& unk1)
 
 void IClientImpl::unknown_90(uint client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_90(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_90(\n\tClientId client = {}\n)", client));
 
     CallClientPreamble { unknown_90(client); }
     CallClientPostamble;
@@ -1231,7 +1231,7 @@ void IClientImpl::unknown_90(uint client)
 
 void IClientImpl::unknown_91(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_91(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_91(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_91(client, unk1); }
     CallClientPostamble;
@@ -1239,7 +1239,7 @@ void IClientImpl::unknown_91(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(uint client, uint unk1, int unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(\n\tClientId client = {}\n\tuint unk1 = {}\n\tint unk2 = {}\n)", client, unk1, unk2));
 
@@ -1252,7 +1252,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(uint client, uint unk1, 
 
 bool IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(uint client, uint objHash, int state)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(
             L"IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(\n\tClientId client = {}\n\tuint objHash = {}\n\tint state = {}\n)", client, objHash, state));
@@ -1266,7 +1266,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(uint client, uint objHa
 
 bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(uint client, uint objHash, int unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(
             L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(\n\tClientId client = {}\n\tobjHash = {}\n\tint unk2 = {}\n)", client, objHash, unk2));
@@ -1280,7 +1280,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(uint client, uint objHa
 
 bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(uint client, uint unk1, int unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(
             L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(\n\tClientId client = {}\n\tuint unk1 = {}\n\tint unk2 = {}\n)", client, unk1, unk2));
@@ -1294,7 +1294,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(uint client, uint un
 
 void IClientImpl::unknown_96(uint client, uint unk1, uint unk2, uint unk3)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::unknown_96(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n\tuint unk3 = {}\n)", client, unk1, unk2, unk3));
 
@@ -1304,7 +1304,7 @@ void IClientImpl::unknown_96(uint client, uint unk1, uint unk2, uint unk3)
 
 bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(uint client, uint unk1, int unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(
             L"IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(\n\tClientId client = {}\n\tuint unk1 = {}\n\tint unk2 = {}\n)", client, unk1, unk2));
@@ -1318,7 +1318,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(uint client, uint
 
 bool IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(uint client, uint unk1, int unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(\n\tClientId client = {}\n\tuint unk1 = {}\n\tint unk2 = {}\n)", client, unk1, unk2));
 
@@ -1331,7 +1331,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(uint client, uint unk1, i
 
 bool IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(uint client, uint unk1, int unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(
             L"IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(\n\tClientId client = {}\n\tuint unk1 = {}\n\tint unk2 = {}\n)", client, unk1, unk2));
@@ -1345,7 +1345,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(uint client, uint unk
 
 void IClientImpl::unknown_100(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::unknown_100(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
     CallClientPreamble { unknown_100(client, unk1, unk2); }
@@ -1354,7 +1354,7 @@ void IClientImpl::unknown_100(uint client, uint unk1, uint unk2)
 
 void IClientImpl::unknown_101(uint& client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_101(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_101(\n\tClientId client = {}\n)", client));
 
     CallClientPreamble { unknown_101(client, unk1); }
     CallClientPostamble;
@@ -1362,7 +1362,7 @@ void IClientImpl::unknown_101(uint& client, FLPACKET_UNKNOWN& unk1)
 
 void IClientImpl::unknown_102(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_102(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_102(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_102(client, unk1); }
     CallClientPostamble;
@@ -1370,7 +1370,7 @@ void IClientImpl::unknown_102(uint client, uint unk1)
 
 void IClientImpl::unknown_103(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_103(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_103(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_103(client, unk1); }
     CallClientPostamble;
@@ -1378,7 +1378,7 @@ void IClientImpl::unknown_103(uint client, uint unk1)
 
 void IClientImpl::unknown_104(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::unknown_104(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
     CallClientPreamble { unknown_104(client, unk1, unk2); }
@@ -1387,7 +1387,7 @@ void IClientImpl::unknown_104(uint client, uint unk1, uint unk2)
 
 void IClientImpl::unknown_105(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::unknown_105(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
     CallClientPreamble { unknown_105(client, unk1, unk2); }
@@ -1396,7 +1396,7 @@ void IClientImpl::unknown_105(uint client, uint unk1, uint unk2)
 
 void IClientImpl::unknown_106(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::unknown_106(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
     CallClientPreamble { unknown_106(client, unk1, unk2); }
@@ -1405,7 +1405,7 @@ void IClientImpl::unknown_106(uint client, uint unk1, uint unk2)
 
 void IClientImpl::unknown_107(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::unknown_107(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
     CallClientPreamble { unknown_107(client, unk1, unk2); }
@@ -1414,7 +1414,7 @@ void IClientImpl::unknown_107(uint client, uint unk1, uint unk2)
 
 bool IClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     bool retVal;
@@ -1426,7 +1426,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_PLAYER_TRADE(uint client, uint unk1)
 
 void IClientImpl::unknown_109(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_109(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_109(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_109(client, unk1); }
     CallClientPostamble;
@@ -1434,7 +1434,7 @@ void IClientImpl::unknown_109(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
@@ -1453,7 +1453,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(uint client, uint unk1, uint u
 
 bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(uint client, wchar_t* characterName, uint unk2, char unk3)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(\n\tClientId client = {}\n\twchar_t* characterName = \n\tuint unk2 = {}\n)",
                     client,
@@ -1475,7 +1475,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(uint client, wchar_t* characte
 
 void IClientImpl::unknown_112(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_112(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_112(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_112(client, unk1); }
     CallClientPostamble;
@@ -1483,7 +1483,7 @@ void IClientImpl::unknown_112(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(uint client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnPlayerList2Packet, ClientId(client));
 
@@ -1500,7 +1500,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(uint client)
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
@@ -1519,7 +1519,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(uint client, uint unk1, u
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
@@ -1538,7 +1538,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(uint client, uint unk1, u
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(uint client, FLPACKET_UNKNOWN& unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(\n\tClientId client = {}\n)", client));
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdatePacket, ClientId(client), unk1);
 
@@ -1555,7 +1555,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(uint client, FLPACKET_UNKNO
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
@@ -1574,7 +1574,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint client, uint unk1, u
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint client, uint targetId, uint rank)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(
             L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(\n\tClientId client = {}\n\tuint targetId = {}\n\tuint rank = {}\n)", client, targetId, rank));
@@ -1594,7 +1594,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint client, uint targetI
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint "
                                         L"unk2 = {}\n)",
                                         client,
@@ -1616,7 +1616,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(uint client, uint unk1, u
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint client, uint unk1, uint unk2)
 {
-    FLHook::GetLogger().Log(
+    Logger::Log(
         LogLevel::Trace,
         std::format(L"IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client, unk1, unk2));
 
@@ -1635,7 +1635,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint client, uint unk1, u
 
 void IClientImpl::unknown_121(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_121(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_121(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_121(client, unk1); }
     CallClientPostamble;
@@ -1643,7 +1643,7 @@ void IClientImpl::unknown_121(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_FORMATION_UPDATE(uint client, uint shipId, Vector& formationOffset)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::Send_FLPACKET_SERVER_FORMATION_UPDATE(\n\tClientId client = {}\n\tuint shipId = {}\n)", client, shipId));
 
     bool retVal;
@@ -1655,7 +1655,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_FORMATION_UPDATE(uint client, uint shipId
 
 void IClientImpl::unknown_123(uint client, uint unk1, uint unk2, uint unk3, uint unk4, uint unk5, uint unk6)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"IClientImpl::unknown_123(\n\tClientId client = {}\n\tuint unk1 = {}\n\tuint unk2 = {}\n\tuint "
                                         L"unk3 = {}\n\tuint unk4 = {}\n\tuint unk5 = {}\n\tuint unk6 = {}\n)",
                                         client,
@@ -1672,7 +1672,7 @@ void IClientImpl::unknown_123(uint client, uint unk1, uint unk2, uint unk3, uint
 
 void IClientImpl::unknown_124(uint client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_124(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_124(\n\tClientId client = {}\n)", client));
 
     CallClientPreamble { unknown_124(client); }
     CallClientPostamble;
@@ -1680,7 +1680,7 @@ void IClientImpl::unknown_124(uint client)
 
 void IClientImpl::unknown_125(uint client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_125(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_125(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     CallClientPreamble { unknown_125(client, unk1); }
     CallClientPostamble;
@@ -1688,7 +1688,7 @@ void IClientImpl::unknown_125(uint client, uint unk1)
 
 int IClientImpl::unknown_126(char* unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_126(\n\tchar* unk1 = {}\n)", StringUtils::stows(unk1)));
+    Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::unknown_126(\n\tchar* unk1 = {}\n)", StringUtils::stows(unk1)));
 
     int retVal;
     CallClientPreamble { retVal = unknown_126(unk1); }

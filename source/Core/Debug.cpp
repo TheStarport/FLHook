@@ -1,7 +1,8 @@
 #include "PCH.hpp"
 
+#define SPDLOG_USE_STD_FORMAT // NOLINT
 
-#define SPDLOG_USE_STD_FORMAT
+#include "Core/DebugTools.hpp"
 #include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
@@ -9,7 +10,6 @@
 #include <Utils/Detour.hpp>
 
 using CreateIDType = uint (*)(const char*);
-std::map<std::string, uint> DebugTools::hashMap;
 
 std::shared_ptr<spdlog::logger> hashList = nullptr;
 const auto detour = std::make_unique<FunctionDetour<CreateIDType>>(CreateID);
@@ -25,19 +25,19 @@ uint DebugTools::CreateIdDetour(const char* str)
     uint hash = CreateID(str);
     detour->Detour(CreateIdDetour);
 
-    std::string fulr = str;
-    if (hashMap.contains(fulr))
+    std::string fullStr = str;
+    if (hashMap.contains(fullStr))
     {
         return hash;
     }
 
-    hashMap[fulr] = hash;
-    hashList->log(spdlog::level::debug, std::format("{}  {:#X}  {}", hash, hash, fulr));
+    hashMap[fullStr] = hash;
+    hashList->log(spdlog::level::debug, std::format("{}  {:#X}  {}", hash, hash, fullStr));
 
     return hash;
 }
 
-void DebugTools::Init() const
+void DebugTools::Init()
 {
     if (!FLHookConfig::i()->debug.debugMode)
     {

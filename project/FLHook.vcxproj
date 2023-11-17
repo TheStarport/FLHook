@@ -15,6 +15,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\source\API\FLHook\PersonalityHelper.cpp" />
     <ClCompile Include="..\source\API\InternalApi.cpp" />
     <ClCompile Include="..\Source\API\FLHook\ClientList.cpp" />
     <ClCompile Include="..\source\API\FLHook\InfocardManager.cpp" />
@@ -111,6 +112,7 @@
     <ClInclude Include="..\FLHookSDK\include\Utils\TemplateHelpers.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Utils\TimeUtils.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Utils\Utils.hpp" />
+    <ClInclude Include="..\include\API\FLHook\PersonalityHelper.hpp" />
     <ClInclude Include="..\Include\API\InternalApi.hpp" />
     <ClInclude Include="..\Include\API\FLHook\ClientList.hpp" />
     <ClInclude Include="..\include\API\FLHook\InfocardManager.hpp" />
@@ -126,11 +128,12 @@
     <ClInclude Include="..\Include\API\Types\ShipId.hpp" />
     <ClInclude Include="..\Include\API\Types\SystemId.hpp" />
     <ClInclude Include="..\include\API\Utils\Codec.hpp" />
-    <ClInclude Include="..\include\API\Utils\FileUtils.hpp" />
-    <ClInclude Include="..\include\API\Utils\IniUtils.hpp" />
+    <ClInclude Include="..\include\API\Utils\Logger.hpp" />
     <ClInclude Include="..\include\API\Utils\PerfTimer.hpp" />
     <ClInclude Include="..\include\API\Utils\Serializer.hpp" />
+    <ClInclude Include="..\include\API\Utils\TempBan.hpp" />
     <ClInclude Include="..\include\API\Utils\TransformArgs.hpp" />
+    <ClInclude Include="..\include\API\Utils\ZoneUtilities.hpp" />
     <ClInclude Include="..\include\Core\AddressList.hpp" />
     <ClInclude Include="..\Include\Core\ApiInternal.hpp" />
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp" />
@@ -140,20 +143,18 @@
     <ClInclude Include="..\Include\Core\Commands\CommandLineParser.hpp" />
     <ClInclude Include="..\Include\Core\Commands\ExternalCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp" />
+    <ClInclude Include="..\include\Core\DebugTools.hpp" />
     <ClInclude Include="..\include\Core\ExceptionHandler.hpp" />
     <ClInclude Include="..\Include\Core\ClientServerInterface.hpp" />
     <ClInclude Include="..\include\Core\FLHook.hpp" />
     <ClInclude Include="..\include\Core\IEngineHook.hpp" />
     <ClInclude Include="..\include\Core\IpResolver.hpp" />
-    <ClInclude Include="..\Include\Core\Logger.hpp" />
     <ClInclude Include="..\Include\Core\MemoryManager.hpp" />
     <ClInclude Include="..\Include\Core\MessageHandler.hpp" />
     <ClInclude Include="..\Include\Core\PluginManager.hpp" />
     <ClInclude Include="..\include\Core\StartupCache.hpp" />
-    <ClInclude Include="..\Include\Core\TempBan.hpp" />
     <ClInclude Include="..\Include\Core\Templates\Constexpr.hpp" />
     <ClInclude Include="..\Include\Core\Templates\Macros.hpp" />
-    <ClInclude Include="..\include\Core\ZoneUtilities.hpp" />
     <ClInclude Include="..\Include\Defs\CoreGlobals.hpp" />
     <ClInclude Include="..\Include\Defs\Enums.hpp" />
     <ClInclude Include="..\Include\Defs\FLHookConfig.hpp" />
@@ -161,7 +162,6 @@
     <ClInclude Include="..\include\Defs\SehException.hpp" />
     <ClInclude Include="..\Include\Defs\ServerStats.hpp" />
     <ClInclude Include="..\Include\Defs\Structs.hpp" />
-    <ClInclude Include="..\Include\Global.hpp" />
     <ClInclude Include="..\Include\PCH.hpp" />
     <ClInclude Include="..\include\Utils\Codec.hpp" />
   </ItemGroup>

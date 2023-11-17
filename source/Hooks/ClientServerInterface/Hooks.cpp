@@ -1,9 +1,10 @@
 #include "PCH.hpp"
 
+#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/ExceptionHandler.hpp"
 #include "Core/FLHook.hpp"
-#include "Core/Logger.hpp"
 #include "Core/StartupCache.hpp"
 
 void IServerImplHook::ServerReady()
@@ -61,6 +62,11 @@ void IServerImplHook::UpdateInner()
 
 void IServerImplHook::StartupInner(SStartupInfo& si)
 {
+    // Set module references
+    FLHook::commonDll = GetModuleHandle(L"common.dll");
+    FLHook::serverDll = GetModuleHandle(L"server.dll");
+    FLHook::dalibDll = GetModuleHandle(L"dalib.dll");
+
     // Startup the server with this number of players.
     const auto address = FLHook::Offset(FLHook::BinaryType::Server, AddressList::PlayerDbMaxPlayersPatch);
     std::array<byte, 1> nop = { 0x90 };
@@ -86,7 +92,7 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
 
     FLHook::instance->startupCache->Done();
 
-    FLHook::GetLogger().Log(LogLevel::Info, L"FLHook Ready");
+    Logger::Log(LogLevel::Info, L"FLHook Ready");
 
     FLHook::instance->flhookReady = true;
 }
@@ -110,7 +116,7 @@ int __stdcall IServerImplHook::Update()
 
 void __stdcall IServerImplHook::Shutdown()
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, L"Shutdown()");
+    Logger::Log(LogLevel::Trace, L"Shutdown()");
 
     if (const auto skip = CallPlugins(&Plugin::OnServerShutdown); !skip)
     {

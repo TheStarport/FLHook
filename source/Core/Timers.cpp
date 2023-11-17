@@ -3,9 +3,9 @@
 #include <Psapi.h>
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/Utils/TempBan.hpp"
 #include "Core/FLHook.hpp"
 #include "Core/MessageHandler.hpp"
-#include "Core/TempBan.hpp"
 #include "Defs/ServerStats.hpp"
 
 std::vector<std::shared_ptr<Timer>> Timer::timers;

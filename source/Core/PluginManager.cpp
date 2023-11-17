@@ -34,14 +34,14 @@ cpp::result<std::wstring, Error> PluginManager::Unload(std::wstring_view name)
 
     if (!plugin->mayUnload)
     {
-        FLHook::GetLogger().Log(LogLevel::Warn, L"Plugin may not be unloaded.");
+        Logger::Log(LogLevel::Warn, L"Plugin may not be unloaded.");
         return {};
     }
 
     HMODULE dllAddr = plugin->dll;
 
     std::wstring unloadedPluginDll = plugin->dllName;
-    FLHook::GetLogger().Log(LogLevel::Info, std::format(L"Unloading {} ({})", plugin->name, plugin->dllName));
+    Logger::Log(LogLevel::Info, std::format(L"Unloading {} ({})", plugin->name, plugin->dllName));
 
     plugins.erase(pluginIterator);
 
@@ -77,7 +77,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
     {
         if (plugin->dllName == dllName)
         {
-            FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Info, std::format(L"Plugin {} already loaded, skipping\n", plugin->dllName));
+            Logger::Log(LogFile::ConsoleOnly, LogLevel::Info, std::format(L"Plugin {} already loaded, skipping\n", plugin->dllName));
             return false;
         }
     }
@@ -86,7 +86,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (!std::filesystem::exists(pathToDll))
     {
-        FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR plugin {} not found", dllName));
+        Logger::Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR plugin {} not found", dllName));
         return false;
     }
 
@@ -94,14 +94,14 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (!dll)
     {
-        FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR can't load plugin DLL {}", dllName));
+        Logger::Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR can't load plugin DLL {}", dllName));
     }
 
     const auto pluginFactory = reinterpret_cast<PluginFactoryT>(GetProcAddress(dll, "PluginFactory"));
 
     if (!pluginFactory)
     {
-        FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR could not create plugin instance for {}", dllName));
+        Logger::Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR could not create plugin instance for {}", dllName));
         FreeLibrary(dll);
         return false;
     }
@@ -112,14 +112,14 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (plugin->versionMinor == PluginMinorVersion::Undefined || plugin->versionMajor == PluginMajorVersion::Undefined)
     {
-        FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR plugin {} does not have defined API version. Unloading.", dllName));
+        Logger::Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR plugin {} does not have defined API version. Unloading.", dllName));
         FreeLibrary(dll);
         return false;
     }
 
     if (plugin->versionMajor != CurrentMajorVersion)
     {
-        FLHook::GetLogger().Log(LogFile::ConsoleOnly,
+        Logger::Log(LogFile::ConsoleOnly,
                                 LogLevel::Err,
                                 std::format(L"ERR incompatible plugin API (major) version for {}: expected {}, got {}",
                                             dllName,
@@ -131,7 +131,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (static_cast<int>(plugin->versionMinor) > static_cast<int>(CurrentMinorVersion))
     {
-        FLHook::GetLogger().Log(LogFile::ConsoleOnly,
+        Logger::Log(LogFile::ConsoleOnly,
                                 LogLevel::Err,
                                 std::format(L"ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
                                             dllName,
@@ -143,18 +143,18 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (static_cast<int>(plugin->versionMinor) != static_cast<int>(CurrentMinorVersion))
     {
-        FLHook::GetLogger().Log(LogFile::ConsoleOnly,
+        Logger::Log(LogFile::ConsoleOnly,
                                 LogLevel::Warn,
                                 std::format(L"Warning, incompatible plugin API version for {}: expected {}, got {}",
                                             dllName,
                                             static_cast<int>(CurrentMinorVersion),
                                             static_cast<int>(plugin->versionMinor)));
-        FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Info, L"Processing will continue, but plugin should be considered unstable.");
+        Logger::Log(LogFile::ConsoleOnly, LogLevel::Info, L"Processing will continue, but plugin should be considered unstable.");
     }
 
     if (plugin->shortName.empty() || plugin->name.empty())
     {
-        FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR missing name/short name for {}", dllName));
+        Logger::Log(LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR missing name/short name for {}", dllName));
         FreeLibrary(dll);
         return false;
     }
@@ -163,7 +163,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
     // also not be loaded after FLServer startup
     if (!plugin->mayUnload && !startup)
     {
-        FLHook::GetLogger().Log(
+        Logger::Log(
             LogFile::ConsoleOnly, LogLevel::Err, std::format(L"ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", dllName));
         FreeLibrary(dll);
         return false;
@@ -184,7 +184,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     std::ranges::sort(plugins, [](const std::shared_ptr<Plugin>& a, const std::shared_ptr<Plugin>& b) { return a->name < b->name; });
 
-    FLHook::GetLogger().Log(LogFile::ConsoleOnly, LogLevel::Info, std::format(L"Plugin {} loaded ({})", plugin->shortName, plugin->dllName));
+    Logger::Log(LogFile::ConsoleOnly, LogLevel::Info, std::format(L"Plugin {} loaded ({})", plugin->shortName, plugin->dllName));
     return true;
 }
 

@@ -3,10 +3,10 @@
 #include "API/FLHook/ClientList.hpp"
 #include "Core/ClientServerInterface.hpp"
 
+#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
+#include "API/Utils/TempBan.hpp"
 #include "Core/IpResolver.hpp"
-#include "Core/Logger.hpp"
-#include "Core/TempBan.hpp"
 
 bool LoginInnerBefore(const SLoginInfo& li, ClientId client)
 {
@@ -93,7 +93,7 @@ bool IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
 
 void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"Login(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"Login(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip && LoginInnerBefore(li, client))
     {

@@ -3,8 +3,8 @@
 #pragma once
 #pragma warning(push, 0)
 
-#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
-#define _SILENCE_CXX20_CISO646_REMOVED_WARNING
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING // NOLINT
+#define _SILENCE_CXX20_CISO646_REMOVED_WARNING            // NOLINT
 
 #include <WinSock2.h>
 #include <Windows.h>

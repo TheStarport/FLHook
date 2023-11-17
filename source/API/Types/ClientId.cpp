@@ -158,6 +158,12 @@ Action<ShipId, Error> ClientId::GetShipId() const
     return cpp::result<ShipId, Error>(ShipId(ship));
 }
 
+Action<uint, Error> ClientId::GetLatency() const
+{
+    // TODO: Implement latency func when ConData is slated.
+    return { 0u };
+}
+
 Action<CPlayerGroup*, Error> ClientId::GetGroup() const
 {
     ClientCheck;
@@ -427,7 +433,8 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
 
     if (reason.has_value())
     {
-        const std::wstring msg = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.kickMsg, L"%reason", StringUtils::XmlText(reason.value()));
+        const std::wstring msg = StringUtils::ReplaceStr(
+            FLHookConfig::i()->chatConfig.msgStyle.kickMsg, std::wstring_view(L"%reason"), std::wstring_view(StringUtils::XmlText(reason.value())));
         FLHook::MessageUniverse(msg);
     }
 

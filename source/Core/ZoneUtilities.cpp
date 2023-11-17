@@ -1,6 +1,6 @@
 #include "PCH.hpp"
 
-#include "Core/ZoneUtilities.hpp"
+#include "API/Utils/ZoneUtilities.hpp"
 
 ZoneUtilities::TransformMatrix ZoneUtilities::MultiplyMatrix(const TransformMatrix& mat1, const TransformMatrix& mat2)
 {
@@ -407,7 +407,7 @@ std::optional<const ZoneUtilities::Zone*> ZoneUtilities::InDeathZone(uint system
         const float result = sqrt(powf(x / lz.size.x, 2) + powf(y / lz.size.y, 2) + powf(z / lz.size.z, 2));
         if (result <= 1 && lz.damage > requiredDamage)
         {
-            return {  &lz };
+            return { &lz };
         }
     }
 

@@ -280,6 +280,9 @@
     <ClCompile Include="..\source\API\Types\EquipmentId.cpp">
       <Filter>Source\API\Types</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\API\FLHook\PersonalityHelper.cpp">
+      <Filter>Source\API\FLHook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">
@@ -303,16 +306,10 @@
     <ClInclude Include="..\Include\Core\Templates\Macros.hpp">
       <Filter>Include\Core\Templates</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Core\Logger.hpp">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Core\MemoryManager.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Core\MessageHandler.hpp">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Core\TempBan.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Defs\CoreGlobals.hpp">
@@ -336,9 +333,6 @@
     <ClInclude Include="..\Include\API\FLHook\Plugin.hpp">
       <Filter>Include\API\FLHook</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Global.hpp">
-      <Filter>Include</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\PCH.hpp">
       <Filter>Include</Filter>
     </ClInclude>
@@ -353,12 +347,6 @@
     </ClInclude>
     <ClInclude Include="..\include\Core\Commands\AbstractExternalCommandProcessor.hpp">
       <Filter>Include\Core\Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\API\Utils\FileUtils.hpp">
-      <Filter>Include\API\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\API\Utils\IniUtils.hpp">
-      <Filter>Include\API\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Core\PluginManager.hpp">
       <Filter>Include\Core</Filter>
@@ -498,9 +486,6 @@
     <ClInclude Include="..\include\Utils\Codec.hpp">
       <Filter>Include\API\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Core\ZoneUtilities.hpp">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\API\Utils\Serializer.hpp">
       <Filter>Include\API\Utils</Filter>
     </ClInclude>
@@ -515,6 +500,21 @@
     </ClInclude>
     <ClInclude Include="..\include\API\Types\EquipmentId.hpp">
       <Filter>Include\API\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Core\DebugTools.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\Utils\ZoneUtilities.hpp">
+      <Filter>Include\API\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\Utils\TempBan.hpp">
+      <Filter>Include\API\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\Utils\Logger.hpp">
+      <Filter>Include\API\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\FLHook\PersonalityHelper.hpp">
+      <Filter>Include\API\FLHook</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -4,7 +4,7 @@
 #include "API/Types/ClientId.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Core/Logger.hpp"
+#include "API/Utils/Logger.hpp"
 
 void DisConnectInner(ClientId client, EFLConnection)
 {
@@ -23,7 +23,7 @@ void __stdcall IServerImplHook::DisConnect(ClientId client, EFLConnection conn)
 {
     const auto msg = std::format(L"DisConnect(\n\tClientId client = {}\n)", client);
 
-    FLHook::GetLogger().Log(LogLevel::Trace, msg);
+    Logger::Log(LogLevel::Trace, msg);
 
     const auto skip = CallPlugins(&Plugin::OnDisconnect, client, conn);
 
@@ -44,7 +44,7 @@ void __stdcall IServerImplHook::DisConnect(ClientId client, EFLConnection conn)
         catch ([[maybe_unused]] SehException& exc)
         {
             {
-                FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__)));
+                Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__)));
                 bool ret = true;
                 if (!ret)
                 {
@@ -56,9 +56,9 @@ void __stdcall IServerImplHook::DisConnect(ClientId client, EFLConnection conn)
         catch ([[maybe_unused]] const StopProcessingException&) {}
         catch (const GameException& ex)
         {
-            FLHook::GetLogger().Log(LogLevel::Info, ex.Msg());
+            Logger::Log(LogLevel::Info, ex.Msg());
             {
-                FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__)));
+                Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__)));
                 bool ret = true;
                 if (!ret)
                 {
@@ -70,7 +70,7 @@ void __stdcall IServerImplHook::DisConnect(ClientId client, EFLConnection conn)
         catch ([[maybe_unused]] std::exception& exc)
         {
             {
-                FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__)));
+                Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__)));
                 bool ret = true;
                 if (!ret)
                 {
@@ -82,7 +82,7 @@ void __stdcall IServerImplHook::DisConnect(ClientId client, EFLConnection conn)
         catch (...)
         {
             {
-                FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__)));
+                Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__)));
                 bool ret = true;
                 if (!ret)
                 {

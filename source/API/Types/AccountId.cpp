@@ -2,7 +2,7 @@
 
 #include "API/Types/AccountId.hpp"
 
-#include "Core/TempBan.hpp"
+#include "API/Utils/TempBan.hpp"
 
 #define ValidAccountCheck                            \
     if (!this->operator bool())                      \
@@ -236,5 +236,17 @@ Action<void, Error> AccountId::RemoveRoles(const std::vector<std::wstring_view>&
 Action<void, Error> AccountId::SetRoles(const std::vector<std::wstring_view>& roles)
 {
     // TODO once db setp
+    return { {} };
+}
+
+Action<uint, Error> AccountId::GetCash(std::wstring_view characterName) const
+{
+    // TODO once db setup
+    return { {} };
+}
+
+Action<void, Error> AccountId::SetCash(std::wstring_view characterName, uint amount) const
+{
+    // TODO once db setup
     return { {} };
 }

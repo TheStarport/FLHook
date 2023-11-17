@@ -14,11 +14,15 @@
         _set_se_translator(SehException::Translator);
 #define CatchHook(e)                                           \
     }                                                          \
-    catch ([[maybe_unused]] SehException & exc) { e; }         \
+    catch ([[maybe_unused]] SehException & exc)                \
+    {                                                          \
+        ExceptionHandler::LogException(exc);                   \
+        e;                                                     \
+    }                                                          \
     catch ([[maybe_unused]] const StopProcessingException&) {} \
     catch (const GameException& ex)                            \
     {                                                          \
-        FLHook::GetLogger().Log(LogLevel::Info, ex.Msg());     \
+        Logger::Log(LogLevel::Info, ex.Msg());     \
         e;                                                     \
     }                                                          \
     catch ([[maybe_unused]] std::exception & exc) { e; }       \

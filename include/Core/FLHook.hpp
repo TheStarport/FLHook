@@ -11,6 +11,7 @@ class InfocardManager;
 class Logger;
 class TempBanManager;
 class FlPacket;
+class PersonalityHelper;
 
 class FLHook final
 {
@@ -82,7 +83,7 @@ class FLHook final
 
         inline static FARPROC oldUpdateLoop;
         static void Shutdown() { delete instance; }
-        static void Startup() { instance = new FLHook(); }
+        static void Startup() { new FLHook(); }
 
         static void LoadSettings();
         static void ClearClientInfo(ClientId client);
@@ -102,8 +103,8 @@ class FLHook final
         StartupCache* startupCache;
         ClientList* clientList;
         InfocardManager* infocardManager;
-        Logger* logger;
         TempBanManager* tempbanManager;
+        PersonalityHelper* personalityHelper;
 
         bool OnServerStart();
         void InitHookExports();
@@ -167,9 +168,9 @@ class FLHook final
 
         static ClientList& Clients() { return *instance->clientList; }
         static InfocardManager& GetInfocardManager() { return *instance->infocardManager; }
-        static Logger& GetLogger() { return *instance->logger; }
         static TempBanManager& GetTempBanManager() { return *instance->tempbanManager; }
         static LastHitInformation GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }
+        static Action<pub::AI::Personality, Error> GetPersonality(const std::wstring& pilotNickname);
 
         static Action<void, Error> MessageUniverse(std::wstring_view message);
 };

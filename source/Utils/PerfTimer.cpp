@@ -14,12 +14,12 @@ ulong PerfTimer::Stop()
     {
         if (timeDelta > max && timeDelta > warning)
         {
-            FLHook::GetLogger().Log(LogLevel::Info, std::format(L"Spent {} ms in {}, longest so far.", timeDelta, function));
+            Logger::Log(LogLevel::Info, std::format(L"Spent {} ms in {}, longest so far.", timeDelta, function));
             max = timeDelta;
         }
         else if (timeDelta > 100)
         {
-            FLHook::GetLogger().Log(LogLevel::Info, std::format(L"Spent {} ms in {}", timeDelta, function));
+            Logger::Log(LogLevel::Info, std::format(L"Spent {} ms in {}", timeDelta, function));
         }
     }
     return timeDelta;

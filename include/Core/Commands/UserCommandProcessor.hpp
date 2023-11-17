@@ -17,12 +17,13 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         void InvitePlayerByName(std::wstring_view invitee);
         void InvitePlayerById(ClientId inviteeId);
         void FactionInvite(std::wstring_view factionTag);
-        void DeleteMail(std::wstring_view mailID, std::wstring_view readOnlyDel);
-        void ReadMail(uint mailId);
-        void ListMail(int pageNumber, std::wstring_view unread);
+        // void DeleteMail(std::wstring_view mailID, std::wstring_view readOnlyDel);
+        // void ReadMail(uint mailId);
+        // void ListMail(int pageNumber, std::wstring_view unread);
         void GiveCash(std::wstring_view characterName, std::wstring_view amount);
         void Help(std::wstring_view module, std::wstring_view command);
 
+        // clang-format off
         constexpr inline static std::array<CommandInfo<UserCommandProcessor>, 15> commands = {
             {AddCommand(UserCommandProcessor, L"/ids", GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
              AddCommand(UserCommandProcessor, L"/setdiemsgsize", SetDieMessageFontSize, L"/setdiemsgsize [option]",
@@ -38,13 +39,13 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              AddCommand(UserCommandProcessor, L"/invite", InvitePlayerByName, L"/invite <name>", L"invites specified player to group"),
              AddCommand(UserCommandProcessor, L"/invite$", InvitePlayerById, L"/invite$ <id>", L"invites specified player to group by client id"),
              AddCommand(UserCommandProcessor, L"/finv", FactionInvite, L"/finv <prefix>", L"invites players that matches the listed prefix in their name"),
-             AddCommand(UserCommandProcessor, L"/delmail", DeleteMail, L"/delmail <id>", L"deletes specified mail"),
-             AddCommand(UserCommandProcessor, L"/readmail", ReadMail, L"/readmail <id>", L"prints specified mail."),
-             AddCommand(UserCommandProcessor, L"/listmail", ListMail, L"/listmail [page]", L"lists the mails of the specified page."),
+             //AddCommand(UserCommandProcessor, L"/delmail", DeleteMail, L"/delmail <id>", L"deletes specified mail"),
+             //AddCommand(UserCommandProcessor, L"/readmail", ReadMail, L"/readmail <id>", L"prints specified mail."),
+             //AddCommand(UserCommandProcessor, L"/listmail", ListMail, L"/listmail [page]", L"lists the mails of the specified page."),
              AddCommand(UserCommandProcessor, L"/givecash", GiveCash, L"/givecash <target> <amount>", L"gives speicified amount of cash to named target"),
              AddCommand(UserCommandProcessor, L"/help", Help, L"/help [module] [command]", L"gives speicified amount of cash to named target")}
         };
-
+        // clang-format on
         GetCommandsFunc(commands);
 
         template <int N>

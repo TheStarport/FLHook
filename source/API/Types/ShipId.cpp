@@ -179,7 +179,8 @@ Action<void, Error> ShipId::AddCargo(uint good, uint count, bool mission)
     {
         return { cpp::fail(Error::InvalidShip) };
     }
-    auto& shipVal = ship.Raw().value();
+
+    auto shipVal = ship.Raw().value();
 
     if (shipVal->is_player())
     {
@@ -265,12 +266,16 @@ Action<void, Error> ShipId::AddCargo(uint good, uint count, bool mission)
     desc.count = count;
     desc.archId = good;
     desc.health = 1.0f;
-    desc.set_hardpoint(CacheString(EquipDesc::CARGO_BAY_HP_NAME));
+    desc.make_internal();
     desc.mounted = false;
     desc.id = highestId + 1;
     desc.mission = mission;
 
-    shipVal->add_cargo_item(desc);
+    using AddCargoItemT = bool(__thiscall*)(CEqObj * obj, const EquipDesc&);
+    static auto addCargoItem = reinterpret_cast<AddCargoItemT>(GetProcAddress(GetModuleHandleA("common.dll"), "?add_cargo_item@CEqObj@@IAE_NABUEquipDesc@@@Z"));
+    addCargoItem(shipVal.get(), desc);
+
+    // TODO: Figure out how to communicate the change with BaseWatcher
 
     return { {} };
 }

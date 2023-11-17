@@ -94,7 +94,12 @@ class ClientId
         [[nodiscard]]
         Action<ShipId, Error> GetShipId() const;
 
-        // TODO: Implement.
+        /**
+         * @brief Get the average latency of the clients connection to the server
+         * @returns On success : The average latency in ms
+         * @returns On fail : InvalidClientId error
+         */
+        [[nodiscard]]
         Action<uint, Error> GetLatency() const;
 
         /**

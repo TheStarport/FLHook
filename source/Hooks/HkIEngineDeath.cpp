@@ -115,10 +115,10 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, C
             }
         }
 
-        std::fill_n(xmlBuf.begin(), xmlBuf.size(), "\0");
-        std::fill_n(bufSmall.begin(), bufSmall.size(), "\0");
-        std::fill_n(bufSys.begin(), bufSys.size(), "\0");
-        std::fill_n(BufSmallSys.begin(), BufSmallSys.size(), "\0");
+        std::ranges::fill(xmlBuf, 0);
+        std::ranges::fill(bufSmall, 0);
+        std::ranges::fill(bufSys, 0);
+        std::ranges::fill(BufSmallSys, 0);
     }
 
     const std::wstring formattedMsg = StringUtils::stows(BufSmallSys.data());
@@ -187,21 +187,22 @@ void __stdcall IEngineHook::ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint 
             std::wstring deathMessage;
             if (client == clientKiller.value() || cause == DamageCause::Suicide)
             {
-                deathMessage = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextSelfKill, L"%victim", victimName);
+                deathMessage = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextSelfKill, std::wstring_view(L"%victim"), victimName);
             }
             else if (cause == DamageCause::Admin)
             {
-                deathMessage = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextAdminKill, L"%victim", victimName);
+                deathMessage = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextAdminKill, std::wstring_view(L"%victim"), victimName);
             }
             else
             {
                 std::wstring_view killer = client.GetCharacterName().Unwrap();
 
-                deathMessage = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextPlayerKill, L"%victim", victimName);
-                deathMessage = StringUtils::ReplaceStr(deathMessage, L"%killer", killer);
+                deathMessage =
+                    StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextPlayerKill, std::wstring_view(L"%victim"), victimName);
+                deathMessage = StringUtils::ReplaceStr(deathMessage, std::wstring_view(L"%killer"), killer);
             }
 
-            deathMessage = StringUtils::ReplaceStr(deathMessage, L"%type", killType);
+            deathMessage = StringUtils::ReplaceStr(deathMessage, std::wstring_view(L"%type"), std::wstring_view(killType));
             if (FLHookConfig::i()->chatConfig.dieMsg && deathMessage.length())
             {
                 SendDeathMessage(deathMessage, systemId, client, clientKiller.value());
@@ -222,8 +223,9 @@ void __stdcall IEngineHook::ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint 
                 default: killType = L"Gun";
             }
 
-            std::wstring deathMessage = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextNPC, L"%victim", victimName);
-            deathMessage = StringUtils::ReplaceStr(deathMessage, L"%type", killType);
+            std::wstring deathMessage =
+                StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextNPC, std::wstring_view(L"%victim"), victimName);
+            deathMessage = StringUtils::ReplaceStr(deathMessage, std::wstring_view(L"%type"), std::wstring_view(killType));
 
             if (FLHookConfig::i()->chatConfig.dieMsg && deathMessage.length())
             {
@@ -232,7 +234,8 @@ void __stdcall IEngineHook::ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint 
         }
         else if (cause == DamageCause::Suicide)
         {
-            if (std::wstring deathMessage = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextSuicide, L"%victim", victimName);
+            if (std::wstring deathMessage =
+                    StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextSuicide, std::wstring_view(L"%victim"), victimName);
                 FLHookConfig::i()->chatConfig.dieMsg && !deathMessage.empty())
             {
                 SendDeathMessage(deathMessage, systemId, client, ClientId());
@@ -240,7 +243,8 @@ void __stdcall IEngineHook::ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint 
         }
         else if (cause == DamageCause::Admin)
         {
-            if (std::wstring deathMessage = StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextAdminKill, L"%victim", victimName);
+            if (std::wstring deathMessage =
+                    StringUtils::ReplaceStr(FLHookConfig::i()->chatConfig.msgStyle.deathMsgTextAdminKill, std::wstring_view(L"%victim"), victimName);
                 FLHookConfig::i()->chatConfig.dieMsg && deathMessage.length())
             {
                 SendDeathMessage(deathMessage, systemId, client, ClientId());

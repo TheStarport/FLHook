@@ -2,11 +2,11 @@
 
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Core/Logger.hpp"
+#include "API/Utils/Logger.hpp"
 
 void __stdcall IServerImplHook::AbortMission(ClientId client, uint unk1)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"AbortMission(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
+    Logger::Log(LogLevel::Trace, std::format(L"AbortMission(\n\tClientId client = {}\n\tuint unk1 = {}\n)", client, unk1));
 
     if (const auto skip = CallPlugins(&Plugin::OnAbortMission, client, unk1); !skip)
     {
@@ -19,7 +19,7 @@ void __stdcall IServerImplHook::AbortMission(ClientId client, uint unk1)
 
 void __stdcall IServerImplHook::MissionResponse(unsigned int unk1, unsigned long unk2, bool unk3, ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"MissionResponse(\n\tunsigned int unk1 = {}\n\tunsigned long unk2 = {}\n\tbool unk3 = "
                                         "{}\n\tClientId client = {}\n)",
                                         unk1,

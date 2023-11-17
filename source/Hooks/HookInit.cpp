@@ -3,12 +3,10 @@
 #include "Core/FLHook.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/Utils/Logger.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/IEngineHook.hpp"
 #include "Core/IpResolver.hpp"
-#include "Core/Logger.hpp"
-
-#include <API/Utils/IniUtils.hpp>
 
 FLHook::PatchInfo FLHook::exePatch = { "flserver.exe",
                                        0x0400000,
@@ -163,8 +161,6 @@ void FLHook::ClearClientInfo(ClientId client)
         }
     }
 
-    Hk::IniUtils::CharacterClearClientInfo(ClientId(client));
-
     CallPlugins(&Plugin::OnClearClientInfo, client);
 }
 
@@ -189,8 +185,8 @@ void FLHook::LoadUserSettings(ClientId client)
     catch (nlohmann::json::exception& ex)
     {
         // TODO: Log to a special error file
-        GetLogger().Log(LogLevel::Err,
-                        std::format(L"Error while loading account data from account file ({}): {}", userFile, StringUtils::stows(std::string(ex.what()))));
+        Logger::Log(LogLevel::Err,
+                    std::format(L"Error while loading account data from account file ({}): {}", userFile, StringUtils::stows(std::string(ex.what()))));
     }
 
     auto settings = info.accountData.value("settings", nlohmann::json::object());
@@ -214,7 +210,7 @@ void FLHook::LoadUserSettings(ClientId client)
         }
         catch (...)
         {
-            FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Error while loading ignore list from account file: {}", userFile));
+            Logger::Log(LogLevel::Err, std::format(L"Error while loading ignore list from account file: {}", userFile));
         }
     }
 
@@ -224,6 +220,9 @@ void FLHook::LoadUserSettings(ClientId client)
 
 void FLHook::InitHookExports()
 {
+    FLHook::contentDll = GetModuleHandle(L"content.dll");
+    FLHook::remoteClient = GetModuleHandle(L"remoteclient.dll");
+
     IpResolver::resolveThread = std::thread(IpResolver::ThreadResolver);
 
     getShipInspect = reinterpret_cast<GetShipInspectT>(Offset(BinaryType::Server, AddressList::GetInspect));

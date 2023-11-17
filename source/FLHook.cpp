@@ -4,27 +4,27 @@
 
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/InfocardManager.hpp"
+#include "API/FLHook/PersonalityHelper.hpp"
 #include "API/InternalApi.hpp"
 #include "Core/MemoryManager.hpp"
-#include <Core/Logger.hpp>
+#include <API/Utils/Logger.hpp>
 #include <Core/MessageHandler.hpp>
 
 #include "Core/Commands/AdminCommandProcessor.hpp"
 #include "Defs/FLHookConfig.hpp"
 
 #include "Core/AddressList.hpp"
-#include "Core/Commands/ExternalCommandProcessor.hpp"
 #include "Core/IpResolver.hpp"
 
 #include "Core/ClientServerInterface.hpp"
+#include "Core/DebugTools.hpp"
 #include "Core/ExceptionHandler.hpp"
 #include "Core/StartupCache.hpp"
-#include "Core/TempBan.hpp"
-#include "Core/ZoneUtilities.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
 
-#include <API/FLHook/Plugin.hpp>
-#include <API/Utils/IniUtils.hpp>
+#include "API/FLHook/Plugin.hpp"
+#include "API/Utils/TempBan.hpp"
+#include "API/Utils/ZoneUtilities.hpp"
 
 // ReSharper disable CppClangTidyClangDiagnosticCastFunctionTypeStrict
 const st6_malloc_t st6_malloc = reinterpret_cast<const st6_malloc_t>(GetProcAddress(GetModuleHandleA("msvcrt.dll"), "malloc"));
@@ -56,12 +56,16 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
 }
 
 FLHook::FLHook()
+    : damageToClientId(0), damageToSpaceId(0), messagePrivate(false), messageSystem(false), messageUniverse(false), serverLoadInMs(0), playerCount(0),
+      disableNpcs(false), flhookReady(false)
 {
+    instance = this;
+    Logger::Init();
     infocardManager = new InfocardManager();
-    logger = new Logger();
     clientList = new ClientList();
     startupCache = new StartupCache();
     tempbanManager = new TempBanManager();
+    personalityHelper = new PersonalityHelper();
 
     flProc = GetModuleHandle(nullptr);
 
@@ -74,7 +78,7 @@ FLHook::FLHook()
         ExceptionHandler::SetupExceptionHandling();
 
         // Setup needed debug tools
-        DebugTools::i()->Init();
+        DebugTools::Init();
 
         if (!((serverDll = GetModuleHandle(L"server"))))
         {
@@ -87,7 +91,7 @@ FLHook::FLHook()
         {
             const auto msg = MessageHandler::i();
 
-            // TODO: Move queue initialization to separate function
+            // TODO: Move logQueue initialization to separate function
             msg->DeclareExchange(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), AMQP::fanout, AMQP::durable);
             msg->DeclareQueue(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)), AMQP::durable);
 
@@ -97,9 +101,10 @@ FLHook::FLHook()
                                std::string body = message.body();
                                try
                                {
-                                   const auto json = nlohmann::json::parse(body, nullptr);
-                                   response = ExternalCommandProcessor::i()->ProcessCommand(json);
-                                   if (!response.has_value())
+                                   // TODO: Setup external command processor
+                                   // const auto json = nlohmann::json::parse(body, nullptr);
+                                   // response = ExternalCommandProcessor::i()->ProcessCommand(json);
+                                   // if (!response.has_value())
                                    {
                                        // Iterate through plugins and see if they have a valid json output
                                    }
@@ -111,9 +116,9 @@ FLHook::FLHook()
                                    response = {
                                        {"err", ex.what()}
                                    };
-                                   instance->logger->Log(LogLevel::Warn,
-                                                         std::format(L"An json exception was encountered while trying to process an external command. EX: {}",
-                                                                     StringUtils::stows(ex.what())));
+                                   Logger::Log(LogLevel::Warn,
+                                               std::format(L"An json exception was encountered while trying to process an external command. EX: {}",
+                                                           StringUtils::stows(ex.what())));
                                    return true;
                                }
                                catch (GameException& ex)
@@ -159,10 +164,9 @@ FLHook::FLHook()
             LoadLibraryA(lib);
         }
 
-        logger->Log(LogLevel::Info, L"Loading Freelancer INIs");
+        Logger::Log(LogLevel::Info, L"Loading Freelancer INIs");
 
         // Force constructor to run
-        Hk::IniUtils::i();
         // TODO:NPC Personalities. Hk::Personalities::LoadPersonalities();
 
         PatchClientImpl();
@@ -171,12 +175,12 @@ FLHook::FLHook()
     }
     catch (char* error)
     {
-        logger->Log(LogLevel::Err, StringUtils::stows(std::format("CRITICAL! {}\n", std::string(error))));
+        Logger::Log(LogLevel::Err, StringUtils::stows(std::format("CRITICAL! {}\n", std::string(error))));
         std::quick_exit(EXIT_FAILURE);
     }
     catch (std::filesystem::filesystem_error& error)
     {
-        logger->Log(LogLevel::Err, StringUtils::stows(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what())));
+        Logger::Log(LogLevel::Err, StringUtils::stows(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what())));
     }
 }
 
@@ -193,6 +197,7 @@ void FLHook::SetupEventLoop()
 
     flProc = GetModuleHandle(nullptr);
     auto address = Offset(BinaryType::Exe, AddressList::Update);
+
     MemUtils::ReadProcMem(address, &oldUpdateLoop, 4);
     MemUtils::WriteProcMem(address, &update, 4);
 
@@ -208,6 +213,7 @@ void FLHook::SetupEventLoop()
 DWORD __stdcall FLHook::Offset(const BinaryType type, AddressList address)
 {
     const auto offset = static_cast<DWORD>(address);
+
     switch (type)
     {
         case BinaryType::Exe: return reinterpret_cast<DWORD>(flProc) + offset;
@@ -218,6 +224,11 @@ DWORD __stdcall FLHook::Offset(const BinaryType type, AddressList address)
         case BinaryType::RemoteClient: return reinterpret_cast<DWORD>(remoteClient) + offset;
         default: throw std::runtime_error("Provided BinaryType is not loaded."); // NOLINT(clang-diagnostic-covered-switch-default)
     }
+}
+
+Action<pub::AI::Personality, Error> FLHook::GetPersonality(const std::wstring& pilotNickname)
+{
+    return instance->personalityHelper->GetPersonality(pilotNickname);
 }
 
 Action<void, Error> FLHook::MessageUniverse(std::wstring_view message)
@@ -265,7 +276,7 @@ bool FLHook::OnServerStart()
     {
         UnloadHookExports();
 
-        logger->Log(LogLevel::Err, StringUtils::stows(err.what()));
+        Logger::Log(LogLevel::Err, StringUtils::stows(err.what()));
         return false;
     }
 
@@ -314,7 +325,7 @@ FLHook::~FLHook()
 
 void FLHook::ProcessPendingCommands()
 {
-    auto cmd = instance->logger->GetCommand();
+    auto cmd = Logger::GetCommand();
     while (cmd.has_value())
     {
         const auto processor = AdminCommandProcessor::i();
@@ -323,16 +334,16 @@ void FLHook::ProcessPendingCommands()
         try
         {
             const auto response = AdminCommandProcessor::i()->ProcessCommand(cmd.value());
-            instance->logger->Log(LogFile::ConsoleOnly, LogLevel::Info, response);
+            Logger::Log(LogFile::ConsoleOnly, LogLevel::Info, response);
         }
         catch (InvalidParameterException& ex)
         {
-            instance->logger->Log(LogFile::ConsoleOnly, LogLevel::Warn, ex.Msg());
+            Logger::Log(LogFile::ConsoleOnly, LogLevel::Warn, ex.Msg());
         }
         catch (GameException& ex)
         {
             // TODO: Log to admin command file
-            instance->logger->Log(LogFile::ConsoleOnly, LogLevel::Warn, ex.Msg());
+            Logger::Log(LogFile::ConsoleOnly, LogLevel::Warn, ex.Msg());
         }
         catch (StopProcessingException&)
         {
@@ -342,9 +353,9 @@ void FLHook::ProcessPendingCommands()
         {
             // Anything else critically log
             // TODO: Log to error log file
-            instance->logger->Log(LogFile::ConsoleOnly, LogLevel::Err, StringUtils::stows(ex.what()));
+            Logger::Log(LogFile::ConsoleOnly, LogLevel::Err, StringUtils::stows(ex.what()));
         }
 
-        cmd = instance->logger->GetCommand();
+        cmd = Logger::GetCommand();
     }
 }

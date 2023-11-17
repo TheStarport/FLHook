@@ -8,7 +8,7 @@
 int __stdcall StartupCache::ReadCharacterNameHook(char* fileNameRaw, st6::wstring* str)
 {
     std::wstring fileName = StringUtils::stows(fileNameRaw);
-    FLHook::GetLogger().Log(LogLevel::Debug, std::format(L"Read character - {}", fileName));
+    Logger::Log(LogLevel::Debug, std::format(L"Read character - {}", fileName));
 
     // If this account/charfile can be found in the character return then name immediately.
     const std::wstring accPath(&fileName.c_str()[accPathPrefixLength]);
@@ -37,7 +37,7 @@ void StartupCache::LoadCache() const
     std::wstring path = baseAcctPath + L"namecache.bin";
 
     // TODO: Remove capi file access
-    FLHook::GetLogger().Log(LogLevel::Info, L"Loading character name cache");
+    Logger::Log(LogLevel::Info, L"Loading character name cache");
     FILE* file;
     _wfopen_s(&file, path.c_str(), L"rb");
     if (file)
@@ -51,7 +51,7 @@ void StartupCache::LoadCache() const
         }
         fclose(file);
     }
-    FLHook::GetLogger().Log(LogLevel::Info, std::format(L"Loaded {} names", cache.size()));
+    Logger::Log(LogLevel::Info, std::format(L"Loaded {} names", cache.size()));
 }
 
 void StartupCache::SaveCache()
@@ -62,7 +62,7 @@ void StartupCache::SaveCache()
     _wfopen_s(&file, path.c_str(), L"wb");
     if (file)
     {
-        FLHook::GetLogger().Log(LogLevel::Info, L"Saving character name cache");
+        Logger::Log(LogLevel::Info, L"Saving character name cache");
         for (const auto& [charPath, charName] : cache)
         {
             NameInfo ni{};
@@ -71,12 +71,12 @@ void StartupCache::SaveCache()
             wcsncpy_s(ni.name, 25, charName.c_str(), charName.size());
             if (!fwrite(&ni, sizeof(NameInfo), 1, file))
             {
-                FLHook::GetLogger().Log(LogLevel::Err, L"Saving character name cache failed");
+                Logger::Log(LogLevel::Err, L"Saving character name cache failed");
                 break;
             }
         }
         fclose(file);
-        FLHook::GetLogger().Log(LogLevel::Info, std::format(L"Saved {} names", cache.size()));
+        Logger::Log(LogLevel::Info, std::format(L"Saved {} names", cache.size()));
     }
 
     cache.clear();

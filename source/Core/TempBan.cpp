@@ -1,6 +1,6 @@
 #include "PCH.hpp"
 
-#include "Core/TempBan.hpp"
+#include "API/Utils/TempBan.hpp"
 #include "Defs/FLHookConfig.hpp"
 
 void TempBanManager::ClearFinishedTempBans()

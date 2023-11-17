@@ -1,16 +1,11 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Core/Logger.hpp"
 
-void BaseEnterInner([[maybe_unused]] BaseId baseId, [[maybe_unused]] ClientId client)
-{
-    // TODO: implement base enter event
-}
-
-void BaseEnterInnerAfter([[maybe_unused]] BaseId baseId, ClientId client)
+void IServerImplHook::BaseEnterInnerAfter([[maybe_unused]] BaseId baseId, ClientId client)
 {
     TryHook
     {
@@ -35,7 +30,7 @@ void BaseEnterInnerAfter([[maybe_unused]] BaseId baseId, ClientId client)
         // print to log if the char has too much money
         if (const auto value = client.GetWealth().Unwrap(); value > 2000000000)
         {
-            FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"Possible corrupt ship charname={} asset_value={}", charName, value));
+            Logger::Log(LogLevel::Trace, std::format(L"Possible corrupt ship charname={} asset_value={}", charName, value));
         }
     }
     CatchHook({})
@@ -43,13 +38,11 @@ void BaseEnterInnerAfter([[maybe_unused]] BaseId baseId, ClientId client)
 
 void __stdcall IServerImplHook::BaseEnter(BaseId baseId, ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"BaseEnter(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
+    Logger::Log(LogLevel::Trace, std::format(L"BaseEnter(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
 
     const auto skip = CallPlugins(&Plugin::OnBaseEnter, BaseId(baseId), ClientId(client));
 
     CheckForDisconnect;
-
-    BaseEnterInner(baseId, client);
 
     if (!skip)
     {
@@ -61,7 +54,7 @@ void __stdcall IServerImplHook::BaseEnter(BaseId baseId, ClientId client)
     CallPlugins(&Plugin::OnBaseEnterAfter, baseId, client);
 }
 
-void BaseExitInner(BaseId baseId, ClientId client)
+void IServerImplHook::BaseExitInner(BaseId baseId, ClientId client)
 {
     TryHook
     {
@@ -78,7 +71,7 @@ void BaseExitInnerAfter([[maybe_unused]] BaseId baseId, [[maybe_unused]] ClientI
 }
 void __stdcall IServerImplHook::BaseExit(BaseId baseId, ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"BaseExit(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
+    Logger::Log(LogLevel::Trace, std::format(L"BaseExit(\n\tuint baseId = {}\n\tClientId client = {}\n)", baseId, client));
 
     const auto skip = CallPlugins(&Plugin::OnBaseExit, baseId, client);
 
@@ -98,7 +91,7 @@ void __stdcall IServerImplHook::BaseExit(BaseId baseId, ClientId client)
 
 void __stdcall IServerImplHook::BaseInfoRequest(unsigned int unk1, unsigned int unk2, bool unk3)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace,
+    Logger::Log(LogLevel::Trace,
                             std::format(L"BaseInfoRequest(\n\tunsigned int unk1 = {}\n\tunsigned int unk2 = {}\n\tbool unk3 = {}\n)", unk1, unk2, unk3));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestBaseInfo, unk1, unk2, unk3); !skip)

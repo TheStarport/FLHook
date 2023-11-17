@@ -6,7 +6,8 @@
 #ifdef FLHOOK
     #include "Commands/AdminCommandProcessor.hpp"
     #include "Commands/UserCommandProcessor.hpp"
-    #include <Utils/TemplateHelpers.hpp>
+    #include "Core/ExceptionHandler.hpp"
+    #include "Utils/TemplateHelpers.hpp"
 #endif
 
 class DLL PluginManager final : public Singleton<PluginManager>
@@ -93,7 +94,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
                     }
                     CatchHook({
                         auto targetName = typeid(FuncPtr).name();
-                        FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Exception in plugin '{}' in {}", plugin->name, StringUtils::stows(targetName)));
+                        Logger::Log(LogLevel::Err, std::format(L"Exception in plugin '{}' in {}", plugin->name, StringUtils::stows(targetName)));
                     });
 
                     const auto code = plugin->returnCode;
@@ -109,7 +110,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
                     }
                 }
             }
-            CatchHook({ FLHook::GetLogger().Log(LogLevel::Err, std::format(L"Exception {}", StringUtils::stows(__FUNCTION__))); });
+            CatchHook({ Logger::Log(LogLevel::Err, std::format(L"Exception {}", StringUtils::stows(__FUNCTION__))); });
 
             if constexpr (!returnTypeIsVoid)
             {

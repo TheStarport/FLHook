@@ -2,6 +2,7 @@
 
 #include "AbstractExternalCommandProcessor.hpp"
 
+/*
 class ExternalCommandProcessor final : public AbstractExternalCommandProcessor, public Singleton<ExternalCommandProcessor>
 {
         // clang-format off
@@ -19,3 +20,4 @@ class ExternalCommandProcessor final : public AbstractExternalCommandProcessor, 
         std::optional<nlohmann::json> ProcessCommand(const nlohmann::json& command) override;
         std::vector<std::wstring_view> GetCommands() override;
 };
+*/

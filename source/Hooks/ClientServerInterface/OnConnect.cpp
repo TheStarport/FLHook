@@ -1,10 +1,10 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/FLHook.hpp"
-#include "Core/Logger.hpp"
 
 bool IServerImplHook::OnConnectInner(ClientId client)
 {
@@ -13,7 +13,7 @@ bool IServerImplHook::OnConnectInner(ClientId client)
         // If Id is too high due to disconnect buffer time then manually drop the connection.
         if (client.GetValue() > MaxClientId)
         {
-            FLHook::GetLogger().Log(LogLevel::Trace,
+            Logger::Log(LogLevel::Trace,
                                     std::format(L"INFO: Blocking connect in {} due to invalid id, id={}", StringUtils::stows(__FUNCTION__), client));
             CDPClientProxy* cdpClient = FLHook::clientProxyArray[client.GetValue() - 1];
             if (!cdpClient)
@@ -46,18 +46,9 @@ bool IServerImplHook::OnConnectInner(ClientId client)
         return true;
 }
 
-void OnConnectInnerAfter([[maybe_unused]] ClientId client)
-{
-    TryHook
-    {
-        // TODO: implement event for OnConnect
-    }
-    CatchHook({})
-}
-
 void __stdcall IServerImplHook::OnConnect(ClientId client)
 {
-    FLHook::GetLogger().Log(LogLevel::Trace, std::format(L"OnConnect(\n\tClientId client = {}\n)", client));
+    Logger::Log(LogLevel::Trace, std::format(L"OnConnect(\n\tClientId client = {}\n)", client));
 
     const auto skip = CallPlugins(&Plugin::OnConnect, client);
 
@@ -70,7 +61,6 @@ void __stdcall IServerImplHook::OnConnect(ClientId client)
         CallServerPreamble { Server.OnConnect(client.GetValue()); }
         CallServerPostamble(true, );
     }
-    OnConnectInnerAfter(client);
 
     CallPlugins(&Plugin::OnConnectAfter, client);
 }

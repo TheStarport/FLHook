@@ -1,8 +1,15 @@
 #pragma once
 
+class IpResolver;
 class ExceptionHandler final
 {
         friend FLHook;
+        friend IServerImplHook;
+        friend PluginManager;
+        friend IEngineHook;
+        friend IClientImpl;
+        friend IpResolver;
+
         inline static std::array<byte, 5> oldSetUnhandledFilter;
         inline static std::mutex exceptionMutex;
         static void GlobalHandler(EXCEPTION_POINTERS* excpInfo);
@@ -11,4 +18,6 @@ class ExceptionHandler final
         static void PureVirtualCall();
         static void SigAbortHandler(int sig);
         static void SetupExceptionHandling();
+        static HMODULE GetModuleFromAddress(uint address);
+        static void LogException(const SehException& ex);
 };
