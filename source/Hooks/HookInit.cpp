@@ -268,12 +268,12 @@ void FLHook::InitHookExports()
 
     auto loadRepFromCharFile = reinterpret_cast<FARPROC>(IEngineHook::NakedLoadReputationFromCharacterFile);
 
+    IEngineHook::oldLoadReputationFromCharacterFile = reinterpret_cast<FARPROC>(
+        Offset(BinaryType::Server, static_cast<AddressList>(static_cast<DWORD>(AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 1)));
+
     MemUtils::WriteProcMem(address, movEax.data(), 1);
     MemUtils::WriteProcMem(address + 1, &loadRepFromCharFile, 4);
     MemUtils::WriteProcMem(address + 5, jumpEax.data(), 2);
-
-    IEngineHook::oldLoadReputationFromCharacterFile = reinterpret_cast<FARPROC>(
-        Offset(BinaryType::Server, static_cast<AddressList>(static_cast<DWORD>(AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 1)));
 
     // crc anti-cheat
     crcAntiCheat = reinterpret_cast<CRCAntiCheatT>(Offset(BinaryType::Server, AddressList::CrcAntiCheat));

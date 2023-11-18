@@ -13,8 +13,7 @@ bool IServerImplHook::OnConnectInner(ClientId client)
         // If Id is too high due to disconnect buffer time then manually drop the connection.
         if (client.GetValue() > MaxClientId)
         {
-            Logger::Log(LogLevel::Trace,
-                                    std::format(L"INFO: Blocking connect in {} due to invalid id, id={}", StringUtils::stows(__FUNCTION__), client));
+            Logger::Log(LogLevel::Trace, std::format(L"INFO: Blocking connect in {} due to invalid id, id={}", StringUtils::stows(__FUNCTION__), client));
             CDPClientProxy* cdpClient = FLHook::clientProxyArray[client.GetValue() - 1];
             if (!cdpClient)
             {
@@ -38,12 +37,13 @@ bool IServerImplHook::OnConnectInner(ClientId client)
             return false;
         }
 
+        FLHook::instance->clientList->PlayerConnect(client.GetValue());
         data.connects++;
         FLHook::ClearClientInfo(client);
     }
-    CatchHook({})
+    CatchHook({});
 
-        return true;
+    return true;
 }
 
 void __stdcall IServerImplHook::OnConnect(ClientId client)

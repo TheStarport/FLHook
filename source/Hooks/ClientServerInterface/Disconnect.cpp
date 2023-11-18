@@ -2,9 +2,9 @@
 
 #include "API/FLHook/ClientList.hpp"
 #include "API/Types/ClientId.hpp"
+#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "API/Utils/Logger.hpp"
 
 void DisConnectInner(ClientId client, EFLConnection)
 {
@@ -31,69 +31,15 @@ void __stdcall IServerImplHook::DisConnect(ClientId client, EFLConnection conn)
 
     if (!skip)
     {
+        static PerfTimer timer(StringUtils::stows(__FUNCTION__), 100);
+        timer.Start();
+        TryHook
         {
-            static PerfTimer timer(StringUtils::stows(__FUNCTION__), 100);
-            timer.Start();
-            TryHook
-            {
-                {
-                    Server.DisConnect(client.GetValue(), conn);
-                }
-            }
+            Server.DisConnect(client.GetValue(), conn);
+            FLHook::instance->clientList->PlayerDisconnect(client.GetValue());
         }
-        catch ([[maybe_unused]] SehException& exc)
-        {
-            {
-                Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__)));
-                bool ret = true;
-                if (!ret)
-                {
-                    timer.Stop();
-                    return;
-                }
-            };
-        }
-        catch ([[maybe_unused]] const StopProcessingException&) {}
-        catch (const GameException& ex)
-        {
-            Logger::Log(LogLevel::Info, ex.Msg());
-            {
-                Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__)));
-                bool ret = true;
-                if (!ret)
-                {
-                    timer.Stop();
-                    return;
-                }
-            };
-        }
-        catch ([[maybe_unused]] std::exception& exc)
-        {
-            {
-                Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__)));
-                bool ret = true;
-                if (!ret)
-                {
-                    timer.Stop();
-                    return;
-                }
-            };
-        }
-        catch (...)
-        {
-            {
-                Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__)));
-                bool ret = true;
-                if (!ret)
-                {
-                    timer.Stop();
-                    return;
-                }
-            };
-        }
-        timer.Stop();
+        CatchHook({});
     };
-}
 
-CallPlugins(&Plugin::OnDisconnectAfter, client, conn);
+    CallPlugins(&Plugin::OnDisconnectAfter, client, conn);
 }
