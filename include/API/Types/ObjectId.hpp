@@ -10,11 +10,10 @@ class ObjectId
     public:
         explicit ObjectId(const uint val) : value(val) {}
         explicit ObjectId() = default;
-        virtual ~ObjectId() = default;
 
         explicit operator uint() const noexcept { return value; }
         bool operator==(const ObjectId& next) const { return value == next.value; }
-        explicit virtual operator bool() const;
+        explicit operator bool() const;
 
         uint GetValue() const { return value; }
 

@@ -39,9 +39,8 @@ bool ClientId::IsValidClientId() const
 
 uint ClientId::GetClientIdFromCharacterName(std::wstring_view name)
 {
-    // TODO: Validate this can be done with a view
-    auto& ref = name;
-    const auto account = Players.FindAccountFromCharacterName(reinterpret_cast<st6::wstring&>(ref));
+    st6::wstring st6Name{ (unsigned short*)name.data(), name.size() };
+    const auto account = Players.FindAccountFromCharacterName(st6Name);
     if (!account)
     {
         return 0;

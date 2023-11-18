@@ -13,7 +13,7 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
 
     TryHook
     {
-        if (chatData->inSubmitChat && clientTo.GetValue() != 0x10004)
+        if (chatData.inSubmitChat && clientTo.GetValue() != 0x10004)
         {
             std::wstring buffer;
             buffer.resize(size);
@@ -23,7 +23,7 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             r.extract_text_from_buffer((unsigned short*)buffer.data(), buffer.size(), retVal, static_cast<const char*>(rdl), size);
             std::erase(buffer, '\0');
 
-            const std::wstring sender = chatData->characterName;
+            const std::wstring sender = chatData.characterName;
             const int spaceAfterColonOffset = buffer[sender.length() + 1] == ' ' ? sender.length() + 2 : 0;
             const std::wstring text = buffer.substr(spaceAfterColonOffset, buffer.length() - spaceAfterColonOffset);
 

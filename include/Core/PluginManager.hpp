@@ -49,7 +49,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
         }
 
         template <typename ReturnType, typename FuncPtr, typename... Args>
-        ReturnType CallPlugins(FuncPtr target, bool& skipFunctionCall, Args... args) const
+        ReturnType CallPlugins(FuncPtr target, bool& skipFunctionCall, Args&&... args) const
         {
             constexpr bool returnTypeIsVoid = std::is_same_v<ReturnType, void>;
             using NoVoidReturnType = std::conditional_t<returnTypeIsVoid, int, ReturnType>;
@@ -71,11 +71,11 @@ class DLL PluginManager final : public Singleton<PluginManager>
                                 auto& pluginRef = *packetInterface;
                                 if constexpr (returnTypeIsVoid)
                                 {
-                                    (pluginRef.*target)(args...);
+                                    (pluginRef.*target)(std::forward<Args>(args)...);
                                 }
                                 else
                                 {
-                                    ret = (pluginRef.*target)(args...);
+                                    ret = (pluginRef.*target)(std::forward<Args>(args)...);
                                 }
                             }
                         }
@@ -84,11 +84,11 @@ class DLL PluginManager final : public Singleton<PluginManager>
                             auto& pluginRef = *plugin;
                             if constexpr (returnTypeIsVoid)
                             {
-                                (pluginRef.*target)(args...);
+                                (pluginRef.*target)(std::forward<Args>(args)...);
                             }
                             else
                             {
-                                ret = (pluginRef.*target)(args...);
+                                ret = (pluginRef.*target)(std::forward<Args>(args)...);
                             }
                         }
                     }
@@ -128,17 +128,17 @@ class DLL PluginManager final : public Singleton<PluginManager>
 };
 
 template <typename ReturnType = void, typename FuncPtr, typename... Args>
-auto CallPlugins(FuncPtr target, Args... args)
+auto CallPlugins(FuncPtr target, Args&&... args)
 {
     bool skip = false;
     if constexpr (std::is_same_v<ReturnType, void>)
     {
-        PluginManager::i()->CallPlugins<void>(target, skip, args...);
+        PluginManager::i()->CallPlugins<void>(target, skip, std::forward<Args>(args)...);
         return skip;
     }
     else
     {
-        auto ret = PluginManager::i()->CallPlugins<ReturnType>(target, skip, args...);
+        auto ret = PluginManager::i()->CallPlugins<ReturnType>(target, skip, std::forward<Args>(args)...);
         return std::make_tuple(ret, skip);
     }
 }

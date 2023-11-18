@@ -9,7 +9,7 @@ class ShipId final : public ObjectId
         explicit ShipId(const uint val) : ObjectId(val) {}
         explicit ShipId() = default;
 
-        ~ShipId() override = default;
+        ~ShipId() = default;
 
         [[nodiscard]]
         Action<CShipPtr, Error> GetCShip(bool increment);

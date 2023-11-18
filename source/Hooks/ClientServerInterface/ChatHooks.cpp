@@ -30,15 +30,15 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
 
         if (from.GetValue() == 0)
         {
-            chatData->characterName = L"CONSOLE";
+            chatData.characterName = L"CONSOLE";
         }
         else if (from)
         {
-            chatData->characterName = from.GetCharacterName().Unwrap();
+            chatData.characterName = from.GetCharacterName().Unwrap();
         }
         else
         {
-            chatData->characterName = L"";
+            chatData.characterName = L"";
         }
 
         // extract text from rdlReader
@@ -175,13 +175,13 @@ void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, const vo
     {
         return;
     }
-    chatData->inSubmitChat = true;
+    chatData.inSubmitChat = true;
     if (!skip)
     {
         CallServerPreamble { Server.SubmitChat(cidFrom, size, rdlReader, cidTo, genArg1); }
         CallServerPostamble(true, );
     }
-    chatData->inSubmitChat = false;
+    chatData.inSubmitChat = false;
 
     CallPlugins(&Plugin::OnSubmitChatAfter, ClientId(cidFrom.id), size, rdlReader, ClientId(cidTo.id), genArg1);
 }

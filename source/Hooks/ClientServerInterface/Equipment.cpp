@@ -83,8 +83,7 @@ void __stdcall IServerImplHook::FireWeapon(ClientId client, const XFireWeaponInf
 
 void __stdcall IServerImplHook::SetWeaponGroup(ClientId client, uint unk1, int unk2)
 {
-    Logger::Log(LogLevel::Trace,
-                            std::format(L"SetWeaponGroup(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
+    Logger::Log(LogLevel::Trace, std::format(L"SetWeaponGroup(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
 
     if (const auto skip = CallPlugins(&Plugin::OnSetWeaponGroup, client, unk1, unk2); !skip)
     {
