@@ -35,13 +35,6 @@ class FLHook final
         inline static HMODULE remoteClient;
         inline static HMODULE flProc;
 
-        inline static FARPROC oldShipDestroyed;
-        inline static FARPROC oldNonGunWeaponHitsBase;
-        inline static FARPROC oldDamageHit;
-        inline static FARPROC oldDamageHit2;
-        inline static FARPROC oldDisconnectPacketSent;
-        inline static FARPROC oldGuidedHit;
-
         inline static RCSendChatMsgT rcSendChatMsg;
         inline static CRCAntiCheatT crcAntiCheat;
         inline static GetShipInspectT getShipInspect;

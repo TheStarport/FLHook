@@ -81,7 +81,7 @@ void FLHook::TimerCheckKick()
 {
     TryHook
     {
-        const auto time = TimeUtils::UnixTime<std::chrono::milliseconds>();
+        const auto time = TimeUtils::UnixTime<std::chrono::seconds>();
         for (auto& client : Clients())
         {
             if (client.kickTime)

@@ -39,18 +39,18 @@ FLHook::PatchInfo FLHook::serverPatch = {
     "server.dll",
     0x6CE0000,
     {
-      { 0x6D67274, &IEngineHook::NakedShipDestroyed, 4, &oldShipDestroyed, false },
+      { 0x6D67274, &IEngineHook::NakedShipDestroyed, 4, &IEngineHook::oldShipDestroyed, false },
       { 0x6D641EC, &IEngineHook::NakedAddDamageEntry, 4, nullptr, false },
-      { 0x6D67320, &IEngineHook::NakedGuidedHit, 4, &oldGuidedHit, false },
+      { 0x6D67320, &IEngineHook::NakedGuidedHit, 4, &IEngineHook::oldGuidedHit, false },
       { 0x6D65448, &IEngineHook::NakedGuidedHit, 4, nullptr, false },
       { 0x6D67670, &IEngineHook::NakedGuidedHit, 4, nullptr, false },
-      { 0x6D653F4, &IEngineHook::NakedDamageHit, 4, &oldDamageHit, false },
+      { 0x6D653F4, &IEngineHook::NakedDamageHit, 4, &IEngineHook::oldDamageHit, false },
       { 0x6D672CC, &IEngineHook::NakedDamageHit, 4, nullptr, false },
       { 0x6D6761C, &IEngineHook::NakedDamageHit, 4, nullptr, false },
-      { 0x6D65458, &IEngineHook::NakedDamageHit2, 4, &oldDamageHit2, false },
+      { 0x6D65458, &IEngineHook::NakedDamageHit2, 4, &IEngineHook::oldDamageHit2, false },
       { 0x6D67330, &IEngineHook::NakedDamageHit2, 4, nullptr, false },
       { 0x6D67680, &IEngineHook::NakedDamageHit2, 4, nullptr, false },
-      { 0x6D67668, &IEngineHook::NakedNonGunWeaponHitsBase, 4, &oldNonGunWeaponHitsBase, false },
+      { 0x6D67668, &IEngineHook::NakedNonGunWeaponHitsBase, 4, &IEngineHook::oldNonGunWeaponHitsBase, false },
       { 0x6D6420C, &IEngineHook::NakedLaunchPosition, 4, &IEngineHook::oldLaunchPosition, false },
       { 0x6D648E0, &IEngineHook::FreeReputationVibe, 4, nullptr, false },
       }
@@ -68,7 +68,7 @@ FLHook::PatchInfo FLHook::dalibPatch = {
     "dalib.dll",
     0x65C0000,
     {
-      { 0x65C4BEC, &IEngineHook::NakedDisconnectPacketSent, 4, &oldDisconnectPacketSent, false },
+      { 0x65C4BEC, &IEngineHook::NakedDisconnectPacketSent, 4, &IEngineHook::oldDisconnectPacketSent, false },
       }
 };
 
