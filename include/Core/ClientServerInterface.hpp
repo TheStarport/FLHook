@@ -191,36 +191,36 @@ class IServerImplHook
         timer.Start();                                                 \
         TryHook                                                        \
         {
-#define CallServerPostamble(catchArgs, rval)                                                                                      \
-    }                                                                                                                             \
-    CatchHook({                                                                                                                   \
+#define CallServerPostamble(catchArgs, rval)                                                                          \
+    }                                                                                                                 \
+    CatchHook({                                                                                                       \
         Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__))); \
-        bool ret = catchArgs;                                                                                                     \
-        if (!ret)                                                                                                                 \
-        {                                                                                                                         \
-            timer.Stop();                                                                                                         \
-            return rval;                                                                                                          \
-        }                                                                                                                         \
-    }) timer.Stop();                                                                                                              \
+        bool ret = catchArgs;                                                                                         \
+        if (!ret)                                                                                                     \
+        {                                                                                                             \
+            timer.Stop();                                                                                             \
+            return rval;                                                                                              \
+        }                                                                                                             \
+    }) timer.Stop();                                                                                                  \
     }
 
-#define CallClientPreamble                       \
-    {                                            \
-        void* vRet;                              \
-        char* tmp;                               \
-        memcpy(&tmp, &FLHook::oldClientImpl, 4); \
-        memcpy(&FLHook::hookClientImpl, &FLHook::oldClientImpl, 4);
+#define CallClientPreamble        \
+    {                             \
+        void* vRet;               \
+        char* tmp;                \
+        memcpy(&tmp, &Client, 4); \
+        memcpy(&Client, &FLHook::oldClientImpl, 4);
 
 #define CallClientPostamble   \
     __asm { mov [vRet], eax}  \
     memcpy(&Client, &tmp, 4); \
     }
 
-#define CheckForDisconnect                                                                                                                                \
-    {                                                                                                                                                     \
-        if (client.GetData().disconnected)                                                                                                                \
-        {                                                                                                                                                 \
+#define CheckForDisconnect                                                                                                                    \
+    {                                                                                                                                         \
+        if (client.GetData().disconnected)                                                                                                    \
+        {                                                                                                                                     \
             Logger::Log(LogLevel::Debug, std::format(L"Ignoring disconnected client in {} id={}", StringUtils::stows(__FUNCTION__), client)); \
-            return;                                                                                                                                       \
-        };                                                                                                                                                \
+            return;                                                                                                                           \
+        };                                                                                                                                    \
     }

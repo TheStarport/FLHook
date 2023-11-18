@@ -62,10 +62,7 @@ void IServerImplHook::UpdateInner()
 
 void IServerImplHook::StartupInner(SStartupInfo& si)
 {
-    // Set module references
-    FLHook::commonDll = GetModuleHandle(L"common.dll");
-    FLHook::serverDll = GetModuleHandle(L"server.dll");
-    FLHook::dalibDll = GetModuleHandle(L"dalib.dll");
+    FLHook::Startup();
 
     // Startup the server with this number of players.
     const auto address = FLHook::Offset(FLHook::BinaryType::Server, AddressList::PlayerDbMaxPlayersPatch);
@@ -74,8 +71,6 @@ void IServerImplHook::StartupInner(SStartupInfo& si)
     MemUtils::WriteProcMem(address, movEcx.data(), 1);
     MemUtils::WriteProcMem(address + 1, &maxPlayers, sizeof maxPlayers);
     MemUtils::WriteProcMem(address + 5, nop.data(), 1);
-
-    FLHook::Startup();
 }
 
 void IServerImplHook::StartupInnerAfter(SStartupInfo& si)

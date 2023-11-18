@@ -59,8 +59,13 @@ FLHook::FLHook()
     : damageToClientId(0), damageToSpaceId(0), messagePrivate(false), messageSystem(false), messageUniverse(false), serverLoadInMs(0), playerCount(0),
       disableNpcs(false), flhookReady(false)
 {
-    instance = this;
     Logger::Init();
+    // Set module references
+    commonDll = GetModuleHandle(L"common.dll");
+    serverDll = GetModuleHandle(L"server.dll");
+    dalibDll = GetModuleHandle(L"dalib.dll");
+
+    instance = this;
     infocardManager = new InfocardManager();
     clientList = new ClientList();
     startupCache = new StartupCache();
@@ -75,15 +80,10 @@ FLHook::FLHook()
         LoadSettings();
 
         // Replace the global exception filter with our own so we can write exception dumps
-        ExceptionHandler::SetupExceptionHandling();
+        // ExceptionHandler::SetupExceptionHandling();
 
         // Setup needed debug tools
         DebugTools::Init();
-
-        if (!((serverDll = GetModuleHandle(L"server"))))
-        {
-            throw std::runtime_error("server.dll not loaded");
-        }
 
         // Init our message service, this is a blocking call and some plugins might want to setup their own queues,
         // so we want to make sure the service is up at startup time

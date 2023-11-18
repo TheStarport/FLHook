@@ -92,10 +92,11 @@ StartupCache::StartupCache()
     }
 
     // Hook the read character name and replace it with the caching version
-    MemUtils::PatchCallAddr((char*)FLHook::Offset(FLHook::BinaryType::Server, AddressList::Absolute), 0x717be, ReadCharacterNameHook);
+    MemUtils::PatchCallAddr(
+        (char*)FLHook::Offset(FLHook::BinaryType::Server, AddressList::Absolute), DWORD(AddressList::ReadCharacterName2), ReadCharacterNameHook);
 
     // Keep a reference to the old read character name function.
-    readCharName = reinterpret_cast<ReadCharacterName>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::ReadCharacterName2));
+    readCharName = reinterpret_cast<ReadCharacterName>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::ReadCharacterName1));
 
     // Calculate our base path
     char DataPath[MAX_PATH];
