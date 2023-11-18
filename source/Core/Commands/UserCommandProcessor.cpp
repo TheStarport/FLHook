@@ -431,7 +431,7 @@ void UserCommandProcessor::InvitePlayerByName(std::wstring_view invitee)
         if (const auto inviteeId = ClientId(invitee); inviteeId && !inviteeId.InCharacterSelect())
         {
             InvitePlayer(invitee);
-            
+            return;
         }
 
         userCmdClient.Message(std::format(L"Failed to invite player: '{}'. They may not be online, or are otherwise unavailable."));
