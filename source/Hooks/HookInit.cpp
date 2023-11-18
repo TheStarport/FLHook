@@ -8,57 +8,69 @@
 #include "Core/IEngineHook.hpp"
 #include "Core/IpResolver.hpp"
 
-FLHook::PatchInfo FLHook::exePatch = { "flserver.exe",
-                                       0x0400000,
-                                       { {
-                                           { 0x041B094, &IEngineHook::UpdateTime, 4, nullptr, false },
-                                           { 0x041BAB0, &IEngineHook::ElapseTime, 4, nullptr, false },
-                                       } } };
+FLHook::PatchInfo FLHook::exePatch = {
+    "flserver.exe",
+    0x0400000,
+    {
+      { 0x041B094, &IEngineHook::UpdateTime, 4, nullptr, false },
+      { 0x041BAB0, &IEngineHook::ElapseTime, 4, nullptr, false },
+      }
+};
 
-FLHook::PatchInfo FLHook::contentPatch = { "content.dll",
-                                           0x6EA0000,
-                                           { {
-                                               { 0x6FB358C, &IEngineHook::DockCall, 4, nullptr, false },
-                                           } } };
+FLHook::PatchInfo FLHook::contentPatch = {
+    "content.dll",
+    0x6EA0000,
+    {
+      { 0x6FB358C, &IEngineHook::DockCall, 4, nullptr, false },
+      }
+};
 
-FLHook::PatchInfo FLHook::commonPatch = { "common.dll",
-                                          0x6260000,
-                                          { {
+FLHook::PatchInfo FLHook::commonPatch = {
+    "common.dll",
+    0x6260000,
+    {
 
-                                              { 0x0639C138, &IEngineHook::NakedCShipInit, 4, &IEngineHook::oldInitCShip, false },
-                                              { 0x0639C064, &IEngineHook::NakedCShipDestroy, 4, &IEngineHook::oldDestroyCShip, false },
-                                          } } };
+      { 0x0639C138, &IEngineHook::NakedCShipInit, 4, &IEngineHook::oldInitCShip, false },
+      { 0x0639C064, &IEngineHook::NakedCShipDestroy, 4, &IEngineHook::oldDestroyCShip, false },
+      }
+};
 
-FLHook::PatchInfo FLHook::serverPatch = { "server.dll",
-                                          0x6CE0000,
-                                          { {
-                                              { 0x6D67274, &IEngineHook::NakedShipDestroyed, 4, &oldShipDestroyed, false },
-                                              { 0x6D641EC, &IEngineHook::NakedAddDamageEntry, 4, nullptr, false },
-                                              { 0x6D67320, &IEngineHook::NakedGuidedHit, 4, &oldGuidedHit, false },
-                                              { 0x6D65448, &IEngineHook::NakedGuidedHit, 4, nullptr, false },
-                                              { 0x6D67670, &IEngineHook::NakedGuidedHit, 4, nullptr, false },
-                                              { 0x6D653F4, &IEngineHook::NakedDamageHit, 4, &oldDamageHit, false },
-                                              { 0x6D672CC, &IEngineHook::NakedDamageHit, 4, nullptr, false },
-                                              { 0x6D6761C, &IEngineHook::NakedDamageHit, 4, nullptr, false },
-                                              { 0x6D65458, &IEngineHook::NakedDamageHit2, 4, &oldDamageHit2, false },
-                                              { 0x6D67330, &IEngineHook::NakedDamageHit2, 4, nullptr, false },
-                                              { 0x6D67680, &IEngineHook::NakedDamageHit2, 4, nullptr, false },
-                                              { 0x6D67668, &IEngineHook::NakedNonGunWeaponHitsBase, 4, &oldNonGunWeaponHitsBase, false },
-                                              { 0x6D6420C, &IEngineHook::NakedLaunchPosition, 4, &IEngineHook::oldLaunchPosition, false },
-                                              { 0x6D648E0, &IEngineHook::FreeReputationVibe, 4, nullptr, false },
-                                          } } };
+FLHook::PatchInfo FLHook::serverPatch = {
+    "server.dll",
+    0x6CE0000,
+    {
+      { 0x6D67274, &IEngineHook::NakedShipDestroyed, 4, &oldShipDestroyed, false },
+      { 0x6D641EC, &IEngineHook::NakedAddDamageEntry, 4, nullptr, false },
+      { 0x6D67320, &IEngineHook::NakedGuidedHit, 4, &oldGuidedHit, false },
+      { 0x6D65448, &IEngineHook::NakedGuidedHit, 4, nullptr, false },
+      { 0x6D67670, &IEngineHook::NakedGuidedHit, 4, nullptr, false },
+      { 0x6D653F4, &IEngineHook::NakedDamageHit, 4, &oldDamageHit, false },
+      { 0x6D672CC, &IEngineHook::NakedDamageHit, 4, nullptr, false },
+      { 0x6D6761C, &IEngineHook::NakedDamageHit, 4, nullptr, false },
+      { 0x6D65458, &IEngineHook::NakedDamageHit2, 4, &oldDamageHit2, false },
+      { 0x6D67330, &IEngineHook::NakedDamageHit2, 4, nullptr, false },
+      { 0x6D67680, &IEngineHook::NakedDamageHit2, 4, nullptr, false },
+      { 0x6D67668, &IEngineHook::NakedNonGunWeaponHitsBase, 4, &oldNonGunWeaponHitsBase, false },
+      { 0x6D6420C, &IEngineHook::NakedLaunchPosition, 4, &IEngineHook::oldLaunchPosition, false },
+      { 0x6D648E0, &IEngineHook::FreeReputationVibe, 4, nullptr, false },
+      }
+};
 
-FLHook::PatchInfo FLHook::remoteClientPatch = { "remoteclient.dll",
-                                                0x6B30000,
-                                                { {
-                                                    { 0x6B6BB80, &IServerImplHook::SendChat, 4, &rcSendChatMsg, false },
-                                                } } };
+FLHook::PatchInfo FLHook::remoteClientPatch = {
+    "remoteclient.dll",
+    0x6B30000,
+    {
+      { 0x6B6BB80, &IServerImplHook::SendChat, 4, &rcSendChatMsg, false },
+      }
+};
 
-FLHook::PatchInfo FLHook::dalibPatch = { "dalib.dll",
-                                         0x65C0000,
-                                         { {
-                                             { 0x65C4BEC, &IEngineHook::NakedDisconnectPacketSent, 4, &oldDisconnectPacketSent, false },
-                                         } } };
+FLHook::PatchInfo FLHook::dalibPatch = {
+    "dalib.dll",
+    0x65C0000,
+    {
+      { 0x65C4BEC, &IEngineHook::NakedDisconnectPacketSent, 4, &oldDisconnectPacketSent, false },
+      }
+};
 
 bool FLHook::ApplyPatch(PatchInfo& pi)
 {
@@ -268,12 +280,12 @@ void FLHook::InitHookExports()
 
     auto loadRepFromCharFile = reinterpret_cast<FARPROC>(IEngineHook::NakedLoadReputationFromCharacterFile);
 
-    IEngineHook::oldLoadReputationFromCharacterFile = reinterpret_cast<FARPROC>(
-        Offset(BinaryType::Server, static_cast<AddressList>(static_cast<DWORD>(AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 1)));
-
     MemUtils::WriteProcMem(address, movEax.data(), 1);
     MemUtils::WriteProcMem(address + 1, &loadRepFromCharFile, 4);
     MemUtils::WriteProcMem(address + 5, jumpEax.data(), 2);
+
+    IEngineHook::oldLoadReputationFromCharacterFile =
+        reinterpret_cast<FARPROC>(Offset(BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 7);
 
     // crc anti-cheat
     crcAntiCheat = reinterpret_cast<CRCAntiCheatT>(Offset(BinaryType::Server, AddressList::CrcAntiCheat));

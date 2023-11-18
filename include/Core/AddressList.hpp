@@ -12,8 +12,6 @@ enum class AddressList : uint
     CharFileEncryption = 0x6E10D,
     CharFileEncryption2 = 0x6BFA6,
     CrcAntiCheat = 0x6FAF0,
-    CpList = 0x43D74,
-    CdpServer = 0xA284,
     CreateChar = 0x6B790,
     FlNew = 0x80012,
     ServerFlServer = 0x1BC90,
@@ -25,10 +23,12 @@ enum class AddressList : uint
 
     RcDisconnect = 0x93E0,
     RcSendChat = 0x7F30,
+    CpList = 0x43D74,
 
     // Dalib.dll Offsets
 
     DalibDiscSuppress = 0x49C6,
+    CdpServer = 0xA284,
 
     // Server.dll Offsets
 

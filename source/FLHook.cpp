@@ -164,11 +164,6 @@ FLHook::FLHook()
             LoadLibraryA(lib);
         }
 
-        Logger::Log(LogLevel::Info, L"Loading Freelancer INIs");
-
-        // Force constructor to run
-        // TODO:NPC Personalities. Hk::Personalities::LoadPersonalities();
-
         PatchClientImpl();
 
         CallPlugins(&Plugin::OnLoadSettings);

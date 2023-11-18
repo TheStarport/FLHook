@@ -11,7 +11,6 @@
 bool LoginInnerBefore(const SLoginInfo& li, ClientId client)
 {
     // The startup cache disables reading of the banned file. Check this manually on login and boot the player if they are banned.
-
     if (auto acc = client.GetAccount().Unwrap())
     {
         const auto dir = acc.GetDirectoryName().Unwrap();

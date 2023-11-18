@@ -71,7 +71,7 @@ class FLHook final
                         bool allocated;
                 };
 
-                std::array<Entry, 128> entries;
+                std::vector<Entry> entries;
         };
 
         static PatchInfo exePatch;
