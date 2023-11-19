@@ -10,6 +10,6 @@ class DLL PerfTimer
     private:
         mstime tmStart = 0;
         ulong max = 0;
-        std::wstring_view function;
+        std::wstring function;
         ulong warning;
 };

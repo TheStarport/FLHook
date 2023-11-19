@@ -1,4 +1,4 @@
-#include "PCH.hpp"
+﻿#include "PCH.hpp"
 
 #include "API/Utils/PerfTimer.hpp"
 
@@ -14,12 +14,13 @@ ulong PerfTimer::Stop()
     {
         if (timeDelta > max && timeDelta > warning)
         {
-            Logger::Log(LogLevel::Info, std::format(L"Spent {} ms in {}, longest so far.", timeDelta, function));
+            auto str = std::format(L"Spent {} μs in {}, longest so far.", timeDelta, function);
+            Logger::Log(LogLevel::Info, std::format(L"Spent {} μs in {}, longest so far.", timeDelta, function));
             max = timeDelta;
         }
         else if (timeDelta > 100)
         {
-            Logger::Log(LogLevel::Info, std::format(L"Spent {} ms in {}", timeDelta, function));
+            Logger::Log(LogLevel::Info, std::format(L"Spent {} μs in {}", timeDelta, function));
         }
     }
     return timeDelta;
