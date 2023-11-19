@@ -12,7 +12,6 @@ void IServerImplHook::PlayerLaunchInner(ShipId shipId, ClientId client)
     {
         auto& data = client.GetData();
         data.ship = ShipId(shipId);
-        data.killsInARow = 0;
         data.cruiseActivated = false;
         data.thrusterActivated = false;
         data.engineKilled = false;

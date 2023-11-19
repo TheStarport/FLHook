@@ -56,9 +56,6 @@ struct ClientData
         ChatSize chatSize = ChatSize::Default;
         ChatStyle chatStyle = ChatStyle::Default;
 
-        // MultiKillMessages
-        uint killsInARow = 0;
-
         // bans
         uint connects = 0; // incremented when player connects
 
@@ -133,9 +130,6 @@ class ClientList
                 }
             }
         }
-
-        void PlayerCharacterSelect(); // TODO: Figure when player data is valid
-        void PlayerLogout();
 
         inline static uint largestClientId = 0;
         inline static uint smallestClientId = 0;

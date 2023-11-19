@@ -129,6 +129,7 @@ inline static char repFreeFixOld[5];
 void FLHook::ClearClientInfo(ClientId client)
 {
     auto& info = client.GetData();
+    info.playerData = nullptr;
 
     info.characterName = L"";
     info.characterFile = L"";
@@ -155,7 +156,6 @@ void FLHook::ClearClientInfo(ClientId client)
     info.chatStyle = ChatStyle::Default;
 
     info.ignoreInfoList.clear();
-    info.killsInARow = 0;
     info.hostname = L"";
     info.engineKilled = false;
     info.thrusterActivated = false;

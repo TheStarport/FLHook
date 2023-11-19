@@ -622,6 +622,12 @@ void UserCommandProcessor::GiveCash(std::wstring_view characterName, std::wstrin
     targetPlayer.SaveChar().Handle();
 }
 
+void UserCommandProcessor::GiveCashById(ClientId targetClient, std::wstring_view amount)
+{
+    const auto name = targetClient.GetCharacterName().Handle();
+    return GiveCash(name, amount);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_view command)

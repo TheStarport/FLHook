@@ -21,6 +21,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         // void ReadMail(uint mailId);
         // void ListMail(int pageNumber, std::wstring_view unread);
         void GiveCash(std::wstring_view characterName, std::wstring_view amount);
+        void GiveCashById(ClientId targetClient, std::wstring_view amount);
         void Help(std::wstring_view module, std::wstring_view command);
 
         // clang-format off
@@ -43,7 +44,10 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              //AddCommand(UserCommandProcessor, L"/readmail", ReadMail, L"/readmail <id>", L"prints specified mail."),
              //AddCommand(UserCommandProcessor, L"/listmail", ListMail, L"/listmail [page]", L"lists the mails of the specified page."),
              AddCommand(UserCommandProcessor, L"/givecash", GiveCash, L"/givecash <target> <amount>", L"gives speicified amount of cash to named target"),
-             AddCommand(UserCommandProcessor, L"/help", Help, L"/help [module] [command]", L"gives speicified amount of cash to named target")}
+             AddCommand(UserCommandProcessor, L"/givecash$", GiveCashById, L"/givecash <targetId> <amount>", L"gives speicified amount of cash to target"),
+             AddCommand(UserCommandProcessor, L"/sendcash", GiveCash, L"/givecash <target> <amount>", L"gives speicified amount of cash to named target"),
+             AddCommand(UserCommandProcessor, L"/sendcash$", GiveCashById, L"/givecash <targetId> <amount>", L"gives speicified amount of cash to target"),
+             AddCommand(UserCommandProcessor, L"/help", Help, L"/help [module] [command]", L"Provides indepth help information")}
         };
         // clang-format on
         GetCommandsFunc(commands);

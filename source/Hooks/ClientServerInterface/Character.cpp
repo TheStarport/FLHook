@@ -16,6 +16,7 @@ bool IServerImplHook::CharacterSelectInner(const CHARACTER_ID& cid, const Client
         info.lastExitedBaseId = 0;
         info.tradePartner = ClientId();
         info.characterName = charName;
+        info.groupId = Players.GetGroupID(client.GetValue());
     }
     catch (...)
     {
@@ -64,13 +65,10 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
                 }
             }
 
-            // event
-            // TODO: Fix mail setup
-            /*const CAccount* acc = Players.FindAccountFromClientID(client);
-            std::wstring dir = Hk::Client::GetAccountDirName(acc);
-            auto pi = Hk::Admin::GetPlayerInfo(client, false);
-
-            MailManager::i()->SendMailNotification(client);*/
+            if (FLHookConfig::i()->general.persistGroup && info.groupId)
+            {
+                GroupId(info.groupId).AddMember(client);
+            }
 
             // Assign their random formation id.
             // Numbers are between 0-20 (inclusive)
