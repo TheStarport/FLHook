@@ -117,7 +117,7 @@ Action<void, Error> SystemId::Message(std::wstring_view msg, MessageColor color,
 {
     ValidSystemCheck;
 
-    const auto clientsInSystem = GetPlayersInSystem().Raw();
+    const auto clientsInSystem = GetPlayersInSystem(true).Raw();
 
     if (clientsInSystem.has_error())
     {
