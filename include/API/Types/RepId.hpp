@@ -2,7 +2,7 @@
 
 #include "RepGroupId.hpp"
 
-class RepId final
+class DLL RepId final
 {
         int value = 0;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-class GroupId final
+class DLL GroupId final
 {
         uint value = 0;
 

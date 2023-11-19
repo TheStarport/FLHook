@@ -1,6 +1,6 @@
 #pragma once
 
-class EquipmentId
+class DLL EquipmentId
 {
         uint value = 0;
 

@@ -2,7 +2,7 @@
 
 class RepId;
 
-class RepGroupId final
+class DLL RepGroupId final
 {
         uint value = 0;
 

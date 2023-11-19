@@ -127,6 +127,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
         std::optional<std::weak_ptr<Plugin>> GetPlugin(std::wstring_view shortName);
 };
 
+#ifdef FLHOOK
 template <typename ReturnType = void, typename FuncPtr, typename... Args>
 auto CallPlugins(FuncPtr target, Args&&... args)
 {
@@ -142,6 +143,7 @@ auto CallPlugins(FuncPtr target, Args&&... args)
         return std::make_tuple(ret, skip);
     }
 }
+#endif
 
 using PluginFactoryT = std::shared_ptr<Plugin> (*)();
 

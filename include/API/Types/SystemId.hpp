@@ -4,7 +4,7 @@ class ClientId;
 class BaseId;
 class ShipId;
 
-class SystemId
+class DLL SystemId
 {
         uint value;
 

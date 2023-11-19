@@ -2,7 +2,7 @@
 
 #include "SystemId.hpp"
 
-class ObjectId
+class DLL ObjectId
 {
     protected:
         uint value = 0;

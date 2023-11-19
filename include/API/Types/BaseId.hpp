@@ -3,7 +3,7 @@
 #include "ObjectId.hpp"
 #include "RepId.hpp"
 
-class BaseId
+class DLL BaseId
 {
         uint value;
 

@@ -3,7 +3,7 @@
 #include "ObjectId.hpp"
 #include "RepId.hpp"
 
-class ShipId final : public ObjectId
+class DLL ShipId final : public ObjectId
 {
     public:
         explicit ShipId(const uint val) : ObjectId(val) {}

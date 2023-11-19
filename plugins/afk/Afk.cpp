@@ -36,7 +36,7 @@ namespace Plugins
     void AfkPlugin::UserCmdAfk()
     {
         awayClients.emplace_back(userCmdClient);
-        const auto playerName = userCmdClient.GetCharacterName();
+        const auto playerName = userCmdClient.GetCharacterName().Handle();
         const auto message = std::format(L"{} is now away from keyboard.", playerName);
 
         const auto system = userCmdClient.GetSystemId().Handle();

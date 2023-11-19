@@ -434,7 +434,7 @@ void UserCommandProcessor::InvitePlayerByName(std::wstring_view invitee)
             return;
         }
 
-        userCmdClient.Message(std::format(L"Failed to invite player: '{}'. They may not be online, or are otherwise unavailable."));
+        userCmdClient.Message(std::format(L"Failed to invite player: '{}'. They may not be online, or are otherwise unavailable.", invitee));
         return;
     }
 

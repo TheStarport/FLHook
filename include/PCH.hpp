@@ -91,9 +91,4 @@ using JpWide = jpcre2::select<wchar_t>;
 
 #include "Core/PluginManager.hpp"
 
-#ifndef FLHOOK
-    // Only fully load the API for plugins. While working on core loading it makes compile times skyrocket
-    #include "Api/Api.hpp"
-#endif
-
 #pragma warning(pop)
