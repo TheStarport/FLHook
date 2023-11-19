@@ -1,12 +1,12 @@
 #pragma once
 
-// Includes
+#include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 namespace Plugins
 {
     class AfkPlugin final : public Plugin, public AbstractUserCommandProcessor
     {
-            std::vector<uint> awayClients;
+            std::vector<ClientId> awayClients;
 
             /**
              * @ingroup AwayFromKeyboard

@@ -113,7 +113,7 @@ Action<std::vector<ClientId>, Error> SystemId::GetPlayersInSystem(bool includeDo
     return { clients };
 }
 
-Action<void, Error> SystemId::Message(std::wstring_view msg, MessageColor color, MessageFormat format)
+Action<void, Error> SystemId::Message(std::wstring_view msg, MessageColor color, MessageFormat format) const
 {
     ValidSystemCheck;
 
@@ -141,7 +141,8 @@ Action<void, Error> SystemId::Message(std::wstring_view msg, MessageColor color,
     return { {} };
 }
 
-Action<void, Error> SystemId::PlaySoundOrMusic(const std::wstring& trackNickNameSound, bool isMusic, const std::optional<std::pair<Vector, float>>& sphere)
+Action<void, Error> SystemId::PlaySoundOrMusic(const std::wstring& trackNickNameSound, bool isMusic,
+                                               const std::optional<std::pair<Vector, float>>& sphere) const
 {
     ValidSystemCheck;
     auto sound = pub::Audio::Tryptich();

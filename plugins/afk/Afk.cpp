@@ -23,7 +23,6 @@
 
 #include "PCH.hpp"
 
-#include "API/API.hpp"
 #include "Afk.hpp"
 
 namespace Plugins
@@ -36,15 +35,14 @@ namespace Plugins
      */
     void AfkPlugin::UserCmdAfk()
     {
-        awayClients.emplace_back(client);
-        const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-        const auto message = std::format(L"{} is now away from keyboard.", Hk::Chat::FormatMsg(MessageColor::Red, MessageFormat::Normal, playerName));
+        awayClients.emplace_back(userCmdClient);
+        const auto playerName = userCmdClient.GetCharacterName();
+        const auto message = std::format(L"{} is now away from keyboard.", playerName);
 
-        const auto systemId = Hk::Player::GetSystem(client).Handle();
+        const auto system = userCmdClient.GetSystemId().Handle();
+        system.Message(message, MessageColor::Red, MessageFormat::Normal);
 
-        Hk::Chat::FMsgS(systemId, message);
-
-        client.Message(L"Use the /back command to stop sending automatic replies to PMs.");
+        userCmdClient.Message(L"Use the /back command to stop sending automatic replies to PMs.");
     }
 
     /** @ingroup AwayFromKeyboard
@@ -53,15 +51,15 @@ namespace Plugins
      */
     void AfkPlugin::UserCmdBack()
     {
-        if (const auto it = awayClients.begin(); std::find(it, awayClients.end(), client) != awayClients.end())
+        if (const auto it = awayClients.begin(); std::find(it, awayClients.end(), userCmdClient) != awayClients.end())
         {
-            const auto systemId = Hk::Player::GetSystem(client).Handle();
+            const auto system = userCmdClient.GetSystemId().Handle();
 
             awayClients.erase(it);
-            const std::wstring playerName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-            const auto message = Hk::Chat::FormatMsg(MessageColor::Red, MessageFormat::Normal, playerName + L" has returned");
-            Hk::Chat::FMsgS(systemId, message);
-            return;
+
+            auto playerName = userCmdClient.GetCharacterName().Handle();
+
+            system.Message(std::format(L"{} has returned.", playerName), MessageColor::Red);
         }
     }
 
@@ -80,9 +78,9 @@ namespace Plugins
     void AfkPlugin::OnSubmitChat(ClientId triggeringClient, [[maybe_unused]] const unsigned long lP1, [[maybe_unused]] const void* rdlReader,
                                  [[maybe_unused]] ClientId to, [[maybe_unused]] const int dunno)
     {
-        if (const auto it = awayClients.begin(); Hk::Client::IsValidClientID(client) && std::find(it, awayClients.end(), client) != awayClients.end())
+        if (const auto it = awayClients.begin(); triggeringClient && std::find(it, awayClients.end(), triggeringClient) != awayClients.end())
         {
-            client = triggeringClient;
+            userCmdClient = triggeringClient;
             UserCmdBack();
         }
     }
@@ -95,10 +93,6 @@ namespace Plugins
 
     // Client command processing
 } // namespace Plugins
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FLHOOK STUFF
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace Plugins;
 

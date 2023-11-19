@@ -22,7 +22,7 @@
     catch ([[maybe_unused]] const StopProcessingException&) {} \
     catch (const GameException& ex)                            \
     {                                                          \
-        Logger::Log(LogLevel::Info, ex.Msg());     \
+        Logger::Log(LogLevel::Info, ex.Msg());                 \
         e;                                                     \
     }                                                          \
     catch ([[maybe_unused]] std::exception & exc) { e; }       \
@@ -85,8 +85,8 @@ private:                                                                   \
                                                                                                                                         \
     bool ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring>& paramVector) override              \
     {                                                                                                                                   \
-        client = triggeringClient;                                                                                                      \
-        return MatchCommand<commandArray.size()>(this, client, cmd, paramVector);                                                       \
+        userCmdClient = triggeringClient;                                                                                               \
+        return MatchCommand<commandArray.size()>(this, userCmdClient, cmd, paramVector);                                                \
     }                                                                                                                                   \
                                                                                                                                         \
 public:                                                                                                                                 \

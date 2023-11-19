@@ -27,9 +27,9 @@ class SystemId
         Action<std::vector<CSolar *>, Error> GetSolars(bool onlyDockables = false);
         Action<std::vector<ClientId>, Error> GetPlayersInSystem(bool includeDocked = false) const;
 
-        Action<void, Error> Message(std::wstring_view msg, MessageColor color = MessageColor::Default, MessageFormat format = MessageFormat::Normal);
+        Action<void, Error> Message(std::wstring_view msg, MessageColor color = MessageColor::Default, MessageFormat format = MessageFormat::Normal) const;
         Action<void, Error> PlaySoundOrMusic(const std::wstring &trackNickNameSound, bool isMusic = false,
-                                             const std::optional<std::pair<Vector, float>> &sphere = {});
+                                             const std::optional<std::pair<Vector, float>> &sphere = {}) const;
         Action<uint, Error> KillAllPlayers() const;
 };
 
