@@ -97,6 +97,13 @@ void __stdcall IEngineHook::AddDamageEntry(DamageList* dmgList, unsigned short s
         return;
     }
 
+    if (const auto damageMode = FLHookConfig::i()->general.damageMode;
+        !magic_enum::enum_flags_test(damageMode, DamageMode::PvE) && (dmgList->is_inflictor_a_player() && !FLHook::dmgToClient) ||
+        (!dmgList->is_inflictor_a_player() && FLHook::dmgToClient))
+    {
+        return;
+    }
+
     // check if we got damaged by a cd with changed behaviour
     if (dmgList->get_cause() == DamageCause::DummyDisrupter)
     {
@@ -231,9 +238,18 @@ bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
     }
 
     const auto* config = FLHookConfig::c();
+    if (config->general.damageMode == DamageMode::None)
+    {
+        return false;
+    }
 
     if (clientTarget)
     {
+        if (!magic_enum::enum_flags_test(config->general.damageMode, DamageMode::PvP))
+        {
+            return false;
+        }
+
         auto time = TimeUtils::UnixTime<std::chrono::milliseconds>();
 
         // anti-dockkill check

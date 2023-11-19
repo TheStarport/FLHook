@@ -23,8 +23,10 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
                 //! Time of invulnerability upon undock in milliseconds.
                 //! Protected player can also not inflict any damage.
                 uint antiDockKill = 4000;
-                //! Number of milliseconds the player character remains in space after disconnecting.
-                uint antiF1 = 0;
+
+                //! The type of damage allowed on this server. Allowed values: 'All', 'None', 'PvP' and 'PvE'
+                DamageMode damageMode = DamageMode::All;
+
                 //! Disable the cruise disrupting effects.
                 bool changeCruiseDisruptorBehaviour = false;
 
@@ -52,14 +54,21 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
 
                 std::vector<uint> noPVPSystemsHashed;
 
+                Serialize(General, antiDockKill, changeCruiseDisruptorBehaviour, damageMode, disableCharfileEncryption, disconnectDelay, disableNPCSpawns,
+                          maxGroupSize, persistGroup, torpMissileBaseDamageMultiplier, tempBansEnabled, chatSuppressList, noPVPSystems);
+        };
+
+        struct AutoKicks final
+        {
                 //! Amount of time spent idly on a base resulting in a server kick, in seconds.
                 uint antiBaseIdle = 600;
                 //! Amount of time spent idly on character select screen resulting in a server kick, in seconds.
                 uint antiCharMenuIdle = 600;
 
-                Serialize(General, antiDockKill, antiF1, changeCruiseDisruptorBehaviour, disableCharfileEncryption, disconnectDelay, disableNPCSpawns,
-                          maxGroupSize, persistGroup, torpMissileBaseDamageMultiplier, tempBansEnabled, chatSuppressList, noPVPSystems, antiBaseIdle,
-                          antiCharMenuIdle);
+                //! Number of milliseconds the player character remains in space after disconnecting.
+                uint antiF1 = 0;
+
+                Serialize(AutoKicks, antiBaseIdle, antiCharMenuIdle, antiF1)
         };
 
         struct Plugins final
@@ -179,8 +188,13 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
         struct Callsign final
         {
                 //! The mapping of numbers to formations. 1, min = Alpha. 29, max = Yanagi
-                std::vector<int> allowedFormations = {
-                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29
+                std::vector<AllowedFormation> allowedFormations = {
+                    AllowedFormation::Alpha,   AllowedFormation::Beta,   AllowedFormation::Gamma,  AllowedFormation::Delta, AllowedFormation::Epsilon,
+                    AllowedFormation::Zeta,    AllowedFormation::Theta,  AllowedFormation::Iota,   AllowedFormation::Kappa, AllowedFormation::Lambda,
+                    AllowedFormation::Omicron, AllowedFormation::Sigma,  AllowedFormation::Omega,  AllowedFormation::Red,   AllowedFormation::Blue,
+                    AllowedFormation::Gold,    AllowedFormation::Green,  AllowedFormation::Silver, AllowedFormation::Black, AllowedFormation::White,
+                    AllowedFormation::Yellow,  AllowedFormation::Matsu,  AllowedFormation::Sakura, AllowedFormation::Fuji,  AllowedFormation::Botan,
+                    AllowedFormation::Hagi,    AllowedFormation::Susuki, AllowedFormation::Kiku,   AllowedFormation::Yanagi
                 };
 
                 //! If true, formations and numbers will not be assigned to ships. All ships will be alpha 1-1.
@@ -194,6 +208,7 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
 
         Debug debug;
         General general;
+        AutoKicks autoKicks;
         Plugins plugins;
         MessageQueue messageQueue;
         UserCommands userCommands;
@@ -201,5 +216,5 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
         ChatConfig chatConfig;
         Callsign callsign;
 
-        Serialize(FLHookConfig, debug, general, plugins, messageQueue, userCommands, bans, chatConfig, callsign);
+        Serialize(FLHookConfig, debug, general, autoKicks, plugins, messageQueue, userCommands, bans, chatConfig, callsign);
 };

@@ -75,15 +75,23 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
             // Assign their random formation id.
             // Numbers are between 0-20 (inclusive)
             // Formations are between 1-29 (inclusive)
-            std::random_device dev;
-            std::mt19937 rng(dev());
+            static std::random_device dev;
+            static std::mt19937 rng(dev());
             std::uniform_int_distribution<std::mt19937::result_type> distNum(1, 20);
             const auto* conf = FLHookConfig::c();
             std::uniform_int_distribution<std::mt19937::result_type> distForm(0, conf->callsign.allowedFormations.size() - 1);
 
+            if (conf->callsign.allowedFormations.empty())
+            {
+                info.formationTag = AllowedFormation::Alpha;
+            }
+            else
+            {
+                info.formationTag = conf->callsign.allowedFormations[distForm(rng)];
+            }
+
             info.formationNumber1 = distNum(rng);
             info.formationNumber2 = distNum(rng);
-            info.formationTag = conf->callsign.allowedFormations[distForm(rng)];
         }
     }
     CatchHook({})
@@ -142,8 +150,7 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
 
 void __stdcall IServerImplHook::RequestRankLevel(ClientId client, uint unk1, int unk2)
 {
-    Logger::Log(LogLevel::Trace,
-                            std::format(L"RequestRankLevel(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
+    Logger::Log(LogLevel::Trace, std::format(L"RequestRankLevel(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestRankLevel, client, unk1, unk2); !skip)
     {
@@ -156,8 +163,7 @@ void __stdcall IServerImplHook::RequestRankLevel(ClientId client, uint unk1, int
 
 void __stdcall IServerImplHook::RequestPlayerStats(ClientId client, uint unk1, int unk2)
 {
-    Logger::Log(LogLevel::Trace,
-                            std::format(L"RequestPlayerStats(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
+    Logger::Log(LogLevel::Trace, std::format(L"RequestPlayerStats(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestPlayerStats, client, unk1, unk2); !skip)
     {
@@ -185,7 +191,7 @@ bool IServerImplHook::CharacterInfoReqInner(ClientId client, bool)
             if (shipId)
             {
                 // in space
-                info.f1Time = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHookConfig::i()->general.antiF1;
+                info.f1Time = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHookConfig::i()->autoKicks.antiF1;
                 return false;
             }
         }

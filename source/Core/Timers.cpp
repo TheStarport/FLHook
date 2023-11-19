@@ -96,17 +96,17 @@ void FLHook::TimerCheckKick()
             }
 
             const auto* config = FLHookConfig::c();
-            if (config->general.antiBaseIdle)
+            if (config->autoKicks.antiBaseIdle)
             {
                 // anti base-idle check
-                if (client.baseEnterTime && time - client.baseEnterTime >= config->general.antiBaseIdle)
+                if (client.baseEnterTime && time - client.baseEnterTime >= config->autoKicks.antiBaseIdle)
                 {
                     client.id.Kick(L"Base idling", 10);
                     client.baseEnterTime = 0;
                 }
             }
 
-            if (config->general.antiCharMenuIdle)
+            if (config->autoKicks.antiCharMenuIdle)
             {
                 // anti charmenu-idle check
                 if (!client.characterName.empty())
@@ -115,7 +115,7 @@ void FLHook::TimerCheckKick()
                     {
                         client.charMenuEnterTime = static_cast<uint>(time);
                     }
-                    else if (time - client.charMenuEnterTime >= config->general.antiCharMenuIdle)
+                    else if (time - client.charMenuEnterTime >= config->autoKicks.antiCharMenuIdle)
                     {
                         client.id.Kick();
                         client.charMenuEnterTime = 0;

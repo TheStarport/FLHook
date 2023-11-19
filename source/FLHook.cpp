@@ -56,8 +56,8 @@ BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]]
 }
 
 FLHook::FLHook()
-    : damageToClientId(0), damageToSpaceId(0), messagePrivate(false), messageSystem(false), messageUniverse(false), serverLoadInMs(0), playerCount(0),
-      disableNpcs(false), flhookReady(false)
+    : damageToClientId(0), messagePrivate(false), messageSystem(false), messageUniverse(false), serverLoadInMs(0), playerCount(0), disableNpcs(false),
+      flhookReady(false)
 {
     Logger::Init();
     // Set module references
@@ -291,6 +291,9 @@ void FLHook::LoadSettings()
         pub::GetSystemID(systemId, StringUtils::wstos(system).c_str());
         config->general.noPVPSystemsHashed.emplace_back(systemId);
     }
+
+    // Resave to add any missing properties that have been added
+    Serializer::SaveToJson(*config, L"flhook.json");
 
     // Explicitly replace the config
     FLHookConfig::i(&config);

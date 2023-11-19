@@ -108,7 +108,6 @@ class FLHook final
         bool LoadBaseMarket();
 
         uint damageToClientId;
-        uint damageToSpaceId;
 
         bool messagePrivate;
         bool messageSystem;

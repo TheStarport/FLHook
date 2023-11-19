@@ -4,8 +4,6 @@
 
 #include "Core/Commands/AdminCommandProcessor.hpp"
 
-#include "API/FLHook/ClientList.hpp"
-
 // TODO: General, a lot of these functions are agnostic about whether or not the player is online and thus has a clientId, so along with the player database
 // rework a lot of these functions need to be reworked to account for that.
 
@@ -376,6 +374,47 @@ std::wstring AdminCommandProcessor::Pull(std::wstring_view characterName)
     target.GetShipId().Handle().Relocate(pos, orientation);
 
     return std::format(L"player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}", characterName, currentUser, pos.x, pos.y, pos.z);
+}
+
+std::wstring AdminCommandProcessor::SetDamageType(std::wstring_view newDamageType)
+{
+    static std::wstring usage = L"Sets what can be damaged on the server. Valid values are 'None', 'All', PvP, 'PvE'.";
+    if (newDamageType.empty())
+    {
+        return usage;
+    }
+
+    auto* config = FLHookConfig::i();
+    const auto lower = StringUtils::ToLower(newDamageType);
+    if (lower == L"none")
+    {
+        config->general.damageMode = DamageMode::None;
+        Serializer::SaveToJson(*config, L"flhook.json");
+        return L"Set damage mode to None. No player ship can take damage, but NPCs can still hurt each other.";
+    }
+
+    if (lower == L"all")
+    {
+        config->general.damageMode = DamageMode::All;
+        Serializer::SaveToJson(*config, L"flhook.json");
+        return L"Set damage mode to All. All ships can take damage.";
+    }
+
+    if (lower == L"pvp")
+    {
+        config->general.damageMode = DamageMode::PvP;
+        Serializer::SaveToJson(*config, L"flhook.json");
+        return L"Set damage mode to PvP. Players can hurt players, and NPCs can hurt NPCs, but they cannot hurt each other.";
+    }
+
+    if (lower == L"pve")
+    {
+        config->general.damageMode = DamageMode::PvE;
+        Serializer::SaveToJson(*config, L"flhook.json");
+        return L"Set damage mode to PvE. Players cannot hurt each other, but can hurt and be hurt by NPCs.";
+    }
+
+    return usage;
 }
 
 // std::wstring AdminCommandProcessor::Move(std::wstring_view characterName, Vector position)

@@ -73,7 +73,7 @@ struct ClientData
         // Your randomly assigned formation tag, e.g. Navy Lambda 1-6
         uint formationNumber1 = 0;
         uint formationNumber2 = 0;
-        uint formationTag = 0;
+        AllowedFormation formationTag = AllowedFormation::Alpha;
 
         ClientData()
         {

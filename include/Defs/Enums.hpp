@@ -121,3 +121,84 @@ enum class IdType
     Arch,
     Reputation
 };
+
+enum class DamageMode
+{
+    None,
+    PvE = 1 << 0,
+    PvP = 1 << 1,
+    All = PvE | PvP
+};
+
+NLOHMANN_JSON_SERIALIZE_ENUM(DamageMode, {
+                                             {DamageMode::None,     0},
+                                             { DamageMode::PvE, "pve"},
+                                             { DamageMode::PvP, "pvp"},
+                                             { DamageMode::All, "all"},
+});
+
+enum class AllowedFormation
+{
+    Alpha = 1,
+    Beta,
+    Gamma,
+    Delta,
+    Epsilon,
+    Zeta,
+    Theta,
+    Iota,
+    Kappa,
+    Lambda,
+    Omicron,
+    Sigma,
+    Omega,
+    Red,
+    Blue,
+    Gold,
+    Green,
+    Silver,
+    Black,
+    White,
+    Yellow,
+    Matsu,
+    Sakura,
+    Fuji,
+    Botan,
+    Hagi,
+    Susuki,
+    Kiku,
+    Yanagi
+};
+
+NLOHMANN_JSON_SERIALIZE_ENUM(AllowedFormation,
+                             {
+                                 {  AllowedFormation::Alpha,   "alpha"},
+                                 {   AllowedFormation::Beta,    "beta"},
+                                 {  AllowedFormation::Gamma,   "gamma"},
+                                 {  AllowedFormation::Delta,   "delta"},
+                                 {AllowedFormation::Omicron, "omicron"},
+                                 {  AllowedFormation::Omega,   "omega"},
+                                 {  AllowedFormation::Sigma,   "sigma"},
+                                 {AllowedFormation::Epsilon, "epsilon"},
+                                 {   AllowedFormation::Zeta,    "zeta"},
+                                 {  AllowedFormation::Theta,   "theta"},
+                                 {  AllowedFormation::Kappa,   "kappa"},
+                                 { AllowedFormation::Lambda,  "lambda"},
+                                 {   AllowedFormation::Iota,    "iota"},
+                                 {    AllowedFormation::Red,     "red"},
+                                 {   AllowedFormation::Blue,    "blue"},
+                                 {   AllowedFormation::Gold,    "gold"},
+                                 {  AllowedFormation::Green,   "green"},
+                                 { AllowedFormation::Silver,  "silver"},
+                                 {  AllowedFormation::Black,   "black"},
+                                 {  AllowedFormation::White,   "white"},
+                                 { AllowedFormation::Yellow,  "yellow"},
+                                 {  AllowedFormation::Matsu,   "matsu"},
+                                 { AllowedFormation::Sakura,  "sakura"},
+                                 {   AllowedFormation::Fuji,    "fuji"},
+                                 {  AllowedFormation::Botan,   "botan"},
+                                 {   AllowedFormation::Hagi,    "hagi"},
+                                 { AllowedFormation::Susuki,  "susuki"},
+                                 {   AllowedFormation::Kiku,    "kiku"},
+                                 { AllowedFormation::Yanagi,  "yanagi"},
+})
