@@ -143,6 +143,7 @@
     <ClInclude Include="..\Include\Core\Commands\CommandLineParser.hpp" />
     <ClInclude Include="..\Include\Core\Commands\ExternalCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp" />
+    <ClInclude Include="..\Include\Core\Database.hpp" />
     <ClInclude Include="..\include\Core\DebugTools.hpp" />
     <ClInclude Include="..\include\Core\ExceptionHandler.hpp" />
     <ClInclude Include="..\Include\Core\ClientServerInterface.hpp" />

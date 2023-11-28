@@ -516,5 +516,8 @@
     <ClInclude Include="..\include\API\FLHook\PersonalityHelper.hpp">
       <Filter>Include\API\FLHook</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\Core\Database.hpp">
+      <Filter>Include\Core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

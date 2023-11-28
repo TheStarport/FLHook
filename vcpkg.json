@@ -39,6 +39,10 @@
     {
       "name": "sqlite-orm",
       "version>=": "1.8.1"
+    },
+    {
+      "name" : "mongo-cxx-driver",
+      "version>=" : "3.9.0"
     }
   ]
 }
