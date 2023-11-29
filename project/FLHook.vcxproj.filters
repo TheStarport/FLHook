@@ -283,6 +283,9 @@
     <ClCompile Include="..\source\API\FLHook\PersonalityHelper.cpp">
       <Filter>Source\API\FLHook</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\Core\Database.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">

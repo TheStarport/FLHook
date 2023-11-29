@@ -34,6 +34,7 @@
     <ClCompile Include="..\Source\Core\Commands\CommandLineParser.cpp" />
     <ClCompile Include="..\Source\Core\Commands\ExternalCommandProcessor.cpp" />
     <ClCompile Include="..\Source\Core\Commands\UserCommandProcessor.cpp" />
+    <ClCompile Include="..\Source\Core\Database.cpp" />
     <ClCompile Include="..\Source\Core\Debug.cpp" />
     <ClCompile Include="..\source\Core\ExceptionHandler.cpp" />
     <ClCompile Include="..\Source\Core\FLPacket.cpp" />
