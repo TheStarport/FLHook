@@ -99,7 +99,9 @@ void MessageHandler::Subscribe(const std::wstring& queue, QueueOnData callback, 
                         {
                             if (message.headers().contains("reply_to"))
                             {
-                                channel->publish("", message.headers().get("reply_to"), responseBody.has_value() ? responseBody.value().dump() : "{}");
+                                std::stringstream ss;
+                                message.headers()["reply_to"].output(ss);
+                                channel->publish("", ss.str(), responseBody.has_value() ? responseBody.value().dump() : "{}");
                             }
 
                             channel->ack(deliveryTag);
