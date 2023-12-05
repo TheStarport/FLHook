@@ -213,22 +213,6 @@
     <GenerateManifest>true</GenerateManifest>
     <IncludePath>$(SolutionDir)..\source;$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <PropertyGroup Label="Vcpkg">
-    <VcpkgEnableManifest>true</VcpkgEnableManifest>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <VcpkgTriplet>
-    </VcpkgTriplet>
-    <VcpkgInstalledDir>
-    </VcpkgInstalledDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Vcpkg">
-    <VcpkgTriplet />
-    <VcpkgInstalledDir>
-    </VcpkgInstalledDir>
-    <VcpkgUseStatic>false</VcpkgUseStatic>
-    <VcpkgConfiguration>Debug</VcpkgConfiguration>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CustomBuildStep>
       <Command>

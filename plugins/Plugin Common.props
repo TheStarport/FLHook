@@ -7,13 +7,6 @@
 		<IncludePath>$(SolutionDir)vcpkg_installed\x86-windows\x86-windows\include;$(SolutionDir)..\include;$(IncludePath)</IncludePath>
 	</PropertyGroup>
 	<ItemDefinitionGroup>
-		<ClCompile>
-			<LanguageStandard>stdcpp20</LanguageStandard>
-			<ConformanceMode>true</ConformanceMode>
-			<EnableModules>true</EnableModules>
-			<DisableSpecificWarnings>5222</DisableSpecificWarnings>
-			<PreprocessorDefinitions>NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-		</ClCompile>
 		<Link>
 			<AdditionalDependencies>FLHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
 		</Link>

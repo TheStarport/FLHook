@@ -10,6 +10,22 @@
 		<OutDir>$(SolutionDir)..\bin\out\$(Configuration)\</OutDir>
 		<IntDir>$(SolutionDir)..\bin\int\$(ProjectName)\$(Configuration)\</IntDir>
 	</PropertyGroup>
+	<PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <VcpkgTriplet>
+    </VcpkgTriplet>
+    <VcpkgInstalledDir>
+    </VcpkgInstalledDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Vcpkg">
+    <VcpkgTriplet />
+    <VcpkgInstalledDir>
+    </VcpkgInstalledDir>
+    <VcpkgUseStatic>false</VcpkgUseStatic>
+    <VcpkgConfiguration>Debug</VcpkgConfiguration>
+  </PropertyGroup>
 	<ItemDefinitionGroup>
 		<Link>
 			<AdditionalDependencies>FLCoreCommon.lib;FLCoreDACom.lib;FLCoreDALib.lib;FLCoreFLServerEXE.lib;FLCoreRemoteClient.lib;FLCoreServer.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -18,9 +34,22 @@
 			<LanguageStandard>stdcpp20</LanguageStandard>
 			<WarningLevel>Level3</WarningLevel>
 			<EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-			<PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<PreprocessorDefinitions>NOMINMAX;SERVER;WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<PrecompiledHeader>Use</PrecompiledHeader>
 			<PrecompiledHeaderFile>PCH.hpp</PrecompiledHeaderFile>
+			<ConformanceMode>true</ConformanceMode>
+			<EnableModules>true</EnableModules>
+			<DisableSpecificWarnings>5222</DisableSpecificWarnings>
+		</ClCompile>
+	</ItemDefinitionGroup>
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+		<ClCompile>
+			<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+		</ClCompile>
+	</ItemDefinitionGroup>
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+		<ClCompile>
+			<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
 		</ClCompile>
 	</ItemDefinitionGroup>
 	<ItemGroup>
