@@ -82,10 +82,17 @@
 #include "Defs/FLHookConfig.hpp"
 #include "Defs/FLPacket.hpp"
 
-#pragma comment(lib, "pcre2-8.lib")
-#pragma comment(lib, "pcre2-16.lib")
-#pragma comment(lib, "pcre2-32.lib")
-#pragma comment(lib, "pcre2-posix.lib")
+#ifdef _DEBUG
+    #pragma comment(lib, "pcre2-8d.lib")
+    #pragma comment(lib, "pcre2-16d.lib")
+    #pragma comment(lib, "pcre2-32d.lib")
+    #pragma comment(lib, "pcre2-posixd.lib")
+#else
+    #pragma comment(lib, "pcre2-8.lib")
+    #pragma comment(lib, "pcre2-16.lib")
+    #pragma comment(lib, "pcre2-32.lib")
+    #pragma comment(lib, "pcre2-posix.lib")
+#endif
 
 using Jp = jpcre2::select<char>;
 using JpWide = jpcre2::select<wchar_t>;
