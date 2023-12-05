@@ -51,7 +51,7 @@ If you would like the build process to copy FLHook as well as any enabled plugin
 2. If you don't already have vcpkg installed and setup, do so. Instructions available here: https://github.com/microsoft/vcpkg/tree/master#quick-start-windows - Ensure you do the steps pertaining to Visual Studio.
 3. Clone this repository (`git clone https://github.com/fl-devs/FLHook.git`)
 4. Open `project\FLHook.sln`
-5. Ensure you are on `Release` (or `ReleaseWithDebug` for development) and build the solution.
+5. Ensure you are on `Release` (or `Debug` for development) and build the solution.
 6. Build Solution. vcpkg should download a number of dependencies.
 
 ## Contributing and Support
