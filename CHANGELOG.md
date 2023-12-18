@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.16
+- Removed a PrintUserCmd from Autobuy that was printing on every repair.
+
 ## 4.0.15
 - Fixed a typo in the Autobuy plugin header that caused incorrect configs to be generated.
 
