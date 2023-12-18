@@ -129,7 +129,6 @@ namespace Plugins::Autobuy
 				newColGrp->componentHP = 1.0f;
 				componentList.push_back(*newColGrp);
 			}
-			PrintUserCmdText(client, std::format(L"Attempting to repair {} components.", playerCollision.size()));
 			HookClient->Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(client, componentList);
 		}
 
