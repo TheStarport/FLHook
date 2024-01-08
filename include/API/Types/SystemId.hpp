@@ -36,6 +36,6 @@ class DLL SystemId
 template <>
 struct std::formatter<SystemId, wchar_t>
 {
-        constexpr auto parse(std::wformat_parse_context &ctx) { return ctx.begin(); }
-        auto format(const SystemId &value, std::wformat_context &ctx) { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
+        constexpr auto parse(std::wformat_parse_context &ctx) const { return ctx.begin(); }
+        auto format(const SystemId &value, std::wformat_context &ctx) const { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
 };

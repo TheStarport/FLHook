@@ -45,6 +45,6 @@ class DLL ObjectId
 template <>
 struct std::formatter<ObjectId, wchar_t>
 {
-        constexpr auto parse(std::wformat_parse_context& ctx) { return ctx.begin(); }
-        auto format(const ObjectId& value, std::wformat_context& ctx) { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
+        constexpr auto parse(std::wformat_parse_context& ctx) const { return ctx.begin(); }
+        auto format(const ObjectId& value, std::wformat_context& ctx) const { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
 };
