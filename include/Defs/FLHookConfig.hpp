@@ -206,6 +206,13 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
                 Serialize(Callsign, allowedFormations, disableRandomisedFormations, disableUsingAffiliationForCallsign);
         };
 
+        struct DatabaseConfig final
+        {
+                std::string uri;
+
+                Serialize(DatabaseConfig, uri);
+        };
+
         Debug debug;
         General general;
         AutoKicks autoKicks;
@@ -215,6 +222,7 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
         Bans bans;
         ChatConfig chatConfig;
         Callsign callsign;
+        DatabaseConfig databaseConfig;
 
-        Serialize(FLHookConfig, debug, general, autoKicks, plugins, messageQueue, userCommands, bans, chatConfig, callsign);
+        Serialize(FLHookConfig, debug, general, autoKicks, plugins, messageQueue, userCommands, bans, chatConfig, callsign, databaseConfig);
 };

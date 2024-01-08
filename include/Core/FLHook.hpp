@@ -12,6 +12,7 @@ class Logger;
 class TempBanManager;
 class FlPacket;
 class PersonalityHelper;
+class Database;
 
 class FLHook final
 {
@@ -95,6 +96,7 @@ class FLHook final
 
         StartupCache* startupCache;
         ClientList* clientList;
+        Database* database;
         InfocardManager* infocardManager;
         TempBanManager* tempbanManager;
         PersonalityHelper* personalityHelper;
@@ -159,6 +161,7 @@ class FLHook final
         static bool GetShipInspect(uint& ship, IObjInspectImpl*& inspect, uint& dunno) { return getShipInspect(ship, inspect, dunno); }
 
         static ClientList& Clients() { return *instance->clientList; }
+        static Database& GetDatabase() { return *instance->database; }
         static InfocardManager& GetInfocardManager() { return *instance->infocardManager; }
         static TempBanManager& GetTempBanManager() { return *instance->tempbanManager; }
         static LastHitInformation GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }

@@ -3,6 +3,7 @@
 #include "Core/FLHook.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "Core/Database.hpp"
 #include "API/FLHook/InfocardManager.hpp"
 #include "API/FLHook/PersonalityHelper.hpp"
 #include "API/InternalApi.hpp"
@@ -79,11 +80,15 @@ FLHook::FLHook()
         // Load our settings before anything that might need access to debug mode
         LoadSettings();
 
+
         // Replace the global exception filter with our own so we can write exception dumps
         // ExceptionHandler::SetupExceptionHandling();
 
         // Setup needed debug tools
         DebugTools::Init();
+
+        //Initialize the Database before everything as other systems rely on it
+        database = new Database;
 
         // Init our message service, this is a blocking call and some plugins might want to setup their own queues,
         // so we want to make sure the service is up at startup time
