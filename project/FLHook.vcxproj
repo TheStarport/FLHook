@@ -15,6 +15,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\source\API\FLHook\AccountManager.cpp" />
     <ClCompile Include="..\source\API\FLHook\PersonalityHelper.cpp" />
     <ClCompile Include="..\source\API\InternalApi.cpp" />
     <ClCompile Include="..\Source\API\FLHook\ClientList.cpp" />
@@ -43,7 +44,6 @@
     <ClCompile Include="..\Source\Core\MemoryManager.cpp" />
     <ClCompile Include="..\Source\Core\PluginManager.cpp" />
     <ClCompile Include="..\Source\Core\SaveData.cpp" />
-    <ClCompile Include="..\Source\Core\StartupCache.cpp" />
     <ClCompile Include="..\Source\Core\TempBan.cpp" />
     <ClCompile Include="..\Source\Core\Timers.cpp" />
     <ClCompile Include="..\source\Core\ZoneUtilities.cpp" />
@@ -113,6 +113,7 @@
     <ClInclude Include="..\FLHookSDK\include\Utils\TemplateHelpers.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Utils\TimeUtils.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Utils\Utils.hpp" />
+    <ClInclude Include="..\include\API\FLHook\AccountManager.hpp" />
     <ClInclude Include="..\include\API\FLHook\PersonalityHelper.hpp" />
     <ClInclude Include="..\Include\API\InternalApi.hpp" />
     <ClInclude Include="..\Include\API\FLHook\ClientList.hpp" />
@@ -154,7 +155,6 @@
     <ClInclude Include="..\Include\Core\MemoryManager.hpp" />
     <ClInclude Include="..\Include\Core\MessageHandler.hpp" />
     <ClInclude Include="..\Include\Core\PluginManager.hpp" />
-    <ClInclude Include="..\include\Core\StartupCache.hpp" />
     <ClInclude Include="..\Include\Core\Templates\Constexpr.hpp" />
     <ClInclude Include="..\Include\Core\Templates\Macros.hpp" />
     <ClInclude Include="..\Include\Defs\CoreGlobals.hpp" />
@@ -263,12 +263,6 @@
     </PreLinkEvent>
     <PostBuildEvent>
       <Command>
-				IF "%FL_PATH%"=="" exit 0
-				robocopy $(SolutionDir)../dist/Release %FL_PATH%\\EXE  "*.dll" /is /E /e
-				if ERRORLEVEL GTR 5 goto HandleError
-				exit 0
-				:HandleError
-				exit %ERRORLEVEL%
 			</Command>
     </PostBuildEvent>
     <PreBuildEvent>

@@ -2,6 +2,7 @@
 
 #include "Core/FLHook.hpp"
 
+#include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
 #include "Core/Database.hpp"
 #include "API/FLHook/InfocardManager.hpp"
@@ -20,7 +21,6 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Core/DebugTools.hpp"
 #include "Core/ExceptionHandler.hpp"
-#include "Core/StartupCache.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
 
 #include "API/FLHook/Plugin.hpp"
@@ -69,9 +69,9 @@ FLHook::FLHook()
     instance = this;
     infocardManager = new InfocardManager();
     clientList = new ClientList();
-    startupCache = new StartupCache();
     tempbanManager = new TempBanManager();
     personalityHelper = new PersonalityHelper();
+    accountManager = new AccountManager();
 
     flProc = GetModuleHandle(nullptr);
 

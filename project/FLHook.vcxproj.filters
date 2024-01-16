@@ -93,9 +93,6 @@
     <ClCompile Include="..\Source\Core\SaveData.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Core\StartupCache.cpp">
-      <Filter>Source\Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\Core\TempBan.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
@@ -286,6 +283,9 @@
     <ClCompile Include="..\Source\Core\Database.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\API\FLHook\AccountManager.cpp">
+      <Filter>Source\API\FLHook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Core\Commands\AbstractAdminCommandProcessor.hpp">
@@ -355,9 +355,6 @@
       <Filter>Include\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Core\IEngineHook.hpp">
-      <Filter>Include\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Core\StartupCache.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Defs\SehException.hpp">
@@ -521,6 +518,9 @@
     </ClInclude>
     <ClInclude Include="..\Include\Core\Database.hpp">
       <Filter>Include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\API\FLHook\AccountManager.hpp">
+      <Filter>Include\API\FLHook</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

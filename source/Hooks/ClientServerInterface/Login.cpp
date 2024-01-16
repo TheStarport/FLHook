@@ -1,5 +1,6 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
 #include "Core/ClientServerInterface.hpp"
 
@@ -27,6 +28,8 @@ bool LoginInnerBefore(const SLoginInfo& li, ClientId client)
             return false;
         }
     }
+
+    // FLHook::GetAccountManager().OnLogin(client);
 
     return true;
 }

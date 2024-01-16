@@ -21,7 +21,7 @@ SystemId::SystemId(std::wstring_view nickName, bool isInfoCardName)
     }
     // TODO: Construct systemID from the infocard name.
 }
-SystemId::operator bool() const { return Universe::get_system(value) != nullptr; }
+SystemId::operator bool() const { return value != 0 && Universe::get_system(value) != nullptr; }
 
 Action<std::wstring_view, Error> SystemId::GetName() const
 {

@@ -13,6 +13,7 @@ class TempBanManager;
 class FlPacket;
 class PersonalityHelper;
 class Database;
+class AccountManager;
 
 class FLHook final
 {
@@ -94,12 +95,12 @@ class FLHook final
 
         // Non-Static things
 
-        StartupCache* startupCache;
         ClientList* clientList;
         Database* database;
         InfocardManager* infocardManager;
         TempBanManager* tempbanManager;
         PersonalityHelper* personalityHelper;
+        AccountManager* accountManager;
 
         bool OnServerStart();
         void InitHookExports();
@@ -166,6 +167,7 @@ class FLHook final
         static TempBanManager& GetTempBanManager() { return *instance->tempbanManager; }
         static LastHitInformation GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }
         static Action<pub::AI::Personality, Error> GetPersonality(const std::wstring& pilotNickname);
+        static AccountManager& GetAccountManager() { return *instance->accountManager; }
 
         static Action<void, Error> MessageUniverse(std::wstring_view message);
 };

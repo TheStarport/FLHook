@@ -8,6 +8,8 @@ namespace Plugins
     {
             std::vector<ClientId> awayClients;
 
+            void OnServerStartupAfter(const SStartupInfo& info) override;
+
             /**
              * @ingroup AwayFromKeyboard
              * @brief This command is called when a player types /afk. It prints a message in red text to nearby players saying they are afk. It will also let

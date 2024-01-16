@@ -35,6 +35,10 @@
         {
             "name": "mongo-cxx-driver",
             "version>=": "3.8.0"
+        },
+        {
+            "name": "stduuid",
+            "version>=": "1.2.3"
         }
     ]
 }

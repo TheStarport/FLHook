@@ -5,7 +5,6 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Core/ExceptionHandler.hpp"
 #include "Core/FLHook.hpp"
-#include "Core/StartupCache.hpp"
 
 void IServerImplHook::ServerReady()
 {
@@ -84,8 +83,6 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
 
     // Clean up any mail to chars that no longer exist
     // TODO: Mail Rework MailManager::i()->CleanUpOldMail();
-
-    FLHook::instance->startupCache->Done();
 
     Logger::Log(LogLevel::Info, L"FLHook Ready");
 

@@ -1,5 +1,6 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
 #include "API/Utils/PerfTimer.hpp"
 
@@ -139,6 +140,8 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
 
     if (const auto skip = CallPlugins(&Plugin::OnCharacterDelete, client, std::wstring_view(charName)); !skip)
     {
+        FLHook::GetAccountManager().DeleteCharacter(charName);
+
         CallServerPreamble { Server.DestroyCharacter(cid, client.GetValue()); }
         CallServerPostamble(true, );
     }
