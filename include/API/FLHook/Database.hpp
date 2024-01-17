@@ -1,10 +1,9 @@
 #pragma once
 
-
+#include "API/Types/AccountId.hpp"
 #include <bsoncxx/builder/basic/document.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
-#include "API/Types/AccountId.hpp"
 
 template <typename T>
 concept MongoSupportedType = std::is_fundamental_v<T> || std::is_same_v<T, std::string> || std::is_same_v<T, std::wstring> ||
@@ -28,7 +27,6 @@ class Database
         mongocxx::database database;
 
         void ResetDatabase();
-
 
     public:
         template <typename T>

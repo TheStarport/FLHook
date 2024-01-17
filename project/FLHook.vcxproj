@@ -16,6 +16,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\source\API\FLHook\AccountManager.cpp" />
+    <ClCompile Include="..\source\API\FLHook\Database.cpp" />
     <ClCompile Include="..\source\API\FLHook\PersonalityHelper.cpp" />
     <ClCompile Include="..\source\API\InternalApi.cpp" />
     <ClCompile Include="..\Source\API\FLHook\ClientList.cpp" />
@@ -35,7 +36,6 @@
     <ClCompile Include="..\Source\Core\Commands\CommandLineParser.cpp" />
     <ClCompile Include="..\Source\Core\Commands\ExternalCommandProcessor.cpp" />
     <ClCompile Include="..\Source\Core\Commands\UserCommandProcessor.cpp" />
-    <ClCompile Include="..\Source\Core\Database.cpp" />
     <ClCompile Include="..\Source\Core\Debug.cpp" />
     <ClCompile Include="..\source\Core\ExceptionHandler.cpp" />
     <ClCompile Include="..\Source\Core\FLPacket.cpp" />
@@ -145,7 +145,6 @@
     <ClInclude Include="..\Include\Core\Commands\CommandLineParser.hpp" />
     <ClInclude Include="..\Include\Core\Commands\ExternalCommandProcessor.hpp" />
     <ClInclude Include="..\Include\Core\Commands\UserCommandProcessor.hpp" />
-    <ClInclude Include="..\Include\Core\Database.hpp" />
     <ClInclude Include="..\include\Core\DebugTools.hpp" />
     <ClInclude Include="..\include\Core\ExceptionHandler.hpp" />
     <ClInclude Include="..\Include\Core\ClientServerInterface.hpp" />
@@ -263,7 +262,7 @@
     </PreLinkEvent>
     <PostBuildEvent>
       <Command>
-			</Command>
+      </Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>

@@ -1,12 +1,12 @@
 #include "PCH.hpp"
 
-#include "Core/Database.hpp"
+#include "API/FLHook/Database.hpp"
 
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
 using bsoncxx::builder::basic::make_document;
 
-//TODO: MongoDB/Mongocxx and wstring support. Mainly it doesn't support wstring as values and look into it.
+// TODO: MongoDB/Mongocxx and wstring support. Mainly it doesn't support wstring as values and look into it.
 Database::Database()
 {
     try
@@ -23,15 +23,10 @@ Database::Database()
     catch (std::exception& err)
     {
         Logger::Log(LogLevel::Err, StringUtils::stows(std::string(err.what())));
-
     }
-
 }
 
-void Database::ResetDatabase()
-{
-    accounts.drop();
-}
+void Database::ResetDatabase() { accounts.drop(); }
 
 void Database::RemoveValueFromCharacter(std::string character, std::string value)
 {
@@ -42,7 +37,6 @@ void Database::RemoveValueFromCharacter(std::string character, std::string value
     auto updateDoc = make_document(kvp("$unset", make_document(kvp(value, 0))));
 
     accounts.update_one(searchDoc.view(), updateDoc.view());
-
 }
 
 void Database::RemoveValueFromAccount(AccountId account, std::string value)
@@ -57,6 +51,4 @@ void Database::RemoveValueFromAccount(AccountId account, std::string value)
     auto updateDoc = make_document(kvp("$unset", make_document(kvp(value, 0))));
 
     accounts.update_one(searchDoc.view(), updateDoc.view());
-
-
 }
