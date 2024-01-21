@@ -408,17 +408,6 @@ will_crash:
 				global->bPatchInstalled = true;
 
 				global->hModServerAC = GetModuleHandle("server.dll");
-				if (global->hModServerAC)
-				{
-					// Patch the NPC visibility distance in MP to 6.5km (default
-					// is 2.5km)
-					float fDistance = 6500.0f * 6500.0f;
-					WriteProcMem((char*)global->hModServerAC + 0x86AEC, &fDistance, 4);
-
-					FARPROC fpHook = (FARPROC)Cb_GetRoot;
-					ReadProcMem((char*)global->hModServerAC + 0x84018, &fpOldGetRootProc, 4);
-					WriteProcMem((char*)global->hModServerAC + 0x84018, &fpHook, 4);
-				}
 
 				// Patch the time functions to work around bugs on multiprocessor
 				// and virtual machines.
@@ -517,12 +506,6 @@ will_crash:
 					PatchCallAddr((char*)global->hModContentAC, 0xC702A, (char*)Cb_CrashProc6F671A0);
 					PatchCallAddr((char*)global->hModContentAC, 0xC713B, (char*)Cb_CrashProc6F671A0);
 					PatchCallAddr((char*)global->hModContentAC, 0xC7180, (char*)Cb_CrashProc6F671A0);
-
-					// Patch the NPC persist distance in MP to 6.5km and patch the
-					// max spawn distance to 6.5km
-					float fDistance = 6500;
-					WriteProcMem((char*)global->hModContentAC + 0xD3D6E, &fDistance, 4);
-					WriteProcMem((char*)global->hModContentAC + 0x58F46, &fDistance, 4);
 				}
 			}
 		}
