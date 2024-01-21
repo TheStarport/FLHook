@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.17
+- Remove modifications of 0x86AEC, 0x84018, 0xD3D6E and 0x58F46 in server.dll from crash catcher. These offsets were hardcoding several values that are often changed by mods manually relating to NPC spawn and scanner range.
+
 ## 4.0.16
 - Removed a PrintUserCmd from Autobuy that was printing on every repair.
 
