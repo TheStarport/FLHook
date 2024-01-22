@@ -76,21 +76,21 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_admin_8cpp.html",
-"_f_l_hook_8cpp.html#a164f305d709baa4c4e2a854c1c36ca82",
-"_hk_client_server_interface_8cpp.html#ab8ebfa7292f513a4e2a8197f93f8f04e",
-"_mark_8h.html#a25b44f2211ea1df0bfd406c3694f85fc",
-"_send_comm_8cpp.html#a2cf048d2b86c6a995233555ffd847b18",
-"class_save_game_detour.html#a14fb79bcaf823d3cb55cf5d57cbd874a",
-"group___i_p_ban.html#gaeebf2d67e6a9e0388aaf6e47de6aacab",
-"namespace_hk_1_1_personalities.html#aa8b864865476b02dcba1826b9278f42f",
-"namespace_plugins_1_1_arena.html#a917346e3bb9df6528d9e835c42e1a447a6950810f0d2bba97a6f710c7b965b84e",
-"namespace_plugins_1_1_warehouse.html#a755e2348cc9b45e507ab8a2c6e5734d6",
-"struct_plugin_data.html#af66bd3358794a923a9ae4429d656cb05",
-"struct_plugins_1_1_con_data_1_1_config.html#a11eab949aeed789d56727a0ef864fb6c",
-"struct_plugins_1_1_light_control_1_1_config.html#a106b122e56e1c51d873242e36083e5c1",
-"struct_plugins_1_1_mining_control_1_1_zone_bonus.html#a94c6b1071b05ead630b77cc9704ff49e",
-"struct_plugins_1_1_restart_1_1_config.html#a55a24c10b027462f63c266d74afa7c6c",
-"structmsvc_____throw_info.html"
+"_f_l_hook_8cpp.html#a0ae5f5198c468e436068da6d4fc9cd7a",
+"_hk_client_server_interface_8cpp.html#aad8bb87cea5adf4d06d2434334f4c215",
+"_mark_8cpp.html#abf89ccb22625764a5eef217fa0ba9611",
+"_save_data_8cpp.html#a1ecc4a86ef00fd8c8ca4f7bc5b76cefb",
+"class_plugins_1_1_message_1_1_client_info.html#ac85c78cb1c43cc46778d232c8eda6384",
+"group___i_p_ban.html#ga957de83ac423a476b4c30b3830f29e43",
+"namespace_hk_1_1_personalities.html#a8b8fc22b10d834d8de245e2b2b09e442",
+"namespace_plugins_1_1_arena.html#a0f9f8bb93931baa79eb34d7f69912f87",
+"namespace_plugins_1_1_warehouse.html#a54068873ad207836196115f77e43d64f",
+"struct_plugin_data.html#a8e7723e2ea8f7343e9c5d7b1f545a199",
+"struct_plugins_1_1_cash_manager_1_1_transaction.html#ac2a7adb708cff8b144594e65b5304c03",
+"struct_plugins_1_1_kill_tracker_1_1_kill_message.html#a41250ec5524241554877d8c7b86efc7d",
+"struct_plugins_1_1_mining_control_1_1_player_bonus.html#add28490efb1dbf60ce169d70edd0474d",
+"struct_plugins_1_1_rename_1_1_tag_list.html",
+"struct_t_r_i_g_g_e_r___a_r_g.html#a6c3a8baf9f61a6fc64012158c0b27880"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

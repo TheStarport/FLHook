@@ -12,15 +12,19 @@ var _crash_catcher_8cpp =
     [ "Cb_EngBase11a6dNaked_Log", "_crash_catcher_8cpp.html#a58cc4b88552e1c11f6cbeb5298e6e654", null ],
     [ "Cb_GetRoot", "_crash_catcher_8cpp.html#ga808fd0debb79ed1c980ca1703ac6a42b", null ],
     [ "Cb_PubZoneSystem", "_crash_catcher_8cpp.html#af385de2db8dbcfa0d16e624de8c5e7e8", null ],
-    [ "DllMain", "_crash_catcher_8cpp.html#a4b10b033c4c34d2de4d7cd2b6e863a02", null ],
     [ "EngBase124BD_Log", "_crash_catcher_8cpp.html#ae3ff3d49c476bf86782384bd571986ba", null ],
     [ "ExportPluginInfo", "_crash_catcher_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692", null ],
-    [ "Init", "_crash_catcher_8cpp.html#ga761bc2e09ec427ee08bceca2fd9d1730", null ],
+    [ "if", "_crash_catcher_8cpp.html#ae1a9a922ac583854357397202c9c16bf", null ],
     [ "JettisonCargo", "_crash_catcher_8cpp.html#ga9a78a9a763a906524d63c1db1687851a", null ],
+    [ "LoadSettings", "_crash_catcher_8cpp.html#ga8ca43fbcddb53b55c43c4e10bf33dc8f", null ],
+    [ "REFL_AUTO", "_crash_catcher_8cpp.html#a38474dd0217247fe09de8e9eb9671efa", null ],
     [ "RequestBestPath", "_crash_catcher_8cpp.html#ga372c7be4452cdebe31d2f9467d8d6247", null ],
     [ "SaveCrashingCharacter", "_crash_catcher_8cpp.html#ga941bace72da3162e903b76f615e30cd7", null ],
     [ "Shutdown", "_crash_catcher_8cpp.html#ga96faf94dfa5ce1be460cc2747e4096be", null ],
     [ "TractorObjects", "_crash_catcher_8cpp.html#ga556fd2ad08ce277dfe51b197f7cc5b9f", null ],
+    [ "fdwReason", "_crash_catcher_8cpp.html#aeade4deff3d41655ad3c284487c9db45", null ],
     [ "global", "_crash_catcher_8cpp.html#a78459a4386b4711830807ba0f436a8fc", null ],
-    [ "timers", "_crash_catcher_8cpp.html#a3528e5b5a910a01d899426fc806dbd11", null ]
+    [ "lpvReserved", "_crash_catcher_8cpp.html#ab89c72c82f1d9c070b0c22fda982960d", null ],
+    [ "timers", "_crash_catcher_8cpp.html#a3528e5b5a910a01d899426fc806dbd11", null ],
+    [ "true", "_crash_catcher_8cpp.html#a930920b2bc42824a5c03be681830f4b2", null ]
 ];

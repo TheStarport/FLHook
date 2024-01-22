@@ -89,6 +89,7 @@ var hierarchy =
       [ "Plugins::CargoDrop::Config", "struct_plugins_1_1_cargo_drop_1_1_config.html", null ],
       [ "Plugins::CashManager::Config", "struct_plugins_1_1_cash_manager_1_1_config.html", null ],
       [ "Plugins::ConData::Config", "struct_plugins_1_1_con_data_1_1_config.html", null ],
+      [ "Plugins::CrashCatcher::Config", "struct_plugins_1_1_crash_catcher_1_1_config.html", null ],
       [ "Plugins::DeathPenalty::Config", "struct_plugins_1_1_death_penalty_1_1_config.html", null ],
       [ "Plugins::Event::Config", "struct_plugins_1_1_event_1_1_config.html", null ],
       [ "Plugins::Event::Config::CARGO_MISSION_REFLECTABLE", "struct_plugins_1_1_event_1_1_config_1_1_c_a_r_g_o___m_i_s_s_i_o_n___r_e_f_l_e_c_t_a_b_l_e.html", null ],

@@ -64,6 +64,7 @@ var annotated_dup =
         [ "MiscClientInfo", "struct_plugins_1_1_con_data_1_1_misc_client_info.html", "struct_plugins_1_1_con_data_1_1_misc_client_info" ]
       ] ],
       [ "CrashCatcher", "namespace_plugins_1_1_crash_catcher.html", [
+        [ "Config", "struct_plugins_1_1_crash_catcher_1_1_config.html", "struct_plugins_1_1_crash_catcher_1_1_config" ],
         [ "Global", "struct_plugins_1_1_crash_catcher_1_1_global.html", "struct_plugins_1_1_crash_catcher_1_1_global" ]
       ] ],
       [ "DeathPenalty", "namespace_plugins_1_1_death_penalty.html", [

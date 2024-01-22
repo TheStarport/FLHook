@@ -1,5 +1,6 @@
 var namespace_plugins_1_1_crash_catcher =
 [
+    [ "Config", "struct_plugins_1_1_crash_catcher_1_1_config.html", "struct_plugins_1_1_crash_catcher_1_1_config" ],
     [ "Global", "struct_plugins_1_1_crash_catcher_1_1_global.html", "struct_plugins_1_1_crash_catcher_1_1_global" ],
     [ "__declspec", "namespace_plugins_1_1_crash_catcher.html#ae6a35a4804156bfc2108d1e71f24b7dd", null ],
     [ "AddLogInternal", "group___crash_catcher.html#ga13e091ab6cdbfcabf9f059df79d5e601", null ],
@@ -14,8 +15,8 @@ var namespace_plugins_1_1_crash_catcher =
     [ "Cb_GetRoot", "group___crash_catcher.html#ga808fd0debb79ed1c980ca1703ac6a42b", null ],
     [ "Cb_PubZoneSystem", "namespace_plugins_1_1_crash_catcher.html#af385de2db8dbcfa0d16e624de8c5e7e8", null ],
     [ "EngBase124BD_Log", "namespace_plugins_1_1_crash_catcher.html#ae3ff3d49c476bf86782384bd571986ba", null ],
-    [ "Init", "group___crash_catcher.html#ga761bc2e09ec427ee08bceca2fd9d1730", null ],
     [ "JettisonCargo", "group___crash_catcher.html#ga9a78a9a763a906524d63c1db1687851a", null ],
+    [ "LoadSettings", "group___crash_catcher.html#ga8ca43fbcddb53b55c43c4e10bf33dc8f", null ],
     [ "RequestBestPath", "group___crash_catcher.html#ga372c7be4452cdebe31d2f9467d8d6247", null ],
     [ "SaveCrashingCharacter", "group___crash_catcher.html#ga941bace72da3162e903b76f615e30cd7", null ],
     [ "Shutdown", "group___crash_catcher.html#ga96faf94dfa5ce1be460cc2747e4096be", null ],

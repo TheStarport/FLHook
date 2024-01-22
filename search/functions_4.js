@@ -24,7 +24,7 @@ var searchData=
   ['disconnectpacketsent_21',['DisconnectPacketSent',['../_hk_i_engine_disconnect_8cpp.html#ae76ac50c9321eec7fd2b09a752a985b5',1,'HkIEngineDisconnect.cpp']]],
   ['distance3d_22',['Distance3D',['../namespace_hk_1_1_math.html#ab287748a760807713402e62609f95eae',1,'Hk::Math']]],
   ['distance3dbyship_23',['Distance3DByShip',['../namespace_hk_1_1_math.html#aa2d65446985e308e0f9425b20ee4b8b7',1,'Hk::Math']]],
-  ['dllmain_24',['DllMain',['../_f_l_hook_8cpp.html#a4b10b033c4c34d2de4d7cd2b6e863a02',1,'DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved):&#160;FLHook.cpp'],['../_crash_catcher_8cpp.html#a4b10b033c4c34d2de4d7cd2b6e863a02',1,'DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved):&#160;CrashCatcher.cpp'],['../_hooks_8cpp.html#a4b10b033c4c34d2de4d7cd2b6e863a02',1,'DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved):&#160;Hooks.cpp']]],
+  ['dllmain_24',['DllMain',['../_f_l_hook_8cpp.html#a4b10b033c4c34d2de4d7cd2b6e863a02',1,'DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved):&#160;FLHook.cpp'],['../_hooks_8cpp.html#a4b10b033c4c34d2de4d7cd2b6e863a02',1,'DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved):&#160;Hooks.cpp']]],
   ['dock_25',['Dock',['../namespace_i_server_impl_hook.html#adcf41a2ad2180f574d1ca5f3fc197182',1,'IServerImplHook']]],
   ['dock_5fcall_26',['Dock_Call',['../namespace_plugins_1_1_system_sensor.html#a02b2313e1ba5b70b2a74e675c01937d2',1,'Plugins::SystemSensor']]],
   ['dockcall_27',['DockCall',['../namespace_i_engine_hook.html#ae526a2ed7bae7c2fd5148a9422a29690',1,'IEngineHook::DockCall()'],['../group___betting.html#ga63bd9e51f0684938374ba00ac2316281',1,'Plugins::Betting::DockCall()']]],
