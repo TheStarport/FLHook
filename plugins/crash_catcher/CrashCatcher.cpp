@@ -27,6 +27,12 @@ namespace Plugins::CrashCatcher
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
+	void LoadSettings()
+	{
+		auto config = Serializer::JsonToObject<Config>();
+		global->config = std::make_unique<Config>(config);
+	}
+
 	/** @ingroup CrashCatcher
 	 * @brief Need to use our own logging functions since the nature of this plugin isn't compatible with FLHook's standard logging functionality.
 	 */
@@ -406,8 +412,20 @@ will_crash:
 			if (!global->bPatchInstalled)
 			{
 				global->bPatchInstalled = true;
+				LoadSettings();
 
 				global->hModServerAC = GetModuleHandle("server.dll");
+				if (global->hModServerAC && global->config->npcVisibilityDistance > 0.f)
+				{
+					// Patch the NPC visibility distance in MP to 6.5km (default
+					// is 2.5km)
+					float visDistance = global->config->npcVisibilityDistance * global->config->npcVisibilityDistance;
+					WriteProcMem((char*)global->hModServerAC + 0x86AEC, &visDistance, 4);
+
+					FARPROC fpHook = (FARPROC)Cb_GetRoot;
+					ReadProcMem((char*)global->hModServerAC + 0x84018, &fpOldGetRootProc, 4);
+					WriteProcMem((char*)global->hModServerAC + 0x84018, &fpHook, 4);
+				}
 
 				// Patch the time functions to work around bugs on multiprocessor
 				// and virtual machines.
@@ -506,6 +524,21 @@ will_crash:
 					PatchCallAddr((char*)global->hModContentAC, 0xC702A, (char*)Cb_CrashProc6F671A0);
 					PatchCallAddr((char*)global->hModContentAC, 0xC713B, (char*)Cb_CrashProc6F671A0);
 					PatchCallAddr((char*)global->hModContentAC, 0xC7180, (char*)Cb_CrashProc6F671A0);
+
+					// Patch the NPC persist distance in MP to 6.5km and patch the
+					// max spawn distance to 6.5km
+					auto persistDistance = global->config->npcPersistDistance;
+					auto spawnDistance = global->config->npcSpawnDistance;
+
+					if (global->config->npcPersistDistance > 0.f)
+					{
+						WriteProcMem((char*)global->hModContentAC + 0xD3D6E, &persistDistance, 4);
+					}
+
+					if (global->config->npcSpawnDistance > 0.f)
+					{
+						WriteProcMem((char*)global->hModContentAC + 0x58F46, &spawnDistance, 4);
+					}
 				}
 			}
 		}
@@ -587,6 +620,8 @@ will_crash:
 
 using namespace Plugins::CrashCatcher;
 
+REFL_AUTO(type(Config), field(npcVisibilityDistance), field(npcPersistDistance), field(npcSpawnDistance))
+
 // Do things when the dll is loaded
 BOOL WINAPI DllMain([[maybe_unused]] HINSTANCE hinstDLL, DWORD fdwReason, [[maybe_unused]] LPVOID lpvReserved)
 {
@@ -609,7 +644,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &Init, HookStep::After);
+	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__RequestBestPath, &RequestBestPath);
 	pi->emplaceHook(HookedCall::IServerImpl__TractorObjects, &TractorObjects);
 	pi->emplaceHook(HookedCall::IServerImpl__JettisonCargo, &JettisonCargo);
