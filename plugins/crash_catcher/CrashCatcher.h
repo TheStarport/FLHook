@@ -32,8 +32,6 @@ namespace Plugins::CrashCatcher
 		HMODULE hModContentAC;
 
 		std::map<uint, mstime> mapSaveTimes;
-		//! Contains config data defined above
-		std::unique_ptr<Config> config = nullptr;
 	};
 
 #define LOG_EXCEPTION_INTERNAL()                               \

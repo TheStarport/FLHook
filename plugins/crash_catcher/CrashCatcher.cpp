@@ -27,12 +27,6 @@ namespace Plugins::CrashCatcher
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
 
-	void LoadSettings()
-	{
-		auto config = Serializer::JsonToObject<Config>();
-		global->config = std::make_unique<Config>(config);
-	}
-
 	/** @ingroup CrashCatcher
 	 * @brief Need to use our own logging functions since the nature of this plugin isn't compatible with FLHook's standard logging functionality.
 	 */
@@ -405,21 +399,22 @@ will_crash:
 	/** @ingroup CrashCatcher
 	 * @brief Install hooks
 	 */
-	void Init()
+	void LoadSettings()
 	{
 		try
 		{
 			if (!global->bPatchInstalled)
 			{
 				global->bPatchInstalled = true;
-				LoadSettings();
+				// Load the settings
+				auto config = Serializer::JsonToObject<Config>();
 
 				global->hModServerAC = GetModuleHandle("server.dll");
-				if (global->hModServerAC && global->config->npcVisibilityDistance > 0.f)
+				if (global->hModServerAC && config.npcVisibilityDistance > 0.f)
 				{
 					// Patch the NPC visibility distance in MP to 6.5km (default
 					// is 2.5km)
-					float visDistance = global->config->npcVisibilityDistance * global->config->npcVisibilityDistance;
+					float visDistance = std::powf(config.npcVisibilityDistance, 2.f);
 					WriteProcMem((char*)global->hModServerAC + 0x86AEC, &visDistance, 4);
 
 					FARPROC fpHook = (FARPROC)Cb_GetRoot;
@@ -527,17 +522,15 @@ will_crash:
 
 					// Patch the NPC persist distance in MP to 6.5km and patch the
 					// max spawn distance to 6.5km
-					auto persistDistance = global->config->npcPersistDistance;
-					auto spawnDistance = global->config->npcSpawnDistance;
 
-					if (global->config->npcPersistDistance > 0.f)
+					if (config.npcPersistDistance > 0.f)
 					{
-						WriteProcMem((char*)global->hModContentAC + 0xD3D6E, &persistDistance, 4);
+						WriteProcMem((char*)global->hModContentAC + 0xD3D6E, &config.npcPersistDistance, 4);
 					}
 
-					if (global->config->npcSpawnDistance > 0.f)
+					if (config.npcSpawnDistance > 0.f)
 					{
-						WriteProcMem((char*)global->hModContentAC + 0x58F46, &spawnDistance, 4);
+						WriteProcMem((char*)global->hModContentAC + 0x58F46, &config.npcSpawnDistance, 4);
 					}
 				}
 			}
@@ -626,7 +619,7 @@ REFL_AUTO(type(Config), field(npcVisibilityDistance), field(npcPersistDistance),
 BOOL WINAPI DllMain([[maybe_unused]] HINSTANCE hinstDLL, DWORD fdwReason, [[maybe_unused]] LPVOID lpvReserved)
 {
 	if (fdwReason == DLL_PROCESS_ATTACH && CoreGlobals::c()->flhookReady)
-		Init();
+		LoadSettings();
 
 	if (fdwReason == DLL_PROCESS_DETACH)
 		Shutdown();
