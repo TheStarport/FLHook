@@ -17,6 +17,8 @@ class InternalApi
         friend RepGroupId;
         friend ObjectId;
         friend SystemId;
+        friend Database;
+        friend AccountManager;
 
         static Action<void, Error> FMsgEncodeXml(std::wstring_view xml, char* buffer, uint size, uint& ret);
         static void FMsgSendChat(ClientId client, char* buffer, uint size);

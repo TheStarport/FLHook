@@ -4,6 +4,7 @@
 #include <bsoncxx/builder/basic/document.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
+#include "API/FLHook/AccountManager.hpp"
 
 template <typename T>
 concept MongoSupportedType = std::is_fundamental_v<T> || std::is_same_v<T, std::string> || std::is_same_v<T, std::wstring> ||
@@ -16,10 +17,11 @@ class Database
 {
         friend ClientList;
         friend FLHook;
+        friend AccountManager;
 
         Database();
         ~Database() = default;
-        Database(const Database&&) = delete;
+
 
         mongocxx::instance instance;
         mongocxx::collection accounts;
@@ -27,7 +29,9 @@ class Database
         mongocxx::database database;
 
         void ResetDatabase();
+        void CreateCharacter(std::string accountId, const VanillaLoadData* newPlayer);
 
+  
     public:
         template <typename T>
             requires MongoSupportedType<T>
@@ -48,7 +52,7 @@ void Database::AddValueToCharacter(std::string character, std::pair<std::string,
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
 
-    auto searchDoc = make_document(kvp("character_name", character));
+    auto searchDoc = make_document(kvp("characterName", character));
     auto updateDoc = make_document(kvp("$set", make_document(kvp(val.first, val.second))));
 
     accounts.update_one(searchDoc.view(), updateDoc.view());

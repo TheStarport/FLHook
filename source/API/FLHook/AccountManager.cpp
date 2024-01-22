@@ -2,6 +2,8 @@
 
 #include "API/FLHook/AccountManager.hpp"
 
+#include "API/FLHook/Database.hpp"
+
 #include <stduuid/uuid.h>
 
 using CreateCharacterLoadingData = void*(__thiscall*)(PlayerData* data, const char* buffer);
@@ -19,7 +21,7 @@ void AccountManager::LoadCharacter(VanillaLoadData* data, std::wstring_view char
         2223155968, 3144214861, 2479975689, 2264565644, {0, 0, 0, 0, 0, 0, 0, 0},
             0
     };
-    data->costume = {
+    data->commCostume = {
         2223155968, 3144214861, 2479975689, 2264565644, {0, 0, 0, 0, 0, 0, 0, 0},
             0
     };
@@ -390,8 +392,34 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
     std::memset(characterNameBuffer.data(), 0, characterNameBuffer.size());
     memcpy_s(characterNameBuffer.data(), characterNameBuffer.size(), character->charname, sizeof(character->charname));
     auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->x050), characterNameBuffer.data()));
-    LoadCharacter(loadData, character->charname);
 
+    loadData->currentBase = newPlayerTemplate.base == "%%HOME_BASE%%" ? character->base : CreateID(newPlayerTemplate.base.c_str());
+    // TODO: System needs to be reverse engineered. loadData->system = newPlayerTemplate.system == "%%HOME_SYSTEM%%%" ? character
+    loadData->name = reinterpret_cast<unsigned short*>(character->charname);
+
+    const auto costDesc = GetCostumeDescriptions();
+    costDesc->get_costume(pilot->body.c_str(), loadData->baseCostume);
+    costDesc->get_costume(pilot->comm.c_str(), loadData->commCostume);
+
+    if (newPlayerTemplate.hasPackage)
+    {
+        loadData->shipHash = CreateID(package->ship.c_str());
+        loadData->money = package->money;
+
+        const auto loadOut = Loadout::Get(CreateID(package->loadout.c_str()));
+
+        // TODO: Verify this map traverse works.
+        for (const EquipDesc* equip = loadOut->first; equip != loadOut->end; equip++)
+        {
+            loadData->currentEquipAndCargo.push_back(*equip);
+            loadData->baseEquipAndCargo.push_back(*equip);
+        }
+    }
+
+    auto& mongo = FLHook::GetDatabase();
+    mongo.CreateCharacter(StringUtils::wstos(data->accId), loadData);
+
+    LoadCharacter(loadData, character->charname);
     return true;
 }
 

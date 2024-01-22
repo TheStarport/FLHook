@@ -6,7 +6,6 @@ using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
 using bsoncxx::builder::basic::make_document;
 
-// TODO: MongoDB/Mongocxx and wstring support. Mainly it doesn't support wstring as values and look into it.
 Database::Database()
 {
     try
@@ -26,7 +25,110 @@ Database::Database()
     }
 }
 
-void Database::ResetDatabase() { accounts.drop(); }
+void Database::CreateCharacter(std::string accountId, const VanillaLoadData* newPlayer)
+{
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
+
+
+    auto dbBaseCostume = make_document(kvp("body", static_cast<long long>(newPlayer->baseCostume.body)),
+                                       kvp("head", static_cast<long long>(newPlayer->baseCostume.head)),
+                                       kvp("leftHand", static_cast<long long>(newPlayer->baseCostume.leftHand)),
+                                       kvp("rightHand", static_cast<long long>(newPlayer->baseCostume.rightHand)));
+
+    auto dbCommCostume = make_document(kvp("body", static_cast<long long>(newPlayer->commCostume.body)),
+                                       kvp("head", static_cast<long long>(newPlayer->commCostume.head)),
+                                       kvp("leftHand", static_cast<long long>(newPlayer->commCostume.leftHand)),
+                                       kvp("rightHand", static_cast<long long>(newPlayer->commCostume.rightHand)));
+
+    /*
+    bsoncxx::builder::basic::array equipmentArray;
+
+        for (const auto& equip : newCharTemplate.currentEquipAndCargo)
+        {
+            bool commodity;
+            pub::IsCommodity(equip.archId, commodity);
+            if (!commodity)
+            {
+                std::string equipStr;
+                equipStr = equip.hardPoint.value;
+                equipmentArray.append(
+                    kvp("archId", static_cast<long long>(equip.archId)), kvp("hardPoint", equipStr), kvp("mounted", equip.mounted), kvp("health",
+       equip.health));
+            }
+        }
+
+        bsoncxx::builder::basic::array cargoArray;
+
+        for (const auto& cargo : newCharTemplate.currentEquipAndCargo)
+        {
+            bool commodity;
+            pub::IsCommodity(cargo.archId, commodity);
+            if (commodity)
+            {
+                std::string equipStr;
+                equipStr = cargo.hardPoint.value;
+                cargoArray.append(
+                    kvp("archId", static_cast<long long>(cargo.archId)), kvp("hardPoint", equipStr), kvp("mounted", cargo.mounted), kvp("health",
+       cargo.health));
+            }
+        }
+            */
+
+    bsoncxx::builder::basic::array visitArray;
+
+
+    for (const auto& visit : newPlayer->visitLists)
+    {
+        visitArray.append(kvp(static_cast<long long>(visit),static_cast<long long>(visit.second)));
+    }
+/
+    bsoncxx::builder::basic::array reputationArray;
+
+    for (const auto& rep : newCharTemplate.reputationOverrides)
+    {
+        visitArray.append(kvp(rep.first, rep.second));
+    }
+
+    // We cast to long long as mongo does not care about sign and we want to prevent any sort of signed overflow
+    auto newCharDoc = make_document(kvp("characterName", newPlayer->name),
+                                    kvp("money", static_cast<long long>(newPlayer->money)),
+                                    kvp("rank", static_cast<long long>(newPlayer->rank)),
+                                    kvp("repGroup", "toBeDetermined"),
+                                    kvp("datetimeHigh", 0),
+                                    kvp("datetimeLow", 0),
+                                    kvp("canDock", newCharTemplate.canDock),
+                                    kvp("canTradeLane", newCharTemplate.canTradeLane),
+                                    kvp("numOfKills", 0),
+                                    kvp("numOfFailedMissions", 0),
+                                    kvp("numOfSuccessMissions", 0),
+                                    kvp("shipHash", 456),
+                                    kvp("system", newCharTemplate.system),
+                                    kvp("totalTimePlayed", 0.0000f),
+                                    kvp("baseCostume", dbBaseCostume),
+                                    kvp("commCostume", dbCommCostume),
+                                    kvp("reputation", reputationArray),
+                                    kvp("visits", visitArray));
+
+    const auto updateDoc = accounts.find_one(make_document(kvp("characterName", name)).view());
+    const auto elem = updateDoc.value()["_id"];
+    auto str = elem.get_oid().value.to_string();
+    const auto findRes = accounts.find_one(make_document(kvp("_id", accountId)));
+
+    // Update the account's character list to include the newly created character.
+    if (!findRes.has_value())
+    {
+        std::cout << "Account not found.";
+        throw;
+    }
+
+    bsoncxx::builder::basic::document updateBuilder;
+    bsoncxx::builder::basic::array characterArray;
+
+    characterArray.append(str);
+    updateBuilder.append(kvp("$set", make_document(kvp("characters", characterArray))));
+    accounts.update_one(findRes->view(), updateBuilder.view());
+}
 
 void Database::RemoveValueFromCharacter(std::string character, std::string value)
 {

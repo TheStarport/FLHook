@@ -103,7 +103,7 @@ struct VanillaLoadData
         uint rank;                                   // 688
         uint unused1;                                // 692
         st6::vector<uint> someBinaryTreeAboutGroups; // SP only
-        Costume costume;                             // 712
+        Costume commCostume;                             // 712
         uint voiceLen;                               // 764
         char voice[32];                              // 768
         Costume baseCostume;                         // 800
@@ -529,7 +529,7 @@ namespace Plugins
             2223155968, 3144214861, 2479975689, 2264565644, {0, 0, 0, 0, 0, 0, 0, 0},
                 0
         };
-        data->costume = {
+        data->commCostume = {
             2223155968, 3144214861, 2479975689, 2264565644, {0, 0, 0, 0, 0, 0, 0, 0},
                 0
         };

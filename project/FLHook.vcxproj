@@ -114,6 +114,7 @@
     <ClInclude Include="..\FLHookSDK\include\Utils\TimeUtils.hpp" />
     <ClInclude Include="..\FLHookSDK\include\Utils\Utils.hpp" />
     <ClInclude Include="..\include\API\FLHook\AccountManager.hpp" />
+    <ClInclude Include="..\include\API\FLHook\Database.hpp" />
     <ClInclude Include="..\include\API\FLHook\PersonalityHelper.hpp" />
     <ClInclude Include="..\Include\API\InternalApi.hpp" />
     <ClInclude Include="..\Include\API\FLHook\ClientList.hpp" />

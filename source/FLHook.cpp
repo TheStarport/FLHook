@@ -4,13 +4,13 @@
 
 #include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
-#include "Core/Database.hpp"
 #include "API/FLHook/InfocardManager.hpp"
 #include "API/FLHook/PersonalityHelper.hpp"
 #include "API/InternalApi.hpp"
 #include "Core/MemoryManager.hpp"
 #include <API/Utils/Logger.hpp>
 #include <Core/MessageHandler.hpp>
+#include "API/FLHook/Database.hpp"
 
 #include "Core/Commands/AdminCommandProcessor.hpp"
 #include "Defs/FLHookConfig.hpp"
