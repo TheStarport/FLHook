@@ -40,7 +40,7 @@ namespace Plugins::Autobuy
 		std::string shield_battery_nickname = "ge_s_battery_01";
 
 		// paths to inis which should be read for ammo limits
-		std::vector<std::string> iniPaths 
+		std::vector<std::string> ammoIniPaths 
 		{
 			R"(..\data\equipment\light_equip.ini)",
 			R"(..\data\equipment\select_equip.ini)",
@@ -50,6 +50,14 @@ namespace Plugins::Autobuy
 			R"(..\data\equipment\weapon_equip.ini)",
 			R"(..\data\equipment\prop_equip.ini)"
 		};
+
+		//paths to inis which should be read for repair cost
+		std::vector<std::string> baseIniPaths 
+		{
+			R"(DATA\UNIVERSE\SYSTEMS\LI01\BASES\li01_01_base.ini)", 
+			R"(DATA\UNIVERSE\SYSTEMS\RH02\BASESrh02_06_base.ini)", 
+			R"(DATA\UNIVERSE\SYSTEMS\INTRO\BASES\intro1_base.ini)"
+		};
 	};
 
 	struct Global final
@@ -58,6 +66,7 @@ namespace Plugins::Autobuy
 		std::map<uint, AutobuyInfo> autobuyInfo;
 		ReturnCode returnCode = ReturnCode::Default;
 		std::unordered_map<uint, int> ammoLimits;
+		std::unordered_map<uint, int> repairCosts;
 	};
 
 } // namespace Plugins::Autobuy

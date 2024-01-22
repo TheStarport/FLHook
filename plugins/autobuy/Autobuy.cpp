@@ -67,7 +67,15 @@ namespace Plugins::Autobuy
 
 	void handleRepairs(ClientId& client)
 	{
-		auto repairCost = static_cast<uint>(Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * (1 - Players[client].fRelativeHealth) / 3);
+		auto base = Hk::Player::GetCurrentBase(client);
+		auto repairCost = static_cast<uint>(Players[client].fRelativeHealth * Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * 0.33);
+
+		// If there is no error with finding the base and there is a custom repair cost
+		// defined in the .ini the correct repair cost can be calculated
+		if (base.has_value() && global->repairCosts.contains(base.value()))
+		{
+			repairCost = static_cast<uint>(Players[client].fRelativeHealth * Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * global->repairCosts[base.value()]);
+		}
 
 		std::set<short> eqToFix;
 
@@ -530,8 +538,8 @@ namespace Plugins::Autobuy
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
 
-		// Get ammo limit
-		for (const auto& iniPath : global->config->iniPaths)
+		// Get ammo limits
+		for (const auto& iniPath : global->config->ammoIniPaths)
 		{
 			INI_Reader ini;
 			if (!ini.open(iniPath.c_str(), false))
@@ -568,12 +576,51 @@ namespace Plugins::Autobuy
 				}
 			}
 		}
+
+		// Get repair costs
+		for (const auto& iniPath : global->config->baseIniPaths)
+		{
+			INI_Reader ini;
+			if (!ini.open(iniPath.c_str(), false))
+			{
+				Console::ConErr(std::format("Was unable to read repair cost from the following file: {}", iniPath));
+				return;
+			}
+
+			while (ini.read_header())
+			{
+				if (ini.is_header("BaseInfo"))
+				{
+					uint baseNickname = 0;
+					int repairCost = 0;
+					bool valid = false;
+
+					while (ini.read_value())
+					{
+						if (ini.is_value("nickname"))
+						{
+							baseNickname = CreateID(ini.get_value_string(0));
+						}
+						else if (ini.is_value("ammo_limit"))
+						{
+							valid = true;
+							repairCost = ini.get_value_int(0);
+						}
+					}
+
+					if (valid)
+					{
+						global->ammoLimits[baseNickname] = repairCost;
+					}
+				}
+			}
+		}
 	}
 } // namespace Plugins::Autobuy
 
 using namespace Plugins::Autobuy;
 
-REFL_AUTO(type(Config), field(nanobot_nickname), field(shield_battery_nickname), field(iniPaths))
+REFL_AUTO(type(Config), field(nanobot_nickname), field(shield_battery_nickname), field(ammoIniPaths), field(baseIniPaths))
 
 DefaultDllMainSettings(LoadSettings);
 
