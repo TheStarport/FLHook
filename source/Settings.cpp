@@ -33,6 +33,13 @@ void LoadSettings()
 		config.general.noPVPSystemsHashed.emplace_back(systemId);
 	}
 
+	// No Beam Bases
+	config.general.noBeamBasesHashed.clear();
+	for (const auto& base : config.general.noBeamBases)
+	{
+		config.general.noBeamBasesHashed.emplace_back(CreateID(base.c_str()));
+	}
+
 	auto ptr = std::make_unique<FLHookConfig>(config);
 	FLHookConfig::i(&ptr);
 }
@@ -42,7 +49,7 @@ void LoadSettings()
 REFL_AUTO(type(FLHookConfig::General), field(antiDockKill), field(antiF1), field(changeCruiseDisruptorBehaviour), field(debugMode),
     field(disableCharfileEncryption), field(disconnectDelay), field(disableNPCSpawns), field(localTime), field(maxGroupSize), field(persistGroup),
     field(reservedSlots), field(torpMissileBaseDamageMultiplier), field(logPerformanceTimers), field(chatSuppressList), field(noPVPSystems),
-    field(antiBaseIdle), field(antiCharMenuIdle));
+    field(antiBaseIdle), field(antiCharMenuIdle), field(noBeamBases));
 REFL_AUTO(type(FLHookConfig::Plugins), field(loadAllPlugins), field(plugins));
 REFL_AUTO(type(FLHookConfig::Socket), field(activated), field(port), field(wPort), field(ePort), field(eWPort), field(encryptionKey), field(passRightsMap));
 REFL_AUTO(type(FLHookConfig::Message), field(defaultLocalChat), field(echoCommands), field(suppressInvalidCommands), field(dieMsg), field(dockingMessages));

@@ -66,7 +66,7 @@
  * @endcode
  *
  * @paragraph ipc IPC Interfaces Exposed
- * This plugin does not expose any functionality.
+ * NpcCommunicator: exposes CreateNpc method with parameters (const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
  */
 
 #define SPDLOG_USE_STD_FORMAT
@@ -96,7 +96,7 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Checks if a ship is one of our spawned NPCs and if so, removes it from our data
 	 */
-	bool IsFLHookNPC(CShip* ship)
+	bool IsHookNPC(CShip* ship)
 	{
 		// If it's a player do nothing
 		if (ship->is_player() == true)
@@ -127,14 +127,14 @@ namespace Plugins::Npc
 		if (kill)
 		{
 			CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
-			IsFLHookNPC(cShip);
+			IsHookNPC(cShip);
 		}
 	}
 
 	/** @ingroup NPCControl
 	 * @brief Function to spawn an NPC
 	 */
-	void CreateNPC(const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
+	uint CreateNPC(const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
 	{
 		Npc arch = global->config->npcInfo[name];
 
@@ -204,7 +204,7 @@ namespace Plugins::Npc
 		{
 			std::string errorMessage = arch.pilot + " is not recognised as a pilot name.";
 			AddLog(LogType::Normal, LogLevel::Err, errorMessage);
-			return;
+			return 0;
 		}
 
 		personalityParams.personality = personality.value();
@@ -220,7 +220,9 @@ namespace Plugins::Npc
 
 		constexpr auto level = static_cast<spdlog::level::level_enum>(LogLevel::Info);
 		std::string logMessage = "Created " + wstos(name);
-		global->Log->log(level, logMessage);
+		global->log->log(level, logMessage);
+
+		return spaceObj;
 	}
 
 	/** @ingroup NPCControl
@@ -228,7 +230,7 @@ namespace Plugins::Npc
 	 */
 	void LoadSettings()
 	{
-		global->Log = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_npcs", "logs/npc.log");
+		global->log = spdlog::basic_logger_mt<spdlog::async_factory>("npcs", "logs/npc.log");
 		auto config = Serializer::JsonToObject<Config>();
 
 		for (auto& [name, npc] : config.npcInfo)
@@ -323,23 +325,23 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command to destroy the AI
 	 */
-	void AdminCmdAIKill(CCmds* cmds)
+	void AdminCmdAIKill(CCmds* commands)
 	{
-		if (!(cmds->rights & RIGHT_SUPERADMIN))
+		if (!(commands->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print("ERR No permission");
+			commands->Print("ERR No permission");
 			return;
 		}
 
 		// Destroy targeted ship
-		if (cmds->IsPlayer())
+		if (commands->IsPlayer())
 		{
-			if (auto const target = Hk::Player::GetTarget(cmds->GetAdminName()); target.has_value())
+			if (auto const target = Hk::Player::GetTarget(commands->GetAdminName()); target.has_value())
 			{
 				if (const auto it = std::ranges::find(global->spawnedNpcs, target.value()); target.value() && it != global->spawnedNpcs.end())
 				{
 					pub::SpaceObj::Destroy(target.value(), DestroyType::FUSE);
-					cmds->Print("OK");
+					commands->Print("OK");
 					return;
 				}
 			}
@@ -349,21 +351,21 @@ namespace Plugins::Npc
 		for (std::vector<uint> tempSpawnedNpcs = global->spawnedNpcs; const auto& npc : tempSpawnedNpcs)
 			pub::SpaceObj::Destroy(npc, DestroyType::FUSE);
 
-		cmds->Print("OK");
+		commands->Print("OK");
 	}
 
 	/** @ingroup NPCControl
 	 * @brief Admin command to make AI come to your position
 	 */
-	void AdminCmdAICome(CCmds* cmds)
+	void AdminCmdAICome(CCmds* commands)
 	{
-		if (!(cmds->rights & RIGHT_SUPERADMIN))
+		if (!(commands->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print("ERR No permission");
+			commands->Print("ERR No permission");
 			return;
 		}
 
-		if (auto ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value()); ship.has_value())
+		if (auto ship = Hk::Player::GetShip(Hk::Client::GetClientIdFromCharName(commands->GetAdminName()).value()); ship.has_value())
 		{
 			auto [pos, rot] = Hk::Solar::GetLocation(ship.value(), IdType::Ship).value();
 
@@ -382,7 +384,7 @@ namespace Plugins::Npc
 				pub::AI::SubmitDirective(npc, &go);
 			}
 		}
-		cmds->Print("OK");
+		commands->Print("OK");
 		return;
 	}
 
@@ -399,27 +401,27 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command to make AI follow target (or admin) until death
 	 */
-	void AdminCmdAIFollow(CCmds* cmds, std::wstring charname)
+	void AdminCmdAIFollow(CCmds* commands, std::wstring characterName)
 	{
-		if (!(cmds->rights & RIGHT_SUPERADMIN))
+		if (!(commands->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print("ERR No permission");
+			commands->Print("ERR No permission");
 			return;
 		}
 
 		// If no player specified follow the admin
 		uint client;
-		if (charname == L"")
+		if (characterName == L"")
 		{
-			client = Hk::Client::GetClientIdFromCharName(cmds->GetAdminName()).value();
-			charname = cmds->GetAdminName();
+			client = Hk::Client::GetClientIdFromCharName(commands->GetAdminName()).value();
+			characterName = commands->GetAdminName();
 		}
 		// Follow the player specified
 		else
-			client = Hk::Client::GetClientIdFromCharName(charname).value();
+			client = Hk::Client::GetClientIdFromCharName(characterName).value();
 
 		if (client == UINT_MAX)
-			cmds->Print(std::format("{} is not online", wstos(charname)));
+			commands->Print(std::format("{} is not online", wstos(characterName)));
 
 		else
 		{
@@ -437,12 +439,12 @@ namespace Plugins::Npc
 						for (const auto& npc : global->spawnedNpcs)
 							AiFollow(ship.value(), npc);
 					}
-					cmds->Print(std::format("Following {}", wstos(charname)));
+					commands->Print(std::format("Following {}", wstos(characterName)));
 				}
 			}
 			else
 			{
-				cmds->Print(std::format("{} is not in space", wstos(charname)));
+				commands->Print(std::format("{} is not in space", wstos(characterName)));
 			}
 		}
 	}
@@ -450,16 +452,16 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command to cancel the current operation
 	 */
-	void AdminCmdAICancel(CCmds* cmds)
+	void AdminCmdAICancel(CCmds* commands)
 	{
-		if (!(cmds->rights & RIGHT_SUPERADMIN))
+		if (!(commands->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print("ERR No permission");
+			commands->Print("ERR No permission");
 			return;
 		}
 
 		// Is the admin targeting an NPC?
-		if (const auto target = Hk::Player::GetTarget(cmds->GetAdminName()); target.has_value())
+		if (const auto target = Hk::Player::GetTarget(commands->GetAdminName()); target.has_value())
 		{
 			if (const auto it = std::ranges::find(global->spawnedNpcs, target.value()); target.value() && it != global->spawnedNpcs.end())
 			{
@@ -476,24 +478,24 @@ namespace Plugins::Npc
 				pub::AI::SubmitDirective(npc, &cancelOp);
 			}
 		}
-		cmds->Print("OK");
+		commands->Print("OK");
 	}
 
 	/** @ingroup NPCControl
 	 * @brief Admin command to list NPCs
 	 */
-	void AdminCmdListNPCs(CCmds* cmds)
+	void AdminCmdListNPCs(CCmds* commands)
 	{
-		if (!(cmds->rights & RIGHT_SUPERADMIN))
+		if (!(commands->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print("ERR No permission");
+			commands->Print("ERR No permission");
 			return;
 		}
 
-		cmds->Print(std::format("Available NPCs: {}", global->config->npcInfo.size()));
+		commands->Print(std::format("Available NPCs: {}", global->config->npcInfo.size()));
 
 		for (auto const& [name, npc] : global->config->npcInfo)
-			cmds->Print(std::format("|{}", wstos(name)));
+			commands->Print(std::format("|{}", wstos(name)));
 	}
 
 	/** @ingroup NPCControl
@@ -516,20 +518,20 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command to spawn a Fleet
 	 */
-	void AdminCmdAIFleet(CCmds* cmds, const std::wstring& FleetName)
+	void AdminCmdAIFleet(CCmds* commands, const std::wstring& fleetName)
 	{
-		if (!(cmds->rights & RIGHT_SUPERADMIN))
+		if (!(commands->rights & RIGHT_SUPERADMIN))
 		{
-			cmds->Print("ERR No permission");
+			commands->Print("ERR No permission");
 			return;
 		}
 
-		if (const auto& iter = global->config->fleetInfo.find(FleetName); iter != global->config->fleetInfo.end())
+		if (const auto& iter = global->config->fleetInfo.find(fleetName); iter != global->config->fleetInfo.end())
 			for (auto const& [name, amount] : iter->second.member)
-				AdminCmdAIMake(cmds, amount, name);
+				AdminCmdAIMake(commands, amount, name);
 		else
 		{
-			cmds->Print("ERR Wrong Fleet name");
+			commands->Print("ERR Wrong Fleet name");
 			return;
 		}
 	}
@@ -537,26 +539,26 @@ namespace Plugins::Npc
 	/** @ingroup NPCControl
 	 * @brief Admin command processing
 	 */
-	bool ExecuteCommandString(CCmds* cmds, const std::wstring& cmd)
+	bool ExecuteCommandString(CCmds* commands, const std::wstring& cmd)
 	{
 		global->returnCode = ReturnCode::SkipAll;
 
 		if (cmd == L"aicreate")
-			AdminCmdAIMake(cmds, cmds->ArgInt(1), cmds->ArgStr(2));
+			AdminCmdAIMake(commands, commands->ArgInt(1), commands->ArgStr(2));
 		else if (cmd == L"aidestroy")
-			AdminCmdAIKill(cmds);
+			AdminCmdAIKill(commands);
 		else if (cmd == L"aicancel")
-			AdminCmdAICancel(cmds);
+			AdminCmdAICancel(commands);
 		else if (cmd == L"aifollow")
-			AdminCmdAIFollow(cmds, cmds->ArgCharname(1));
+			AdminCmdAIFollow(commands, commands->ArgCharname(1));
 		else if (cmd == L"aicome")
-			AdminCmdAICome(cmds);
+			AdminCmdAICome(commands);
 		else if (cmd == L"aifleet")
-			AdminCmdAIFleet(cmds, cmds->ArgStr(1));
+			AdminCmdAIFleet(commands, commands->ArgStr(1));
 		else if (cmd == L"fleetlist")
-			AdminCmdListNPCFleets(cmds);
+			AdminCmdListNPCFleets(commands);
 		else if (cmd == L"npclist")
-			AdminCmdListNPCs(cmds);
+			AdminCmdListNPCs(commands);
 		else
 		{
 			global->returnCode = ReturnCode::Default;
@@ -565,11 +567,10 @@ namespace Plugins::Npc
 
 		return true;
 	}
+
+	NpcCommunicator::NpcCommunicator(const std::string& plug) : PluginCommunicator(plug) { this->CreateNpc = CreateNPC; }
 } // namespace Plugins::Npc
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FLHOOK STUFF
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using namespace Plugins::Npc;
 
 DefaultDllMainSettings(AfterStartup);
@@ -581,7 +582,7 @@ REFL_AUTO(type(Config), field(npcInfo), field(fleetInfo), field(startupNpcs), fi
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	pi->name("NPC Control");
+	pi->name(NpcCommunicator::pluginName);
 	pi->shortName("npc");
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
@@ -590,4 +591,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IServerImpl__Startup, &AfterStartup, HookStep::After);
 	pi->emplaceHook(HookedCall::FLHook__AdminCommand__Process, &ExecuteCommandString);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
+
+	// Register IPC
+	global->communicator = new NpcCommunicator(NpcCommunicator::pluginName);
+	PluginCommunicator::ExportPluginCommunicator(global->communicator);
 }
