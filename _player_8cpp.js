@@ -51,6 +51,7 @@ var _player_8cpp =
     [ "ResetRep", "_player_8cpp.html#a5eddd88ec86985cfb73b461bd5f93a5b", null ],
     [ "SaveChar", "_player_8cpp.html#ab429d729efed05456f6920b10db781fc", null ],
     [ "SaveChar", "_player_8cpp.html#a3d2e0df05bd49af222135de918f80f81", null ],
+    [ "SendBestPath", "_player_8cpp.html#a5f5700f6733ed38bd4fb909ee6c9b7ca", null ],
     [ "SetEquip", "_player_8cpp.html#a9520a7c79630d55a1a3a33f4c3006ef9", null ],
     [ "SetPvpKills", "_player_8cpp.html#a0c459506c469564b7d8768c133539a9f", null ],
     [ "SetRep", "_player_8cpp.html#ab9000615cd0bdd2338a20a51be8fbe22", null ],

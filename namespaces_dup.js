@@ -77,7 +77,7 @@ var namespaces_dup =
       [ "ReqRemoveItem", "namespace_i_server_impl_hook.html#a4a6cecbc10347965ebaebe3d4aa74e42", null ],
       [ "ReqSetCash", "namespace_i_server_impl_hook.html#a0954fa0d68108f03361e85d12d3647b5", null ],
       [ "ReqShipArch", "namespace_i_server_impl_hook.html#ac53e5a1beb0cca3883a79331ee76943f", null ],
-      [ "RequestBestPath", "namespace_i_server_impl_hook.html#a83a6e07bd97b21b4e5bda5a37fec774f", null ],
+      [ "RequestBestPath", "namespace_i_server_impl_hook.html#ae367e0b2741621aa462c5da598a31570", null ],
       [ "RequestCancel", "namespace_i_server_impl_hook.html#a1ffa0dedb32d8cd5da659374615a961d", null ],
       [ "RequestCreateShip", "namespace_i_server_impl_hook.html#a7293446ecabb921d92934db02194a5ac", null ],
       [ "RequestEvent", "namespace_i_server_impl_hook.html#a813d59dd920e597cb94785d90d3a5f2f", null ],

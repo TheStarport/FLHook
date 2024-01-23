@@ -1,6 +1,7 @@
 var NAVTREEINDEX5 =
 {
 "class_plugins_1_1_message_1_1_client_info.html#ac85c78cb1c43cc46778d232c8eda6384":[2,2,0,2,16,0,4],
+"class_plugins_1_1_message_1_1_client_info.html#ac85c78cb1c43cc46778d232c8eda6384":[2,1,0,4,17,0,4],
 "class_plugins_1_1_message_1_1_client_info.html#af7b9991b7e3b2054b420bfe21d2e3c1a":[2,2,0,2,16,0,0],
 "class_plugins_1_1_message_1_1_client_info.html#af7b9991b7e3b2054b420bfe21d2e3c1a":[2,1,0,4,17,0,0],
 "class_save_game_detour.html":[2,2,0,23],
@@ -60,8 +61,8 @@ var NAVTREEINDEX5 =
 "flcodec_8cpp.html#a75b47b2dc6a22be05b3bf479f6e45ed4":[2,3,0,2,17,1],
 "flcodec_8cpp.html#ac57ec98caa386d68f2563b37e2f7391b":[2,3,0,2,17,4],
 "flcodec_8cpp.html#ae13823df5764b4100b76f1277ff0f3bf":[2,3,0,2,17,6],
-"functions.html":[2,2,3,0],
 "functions.html":[2,2,3,0,0],
+"functions.html":[2,2,3,0],
 "functions_a.html":[2,2,3,0,1],
 "functions_b.html":[2,2,3,0,2],
 "functions_c.html":[2,2,3,0,3],
@@ -85,8 +86,8 @@ var NAVTREEINDEX5 =
 "functions_t.html":[2,2,3,0,20],
 "functions_u.html":[2,2,3,0,21],
 "functions_v.html":[2,2,3,0,22],
-"functions_vars.html":[2,2,3,2,0],
 "functions_vars.html":[2,2,3,2],
+"functions_vars.html":[2,2,3,2,0],
 "functions_vars_a.html":[2,2,3,2,1],
 "functions_vars_b.html":[2,2,3,2,2],
 "functions_vars_c.html":[2,2,3,2,3],
@@ -248,6 +249,5 @@ var NAVTREEINDEX5 =
 "group___event.html#gade59a6268767e9691bb9a4038031ad31":[2,0,11,2],
 "group___event.html#gaffe299dab0499b42b870d8be3d170f90":[2,0,11,1],
 "group___i_p_ban.html":[2,0,12],
-"group___i_p_ban.html#ga13d1bdeedeaaf4dc0daf32a54e844ac9":[2,0,12,4],
-"group___i_p_ban.html#ga93cdcddc3cd0833db4917192d3ade83b":[2,0,12,2]
+"group___i_p_ban.html#ga13d1bdeedeaaf4dc0daf32a54e844ac9":[2,0,12,4]
 };

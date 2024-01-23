@@ -71,7 +71,7 @@ var _hk_client_server_interface_8cpp =
     [ "ReqRemoveItem", "_hk_client_server_interface_8cpp.html#a4a6cecbc10347965ebaebe3d4aa74e42", null ],
     [ "ReqSetCash", "_hk_client_server_interface_8cpp.html#a0954fa0d68108f03361e85d12d3647b5", null ],
     [ "ReqShipArch", "_hk_client_server_interface_8cpp.html#ac53e5a1beb0cca3883a79331ee76943f", null ],
-    [ "RequestBestPath", "_hk_client_server_interface_8cpp.html#a83a6e07bd97b21b4e5bda5a37fec774f", null ],
+    [ "RequestBestPath", "_hk_client_server_interface_8cpp.html#ae367e0b2741621aa462c5da598a31570", null ],
     [ "RequestCancel", "_hk_client_server_interface_8cpp.html#a1ffa0dedb32d8cd5da659374615a961d", null ],
     [ "RequestCreateShip", "_hk_client_server_interface_8cpp.html#a7293446ecabb921d92934db02194a5ac", null ],
     [ "RequestEvent", "_hk_client_server_interface_8cpp.html#a813d59dd920e597cb94785d90d3a5f2f", null ],
