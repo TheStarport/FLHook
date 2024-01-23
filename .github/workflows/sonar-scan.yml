@@ -12,7 +12,7 @@ jobs:
     runs-on: windows-latest
     if: github.event.workflow_run.conclusion == 'success'
     env:
-      SONAR_SCANNER_VERSION: 4.6.1.2450
+      SONAR_SCANNER_VERSION: 5.0.1.3006
       SONAR_SERVER_URL: "https://sonarcloud.io"
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory
       COVERAGE_RESULTS: coverage_results
