@@ -29,7 +29,7 @@ class Database
         mongocxx::database database;
 
         void ResetDatabase();
-        void CreateCharacter(std::string accountId, const VanillaLoadData* newPlayer);
+        void CreateCharacter(std::string accountId, VanillaLoadData* newPlayer);
 
   
     public:

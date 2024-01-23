@@ -25,7 +25,7 @@ Database::Database()
     }
 }
 
-void Database::CreateCharacter(std::string accountId, const VanillaLoadData* newPlayer)
+void Database::CreateCharacter(std::string accountId, VanillaLoadData* newPlayer)
 {
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
@@ -78,39 +78,43 @@ void Database::CreateCharacter(std::string accountId, const VanillaLoadData* new
     bsoncxx::builder::basic::array visitArray;
 
 
-    for (const auto& visit : newPlayer->visitLists)
+    for (auto visit = newPlayer->visitLists.begin(); visit != newPlayer->visitLists.end(); ++visit )
     {
-        visitArray.append(kvp(static_cast<long long>(visit),static_cast<long long>(visit.second)));
+     visitArray.append((static_cast<bsoncxx::types::b_int64>(*visit.key()), static_cast<bsoncxx::types::b_int64>(*visit.value())));
     }
-/
+
     bsoncxx::builder::basic::array reputationArray;
 
-    for (const auto& rep : newCharTemplate.reputationOverrides)
+   /* for (const auto& rep : newCharTemplate.reputationOverrides)
     {
         visitArray.append(kvp(rep.first, rep.second));
-    }
+    }*/
+
+   std::wstring charNameWide =  reinterpret_cast<const wchar_t*>(newPlayer->name.c_str());
+   std::string charName = StringUtils::wstos(charNameWide);
+
 
     // We cast to long long as mongo does not care about sign and we want to prevent any sort of signed overflow
-    auto newCharDoc = make_document(kvp("characterName", newPlayer->name),
+    auto newCharDoc = make_document(kvp("characterName", charName),
                                     kvp("money", static_cast<long long>(newPlayer->money)),
                                     kvp("rank", static_cast<long long>(newPlayer->rank)),
                                     kvp("repGroup", "toBeDetermined"),
-                                    kvp("datetimeHigh", 0),
-                                    kvp("datetimeLow", 0),
-                                    kvp("canDock", newCharTemplate.canDock),
-                                    kvp("canTradeLane", newCharTemplate.canTradeLane),
+                                    kvp("datetimeHigh", static_cast<long long>(newPlayer->datetimeHigh)),
+                                    kvp("datetimeLow", static_cast<long long>(newPlayer->datetimeLow)),
+                                    kvp("canDock", 1),
+                                    kvp("canTradeLane", 1),
                                     kvp("numOfKills", 0),
                                     kvp("numOfFailedMissions", 0),
                                     kvp("numOfSuccessMissions", 0),
-                                    kvp("shipHash", 456),
-                                    kvp("system", newCharTemplate.system),
+                                    kvp("shipHash", static_cast<long long>(newPlayer->shipHash)),
+                                    kvp("system", static_cast<long long>(newPlayer->system)),
                                     kvp("totalTimePlayed", 0.0000f),
                                     kvp("baseCostume", dbBaseCostume),
                                     kvp("commCostume", dbCommCostume),
                                     kvp("reputation", reputationArray),
                                     kvp("visits", visitArray));
 
-    const auto updateDoc = accounts.find_one(make_document(kvp("characterName", name)).view());
+    const auto updateDoc = accounts.find_one(make_document(kvp("characterName", charName)).view());
     const auto elem = updateDoc.value()["_id"];
     auto str = elem.get_oid().value.to_string();
     const auto findRes = accounts.find_one(make_document(kvp("_id", accountId)));
