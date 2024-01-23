@@ -1,6 +1,7 @@
 # Changelog
 ## 4.0.19
 - Updated the SonarScan to use version 17 of Java, as 11 is no longer working and causes the pipeline to fail.
+- Updated SonarScan to 5.0.1.3006
 
 ## 4.0.18
 - Changed IServerImpl::RequestBestPath hook to use new BestPathInfo struct
