@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.18
+- Changed IServerImpl::RequestBestPath hook to use new BestPathInfo struct
+- Added Hk::Player::SendBestPath function which sets the waypoints of a player
+
 ## 4.0.17
 - Provided configs for 0x86AEC, 0x84018, 0xD3D6E and 0x58F46 in server.dll in crash catcher. These offsets were hardcoding several values that are often changed by mods manually relating to NPC spawn and scanner range. 0 values disables each respective hook.
 
