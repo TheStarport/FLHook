@@ -1,4 +1,7 @@
 # Changelog
+## 4.0.20
+- This is a test PR. Do not merge
+
 ## 4.0.19
 - Updated the SonarScan to use version 17 of Java, as 11 is no longer working and causes the pipeline to fail.
 
