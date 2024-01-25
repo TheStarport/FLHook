@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.17
+- Fixed issue where repair cost was not fetched from base inis.
+
 ## 4.0.16
 - Removed a PrintUserCmd from Autobuy that was printing on every repair.
 

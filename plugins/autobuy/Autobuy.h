@@ -54,9 +54,9 @@ namespace Plugins::Autobuy
 		//paths to inis which should be read for repair cost
 		std::vector<std::string> baseIniPaths 
 		{
-			R"(DATA\UNIVERSE\SYSTEMS\LI01\BASES\li01_01_base.ini)", 
-			R"(DATA\UNIVERSE\SYSTEMS\RH02\BASESrh02_06_base.ini)", 
-			R"(DATA\UNIVERSE\SYSTEMS\INTRO\BASES\intro1_base.ini)"
+			R"(..\data\universe\systems\li01\bases\li01_01_base.ini)", 
+			R"(..\data\universe\systems\rh02\bases\rh02_06_base.ini)", 
+			R"(..\data\universe\systems\intro\bases\intro1_base.ini)"
 		};
 	};
 

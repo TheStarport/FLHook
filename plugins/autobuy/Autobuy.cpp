@@ -68,13 +68,13 @@ namespace Plugins::Autobuy
 	void handleRepairs(ClientId& client)
 	{
 		auto base = Hk::Player::GetCurrentBase(client);
-		auto repairCost = static_cast<uint>(Players[client].fRelativeHealth * Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * 0.33);
+		auto repairCost = static_cast<uint>((1-Players[client].fRelativeHealth) * Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * 0.33);
 
 		// If there is no error with finding the base and there is a custom repair cost
 		// defined in the .ini the correct repair cost can be calculated
 		if (base.has_value() && global->repairCosts.contains(base.value()))
 		{
-			repairCost = static_cast<uint>(Players[client].fRelativeHealth * Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * global->repairCosts[base.value()]);
+			repairCost = static_cast<uint>((1-Players[client].fRelativeHealth) * Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * global->repairCosts[base.value()]);
 		}
 
 		std::set<short> eqToFix;
@@ -571,7 +571,7 @@ namespace Plugins::Autobuy
 
 					if (valid)
 					{
-						global->ammoLimits[itemname] = itemlimit;
+						global->ammoLimits.insert(std::pair<uint, int>(itemname, itemlimit));
 					}
 				}
 			}
@@ -601,7 +601,7 @@ namespace Plugins::Autobuy
 						{
 							baseNickname = CreateID(ini.get_value_string(0));
 						}
-						else if (ini.is_value("ammo_limit"))
+						else if (ini.is_value("ship_repair_cost"))
 						{
 							valid = true;
 							repairCost = ini.get_value_int(0);
@@ -610,7 +610,7 @@ namespace Plugins::Autobuy
 
 					if (valid)
 					{
-						global->ammoLimits[baseNickname] = repairCost;
+						global->repairCosts.insert(std::pair<uint, int>(baseNickname, repairCost));
 					}
 				}
 			}
