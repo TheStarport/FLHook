@@ -251,6 +251,7 @@ namespace Hk
 		DLL cpp::result<int, Error> IncrementPvpKills(const std::variant<uint, std::wstring>& player);
 		DLL cpp::result<const uint, Error> GetSystemByNickname(std::variant<std::string, std::wstring> nickname);
 		DLL CShip* CShipFromShipDestroyed(const DWORD** ecx);
+		DLL cpp::result<int, Error> SendBestPath(const std::variant<uint, std::wstring>& player, int iStartSysId, Vector vStartPos, int iTargetSysId, Vector vTargetPos);
 	} // namespace Player
 
 	namespace Solar
