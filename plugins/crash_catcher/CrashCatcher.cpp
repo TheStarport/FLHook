@@ -399,21 +399,23 @@ will_crash:
 	/** @ingroup CrashCatcher
 	 * @brief Install hooks
 	 */
-	void Init()
+	void LoadSettings()
 	{
 		try
 		{
 			if (!global->bPatchInstalled)
 			{
 				global->bPatchInstalled = true;
+				// Load the settings
+				auto config = Serializer::JsonToObject<Config>();
 
 				global->hModServerAC = GetModuleHandle("server.dll");
-				if (global->hModServerAC)
+				if (global->hModServerAC && config.npcVisibilityDistance > 0.f)
 				{
 					// Patch the NPC visibility distance in MP to 6.5km (default
 					// is 2.5km)
-					float fDistance = 6500.0f * 6500.0f;
-					WriteProcMem((char*)global->hModServerAC + 0x86AEC, &fDistance, 4);
+					float visDistance = std::powf(config.npcVisibilityDistance, 2.f);
+					WriteProcMem((char*)global->hModServerAC + 0x86AEC, &visDistance, 4);
 
 					FARPROC fpHook = (FARPROC)Cb_GetRoot;
 					ReadProcMem((char*)global->hModServerAC + 0x84018, &fpOldGetRootProc, 4);
@@ -520,9 +522,16 @@ will_crash:
 
 					// Patch the NPC persist distance in MP to 6.5km and patch the
 					// max spawn distance to 6.5km
-					float fDistance = 6500;
-					WriteProcMem((char*)global->hModContentAC + 0xD3D6E, &fDistance, 4);
-					WriteProcMem((char*)global->hModContentAC + 0x58F46, &fDistance, 4);
+
+					if (config.npcPersistDistance > 0.f)
+					{
+						WriteProcMem((char*)global->hModContentAC + 0xD3D6E, &config.npcPersistDistance, 4);
+					}
+
+					if (config.npcSpawnDistance > 0.f)
+					{
+						WriteProcMem((char*)global->hModContentAC + 0x58F46, &config.npcSpawnDistance, 4);
+					}
 				}
 			}
 		}
@@ -604,11 +613,13 @@ will_crash:
 
 using namespace Plugins::CrashCatcher;
 
+REFL_AUTO(type(Config), field(npcVisibilityDistance), field(npcPersistDistance), field(npcSpawnDistance))
+
 // Do things when the dll is loaded
 BOOL WINAPI DllMain([[maybe_unused]] HINSTANCE hinstDLL, DWORD fdwReason, [[maybe_unused]] LPVOID lpvReserved)
 {
 	if (fdwReason == DLL_PROCESS_ATTACH && CoreGlobals::c()->flhookReady)
-		Init();
+		LoadSettings();
 
 	if (fdwReason == DLL_PROCESS_DETACH)
 		Shutdown();
@@ -626,7 +637,7 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->returnCode(&global->returncode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &Init, HookStep::After);
+	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__RequestBestPath, &RequestBestPath);
 	pi->emplaceHook(HookedCall::IServerImpl__TractorObjects, &TractorObjects);
 	pi->emplaceHook(HookedCall::IServerImpl__JettisonCargo, &JettisonCargo);

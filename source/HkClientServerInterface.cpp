@@ -4717,24 +4717,24 @@ namespace IServerImplHook
 
 namespace IServerImplHook
 {
-	void __stdcall RequestBestPath(ClientId client, uint _genArg1, int _genArg2)
+	void __stdcall RequestBestPath(ClientId client, BestPathInfo* bpi, int bestPathInfoStructSize)
 	{
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    std::format("RequestBestPath(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)", client, _genArg1, _genArg2));
+		    std::format("RequestBestPath(\n\tClientId client = {}\n\tuint _genArg1 = 0x{:08X}\n\tint _genArg2 = {}\n)", client, (uint)bpi, bestPathInfoStructSize));
 
 
-		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestBestPath, client, _genArg1, _genArg2); 
+		if (auto skip = CallPluginsBefore<void>(HookedCall::IServerImpl__RequestBestPath, client, bpi, bestPathInfoStructSize); 
 			!skip)
 		{
 			CALL_SERVER_PREAMBLE
 			{
-				Server.RequestBestPath(client, (uchar*)_genArg1, _genArg2);
+				Server.RequestBestPath(client, (uchar*)bpi, bestPathInfoStructSize);
 			}
 			CALL_SERVER_POSTAMBLE(true, );
 		}
 
-		CallPluginsAfter(HookedCall::IServerImpl__RequestBestPath, client, _genArg1, _genArg2);
+		CallPluginsAfter(HookedCall::IServerImpl__RequestBestPath, client, bpi, bestPathInfoStructSize);
 	}
 } // namespace IServerImplHook
 

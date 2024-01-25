@@ -1780,4 +1780,29 @@ namespace Hk::Player
 
 		return {};
 	}
+
+	cpp::result<int, Error> SendBestPath(const std::variant<uint, std::wstring>& player, int iStartSysId, Vector vStartPos, int iTargetSysId, Vector vTargetPos)
+	{
+		ClientId client = Hk::Client::ExtractClientID(player);
+		if (client == UINT_MAX)
+		{
+			return cpp::fail(Error::PlayerNotLoggedIn);
+		}
+
+		BestPathInfo bpi;
+		bpi.iWaypointStartIndex = 1; //Use 1 as start index so the waypoints of the player get overwritten
+		bpi.iStartSysId = iStartSysId;
+		bpi.vStartPos = vStartPos;
+		bpi.iTargetSysId = iTargetSysId;
+		bpi.vTargetPos = vTargetPos;
+		bpi.iDunno1 = 2;
+		bpi.bDunno2 = 0;
+		bpi.iDunno3 = 0;
+		bpi.iDunno4 = 0;
+
+		// The original asm code sets 52 as size for the struct. So better hard code it instead of sizeof in case someone messes up the struct in a commit.
+		Server.RequestBestPath(client, (uchar*)&bpi, 52);
+
+		return {};
+	}
 } // namespace Hk::Player
