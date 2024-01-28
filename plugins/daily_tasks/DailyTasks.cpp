@@ -9,8 +9,6 @@
 
 #include <random>
 
-// TODO: Format strings for task descriptions
-
 namespace Plugins::DailyTasks
 {
 	const auto global = std::make_unique<Global>();
@@ -41,7 +39,7 @@ namespace Plugins::DailyTasks
 		}
 		for (const auto& [key, value] : global->config->taskNpcKillTargets)
 		{
-			global->taskNpcKillTargets[CreateID(key.c_str())] = value;
+			global->taskNpcKillTargets[MakeId(key.c_str())] = value;
 		}
 	}
 
@@ -58,7 +56,7 @@ namespace Plugins::DailyTasks
 	uint RandomIdKey(std::map<uint, std::vector<int>> map)
 	{
 		auto iterator = map.begin();
-		std::advance(iterator, RandomNumber(1, map.size()));
+		std::advance(iterator, RandomNumber(0, map.size() - 1));
 		auto& outputId = iterator->first;
 		return outputId;
 	}
@@ -68,6 +66,12 @@ namespace Plugins::DailyTasks
 	{
 		// TODO: Create and implement this function.
 	}
+
+	void SaveTaskStatus()
+	{
+		// TODO: Create and implement this function.
+	}
+
 	// Function: Generates a daily task.
 	void GenerateDailyTask()
 	{
@@ -95,45 +99,49 @@ namespace Plugins::DailyTasks
 		// Check if taskTypePool is empty after these checks and if so throw an error in the console.
 		if (taskTypePool.empty())
 		{
-			AddLog(LogType::Normal, LogLevel::Err, "No tasks have been defined in daily_tasks.json");
+			AddLog(LogType::Normal, LogLevel::Err, "No tasks have been defined in daily_tasks.json. Unable to generate a daily task.");
 			return;
 		}
 
-		// Choose a random task from the availlable pool.
-		const auto& randomTask = taskTypePool[RandomNumber(1, taskTypePool.size())];
+		// Choose and create a random task from the available pool.
+		const auto& randomTask = taskTypePool[RandomNumber(0, taskTypePool.size() - 1)];
 
 		if (randomTask == "Acquire Items")
 		{
 			auto itemAcquisitionTarget = RandomIdKey(global->taskItemAcquisitionTargets);
 			auto itemQuantity =
 			    RandomNumber(global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[0], global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[1]);
-
-			auto taskDescription = "Acquire {} units of {}";
+			auto itemArch = Archetype::GetEquipment(itemAcquisitionTarget);
+			auto taskDescription = std::format("Acquire {} units of {}", itemQuantity, wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)));
+			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating an 'Acquire Items' task to '{}'", taskDescription));
 		}
 		if (randomTask == "Kill NPCs")
 		{
-			auto npcFactionTarget = RandomIdKey(global->taskNpcKillTargets);
+			const auto& npcFactionTarget = RandomIdKey(global->taskNpcKillTargets);
 			auto npcQuantity = RandomNumber(global->taskNpcKillTargets.at(npcFactionTarget)[0], global->taskNpcKillTargets.at(npcFactionTarget)[1]);
-
-			// Grab the faction data so it can be included in the taskDescription string.
-			uint npcFactionAffiliation;
-			pub::Reputation::GetAffiliation(npcFactionTarget, npcFactionAffiliation);
 			uint npcFactionIds;
-			pub::Reputation::GetGroupName(npcFactionAffiliation, npcFactionIds);
-			auto taskDescription = "Destroy {} ships belonging to {}";
+			pub::Reputation::GetGroupName(npcFactionTarget, npcFactionIds);
+			auto taskDescription = std::format("Destroy {} ships belonging to the {}", npcQuantity, wstos(Hk::Message::GetWStringFromIdS(npcFactionIds)));
+			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill NPCs' task to '{}'", taskDescription));
 		}
 		if (randomTask == "Kill Players")
 		{
 			auto playerQuantity = RandomNumber(global->config->taskPlayerKillTargets[0], global->config->taskPlayerKillTargets[1]);
-			auto taskDescription = "Destroy {} player ships";
+			auto taskDescription = std::format("Destroy {} player ships", playerQuantity);
+			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill Players' task to '{}'", taskDescription));
 		}
 		if (randomTask == "Sell Cargo")
 		{
-			// Pick a random base and a random item from the config pools.
-			auto tradeBaseTarget = global->config->taskTradeBaseTargets[RandomNumber(1, global->taskTradeBaseTargets.size())];
+			const auto& tradeBaseTarget = global->config->taskTradeBaseTargets[RandomNumber(0, global->config->taskTradeBaseTargets.size())];
 			auto tradeItemTarget = RandomIdKey(global->taskTradeItemTargets);
 			auto tradeItemQuantity = RandomNumber(global->taskTradeItemTargets.at(tradeItemTarget)[0], global->taskTradeItemTargets.at(tradeItemTarget)[1]);
-			auto taskDescription = "Sell {} units of {} at {}";
+			auto baseArch = Universe::get_base(CreateID(tradeBaseTarget.c_str()));
+			auto itemArch = Archetype::GetEquipment(tradeItemTarget);
+			auto taskDescription = std::format("Sell {} units of {} at {}",
+			    tradeItemQuantity,
+			    wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)),
+			    wstos(Hk::Message::GetWStringFromIdS(baseArch->baseIdS)));
+			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Sell Cargo' task to '{}'", taskDescription));
 		}
 	}
 
@@ -157,7 +165,7 @@ namespace Plugins::DailyTasks
 
 	// Define usable chat commands here
 	const std::vector commands = {{
-	    CreateUserCommand(L"/showdailies", L"<number>", UserCmdShowDailyTasks, L"Shows a list of current daily tasks for the user"),
+	    CreateUserCommand(L"/showdailies", L"", GenerateDailyTask, L"Shows a list of current daily tasks for the user"),
 	}};
 
 } // namespace Plugins::DailyTasks
@@ -182,4 +190,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
+	// pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &GenerateDailyTask);
 }
