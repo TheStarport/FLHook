@@ -20,6 +20,34 @@ namespace Plugins::DailyTasks
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(std::move(config));
 
+		// Check if task config values are populated. If they're populated, add them to the pool.
+		if (!global->config->taskItemAcquisitionTargets.empty())
+		{
+			global->taskTypePool.emplace_back("Acquire Items");
+		}
+		if (!global->config->taskNpcKillTargets.empty())
+		{
+			global->taskTypePool.emplace_back("Kill NPCs");
+		}
+		if (!global->config->taskPlayerKillTargets.empty())
+		{
+			global->taskTypePool.emplace_back("Kill Players");
+		}
+		if (!global->config->taskTradeBaseTargets.empty() && !global->config->taskTradeItemTargets.empty())
+		{
+			global->taskTypePool.emplace_back("Sell Cargo");
+		}
+
+		// Check if taskTypePool is empty after these checks and if so throw an error in the console.
+		if (global->taskTypePool.empty())
+		{
+			AddLog(LogType::Normal, LogLevel::Err, "No tasks have been defined in daily_tasks.json. No daily tasks will be generated.");
+			return;
+		}
+		AddLog(LogType::Normal,
+		    LogLevel::Info,
+		    std::format("{} possible random daily tasks have been loaded into the pool.", static_cast<int>(global->taskTypePool.size())));
+
 		// Load the string DLLS
 		Hk::Message::LoadStringDLLs();
 
@@ -72,39 +100,27 @@ namespace Plugins::DailyTasks
 		// TODO: Create and implement this function.
 	}
 
-	// Function: Generates a daily task.
-	void GenerateDailyTask()
+	//Function: Brief hook on ship destroyed to see if a task needs to be updated.
+	void ShipDestroyed()
 	{
-		std::vector<std::string> taskTypePool;
-		std::vector<std::string> rewardPool;
+	}
 
-		// Check if task config values are populated. If they're populated, add them to the pool.
-		if (!global->config->taskItemAcquisitionTargets.empty())
-		{
-			taskTypePool.emplace_back("Acquire Items");
-		}
-		if (!global->config->taskNpcKillTargets.empty())
-		{
-			taskTypePool.emplace_back("Kill NPCs");
-		}
-		if (!global->config->taskPlayerKillTargets.empty())
-		{
-			taskTypePool.emplace_back("Kill Players");
-		}
-		if (!global->config->taskTradeBaseTargets.empty() && !global->config->taskTradeItemTargets.empty())
-		{
-			taskTypePool.emplace_back("Sell Cargo");
-		}
+	// Function: Brief hook on ship destroyed to see if a task needs to be updated.
+	void ItemSold()
+	{
+	}
 
-		// Check if taskTypePool is empty after these checks and if so throw an error in the console.
-		if (taskTypePool.empty())
-		{
-			AddLog(LogType::Normal, LogLevel::Err, "No tasks have been defined in daily_tasks.json. Unable to generate a daily task.");
-			return;
-		}
+	void ItemAcquired()
+	{
+	}
 
+	// TODO: Remove client from this
+	// Function: Generates a daily task.
+	void GenerateDailyTask(ClientId& client)
+	{
+		// TODO: Have these return json objects that can be written to a file in the player save directory?
 		// Choose and create a random task from the available pool.
-		const auto& randomTask = taskTypePool[RandomNumber(0, taskTypePool.size() - 1)];
+		const auto& randomTask = global->taskTypePool[RandomNumber(0, global->taskTypePool.size() - 1)];
 
 		if (randomTask == "Acquire Items")
 		{
@@ -146,7 +162,7 @@ namespace Plugins::DailyTasks
 	}
 
 	// Function: Assigns a daily task to a character.
-	void AssignDailyTask()
+	void AssignDailyTask(ClientId& client)
 	{
 		// TODO: Create and implement this function.
 	}
@@ -163,9 +179,11 @@ namespace Plugins::DailyTasks
 		// TODO: Create and implement this function.
 	}
 
+	// TODO: Remove /gen
 	// Define usable chat commands here
 	const std::vector commands = {{
-	    CreateUserCommand(L"/showdailies", L"", GenerateDailyTask, L"Shows a list of current daily tasks for the user"),
+	    CreateUserCommand(L"/showdailies", L"", UserCmdShowDailyTasks, L"Shows a list of current daily tasks for the user"),
+	    CreateUserCommand(L"/gen", L"", GenerateDailyTask, L"Generates a daily task for testing"),
 	}};
 
 } // namespace Plugins::DailyTasks
@@ -190,5 +208,9 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	// pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &GenerateDailyTask);
+
+	//pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
+	//pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &ItemSold);
+	//pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &ItemAcquired);
+	//pi->emplaceHook(HookedCall::IServerImpl__TractorObjects, &ItemAcquired);
 }
