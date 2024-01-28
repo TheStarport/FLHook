@@ -23,19 +23,19 @@ namespace Plugins::DailyTasks
 		// Check if task config values are populated. If they're populated, add them to the pool.
 		if (!global->config->taskItemAcquisitionTargets.empty())
 		{
-			global->taskTypePool.emplace_back("Acquire Items");
+			global->taskTypePool.emplace_back(0);
 		}
 		if (!global->config->taskNpcKillTargets.empty())
 		{
-			global->taskTypePool.emplace_back("Kill NPCs");
+			global->taskTypePool.emplace_back(1);
 		}
 		if (!global->config->taskPlayerKillTargets.empty())
 		{
-			global->taskTypePool.emplace_back("Kill Players");
+			global->taskTypePool.emplace_back(2);
 		}
 		if (!global->config->taskTradeBaseTargets.empty() && !global->config->taskTradeItemTargets.empty())
 		{
-			global->taskTypePool.emplace_back("Sell Cargo");
+			global->taskTypePool.emplace_back(3);
 		}
 
 		// Check if taskTypePool is empty after these checks and if so throw an error in the console.
@@ -44,12 +44,10 @@ namespace Plugins::DailyTasks
 			AddLog(LogType::Normal, LogLevel::Err, "No tasks have been defined in daily_tasks.json. No daily tasks will be generated.");
 			return;
 		}
+
 		AddLog(LogType::Normal,
 		    LogLevel::Info,
 		    std::format("{} possible random daily tasks have been loaded into the pool.", static_cast<int>(global->taskTypePool.size())));
-
-		// Load the string DLLS
-		Hk::Message::LoadStringDLLs();
 
 		// TODO: Include taskTradeBaseTargets in this set of loops.
 		// Convert the config inputs into something we can work with.
@@ -89,6 +87,12 @@ namespace Plugins::DailyTasks
 		return outputId;
 	}
 
+	// Function: Generates a reward
+	// std::map<uint, int> CreateReward()
+	//{
+	//	// TODO: Create and implement this function.
+	//}
+
 	// Function: Keeps track of time.
 	void DailyTimerTick()
 	{
@@ -100,7 +104,7 @@ namespace Plugins::DailyTasks
 		// TODO: Create and implement this function.
 	}
 
-	//Function: Brief hook on ship destroyed to see if a task needs to be updated.
+	// Function: Brief hook on ship destroyed to see if a task needs to be updated.
 	void ShipDestroyed()
 	{
 	}
@@ -122,8 +126,9 @@ namespace Plugins::DailyTasks
 		// Choose and create a random task from the available pool.
 		const auto& randomTask = global->taskTypePool[RandomNumber(0, global->taskTypePool.size() - 1)];
 
-		if (randomTask == "Acquire Items")
+		if (randomTask == 0)
 		{
+			// Create an item acquisition task
 			auto itemAcquisitionTarget = RandomIdKey(global->taskItemAcquisitionTargets);
 			auto itemQuantity =
 			    RandomNumber(global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[0], global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[1]);
@@ -131,8 +136,9 @@ namespace Plugins::DailyTasks
 			auto taskDescription = std::format("Acquire {} units of {}", itemQuantity, wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)));
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating an 'Acquire Items' task to '{}'", taskDescription));
 		}
-		if (randomTask == "Kill NPCs")
+		if (randomTask == 1)
 		{
+			// Create an NPC kill task
 			const auto& npcFactionTarget = RandomIdKey(global->taskNpcKillTargets);
 			auto npcQuantity = RandomNumber(global->taskNpcKillTargets.at(npcFactionTarget)[0], global->taskNpcKillTargets.at(npcFactionTarget)[1]);
 			uint npcFactionIds;
@@ -140,14 +146,16 @@ namespace Plugins::DailyTasks
 			auto taskDescription = std::format("Destroy {} ships belonging to the {}", npcQuantity, wstos(Hk::Message::GetWStringFromIdS(npcFactionIds)));
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill NPCs' task to '{}'", taskDescription));
 		}
-		if (randomTask == "Kill Players")
+		if (randomTask == 2)
 		{
+			// Create a player kill task
 			auto playerQuantity = RandomNumber(global->config->taskPlayerKillTargets[0], global->config->taskPlayerKillTargets[1]);
 			auto taskDescription = std::format("Destroy {} player ships", playerQuantity);
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill Players' task to '{}'", taskDescription));
 		}
-		if (randomTask == "Sell Cargo")
+		if (randomTask == 3)
 		{
+			// Create a trade task
 			const auto& tradeBaseTarget = global->config->taskTradeBaseTargets[RandomNumber(0, global->config->taskTradeBaseTargets.size())];
 			auto tradeItemTarget = RandomIdKey(global->taskTradeItemTargets);
 			auto tradeItemQuantity = RandomNumber(global->taskTradeItemTargets.at(tradeItemTarget)[0], global->taskTradeItemTargets.at(tradeItemTarget)[1]);
@@ -209,8 +217,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 
-	//pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
-	//pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &ItemSold);
-	//pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &ItemAcquired);
-	//pi->emplaceHook(HookedCall::IServerImpl__TractorObjects, &ItemAcquired);
+	// pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
+	// pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &ItemSold);
+	// pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &ItemAcquired);
+	// pi->emplaceHook(HookedCall::IServerImpl__TractorObjects, &ItemAcquired);
 }
