@@ -96,8 +96,8 @@ std::optional<ShipId> ShipId::GetTarget()
     auto& shipVal = ship.Raw().value();
 
     // Returns IObjectRW*, whatever that is.
-    const auto target = shipVal->get_target()->ship;
-    return std::optional(ShipId(target->get_id()));
+    const auto target = shipVal->get_target()->iObjInspectImpl;
+    return std::optional(ShipId(target.get_id()));
 }
 
 Action<RepId, Error> ShipId::GetReputation()

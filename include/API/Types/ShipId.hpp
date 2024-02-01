@@ -43,15 +43,15 @@ class DLL ShipId final : public ObjectId
             }
 
             CEquipTraverser traverser(equipmentType);
-            CEquipManager* manager = GetEquipManager(ship.get());
-            CEquip* equip = manager->Traverse(traverser);
+            CEquipManager& manager = ship.get()->equip_manager;
+            CEquip* equip = manager.Traverse(traverser);
 
             std::list<EquipType*> equipment;
 
             while (equip)
             {
                 equipment.emplace_back(static_cast<EquipType*>(equip));
-                equip = manager->Traverse(traverser);
+                equip = manager.Traverse(traverser);
             }
 
             return { equipment };
