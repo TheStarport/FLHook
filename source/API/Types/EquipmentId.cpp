@@ -27,10 +27,11 @@ Action<EquipmentType, Error> EquipmentId::GetType() const
     static const uint vftTractor = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableTractor);
     static const uint vftLight = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableLight);
 
-    const uint vft = *reinterpret_cast<uint*>(Archetype::GetEquipment(value)); // NOLINT
+    Archetype::Equipment* eq = Archetype::GetEquipment(value);
+    const uint vft = eq->vtable; // NOLINT
     if (vft == vftGun)
     {
-        const Archetype::Gun* gun = reinterpret_cast<Archetype::Gun*>(vft);
+        const Archetype::Gun* gun = reinterpret_cast<Archetype::Gun*>(eq);
         Archetype::Equipment* eqAmmo = Archetype::GetEquipment(gun->projectileArchId);
         int missile;
         memcpy(&missile, reinterpret_cast<char*>(eqAmmo) + 0x90, 4);
