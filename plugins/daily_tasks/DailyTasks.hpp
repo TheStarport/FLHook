@@ -32,6 +32,25 @@ namespace Plugins::DailyTasks
 		std::map<std::string, std::vector<int>> taskNpcKillTargets = {{{"fc_x_grp"}, {{3}, {5}}}, {{"li_n_grp"}, {{10}, {15}}}};
 		//! Possible options for player kill tasks. Parameters are minimum and maximum quantity of kills needed.
 		std::vector<int> taskPlayerKillTargets = {{1}, {3}};
+		//! The server time at which daily tasks will reset.
+		int resetTime = 12;
+	};
+
+	struct Task : Reflectable
+	{
+		int taskType = 0;
+		int quantity = 0;
+		uint itemTarget = 0;
+		uint baseTarget = 0;
+		uint npcFactionTarget = 0;
+		std::string taskDescription;
+		bool isCompleted = false;
+		uint setTime = 0;
+	};
+
+	struct Tasks : Reflectable
+	{
+		std::vector<Task> tasks;
 	};
 
 	struct Global
@@ -44,5 +63,7 @@ namespace Plugins::DailyTasks
 		std::map<uint, std::vector<int>> taskItemAcquisitionTargets;
 		std::map<uint, std::vector<int>> taskNpcKillTargets;
 		std::vector<uint> taskTradeBaseTargets;
+		std::vector<int> taskTypePool;
+		std::map<CAccount*, Tasks> accountTasks;
 	};
 } // namespace Plugins::DailyTasks
