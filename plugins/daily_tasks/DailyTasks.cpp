@@ -1,15 +1,33 @@
-﻿// A plugin that assigns small tasks to players daily, and provides a random reward from a pool of items.
-//
-// This is free software; you can redistribute it and/or modify it as
-// you wish without restriction. If you do then I would appreciate
-// being notified and/or mentioned somewhere.
+﻿/**
+ * @date 2024
+ * @author IrateRedKite
+ * @defgroup DailyTasks Daily Tasks
+ * @brief
+ * The plugin assigns randomly generated tasks to players that they can complete for a reward.
+ *
+ * @paragraph cmds Player Commands
+ * - showtasks - Shows the current tasks assigned to the player's account, time remaining and completion status.
+ * - resettasks - Resets and rerolls the player's assigned tasks. This can be done once per day.
+ * @paragraph adminCmds Admin Commands
+ * -resetalltasks - Resets and rerolls player tasks for all current players on the server, and clears the daily_tasks.json file from each account's folder.
+ *
+ * @paragraph configuration Configuration
+ * @code
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * This plugin does not expose any functionality.
+ */
 
 // Includes
 #include "DailyTasks.hpp"
 #include <ranges>
 #include <random>
 
-// TODO: Tasks only written when assigned for first time OR when a single task is completed to save file writes.
+// TODO: Task Tracking
+// TODO: Task Rewards
+// TODO:Completion State Saving
+// TODO: Usability pass
 
 namespace Plugins::DailyTasks
 {
@@ -92,18 +110,7 @@ namespace Plugins::DailyTasks
 		return outputId;
 	}
 
-	// Function: Keeps track of time.
-	void DailyTimerTick()
-	{
-		int currentHour = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count() % 24;
-		if (currentHour == global->config->resetTime || currentHour == global->config->resetTime + 1 || currentHour == global->config->resetTime + 2)
-		{
-			// TODO: Reset the daily tasks
-			// TODO: Single json file, account name tied to task
-		}
-	}
-
-	// Writes created and assigned tasks to the relevant account's json file.
+	// Function: Saves tasks to an account's daily_tasks.json file
 	void SaveTaskStatusToJson(CAccount* account)
 	{
 		auto& taskList = global->accountTasks.at(account);
@@ -117,18 +124,14 @@ namespace Plugins::DailyTasks
 		    std::format("Saving a task status update to {}\\Accts\\MultiPlayer\\{}\\daily_tasks.json", szDataPath, wstos(taskJsonPath)));
 	}
 
-	// Loads tasks from an account's relevant json file and and checks the date against the current time.
+	// Function: Loads tasks from an account's daily_tasks.json file
 	void LoadTaskStatusFromJson(CAccount* account)
 	{
-		auto& taskList = global->accountTasks.at(account);
 		auto taskJsonPath = Hk::Client::GetAccountDirName(account);
-
 		char szDataPath[MAX_PATH];
 		GetUserDataPath(szDataPath);
-		auto obj = Serializer::JsonToObject<Tasks>(std::format("{}\\Accts\\MultiPlayer\\{}\\daily_tasks.json", szDataPath, wstos(taskJsonPath)), true);
-
-		// auto config = Serializer::JsonToObject<Config>();
-		// global->config = std::make_unique<Config>(std::move(config));
+		auto taskList = Serializer::JsonToObject<Tasks>(std::format("{}\\Accts\\MultiPlayer\\{}\\daily_tasks.json", szDataPath, wstos(taskJsonPath)), true);
+		global->accountTasks[account] = taskList;
 	}
 
 	// Function: Brief hook on ship destroyed to see if a task needs to be updated.
@@ -137,7 +140,7 @@ namespace Plugins::DailyTasks
 		// TODO: Create and implement this function.
 	}
 
-	// Function: Brief hook on ship destroyed to see if a task needs to be updated.
+	// Function: Brief hook on item sold to see if a task needs to be updated.
 	void ItemSold()
 	{
 		// TODO: Create and implement this function.
@@ -168,6 +171,7 @@ namespace Plugins::DailyTasks
 			task.taskType = 0;
 			task.itemTarget = itemAcquisitionTarget;
 			task.quantity = itemQuantity;
+			task.quantityCompleted = 0;
 			task.taskDescription = taskDescription;
 			task.isCompleted = false;
 			task.setTime = Hk::Time::GetUnixSeconds();
@@ -192,6 +196,7 @@ namespace Plugins::DailyTasks
 			task.taskType = 1;
 			task.npcFactionTarget = npcFactionTarget;
 			task.quantity = npcQuantity;
+			task.quantityCompleted = 0;
 			task.taskDescription = taskDescription;
 			task.isCompleted = false;
 			task.setTime = Hk::Time::GetUnixSeconds();
@@ -212,6 +217,7 @@ namespace Plugins::DailyTasks
 			Task task;
 			task.taskType = 2;
 			task.quantity = playerQuantity;
+			task.quantityCompleted = 0;
 			task.taskDescription = taskDescription;
 			task.isCompleted = false;
 			task.setTime = Hk::Time::GetUnixSeconds();
@@ -241,6 +247,7 @@ namespace Plugins::DailyTasks
 			task.baseTarget = tradeBaseTarget;
 			task.itemTarget = tradeItemTarget;
 			task.quantity = tradeItemQuantity;
+			task.quantityCompleted = 0;
 			task.taskDescription = taskDescription;
 			task.isCompleted = false;
 			task.setTime = Hk::Time::GetUnixSeconds();
@@ -253,6 +260,46 @@ namespace Plugins::DailyTasks
 		}
 	}
 
+	// Function: Keeps track of time.
+	void DailyTimerTick()
+	{
+		// Checks the current hour to see if global->dailyReset should be flipped back to false
+		if (int currentHour =
+		        std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count() % 24 == global->config->resetTime ||
+		        currentHour == global->config->resetTime + 1 && global->dailyReset == false)
+		{
+			global->dailyReset = true;
+			global->tasksReset.clear();
+		}
+		else
+		{
+			global->dailyReset = false;
+		}
+
+		// Iterates over online players and checks the time status of their tasks, clearing and resetting them if they exceed 24 hours.
+		auto onlinePlayers = Hk::Admin::GetPlayers();
+		auto currentTime = Hk::Time::GetUnixSeconds();
+		for (auto& players : onlinePlayers)
+		{
+			auto account = Hk::Client::GetAccountByClientID(players.client);
+			auto accountId = account->wszAccId;
+
+			for (auto& tasks : global->accountTasks[account].tasks)
+			{
+				if ((currentTime - tasks.setTime) > 86400)
+				{
+					AddLog(
+					    LogType::Normal, LogLevel::Debug, std::format("Tasks for {} are out of date, refreshing and creating new tasks...", wstos(accountId)));
+					global->accountTasks[account].tasks.erase(global->accountTasks[account].tasks.begin(), global->accountTasks[account].tasks.end());
+					for (int i = 0; i < global->config->taskQuantity; i++)
+					{
+						GenerateDailyTask(account);
+					}
+				}
+			}
+		}
+	}
+
 	// Function: A command to display the current daily tasks a player has.
 	void UserCmdShowDailyTasks(ClientId& client, const std::wstring& param)
 	{
@@ -260,52 +307,139 @@ namespace Plugins::DailyTasks
 		PrintUserCmdText(client, L"CURRENT DAILY TASKS");
 		for (auto& task : global->accountTasks[account].tasks)
 		{
+			int taskExpiry = ((86400 - (Hk::Time::GetUnixSeconds() - task.setTime)) / 60) / 60;
 			if (!task.isCompleted)
 			{
-				PrintUserCmdText(client, stows(task.taskDescription));
+				// PrintUserCmdText(client, stows(task.taskDescription + std::format(" expires in {} hours", taskExpiry)));
+				PrintUserCmdText(client, std::format(L"{} expires in {} hours", stows(task.taskDescription), taskExpiry));
 			}
 			else
 			{
-				PrintUserCmdText(client, stows(task.taskDescription + "TASK COMPLETED"));
+				PrintUserCmdText(client, stows(task.taskDescription + " TASK COMPLETED"));
 			}
 		}
 	}
 
 	// Function: A command to reset user tasks.
-	void UserCmdResetUserDailyTasks()
+	void UserCmdResetDailyTasks(ClientId& client, const std::wstring& param)
 	{
-		// TODO: Create and implement this function.
+		auto account = Hk::Client::GetAccountByClientID(client);
+		auto accountId = account->wszAccId;
+
+		for (auto& tasks : global->accountTasks[account].tasks)
+		{
+			if (tasks.isCompleted == true)
+			{
+				PrintUserCmdText(client,
+				    std::format(L"You have completed one or more of your daily tasks today, and cannot reset them until {}:00", global->config->resetTime));
+				break;
+			}
+		}
+
+		if (global->tasksReset[account] == false)
+		{
+			AddLog(LogType::Normal, LogLevel::Debug, std::format("{} is resetting their daily tasks.", wstos(accountId)));
+
+			global->accountTasks[account].tasks.erase(global->accountTasks[account].tasks.begin(), global->accountTasks[account].tasks.end());
+			for (int i = 0; i < global->config->taskQuantity; i++)
+			{
+				GenerateDailyTask(account);
+			}
+
+			global->tasksReset[account] = true;
+			SaveTaskStatusToJson(account);
+			PrintUserCmdText(client, L"Your daily tasks have been reset.");
+		}
+		else
+		{
+			PrintUserCmdText(client, L"You've already reset your daily tasks for today.");
+		}
+	}
+
+	// Function: Resets tasks for all currently online players and clears account folders of daily_task.json files.
+	void AdminCmdResetAllTasks(CCmds* cmds)
+	{
+		if (!(cmds->rights & RIGHT_SUPERADMIN))
+		{
+			cmds->Print("ERR No permission");
+			return;
+		}
 	}
 
 	// Function: Hook on player login to assign and check tasks.
 	void OnLogin([[maybe_unused]] struct SLoginInfo const& li, ClientId& client)
 	{
 		auto account = Hk::Client::GetAccountByClientID(client);
+		auto accountId = account->wszAccId;
+		LoadTaskStatusFromJson(account);
 
-		for (int i = 0; i < global->config->taskQuantity; i++)
+		if (global->accountTasks[account].tasks.empty())
 		{
-			GenerateDailyTask(account);
+			AddLog(LogType::Normal, LogLevel::Debug, std::format("No tasks saved for {}, creating new tasks...", wstos(accountId)));
+			for (int i = 0; i < global->config->taskQuantity; i++)
+			{
+				GenerateDailyTask(account);
+			}
+			SaveTaskStatusToJson(account);
+			return;
 		}
+		else
+		{
+			auto currentTime = Hk::Time::GetUnixSeconds();
 
-		SaveTaskStatusToJson(account);
+			for (auto& task : global->accountTasks[account].tasks)
+			{
+				AddLog(LogType::Normal, LogLevel::Debug, std::format("Loading tasks for {} from stored json file...", wstos(accountId)));
+				// If tasks are older than 24 hours, refresh them.
+				if ((currentTime - task.setTime) > 86400)
+				{
+					AddLog(
+					    LogType::Normal, LogLevel::Debug, std::format("Tasks for {} are out of date, refreshing and creating new tasks...", wstos(accountId)));
+					global->accountTasks[account].tasks.erase(global->accountTasks[account].tasks.begin(), global->accountTasks[account].tasks.end());
+					for (int i = 0; i < global->config->taskQuantity; i++)
+					{
+						GenerateDailyTask(account);
+					}
+				}
+
+				SaveTaskStatusToJson(account);
+				return;
+			}
+		}
 	}
 
-	// Define usable chat commands here
 	const std::vector commands = {{
-	    CreateUserCommand(L"/showdailies", L"", UserCmdShowDailyTasks, L"Shows a list of current daily tasks for the user"),
+	    CreateUserCommand(L"/showtasks", L"", UserCmdShowDailyTasks, L"Shows a list of current daily tasks for the user"),
+	    CreateUserCommand(L"/resettasks", L"", UserCmdResetDailyTasks, L"Resets the user's daily tasks if none have already been completed"),
 	}};
+
+	bool ExecuteCommandString(CCmds* cmds, const std::wstring& cmd)
+	{
+		if (cmd == L"template")
+		{
+			AdminCmdResetAllTasks(cmds);
+		}
+		else
+		{
+			return false;
+		}
+
+		global->returnCode = ReturnCode::SkipAll;
+		return true;
+	}
 
 } // namespace Plugins::DailyTasks
 
 using namespace Plugins::DailyTasks;
 
-REFL_AUTO(type(Config), field(taskQuantity), field(taskResetAmount), field(minCreditsReward), field(maxCreditsReward), field(itemRewardPool),
-    field(taskTradeBaseTargets), field(taskTradeItemTargets), field(taskItemAcquisitionTargets), field(taskNpcKillTargets), field(taskPlayerKillTargets));
+REFL_AUTO(type(Config), field(taskQuantity), field(minCreditsReward), field(maxCreditsReward), field(itemRewardPool), field(taskTradeBaseTargets),
+    field(taskTradeItemTargets), field(taskItemAcquisitionTargets), field(taskNpcKillTargets), field(taskPlayerKillTargets), field(taskDuration),
+    field(resetTime));
 
 REFL_AUTO(type(Tasks), field(tasks));
 
 REFL_AUTO(type(Task), field(taskType), field(quantity), field(itemTarget), field(baseTarget), field(npcFactionTarget), field(taskDescription),
-    field(isCompleted), field(setTime));
+    field(isCompleted), field(setTime), field(quantityCompleted));
 
 DefaultDllMainSettings(LoadSettings);
 const std::vector<Timer> timers = {{DailyTimerTick, 3600}};

@@ -9,8 +9,6 @@ namespace Plugins::DailyTasks
 	struct Config : Reflectable
 	{
 		std::string File() override { return "config/daily_tasks.json"; }
-		//! The number of times per day, a player may reset and reroll their assigned daily tasks.
-		int taskResetAmount = 1;
 		//! The number of randomly generated tasks a player will receive each day.
 		int taskQuantity = 3;
 		//! The minimum possible amount of credits that can be awarded for completing a daily task.
@@ -32,14 +30,17 @@ namespace Plugins::DailyTasks
 		std::map<std::string, std::vector<int>> taskNpcKillTargets = {{{"fc_x_grp"}, {{3}, {5}}}, {{"li_n_grp"}, {{10}, {15}}}};
 		//! Possible options for player kill tasks. Parameters are minimum and maximum quantity of kills needed.
 		std::vector<int> taskPlayerKillTargets = {{1}, {3}};
-		//! The server time at which daily tasks will reset.
+		//! The server hour at which players will be able to use the reset tasks command again.
 		int resetTime = 12;
+		//! The amount of time in seconds a player has to complete a set of assigned tasks before they get cleaned up during the hourly check or at login.
+		int taskDuration = 86400;
 	};
 
 	struct Task : Reflectable
 	{
 		int taskType = 0;
 		int quantity = 0;
+		int quantityCompleted = 0;
 		uint itemTarget = 0;
 		uint baseTarget = 0;
 		uint npcFactionTarget = 0;
@@ -65,5 +66,7 @@ namespace Plugins::DailyTasks
 		std::vector<uint> taskTradeBaseTargets;
 		std::vector<int> taskTypePool;
 		std::map<CAccount*, Tasks> accountTasks;
+		std::map<CAccount*, bool> tasksReset;
+		bool dailyReset;
 	};
 } // namespace Plugins::DailyTasks
