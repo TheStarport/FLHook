@@ -24,10 +24,12 @@
 #include <ranges>
 #include <random>
 
-// TODO: Task Tracking
 // TODO: Task Rewards
-// TODO:Completion State Saving
+// TODO:Completion State Saving on Dock
+// TODO: Hook on tractor item for acquire
+// TODO: Handle disconnects
 // TODO: Usability pass
+// TODO: Admin commands
 
 namespace Plugins::DailyTasks
 {
@@ -134,23 +136,132 @@ namespace Plugins::DailyTasks
 		global->accountTasks[account] = taskList;
 	}
 
-	// Function: Brief hook on ship destroyed to see if a task needs to be updated.
-	void ShipDestroyed()
+	// Function: Generates and awards a reward from the pool.
+	void GenerateReward(ClientId& client)
 	{
-		// TODO: Create and implement this function.
+		auto character = Hk::Client::GetCharacterNameByID(client).value();
+		auto creditReward = RandomNumber(global->config->minCreditsReward, global->config->minCreditsReward);
+		auto& itemReward = global->itemRewardPool[RandomNumber(0, global->itemRewardPool.size() - 1)];
+		auto itemRewardQuantity = RandomNumber(itemReward.at(1), itemReward.at(2));
+
+		Hk::Player::AddCash(character, creditReward);
+		// Hk::Player::AddCargo(client, itemReward, itemRewardQuantity, false)
+	}
+
+	// Function: Brief hook on ship destroyed to see if a task needs to be updated.
+	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, const DWORD** ecx, const uint& kill)
+	{
+		if (kill == 1)
+		{
+			const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
+			if (ClientId client = cShip->GetOwnerPlayer())
+			{
+				const DamageList* dmg = *_dmg;
+				const auto killerId = Hk::Client::GetClientIdByShip(
+				    dmg->get_cause() == DamageCause::Unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
+				const auto victimId = Hk::Client::GetClientIdByShip(cShip->get_id());
+				for (auto& task : global->accountTasks[Hk::Client::GetAccountByClientID(killerId.value())].tasks)
+				{
+					if (task.taskType == 2 && task.isCompleted == false && victimId.has_value())
+					{
+						task.quantityCompleted++;
+					}
+					if (task.quantityCompleted == task.quantity && task.taskType == 2 && task.isCompleted == false)
+					{
+						task.isCompleted = true;
+						SaveTaskStatusToJson(Hk::Client::GetAccountByClientID(killerId.value()));
+						PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
+						Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
+						// TODO: Reward
+					}
+				}
+			}
+			else
+			{
+				const DamageList* dmg = *_dmg;
+				const auto killerId = Hk::Client::GetClientIdByShip(
+				    dmg->get_cause() == DamageCause::Unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
+				int reputation;
+				pub::SpaceObj::GetRep(cShip->get_id(), reputation);
+				uint affiliation;
+				pub::Reputation::GetAffiliation(reputation, affiliation);
+
+				for (auto& task : global->accountTasks[Hk::Client::GetAccountByClientID(killerId.value())].tasks)
+				{
+					if (task.taskType == 1 && task.isCompleted == false && task.npcFactionTarget == affiliation)
+					{
+						task.quantityCompleted++;
+					}
+					if (task.quantityCompleted == task.quantity && task.taskType == 1 && task.isCompleted == false && task.npcFactionTarget == affiliation)
+					{
+						task.isCompleted = true;
+						SaveTaskStatusToJson(Hk::Client::GetAccountByClientID(killerId.value()));
+						PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
+						Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
+						// TODO: Reward
+					}
+				}
+			}
+		}
 	}
 
 	// Function: Brief hook on item sold to see if a task needs to be updated.
-	void ItemSold()
+	void ItemSold(const struct SGFGoodSellInfo& gsi, ClientId& client)
 	{
-		// TODO: Create and implement this function.
+		auto base = Hk::Player::GetCurrentBase(client);
+		auto account = Hk::Client::GetAccountByClientID(client);
+		for (auto& task : global->accountTasks[account].tasks)
+		{
+			if (task.baseTarget == base.value() && task.itemTarget == gsi.iArchId && task.taskType == 3 && task.isCompleted == false)
+			{
+				task.quantityCompleted += gsi.iCount;
+			}
+			// Check here to ensure that task.quantityCompleted doesn't drop below 0
+			if (task.itemTarget == gsi.iArchId && task.taskType == 0 && task.isCompleted == false)
+			{
+				task.quantityCompleted -= gsi.iCount;
+			}
+			if (task.quantityCompleted >= task.quantity && task.taskType == 3 && task.isCompleted == false)
+			{
+				task.isCompleted = true;
+				SaveTaskStatusToJson(account);
+				PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
+				Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
+				// TODO: Reward
+			}
+		}
 	}
 	// Function: Brief hook on item bought to see if a task needs to be updated.
-	void ItemAcquired()
+	void ItemPurchased(struct SGFGoodBuyInfo const& gbi, ClientId& client)
+	{
+		auto base = Hk::Player::GetCurrentBase(client);
+		auto account = Hk::Client::GetAccountByClientID(client);
+		for (auto& task : global->accountTasks[account].tasks)
+		{
+			if (task.itemTarget == gbi.iGoodId && task.taskType == 0 && task.isCompleted == false)
+			{
+				task.quantityCompleted += gbi.iCount;
+			}
+			if (task.baseTarget == base.value() && task.itemTarget == gbi.iGoodId && task.taskType == 3 && task.isCompleted == false &&
+			    task.quantityCompleted > gbi.iCount)
+			{
+				task.quantityCompleted -= gbi.iCount;
+			}
+			if (task.quantityCompleted >= task.quantity && task.taskType == 0 && task.isCompleted == false)
+			{
+				task.isCompleted = true;
+				SaveTaskStatusToJson(account);
+				PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
+				Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
+				// TODO: Reward
+			}
+		}
+	}
+	// Function: Brief hook on item tractored to see if a task needs to be updated.
+	void ItemTractored(ClientId& client, [[maybe_unused]] struct XTractorObjects const& objs)
 	{
 		// TODO: Create and implement this function.
 	}
-
 	// Function: Generates a daily task.
 	void GenerateDailyTask(CAccount* account)
 	{
@@ -164,7 +275,7 @@ namespace Plugins::DailyTasks
 			auto itemQuantity =
 			    RandomNumber(global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[0], global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[1]);
 			auto itemArch = Archetype::GetEquipment(itemAcquisitionTarget);
-			auto taskDescription = std::format("Acquire {} units of {}", itemQuantity, wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)));
+			auto taskDescription = std::format("Acquire {} units of {}.", itemQuantity, wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)));
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating an 'Acquire Items' task to '{}'", taskDescription));
 
 			Task task;
@@ -189,7 +300,7 @@ namespace Plugins::DailyTasks
 			auto npcQuantity = RandomNumber(global->taskNpcKillTargets.at(npcFactionTarget)[0], global->taskNpcKillTargets.at(npcFactionTarget)[1]);
 			uint npcFactionIds;
 			pub::Reputation::GetGroupName(npcFactionTarget, npcFactionIds);
-			auto taskDescription = std::format("Destroy {} ships belonging to the {}", npcQuantity, wstos(Hk::Message::GetWStringFromIdS(npcFactionIds)));
+			auto taskDescription = std::format("Destroy {} ships belonging to the {}.", npcQuantity, wstos(Hk::Message::GetWStringFromIdS(npcFactionIds)));
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill NPCs' task to '{}'", taskDescription));
 
 			Task task;
@@ -211,7 +322,7 @@ namespace Plugins::DailyTasks
 		{
 			// Create a player kill task
 			auto playerQuantity = RandomNumber(global->config->taskPlayerKillTargets[0], global->config->taskPlayerKillTargets[1]);
-			auto taskDescription = std::format("Destroy {} player ships", playerQuantity);
+			auto taskDescription = std::format("Destroy {} player ships.", playerQuantity);
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill Players' task to '{}'", taskDescription));
 
 			Task task;
@@ -236,7 +347,7 @@ namespace Plugins::DailyTasks
 			auto tradeItemQuantity = RandomNumber(global->taskTradeItemTargets.at(tradeItemTarget)[0], global->taskTradeItemTargets.at(tradeItemTarget)[1]);
 			auto baseArch = Universe::get_base(tradeBaseTarget);
 			auto itemArch = Archetype::GetEquipment(tradeItemTarget);
-			auto taskDescription = std::format("Sell {} units of {} at {}",
+			auto taskDescription = std::format("Sell {} units of {} at {}.",
 			    tradeItemQuantity,
 			    wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)),
 			    wstos(Hk::Message::GetWStringFromIdS(baseArch->baseIdS)));
@@ -310,8 +421,8 @@ namespace Plugins::DailyTasks
 			int taskExpiry = ((86400 - (Hk::Time::GetUnixSeconds() - task.setTime)) / 60) / 60;
 			if (!task.isCompleted)
 			{
-				// PrintUserCmdText(client, stows(task.taskDescription + std::format(" expires in {} hours", taskExpiry)));
-				PrintUserCmdText(client, std::format(L"{} expires in {} hours", stows(task.taskDescription), taskExpiry));
+				PrintUserCmdText(client,
+				    std::format(L"{} Expires in {} hours. {}/{} remaining.", stows(task.taskDescription), taskExpiry, task.quantityCompleted, task.quantity));
 			}
 			else
 			{
@@ -457,9 +568,8 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__Login, &OnLogin, HookStep::After);
-
-	// pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
-	// pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &ItemSold);
-	// pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &ItemAcquired);
+	pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &ItemPurchased);
+	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
+	pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &ItemSold);
 	// pi->emplaceHook(HookedCall::IServerImpl__TractorObjects, &ItemAcquired);
 }
