@@ -67,7 +67,15 @@ namespace Plugins::Autobuy
 
 	void handleRepairs(ClientId& client)
 	{
-		auto repairCost = static_cast<uint>(Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * (1 - Players[client].fRelativeHealth) / 3);
+		auto base = Hk::Player::GetCurrentBase(client);
+
+		// If there is no error with finding the base the correct repair cost can be calculated
+		auto baseCost = 0.33;
+		if (base.has_value())
+		{
+			baseCost = BaseDataList_get()->get_base_data(base.value())->get_ship_repair_cost();
+		}
+		auto repairCost = static_cast<uint>((1 - Players[client].fRelativeHealth) * Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * baseCost);
 
 		std::set<short> eqToFix;
 
@@ -530,8 +538,8 @@ namespace Plugins::Autobuy
 		auto config = Serializer::JsonToObject<Config>();
 		global->config = std::make_unique<Config>(config);
 
-		// Get ammo limit
-		for (const auto& iniPath : global->config->iniPaths)
+		// Get ammo limits
+		for (const auto& iniPath : global->config->ammoIniPaths)
 		{
 			INI_Reader ini;
 			if (!ini.open(iniPath.c_str(), false))
@@ -563,7 +571,7 @@ namespace Plugins::Autobuy
 
 					if (valid)
 					{
-						global->ammoLimits[itemname] = itemlimit;
+						global->ammoLimits.insert(std::pair<uint, int>(itemname, itemlimit));
 					}
 				}
 			}
@@ -573,7 +581,7 @@ namespace Plugins::Autobuy
 
 using namespace Plugins::Autobuy;
 
-REFL_AUTO(type(Config), field(nanobot_nickname), field(shield_battery_nickname), field(iniPaths))
+REFL_AUTO(type(Config), field(nanobot_nickname), field(shield_battery_nickname), field(ammoIniPaths))
 
 DefaultDllMainSettings(LoadSettings);
 

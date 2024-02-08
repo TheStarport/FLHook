@@ -40,7 +40,7 @@ namespace Plugins::Autobuy
 		std::string shield_battery_nickname = "ge_s_battery_01";
 
 		// paths to inis which should be read for ammo limits
-		std::vector<std::string> iniPaths 
+		std::vector<std::string> ammoIniPaths 
 		{
 			R"(..\data\equipment\light_equip.ini)",
 			R"(..\data\equipment\select_equip.ini)",

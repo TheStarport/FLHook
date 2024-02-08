@@ -1,4 +1,8 @@
 # Changelog
+## 4.0.20
+- Fixed issue where repair cost was not fetched from base inis.
+- Fixed CargoDrop and Condata that wouldn't compile as a result of a breaking SDK change.
+
 ## 4.0.19
 - Updated the SonarScan to use version 17 of Java, as 11 is no longer working and causes the pipeline to fail.
 - Updated SonarScan to 5.0.1.3006
