@@ -28,6 +28,32 @@ __declspec(naked) void IEngineHook::NakedCShipDestroy()
     }
 }
 
+void __stdcall IEngineHook::CLootDestroy(CLoot* loot) { CallPlugins(&Plugin::OnCLootDestroy, loot); }
+
+__declspec(naked) void IEngineHook::NakedCLootDestroy()
+{
+    __asm {
+        push ecx
+        push ecx
+        call CLootDestroy
+        pop ecx
+        jmp oldDestroyCLoot
+    }
+}
+
+void __stdcall IEngineHook::CSolarDestroy(CSolar* solar) { CallPlugins(&Plugin::OnCSolarDestroy, solar); }
+
+__declspec(naked) void IEngineHook::NakedCSolarDestroy()
+{
+    __asm {
+        push ecx
+        push ecx
+        call CSolarDestroy
+        pop ecx
+        jmp oldDestroyCSolar
+    }
+}
+
 int IEngineHook::FreeReputationVibe(const int& p1)
 {
     __asm {

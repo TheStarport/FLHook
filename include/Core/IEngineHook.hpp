@@ -20,6 +20,8 @@ class IEngineHook
 
         inline static FARPROC oldInitCShip;
         inline static FARPROC oldDestroyCShip;
+        inline static FARPROC oldDestroyCLoot;
+        inline static FARPROC oldDestroyCSolar;
         inline static FARPROC oldLoadReputationFromCharacterFile;
         inline static FARPROC oldLaunchPosition;
         inline static FARPROC oldGuidedHit;
@@ -32,6 +34,8 @@ class IEngineHook
         inline static uint lastTicks;
 
         static void __stdcall CShipDestroy(CShip* ship);
+        static void __stdcall CLootDestroy(CLoot* loot);
+        static void __stdcall CSolarDestroy(CSolar* solar);
         static int FreeReputationVibe(const int& p1);
         static void UpdateTime(double interval);
         static void __stdcall ElapseTime(float interval);
@@ -42,6 +46,8 @@ class IEngineHook
         static void NakedCShipDestroy();
         static void NakedCShipInit();
         static void NakedShipDestroyed();
+        static void NakedCLootDestroy();
+        static void NakedCSolarDestroy();
         static void NakedGuidedHit();
         static void NakedDamageHit();
         static void NakedDamageHit2();

@@ -32,6 +32,8 @@ FLHook::PatchInfo FLHook::commonPatch = {
 
       { 0x0639C138, &IEngineHook::NakedCShipInit, 4, &IEngineHook::oldInitCShip, false },
       { 0x0639C064, &IEngineHook::NakedCShipDestroy, 4, &IEngineHook::oldDestroyCShip, false },
+      { 0x0639D854, &IEngineHook::NakedCLootDestroy, 4, &IEngineHook::oldDestroyCLoot, false },
+      { 0x0639D3FC, &IEngineHook::NakedCSolarDestroy, 4, &IEngineHook::oldDestroyCSolar, false },
       }
 };
 
