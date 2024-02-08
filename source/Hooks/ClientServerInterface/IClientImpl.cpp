@@ -176,7 +176,7 @@ bool IClientImpl::Startup(uint unk1, uint unk2)
         }
         else
         {
-            Logger::Log(LogLevel::Warn, std::format(L"System {} could not be loaded!", system->nickname));
+            Logger::Log(LogLevel::Warn, std::format(L"System {} could not be loaded!", StringUtils::stows(system->nickname)));
         }
         system = Universe::GetNextSystem();
     }
