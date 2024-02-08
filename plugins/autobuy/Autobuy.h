@@ -50,14 +50,6 @@ namespace Plugins::Autobuy
 			R"(..\data\equipment\weapon_equip.ini)",
 			R"(..\data\equipment\prop_equip.ini)"
 		};
-
-		//paths to inis which should be read for repair cost
-		std::vector<std::string> baseIniPaths 
-		{
-			R"(..\data\universe\systems\li01\bases\li01_01_base.ini)", 
-			R"(..\data\universe\systems\rh02\bases\rh02_06_base.ini)", 
-			R"(..\data\universe\systems\intro\bases\intro1_base.ini)"
-		};
 	};
 
 	struct Global final
@@ -66,7 +58,6 @@ namespace Plugins::Autobuy
 		std::map<uint, AutobuyInfo> autobuyInfo;
 		ReturnCode returnCode = ReturnCode::Default;
 		std::unordered_map<uint, int> ammoLimits;
-		std::unordered_map<uint, int> repairCosts;
 	};
 
 } // namespace Plugins::Autobuy

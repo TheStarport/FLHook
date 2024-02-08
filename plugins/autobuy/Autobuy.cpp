@@ -68,14 +68,14 @@ namespace Plugins::Autobuy
 	void handleRepairs(ClientId& client)
 	{
 		auto base = Hk::Player::GetCurrentBase(client);
-		auto repairCost = static_cast<uint>((1-Players[client].fRelativeHealth) * Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * 0.33);
 
-		// If there is no error with finding the base and there is a custom repair cost
-		// defined in the .ini the correct repair cost can be calculated
-		if (base.has_value() && global->repairCosts.contains(base.value()))
+		// If there is no error with finding the base the correct repair cost can be calculated
+		auto baseCost = 0.33;
+		if (base.has_value())
 		{
-			repairCost = static_cast<uint>((1-Players[client].fRelativeHealth) * Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * global->repairCosts[base.value()]);
+			auto baseCost = BaseDataList_get()->get_base_data(base.value())->get_ship_repair_cost();
 		}
+		auto repairCost = static_cast<uint>((1 - Players[client].fRelativeHealth) * Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * baseCost);
 
 		std::set<short> eqToFix;
 
@@ -572,45 +572,6 @@ namespace Plugins::Autobuy
 					if (valid)
 					{
 						global->ammoLimits.insert(std::pair<uint, int>(itemname, itemlimit));
-					}
-				}
-			}
-		}
-
-		// Get repair costs
-		for (const auto& iniPath : global->config->baseIniPaths)
-		{
-			INI_Reader ini;
-			if (!ini.open(iniPath.c_str(), false))
-			{
-				Console::ConErr(std::format("Was unable to read repair cost from the following file: {}", iniPath));
-				return;
-			}
-
-			while (ini.read_header())
-			{
-				if (ini.is_header("BaseInfo"))
-				{
-					uint baseNickname = 0;
-					int repairCost = 0;
-					bool valid = false;
-
-					while (ini.read_value())
-					{
-						if (ini.is_value("nickname"))
-						{
-							baseNickname = CreateID(ini.get_value_string(0));
-						}
-						else if (ini.is_value("ship_repair_cost"))
-						{
-							valid = true;
-							repairCost = ini.get_value_int(0);
-						}
-					}
-
-					if (valid)
-					{
-						global->repairCosts.insert(std::pair<uint, int>(baseNickname, repairCost));
 					}
 				}
 			}
