@@ -73,7 +73,7 @@ namespace Plugins::Autobuy
 		auto baseCost = 0.33;
 		if (base.has_value())
 		{
-			auto baseCost = BaseDataList_get()->get_base_data(base.value())->get_ship_repair_cost();
+			baseCost = BaseDataList_get()->get_base_data(base.value())->get_ship_repair_cost();
 		}
 		auto repairCost = static_cast<uint>((1 - Players[client].fRelativeHealth) * Archetype::GetShip(Players[client].shipArchetype)->fHitPoints * baseCost);
 
@@ -581,7 +581,7 @@ namespace Plugins::Autobuy
 
 using namespace Plugins::Autobuy;
 
-REFL_AUTO(type(Config), field(nanobot_nickname), field(shield_battery_nickname), field(ammoIniPaths), field(baseIniPaths))
+REFL_AUTO(type(Config), field(nanobot_nickname), field(shield_battery_nickname), field(ammoIniPaths))
 
 DefaultDllMainSettings(LoadSettings);
 
