@@ -163,9 +163,22 @@ bool IClientImpl::Startup(uint unk1, uint unk2)
         bi.baseName = StringUtils::stows(name);
         bi.baseId = CreateID(name);
         bases.emplace_back(bi);
-        pub::System::LoadSystem(base->systemId);
 
         base = Universe::GetNextBase();
+    }
+
+    Universe::ISystem* system = Universe::GetFirstSystem();
+    while (system)
+    {
+        if (!std::string(system->file).empty())
+        {
+            pub::System::LoadSystem(system->id);
+        }
+        else
+        {
+            Logger::Log(LogLevel::Warn, std::format(L"System {} could not be loaded!", system->nickname));
+        }
+        system = Universe::GetNextSystem();
     }
 
     bool retVal;
