@@ -265,7 +265,7 @@ namespace Plugins::ConData
 			return; // ??? 8[
 
 		const mstime timeNow = Hk::Time::GetUnixMiliseconds();
-		const auto timestamp = static_cast<mstime>(ui.fTimestamp * 1000);
+		const auto timestamp = static_cast<mstime>(ui.dTimestamp * 1000);
 
 		auto& con = global->connections[client];
 

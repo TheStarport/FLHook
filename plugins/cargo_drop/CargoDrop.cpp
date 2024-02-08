@@ -85,7 +85,7 @@ namespace Plugins::CargoDrop
 				// Simulate an obj update to stop the ship in space.
 				SSPObjUpdateInfo updateInfo {};
 				snd.lastTimestamp += 1.0;
-				updateInfo.fTimestamp = static_cast<float>(snd.lastTimestamp);
+				updateInfo.dTimestamp = snd.lastTimestamp;
 				updateInfo.cState = 0;
 				updateInfo.fThrottle = 0;
 				updateInfo.vPos = snd.lastPosition;
@@ -201,7 +201,7 @@ namespace Plugins::CargoDrop
 	 */
 	void SPObjUpdate(struct SSPObjUpdateInfo const& ui, ClientId& client)
 	{
-		global->info[client].lastTimestamp = ui.fTimestamp;
+		global->info[client].lastTimestamp = ui.dTimestamp;
 		global->info[client].lastPosition = ui.vPos;
 		global->info[client].lastDirection = ui.vDir;
 	}
