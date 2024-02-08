@@ -1,4 +1,7 @@
 # Changelog
+## 4.0.20
+- Fixed issue where repair cost was not fetched from base inis.
+
 ## 4.0.19
 - Updated the SonarScan to use version 17 of Java, as 11 is no longer working and causes the pipeline to fail.
 - Updated SonarScan to 5.0.1.3006
@@ -9,9 +12,6 @@
 
 ## 4.0.17
 - Provided configs for 0x86AEC, 0x84018, 0xD3D6E and 0x58F46 in server.dll in crash catcher. These offsets were hardcoding several values that are often changed by mods manually relating to NPC spawn and scanner range. 0 values disables each respective hook.
-
-## 4.0.17
-- Fixed issue where repair cost was not fetched from base inis.
 
 ## 4.0.16
 - Removed a PrintUserCmd from Autobuy that was printing on every repair.
