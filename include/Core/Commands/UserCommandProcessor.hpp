@@ -25,7 +25,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         void Help(std::wstring_view module, std::wstring_view command);
 
         // clang-format off
-        constexpr inline static std::array<CommandInfo<UserCommandProcessor>, 15> commands = {
+        constexpr inline static std::array<CommandInfo<UserCommandProcessor>, 19> commands = {
             {AddCommand(UserCommandProcessor, L"/ids", GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
              AddCommand(UserCommandProcessor, L"/setdiemsgsize", SetDieMessageFontSize, L"/setdiemsgsize [option]",
              L"Sets the text size of death chatConfig. Use without parameters to see available options."),
@@ -44,9 +44,13 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              //AddCommand(UserCommandProcessor, L"/readmail", ReadMail, L"/readmail <id>", L"prints specified mail."),
              //AddCommand(UserCommandProcessor, L"/listmail", ListMail, L"/listmail [page]", L"lists the mails of the specified page."),
              AddCommand(UserCommandProcessor, L"/givecash", GiveCash, L"/givecash <target> <amount>", L"gives speicified amount of cash to named target"),
+             AddCommand(UserCommandProcessor, L"/gc", GiveCash, L"/gc <target> <amount>", L"gives speicified amount of cash to named target"),
              AddCommand(UserCommandProcessor, L"/givecash$", GiveCashById, L"/givecash <targetId> <amount>", L"gives speicified amount of cash to target"),
-             AddCommand(UserCommandProcessor, L"/sendcash", GiveCash, L"/givecash <target> <amount>", L"gives speicified amount of cash to named target"),
-             AddCommand(UserCommandProcessor, L"/sendcash$", GiveCashById, L"/givecash <targetId> <amount>", L"gives speicified amount of cash to target"),
+             AddCommand(UserCommandProcessor, L"/gc$", GiveCashById, L"/gc$ <targetId> <amount>", L"gives speicified amount of cash to target"),
+             AddCommand(UserCommandProcessor, L"/sendcash", GiveCash, L"/sendcash <target> <amount>", L"gives speicified amount of cash to named target"),
+             AddCommand(UserCommandProcessor, L"/sc", GiveCash, L"/sc <target> <amount>", L"gives speicified amount of cash to named target"),
+             AddCommand(UserCommandProcessor, L"/sendcash$", GiveCashById, L"/sendcash <targetId> <amount>", L"gives speicified amount of cash to target"),
+             AddCommand(UserCommandProcessor, L"/sc$", GiveCashById, L"/sc$ <targetId> <amount>", L"gives speicified amount of cash to target"),
              AddCommand(UserCommandProcessor, L"/help", Help, L"/help [module] [command]", L"Provides indepth help information")}
         };
         // clang-format on
