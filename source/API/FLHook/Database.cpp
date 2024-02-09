@@ -2,26 +2,31 @@
 
 #include "API/FLHook/Database.hpp"
 
+#include <mongocxx/exception/exception.hpp>
+
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
 using bsoncxx::builder::basic::make_document;
 
-Database::Database()
+Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongocxx::options::pool{})
 {
     try
     {
-        const auto mongoURI = mongocxx::uri{ FLHookConfig::i()->databaseConfig.uri };
-        mongocxx::options::client clientOptions;
-        const auto api = mongocxx::options::server_api{ mongocxx::options::server_api::version::k_version_1 };
+        const auto client = pool.acquire();
+        auto db = client->database("FLHook");
 
-        client = { mongoURI, clientOptions };
-        database = client["flhook"];
-        accounts = database["accounts"];
+        mongocxx::write_concern wc;
+        wc.acknowledge_level(mongocxx::write_concern::level::k_unacknowledged);
+        db.write_concern(wc);
+
+        const auto ping = make_document(kvp("ping", 1));
+        db.run_command(ping.view());
     }
-
     catch (std::exception& err)
     {
         Logger::Log(LogLevel::Err, StringUtils::stows(std::string(err.what())));
+        MessageBoxA(nullptr, (std::string("Unable to connect to MongoDB. Cannot start FLHook.\n\n") + err.what()).c_str(), "MongoDB Connection Error", MB_OK);
+        std::quick_exit(-1);
     }
 }
 
@@ -30,6 +35,14 @@ void Database::CreateCharacter(std::string accountId, VanillaLoadData* newPlayer
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
 
+    auto accountsOpt = GetCollection("accounts");
+    if (!accountsOpt.has_value())
+    {
+        // TODO: Log issue
+        return;
+    }
+
+    auto& accounts = accountsOpt.value();
 
     auto dbBaseCostume = make_document(kvp("body", static_cast<long long>(newPlayer->baseCostume.body)),
                                        kvp("head", static_cast<long long>(newPlayer->baseCostume.head)),
@@ -77,22 +90,20 @@ void Database::CreateCharacter(std::string accountId, VanillaLoadData* newPlayer
 
     bsoncxx::builder::basic::array visitArray;
 
-
-    for (auto visit = newPlayer->visitLists.begin(); visit != newPlayer->visitLists.end(); ++visit )
+    for (auto visit = newPlayer->visitLists.begin(); visit != newPlayer->visitLists.end(); ++visit)
     {
-     visitArray.append((static_cast<bsoncxx::types::b_int64>(*visit.key()), static_cast<bsoncxx::types::b_int64>(*visit.value())));
+        visitArray.append(static_cast<bsoncxx::types::b_int64>(visit->key), static_cast<bsoncxx::types::b_int64>(visit->value.visitValue)); // NOLINT
     }
 
     bsoncxx::builder::basic::array reputationArray;
 
-   /* for (const auto& rep : newCharTemplate.reputationOverrides)
+    /*for (const auto& rep : template.reputationOverrides)
     {
         visitArray.append(kvp(rep.first, rep.second));
     }*/
 
-   std::wstring charNameWide =  reinterpret_cast<const wchar_t*>(newPlayer->name.c_str());
-   std::string charName = StringUtils::wstos(charNameWide);
-
+    std::wstring charNameWide = reinterpret_cast<const wchar_t*>(newPlayer->name.c_str());
+    std::string charName = StringUtils::wstos(charNameWide);
 
     // We cast to long long as mongo does not care about sign and we want to prevent any sort of signed overflow
     auto newCharDoc = make_document(kvp("characterName", charName),
@@ -114,10 +125,10 @@ void Database::CreateCharacter(std::string accountId, VanillaLoadData* newPlayer
                                     kvp("reputation", reputationArray),
                                     kvp("visits", visitArray));
 
-    const auto updateDoc = accounts.find_one(make_document(kvp("characterName", charName)).view());
+    const auto updateDoc = accounts.collection.find_one(make_document(kvp("characterName", charName)).view());
     const auto elem = updateDoc.value()["_id"];
     auto str = elem.get_oid().value.to_string();
-    const auto findRes = accounts.find_one(make_document(kvp("_id", accountId)));
+    const auto findRes = accounts.collection.find_one(make_document(kvp("_id", accountId)));
 
     // Update the account's character list to include the newly created character.
     if (!findRes.has_value())
@@ -131,7 +142,51 @@ void Database::CreateCharacter(std::string accountId, VanillaLoadData* newPlayer
 
     characterArray.append(str);
     updateBuilder.append(kvp("$set", make_document(kvp("characters", characterArray))));
-    accounts.update_one(findRes->view(), updateBuilder.view());
+    accounts.collection.update_one(findRes->view(), updateBuilder.view());
+}
+
+std::optional<mongocxx::pool::entry> Database::AcquireClient() { return pool.try_acquire(); }
+
+std::optional<Collection> Database::GetCollection(std::string_view collectionName)
+{
+    try
+    {
+        auto client = pool.acquire();
+        auto db = client->database("FLHook");
+        auto collection = db.collection(collectionName);
+
+        return Collection(std::move(client), std::move(db), std::move(collection));
+    }
+    catch (mongocxx::exception& ex)
+    {
+        Logger::Log(LogLevel::Err, std::format(L"Mongocxx error. Code: {} - Err: {}", ex.code().value(), StringUtils::stows(ex.what())));
+        return std::nullopt;
+    }
+}
+
+std::optional<Collection> Database::CreateCollection(std::string_view collectionName)
+{
+    try
+    {
+        auto client = pool.acquire();
+        auto db = client->database("FLHook");
+
+        if (db.has_collection(collectionName))
+        {
+            return GetCollection(collectionName);
+        }
+
+        auto concern = mongocxx::write_concern{};
+        concern.acknowledge_level(mongocxx::write_concern::level::k_acknowledged);
+        auto collection = db.create_collection(collectionName, {}, concern);
+
+        return Collection(std::move(client), std::move(db), std::move(collection));
+    }
+    catch (mongocxx::exception& ex)
+    {
+        Logger::Log(LogLevel::Err, std::format(L"Mongocxx error. Code: {} - Err: {}", ex.code().value(), StringUtils::stows(ex.what())));
+        return std::nullopt;
+    }
 }
 
 void Database::RemoveValueFromCharacter(std::string character, std::string value)
@@ -139,14 +194,32 @@ void Database::RemoveValueFromCharacter(std::string character, std::string value
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
 
+    auto accountsOpt = GetCollection("accounts");
+    if (!accountsOpt.has_value())
+    {
+        // TODO: Log issue
+        return;
+    }
+
+    auto& accounts = accountsOpt.value();
+
     auto searchDoc = make_document(kvp("character_name", character));
     auto updateDoc = make_document(kvp("$unset", make_document(kvp(value, 0))));
 
-    accounts.update_one(searchDoc.view(), updateDoc.view());
+    accounts.collection.update_one(searchDoc.view(), updateDoc.view());
 }
 
 void Database::RemoveValueFromAccount(AccountId account, std::string value)
 {
+    auto accountsOpt = GetCollection("accounts");
+    if (!accountsOpt.has_value())
+    {
+        // TODO: Log issue
+        return;
+    }
+
+    auto& accounts = accountsOpt.value();
+
     const auto cAcc = account.GetValue();
     auto key = StringUtils::wstos(cAcc->accId);
 
@@ -156,5 +229,5 @@ void Database::RemoveValueFromAccount(AccountId account, std::string value)
     auto searchDoc = make_document(kvp("_id", key));
     auto updateDoc = make_document(kvp("$unset", make_document(kvp(value, 0))));
 
-    accounts.update_one(searchDoc.view(), updateDoc.view());
+    accounts.collection.update_one(searchDoc.view(), updateDoc.view());
 }

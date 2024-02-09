@@ -2,48 +2,49 @@
 
 #include "Utils/Detour.hpp"
 
-
-//TODO: Reputation list and affiliation needs to be figured.
+// TODO: Reputation list and affiliation needs to be figured.
 struct VanillaLoadData
 {
         uint padding[128];
-        st6::wstring name;        // 512
-        st6::wstring description; // 528
-        uint descripStrId;        // 544
-        uint datetimeHigh; // 548
-        uint datetimeLow; // 552
-        uint shipHash;                             // 556
-        uint money;                                // 560
-        uint numOfKills;                           // 564
-        uint numOfSuccessMissions;                 // 568
-        uint numOfFailedMissions;                  // 572
-        float hullStatus;                          // 576
-        st6::list<EquipDesc> currentEquipAndCargo; // 580
+        st6::wstring name;                                    // 512
+        st6::wstring description;                             // 528
+        uint descripStrId;                                    // 544
+        uint datetimeHigh;                                    // 548
+        uint datetimeLow;                                     // 552
+        uint shipHash;                                        // 556
+        uint money;                                           // 560
+        uint numOfKills;                                      // 564
+        uint numOfSuccessMissions;                            // 568
+        uint numOfFailedMissions;                             // 572
+        float hullStatus;                                     // 576
+        st6::list<EquipDesc> currentEquipAndCargo;            // 580
         st6::list<CollisionGroupDesc> currentCollisionGroups; // 592
-        float baseHullStatus;                   // 604
-        st6::list<EquipDesc> baseEquipAndCargo; // 608
-        st6::list<CollisionGroupDesc> baseCollisionGroups; // 620
-        uint currentBase;    // 632
-        uint lastDockedBase; // 636
-        uint currentRoom;    // 640
-        uint system;         // 644
-        Vector pos; //648 - 656
-        Matrix rot; //660 - 692
-        uint startingRing; //696
-        uint rank;                                   // 700
-        st6::vector<Reputation::Relation> repList; //704, TODO:Find out if this rep list is either a vector or map 
-        uint reputationId;                            // 720, see Reputation::get_id();
-        Costume commCostume;                         // 724 - 776
-        uint voiceLen;                               // 780
-        char voice[32];                              // 812
-        Costume baseCostume;                         // 816 - 868
-        uint tempCargoIdEnumerator;                  // 872
-        st6::string prefilledWeaponGroupIni;         // 886
-        st6::list<FmtStr> neuralNetLog;              // 902 - probably wrong, 'log' entries from character file. Also 'mostly' SP only.
-        uint interfaceState;                         // 914
-        uint unused2;                                // 918
-        BinarySearchTree<uint> visitLists;// 922
-    //934
+        float baseHullStatus;                                 // 604
+        st6::list<EquipDesc> baseEquipAndCargo;               // 608
+        st6::list<CollisionGroupDesc> baseCollisionGroups;    // 620
+        uint currentBase;                                     // 632
+        uint lastDockedBase;                                  // 636
+        uint currentRoom;                                     // 640
+        uint system;                                          // 644
+        Vector pos;                                           // 648 - 656
+        Matrix rot;                                           // 660 - 692
+        uint startingRing;                                    // 696
+        uint rank;                                            // 700
+        st6::vector<Reputation::Relation> repList;            // 704, TODO:Find out if this rep list is either a vector or map
+        uint reputationId;                                    // 720, see Reputation::get_id();
+        Costume commCostume;                                  // 724 - 776
+        uint voiceLen;                                        // 780
+        char voice[32];                                       // 812
+        Costume baseCostume;                                  // 816 - 868
+        uint tempCargoIdEnumerator;                           // 872
+        st6::string prefilledWeaponGroupIni;                  // 886
+        st6::list<FmtStr> neuralNetLog;                       // 902 - probably wrong, 'log' entries from character file. Also 'mostly' SP only.
+        uint interfaceState;                                  // 914
+        uint unused2;                                         // 918
+        BinarySearchTree<VisitEntry> visitLists;              // 922
+                                                              // 934
+
+        void SetRelation(Reputation::Relation relation);
 };
 
 struct NewPlayerTemplate
@@ -63,10 +64,9 @@ struct NewPlayerTemplate
 
         std::vector<EquipDesc> equipment;
         std::vector<EquipDesc> cargo;
-        
+
         uint ship;
 };
-
 
 struct AccountData
 {
@@ -74,14 +74,12 @@ struct AccountData
         std::unordered_map<std::string, VanillaLoadData> characters;
 };
 
-
 class AccountManager
 {
         friend FLHook;
         friend IServerImplHook;
         friend Database;
         inline static AccountManager* instance = nullptr;
-
 
         inline static NewPlayerTemplate newPlayerTemplate;
 

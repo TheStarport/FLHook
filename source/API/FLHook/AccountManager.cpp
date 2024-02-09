@@ -9,6 +9,16 @@
 using CreateCharacterLoadingData = void*(__thiscall*)(PlayerData* data, const char* buffer);
 CreateCharacterLoadingData createCharacterLoadingData = reinterpret_cast<CreateCharacterLoadingData>(0x77090);
 
+void VanillaLoadData::SetRelation(Reputation::Relation relation)
+{
+    static DWORD server = DWORD(GetModuleHandleA("server.dll"));
+
+    using sub_6D58B40Type = int(__thiscall*)(void* ptr, void* unk1, uint unk2, Reputation::Relation* fac);
+    static auto sub_6D58B40 = sub_6D58B40Type(DWORD(server) + 0x78B40);
+
+    sub_6D58B40(&repList, repList.end(), 1, &relation);
+}
+
 void AccountManager::LoadCharacter(VanillaLoadData* data, std::wstring_view characterName)
 {
     DWORD server = DWORD(GetModuleHandleA("server.dll"));
@@ -36,7 +46,7 @@ void AccountManager::LoadCharacter(VanillaLoadData* data, std::wstring_view char
     data->datetimeLow = 0;
     data->descripStrId = 0;
     data->name = reinterpret_cast<const unsigned short*>(characterName.data());
-    data->description = (unsigned short*)L"08/16/23 19:29:11";
+    data->description = reinterpret_cast<const unsigned short*>(L"08/16/23 19:29:11");
     data->interfaceState = 1;
     data->lastDockedBase = CreateID("Li01_01_Base");
     data->currentRoom = 0;

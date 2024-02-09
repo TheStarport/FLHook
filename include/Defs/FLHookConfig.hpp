@@ -208,7 +208,7 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
 
         struct DatabaseConfig final
         {
-                std::string uri;
+                std::string uri = "mongodb://localhost:27017";
 
                 Serialize(DatabaseConfig, uri);
         };

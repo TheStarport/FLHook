@@ -423,7 +423,7 @@ void FLHook::PatchClientImpl()
     hookClientImpl = &Client;
 
     memcpy(&oldClientImpl, &Client, 4);
-    MemUtils::WriteProcMem(&Client, fakeClientImpl, 4);
+    memcpy(&Client, fakeClientImpl, 4);
 }
 
 void FLHook::UnloadHookExports()

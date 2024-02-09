@@ -4,13 +4,13 @@
 
 #include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/Database.hpp"
 #include "API/FLHook/InfocardManager.hpp"
 #include "API/FLHook/PersonalityHelper.hpp"
 #include "API/InternalApi.hpp"
 #include "Core/MemoryManager.hpp"
 #include <API/Utils/Logger.hpp>
 #include <Core/MessageHandler.hpp>
-#include "API/FLHook/Database.hpp"
 
 #include "Core/Commands/AdminCommandProcessor.hpp"
 #include "Defs/FLHookConfig.hpp"
@@ -26,6 +26,8 @@
 #include "API/FLHook/Plugin.hpp"
 #include "API/Utils/TempBan.hpp"
 #include "API/Utils/ZoneUtilities.hpp"
+
+#include <mongocxx/exception/exception.hpp>
 
 // ReSharper disable CppClangTidyClangDiagnosticCastFunctionTypeStrict
 const st6_malloc_t st6_malloc = reinterpret_cast<const st6_malloc_t>(GetProcAddress(GetModuleHandleA("msvcrt.dll"), "malloc"));
@@ -75,113 +77,106 @@ FLHook::FLHook()
 
     flProc = GetModuleHandle(nullptr);
 
-    try
+    // Load our settings before anything that might need access to debug mode
+    LoadSettings();
+
+    // Replace the global exception filter with our own so we can write exception dumps
+    // ExceptionHandler::SetupExceptionHandling();
+
+    // Setup needed debug tools
+    DebugTools::Init();
+
+    // Initialize the Database before everything as other systems rely on it
+    // database = new Database(FLHookConfig::i()->databaseConfig.uri);
+
+    // Init our message service, this is a blocking call and some plugins might want to setup their own queues,
+    // so we want to make sure the service is up at startup time
+    if (FLHookConfig::i()->messageQueue.enableQueues)
     {
-        // Load our settings before anything that might need access to debug mode
-        LoadSettings();
+        const auto msg = MessageHandler::i();
 
+        // TODO: Move logQueue initialization to separate function
+        msg->DeclareExchange(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), AMQP::fanout, AMQP::durable);
+        msg->DeclareQueue(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)), AMQP::durable);
 
-        // Replace the global exception filter with our own so we can write exception dumps
-        // ExceptionHandler::SetupExceptionHandling();
-
-        // Setup needed debug tools
-        DebugTools::Init();
-
-        //Initialize the Database before everything as other systems rely on it
-        database = new Database;
-
-        // Init our message service, this is a blocking call and some plugins might want to setup their own queues,
-        // so we want to make sure the service is up at startup time
-        if (FLHookConfig::i()->messageQueue.enableQueues)
-        {
-            const auto msg = MessageHandler::i();
-
-            // TODO: Move logQueue initialization to separate function
-            msg->DeclareExchange(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), AMQP::fanout, AMQP::durable);
-            msg->DeclareQueue(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)), AMQP::durable);
-
-            msg->Subscribe(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)),
-                           [](const AMQP::Message& message, std::optional<nlohmann::json>& response)
+        msg->Subscribe(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)),
+                       [](const AMQP::Message& message, std::optional<nlohmann::json>& response)
+                       {
+                           std::string body = message.body();
+                           try
                            {
-                               std::string body = message.body();
-                               try
+                               // TODO: Setup external command processor
+                               // const auto json = nlohmann::json::parse(body, nullptr);
+                               // response = ExternalCommandProcessor::i()->ProcessCommand(json);
+                               // if (!response.has_value())
                                {
-                                   // TODO: Setup external command processor
-                                   // const auto json = nlohmann::json::parse(body, nullptr);
-                                   // response = ExternalCommandProcessor::i()->ProcessCommand(json);
-                                   // if (!response.has_value())
-                                   {
-                                       // Iterate through plugins and see if they have a valid json output
-                                   }
+                                   // Iterate through plugins and see if they have a valid json output
+                               }
 
-                                   return true;
-                               }
-                               catch (nlohmann::json::exception& ex)
-                               {
-                                   response = {
-                                       {"err", ex.what()}
-                                   };
-                                   Logger::Log(LogLevel::Warn,
-                                               std::format(L"An json exception was encountered while trying to process an external command. EX: {}",
-                                                           StringUtils::stows(ex.what())));
-                                   return true;
-                               }
-                               catch (GameException& ex)
-                               {
-                                   response = {
-                                       {"err", std::wstring(ex.Msg())}
-                                   };
-                                   return true;
-                               }
-                               catch (std::exception& ex)
-                               {
-                                   response = {
-                                       {"err", std::string(ex.what())}
-                                   };
-                                   return true;
-                               }
-                           });
+                               return true;
+                           }
+                           catch (nlohmann::json::exception& ex)
+                           {
+                               response = {
+                                   {"err", ex.what()}
+                               };
+                               Logger::Log(LogLevel::Warn,
+                                           std::format(L"An json exception was encountered while trying to process an external command. EX: {}",
+                                                       StringUtils::stows(ex.what())));
+                               return true;
+                           }
+                           catch (GameException& ex)
+                           {
+                               response = {
+                                   {"err", std::wstring(ex.Msg())}
+                               };
+                               return true;
+                           }
+                           catch (std::exception& ex)
+                           {
+                               response = {
+                                   {"err", std::string(ex.what())}
+                               };
+                               return true;
+                           }
+                       });
 
-            Timer::Add(PublishServerStats, &PublishServerStats, 30000);
-        }
+        Timer::Add(PublishServerStats, &PublishServerStats, 30000);
+    }
 
-        if (const auto config = FLHookConfig::c(); config->plugins.loadAllPlugins)
+    if (const auto config = FLHookConfig::c(); config->plugins.loadAllPlugins)
+    {
+        PluginManager::i()->LoadAll(true);
+    }
+    else
+    {
+        for (auto& plugin : config->plugins.plugins)
         {
-            PluginManager::i()->LoadAll(true);
+            PluginManager::i()->Load(plugin, true);
         }
-        else
-        {
-            for (auto& plugin : config->plugins.plugins)
-            {
-                PluginManager::i()->Load(plugin, true);
-            }
-        }
-
-        if (!std::filesystem::exists(L"config"))
+    }
+    if (!std::filesystem::exists(L"config"))
+    {
+        try
         {
             std::filesystem::create_directory(L"config");
         }
-
-        // explicitly load dll files that may be required by plugins
-        for (constexpr std::array pluginLibs = { "pcre2-posix.dll", "pcre2-8.dll", "pcre2-16.dll", "pcre2-32.dll", "libcrypto-3.dll", "libssl-3.dll" };
-             const auto& lib : pluginLibs)
+        catch (std::filesystem::filesystem_error& error)
         {
-            LoadLibraryA(lib);
+            Logger::Log(LogLevel::Err, StringUtils::stows(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what())));
         }
+    }
 
-        PatchClientImpl();
+    // explicitly load dll files that may be required by plugins
+    for (constexpr std::array pluginLibs = { "pcre2-posix.dll", "pcre2-8.dll", "pcre2-16.dll", "pcre2-32.dll", "libcrypto-3.dll", "libssl-3.dll" };
+         const auto& lib : pluginLibs)
+    {
+        LoadLibraryA(lib);
+    }
 
-        CallPlugins(&Plugin::OnLoadSettings);
-    }
-    catch (char* error)
-    {
-        Logger::Log(LogLevel::Err, StringUtils::stows(std::format("CRITICAL! {}\n", std::string(error))));
-        std::quick_exit(EXIT_FAILURE);
-    }
-    catch (std::filesystem::filesystem_error& error)
-    {
-        Logger::Log(LogLevel::Err, StringUtils::stows(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what())));
-    }
+    PatchClientImpl();
+
+    CallPlugins(&Plugin::OnLoadSettings);
 }
 
 void FLHook::SetupEventLoop()
