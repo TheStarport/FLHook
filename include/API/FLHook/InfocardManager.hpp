@@ -4,7 +4,7 @@ class FLHook;
 class InfocardManager
 {
         friend FLHook;
-        std::map<uint, std::wstring> infocardOverride;
+        std::unordered_map<uint, std::wstring> infocardOverride;
         std::vector<HMODULE> loadedDlls;
 
         InfocardManager();

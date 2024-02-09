@@ -18,8 +18,8 @@ class MessageHandler final : public AMQP::ConnectionHandler, public Singleton<Me
         std::shared_ptr<uvw::TCPHandle> connectHandle;
         std::unique_ptr<AMQP::Connection> connection;
         std::unique_ptr<AMQP::Channel> channel;
-        std::map<std::wstring, std::vector<QueueOnData>> onMessageCallbacks;
-        std::map<std::wstring, std::vector<QueueOnFail>> onFailCallbacks;
+        std::unordered_map<std::wstring, std::vector<QueueOnData>> onMessageCallbacks;
+        std::unordered_map<std::wstring, std::vector<QueueOnFail>> onFailCallbacks;
         std::atomic_bool isInitalizing = true;
         std::jthread runner;
 

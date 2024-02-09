@@ -4,23 +4,23 @@ class PersonalityHelper
 {
         friend FLHook;
 
-        std::map<std::wstring, pub::AI::Personality> pilots;
-        std::map<std::wstring, pub::AI::Personality::EvadeDodgeUseStruct> evadeDodge;
-        std::map<std::wstring, pub::AI::Personality::EvadeBreakUseStruct> evadeBreak;
-        std::map<std::wstring, pub::AI::Personality::BuzzHeadTowardUseStruct> buzzHead;
-        std::map<std::wstring, pub::AI::Personality::BuzzPassByUseStruct> buzzPass;
-        std::map<std::wstring, pub::AI::Personality::TrailUseStruct> trail;
-        std::map<std::wstring, pub::AI::Personality::StrafeUseStruct> strafe;
-        std::map<std::wstring, pub::AI::Personality::EngineKillUseStruct> engineKill;
-        std::map<std::wstring, pub::AI::Personality::RepairUseStruct> repair;
-        std::map<std::wstring, pub::AI::Personality::GunUseStruct> gun;
-        std::map<std::wstring, pub::AI::Personality::MissileUseStruct> missile;
-        std::map<std::wstring, pub::AI::Personality::MineUseStruct> mine;
-        std::map<std::wstring, pub::AI::Personality::MissileReactionStruct> missileReaction;
-        std::map<std::wstring, pub::AI::Personality::DamageReactionStruct> damageReaction;
-        std::map<std::wstring, pub::AI::Personality::CountermeasureUseStruct> cm;
-        std::map<std::wstring, pub::AI::Personality::FormationUseStruct> formation;
-        std::map<std::wstring, pub::AI::Personality::JobStruct> job;
+        std::unordered_map<std::wstring, pub::AI::Personality> pilots;
+        std::unordered_map<std::wstring, pub::AI::Personality::EvadeDodgeUseStruct> evadeDodge;
+        std::unordered_map<std::wstring, pub::AI::Personality::EvadeBreakUseStruct> evadeBreak;
+        std::unordered_map<std::wstring, pub::AI::Personality::BuzzHeadTowardUseStruct> buzzHead;
+        std::unordered_map<std::wstring, pub::AI::Personality::BuzzPassByUseStruct> buzzPass;
+        std::unordered_map<std::wstring, pub::AI::Personality::TrailUseStruct> trail;
+        std::unordered_map<std::wstring, pub::AI::Personality::StrafeUseStruct> strafe;
+        std::unordered_map<std::wstring, pub::AI::Personality::EngineKillUseStruct> engineKill;
+        std::unordered_map<std::wstring, pub::AI::Personality::RepairUseStruct> repair;
+        std::unordered_map<std::wstring, pub::AI::Personality::GunUseStruct> gun;
+        std::unordered_map<std::wstring, pub::AI::Personality::MissileUseStruct> missile;
+        std::unordered_map<std::wstring, pub::AI::Personality::MineUseStruct> mine;
+        std::unordered_map<std::wstring, pub::AI::Personality::MissileReactionStruct> missileReaction;
+        std::unordered_map<std::wstring, pub::AI::Personality::DamageReactionStruct> damageReaction;
+        std::unordered_map<std::wstring, pub::AI::Personality::CountermeasureUseStruct> cm;
+        std::unordered_map<std::wstring, pub::AI::Personality::FormationUseStruct> formation;
+        std::unordered_map<std::wstring, pub::AI::Personality::JobStruct> job;
 
         Action<pub::AI::Personality, Error> GetPersonality(const std::wstring& pilotNickname);
         static void SetDirection(INI_Reader& ini, float (&direction)[4]);

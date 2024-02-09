@@ -57,8 +57,8 @@ struct NewPlayerTemplate
         std::string commCostume;
         std::string system;
         std::string base;
-        std::map<std::string, float> reputationOverrides;
-        std::map<uint, uint> visitValues;
+        std::unordered_map<std::string, float> reputationOverrides;
+        std::unordered_map<uint, uint> visitValues;
         bool hasPackage = false;
 
         std::vector<EquipDesc> equipment;
@@ -71,7 +71,7 @@ struct NewPlayerTemplate
 struct AccountData
 {
         CAccount* account;
-        std::map<std::string, VanillaLoadData> characters;
+        std::unordered_map<std::string, VanillaLoadData> characters;
 };
 
 
