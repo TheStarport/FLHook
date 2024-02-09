@@ -202,7 +202,7 @@ class DLL Plugin
         Aft(void, OnAbortMission, (ClientId client, uint unk1));
         Aft(void, OnSetWeaponGroup, (ClientId client, uint unk1, int unk2));
         Aft(void, OnSetVisitedState, (ClientId client, uint objectHash, int state));
-        Aft(void, OnRequestBestPath, (ClientId client, uint unk1, int unk2));
+        Aft(void, OnRequestBestPath, (ClientId client, RequestBestPathStruct* bestPath, int unused));
         Aft(void, OnRequestPlayerStats, (ClientId id, uint unk1, int unk2));
         Aft(void, OnPopupDialogueConfirm, (ClientId client, PopupDialog buttonClicked));
         Aft(void, OnRequestGroupPositions, (ClientId client, uint unk1, int unk2));

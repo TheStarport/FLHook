@@ -96,7 +96,7 @@ class IServerImplHook
 
         // Location.cpp
         static void __stdcall SetVisitedState(ClientId client, uint objHash, int state);
-        static void __stdcall RequestBestPath(ClientId client, uint unk1, int unk2);
+        static void __stdcall RequestBestPath(ClientId client, RequestBestPathStruct* bestPath, int unused);
         static void __stdcall LocationInfoRequest(unsigned int unk1, unsigned int unk2, bool unk3);
         static void __stdcall LocationExit(uint locationId, ClientId client);
         static void __stdcall LocationEnter(uint locationId, ClientId client);

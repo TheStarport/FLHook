@@ -18,18 +18,18 @@ void __stdcall IServerImplHook::SetVisitedState(ClientId client, uint objHash, i
     CallPlugins(&Plugin::OnSetVisitedStateAfter, client, objHash, state);
 }
 
-void __stdcall IServerImplHook::RequestBestPath(ClientId client, uint unk1, int unk2)
+void __stdcall IServerImplHook::RequestBestPath(ClientId client, RequestBestPathStruct* bestPath, int unused)
 {
     Logger::Log(LogLevel::Trace,
-                            std::format(L"RequestBestPath(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
+                            std::format(L"RequestBestPath(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, (uint)bestPath, unused));
 
-    if (const auto skip = CallPlugins(&Plugin::OnRequestBestPath, client, unk1, unk2); !skip)
+    if (const auto skip = CallPlugins(&Plugin::OnRequestBestPath, client, bestPath, unused); !skip)
     {
-        CallServerPreamble { Server.RequestBestPath(client.GetValue(), (uchar*)unk1, unk2); }
+        CallServerPreamble { Server.RequestBestPath(client.GetValue(), (uchar*)bestPath, unused); }
         CallServerPostamble(true, );
     }
 
-    CallPlugins(&Plugin::OnRequestBestPathAfter, client, unk1, unk2);
+    CallPlugins(&Plugin::OnRequestBestPathAfter, client, bestPath, unused);
 }
 
 void __stdcall IServerImplHook::LocationInfoRequest(unsigned int unk1, unsigned int unk2, bool unk3)
