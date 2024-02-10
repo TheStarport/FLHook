@@ -45,19 +45,19 @@ namespace Plugins::DailyTasks
 		// Check if task config values are populated. If they're populated, add them to the pool.
 		if (!global->config->taskItemAcquisitionTargets.empty())
 		{
-			global->taskTypePool.emplace_back(0);
+			global->taskTypePool.emplace_back(TaskType::GetItem);
 		}
 		if (!global->config->taskNpcKillTargets.empty())
 		{
-			global->taskTypePool.emplace_back(1);
+			global->taskTypePool.emplace_back(TaskType::KillNpc);
 		}
 		if (!global->config->taskPlayerKillTargets.empty())
 		{
-			global->taskTypePool.emplace_back(2);
+			global->taskTypePool.emplace_back(TaskType::KillPlayer);
 		}
 		if (!global->config->taskTradeBaseTargets.empty() && !global->config->taskTradeItemTargets.empty())
 		{
-			global->taskTypePool.emplace_back(3);
+			global->taskTypePool.emplace_back(TaskType::SellItem);
 		}
 
 		// Check if taskTypePool is empty after these checks and if so throw an error in the console.
@@ -145,7 +145,16 @@ namespace Plugins::DailyTasks
 		auto itemRewardQuantity = RandomNumber(itemReward.at(1), itemReward.at(2));
 
 		Hk::Player::AddCash(character, creditReward);
+		auto holdSize = 0;
+		const auto& cargo = Hk::Player::EnumCargo(client, holdSize).value();
+
+		for (auto& item : cargo)
+		{
+			auto freeCargo = item.fStatus;
+		}
 		// Hk::Player::AddCargo(client, itemReward, itemRewardQuantity, false)
+
+		// TODO: If hold doesn't have enough room, reward what you can and then top up value w/ credits value of the base good (ArchToGood?)
 	}
 
 	// Function: Brief hook on ship destroyed to see if a task needs to be updated.
@@ -162,11 +171,11 @@ namespace Plugins::DailyTasks
 				const auto victimId = Hk::Client::GetClientIdByShip(cShip->get_id());
 				for (auto& task : global->accountTasks[Hk::Client::GetAccountByClientID(killerId.value())].tasks)
 				{
-					if (task.taskType == 2 && task.isCompleted == false && victimId.has_value())
+					if (task.taskType == TaskType::KillPlayer && task.isCompleted == false && victimId.has_value())
 					{
 						task.quantityCompleted++;
 					}
-					if (task.quantityCompleted == task.quantity && task.taskType == 2 && task.isCompleted == false)
+					if (task.quantityCompleted == task.quantity && task.taskType == TaskType::KillPlayer && task.isCompleted == false)
 					{
 						task.isCompleted = true;
 						SaveTaskStatusToJson(Hk::Client::GetAccountByClientID(killerId.value()));
@@ -188,11 +197,12 @@ namespace Plugins::DailyTasks
 
 				for (auto& task : global->accountTasks[Hk::Client::GetAccountByClientID(killerId.value())].tasks)
 				{
-					if (task.taskType == 1 && task.isCompleted == false && task.npcFactionTarget == affiliation)
+					if (task.taskType == TaskType::KillNpc && task.isCompleted == false && task.npcFactionTarget == affiliation)
 					{
 						task.quantityCompleted++;
 					}
-					if (task.quantityCompleted == task.quantity && task.taskType == 1 && task.isCompleted == false && task.npcFactionTarget == affiliation)
+					if (task.quantityCompleted == task.quantity && task.taskType == TaskType::KillNpc && task.isCompleted == false &&
+					    task.npcFactionTarget == affiliation)
 					{
 						task.isCompleted = true;
 						SaveTaskStatusToJson(Hk::Client::GetAccountByClientID(killerId.value()));
@@ -212,48 +222,54 @@ namespace Plugins::DailyTasks
 		auto account = Hk::Client::GetAccountByClientID(client);
 		for (auto& task : global->accountTasks[account].tasks)
 		{
-			if (task.baseTarget == base.value() && task.itemTarget == gsi.iArchId && task.taskType == 3 && task.isCompleted == false)
+			if (task.isCompleted)
+			{
+				continue;
+			}
+			if (task.taskType == TaskType::SellItem && task.itemTarget == gsi.iArchId && task.baseTarget == base.value())
 			{
 				task.quantityCompleted += gsi.iCount;
+				if (task.quantityCompleted >= task.quantity)
+				{
+					task.isCompleted = true;
+					SaveTaskStatusToJson(account);
+					PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
+					Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
+					// TODO: Reward
+				}
 			}
-			// Check here to ensure that task.quantityCompleted doesn't drop below 0
-			if (task.itemTarget == gsi.iArchId && task.taskType == 0 && task.isCompleted == false)
+			else if (task.taskType == TaskType::GetItem && task.itemTarget == gsi.iArchId)
 			{
-				task.quantityCompleted -= gsi.iCount;
-			}
-			if (task.quantityCompleted >= task.quantity && task.taskType == 3 && task.isCompleted == false)
-			{
-				task.isCompleted = true;
-				SaveTaskStatusToJson(account);
-				PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
-				Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
-				// TODO: Reward
+				task.quantityCompleted = std::clamp(task.quantityCompleted - gsi.iCount, 0, task.quantity);
 			}
 		}
 	}
 	// Function: Brief hook on item bought to see if a task needs to be updated.
-	void ItemPurchased(struct SGFGoodBuyInfo const& gbi, ClientId& client)
+	void ItemPurchased(SGFGoodBuyInfo const& gbi, ClientId& client)
 	{
 		auto base = Hk::Player::GetCurrentBase(client);
 		auto account = Hk::Client::GetAccountByClientID(client);
 		for (auto& task : global->accountTasks[account].tasks)
 		{
-			if (task.itemTarget == gbi.iGoodId && task.taskType == 0 && task.isCompleted == false)
+			if (task.isCompleted)
+			{
+				continue;
+			}
+			if (task.taskType == TaskType::GetItem && task.itemTarget == gbi.iGoodId)
 			{
 				task.quantityCompleted += gbi.iCount;
+				if (task.quantityCompleted >= task.quantity)
+				{
+					task.isCompleted = true;
+					SaveTaskStatusToJson(account);
+					PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
+					Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
+					// TODO: Reward
+				}
 			}
-			if (task.baseTarget == base.value() && task.itemTarget == gbi.iGoodId && task.taskType == 3 && task.isCompleted == false &&
-			    task.quantityCompleted > gbi.iCount)
+			else if (task.taskType == TaskType::SellItem && task.baseTarget == base.value() && task.itemTarget == gbi.iGoodId)
 			{
-				task.quantityCompleted -= gbi.iCount;
-			}
-			if (task.quantityCompleted >= task.quantity && task.taskType == 0 && task.isCompleted == false)
-			{
-				task.isCompleted = true;
-				SaveTaskStatusToJson(account);
-				PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
-				Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
-				// TODO: Reward
+				task.quantityCompleted = std::clamp(task.quantityCompleted - gbi.iCount, 0, task.quantity);
 			}
 		}
 	}
@@ -268,7 +284,7 @@ namespace Plugins::DailyTasks
 		// Choose and create a random task from the available pool.
 		const auto& randomTask = global->taskTypePool[RandomNumber(0, global->taskTypePool.size() - 1)];
 
-		if (randomTask == 0)
+		if (randomTask == TaskType::GetItem)
 		{
 			// Create an item acquisition task
 			auto itemAcquisitionTarget = RandomIdKey(global->taskItemAcquisitionTargets);
@@ -279,7 +295,7 @@ namespace Plugins::DailyTasks
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating an 'Acquire Items' task to '{}'", taskDescription));
 
 			Task task;
-			task.taskType = 0;
+			task.taskType = TaskType::KillNpc;
 			task.itemTarget = itemAcquisitionTarget;
 			task.quantity = itemQuantity;
 			task.quantityCompleted = 0;
@@ -293,7 +309,7 @@ namespace Plugins::DailyTasks
 			}
 			global->accountTasks[account].tasks.emplace_back(task);
 		}
-		if (randomTask == 1)
+		if (randomTask == TaskType::KillNpc)
 		{
 			// Create an NPC kill task
 			const auto& npcFactionTarget = RandomIdKey(global->taskNpcKillTargets);
@@ -304,7 +320,7 @@ namespace Plugins::DailyTasks
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill NPCs' task to '{}'", taskDescription));
 
 			Task task;
-			task.taskType = 1;
+			task.taskType = TaskType::KillNpc;
 			task.npcFactionTarget = npcFactionTarget;
 			task.quantity = npcQuantity;
 			task.quantityCompleted = 0;
@@ -318,7 +334,7 @@ namespace Plugins::DailyTasks
 			}
 			global->accountTasks[account].tasks.emplace_back(task);
 		}
-		if (randomTask == 2)
+		if (randomTask == TaskType::KillPlayer)
 		{
 			// Create a player kill task
 			auto playerQuantity = RandomNumber(global->config->taskPlayerKillTargets[0], global->config->taskPlayerKillTargets[1]);
@@ -326,7 +342,7 @@ namespace Plugins::DailyTasks
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill Players' task to '{}'", taskDescription));
 
 			Task task;
-			task.taskType = 2;
+			task.taskType = TaskType::KillPlayer;
 			task.quantity = playerQuantity;
 			task.quantityCompleted = 0;
 			task.taskDescription = taskDescription;
@@ -339,7 +355,7 @@ namespace Plugins::DailyTasks
 			}
 			global->accountTasks[account].tasks.emplace_back(task);
 		}
-		if (randomTask == 3)
+		if (randomTask == TaskType::SellItem)
 		{
 			// Create a trade task
 			const auto& tradeBaseTarget = global->taskTradeBaseTargets[RandomNumber(0, global->taskTradeBaseTargets.size() - 1)];
@@ -354,7 +370,7 @@ namespace Plugins::DailyTasks
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Sell Cargo' task to '{}'", taskDescription));
 
 			Task task;
-			task.taskType = 3;
+			task.taskType = TaskType::SellItem;
 			task.baseTarget = tradeBaseTarget;
 			task.itemTarget = tradeItemTarget;
 			task.quantity = tradeItemQuantity;
@@ -556,9 +572,7 @@ DefaultDllMainSettings(LoadSettings);
 const std::vector<Timer> timers = {{DailyTimerTick, 3600}};
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	// Full name of your plugin
 	pi->name("Daily Tasks");
-	// Shortened name, all lower case, no spaces. Abbreviation when possible.
 	pi->shortName("dailytasks");
 	pi->mayUnload(true);
 	pi->commands(&commands);

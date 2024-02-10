@@ -36,9 +36,17 @@ namespace Plugins::DailyTasks
 		int taskDuration = 86400;
 	};
 
+	enum class TaskType
+	{
+		GetItem,
+		KillNpc,
+		KillPlayer,
+		SellItem
+	};
+
 	struct Task : Reflectable
 	{
-		int taskType = 0;
+		TaskType taskType = TaskType::GetItem;
 		int quantity = 0;
 		int quantityCompleted = 0;
 		uint itemTarget = 0;
@@ -64,7 +72,7 @@ namespace Plugins::DailyTasks
 		std::map<uint, std::vector<int>> taskItemAcquisitionTargets;
 		std::map<uint, std::vector<int>> taskNpcKillTargets;
 		std::vector<uint> taskTradeBaseTargets;
-		std::vector<int> taskTypePool;
+		std::vector<TaskType> taskTypePool;
 		std::map<CAccount*, Tasks> accountTasks;
 		std::map<CAccount*, bool> tasksReset;
 		bool dailyReset;
