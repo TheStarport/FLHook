@@ -9,8 +9,75 @@
  * - showtasks - Shows the current tasks assigned to the player's account, time remaining and completion status.
  * - resettasks - Resets and rerolls the player's assigned tasks. This can be done once per day.
  * @paragraph adminCmds Admin Commands
- * -resetalltasks - Resets and rerolls player tasks for all current players on the server, and clears the daily_tasks.json file from each account's folder.
- *
+ * There are no admin commands in this plugin.
+ *{
+ *   "itemRewardPool": {
+ *       "commodity_alien_artifacts": [
+ *           10,
+ *           25
+ *       ],
+ *       "commodity_diamonds": [
+ *           25,
+ *           40
+ *       ],
+ *       "commodity_luxury_consumer_goods": [
+ *           5,
+ *           10
+ *       ]
+ *   },
+ *   "maxCreditsReward": 10000,
+ *   "minCreditsReward": 5000,
+ *   "resetTime": 12,
+ *   "taskDuration": 86400,
+ *   "taskItemAcquisitionTargets": {
+ *       "commodity_mox_fuel": [
+ *           8,
+ *           16
+ *       ],
+ *       "commodity_optronics": [
+ *           3,
+ *           5
+ *       ],
+ *       "commodity_super_alloys": [
+ *           10,
+ *           15
+ *       ]
+ *   },
+ *   "taskNpcKillTargets": {
+ *       "fc_x_grp": [
+ *           3,
+ *           5
+ *       ],
+ *       "li_n_grp": [
+ *           10,
+ *           15
+ *       ]
+ *   },
+ *   "taskPlayerKillTargets": [
+ *       1,
+ *       3
+ *   ],
+ *   "taskQuantity": 3,
+ *   "taskTradeBaseTargets": [
+ *       "li03_01_base",
+ *       "li03_02_base",
+ *       "li03_03_base"
+ *   ],
+ *   "taskTradeItemTargets": {
+ *       "commodity_cardamine": [
+ *           5,
+ *           10
+ *       ],
+ *       "commodity_construction_machinery": [
+ *           10,
+ *           25
+ *       ],
+ *       "commodity_scrap_metal": [
+ *           25,
+ *           40
+ *       ]
+ *   }
+ *}
  * @paragraph configuration Configuration
  * @code
  * @endcode
@@ -23,13 +90,6 @@
 #include "DailyTasks.hpp"
 #include <ranges>
 #include <random>
-
-// TODO: Task Rewards
-// TODO:Completion State Saving on Dock
-// TODO: Hook on tractor item for acquire
-// TODO: Handle disconnects
-// TODO: Usability pass
-// TODO: Admin commands
 
 namespace Plugins::DailyTasks
 {
@@ -94,6 +154,25 @@ namespace Plugins::DailyTasks
 		}
 	}
 
+	// Function: Gets the value of items in the reward pool for later use.
+	void GetGoodBaseValues()
+	{
+		auto goodList = GoodList_get();
+		auto& list = *goodList->get_list();
+		for (auto& good : list)
+		{
+			if ((good->iType == 0 || good->iType == 1) && good->fPrice != 0 && global->itemRewardPool.find(good->iArchId) != global->itemRewardPool.end())
+			{
+				global->goodList.insert({good->iArchId, good->fPrice});
+				auto ids = good->iIdSName;
+
+				auto var = Hk::Message::GetWStringFromIdS(ids);
+				AddLog(LogType::Normal, LogLevel::Debug, std::format("Load prices in for {}", wstos(var)));
+			}
+		}
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("Loaded {} goods into the reward pool", global->goodList.size()));
+	}
+
 	// Function: Generates a random int between min and max
 	int RandomNumber(int min, int max)
 	{
@@ -136,25 +215,35 @@ namespace Plugins::DailyTasks
 		global->accountTasks[account] = taskList;
 	}
 
+	// TODO: Find a way to stop a client exceeding cargo when completing a 'Buy Item' task
 	// Function: Generates and awards a reward from the pool.
 	void GenerateReward(ClientId& client)
 	{
-		auto character = Hk::Client::GetCharacterNameByID(client).value();
-		auto creditReward = RandomNumber(global->config->minCreditsReward, global->config->minCreditsReward);
-		auto& itemReward = global->itemRewardPool[RandomNumber(0, global->itemRewardPool.size() - 1)];
-		auto itemRewardQuantity = RandomNumber(itemReward.at(1), itemReward.at(2));
+		auto creditReward = RandomNumber(global->config->minCreditsReward, global->config->maxCreditsReward);
+		auto itemReward = RandomIdKey(global->itemRewardPool);
+		auto itemQuantity = RandomNumber(global->itemRewardPool[itemReward][0], global->itemRewardPool[itemReward][1]);
+		int surplusCreditReward = 0;
+		auto holdSize = 0.f;
+		pub::Player::GetRemainingHoldSize(client, holdSize);
 
-		Hk::Player::AddCash(character, creditReward);
-		auto holdSize = 0;
-		const auto& cargo = Hk::Player::EnumCargo(client, holdSize).value();
-
-		for (auto& item : cargo)
+		if (itemQuantity > static_cast<int>(holdSize))
 		{
-			auto freeCargo = item.fStatus;
+			surplusCreditReward = ((static_cast<int>(holdSize) - itemQuantity) * -1) * static_cast<int>(global->goodList[itemReward]);
+			itemQuantity = static_cast<int>(holdSize);
 		}
-		// Hk::Player::AddCargo(client, itemReward, itemRewardQuantity, false)
 
-		// TODO: If hold doesn't have enough room, reward what you can and then top up value w/ credits value of the base good (ArchToGood?)
+		auto ItemRewardArchetype = Archetype::GetEquipment(itemReward);
+		Hk::Player::AddCash(client, creditReward + surplusCreditReward);
+		if (itemQuantity > 0)
+		{
+			// Hk::Player::AddCargo causes a kick here, so we have to do this with the pub function
+			pub::Player::AddCargo(client, itemReward, itemQuantity, 1, false);
+		}
+		PrintUserCmdText(client,
+		    std::format(L"Task completed! You have been awarded {} credits and {} units of {}.",
+		        creditReward + surplusCreditReward,
+		        itemQuantity,
+		        Hk::Message::GetWStringFromIdS(ItemRewardArchetype->iIdsName)));
 	}
 
 	// Function: Brief hook on ship destroyed to see if a task needs to be updated.
@@ -181,7 +270,7 @@ namespace Plugins::DailyTasks
 						SaveTaskStatusToJson(Hk::Client::GetAccountByClientID(killerId.value()));
 						PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
 						Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
-						// TODO: Reward
+						GenerateReward(client);
 					}
 				}
 			}
@@ -208,7 +297,7 @@ namespace Plugins::DailyTasks
 						SaveTaskStatusToJson(Hk::Client::GetAccountByClientID(killerId.value()));
 						PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
 						Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
-						// TODO: Reward
+						GenerateReward(client);
 					}
 				}
 			}
@@ -235,12 +324,13 @@ namespace Plugins::DailyTasks
 					SaveTaskStatusToJson(account);
 					PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
 					Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
-					// TODO: Reward
+					GenerateReward(client);
 				}
 			}
 			else if (task.taskType == TaskType::GetItem && task.itemTarget == gsi.iArchId)
 			{
 				task.quantityCompleted = std::clamp(task.quantityCompleted - gsi.iCount, 0, task.quantity);
+				SaveTaskStatusToJson(account);
 			}
 		}
 	}
@@ -264,19 +354,15 @@ namespace Plugins::DailyTasks
 					SaveTaskStatusToJson(account);
 					PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
 					Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
-					// TODO: Reward
+					GenerateReward(client);
 				}
 			}
 			else if (task.taskType == TaskType::SellItem && task.baseTarget == base.value() && task.itemTarget == gbi.iGoodId)
 			{
 				task.quantityCompleted = std::clamp(task.quantityCompleted - gbi.iCount, 0, task.quantity);
+				SaveTaskStatusToJson(account);
 			}
 		}
-	}
-	// Function: Brief hook on item tractored to see if a task needs to be updated.
-	void ItemTractored(ClientId& client, [[maybe_unused]] struct XTractorObjects const& objs)
-	{
-		// TODO: Create and implement this function.
 	}
 	// Function: Generates a daily task.
 	void GenerateDailyTask(CAccount* account)
@@ -286,16 +372,16 @@ namespace Plugins::DailyTasks
 
 		if (randomTask == TaskType::GetItem)
 		{
-			// Create an item acquisition task
+			// Create an item acquisition task. Unfortunately as IServerImpl__TractorObjects is not yet reverse engineered, this is the only way to handle it.
 			auto itemAcquisitionTarget = RandomIdKey(global->taskItemAcquisitionTargets);
 			auto itemQuantity =
 			    RandomNumber(global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[0], global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[1]);
 			auto itemArch = Archetype::GetEquipment(itemAcquisitionTarget);
-			auto taskDescription = std::format("Acquire {} units of {}.", itemQuantity, wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)));
+			auto taskDescription = std::format("Buy {} units of {}.", itemQuantity, wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)));
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating an 'Acquire Items' task to '{}'", taskDescription));
 
 			Task task;
-			task.taskType = TaskType::KillNpc;
+			task.taskType = TaskType::GetItem;
 			task.itemTarget = itemAcquisitionTarget;
 			task.quantity = itemQuantity;
 			task.quantityCompleted = 0;
@@ -387,7 +473,35 @@ namespace Plugins::DailyTasks
 		}
 	}
 
-	// Function: Keeps track of time.
+	// Function: Brief hook to save an account's task status when the player docks.
+	void SaveTaskStatusOnBaseEnter([[maybe_unused]] BaseId& baseId, ClientId& client)
+	{
+		auto account = Hk::Client::GetAccountByClientID(client);
+		SaveTaskStatusToJson(account);
+	}
+
+	// Function: Displays the user's current daily task status as they undock.
+	void DisplayTasksOnLaunch([[maybe_unused]] const uint& ship, ClientId& client)
+	{
+		auto account = Hk::Client::GetAccountByClientID(client);
+		PrintUserCmdText(client, L"CURRENT DAILY TASKS");
+		for (auto& task : global->accountTasks[account].tasks)
+		{
+			int taskExpiry = ((86400 - (Hk::Time::GetUnixSeconds() - task.setTime)) / 60) / 60;
+			if (!task.isCompleted)
+			{
+				PrintUserCmdText(client,
+				    std::format(L"{} Expires in {} hours. {}/{} remaining.", stows(task.taskDescription), taskExpiry, task.quantityCompleted, task.quantity));
+			}
+			else
+			{
+				PrintUserCmdText(client, stows(task.taskDescription + " TASK COMPLETED"));
+			}
+		}
+		PrintUserCmdText(client, L"To view this list again, type /showtasks in chat.");
+	}
+
+	// Function: Keeps track of time and initiates cleanup when appropriate.
 	void DailyTimerTick()
 	{
 		// Checks the current hour to see if global->dailyReset should be flipped back to false
@@ -483,16 +597,6 @@ namespace Plugins::DailyTasks
 		}
 	}
 
-	// Function: Resets tasks for all currently online players and clears account folders of daily_task.json files.
-	void AdminCmdResetAllTasks(CCmds* cmds)
-	{
-		if (!(cmds->rights & RIGHT_SUPERADMIN))
-		{
-			cmds->Print("ERR No permission");
-			return;
-		}
-	}
-
 	// Function: Hook on player login to assign and check tasks.
 	void OnLogin([[maybe_unused]] struct SLoginInfo const& li, ClientId& client)
 	{
@@ -540,21 +644,6 @@ namespace Plugins::DailyTasks
 	    CreateUserCommand(L"/resettasks", L"", UserCmdResetDailyTasks, L"Resets the user's daily tasks if none have already been completed"),
 	}};
 
-	bool ExecuteCommandString(CCmds* cmds, const std::wstring& cmd)
-	{
-		if (cmd == L"template")
-		{
-			AdminCmdResetAllTasks(cmds);
-		}
-		else
-		{
-			return false;
-		}
-
-		global->returnCode = ReturnCode::SkipAll;
-		return true;
-	}
-
 } // namespace Plugins::DailyTasks
 
 using namespace Plugins::DailyTasks;
@@ -581,9 +670,11 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
+	pi->emplaceHook(HookedCall::IServerImpl__Startup, &GetGoodBaseValues, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__Login, &OnLogin, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &ItemPurchased);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &ItemSold);
-	// pi->emplaceHook(HookedCall::IServerImpl__TractorObjects, &ItemAcquired);
+	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &SaveTaskStatusOnBaseEnter, HookStep::After);
+	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &DisplayTasksOnLaunch);
 }

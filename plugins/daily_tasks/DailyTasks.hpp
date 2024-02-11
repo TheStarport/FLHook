@@ -76,5 +76,6 @@ namespace Plugins::DailyTasks
 		std::map<CAccount*, Tasks> accountTasks;
 		std::map<CAccount*, bool> tasksReset;
 		bool dailyReset;
+		std::map<uint, float> goodList;
 	};
 } // namespace Plugins::DailyTasks
