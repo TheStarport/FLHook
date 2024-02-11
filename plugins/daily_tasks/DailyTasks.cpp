@@ -10,6 +10,8 @@
  * - resettasks - Resets and rerolls the player's assigned tasks. This can be done once per day.
  * @paragraph adminCmds Admin Commands
  * There are no admin commands in this plugin.
+ * @paragraph configuration Configuration
+ * @code
  *{
  *   "itemRewardPool": {
  *       "commodity_alien_artifacts": [
@@ -78,12 +80,13 @@
  *       ]
  *   }
  *}
- * @paragraph configuration Configuration
- * @code
  * @endcode
  *
  * @paragraph ipc IPC Interfaces Exposed
  * This plugin does not expose any functionality.
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * This plugin has no optional dependencies.
  */
 
 // Includes
@@ -215,16 +218,13 @@ namespace Plugins::DailyTasks
 		global->accountTasks[account] = taskList;
 	}
 
-	// TODO: Find a way to stop a client exceeding cargo when completing a 'Buy Item' task
 	// Function: Generates and awards a reward from the pool.
-	void GenerateReward(ClientId& client)
+	void GenerateReward(ClientId& client, float holdSize = 0.f)
 	{
 		auto creditReward = RandomNumber(global->config->minCreditsReward, global->config->maxCreditsReward);
 		auto itemReward = RandomIdKey(global->itemRewardPool);
 		auto itemQuantity = RandomNumber(global->itemRewardPool[itemReward][0], global->itemRewardPool[itemReward][1]);
 		int surplusCreditReward = 0;
-		auto holdSize = 0.f;
-		pub::Player::GetRemainingHoldSize(client, holdSize);
 
 		if (itemQuantity > static_cast<int>(holdSize))
 		{
@@ -232,7 +232,6 @@ namespace Plugins::DailyTasks
 			itemQuantity = static_cast<int>(holdSize);
 		}
 
-		auto ItemRewardArchetype = Archetype::GetEquipment(itemReward);
 		Hk::Player::AddCash(client, creditReward + surplusCreditReward);
 		if (itemQuantity > 0)
 		{
@@ -243,7 +242,7 @@ namespace Plugins::DailyTasks
 		    std::format(L"Task completed! You have been awarded {} credits and {} units of {}.",
 		        creditReward + surplusCreditReward,
 		        itemQuantity,
-		        Hk::Message::GetWStringFromIdS(ItemRewardArchetype->iIdsName)));
+		        Hk::Message::GetWStringFromIdS(Archetype::GetEquipment(itemReward)->iIdsName)));
 	}
 
 	// Function: Brief hook on ship destroyed to see if a task needs to be updated.
@@ -309,6 +308,8 @@ namespace Plugins::DailyTasks
 	{
 		auto base = Hk::Player::GetCurrentBase(client);
 		auto account = Hk::Client::GetAccountByClientID(client);
+		auto remainingHoldSize = 0.f;
+		pub::Player::GetRemainingHoldSize(client, remainingHoldSize);
 		for (auto& task : global->accountTasks[account].tasks)
 		{
 			if (task.isCompleted)
@@ -324,7 +325,7 @@ namespace Plugins::DailyTasks
 					SaveTaskStatusToJson(account);
 					PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
 					Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
-					GenerateReward(client);
+					GenerateReward(client, remainingHoldSize);
 				}
 			}
 			else if (task.taskType == TaskType::GetItem && task.itemTarget == gsi.iArchId)
@@ -339,6 +340,8 @@ namespace Plugins::DailyTasks
 	{
 		auto base = Hk::Player::GetCurrentBase(client);
 		auto account = Hk::Client::GetAccountByClientID(client);
+		auto remainingHoldSize = 0.f;
+		pub::Player::GetRemainingHoldSize(client, remainingHoldSize);
 		for (auto& task : global->accountTasks[account].tasks)
 		{
 			if (task.isCompleted)
@@ -354,7 +357,8 @@ namespace Plugins::DailyTasks
 					SaveTaskStatusToJson(account);
 					PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
 					Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
-					GenerateReward(client);
+					auto purchasedCargoAmount = static_cast<float>(gbi.iCount);
+					GenerateReward(client, remainingHoldSize - purchasedCargoAmount);
 				}
 			}
 			else if (task.taskType == TaskType::SellItem && task.baseTarget == base.value() && task.itemTarget == gbi.iGoodId)
@@ -573,7 +577,7 @@ namespace Plugins::DailyTasks
 			{
 				PrintUserCmdText(client,
 				    std::format(L"You have completed one or more of your daily tasks today, and cannot reset them until {}:00", global->config->resetTime));
-				break;
+				return;
 			}
 		}
 
@@ -672,9 +676,9 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__Startup, &GetGoodBaseValues, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__Login, &OnLogin, HookStep::After);
-	pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &ItemPurchased);
+	pi->emplaceHook(HookedCall::IServerImpl__GFGoodBuy, &ItemPurchased, HookStep::After);
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
-	pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &ItemSold);
+	pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &ItemSold, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &SaveTaskStatusOnBaseEnter, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &DisplayTasksOnLaunch);
 }
