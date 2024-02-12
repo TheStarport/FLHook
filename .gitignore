@@ -9,6 +9,10 @@ Release
 *.log
 vcpkg_installed/
 
+*.lib
+*.pdb
+*.dll
+
 !misc/acctpath_patch/bin/*.cfg
 
 

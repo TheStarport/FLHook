@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -184,9 +183,7 @@
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"
-      Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')"
-      Label="LocalAppDataPlatform" />
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
     <Import Project="Common.props" />
   </ImportGroup>
@@ -201,20 +198,18 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CustomBuildStep>
-      <Command>
-        xcopy /y "$(OutDir)$(TargetName).lib" "$(SolutionDir)..\vendor\FLHookSDK\lib\"
-        xcopy /y "$(OutDir)$(TargetName).dll" "$(DistDir)"
-        xcopy /y "$(OutDir)$(TargetName).pdb" "$(DistDir)"
-        xcopy /y "$(OutDir)$(TargetName).pdb" "$(DistDir)"
-        copy /y "$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
-        if "$(FLHOOK_COPY_PATH)" NEQ "" (
-        xcopy /y "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\"
-        xcopy /y "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\"
-        copy /y "$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\bin\*.dll"
-        "$(FLHOOK_COPY_PATH)"
-        )
-        setx FLHOOK_SDK_PATH "$(SolutionDir)..\vendor\FLHookSDK\\"
-      </Command>
+      <Command>xcopy /y "$(OutDir)$(TargetName).lib" "$(SolutionDir)..\vendor\FLHookSDK\lib\"
+xcopy /y "$(OutDir)$(TargetName).dll" "$(DistDir)"
+xcopy /y "$(OutDir)$(TargetName).pdb" "$(DistDir)"
+xcopy /y "$(OutDir)$(TargetName).pdb" "$(DistDir)"
+copy /y "$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
+if "$(FLHOOK_COPY_PATH)" NEQ "" (
+	xcopy /y "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\"
+	xcopy /y "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\"
+	copy /y "$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(FLHOOK_COPY_PATH)"
+)
+setx FLHOOK_SDK_PATH "$(SolutionDir)..\vendor\FLHookSDK\\"
+			</Command>
       <Outputs>$(SolutionDir)..\vendor\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
@@ -235,7 +230,8 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>
-        Shell32.lib;Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+				Shell32.lib;Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)
+			</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -260,20 +256,18 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <CustomBuildStep>
-      <Command>
-        xcopy /y "$(OutDir)$(TargetName).lib" "$(SolutionDir)..\vendor\FLHookSDK\lib\"
-        xcopy /y "$(OutDir)$(TargetName).dll" "$(DistDir)"
-        xcopy /y "$(OutDir)$(TargetName).pdb" "$(DistDir)"
-        xcopy /y "$(OutDir)$(TargetName).pdb" "$(DistDir)"
-        copy /y "$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\bin\*.dll" "$(DistDir)"
-        if "$(FLHOOK_COPY_PATH)" NEQ "" (
-        xcopy /y "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\"
-        xcopy /y "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\"
-        copy /y "$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\bin\*.dll"
-        "$(FLHOOK_COPY_PATH)"
-        )
-        setx FLHOOK_SDK_PATH "$(SolutionDir)..\vendor\FLHookSDK\\"
-      </Command>
+      <Command>xcopy /y "$(OutDir)$(TargetName).lib" "$(SolutionDir)..\vendor\FLHookSDK\lib\"
+xcopy /y "$(OutDir)$(TargetName).dll" "$(DistDir)"
+xcopy /y "$(OutDir)$(TargetName).pdb" "$(DistDir)"
+xcopy /y "$(OutDir)$(TargetName).pdb" "$(DistDir)"
+copy /y "$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\debug\bin\*.dll" "$(DistDir)"
+if "$(FLHOOK_COPY_PATH)" NEQ "" (
+	xcopy /y "$(OutDir)$(TargetName).dll" "$(FLHOOK_COPY_PATH)\"
+	xcopy /y "$(OutDir)$(TargetName).pdb" "$(FLHOOK_COPY_PATH)\"
+	copy /y "$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\debug\bin\*.dll" "$(FLHOOK_COPY_PATH)"
+)
+setx FLHOOK_SDK_PATH "$(SolutionDir)..\vendor\FLHookSDK\\"
+			</Command>
       <Outputs>$(SolutionDir)..\vendor\FLHookSDK\lib\$(TargetName).lib;$(DistDir);%(Outputs)</Outputs>
     </CustomBuildStep>
     <ClCompile>
@@ -295,7 +289,8 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>
-        Shell32.lib;Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+				Shell32.lib;Ws2_32.lib;psapi.lib;dbghelp.lib;user32.lib;%(AdditionalDependencies)
+			</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
