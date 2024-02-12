@@ -28,7 +28,7 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             const std::wstring text = buffer.substr(spaceAfterColonOffset, buffer.length() - spaceAfterColonOffset);
 
             auto& data = client.GetData();
-            if (FLHookConfig::i()->userCommands.userCmdIgnore && (clientTo.GetValue() & 0xFFFF) != 0)
+            if (FLHook::GetConfig().userCommands.userCmdIgnore && (clientTo.GetValue() & 0xFFFF) != 0)
             {
                 // check ignores
                 for (const auto& ci : data.ignoreInfoList)
@@ -49,7 +49,7 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             }
 
             uchar format = 0x00;
-            if (FLHookConfig::i()->userCommands.userCmdSetChatFont)
+            if (FLHook::GetConfig().userCommands.userCmdSetChatFont)
             {
 
                 // adjust chat size

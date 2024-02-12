@@ -1,9 +1,9 @@
 #pragma once
 
-#include "API/Utils/Serializer.hpp"
-
-struct DLL FLHookConfig final : Singleton<FLHookConfig>
+struct DLL FLHookConfig final
 {
+        FLHookConfig& operator=(const FLHookConfig&) = delete; // NOLINT
+
         struct Debug final
         {
                 //! If true, enables FLHook debug mode, also enabled debug level logs
@@ -14,8 +14,6 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
 
                 //! If true, it logs performance of functions if they take too long to execute.
                 bool logPerformanceTimers = false;
-
-                NLOHMANN_DEFINE_TYPE_INTRUSIVE(Debug, debugMode, logTraceLevel, logPerformanceTimers);
         };
 
         struct General final
@@ -39,7 +37,7 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
 
                 //! Maximum amount of players in a group.
                 uint maxGroupSize = 8;
-                //! NOT IMPLEMENTED YET: if true, keeps the player in the group if they switch characters within one account.
+                //! TODO: NOT IMPLEMENTED YET: if true, keeps the player in the group if they switch characters within one account.
                 bool persistGroup = false;
 
                 //! Global damage multiplier to missile and torpedo type weapons.
@@ -53,9 +51,6 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
                 std::vector<std::wstring> noPVPSystems;
 
                 std::vector<uint> noPVPSystemsHashed;
-
-                Serialize(General, antiDockKill, changeCruiseDisruptorBehaviour, damageMode, disableCharfileEncryption, disconnectDelay, disableNPCSpawns,
-                          maxGroupSize, persistGroup, torpMissileBaseDamageMultiplier, tempBansEnabled, chatSuppressList, noPVPSystems);
         };
 
         struct AutoKicks final
@@ -67,8 +62,6 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
 
                 //! Number of milliseconds the player character remains in space after disconnecting.
                 uint antiF1 = 0;
-
-                Serialize(AutoKicks, antiBaseIdle, antiCharMenuIdle, antiF1)
         };
 
         struct Plugins final
@@ -78,8 +71,6 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
                 //! Contains a list of plugins to be enabled on startup if loadAllPlugins is false,
                 //! or plugins to be excluded from being loaded on startup if loadAllPlugins is true.
                 std::vector<std::wstring> plugins = {};
-
-                Serialize(Plugins, loadAllPlugins, plugins);
         };
 
         struct MsgStyle final
@@ -103,9 +94,6 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
                 std::wstring deathMsgTextNPC = L"Death: %victim was killed by an NPC";
                 //! Death message for environmental deaths.
                 std::wstring deathMsgTextSuicide = L"Death: %victim committed suicide";
-
-                Serialize(MsgStyle, msgEchoStyle, deathMsgStyle, deathMsgStyleSys, kickMsgPeriod, kickMsg, userCmdStyle, adminCmdStyle, deathMsgTextAdminKill,
-                          deathMsgTextPlayerKill, deathMsgTextSelfKill, deathMsgTextNPC, deathMsgTextSuicide);
         };
 
         struct MessageQueue final
@@ -127,8 +115,6 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
 
                 //! If true FLHook will communicate with RabbitMQ over AMPQS, using a SSL connection.
                 bool ensureSecureConnection = false;
-
-                Serialize(MessageQueue, enableQueues, hostName, port, username, password, ensureSecureConnection);
         };
 
         struct ChatConfig final
@@ -150,8 +136,6 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
                 //! Broadcasts a message that the player is attempting docking to all players in range
                 //! currently hardcoded to 15K
                 bool dockingMessages = true;
-
-                Serialize(ChatConfig, msgStyle, defaultLocalChat, echoCommands, suppressInvalidCommands, dieMsg, dockingMessages);
         };
 
         struct UserCommands final
@@ -170,9 +154,6 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
                 uint userCmdMaxIgnoreList = 0;
                 //! If true, the default player chat will be local, not system.
                 bool defaultLocalChat = false;
-
-                Serialize(UserCommands, userCmdSetDieMsgSize, userCmdSetDieMsg, userCmdSetChatFont, userCmdIgnore, userCmdHelp, userCmdMaxIgnoreList,
-                          defaultLocalChat);
         };
 
         struct Bans final
@@ -181,8 +162,6 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
                 bool banAccountOnMatch = false;
                 //! Instantly kicks any player with a matching IP or matching IP range.
                 std::vector<std::wstring> banWildcardsAndIPs;
-
-                Serialize(Bans, banAccountOnMatch, banWildcardsAndIPs);
         };
 
         struct Callsign final
@@ -202,15 +181,11 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
 
                 //! If true, NPCs will refer to all players as freelancer
                 bool disableUsingAffiliationForCallsign = false;
-
-                Serialize(Callsign, allowedFormations, disableRandomisedFormations, disableUsingAffiliationForCallsign);
         };
 
         struct DatabaseConfig final
         {
                 std::string uri = "mongodb://localhost:27017";
-
-                Serialize(DatabaseConfig, uri);
         };
 
         Debug debug;
@@ -223,6 +198,4 @@ struct DLL FLHookConfig final : Singleton<FLHookConfig>
         ChatConfig chatConfig;
         Callsign callsign;
         DatabaseConfig databaseConfig;
-
-        Serialize(FLHookConfig, debug, general, autoKicks, plugins, messageQueue, userCommands, bans, chatConfig, callsign, databaseConfig);
 };

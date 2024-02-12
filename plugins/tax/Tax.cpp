@@ -44,7 +44,7 @@ void TaxPlugin::RemoveTax(const Tax& toRemove)
 
 void TaxPlugin::UserCmdTax(const std::wstring_view taxAmount)
 {
-    const auto& noPvpSystems = FLHookConfig::c()->general.noPVPSystemsHashed;
+    const auto& noPvpSystems = FLHook::GetConfig()->general.noPVPSystemsHashed;
     // no-pvp check
     if (SystemId system = Hk::Player::GetSystem(client).Unwrap(); std::ranges::find(noPvpSystems, system) == noPvpSystems.end())
     {

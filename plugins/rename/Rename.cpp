@@ -316,7 +316,7 @@ namespace Plugins::Rename
 				// correctly
 				FlcDecodeFile(o.destFile.c_str(), o.destFile.c_str());
 				IniWriteW(o.destFile, "Player", "Name", o.newCharName);
-				if (!FLHookConfig::i()->general.disableCharfileEncryption)
+				if (!FLHook::GetConfig()->general.disableCharfileEncryption)
 				{
 					FlcEncodeFile(o.destFile.c_str(), o.destFile.c_str());
 				}

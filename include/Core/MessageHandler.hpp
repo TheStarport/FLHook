@@ -11,7 +11,7 @@
 
 class MessageHandler final : public AMQP::ConnectionHandler, public Singleton<MessageHandler>
 {
-        using QueueOnData = std::function<bool(const AMQP::Message& msg, std::optional<nlohmann::json>& replyBody)>;
+        using QueueOnData = std::function<bool(const AMQP::Message& msg, std::optional<yyjson_mut_doc*>& replyBody)>;
         using QueueOnFail = std::function<void(const char* err)>;
 
         std::shared_ptr<uvw::Loop> loop;

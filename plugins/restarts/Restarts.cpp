@@ -190,7 +190,7 @@ namespace Plugins::Restart
 				IniWrite(charFile, "Player", "tstamp", timeStamp);
 				IniWrite(charFile, "Player", "money", std::to_string(restart.cash));
 
-				if (!FLHookConfig::i()->general.disableCharfileEncryption)
+				if (!FLHook::GetConfig()->general.disableCharfileEncryption)
 					FlcEncodeFile(charFile.c_str(), charFile.c_str());
 
 				Logger::i()->Log(LogLevel::Info, std::format("User restart {} for {}", restart.restartFile.c_str(), StringUtils::wstos(restart.characterName).c_str()));

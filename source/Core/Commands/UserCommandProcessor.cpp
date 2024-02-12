@@ -48,7 +48,7 @@ bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstrin
 
 void UserCommandProcessor::SetDieMessage(std::wstring_view param)
 {
-    if (!FLHookConfig::i()->chatConfig.dieMsg)
+    if (!FLHook::GetConfig().chatConfig.dieMsg)
     {
         userCmdClient.Message(L"Command disabled");
         return;
@@ -85,7 +85,8 @@ void UserCommandProcessor::SetDieMessage(std::wstring_view param)
     }
 
     auto& info = userCmdClient.GetData();
-    info.accountData["settings"]["dieMsg"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(dieMsg)));
+    // TODO: Update save to db
+    // info.accountData["settings"]["dieMsg"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(dieMsg)));
     info.dieMsg = dieMsg;
 
     // send confirmation msg
@@ -94,7 +95,7 @@ void UserCommandProcessor::SetDieMessage(std::wstring_view param)
 
 void UserCommandProcessor::SetDieMessageFontSize(std::wstring_view param)
 {
-    if (!FLHookConfig::i()->userCommands.userCmdSetDieMsgSize)
+    if (!FLHook::GetConfig().userCommands.userCmdSetDieMsgSize)
     {
         userCmdClient.Message(L"command disabled");
         return;
@@ -123,7 +124,8 @@ void UserCommandProcessor::SetDieMessageFontSize(std::wstring_view param)
     }
 
     auto& info = FLHook::Clients()[userCmdClient];
-    info.accountData["settings"]["dieMsgSize"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(dieMsgSize)));
+    // TODO: Update save to db
+    // info.accountData["settings"]["dieMsgSize"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(dieMsgSize)));
 
     info.dieMsgSize = dieMsgSize;
 
@@ -132,7 +134,7 @@ void UserCommandProcessor::SetDieMessageFontSize(std::wstring_view param)
 
 void UserCommandProcessor::SetChatFont(std::wstring_view fontSize, std::wstring_view fontType)
 {
-    if (!FLHookConfig::i()->userCommands.userCmdSetChatFont)
+    if (!FLHook::GetConfig().userCommands.userCmdSetChatFont)
     {
         userCmdClient.Message(L"command disabled");
         return;
@@ -185,9 +187,10 @@ void UserCommandProcessor::SetChatFont(std::wstring_view fontSize, std::wstring_
     }
 
     // save to ini
+    // TODO: Update save to db
     auto& info = userCmdClient.GetData();
-    info.accountData["settings"]["chatStyle"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(chatStyle)));
-    info.accountData["settings"]["chatSize"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(chatSize)));
+    /*info.accountData["settings"]["chatStyle"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(chatStyle)));
+    info.accountData["settings"]["chatSize"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(chatSize)));*/
 
     info.chatSize = chatSize;
     info.chatStyle = chatStyle;
@@ -198,7 +201,7 @@ void UserCommandProcessor::SetChatFont(std::wstring_view fontSize, std::wstring_
 
 void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstring_view flags)
 {
-    if (!FLHookConfig::i()->userCommands.userCmdIgnore)
+    if (!FLHook::GetConfig().userCommands.userCmdIgnore)
     {
         return;
     }
@@ -237,26 +240,27 @@ void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstrin
     }
 
     auto& info = userCmdClient.GetData();
-    if (info.ignoreInfoList.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+    if (info.ignoreInfoList.size() > FLHook::GetConfig().userCommands.userCmdMaxIgnoreList)
     {
         userCmdClient.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
         return;
     }
 
-    auto& list = info.accountData["settings"]["ignoreList"];
+    // TODO: Update save to db
+    /*auto& list = info.accountData["settings"]["ignoreList"];
     list[StringUtils::wstos(std::wstring(ignoredLower))] = flags;
 
     IgnoreInfo ii;
     ii.character = ignoredLower;
     ii.flags = flags;
-    info.ignoreInfoList.push_back(ii);
+    info.ignoreInfoList.push_back(ii);*/
 
     PrintOk();
 }
 
 void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_view flags)
 {
-    if (!FLHookConfig::i()->userCommands.userCmdIgnore)
+    if (!FLHook::GetConfig().userCommands.userCmdIgnore)
     {
         userCmdClient.Message(L"Command disabled");
         return;
@@ -274,7 +278,7 @@ void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_v
     }
 
     auto& data = userCmdClient.GetData();
-    if (data.ignoreInfoList.size() > FLHookConfig::i()->userCommands.userCmdMaxIgnoreList)
+    if (data.ignoreInfoList.size() > FLHook::GetConfig().userCommands.userCmdMaxIgnoreList)
     {
         userCmdClient.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
         return;
@@ -291,8 +295,9 @@ void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_v
     // save to ini
 
     auto& info = userCmdClient.GetData();
-    auto& list = info.accountData["settings"]["ignoreList"];
-    list[StringUtils::wstos(std::wstring(character))] = flags;
+    /*auto& list = info.accountData["settings"]["ignoreList"];
+    list[StringUtils::wstos(std::wstring(character))] = flags;*/
+    // TODO: Update save to db
 
     IgnoreInfo ii;
     ii.character = character;
@@ -304,7 +309,7 @@ void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_v
 
 void UserCommandProcessor::GetIgnoreList()
 {
-    if (!FLHookConfig::i()->userCommands.userCmdIgnore)
+    if (!FLHook::GetConfig().userCommands.userCmdIgnore)
     {
         userCmdClient.Message(L"command disabled");
         return;
@@ -323,7 +328,7 @@ void UserCommandProcessor::GetIgnoreList()
 
 void UserCommandProcessor::RemoveFromIgnored(std::vector<std::wstring_view> charactersToRemove)
 {
-    if (!FLHookConfig::i()->userCommands.userCmdIgnore)
+    if (!FLHook::GetConfig().userCommands.userCmdIgnore)
     {
         userCmdClient.Message(L"Command disabled");
         return;
@@ -341,7 +346,8 @@ void UserCommandProcessor::RemoveFromIgnored(std::vector<std::wstring_view> char
     auto& info = userCmdClient.GetData();
     if (charactersToRemove.front() == L"all")
     {
-        info.accountData["settings"]["ignoreList"] = nlohmann::json::object();
+        // TODO: Update save to db
+        // info.accountData["settings"]["ignoreList"] = nlohmann::json::object();
         PrintOk();
         return;
     }
@@ -377,15 +383,16 @@ void UserCommandProcessor::RemoveFromIgnored(std::vector<std::wstring_view> char
     info.ignoreInfoList.reverse();
 
     // send confirmation msg
-    auto newList = nlohmann::json::object();
+    // TODO: Update save to db
+    /*auto newList = nlohmann::json::object();
     int i = 1;
     for (const auto& ignore : info.ignoreInfoList)
     {
         newList[StringUtils::wstos(ignore.character)] = ignore.flags;
         i++;
-    }
+    }*/
 
-    info.accountData["settings"]["ignoreList"] = newList;
+    // info.accountData["settings"]["ignoreList"] = newList;
     PrintOk();
 }
 
@@ -632,7 +639,7 @@ void UserCommandProcessor::GiveCashById(ClientId targetClient, std::wstring_view
 
 void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_view command)
 {
-    if (const auto* config = FLHookConfig::c(); !config->userCommands.userCmdHelp)
+    if (const auto& config = FLHook::GetConfig(); !config.userCommands.userCmdHelp)
     {
         userCmdClient.Message(L"The help command is disabled.");
         return;

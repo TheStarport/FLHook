@@ -360,16 +360,16 @@
     <ClInclude Include="..\include\Defs\SehException.hpp">
       <Filter>Include\Defs</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Exceptions\StopProcessingException.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Exceptions\StopProcessingException.hpp">
       <Filter>Include\SDK\Exceptions</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Exceptions\UnsupportedException.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Exceptions\UnsupportedException.hpp">
       <Filter>Include\SDK\Exceptions</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Exceptions\ErrorInfo.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Exceptions\ErrorInfo.hpp">
       <Filter>Include\SDK\Exceptions</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Exceptions\GameException.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Exceptions\GameException.hpp">
       <Filter>Include\SDK\Exceptions</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Core\AddressList.hpp">
@@ -384,19 +384,19 @@
     <ClInclude Include="..\Include\Core\ApiInternal.hpp">
       <Filter>Include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Typedefs.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Typedefs.hpp">
       <Filter>Include\SDK</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Action.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Action.hpp">
       <Filter>Include\SDK</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Concepts.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Concepts.hpp">
       <Filter>Include\SDK</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\ResourcePtr.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\ResourcePtr.hpp">
       <Filter>Include\SDK</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Singleton.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Singleton.hpp">
       <Filter>Include\SDK</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\API\Types\ClientId.hpp">
@@ -411,52 +411,52 @@
     <ClInclude Include="..\Include\API\Types\SystemId.hpp">
       <Filter>Include\API\Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreCommon.h">
+    <ClInclude Include="..\vendor\FLHookSDK\include\FLCore\FLCoreCommon.h">
       <Filter>Include\SDK\FlCore</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDACom.h">
+    <ClInclude Include="..\vendor\FLHookSDK\include\FLCore\FLCoreDACom.h">
       <Filter>Include\SDK\FlCore</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDALib.h">
+    <ClInclude Include="..\vendor\FLHookSDK\include\FLCore\FLCoreDALib.h">
       <Filter>Include\SDK\FlCore</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreDefs.h">
+    <ClInclude Include="..\vendor\FLHookSDK\include\FLCore\FLCoreDefs.h">
       <Filter>Include\SDK\FlCore</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreFLServerEXE.h">
+    <ClInclude Include="..\vendor\FLHookSDK\include\FLCore\FLCoreFLServerEXE.h">
       <Filter>Include\SDK\FlCore</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreRemoteClient.h">
+    <ClInclude Include="..\vendor\FLHookSDK\include\FLCore\FLCoreRemoteClient.h">
       <Filter>Include\SDK\FlCore</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\FLCoreServer.h">
+    <ClInclude Include="..\vendor\FLHookSDK\include\FLCore\FLCoreServer.h">
       <Filter>Include\SDK\FlCore</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FLCore\st6.h">
+    <ClInclude Include="..\vendor\FLHookSDK\include\FLCore\st6.h">
       <Filter>Include\SDK\FlCore</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Utils\Detour.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Utils\Detour.hpp">
       <Filter>Include\SDK\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Utils\MemUtils.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Utils\MemUtils.hpp">
       <Filter>Include\SDK\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Utils\StringUtils.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Utils\StringUtils.hpp">
       <Filter>Include\SDK\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Utils\TemplateHelpers.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Utils\TemplateHelpers.hpp">
       <Filter>Include\SDK\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Utils\TimeUtils.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Utils\TimeUtils.hpp">
       <Filter>Include\SDK\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Utils\Utils.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Utils\Utils.hpp">
       <Filter>Include\SDK\Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\API\Types\ObjectId.hpp">
       <Filter>Include\API\Types</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\FlPtr.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\FlPtr.hpp">
       <Filter>Include\SDK</Filter>
     </ClInclude>
     <ClInclude Include="..\include\API\FLHook\InfocardManager.hpp">
@@ -477,7 +477,7 @@
     <ClInclude Include="..\Include\API\FLHook\ClientList.hpp">
       <Filter>Include\API\FLHook</Filter>
     </ClInclude>
-    <ClInclude Include="..\FLHookSDK\include\Exceptions\InvalidParameterException.hpp">
+    <ClInclude Include="..\vendor\FLHookSDK\include\Exceptions\InvalidParameterException.hpp">
       <Filter>Include\SDK\Exceptions</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Core\IpResolver.hpp">

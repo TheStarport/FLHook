@@ -96,7 +96,7 @@ namespace Plugins::CargoDrop
 					if (global->config->reportDisconnectingPlayers)
 					{
 						std::wstring msg = StringUtils::stows(global->config->disconnectMsg);
-						msg = StringUtils::ReplaceStr(msg, L"%time", GetTimeString(FLHookConfig::i()->general.localTime));
+						msg = StringUtils::ReplaceStr(msg, L"%time", GetTimeString(FLHook::GetConfig()->general.localTime));
 						msg = StringUtils::ReplaceStr(msg, L"%player", characterName);
 						PrintLocalUserCmdText(client, msg, global->config->disconnectingPlayersRange);
 					}
@@ -169,7 +169,7 @@ namespace Plugins::CargoDrop
 		}
 		if (const auto hullDrop = static_cast<int>(global->config->hullDropFactor * static_cast<float>(shipSizeEstimate)); hullDrop > 0)
 		{
-			if (FLHookConfig::i()->debug.debugMode)
+			if (FLHook::GetConfig()->debug.debugMode)
 				Logger::i()->Log(LogLevel::Info, std::format("Cargo drop in system {:#X} at {:.2f}, {:.2f}, {:.2f} for ship size of shipSizeEst={} hullDrop={}\n",
 				    system,
 				    position.x,

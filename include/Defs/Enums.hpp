@@ -130,12 +130,7 @@ enum class DamageMode
     All = PvE | PvP
 };
 
-NLOHMANN_JSON_SERIALIZE_ENUM(DamageMode, {
-                                             {DamageMode::None,     0},
-                                             { DamageMode::PvE, "pve"},
-                                             { DamageMode::PvP, "pvp"},
-                                             { DamageMode::All, "all"},
-});
+inline DamageMode operator|(DamageMode c1, DamageMode c2) { return static_cast<DamageMode>(static_cast<int>(c1) | static_cast<int>(c2)); }
 
 enum class AllowedFormation
 {
@@ -169,36 +164,3 @@ enum class AllowedFormation
     Kiku,
     Yanagi
 };
-
-NLOHMANN_JSON_SERIALIZE_ENUM(AllowedFormation,
-                             {
-                                 {  AllowedFormation::Alpha,   "alpha"},
-                                 {   AllowedFormation::Beta,    "beta"},
-                                 {  AllowedFormation::Gamma,   "gamma"},
-                                 {  AllowedFormation::Delta,   "delta"},
-                                 {AllowedFormation::Omicron, "omicron"},
-                                 {  AllowedFormation::Omega,   "omega"},
-                                 {  AllowedFormation::Sigma,   "sigma"},
-                                 {AllowedFormation::Epsilon, "epsilon"},
-                                 {   AllowedFormation::Zeta,    "zeta"},
-                                 {  AllowedFormation::Theta,   "theta"},
-                                 {  AllowedFormation::Kappa,   "kappa"},
-                                 { AllowedFormation::Lambda,  "lambda"},
-                                 {   AllowedFormation::Iota,    "iota"},
-                                 {    AllowedFormation::Red,     "red"},
-                                 {   AllowedFormation::Blue,    "blue"},
-                                 {   AllowedFormation::Gold,    "gold"},
-                                 {  AllowedFormation::Green,   "green"},
-                                 { AllowedFormation::Silver,  "silver"},
-                                 {  AllowedFormation::Black,   "black"},
-                                 {  AllowedFormation::White,   "white"},
-                                 { AllowedFormation::Yellow,  "yellow"},
-                                 {  AllowedFormation::Matsu,   "matsu"},
-                                 { AllowedFormation::Sakura,  "sakura"},
-                                 {   AllowedFormation::Fuji,    "fuji"},
-                                 {  AllowedFormation::Botan,   "botan"},
-                                 {   AllowedFormation::Hagi,    "hagi"},
-                                 { AllowedFormation::Susuki,  "susuki"},
-                                 {   AllowedFormation::Kiku,    "kiku"},
-                                 { AllowedFormation::Yanagi,  "yanagi"},
-})

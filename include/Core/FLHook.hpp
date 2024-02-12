@@ -1,5 +1,7 @@
 #pragma once
 
+#include "API/Utils/Logger.hpp"
+
 #include "AddressList.hpp"
 
 class InternalApi;
@@ -101,6 +103,7 @@ class FLHook final
         TempBanManager* tempbanManager;
         PersonalityHelper* personalityHelper;
         AccountManager* accountManager;
+        FLHookConfig* flhookConfig;
 
         bool OnServerStart();
         void InitHookExports();
@@ -168,6 +171,7 @@ class FLHook final
         static LastHitInformation GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }
         static Action<pub::AI::Personality, Error> GetPersonality(const std::wstring& pilotNickname);
         static AccountManager& GetAccountManager() { return *instance->accountManager; }
+        static FLHookConfig& GetConfig() { return *instance->flhookConfig; }
 
         static Action<void, Error> MessageUniverse(std::wstring_view message);
 };

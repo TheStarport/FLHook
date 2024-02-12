@@ -2,18 +2,18 @@
 
 #include "API/InternalApi.hpp"
 
+#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/Commands/AdminCommandProcessor.hpp"
 #include "Core/Commands/UserCommandProcessor.hpp"
-#include "API/Utils/Logger.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
 
 bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdlReader, ClientId to, int)
 {
     TryHook
     {
-        const auto* config = FLHookConfig::i();
+        const auto& config = FLHook::GetConfig();
 
         // Group join/leave commands are not parsed
         if (to.GetValue() == static_cast<uint>(SpecialChatIds::GroupEvent))
@@ -51,7 +51,7 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
 
         // if this is a message in system chat then convert it to local unless
         // explicitly overriden by the player using /s.
-        if (config->chatConfig.defaultLocalChat && to == ClientId(SpecialChatIds::System))
+        if (config.chatConfig.defaultLocalChat && to == ClientId(SpecialChatIds::System))
         {
             to = ClientId(SpecialChatIds::Local);
         }
@@ -62,9 +62,9 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
         {
             if (UserCommandProcessor::i()->ProcessCommand(from, std::wstring_view(buffer)))
             {
-                if (FLHookConfig::c()->chatConfig.echoCommands)
+                if (FLHook::GetConfig().chatConfig.echoCommands)
                 {
-                    const std::wstring xml = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
+                    const std::wstring xml = L"<TRA data=\"" + FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
                                              StringUtils::XmlText(buffer) + L"</TEXT>";
                     InternalApi::SendMessage(from, xml);
                 }
@@ -93,9 +93,9 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
         }
         else if (buffer[0] == '.')
         {
-            if (FLHookConfig::c()->chatConfig.echoCommands)
+            if (FLHook::GetConfig().chatConfig.echoCommands)
             {
-                const std::wstring xml = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
+                const std::wstring xml = L"<TRA data=\"" + FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
                                          StringUtils::XmlText(buffer) + L"</TEXT>";
                 InternalApi::SendMessage(from, xml);
             }
@@ -109,14 +109,14 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
         // check if chat should be suppressed for in-built command prefixes
         if (buffer[0] == L'/')
         {
-            if (FLHookConfig::c()->chatConfig.echoCommands)
+            if (FLHook::GetConfig().chatConfig.echoCommands)
             {
-                const std::wstring xml = L"<TRA data=\"" + FLHookConfig::c()->chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
+                const std::wstring xml = L"<TRA data=\"" + FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
                                          StringUtils::XmlText(buffer) + L"</TEXT>";
                 InternalApi::SendMessage(from, xml);
             }
 
-            if (config->chatConfig.suppressInvalidCommands && !foundCommand)
+            if (config.chatConfig.suppressInvalidCommands && !foundCommand)
             {
                 return false;
             }
@@ -129,10 +129,10 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
         }
 
         // Check if any other custom prefixes have been added
-        if (!config->general.chatSuppressList.empty())
+        if (!config.general.chatSuppressList.empty())
         {
             const auto lcBuffer = StringUtils::ToLower(buffer);
-            for (const auto& chat : config->general.chatSuppressList)
+            for (const auto& chat : config.general.chatSuppressList)
             {
                 if (lcBuffer.rfind(chat, 0) == 0)
                 {

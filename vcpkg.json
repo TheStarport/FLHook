@@ -5,16 +5,12 @@
     "builtin-baseline": "16ee2ecb31788c336ace8bb14c21801efb6836e4",
     "dependencies": [
         {
-            "name": "pcre2",
-            "version>=": "10.40"
+            "name": "re2",
+            "version>=": "2023-07-01"
         },
         {
             "name": "magic-enum",
             "version>=": "0.9.2"
-        },
-        {
-            "name": "nlohmann-json",
-            "version>=": "3.11.2"
         },
         {
             "name": "spdlog",

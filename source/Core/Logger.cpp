@@ -168,7 +168,7 @@ ______ _      _   _             _        ___   __                _ _
 
 void Logger::Log(LogFile file, LogLevel level, std::wstring_view str)
 {
-    if ((!FLHookConfig::i()->debug.logTraceLevel && level == LogLevel::Trace) || (!FLHookConfig::i()->debug.debugMode && level == LogLevel::Debug))
+    if ((!FLHook::GetConfig().debug.logTraceLevel && level == LogLevel::Trace) || (!FLHook::GetConfig().debug.debugMode && level == LogLevel::Debug))
     {
         return;
     }
@@ -178,7 +178,7 @@ void Logger::Log(LogFile file, LogLevel level, std::wstring_view str)
 
 void Logger::Log(LogLevel level, std::wstring_view str)
 {
-    if ((!FLHookConfig::i()->debug.logTraceLevel && level == LogLevel::Trace) || (!FLHookConfig::i()->debug.debugMode && level == LogLevel::Debug))
+    if ((!FLHook::GetConfig().debug.logTraceLevel && level == LogLevel::Trace) || (!FLHook::GetConfig().debug.debugMode && level == LogLevel::Debug))
     {
         return;
     }

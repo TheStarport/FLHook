@@ -5,8 +5,8 @@
 		<DistDir>$(SolutionDir)..\bin\dist\$(Configuration)\</DistDir>
 	</PropertyGroup>
 	<PropertyGroup>
-		<IncludePath>$(SolutionDir)..\FLHookSDK\vendor;$(SolutionDir)..\FLHookSDK\include;$(SolutionDir)..\include;$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\include\bsoncxx\v_noabi;$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\include\mongocxx\v_noabi;$(IncludePath)</IncludePath>
-		<LibraryPath>$(SolutionDir)..\FLHookSDK\lib;$(SolutionDir)..\lib;$(LibraryPath)</LibraryPath>
+		<IncludePath>$(SolutionDir)..\vendor;$(SolutionDir)..\vendor\reflect-cpp\include;$(SolutionDir)..\vendor\FLHookSDK\vendor;$(SolutionDir)..\vendor\FLHookSDK\include;$(SolutionDir)..\include;$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\include\bsoncxx\v_noabi;$(SolutionDir)..\vcpkg_installed\x86-windows\x86-windows\include\mongocxx\v_noabi;$(IncludePath)</IncludePath>
+		<LibraryPath>$(SolutionDir)..\vendor\FLHookSDK\lib;$(SolutionDir)..\lib;$(LibraryPath)</LibraryPath>
 		<OutDir>$(SolutionDir)..\bin\out\$(Configuration)\</OutDir>
 		<IntDir>$(SolutionDir)..\bin\int\$(ProjectName)\$(Configuration)\</IntDir>
 	</PropertyGroup>

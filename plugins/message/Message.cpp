@@ -418,7 +418,7 @@ namespace Plugins::Message
 						if (global->config->disconnectSwearingInSpaceRange > 0.0f)
 						{
 							std::wstring msg = global->config->disconnectSwearingInSpaceMsg;
-							msg = StringUtils::ReplaceStr(msg, L"%time", GetTimeString(FLHookConfig::i()->messages.dieMsg));
+							msg = StringUtils::ReplaceStr(msg, L"%time", GetTimeString(FLHook::GetConfig()->messages.dieMsg));
 							msg = StringUtils::ReplaceStr(msg, L"%player", charname);
 							PrintLocalUserCmdText(client, msg, global->config->disconnectSwearingInSpaceRange);
 						}
@@ -501,7 +501,7 @@ namespace Plugins::Message
 			// line.
 			global->sendingTime = true;
 			Hk::Chat::FMsg(
-			    client, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(GetTimeString(FLHookConfig::i()->messages.dieMsg)) + L"</TEXT>");
+			    client, L"<TRA data=\"0xBEBEBE90\" mask=\"-1\"/><TEXT>" + StringUtils::XmlText(GetTimeString(FLHook::GetConfig()->messages.dieMsg)) + L"</TEXT>");
 			global->sendingTime = false;
 		}
 		return false;
@@ -567,7 +567,7 @@ namespace Plugins::Message
 		const auto numStr = param[1];
 		wchar_t* _;
 		const long num = std::wcstol(&numStr, &_, 10);
-		if (FLHookConfig::c()->messages.defaultLocalChat)
+		if (FLHook::GetConfig()->messages.defaultLocalChat)
 		{
 			SendPresetLocalMessage(client, num);
 		}
@@ -828,7 +828,7 @@ namespace Plugins::Message
 	void UserCmd_Time(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		// Send time with gray color (BEBEBE) in small text (90) above the chat line.
-		client.Message(GetTimeString(FLHookConfig::i()->general.localTime));
+		client.Message(GetTimeString(FLHook::GetConfig()->general.localTime));
 	}
 
 	/** @ingroup Message
@@ -842,7 +842,7 @@ namespace Plugins::Message
 			SystemId systemId = Hk::Player::GetSystem(client).value();
 
 			// Encode message using the death message style (red text).
-			std::wstring XMLMsg = L"<TRA data=\"" + FLHookConfig::i()->messages.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
+			std::wstring XMLMsg = L"<TRA data=\"" + FLHook::GetConfig()->messages.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
 			XMLMsg += charname + L" ";
 			XMLMsg += StringUtils::XmlText(ViewToWString(GetParamToEnd(param, ' ', 0)));
 			XMLMsg += L"</TEXT>";
@@ -865,7 +865,7 @@ namespace Plugins::Message
 			SystemId systemId = Hk::Player::GetSystem(client).value();
 
 			// Encode message using the death message style (red text).
-			std::wstring XMLMsg = L"<TRA data=\"" + FLHookConfig::i()->messages.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
+			std::wstring XMLMsg = L"<TRA data=\"" + FLHook::GetConfig()->messages.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
 			XMLMsg += StringUtils::XmlText(ViewToWString(GetParamToEnd(ViewToWString(param), ' ', 0)));
 			XMLMsg += L"</TEXT>";
 

@@ -142,7 +142,6 @@ void FLHook::ClearClientInfo(ClientId client)
     info.spawnTime = 0;
     info.moneyFix.clear();
     info.tradePartner = ClientId();
-    info.baseEnterTime = 0;
     info.charMenuEnterTime = 0;
     info.cruiseActivated = false;
     info.kickTime = 0;
@@ -151,6 +150,8 @@ void FLHook::ClearClientInfo(ClientId client)
     info.characterName = L"";
     info.f1Time = 0;
     info.timeDisconnect = 0;
+    info.baseId = BaseId();
+    info.baseEnterTime = 0;
 
     info.dmgLast = {};
     info.dieMsgSize = ChatSize::Default;
@@ -180,56 +181,7 @@ void FLHook::ClearClientInfo(ClientId client)
 
 void FLHook::LoadUserSettings(ClientId client)
 {
-    auto& info = client.GetData();
-
-    AccountId acc = client.GetAccount().Unwrap();
-    const std::wstring dir = AccountId(acc).GetDirectoryName().Unwrap();
-    const std::wstring userFile = std::format(L"{}{}\\accData.json", accPath, dir);
-
-    info.accountData = nlohmann::json::object();
-
-    try
-    {
-        if (std::wifstream ifs(userFile); !ifs.fail())
-        {
-            std::wstring fileData((std::istreambuf_iterator(ifs)), (std::istreambuf_iterator<wchar_t>()));
-            info.accountData = nlohmann::json::parse(fileData);
-        }
-    }
-    catch (nlohmann::json::exception& ex)
-    {
-        // TODO: Log to a special error file
-        Logger::Log(LogLevel::Err,
-                    std::format(L"Error while loading account data from account file ({}): {}", userFile, StringUtils::stows(std::string(ex.what()))));
-    }
-
-    auto settings = info.accountData.value("settings", nlohmann::json::object());
-
-    info.dieMsg = magic_enum::enum_cast<DieMsgType>(StringUtils::stows(settings.value("dieMsg", "All"))).value_or(DieMsgType::All);
-    info.dieMsgSize = magic_enum::enum_cast<ChatSize>(StringUtils::stows(settings.value("dieMsgSize", "Default"))).value_or(ChatSize::Default);
-    info.chatSize = magic_enum::enum_cast<ChatSize>(StringUtils::stows(settings.value("chatSize", "Default"))).value_or(ChatSize::Default);
-    info.chatStyle = magic_enum::enum_cast<ChatStyle>(StringUtils::stows(settings.value("chatStyle", "Default"))).value_or(ChatStyle::Default);
-
-    // read ignorelist
-    info.ignoreInfoList.clear();
-
-    for (const auto ignoreList = settings.value("ignoreList", nlohmann::json::object()); const auto& [key, value] : ignoreList.items())
-    {
-        try
-        {
-            IgnoreInfo ii;
-            ii.character = StringUtils::stows(key);
-            ii.flags = value.get<std::wstring>();
-            info.ignoreInfoList.emplace_back(ii);
-        }
-        catch (...)
-        {
-            Logger::Log(LogLevel::Err, std::format(L"Error while loading ignore list from account file: {}", userFile));
-        }
-    }
-
-    // Don't know if this is a reference or copy - write again to be safe
-    info.accountData["settings"] = settings;
+    // TODO: Load from DB
 }
 
 void FLHook::InitHookExports()
@@ -297,7 +249,7 @@ void FLHook::InitHookExports()
     MemUtils::ReadProcMem(address, &cdpServer, 4);
 
     // anti-deathmsg
-    if (FLHookConfig::i()->chatConfig.dieMsg)
+    if (FLHook::GetConfig().chatConfig.dieMsg)
     {
         // disables the "old" "A Player has died: ..." chatConfig
         std::array<byte, 1> jmp = { 0xEB };
@@ -306,7 +258,7 @@ void FLHook::InitHookExports()
     }
 
     // charfile encyption(doesn't get disabled when unloading FLHook)
-    if (FLHookConfig::i()->general.disableCharfileEncryption)
+    if (FLHook::GetConfig().general.disableCharfileEncryption)
     {
         std::array<byte, 2> buffer = { 0x14, 0xB3 };
         address = Offset(BinaryType::Server, AddressList::CharFileEncryption);
@@ -316,9 +268,9 @@ void FLHook::InitHookExports()
     }
 
     // maximum group size
-    if (FLHookConfig::i()->general.maxGroupSize > 0)
+    if (FLHook::GetConfig().general.maxGroupSize > 0)
     {
-        auto newGroupSize = static_cast<std::byte>(FLHookConfig::i()->general.maxGroupSize & 0xFF);
+        auto newGroupSize = static_cast<std::byte>(FLHook::GetConfig().general.maxGroupSize & 0xFF);
         address = Offset(BinaryType::Server, AddressList::MaxGroupSize);
         MemUtils::WriteProcMem(address, &newGroupSize, 1);
         address = Offset(BinaryType::Server, AddressList::MaxGroupSize2);

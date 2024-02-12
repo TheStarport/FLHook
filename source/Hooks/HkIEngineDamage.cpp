@@ -48,7 +48,7 @@ bool __stdcall IEngineHook::GuidedHit(char* ecx, char* p1, DamageList* dmgList)
                     retValue = true;
                 }
 
-                if (FLHookConfig::i()->general.changeCruiseDisruptorBehaviour &&
+                if (FLHook::GetConfig().general.changeCruiseDisruptorBehaviour &&
                     ((dmgList->get_cause() == DamageCause::CruiseDisrupter || dmgList->get_cause() == DamageCause::UnkDisrupter) &&
                      ClientId(client).GetData().cruiseActivated))
                 {
@@ -97,7 +97,7 @@ void __stdcall IEngineHook::AddDamageEntry(DamageList* dmgList, unsigned short s
         return;
     }
 
-    if (const auto damageMode = FLHookConfig::i()->general.damageMode;
+    if (const auto damageMode = FLHook::GetConfig().general.damageMode;
         !magic_enum::enum_flags_test(damageMode, DamageMode::PvE) && (dmgList->is_inflictor_a_player() && !FLHook::dmgToClient) ||
         (!dmgList->is_inflictor_a_player() && FLHook::dmgToClient))
     {
@@ -122,7 +122,7 @@ void __stdcall IEngineHook::AddDamageEntry(DamageList* dmgList, unsigned short s
     if (FLHook::nonGunHitsBase && dmgList->get_cause() == DamageCause::MissileTorpedo)
     {
         const float damage = FLHook::lastHitPts - hitPts;
-        hitPts = FLHook::lastHitPts - damage * FLHookConfig::i()->general.torpMissileBaseDamageMultiplier;
+        hitPts = FLHook::lastHitPts - damage * FLHook::GetConfig().general.torpMissileBaseDamageMultiplier;
         if (hitPts < 0)
         {
             hitPts = 0;
@@ -237,15 +237,15 @@ bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
         return rval;
     }
 
-    const auto* config = FLHookConfig::c();
-    if (config->general.damageMode == DamageMode::None)
+    const auto& config = FLHook::GetConfig();
+    if (config.general.damageMode == DamageMode::None)
     {
         return false;
     }
 
     if (clientTarget)
     {
-        if (!magic_enum::enum_flags_test(config->general.damageMode, DamageMode::PvP))
+        if (!magic_enum::enum_flags_test(config.general.damageMode, DamageMode::PvP))
         {
             return false;
         }
@@ -255,7 +255,7 @@ bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
         // anti-dockkill check
         if (auto& targetData = clientTarget.GetData(); targetData.spawnProtected)
         {
-            if (time - targetData.spawnTime <= config->general.antiDockKill)
+            if (time - targetData.spawnTime <= config.general.antiDockKill)
             {
                 return false; // target is protected
             }
@@ -265,7 +265,7 @@ bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
 
         if (auto& clientData = client.GetData(); clientData.spawnProtected)
         {
-            if (time - clientData.spawnTime <= config->general.antiDockKill)
+            if (time - clientData.spawnTime <= config.general.antiDockKill)
             {
                 return false; // target may not shoot
             }
@@ -276,7 +276,7 @@ bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
         // no-pvp check
         uint systemId;
         pub::Player::GetSystem(client.GetValue(), systemId);
-        if (std::ranges::find(config->general.noPVPSystemsHashed, systemId) != config->general.noPVPSystemsHashed.end())
+        if (std::ranges::find(config.general.noPVPSystemsHashed, systemId) != config.general.noPVPSystemsHashed.end())
         {
             return false;
         }

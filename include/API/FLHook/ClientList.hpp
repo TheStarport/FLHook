@@ -8,8 +8,6 @@ struct ClientData
         PlayerData* playerData = nullptr;
         bool isValid = false;
 
-        nlohmann::json accountData{};
-
         std::wstring characterFile{};
 
         ShipId ship{};

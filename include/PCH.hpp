@@ -16,7 +16,6 @@
 #include <iostream>
 #include <list>
 #include <map>
-#include <unordered_map>
 #include <memory>
 #include <numbers>
 #include <optional>
@@ -25,6 +24,7 @@
 #include <string>
 #include <thread>
 #include <tuple>
+#include <unordered_map>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -46,11 +46,12 @@
 #include <magic_enum.hpp>
 #include <magic_enum_flags.hpp>
 
-#include <nlohmann/json.hpp>
+#include <rfl.hpp>
+#include <rfl/bson.hpp>
+#include <rfl/json.hpp>
 
 #include <External/Wildcard.hpp>
 #include <External/inipp.hpp>
-#include <External/jpcre2.hpp>
 
 #include "Core/Templates/Macros.hpp"
 
@@ -83,21 +84,32 @@
 #include "Defs/FLHookConfig.hpp"
 #include "Defs/FLPacket.hpp"
 
-#ifdef _DEBUG
-    #pragma comment(lib, "pcre2-8d.lib")
-    #pragma comment(lib, "pcre2-16d.lib")
-    #pragma comment(lib, "pcre2-32d.lib")
-    #pragma comment(lib, "pcre2-posixd.lib")
-#else
-    #pragma comment(lib, "pcre2-8.lib")
-    #pragma comment(lib, "pcre2-16.lib")
-    #pragma comment(lib, "pcre2-32.lib")
-    #pragma comment(lib, "pcre2-posix.lib")
-#endif
-
-using Jp = jpcre2::select<char>;
-using JpWide = jpcre2::select<wchar_t>;
-
 #include "Core/PluginManager.hpp"
+
+namespace Json
+{
+    template <typename T>
+    bool SaveJson(const T& obj, std::string_view path, const bool useSaveGameFolder = false)
+    {
+        std::string relativePath;
+        if (useSaveGameFolder)
+        {
+            std::array<char, MAX_PATH> pathArr;
+            GetUserDataPath(pathArr.data());
+            relativePath += std::string(pathArr.data(), strlen(pathArr.data()));
+        }
+
+        std::ofstream stream(std::format("{}\\{}", relativePath, path));
+        if (!stream.is_open())
+        {
+            Logger::Log(LogLevel::Warn, L"Unable to save JSON file.");
+            return false;
+        }
+
+        rfl::json::write(obj, stream);
+
+        return true;
+    }
+} // namespace Json
 
 #pragma warning(pop)

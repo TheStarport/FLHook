@@ -40,7 +40,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
         {
             CallPlugins(&Plugin::OnLoadCharacterSettings, client, std::wstring_view(charName));
 
-            if (FLHookConfig::i()->userCommands.userCmdHelp)
+            if (FLHook::GetConfig().userCommands.userCmdHelp)
             {
                 client.Message(L"To get a list of available commands, type \"/help\" in chat.");
             }
@@ -66,7 +66,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
                 }
             }
 
-            if (FLHookConfig::i()->general.persistGroup && info.groupId)
+            if (FLHook::GetConfig().general.persistGroup && info.groupId)
             {
                 GroupId(info.groupId).AddMember(client);
             }
@@ -77,16 +77,16 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
             static std::random_device dev;
             static std::mt19937 rng(dev());
             std::uniform_int_distribution<std::mt19937::result_type> distNum(1, 20);
-            const auto* conf = FLHookConfig::c();
-            std::uniform_int_distribution<std::mt19937::result_type> distForm(0, conf->callsign.allowedFormations.size() - 1);
+            const auto& config = FLHook::GetConfig();
+            std::uniform_int_distribution<std::mt19937::result_type> distForm(0, config.callsign.allowedFormations.size() - 1);
 
-            if (conf->callsign.allowedFormations.empty())
+            if (config.callsign.allowedFormations.empty())
             {
                 info.formationTag = AllowedFormation::Alpha;
             }
             else
             {
-                info.formationTag = conf->callsign.allowedFormations[distForm(rng)];
+                info.formationTag = config.callsign.allowedFormations[distForm(rng)];
             }
 
             info.formationNumber1 = distNum(rng);
@@ -192,7 +192,7 @@ bool IServerImplHook::CharacterInfoReqInner(ClientId client, bool)
             if (shipId)
             {
                 // in space
-                info.f1Time = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHookConfig::i()->autoKicks.antiF1;
+                info.f1Time = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHook::GetConfig().autoKicks.antiF1;
                 return false;
             }
         }

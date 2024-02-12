@@ -1,3 +1,6 @@
 [submodule "FLHookSDK"]
-	path = FLHookSDK
+	path = vendor/FLHookSDK
 	url = https://github.com/fl-devs/FLHookSDK.git
+[submodule "vendor/reflect-cpp"]
+	path = vendor/reflect-cpp
+	url = https://github.com/getml/reflect-cpp.git

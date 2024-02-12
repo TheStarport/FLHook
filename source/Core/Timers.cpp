@@ -65,13 +65,15 @@ void FLHook::PublishServerStats()
         stats.players.emplace_back(player);
     }
 
-    const auto json = Serializer::ObjToJson(stats);
-    MessageHandler::i()->Publish(StringUtils::stows(json.dump()), std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), L"");
+    /*
+     * TODO: Restore once wstring support sorted
+     const auto json = rfl::json::write(stats);
+    MessageHandler::i()->Publish(StringUtils::stows(json), std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), L"");*/
 }
 
 void FLHook::TimerTempBanCheck()
 {
-    if (const auto* config = FLHookConfig::c(); config->general.tempBansEnabled)
+    if (const auto& config = FLHook::GetConfig(); config.general.tempBansEnabled)
     {
         GetTempBanManager().ClearFinishedTempBans();
     }
@@ -95,18 +97,18 @@ void FLHook::TimerCheckKick()
                 continue;
             }
 
-            const auto* config = FLHookConfig::c();
-            if (config->autoKicks.antiBaseIdle)
+            const auto& config = FLHook::GetConfig();
+            if (config.autoKicks.antiBaseIdle)
             {
                 // anti base-idle check
-                if (client.baseEnterTime && time - client.baseEnterTime >= config->autoKicks.antiBaseIdle)
+                if (client.baseEnterTime && time - client.baseEnterTime >= config.autoKicks.antiBaseIdle)
                 {
                     client.id.Kick(L"Base idling", 10);
                     client.baseEnterTime = 0;
                 }
             }
 
-            if (config->autoKicks.antiCharMenuIdle)
+            if (config.autoKicks.antiCharMenuIdle)
             {
                 // anti charmenu-idle check
                 if (!client.characterName.empty())
@@ -115,7 +117,7 @@ void FLHook::TimerCheckKick()
                     {
                         client.charMenuEnterTime = static_cast<uint>(time);
                     }
-                    else if (time - client.charMenuEnterTime >= config->autoKicks.antiCharMenuIdle)
+                    else if (time - client.charMenuEnterTime >= config.autoKicks.antiCharMenuIdle)
                     {
                         client.id.Kick();
                         client.charMenuEnterTime = 0;
@@ -165,8 +167,8 @@ void FLHook::TimerNpcAndF1Check()
             }
         }
 
-        const auto* config = FLHookConfig::c();
-        if (config->general.disableNPCSpawns && instance->serverLoadInMs >= config->general.disableNPCSpawns)
+        const auto& config = FLHook::GetConfig();
+        if (config.general.disableNPCSpawns && instance->serverLoadInMs >= config.general.disableNPCSpawns)
         {
             // TODO: NPC SPAWN TIME!!
             // Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs

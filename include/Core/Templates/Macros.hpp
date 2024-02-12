@@ -93,5 +93,3 @@ public:                                                                         
     GetCommandsFunc(commandArray);                                                                                                      \
                                                                                                                                         \
 private:
-
-#define Serialize(type, ...) NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(type, __VA_ARGS__)

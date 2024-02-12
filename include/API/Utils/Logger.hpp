@@ -2,7 +2,6 @@
 
 #include <Singleton.hpp>
 
-#include <Core/Templates/Macros.hpp>
 #include <concurrent_queue.h>
 #include <optional>
 #include <spdlog/spdlog.h>

@@ -10,10 +10,10 @@ int __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
     {
         uint ship = 0;
         pub::Player::GetShip(client.GetValue(), ship);
-        if (FLHookConfig::i()->general.disconnectDelay && ship)
+        if (FLHook::GetConfig().general.disconnectDelay && ship)
         {
             // in space
-            client.GetData().timeDisconnect = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHookConfig::i()->general.disconnectDelay;
+            client.GetData().timeDisconnect = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHook::GetConfig().general.disconnectDelay;
             return 0; // don't pass on
         }
     }

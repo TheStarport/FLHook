@@ -14,7 +14,7 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
         const auto client = ClientId(ship->GetOwnerPlayer());
 
         auto& ci = client.GetData();
-        const auto* conf = FLHookConfig::c();
+        const auto& config = FLHook::GetConfig();
 
         static std::array<byte, 8> num1RewriteBytes = { 0xBA, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90 };
 
@@ -29,7 +29,7 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
         const auto playerNumber2 = PVOID(content + numberOffset2);
         const auto playerFormation = PCHAR(content + formationOffset);
 
-        if (!conf->callsign.disableRandomisedFormations)
+        if (!config.callsign.disableRandomisedFormations)
         {
             *(int*)(num1RewriteBytes.data() + 1) = ci.formationNumber1;
             MemUtils::WriteProcMem(playerNumber1, num1RewriteBytes.data(), num1RewriteBytes.size());
@@ -39,7 +39,7 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
             sprintf_s(playerFormation, 2, "%02d", ci.formationTag); // NOLINT
         }
 
-        if (!conf->callsign.disableUsingAffiliationForCallsign)
+        if (!config.callsign.disableUsingAffiliationForCallsign)
         {
             // TODO: Extract rep group for callsign
             /*if (auto repGroupNick = Hk::IniUtils::i()->GetFromPlayerFile(client.GetValue(), L"rep_group");

@@ -10,7 +10,7 @@ ulong PerfTimer::Stop()
 {
     auto timeDelta = static_cast<uint>(TimeUtils::UnixTime<std::chrono::microseconds>() - tmStart);
 
-    if (FLHookConfig::i()->debug.logPerformanceTimers)
+    if (FLHook::GetConfig().debug.logPerformanceTimers)
     {
         if (timeDelta > max && timeDelta > warning)
         {

@@ -15,7 +15,7 @@ void IServerImplHook::LaunchCompleteInner(BaseId, ShipId shipId)
             auto& data = client.GetData();
             data.spawnTime = TimeUtils::UnixTime<std::chrono::milliseconds>(); // save for anti-dockkill
             // is there spawnprotection?
-            if (FLHookConfig::i()->general.antiDockKill > 0)
+            if (FLHook::GetConfig().general.antiDockKill > 0)
             {
                 data.spawnProtected = true;
             }

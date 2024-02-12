@@ -46,7 +46,7 @@ Action<void, Error> InternalApi::SendMessage(const ClientId to, const std::wstri
     if (from)
     {
         const auto fromName = StringUtils::ToLower(from.GetCharacterName().Unwrap());
-        if (FLHookConfig::i()->userCommands.userCmdIgnore)
+        if (FLHook::GetConfig().userCommands.userCmdIgnore)
         {
             for (const auto& ignore : from.GetData().ignoreInfoList)
             {

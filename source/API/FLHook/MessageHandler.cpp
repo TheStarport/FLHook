@@ -6,7 +6,7 @@
 
 MessageHandler::MessageHandler()
 {
-    if (!FLHookConfig::i()->messageQueue.enableQueues)
+    if (!FLHook::GetConfig().messageQueue.enableQueues)
     {
         return;
     }
@@ -20,7 +20,7 @@ MessageHandler::MessageHandler()
         [this](const uvw::ErrorEvent& event, uvw::TCPHandle&)
         {
             Logger::Log(LogLevel::Err, std::format(L"Socket error: {}", StringUtils::stows(event.what())));
-            FLHookConfig::i()->messageQueue.enableQueues = false;
+            FLHook::GetConfig().messageQueue.enableQueues = false;
             runner.request_stop(); // Terminate thread runner
             isInitalizing = false;
         });
@@ -69,7 +69,7 @@ MessageHandler::~MessageHandler() = default;
 
 void MessageHandler::Subscribe(const std::wstring& queue, QueueOnData callback, std::optional<QueueOnFail> onFail)
 {
-    if (!FLHookConfig::i()->messageQueue.enableQueues)
+    if (!FLHook::GetConfig().messageQueue.enableQueues)
     {
         return;
     }
@@ -94,14 +94,25 @@ void MessageHandler::Subscribe(const std::wstring& queue, QueueOnData callback, 
                     const auto callbacks = onMessageCallbacks.find(queue);
                     for (const auto& cb : callbacks->second)
                     {
-                        std::optional<nlohmann::json> responseBody;
+                        std::optional<yyjson_mut_doc*> responseBody;
                         if (cb(message, responseBody))
                         {
                             if (message.headers().contains("reply_to"))
                             {
                                 std::stringstream ss;
                                 message.headers()["reply_to"].output(ss);
-                                channel->publish("", ss.str(), responseBody.has_value() ? responseBody.value().dump() : "{}");
+
+                                if (responseBody.has_value())
+                                {
+                                    uint size;
+                                    auto str = yyjson_mut_write(responseBody.value(), 0, &size);
+                                    channel->publish("", ss.str(), std::string(str, size));
+                                    free(str);
+                                }
+                                else
+                                {
+                                    channel->publish("", ss.str(), "{}");
+                                }
                             }
 
                             channel->ack(deliveryTag);

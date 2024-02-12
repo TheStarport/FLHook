@@ -433,7 +433,7 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
     if (reason.has_value())
     {
         const std::wstring msg = StringUtils::ReplaceStr(
-            FLHookConfig::i()->chatConfig.msgStyle.kickMsg, std::wstring_view(L"%reason"), std::wstring_view(StringUtils::XmlText(reason.value())));
+            FLHook::GetConfig().chatConfig.msgStyle.kickMsg, std::wstring_view(L"%reason"), std::wstring_view(StringUtils::XmlText(reason.value())));
         FLHook::MessageUniverse(msg);
     }
 
@@ -467,12 +467,13 @@ Action<void, Error> ClientId::SaveChar() const
     const auto& data = FLHook::Clients()[value];
 
     // Save account data
-    auto dir = GetAccount().Unwrap().GetDirectoryName().Unwrap();
+    // TODO: write to DB
+    /*auto dir = GetAccount().Unwrap().GetDirectoryName().Unwrap();
     const std::wstring userFile = std::format(L"{}{}\\accData.json", FLHook::GetAccountPath(), dir);
 
     const auto content = data.accountData.dump(4);
     std::ofstream of(userFile);
-    of.write(content.c_str(), content.size());
+    of.write(content.c_str(), content.size());*/
 
     return { {} };
 }

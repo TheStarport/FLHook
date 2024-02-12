@@ -15,7 +15,4 @@ struct ServerStats
         uint serverLoad;
         uint memoryUsage;
         bool npcsEnabled;
-
-        Serialize(Player, systemName, systemNick, ipAddress, clientId);
-        Serialize(ServerStats, players, serverLoad, memoryUsage, npcsEnabled);
 };

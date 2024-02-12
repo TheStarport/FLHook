@@ -164,7 +164,7 @@ namespace Plugins::CrashCatcher
 		int res = 0;
 		try
 		{
-			if (FLHookConfig::i()->debug.debugMode)
+			if (FLHook::GetConfig()->debug.debugMode)
 				Logger::i()->Log(LogLevel::Info, std::format("CrashProc6F8B330(arg1={:#X})", arg1));
 			__asm {
             pushad
@@ -196,7 +196,7 @@ namespace Plugins::CrashCatcher
 	{
 		try
 		{
-			if (FLHookConfig::i()->debug.debugMode)
+			if (FLHook::GetConfig()->debug.debugMode)
 				Logger::i()->Log(LogLevel::Info, std::format("CrashProc6F78DD0(arg1={:#X},arg2={:#X})", arg1, arg2));
 			__asm {
             pushad
@@ -225,7 +225,7 @@ namespace Plugins::CrashCatcher
 	{
 		try
 		{
-			if (FLHookConfig::i()->debug.debugMode)
+			if (FLHook::GetConfig()->debug.debugMode)
 				Logger::i()->Log(LogLevel::Info, std::format("CrashProc6F671A0(arg1={:#X})", arg1));
 			__asm {
             pushad
@@ -427,7 +427,7 @@ will_crash:
 				global->contentAC = GetModuleHandle("content.dll");
 				if (global->contentAC)
 				{
-					if (FLHookConfig::i()->debug.debugMode)
+					if (FLHook::GetConfig()->debug.debugMode)
 						Logger::i()->Log(LogLevel::Info, "Installing patches into content.dll");
 
 					// Patch for crash at content.dll + blarg
@@ -547,7 +547,7 @@ will_crash:
 
 			if (global->contentAC)
 			{
-				if (FLHookConfig::i()->debug.debugMode)
+				if (FLHook::GetConfig()->debug.debugMode)
 					Logger::i()->Log(LogLevel::Info, "Uninstalling patches from content.dll");
 
 				{

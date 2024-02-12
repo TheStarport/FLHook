@@ -87,11 +87,11 @@ FLHook::FLHook()
     DebugTools::Init();
 
     // Initialize the Database before everything as other systems rely on it
-    // database = new Database(FLHookConfig::i()->databaseConfig.uri);
+    // database = new Database(FLHook::GetConfig().databaseConfig.uri);
 
     // Init our message service, this is a blocking call and some plugins might want to setup their own queues,
     // so we want to make sure the service is up at startup time
-    if (FLHookConfig::i()->messageQueue.enableQueues)
+    if (FLHook::GetConfig().messageQueue.enableQueues)
     {
         const auto msg = MessageHandler::i();
 
@@ -100,7 +100,7 @@ FLHook::FLHook()
         msg->DeclareQueue(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)), AMQP::durable);
 
         msg->Subscribe(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)),
-                       [](const AMQP::Message& message, std::optional<nlohmann::json>& response)
+                       [](const AMQP::Message& message, std::optional<yyjson_mut_doc*>& response)
                        {
                            std::string body = message.body();
                            try
@@ -115,28 +115,24 @@ FLHook::FLHook()
 
                                return true;
                            }
-                           catch (nlohmann::json::exception& ex)
-                           {
-                               response = {
-                                   {"err", ex.what()}
-                               };
-                               Logger::Log(LogLevel::Warn,
-                                           std::format(L"An json exception was encountered while trying to process an external command. EX: {}",
-                                                       StringUtils::stows(ex.what())));
-                               return true;
-                           }
                            catch (GameException& ex)
                            {
-                               response = {
-                                   {"err", std::wstring(ex.Msg())}
-                               };
+                               auto doc = yyjson_mut_doc_new(nullptr);
+                               auto* root = yyjson_mut_doc_get_root(doc);
+                               yyjson_mut_doc_set_root(doc, root);
+                               yyjson_mut_obj_add_str(doc, root, "err", ex.what());
+
                                return true;
                            }
                            catch (std::exception& ex)
                            {
-                               response = {
-                                   {"err", std::string(ex.what())}
-                               };
+                               auto doc = yyjson_mut_doc_new(nullptr);
+                               auto* root = yyjson_mut_doc_get_root(doc);
+                               yyjson_mut_doc_set_root(doc, root);
+                               yyjson_mut_obj_add_str(doc, root, "err", ex.what());
+
+                               response = doc;
+
                                return true;
                            }
                        });
@@ -144,13 +140,13 @@ FLHook::FLHook()
         Timer::Add(PublishServerStats, &PublishServerStats, 30000);
     }
 
-    if (const auto config = FLHookConfig::c(); config->plugins.loadAllPlugins)
+    if (const auto& config = FLHook::GetConfig(); config.plugins.loadAllPlugins)
     {
         PluginManager::i()->LoadAll(true);
     }
     else
     {
-        for (auto& plugin : config->plugins.plugins)
+        for (auto& plugin : config.plugins.plugins)
         {
             PluginManager::i()->Load(plugin, true);
         }
@@ -165,13 +161,6 @@ FLHook::FLHook()
         {
             Logger::Log(LogLevel::Err, StringUtils::stows(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what())));
         }
-    }
-
-    // explicitly load dll files that may be required by plugins
-    for (constexpr std::array pluginLibs = { "pcre2-posix.dll", "pcre2-8.dll", "pcre2-16.dll", "pcre2-32.dll", "libcrypto-3.dll", "libssl-3.dll" };
-         const auto& lib : pluginLibs)
-    {
-        LoadLibraryA(lib);
     }
 
     PatchClientImpl();
@@ -281,7 +270,28 @@ bool FLHook::OnServerStart()
 
 void FLHook::LoadSettings()
 {
-    auto config = Serializer::LoadFromJson<FLHookConfig>(L"flhook.json");
+    FLHookConfig* config;
+
+    std::ifstream stream("flhook.json");
+    if (!stream.is_open())
+    {
+        config = new FLHookConfig();
+    }
+    else
+    {
+        config = new FLHookConfig();
+        auto configResult = rfl::json::read<FLHookConfig>(stream);
+        if (auto err = configResult.error(); err.has_value())
+        {
+            Logger::Log(LogLevel::Warn,
+                        std::format(L"Error while trying to read FLHook.json. Writing new config.\nErrors: {}", StringUtils::stows(err.value().what())));
+        }
+        else
+        {
+            rfl::internal::wrap_in_rfl_array_t<FLHookConfig> value = configResult.value();
+            memcpy_s(config, sizeof(FLHookConfig), &value, sizeof(FLHookConfig));
+        }
+    }
 
     // NoPVP
     config->general.noPVPSystemsHashed.clear();
@@ -293,10 +303,8 @@ void FLHook::LoadSettings()
     }
 
     // Resave to add any missing properties that have been added
-    Serializer::SaveToJson(*config, L"flhook.json");
-
-    // Explicitly replace the config
-    FLHookConfig::i(&config);
+    std::ofstream outStream("flhook.json");
+    rfl::json::write(config, outStream);
 }
 
 DWORD __stdcall Unload(const LPVOID module)

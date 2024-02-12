@@ -111,7 +111,7 @@ int IEngineHook::DockCall(const uint& shipId, const uint& spaceId, int dockPortI
     TryHook
     {
         // Print out a message when a player ship docks.
-        if (FLHookConfig::c()->chatConfig.dockingMessages && response == DOCK_HOST_RESPONSE::Dock)
+        if (FLHook::GetConfig().chatConfig.dockingMessages && response == DOCK_HOST_RESPONSE::Dock)
         {
             if (const auto client = ShipId(shipId).GetPlayer().value_or(ClientId()))
             {

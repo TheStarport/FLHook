@@ -134,7 +134,7 @@ namespace Plugins::Wardrobe
 				else
 					IniWrite(charFile, "Player", "body", " " + restart.costume);
 
-				if (!FLHookConfig::i()->general.disableCharfileEncryption)
+				if (!FLHook::GetConfig()->general.disableCharfileEncryption)
 					FlcEncodeFile(charFile.c_str(), charFile.c_str());
 
 				Logger::i()->Log(LogLevel::Info, std::format("User {} costume change to {}", StringUtils::wstos(restart.characterFile).c_str(), restart.costume));

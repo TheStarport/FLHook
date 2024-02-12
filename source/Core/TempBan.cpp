@@ -23,7 +23,7 @@ void TempBanManager::ClearFinishedTempBans()
 
 void TempBanManager::AddTempBan(const AccountId account, const uint durationInDays)
 {
-    if (!FLHookConfig::i()->general.tempBansEnabled)
+    if (!FLHook::GetConfig().general.tempBansEnabled)
     {
         return;
     }
@@ -38,7 +38,7 @@ void TempBanManager::AddTempBan(const AccountId account, const uint durationInDa
 
 bool TempBanManager::CheckIfTempBanned(AccountId account) const
 {
-    if (!FLHookConfig::i()->general.tempBansEnabled)
+    if (!FLHook::GetConfig().general.tempBansEnabled)
     {
         return false;
     }
