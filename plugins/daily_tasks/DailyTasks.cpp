@@ -385,124 +385,105 @@ namespace Plugins::DailyTasks
 			}
 		}
 	}
+
+	void GenerateIndividualTask(CAccount* account, TaskType taskType)
+	{
+		using enum TaskType;
+		Task task;
+		task.isCompleted = false;
+		task.quantityCompleted = 0;
+		task.setTime = Hk::Time::GetUnixSeconds();
+
+		if (taskType == GetItem)
+		{
+			auto itemAcquisitionTarget = RandomIdKey(global->taskItemAcquisitionTargets);
+			auto itemArch = Archetype::GetEquipment(itemAcquisitionTarget);
+			if (!itemArch)
+			{
+				AddLog(LogType::Normal, LogLevel::Err, "Failed to generate a GetItem task. No valid Item ArchID was found. The task was not created.");
+				return;
+			}
+			task.taskType = GetItem;
+			task.itemTarget = itemAcquisitionTarget;
+			task.quantity =
+			    RandomNumber(global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[0], global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[1]);
+			task.taskDescription = std::format("Buy {} units of {}.", task.quantity, wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)));
+			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating an 'Acquire Items' task to '{}'", task.taskDescription));
+		}
+		else if (taskType == KillNpc)
+		{
+			const auto& npcFactionTarget = RandomIdKey(global->taskNpcKillTargets);
+			auto npcQuantity = RandomNumber(global->taskNpcKillTargets.at(npcFactionTarget)[0], global->taskNpcKillTargets.at(npcFactionTarget)[1]);
+			uint npcFactionIds;
+			pub::Reputation::GetGroupName(npcFactionTarget, npcFactionIds);
+
+			task.taskType = KillNpc;
+			task.taskDescription = std::format("Destroy {} ships belonging to the {}.", npcQuantity, wstos(Hk::Message::GetWStringFromIdS(npcFactionIds)));
+			task.npcFactionTarget = npcFactionTarget;
+			task.quantity = npcQuantity;
+			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill NPCs' task to '{}'", task.taskDescription));
+		}
+		else if (taskType == KillPlayer)
+		{
+			task.taskType = KillPlayer;
+			task.quantity = RandomNumber(global->config->taskPlayerKillTargets[0], global->config->taskPlayerKillTargets[1]);
+			task.taskDescription = std::format("Destroy {} player ships.", task.quantity);
+			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill Players' task to '{}'", task.taskDescription));
+		}
+		else if (taskType == SellItem)
+		{
+			const auto& tradeBaseTarget = global->taskTradeBaseTargets[RandomNumber(0, global->taskTradeBaseTargets.size() - 1)];
+			auto tradeItemTarget = RandomIdKey(global->taskTradeItemTargets);
+			auto baseArch = Universe::get_base(tradeBaseTarget);
+			auto itemArch = Archetype::GetEquipment(tradeItemTarget);
+
+			if (!baseArch || !itemArch)
+			{
+				AddLog(LogType::Normal, LogLevel::Err, "A base or item ArchId was not found, trade task generation has failed, exiting...");
+				return;
+			}
+
+			task.taskType = SellItem;
+			task.baseTarget = tradeBaseTarget;
+			task.itemTarget = tradeItemTarget;
+			task.quantity = RandomNumber(global->taskTradeItemTargets.at(tradeItemTarget)[0], global->taskTradeItemTargets.at(tradeItemTarget)[1]);
+			task.taskDescription = std::format("Sell {} units of {} at {}.",
+			    task.quantity,
+			    wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)),
+			    wstos(Hk::Message::GetWStringFromIdS(baseArch->baseIdS)));
+			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Sell Cargo' task to '{}'", task.taskDescription));
+		}
+		if (!global->accountTasks.contains(account))
+		{
+			global->accountTasks[account] = {};
+		}
+		global->accountTasks[account].tasks.emplace_back(task);
+	}
+
 	/** @ingroup DailyTasks
 	 * @brief Generates a daily task for a player and writes it to their config.json
 	 */
 	void GenerateDailyTask(CAccount* account)
 	{
+		using enum TaskType;
 		// Choose and create a random task from the available pool.
 		const auto& randomTask = global->taskTypePool[RandomNumber(0, global->taskTypePool.size() - 1)];
 
-		if (randomTask == TaskType::GetItem)
+		if (randomTask == GetItem)
 		{
-			// Create an item acquisition task. Unfortunately as IServerImpl__TractorObjects is not yet reverse engineered, this is the only way to handle it.
-			auto itemAcquisitionTarget = RandomIdKey(global->taskItemAcquisitionTargets);
-			auto itemQuantity =
-			    RandomNumber(global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[0], global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[1]);
-			auto itemArch = Archetype::GetEquipment(itemAcquisitionTarget);
-			if (!itemAcquisitionTarget)
-			{
-				AddLog(LogType::Normal, LogLevel::Debug, "An item ArchId was not found, item task generation has failed, exiting...");
-				return;
-			}
-			auto taskDescription = std::format("Buy {} units of {}.", itemQuantity, wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)));
-			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating an 'Acquire Items' task to '{}'", taskDescription));
-
-			Task task;
-			task.taskType = TaskType::GetItem;
-			task.itemTarget = itemAcquisitionTarget;
-			task.quantity = itemQuantity;
-			task.quantityCompleted = 0;
-			task.taskDescription = taskDescription;
-			task.isCompleted = false;
-			task.setTime = Hk::Time::GetUnixSeconds();
-
-			if (!global->accountTasks.contains(account))
-			{
-				global->accountTasks[account] = {};
-			}
-			global->accountTasks[account].tasks.emplace_back(task);
+			GenerateIndividualTask(account, GetItem);
 		}
-		if (randomTask == TaskType::KillNpc)
+		if (randomTask == KillNpc)
 		{
-			// Create an NPC kill task
-			const auto& npcFactionTarget = RandomIdKey(global->taskNpcKillTargets);
-			auto npcQuantity = RandomNumber(global->taskNpcKillTargets.at(npcFactionTarget)[0], global->taskNpcKillTargets.at(npcFactionTarget)[1]);
-			uint npcFactionIds;
-			pub::Reputation::GetGroupName(npcFactionTarget, npcFactionIds);
-			auto taskDescription = std::format("Destroy {} ships belonging to the {}.", npcQuantity, wstos(Hk::Message::GetWStringFromIdS(npcFactionIds)));
-			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill NPCs' task to '{}'", taskDescription));
-
-			Task task;
-			task.taskType = TaskType::KillNpc;
-			task.npcFactionTarget = npcFactionTarget;
-			task.quantity = npcQuantity;
-			task.quantityCompleted = 0;
-			task.taskDescription = taskDescription;
-			task.isCompleted = false;
-			task.setTime = Hk::Time::GetUnixSeconds();
-
-			if (!global->accountTasks.contains(account))
-			{
-				global->accountTasks[account] = {};
-			}
-			global->accountTasks[account].tasks.emplace_back(task);
+			GenerateIndividualTask(account, KillNpc);
 		}
-		if (randomTask == TaskType::KillPlayer)
+		if (randomTask == KillPlayer)
 		{
-			// Create a player kill task
-			auto playerQuantity = RandomNumber(global->config->taskPlayerKillTargets[0], global->config->taskPlayerKillTargets[1]);
-			auto taskDescription = std::format("Destroy {} player ships.", playerQuantity);
-			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill Players' task to '{}'", taskDescription));
-
-			Task task;
-			task.taskType = TaskType::KillPlayer;
-			task.quantity = playerQuantity;
-			task.quantityCompleted = 0;
-			task.taskDescription = taskDescription;
-			task.isCompleted = false;
-			task.setTime = Hk::Time::GetUnixSeconds();
-
-			if (!global->accountTasks.contains(account))
-			{
-				global->accountTasks[account] = {};
-			}
-			global->accountTasks[account].tasks.emplace_back(task);
+			GenerateIndividualTask(account, KillPlayer);
 		}
-		if (randomTask == TaskType::SellItem)
+		if (randomTask == SellItem)
 		{
-			// Create a trade task
-			const auto& tradeBaseTarget = global->taskTradeBaseTargets[RandomNumber(0, global->taskTradeBaseTargets.size() - 1)];
-			auto tradeItemTarget = RandomIdKey(global->taskTradeItemTargets);
-			auto tradeItemQuantity = RandomNumber(global->taskTradeItemTargets.at(tradeItemTarget)[0], global->taskTradeItemTargets.at(tradeItemTarget)[1]);
-			auto baseArch = Universe::get_base(tradeBaseTarget);
-			auto itemArch = Archetype::GetEquipment(tradeItemTarget);
-			if (!baseArch || !itemArch)
-			{
-				AddLog(LogType::Normal, LogLevel::Debug, "A base or item ArchId was not found, trade task generation has failed, exiting...");
-				return;
-			}
-			auto taskDescription = std::format("Sell {} units of {} at {}.",
-			    tradeItemQuantity,
-			    wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)),
-			    wstos(Hk::Message::GetWStringFromIdS(baseArch->baseIdS)));
-			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Sell Cargo' task to '{}'", taskDescription));
-
-			Task task;
-			task.taskType = TaskType::SellItem;
-			task.baseTarget = tradeBaseTarget;
-			task.itemTarget = tradeItemTarget;
-			task.quantity = tradeItemQuantity;
-			task.quantityCompleted = 0;
-			task.taskDescription = taskDescription;
-			task.isCompleted = false;
-			task.setTime = Hk::Time::GetUnixSeconds();
-
-			if (!global->accountTasks.contains(account))
-			{
-				global->accountTasks[account] = {};
-			}
-			global->accountTasks[account].tasks.emplace_back(task);
+			GenerateIndividualTask(account, SellItem);
 		}
 	}
 
@@ -568,7 +549,6 @@ namespace Plugins::DailyTasks
 		{
 			auto account = Hk::Client::GetAccountByClientID(players.client);
 			auto accountId = account->wszAccId;
-			// TODO
 			for (auto& tasks : global->accountTasks[account].tasks)
 			{
 				if ((currentTime - tasks.setTime) < 86400)
