@@ -2,6 +2,8 @@
 
 #include <FLHook.hpp>
 #include <plugin.h>
+#include <ranges>
+#include <random>
 
 namespace Plugins::DailyTasks
 {

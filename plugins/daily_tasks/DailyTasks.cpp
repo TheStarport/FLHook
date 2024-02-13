@@ -91,14 +91,11 @@
 
 // Includes
 #include "DailyTasks.hpp"
-#include <ranges>
-#include <random>
 
 namespace Plugins::DailyTasks
 {
 	const auto global = std::make_unique<Global>();
 
-	// Put things that are performed on plugin load here!
 	void LoadSettings()
 	{
 		// Load JSON config
@@ -157,7 +154,9 @@ namespace Plugins::DailyTasks
 		}
 	}
 
-	// Function: Gets the value of items in the reward pool for later use.
+	/** @ingroup DailyTasks
+	 * @brief Fetches the value of goods defined in itemRewardPool for later use.
+	 */
 	void GetGoodBaseValues()
 	{
 		auto goodList = GoodList_get();
@@ -194,7 +193,10 @@ namespace Plugins::DailyTasks
 		return outputId;
 	}
 
-	// Function: Saves tasks to an account's daily_tasks.json file
+	/** @ingroup DailyTasks
+	 * @brief Saves the task status of an account to the appropriate tasks.json file.
+	 */
+
 	void SaveTaskStatusToJson(CAccount* account)
 	{
 		auto& taskList = global->accountTasks.at(account);
@@ -208,7 +210,10 @@ namespace Plugins::DailyTasks
 		    std::format("Saving a task status update to {}\\Accts\\MultiPlayer\\{}\\daily_tasks.json", szDataPath, wstos(taskJsonPath)));
 	}
 
-	// Function: Loads tasks from an account's daily_tasks.json file
+	/** @ingroup DailyTasks
+	 * @brief Writes the status of an account to the appropriate tasks.json file.
+	 */
+
 	void LoadTaskStatusFromJson(CAccount* account)
 	{
 		auto taskJsonPath = Hk::Client::GetAccountDirName(account);
@@ -218,7 +223,10 @@ namespace Plugins::DailyTasks
 		global->accountTasks[account] = taskList;
 	}
 
-	// Function: Generates and awards a reward from the pool.
+	/** @ingroup DailyTasks
+	 * @brief Generates random rewards for users who complete daily tasks, based on parameters set in daily_tasks.json.
+	 */
+
 	void GenerateReward(ClientId& client, float holdSize = 0.f)
 	{
 		auto creditReward = RandomNumber(global->config->minCreditsReward, global->config->maxCreditsReward);
@@ -245,7 +253,10 @@ namespace Plugins::DailyTasks
 		        Hk::Message::GetWStringFromIdS(Archetype::GetEquipment(itemReward)->iIdsName)));
 	}
 
-	// Function: Brief hook on ship destroyed to see if a task needs to be updated.
+	/** @ingroup DailyTasks
+	 * @brief Hook on ShipDestroyed to see if a task needs to be updated.
+	 */
+
 	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, const DWORD** ecx, const uint& kill)
 	{
 		if (kill == 1)
@@ -303,7 +314,9 @@ namespace Plugins::DailyTasks
 		}
 	}
 
-	// Function: Brief hook on item sold to see if a task needs to be updated.
+	/** @ingroup DailyTasks
+	 * @brief Hook on GFGoodSell to see if a task needs to be updated.
+	 */
 	void ItemSold(const struct SGFGoodSellInfo& gsi, ClientId& client)
 	{
 		auto base = Hk::Player::GetCurrentBase(client);
@@ -335,7 +348,9 @@ namespace Plugins::DailyTasks
 			}
 		}
 	}
-	// Function: Brief hook on item bought to see if a task needs to be updated.
+	/** @ingroup DailyTasks
+	 * @brief Hook on GFGoodBuy to see if a task needs to be updated.
+	 */
 	void ItemPurchased(SGFGoodBuyInfo const& gbi, ClientId& client)
 	{
 		auto base = Hk::Player::GetCurrentBase(client);
@@ -368,7 +383,9 @@ namespace Plugins::DailyTasks
 			}
 		}
 	}
-	// Function: Generates a daily task.
+	/** @ingroup DailyTasks
+	 * @brief Generates a daily task for a player and writes it to their config.json
+	 */
 	void GenerateDailyTask(CAccount* account)
 	{
 		// Choose and create a random task from the available pool.
@@ -477,14 +494,18 @@ namespace Plugins::DailyTasks
 		}
 	}
 
-	// Function: Brief hook to save an account's task status when the player docks.
+	/** @ingroup DailyTasks
+	 * @brief Hook OnBaseEnter to save any task updates to the user's config.json file.
+	 */
 	void SaveTaskStatusOnBaseEnter([[maybe_unused]] BaseId& baseId, ClientId& client)
 	{
 		auto account = Hk::Client::GetAccountByClientID(client);
 		SaveTaskStatusToJson(account);
 	}
 
-	// Function: Displays the user's current daily task status as they undock.
+	/** @ingroup DailyTasks
+	 * @brief Hook on PlayerLaunch to display the task list when the player undocks.
+	 */
 	void DisplayTasksOnLaunch([[maybe_unused]] const uint& ship, ClientId& client)
 	{
 		auto account = Hk::Client::GetAccountByClientID(client);
@@ -505,7 +526,9 @@ namespace Plugins::DailyTasks
 		PrintUserCmdText(client, L"To view this list again, type /showtasks in chat.");
 	}
 
-	// Function: Keeps track of time and initiates cleanup when appropriate.
+	/** @ingroup DailyTasks
+	 * @brief Keeps track of time and initiates cleanup once per day.
+	 */
 	void DailyTimerTick()
 	{
 		// Checks the current hour to see if global->dailyReset should be flipped back to false
@@ -545,7 +568,9 @@ namespace Plugins::DailyTasks
 		}
 	}
 
-	// Function: A command to display the current daily tasks a player has.
+	/** @ingroup DailyTasks
+	 * @brief A user command to show the tasks a player currently has and their status.
+	 */
 	void UserCmdShowDailyTasks(ClientId& client, const std::wstring& param)
 	{
 		auto account = Hk::Client::GetAccountByClientID(client);
@@ -565,7 +590,9 @@ namespace Plugins::DailyTasks
 		}
 	}
 
-	// Function: A command to reset user tasks.
+	/** @ingroup DailyTasks
+	 * @brief A user command to reset the user's tasks and reroll them if they have not already started to complete them.
+	 */
 	void UserCmdResetDailyTasks(ClientId& client, const std::wstring& param)
 	{
 		auto account = Hk::Client::GetAccountByClientID(client);
@@ -601,7 +628,9 @@ namespace Plugins::DailyTasks
 		}
 	}
 
-	// Function: Hook on player login to assign and check tasks.
+	/** @ingroup DailyTasks
+	 * @brief Hook on Login to check a player's task status and assign new tasks if they don't have any or their previous ones had expired.
+	 */
 	void OnLogin([[maybe_unused]] struct SLoginInfo const& li, ClientId& client)
 	{
 		auto account = Hk::Client::GetAccountByClientID(client);
