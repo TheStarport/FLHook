@@ -270,7 +270,7 @@ namespace Plugins::DailyTasks
 				const auto victimId = Hk::Client::GetClientIdByShip(cShip->get_id());
 				for (auto& task : global->accountTasks[Hk::Client::GetAccountByClientID(killerId.value())].tasks)
 				{
-					if (task.taskType == TaskType::KillPlayer && task.isCompleted == false && victimId.has_value())
+					if (task.taskType == TaskType::KillPlayer && !task.isCompleted && victimId.has_value())
 					{
 						task.quantityCompleted++;
 					}
@@ -296,11 +296,11 @@ namespace Plugins::DailyTasks
 
 				for (auto& task : global->accountTasks[Hk::Client::GetAccountByClientID(killerId.value())].tasks)
 				{
-					if (task.taskType == TaskType::KillNpc && task.isCompleted == false && task.npcFactionTarget == affiliation)
+					if (task.taskType == TaskType::KillNpc && !task.isCompleted && task.npcFactionTarget == affiliation)
 					{
 						task.quantityCompleted++;
 					}
-					if (task.quantityCompleted == task.quantity && task.taskType == TaskType::KillNpc && task.isCompleted == false &&
+					if (task.quantityCompleted == task.quantity && task.taskType == TaskType::KillNpc && !task.isCompleted &&
 					    task.npcFactionTarget == affiliation)
 					{
 						task.isCompleted = true;
@@ -329,6 +329,7 @@ namespace Plugins::DailyTasks
 			{
 				continue;
 			}
+
 			if (task.taskType == TaskType::SellItem && task.itemTarget == gsi.iArchId && task.baseTarget == base.value())
 			{
 				task.quantityCompleted += gsi.iCount;
@@ -363,6 +364,7 @@ namespace Plugins::DailyTasks
 			{
 				continue;
 			}
+
 			if (task.taskType == TaskType::GetItem && task.itemTarget == gbi.iGoodId)
 			{
 				task.quantityCompleted += gbi.iCount;
@@ -398,6 +400,11 @@ namespace Plugins::DailyTasks
 			auto itemQuantity =
 			    RandomNumber(global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[0], global->taskItemAcquisitionTargets.at(itemAcquisitionTarget)[1]);
 			auto itemArch = Archetype::GetEquipment(itemAcquisitionTarget);
+			if (!itemAcquisitionTarget)
+			{
+				AddLog(LogType::Normal, LogLevel::Debug, "An item ArchId was not found, item task generation has failed, exiting...");
+				return;
+			}
 			auto taskDescription = std::format("Buy {} units of {}.", itemQuantity, wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)));
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating an 'Acquire Items' task to '{}'", taskDescription));
 
@@ -470,6 +477,11 @@ namespace Plugins::DailyTasks
 			auto tradeItemQuantity = RandomNumber(global->taskTradeItemTargets.at(tradeItemTarget)[0], global->taskTradeItemTargets.at(tradeItemTarget)[1]);
 			auto baseArch = Universe::get_base(tradeBaseTarget);
 			auto itemArch = Archetype::GetEquipment(tradeItemTarget);
+			if (!baseArch || !itemArch)
+			{
+				AddLog(LogType::Normal, LogLevel::Debug, "A base or item ArchId was not found, trade task generation has failed, exiting...");
+				return;
+			}
 			auto taskDescription = std::format("Sell {} units of {} at {}.",
 			    tradeItemQuantity,
 			    wstos(Hk::Message::GetWStringFromIdS(itemArch->iIdsName)),
@@ -503,10 +515,7 @@ namespace Plugins::DailyTasks
 		SaveTaskStatusToJson(account);
 	}
 
-	/** @ingroup DailyTasks
-	 * @brief Hook on PlayerLaunch to display the task list when the player undocks.
-	 */
-	void DisplayTasksOnLaunch([[maybe_unused]] const uint& ship, ClientId& client)
+	void PrintTasks(ClientId& client)
 	{
 		auto account = Hk::Client::GetAccountByClientID(client);
 		PrintUserCmdText(client, L"CURRENT DAILY TASKS");
@@ -523,6 +532,14 @@ namespace Plugins::DailyTasks
 				PrintUserCmdText(client, stows(task.taskDescription + " TASK COMPLETED"));
 			}
 		}
+	}
+
+	/** @ingroup DailyTasks
+	 * @brief Hook on PlayerLaunch to display the task list when the player undocks.
+	 */
+	void DisplayTasksOnLaunch([[maybe_unused]] const uint& ship, ClientId& client)
+	{
+		PrintTasks(client);
 		PrintUserCmdText(client, L"To view this list again, type /showtasks in chat.");
 	}
 
@@ -551,18 +568,18 @@ namespace Plugins::DailyTasks
 		{
 			auto account = Hk::Client::GetAccountByClientID(players.client);
 			auto accountId = account->wszAccId;
-
+			// TODO
 			for (auto& tasks : global->accountTasks[account].tasks)
 			{
-				if ((currentTime - tasks.setTime) > 86400)
+				if ((currentTime - tasks.setTime) < 86400)
 				{
-					AddLog(
-					    LogType::Normal, LogLevel::Debug, std::format("Tasks for {} are out of date, refreshing and creating new tasks...", wstos(accountId)));
-					global->accountTasks[account].tasks.erase(global->accountTasks[account].tasks.begin(), global->accountTasks[account].tasks.end());
-					for (int i = 0; i < global->config->taskQuantity; i++)
-					{
-						GenerateDailyTask(account);
-					}
+					return;
+				}
+				AddLog(LogType::Normal, LogLevel::Debug, std::format("Tasks for {} are out of date, refreshing and creating new tasks...", wstos(accountId)));
+				global->accountTasks[account].tasks.erase(global->accountTasks[account].tasks.begin(), global->accountTasks[account].tasks.end());
+				for (int i = 0; i < global->config->taskQuantity; i++)
+				{
+					GenerateDailyTask(account);
 				}
 			}
 		}
@@ -573,21 +590,7 @@ namespace Plugins::DailyTasks
 	 */
 	void UserCmdShowDailyTasks(ClientId& client, const std::wstring& param)
 	{
-		auto account = Hk::Client::GetAccountByClientID(client);
-		PrintUserCmdText(client, L"CURRENT DAILY TASKS");
-		for (auto& task : global->accountTasks[account].tasks)
-		{
-			int taskExpiry = ((86400 - (Hk::Time::GetUnixSeconds() - task.setTime)) / 60) / 60;
-			if (!task.isCompleted)
-			{
-				PrintUserCmdText(client,
-				    std::format(L"{} Expires in {} hours. {}/{} remaining.", stows(task.taskDescription), taskExpiry, task.quantityCompleted, task.quantity));
-			}
-			else
-			{
-				PrintUserCmdText(client, stows(task.taskDescription + " TASK COMPLETED"));
-			}
-		}
+		PrintTasks(client);
 	}
 
 	/** @ingroup DailyTasks
@@ -600,7 +603,7 @@ namespace Plugins::DailyTasks
 
 		for (auto& tasks : global->accountTasks[account].tasks)
 		{
-			if (tasks.isCompleted == true)
+			if (tasks.isCompleted)
 			{
 				PrintUserCmdText(client,
 				    std::format(L"You have completed one or more of your daily tasks today, and cannot reset them until {}:00", global->config->resetTime));
