@@ -559,9 +559,8 @@ namespace Plugins::DailyTasks
 	void DailyTimerTick()
 	{
 		// Checks the current hour to see if global->dailyReset should be flipped back to false
-		if (int currentHour =
-		        std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count() % 24 == global->config->resetTime ||
-		        currentHour == global->config->resetTime + 1 && global->dailyReset == false)
+		int currentHour = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count() % 24;
+		if (currentHour == global->config->resetTime || currentHour == global->config->resetTime + 1 && global->dailyReset == false)
 		{
 			global->dailyReset = true;
 			global->tasksReset.clear();
@@ -627,6 +626,7 @@ namespace Plugins::DailyTasks
 		auto account = Hk::Client::GetAccountByClientID(client);
 		auto accountId = account->wszAccId;
 		LoadTaskStatusFromJson(account);
+		AddLog(LogType::Normal, LogLevel::Debug, std::format("Loading tasks for {} from stored json file...", wstos(accountId)));
 
 		if (global->accountTasks[account].tasks.empty())
 		{
@@ -640,26 +640,19 @@ namespace Plugins::DailyTasks
 		}
 		else
 		{
-			auto currentTime = Hk::Time::GetUnixSeconds();
-
-			for (auto& task : global->accountTasks[account].tasks)
+			// If tasks are older than 24 hours, refresh them.
+			if ((Hk::Time::GetUnixSeconds() - global->accountTasks[account].tasks[0].setTime) > 86400)
 			{
-				AddLog(LogType::Normal, LogLevel::Debug, std::format("Loading tasks for {} from stored json file...", wstos(accountId)));
-				// If tasks are older than 24 hours, refresh them.
-				if ((currentTime - task.setTime) > 86400)
+				AddLog(LogType::Normal, LogLevel::Debug, std::format("Tasks for {} are out of date, refreshing and creating new tasks...", wstos(accountId)));
+				global->accountTasks[account].tasks.erase(global->accountTasks[account].tasks.begin(), global->accountTasks[account].tasks.end());
+				for (int i = 0; i < global->config->taskQuantity; i++)
 				{
-					AddLog(
-					    LogType::Normal, LogLevel::Debug, std::format("Tasks for {} are out of date, refreshing and creating new tasks...", wstos(accountId)));
-					global->accountTasks[account].tasks.erase(global->accountTasks[account].tasks.begin(), global->accountTasks[account].tasks.end());
-					for (int i = 0; i < global->config->taskQuantity; i++)
-					{
-						GenerateDailyTask(account);
-					}
+					GenerateDailyTask(account);
 				}
-
-				SaveTaskStatusToJson(account);
-				return;
 			}
+
+			SaveTaskStatusToJson(account);
+			return;
 		}
 	}
 
