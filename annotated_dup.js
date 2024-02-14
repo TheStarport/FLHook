@@ -67,6 +67,12 @@ var annotated_dup =
         [ "Config", "struct_plugins_1_1_crash_catcher_1_1_config.html", "struct_plugins_1_1_crash_catcher_1_1_config" ],
         [ "Global", "struct_plugins_1_1_crash_catcher_1_1_global.html", "struct_plugins_1_1_crash_catcher_1_1_global" ]
       ] ],
+      [ "DailyTasks", "namespace_plugins_1_1_daily_tasks.html", [
+        [ "Config", "struct_plugins_1_1_daily_tasks_1_1_config.html", "struct_plugins_1_1_daily_tasks_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_daily_tasks_1_1_global.html", "struct_plugins_1_1_daily_tasks_1_1_global" ],
+        [ "Task", "struct_plugins_1_1_daily_tasks_1_1_task.html", "struct_plugins_1_1_daily_tasks_1_1_task" ],
+        [ "Tasks", "struct_plugins_1_1_daily_tasks_1_1_tasks.html", "struct_plugins_1_1_daily_tasks_1_1_tasks" ]
+      ] ],
       [ "DeathPenalty", "namespace_plugins_1_1_death_penalty.html", [
         [ "CLIENT_DATA", "struct_plugins_1_1_death_penalty_1_1_c_l_i_e_n_t___d_a_t_a.html", "struct_plugins_1_1_death_penalty_1_1_c_l_i_e_n_t___d_a_t_a" ],
         [ "Config", "struct_plugins_1_1_death_penalty_1_1_config.html", "struct_plugins_1_1_death_penalty_1_1_config" ],

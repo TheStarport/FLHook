@@ -10,6 +10,7 @@ var modules =
     [ "Cash Manager", "group___cash_manager.html", "group___cash_manager" ],
     [ "Connection Data", "group___condata.html", "group___condata" ],
     [ "Crash Catcher", "group___crash_catcher.html", "group___crash_catcher" ],
+    [ "Daily Tasks", "group___daily_tasks.html", "group___daily_tasks" ],
     [ "Death Penalty", "group___death_penalty.html", "group___death_penalty" ],
     [ "Event", "group___event.html", "group___event" ],
     [ "IP Ban", "group___i_p_ban.html", "group___i_p_ban" ],

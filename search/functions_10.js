@@ -17,12 +17,13 @@ var searchData=
   ['printbountyhunts_14',['PrintBountyHunts',['../group___bounty_hunt.html#ga8075e07e25b5820faa014a4dafd892cf',1,'Plugins::BountyHunt']]],
   ['printlocalusercmdtext_15',['PrintLocalUserCmdText',['../source_2_features_2_user_commands_8cpp.html#a0acdf928129732328a6a345189badd41',1,'UserCommands.cpp']]],
   ['printnpckills_16',['PrintNPCKills',['../group___kill_tracker.html#gae5092925cee194b6ffae856c6345c657',1,'Plugins::KillTracker']]],
-  ['printusercmdtext_17',['PrintUserCmdText',['../source_2_features_2_user_commands_8cpp.html#af456585aa880bf160c006f09850cc5ed',1,'UserCommands.cpp']]],
-  ['processduel_18',['ProcessDuel',['../group___betting.html#ga506503cb26099bcd23f4a836ef321985',1,'Plugins::Betting']]],
-  ['processevent_19',['ProcessEvent',['../_f_l_hook_8cpp.html#a130e170cc161e307539d14da9de703eb',1,'FLHook.cpp']]],
-  ['processffa_20',['processFFA',['../group___betting.html#gac7110da2153d0cbd18d466fd2dd3ee32',1,'Plugins::Betting']]],
-  ['processpendingcommands_21',['ProcessPendingCommands',['../_f_l_hook_8cpp.html#a8e872db94d8c0bfd1919acbf3a778125',1,'ProcessPendingCommands():&#160;FLHook.cpp'],['../_global_8hpp.html#a8e872db94d8c0bfd1919acbf3a778125',1,'ProcessPendingCommands():&#160;FLHook.cpp']]],
-  ['processplugincommand_22',['ProcessPluginCommand',['../source_2_features_2_user_commands_8cpp.html#a404246d4b82cf13201e925354c9f3351',1,'UserCommands.cpp']]],
-  ['processsocketcmd_23',['ProcessSocketCmd',['../_f_l_hook_8cpp.html#afbe036c9a5ebeba64fdf2deb72b65a8c',1,'FLHook.cpp']]],
-  ['processwardroberestarts_24',['ProcessWardrobeRestarts',['../namespace_plugins_1_1_wardrobe.html#ac7d112cc7e345bf179ced6f8d4cb98d8',1,'Plugins::Wardrobe']]]
+  ['printtasks_17',['PrintTasks',['../namespace_plugins_1_1_daily_tasks.html#ad6957ed8f2ca6b3bf12ed19612d083b9',1,'Plugins::DailyTasks']]],
+  ['printusercmdtext_18',['PrintUserCmdText',['../source_2_features_2_user_commands_8cpp.html#af456585aa880bf160c006f09850cc5ed',1,'UserCommands.cpp']]],
+  ['processduel_19',['ProcessDuel',['../group___betting.html#ga506503cb26099bcd23f4a836ef321985',1,'Plugins::Betting']]],
+  ['processevent_20',['ProcessEvent',['../_f_l_hook_8cpp.html#a130e170cc161e307539d14da9de703eb',1,'FLHook.cpp']]],
+  ['processffa_21',['processFFA',['../group___betting.html#gac7110da2153d0cbd18d466fd2dd3ee32',1,'Plugins::Betting']]],
+  ['processpendingcommands_22',['ProcessPendingCommands',['../_f_l_hook_8cpp.html#a8e872db94d8c0bfd1919acbf3a778125',1,'ProcessPendingCommands():&#160;FLHook.cpp'],['../_global_8hpp.html#a8e872db94d8c0bfd1919acbf3a778125',1,'ProcessPendingCommands():&#160;FLHook.cpp']]],
+  ['processplugincommand_23',['ProcessPluginCommand',['../source_2_features_2_user_commands_8cpp.html#a404246d4b82cf13201e925354c9f3351',1,'UserCommands.cpp']]],
+  ['processsocketcmd_24',['ProcessSocketCmd',['../_f_l_hook_8cpp.html#afbe036c9a5ebeba64fdf2deb72b65a8c',1,'FLHook.cpp']]],
+  ['processwardroberestarts_25',['ProcessWardrobeRestarts',['../namespace_plugins_1_1_wardrobe.html#ac7d112cc7e345bf179ced6f8d4cb98d8',1,'Plugins::Wardrobe']]]
 ];

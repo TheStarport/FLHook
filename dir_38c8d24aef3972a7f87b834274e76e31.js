@@ -11,6 +11,7 @@ var dir_38c8d24aef3972a7f87b834274e76e31 =
     [ "cash_manager", "dir_272d92c666d6092c8388bd4fbf7d0005.html", "dir_272d92c666d6092c8388bd4fbf7d0005" ],
     [ "condata", "dir_e0daf5c6e4b6441e9f292db2d044648d.html", "dir_e0daf5c6e4b6441e9f292db2d044648d" ],
     [ "crash_catcher", "dir_be5ab8491fdffb0e4423b2f3a1aa7fbd.html", "dir_be5ab8491fdffb0e4423b2f3a1aa7fbd" ],
+    [ "daily_tasks", "dir_2e1d09df4da4d5e9565304e2cecbdae8.html", "dir_2e1d09df4da4d5e9565304e2cecbdae8" ],
     [ "death_penalty", "dir_beec3d5ea085376863e47e3f32644a47.html", "dir_beec3d5ea085376863e47e3f32644a47" ],
     [ "dynamic_missions", "dir_a191491824de4f25401e3a9ab1cf7263.html", "dir_a191491824de4f25401e3a9ab1cf7263" ],
     [ "event", "dir_51a35af32d1709180e0014fa3d7fc71f.html", "dir_51a35af32d1709180e0014fa3d7fc71f" ],

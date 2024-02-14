@@ -11,10 +11,10 @@
 <!-- Node0 -->
 <g id="node1" class="node">
 <title>Node0</title>
-<g id="a_node1"><a xlink:href="struct_plugins_1_1_misc_commands_1_1_misc_client_info.html" target="_top" xlink:title="The struct that holds client info for this plugin.">
+<g id="a_node1"><a xlink:href="struct_plugins_1_1_misc_commands_1_1_global.html" target="_top" xlink:title="Global data for this plugin.">
 <polygon fill="white" stroke="#666666" points="136,-30 0,-30 0,0 136,0 136,-30"/>
 <text text-anchor="start" x="8" y="-18" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::MiscCommands</text>
-<text text-anchor="middle" x="68" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">::MiscClientInfo</text>
+<text text-anchor="middle" x="68" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">::Global</text>
 </a>
 </g>
 </g>

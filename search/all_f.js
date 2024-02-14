@@ -9,7 +9,8 @@ var searchData=
   ['onconnect_5f_5finner_6',['OnConnect__Inner',['../namespace_i_server_impl_hook.html#ab714eae81650d5dadbabb028b45e8cda',1,'IServerImplHook']]],
   ['onconnect_5f_5finnerafter_7',['OnConnect__InnerAfter',['../namespace_i_server_impl_hook.html#ad53129100fd63d484441b9a6ddcfbe9f',1,'IServerImplHook']]],
   ['onesecondtimer_8',['OneSecondTimer',['../group___message.html#ga16267c443617654057b166c8cb37dd47',1,'Plugins::Message::OneSecondTimer()'],['../namespace_plugins_1_1_misc_commands.html#af118195808b2db1305b7efe9f5da1ef6',1,'Plugins::MiscCommands::OneSecondTimer()']]],
-  ['operator_3c_9',['operator&lt;',['../_global_8hpp.html#ad1b4547e513f7fa09178255048613729',1,'Global.hpp']]],
-  ['originalarchid_10',['originalArchId',['../struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#aaac8eba86d4bf221f4a76860302c36e4',1,'Plugins::LightControl::EquipmentHardpoint']]],
-  ['overrideusernumber_11',['overrideUserNumber',['../struct_plugins_1_1_template_1_1_config.html#a0f24d85f92ac2bb565d3ced5e241cfb5',1,'Plugins::Template::Config']]]
+  ['onlogin_9',['OnLogin',['../group___daily_tasks.html#ga3050887af4d87d466ae64cdbc85867a7',1,'Plugins::DailyTasks']]],
+  ['operator_3c_10',['operator&lt;',['../_global_8hpp.html#ad1b4547e513f7fa09178255048613729',1,'Global.hpp']]],
+  ['originalarchid_11',['originalArchId',['../struct_plugins_1_1_light_control_1_1_equipment_hardpoint.html#aaac8eba86d4bf221f4a76860302c36e4',1,'Plugins::LightControl::EquipmentHardpoint']]],
+  ['overrideusernumber_12',['overrideUserNumber',['../struct_plugins_1_1_template_1_1_config.html#a0f24d85f92ac2bb565d3ced5e241cfb5',1,'Plugins::Template::Config']]]
 ];

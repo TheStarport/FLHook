@@ -10,6 +10,7 @@ var namespace_plugins =
     [ "CashManager", "namespace_plugins_1_1_cash_manager.html", "namespace_plugins_1_1_cash_manager" ],
     [ "ConData", "namespace_plugins_1_1_con_data.html", "namespace_plugins_1_1_con_data" ],
     [ "CrashCatcher", "namespace_plugins_1_1_crash_catcher.html", "namespace_plugins_1_1_crash_catcher" ],
+    [ "DailyTasks", "namespace_plugins_1_1_daily_tasks.html", "namespace_plugins_1_1_daily_tasks" ],
     [ "DeathPenalty", "namespace_plugins_1_1_death_penalty.html", "namespace_plugins_1_1_death_penalty" ],
     [ "Event", "namespace_plugins_1_1_event.html", "namespace_plugins_1_1_event" ],
     [ "IPBan", "namespace_plugins_1_1_i_p_ban.html", [

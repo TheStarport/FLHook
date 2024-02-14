@@ -11,10 +11,10 @@
 <!-- Node0 -->
 <g id="node1" class="node">
 <title>Node0</title>
-<g id="a_node1"><a xlink:href="struct_plugins_1_1_mining_control_1_1_global.html" target="_top" xlink:title="Global data for this plugin.">
+<g id="a_node1"><a xlink:href="struct_plugins_1_1_mining_control_1_1_client_data.html" target="_top" xlink:title="A struct to represent each client.">
 <polygon fill="white" stroke="#666666" points="126,-30 0,-30 0,0 126,0 126,-30"/>
 <text text-anchor="start" x="8" y="-18" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::MiningControl</text>
-<text text-anchor="middle" x="63" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">::Global</text>
+<text text-anchor="middle" x="63" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">::ClientData</text>
 </a>
 </g>
 </g>

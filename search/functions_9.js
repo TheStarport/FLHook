@@ -13,9 +13,9 @@ var searchData=
   ['inigeti_10',['IniGetI',['../_tools_8cpp.html#a80c817d8c72446f130492dbdeafad4b9',1,'Tools.cpp']]],
   ['inigets_11',['IniGetS',['../_tools_8cpp.html#aa55e9d6361dc276b7f69563acc2bf23b',1,'Tools.cpp']]],
   ['inigetws_12',['IniGetWS',['../_tools_8cpp.html#a7bb0599ad930dc7de6fa49643ed1b3d8',1,'Tools.cpp']]],
-  ['init_13',['Init',['../_f_l_hook_8cpp.html#ad19abaacb073bdef7940926f64b2aace',1,'Init():&#160;FLHook.cpp'],['../namespace_startup_cache.html#aa5c5564fc7d448774689e161c1c17dec',1,'StartupCache::Init()'],['../class_debug_tools.html#a22fdcf3a7018e671b6a39a7e095bb419',1,'DebugTools::Init()']]],
+  ['init_13',['Init',['../namespace_startup_cache.html#aa5c5564fc7d448774689e161c1c17dec',1,'StartupCache::Init()'],['../_f_l_hook_8cpp.html#ad19abaacb073bdef7940926f64b2aace',1,'Init():&#160;FLHook.cpp'],['../class_debug_tools.html#a22fdcf3a7018e671b6a39a7e095bb419',1,'DebugTools::Init()']]],
   ['inithook_14',['InitHook',['../class_save_game_detour.html#a14fb79bcaf823d3cb55cf5d57cbd874a',1,'SaveGameDetour']]],
-  ['inithookexports_15',['InitHookExports',['../_hk_init_8cpp.html#a666888c9c542932a229e9f71d0578860',1,'InitHookExports():&#160;HkInit.cpp'],['../_global_8hpp.html#a666888c9c542932a229e9f71d0578860',1,'InitHookExports():&#160;HkInit.cpp']]],
+  ['inithookexports_15',['InitHookExports',['../_global_8hpp.html#a666888c9c542932a229e9f71d0578860',1,'InitHookExports():&#160;HkInit.cpp'],['../_hk_init_8cpp.html#a666888c9c542932a229e9f71d0578860',1,'InitHookExports():&#160;HkInit.cpp']]],
   ['initiatetrade_16',['InitiateTrade',['../namespace_i_server_impl_hook.html#a732222471b8722f81748009bc7afc8ce',1,'IServerImplHook']]],
   ['initiatetrade_5f_5finner_17',['InitiateTrade__Inner',['../namespace_i_server_impl_hook.html#a8a8f2604b6c9bf02562264e52c9df0d1',1,'IServerImplHook']]],
   ['initlogs_18',['InitLogs',['../_logging_8cpp.html#abfcd5eadcbfe9ffc784b78c8753aa244',1,'Logging.cpp']]],
@@ -35,5 +35,7 @@ var searchData=
   ['isinrange_32',['IsInRange',['../namespace_hk_1_1_player.html#a5959bab6527b9814d1d92dc228bfb8b8',1,'Hk::Player']]],
   ['isinvalidbase_33',['IsInValidBase',['../group___light_control.html#gad665faa2a9f3aafa7cff3cc25d250fd2',1,'Plugins::LightControl']]],
   ['isvalidclientid_34',['IsValidClientID',['../namespace_hk_1_1_client.html#a5a159e3c9547ba1f64cb72c053540a2c',1,'Hk::Client']]],
-  ['itohexs_35',['itohexs',['../_tools_8cpp.html#a96dec8474e414c83fdf9867fddf4eafb',1,'Tools.cpp']]]
+  ['itempurchased_35',['ItemPurchased',['../group___daily_tasks.html#ga45c5e0288bd4c537c7dd4161af59c0df',1,'Plugins::DailyTasks']]],
+  ['itemsold_36',['ItemSold',['../group___daily_tasks.html#gabce56b68a6ed57c36d6927a8fdf39a12',1,'Plugins::DailyTasks']]],
+  ['itohexs_37',['itohexs',['../_tools_8cpp.html#a96dec8474e414c83fdf9867fddf4eafb',1,'Tools.cpp']]]
 ];

@@ -76,21 +76,21 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_admin_8cpp.html",
-"_f_l_hook_8cpp.html#a0ae5f5198c468e436068da6d4fc9cd7a",
-"_hk_client_server_interface_8cpp.html#ab26592e548d5eae1b053e232950433dc",
-"_mark_8cpp.html#abf89ccb22625764a5eef217fa0ba9611",
-"_save_data_8cpp.html#a07cff542d3140b0d50fe09c7dc559569",
-"class_plugins_1_1_message_1_1_client_info.html#ac85c78cb1c43cc46778d232c8eda6384",
-"group___i_p_ban.html#ga93cdcddc3cd0833db4917192d3ade83b",
-"namespace_hk_1_1_personalities.html#a811549b3d77785d9a43dbf8f3a094ceb",
-"namespace_plugins_1_1_arena.html#a01a34b4d2889587850c765180302c942",
-"namespace_plugins_1_1_warehouse.html#a3b3366795afcf8edea7f00cda9db6988",
-"struct_plugin_data.html#a25476b57d89794feb418ab04bedee421",
-"struct_plugins_1_1_cash_manager_1_1_transaction.html#ab568891099300540d3e362135d06361c",
-"struct_plugins_1_1_kill_tracker_1_1_kill_message.html#a069b13af023f4a7fbb2de568567b6ce9",
-"struct_plugins_1_1_mining_control_1_1_player_bonus.html#ad43105cc13bce13a3ea521e08b2e3c47",
-"struct_plugins_1_1_rename_1_1_tag_data.html#a4eefe1ad0622760153285d20b0e9c438",
-"struct_t_r_i_g_g_e_r___a_r_g.html#a188ee0cbdfac0e2950548c181e3a166f"
+"_error_8cpp.html#aaca63c42cee84bd480eba6e4b1f5ebc3",
+"_hk_client_server_interface_8cpp.html#a81dd7e1c3ebb148cf5b31bd459fd16c1",
+"_loot_tables_8cpp.html#abf27c781e7e00398be6eb75adba0be0f",
+"_rename_8cpp.html#a8e80b3539a6c9920c8ec4e18d492ea8b",
+"class_plugins_1_1_cash_manager_1_1_cash_manager_communicator.html",
+"group___crash_catcher.html#ga808fd0debb79ed1c980ca1703ac6a42b",
+"namespace_hk_1_1_message.html#a01c97163b25794780b158069a6fc3d12",
+"namespace_i_server_impl_hook.html#acb37301daa5ccb8ac748afd6162edf68",
+"namespace_plugins_1_1_sound_manager.html#aa0ff74b7b0216a31e1f8228f0cb5473b",
+"struct_hk_1_1_ini_1_1_f_l_h_o_o_k___p_l_a_y_e_r___d_a_t_a.html#a37707f3c9ac2ce44fd489dbdac35d703",
+"struct_plugins_1_1_cash_manager_1_1_bank.html",
+"struct_plugins_1_1_death_penalty_1_1_config.html#a020ce33e91b50c76d3e01b48f17043eb",
+"struct_plugins_1_1_mark_1_1_m_a_r_k___i_n_f_o.html#ace1bcac6d245f0d14b164c9dfc6ecf98",
+"struct_plugins_1_1_npc_1_1_npc.html#a8b05e5440aa150f6273dc5871957f09f",
+"struct_plugins_1_1_system_sensor_1_1_sensor.html#afbbbbe391c1e84ff085894befd3f82cc"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
