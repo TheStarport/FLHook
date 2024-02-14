@@ -1,4 +1,8 @@
 # Changelog
+
+## 4.0.21
+- Create 'daily_tasks' a plugin that assigns basic daily tasks to player accounts for them to complete.
+
 ## 4.0.20
 - Fixed issue where repair cost was not fetched from base inis.
 - Fixed CargoDrop and Condata that wouldn't compile as a result of a breaking SDK change.
