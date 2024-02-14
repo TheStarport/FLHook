@@ -159,9 +159,7 @@ namespace Plugins::DailyTasks
 	 */
 	void GetGoodBaseValues()
 	{
-		auto goodList = GoodList_get();
-		auto& list = *goodList->get_list();
-		for (auto& good : list)
+		for (auto& good : *GoodList_get()->get_list())
 		{
 			if ((good->iType == 0 || good->iType == 1) && good->fPrice != 0 && global->itemRewardPool.find(good->iArchId) != global->itemRewardPool.end())
 			{
@@ -217,9 +215,9 @@ namespace Plugins::DailyTasks
 	void LoadTaskStatusFromJson(CAccount* account)
 	{
 		auto taskJsonPath = Hk::Client::GetAccountDirName(account);
-		char szDataPath[MAX_PATH];
-		GetUserDataPath(szDataPath);
-		auto taskList = Serializer::JsonToObject<Tasks>(std::format("{}\\Accts\\MultiPlayer\\{}\\daily_tasks.json", szDataPath, wstos(taskJsonPath)), true);
+		char dataPath[MAX_PATH];
+		GetUserDataPath(dataPath);
+		auto taskList = Serializer::JsonToObject<Tasks>(std::format("{}\\Accts\\MultiPlayer\\{}\\daily_tasks.json", dataPath, wstos(taskJsonPath)), true);
 		global->accountTasks[account] = taskList;
 	}
 
@@ -533,11 +531,11 @@ namespace Plugins::DailyTasks
 	{
 		auto onlinePlayers = Hk::Admin::GetPlayers();
 		auto currentTime = Hk::Time::GetUnixSeconds();
-		for (auto& players : onlinePlayers)
+		for (const auto& players : onlinePlayers)
 		{
 			auto account = Hk::Client::GetAccountByClientID(players.client);
 			auto accountId = account->wszAccId;
-			for (auto& tasks : global->accountTasks[account].tasks)
+			for (const auto& tasks : global->accountTasks[account].tasks)
 			{
 				if ((currentTime - tasks.setTime) < 86400)
 				{
@@ -575,7 +573,7 @@ namespace Plugins::DailyTasks
 	/** @ingroup DailyTasks
 	 * @brief A user command to show the tasks a player currently has and their status.
 	 */
-	void UserCmdShowDailyTasks(ClientId& client, const std::wstring& param)
+	void UserCmdShowDailyTasks(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		PrintTasks(client);
 	}
@@ -583,12 +581,12 @@ namespace Plugins::DailyTasks
 	/** @ingroup DailyTasks
 	 * @brief A user command to reset the user's tasks and reroll them if they have not already started to complete them.
 	 */
-	void UserCmdResetDailyTasks(ClientId& client, const std::wstring& param)
+	void UserCmdResetDailyTasks(ClientId& client, [[maybe_unused]] const std::wstring& param)
 	{
 		auto account = Hk::Client::GetAccountByClientID(client);
 		auto accountId = account->wszAccId;
 
-		for (auto& tasks : global->accountTasks[account].tasks)
+		for (const auto& tasks : global->accountTasks[account].tasks)
 		{
 			if (tasks.isCompleted)
 			{
