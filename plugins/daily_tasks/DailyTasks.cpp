@@ -416,7 +416,7 @@ namespace Plugins::DailyTasks
 			pub::Reputation::GetGroupName(npcFactionTarget, npcFactionIds);
 
 			task.taskType = KillNpc;
-			task.taskDescription = std::format("Destroy {} ships belonging to the {}.", npcQuantity, wstos(Hk::Message::GetWStringFromIdS(npcFactionIds)));
+			task.taskDescription = std::format("Destroy {} ships belonging to {}.", npcQuantity, wstos(Hk::Message::GetWStringFromIdS(npcFactionIds)));
 			task.npcFactionTarget = npcFactionTarget;
 			task.quantity = npcQuantity;
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill NPCs' task to '{}'", task.taskDescription));
@@ -506,11 +506,12 @@ namespace Plugins::DailyTasks
 			if (!task.isCompleted)
 			{
 				PrintUserCmdText(client,
-				    std::format(L"{} Expires in {} hours. {}/{} remaining.", stows(task.taskDescription), taskExpiry, task.quantityCompleted, task.quantity));
+				    std::format(
+				        L"{} | Expires in {} hours | {}/{} remaining.", stows(task.taskDescription), taskExpiry, task.quantityCompleted, task.quantity));
 			}
 			else
 			{
-				PrintUserCmdText(client, stows(task.taskDescription + " TASK COMPLETED"));
+				PrintUserCmdText(client, stows(task.taskDescription + " | TASK COMPLETED"));
 			}
 		}
 	}
