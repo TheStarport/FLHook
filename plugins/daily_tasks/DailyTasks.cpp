@@ -400,7 +400,7 @@ namespace Plugins::DailyTasks
 			auto itemArch = Archetype::GetEquipment(itemAcquisitionTarget);
 			if (!itemArch)
 			{
-				AddLog(LogType::Normal, LogLevel::Err, "Failed to generate a GetItem task. No valid Item ArchID was found. The task was not created.");
+				AddLog(LogType::Normal, LogLevel::Err, "Failed to generate a GetItem task. No valid item ArchID was found. The task was not created.");
 				return;
 			}
 			task.taskType = GetItem;
@@ -439,7 +439,9 @@ namespace Plugins::DailyTasks
 
 			if (!baseArch || !itemArch)
 			{
-				AddLog(LogType::Normal, LogLevel::Err, "A base or item ArchId was not found, trade task generation has failed, exiting...");
+				AddLog(LogType::Normal,
+				    LogLevel::Err,
+				    "Failed to generate a SellItem task. No valid item ArchID or base BaseID was found. The task was not created.");
 				return;
 			}
 
@@ -525,24 +527,10 @@ namespace Plugins::DailyTasks
 	}
 
 	/** @ingroup DailyTasks
-	 * @brief Keeps track of time and initiates cleanup once per day.
+	 * @brief Iterates over online players and checks the time status of their tasks, clearing and resetting them if they exceed 24 hours.
 	 */
-	void DailyTimerTick()
+	void DailyTaskCheck()
 	{
-		// Checks the current hour to see if global->dailyReset should be flipped back to false
-		if (int currentHour =
-		        std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count() % 24 == global->config->resetTime ||
-		        currentHour == global->config->resetTime + 1 && global->dailyReset == false)
-		{
-			global->dailyReset = true;
-			global->tasksReset.clear();
-		}
-		else
-		{
-			global->dailyReset = false;
-		}
-
-		// Iterates over online players and checks the time status of their tasks, clearing and resetting them if they exceed 24 hours.
 		auto onlinePlayers = Hk::Admin::GetPlayers();
 		auto currentTime = Hk::Time::GetUnixSeconds();
 		for (auto& players : onlinePlayers)
@@ -563,6 +551,26 @@ namespace Plugins::DailyTasks
 				}
 			}
 		}
+	}
+
+	/** @ingroup DailyTasks
+	 * @brief Keeps track of time and initiates cleanup once per day.
+	 */
+	void DailyTimerTick()
+	{
+		// Checks the current hour to see if global->dailyReset should be flipped back to false
+		if (int currentHour =
+		        std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count() % 24 == global->config->resetTime ||
+		        currentHour == global->config->resetTime + 1 && global->dailyReset == false)
+		{
+			global->dailyReset = true;
+			global->tasksReset.clear();
+		}
+		else
+		{
+			global->dailyReset = false;
+		}
+		DailyTaskCheck();
 	}
 
 	/** @ingroup DailyTasks
