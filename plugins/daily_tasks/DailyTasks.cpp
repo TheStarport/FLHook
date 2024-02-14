@@ -161,7 +161,7 @@ namespace Plugins::DailyTasks
 	{
 		for (auto& good : *GoodList_get()->get_list())
 		{
-			if ((good->iType == 0 || good->iType == 1) && good->fPrice != 0 && global->itemRewardPool.find(good->iArchId) != global->itemRewardPool.end())
+			if ((good->iType == 0 || good->iType == 1) && good->fPrice != 0 && global->itemRewardPool.contains(good->iArchId))
 			{
 				global->goodList.insert({good->iArchId, good->fPrice});
 				auto ids = good->iIdSName;
@@ -557,8 +557,9 @@ namespace Plugins::DailyTasks
 	void DailyTimerTick()
 	{
 		// Checks the current hour to see if global->dailyReset should be flipped back to false
-		int currentHour = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count() % 24;
-		if (currentHour == global->config->resetTime || currentHour == global->config->resetTime + 1 && global->dailyReset == false)
+		if (std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count() % 24 == global->config->resetTime ||
+		    std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count() % 24 == global->config->resetTime + 1 &&
+		        global->dailyReset == false)
 		{
 			global->dailyReset = true;
 			global->tasksReset.clear();
