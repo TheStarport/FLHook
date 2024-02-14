@@ -202,12 +202,12 @@ namespace Plugins::DailyTasks
 		auto& taskList = global->accountTasks.at(account);
 		auto taskJsonPath = Hk::Client::GetAccountDirName(account);
 
-		char szDataPath[MAX_PATH];
-		GetUserDataPath(szDataPath);
-		Serializer::SaveToJson(taskList, std::format("{}\\Accts\\MultiPlayer\\{}\\daily_tasks.json", szDataPath, wstos(taskJsonPath)));
+		char dataPath[MAX_PATH];
+		GetUserDataPath(dataPath);
+		Serializer::SaveToJson(taskList, std::format("{}\\Accts\\MultiPlayer\\{}\\daily_tasks.json", dataPath, wstos(taskJsonPath)));
 		AddLog(LogType::Normal,
 		    LogLevel::Debug,
-		    std::format("Saving a task status update to {}\\Accts\\MultiPlayer\\{}\\daily_tasks.json", szDataPath, wstos(taskJsonPath)));
+		    std::format("Saving a task status update to {}\\Accts\\MultiPlayer\\{}\\daily_tasks.json", dataPath, wstos(taskJsonPath)));
 	}
 
 	/** @ingroup DailyTasks
@@ -257,17 +257,17 @@ namespace Plugins::DailyTasks
 	 * @brief Hook on ShipDestroyed to see if a task needs to be updated.
 	 */
 
-	void ShipDestroyed([[maybe_unused]] DamageList** _dmg, const DWORD** ecx, const uint& kill)
+	void ShipDestroyed([[maybe_unused]] DamageList** damage, const DWORD** ecx, const uint& kill)
 	{
 		if (kill == 1)
 		{
-			const CShip* cShip = Hk::Player::CShipFromShipDestroyed(ecx);
-			if (ClientId client = cShip->GetOwnerPlayer())
+			const CShip* ship = Hk::Player::CShipFromShipDestroyed(ecx);
+			if (ClientId client = ship->GetOwnerPlayer())
 			{
-				const DamageList* dmg = *_dmg;
+				const DamageList* dmg = *damage;
 				const auto killerId = Hk::Client::GetClientIdByShip(
 				    dmg->get_cause() == DamageCause::Unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
-				const auto victimId = Hk::Client::GetClientIdByShip(cShip->get_id());
+				const auto victimId = Hk::Client::GetClientIdByShip(ship->get_id());
 				for (auto& task : global->accountTasks[Hk::Client::GetAccountByClientID(killerId.value())].tasks)
 				{
 					if (task.taskType == TaskType::KillPlayer && !task.isCompleted && victimId.has_value())
@@ -286,11 +286,11 @@ namespace Plugins::DailyTasks
 			}
 			else
 			{
-				const DamageList* dmg = *_dmg;
+				const DamageList* dmg = *damage;
 				const auto killerId = Hk::Client::GetClientIdByShip(
 				    dmg->get_cause() == DamageCause::Unknown ? ClientInfo[client].dmgLast.get_inflictor_id() : dmg->get_inflictor_id());
 				int reputation;
-				pub::SpaceObj::GetRep(cShip->get_id(), reputation);
+				pub::SpaceObj::GetRep(ship->get_id(), reputation);
 				uint affiliation;
 				pub::Reputation::GetAffiliation(reputation, affiliation);
 
@@ -545,7 +545,7 @@ namespace Plugins::DailyTasks
 				}
 				AddLog(LogType::Normal, LogLevel::Debug, std::format("Tasks for {} are out of date, refreshing and creating new tasks...", wstos(accountId)));
 				global->accountTasks[account].tasks.erase(global->accountTasks[account].tasks.begin(), global->accountTasks[account].tasks.end());
-				for (int i = 0; i < global->config->taskQuantity; i++)
+				for (int iterator = 0; iterator < global->config->taskQuantity; iterator++)
 				{
 					GenerateDailyTask(account);
 				}
@@ -603,7 +603,7 @@ namespace Plugins::DailyTasks
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("{} is resetting their daily tasks.", wstos(accountId)));
 
 			global->accountTasks[account].tasks.erase(global->accountTasks[account].tasks.begin(), global->accountTasks[account].tasks.end());
-			for (int i = 0; i < global->config->taskQuantity; i++)
+			for (int iterator = 0; iterator < global->config->taskQuantity; iterator++)
 			{
 				GenerateDailyTask(account);
 			}
@@ -621,7 +621,7 @@ namespace Plugins::DailyTasks
 	/** @ingroup DailyTasks
 	 * @brief Hook on Login to check a player's task status and assign new tasks if they don't have any or their previous ones had expired.
 	 */
-	void OnLogin([[maybe_unused]] struct SLoginInfo const& li, ClientId& client)
+	void OnLogin([[maybe_unused]] struct SLoginInfo const& login, ClientId& client)
 	{
 		auto account = Hk::Client::GetAccountByClientID(client);
 		auto accountId = account->wszAccId;
@@ -631,7 +631,7 @@ namespace Plugins::DailyTasks
 		if (global->accountTasks[account].tasks.empty())
 		{
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("No tasks saved for {}, creating new tasks...", wstos(accountId)));
-			for (int i = 0; i < global->config->taskQuantity; i++)
+			for (int iterator = 0; iterator < global->config->taskQuantity; iterator++)
 			{
 				GenerateDailyTask(account);
 			}
@@ -645,7 +645,7 @@ namespace Plugins::DailyTasks
 			{
 				AddLog(LogType::Normal, LogLevel::Debug, std::format("Tasks for {} are out of date, refreshing and creating new tasks...", wstos(accountId)));
 				global->accountTasks[account].tasks.erase(global->accountTasks[account].tasks.begin(), global->accountTasks[account].tasks.end());
-				for (int i = 0; i < global->config->taskQuantity; i++)
+				for (int iterator = 0; iterator < global->config->taskQuantity; iterator++)
 				{
 					GenerateDailyTask(account);
 				}
