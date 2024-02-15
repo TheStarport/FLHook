@@ -22,23 +22,19 @@ int __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
         return 1; // pass on
 }
 
-static constexpr DWORD dalibAddr = static_cast<DWORD>(AddressList::DalibDiscSuppress); // NOLINT
-__declspec(naked) void IEngineHook::NakedDisconnectPacketSent()
+IEngineHook::DisconnectPacketSentAssembly::DisconnectPacketSentAssembly()
 {
-    __asm {
-		pushad
-		mov eax, [esi+0x68]
-		push eax
-		call DisconnectPacketSent
-		cmp eax, 0
-		jz suppress
-		popad
-		jmp [IEngineHook::oldDisconnectPacketSent]
+    pushad();
+    mov(eax, dword[esi+0x68]);
+    push(eax);
+    call(DisconnectPacketSent);
+    cmp(eax, 0);
+    popad();
+    jz(".suppress");
+    jmp(dword[IEngineHook::oldDisconnectPacketSent]);
 
-		suppress:
-		popad
-		mov eax, [FLHook::dalibDll]
-		add eax, dalibAddr
-		jmp eax
-    }
+    L(".suppress");
+    mov(eax, dword[FLHook::dalibDll]);
+    add(eax, static_cast<DWORD>(AddressList::DalibDiscSuppress));
+    jmp(eax);
 }

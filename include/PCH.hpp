@@ -40,6 +40,7 @@
 #endif
 
 #include "Core/Templates/Constexpr.hpp"
+#include "xbyak/xbyak.h"
 
 #define MAGIC_ENUM_USING_ALIAS_STRING_VIEW using string_view = std::wstring_view;
 #define MAGIC_ENUM_USING_ALIAS_STRING      using string = std::wstring;

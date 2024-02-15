@@ -29,7 +29,7 @@ bool LoginInnerBefore(const SLoginInfo& li, ClientId client)
         }
     }
 
-    // FLHook::GetAccountManager().OnLogin(client);
+    FLHook::GetAccountManager().OnLogin(client);
 
     return true;
 }

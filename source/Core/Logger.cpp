@@ -61,7 +61,7 @@ void Logger::GetConsoleInput(std::stop_token st)
 
             if (!cmd.empty())
             {
-                commandQueue.push(cmd);
+                commandQueue.enqueue(cmd);
             }
         }
 
@@ -76,9 +76,9 @@ void Logger::PrintToConsole(std::stop_token st)
         std::this_thread::sleep_for(0.25s);
 
         LogMessage logMessage;
-        while (logQueue.try_pop(logMessage))
+        while (logQueue.try_dequeue(logMessage))
         {
-            auto log = std::format(L"{}{}\n", SetLogSource(logMessage.retAddress), logMessage.message);
+            auto log = std::format(L"{}{}", SetLogSource(logMessage.retAddress), logMessage.message);
             switch (logMessage.level)
             {
                 case LogLevel::Trace:
@@ -109,15 +109,7 @@ void Logger::PrintToConsole(std::stop_token st)
                     }
             }
 
-            if (consoleAllocated)
-            {
-                ulong _;
-                WriteConsoleW(consoleOutput, log.data(), log.length(), &_, nullptr);
-            }
-            else
-            {
-                std::wcout << log << std::endl << std::flush;
-            }
+            std::wcout << log << std::endl;
 
             // Reset
             SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::White));
@@ -136,7 +128,7 @@ void Logger::Init()
         AllocConsole();
         SetConsoleTitleW(L"FLHook");
 
-        const HWND console = GetConsoleWindow();
+        const auto console = GetConsoleWindow();
         RECT r;
         GetWindowRect(console, &r);
 
@@ -146,6 +138,23 @@ void Logger::Init()
     SetConsoleCtrlHandler(ConsoleHandler, TRUE);
     consoleInput = GetStdHandle(STD_INPUT_HANDLE);
     consoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    FILE* fDummy;
+    freopen_s(&fDummy, "CONOUT$", "w", stdout);
+    freopen_s(&fDummy, "CONOUT$", "w", stderr);
+    freopen_s(&fDummy, "CONIN$", "r", stdin);
+    std::cout.clear();
+    std::clog.clear();
+    std::cerr.clear();
+    std::cin.clear();
+
+    SetStdHandle(STD_OUTPUT_HANDLE, stdout);
+    SetStdHandle(STD_ERROR_HANDLE, stderr);
+    SetStdHandle(STD_INPUT_HANDLE, stdin);
+    std::wcout.clear();
+    std::wclog.clear();
+    std::wcerr.clear();
+    std::wcin.clear();
 
     // change version number here:
     // https://patorjk.com/software/taag/#p=display&f=Doom&t=FLHook%204.1%20pallas
@@ -160,7 +169,7 @@ ______ _      _   _             _        ___   __                _ _
                                                     |_|                        )";
     welcomeText += L"\n\n";
     DWORD _;
-    WriteConsole(consoleOutput, welcomeText.c_str(), welcomeText.length(), &_, nullptr);
+    std::wcout << welcomeText << std::flush;
 
     commandThread = std::jthread(std::bind_front(&Logger::GetConsoleInput));
     loggingThread = std::jthread(std::bind_front(&Logger::PrintToConsole));
@@ -173,31 +182,27 @@ void Logger::Log(LogFile file, LogLevel level, std::wstring_view str)
         return;
     }
 
-    logQueue.push({ level, file, std::wstring(str), _ReturnAddress() });
+    logQueue.enqueue({ level, file, std::wstring(str), _ReturnAddress() });
 }
 
 void Logger::Log(LogLevel level, std::wstring_view str)
 {
-    if ((!FLHook::GetConfig().debug.logTraceLevel && level == LogLevel::Trace) || (!FLHook::GetConfig().debug.debugMode && level == LogLevel::Debug))
+    auto& config = FLHook::GetConfig();
+    if ((!config.debug.logTraceLevel && level == LogLevel::Trace) || (!config.debug.debugMode && level == LogLevel::Debug))
     {
         return;
     }
 
-    logQueue.push({ level, LogFile::Default, std::wstring(str), _ReturnAddress() });
+    logQueue.enqueue({ level, LogFile::Default, std::wstring(str), _ReturnAddress() });
 }
 
 std::optional<std::wstring> Logger::GetCommand()
 {
-    if (commandQueue.empty())
+    std::wstring cmd;
+    if (!commandQueue.try_dequeue(cmd))
     {
         return {};
     }
 
-    std::wstring ret;
-    if (const auto val = commandQueue.try_pop(ret); !val)
-    {
-        return {};
-    }
-
-    return StringUtils::Trim(ret);
+    return StringUtils::Trim(cmd);
 }

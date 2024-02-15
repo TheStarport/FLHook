@@ -2,7 +2,7 @@
 
 #include <Singleton.hpp>
 
-#include <concurrent_queue.h>
+#include <concurrentqueue/concurrentqueue.h>
 #include <optional>
 #include <spdlog/spdlog.h>
 
@@ -41,8 +41,8 @@ class DLL Logger final
 
         inline static std::jthread commandThread;
         inline static std::jthread loggingThread;
-        inline static concurrency::concurrent_queue<LogMessage> logQueue;
-        inline static concurrency::concurrent_queue<std::wstring> commandQueue;
+        inline static moodycamel::ConcurrentQueue<LogMessage> logQueue; // NOLINT
+        inline static moodycamel::ConcurrentQueue<std::wstring> commandQueue; // NOLINT
 
         static std::wstring SetLogSource(void* addr);
 

@@ -2,7 +2,7 @@
 
 #pragma warning(push, 0)
 #pragma warning(disable : 4244)
-#include <External/uvw.hpp>
+#include <uvw.hpp>
 #include <amqpcpp.h>
 #include <memory>
 #include <thread>
@@ -14,8 +14,8 @@ class MessageHandler final : public AMQP::ConnectionHandler, public Singleton<Me
         using QueueOnData = std::function<bool(const AMQP::Message& msg, std::optional<yyjson_mut_doc*>& replyBody)>;
         using QueueOnFail = std::function<void(const char* err)>;
 
-        std::shared_ptr<uvw::Loop> loop;
-        std::shared_ptr<uvw::TCPHandle> connectHandle;
+        std::shared_ptr<uvw::loop> loop;
+        std::shared_ptr<uvw::tcp_handle> connectHandle;
         std::unique_ptr<AMQP::Connection> connection;
         std::unique_ptr<AMQP::Channel> channel;
         std::unordered_map<std::wstring, std::vector<QueueOnData>> onMessageCallbacks;

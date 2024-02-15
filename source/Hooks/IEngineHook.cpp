@@ -4,66 +4,49 @@
 
 void __stdcall IEngineHook::CShipInit(CShip* ship) { CallPlugins(&Plugin::OnCShipInit, ship); }
 
-__declspec(naked) void IEngineHook::NakedCShipInit()
+IEngineHook::CShipInitAssembly::CShipInitAssembly()
 {
-    __asm {
-			push ecx
-			push [esp+8]
-			call oldInitCShip
-			call CShipInit
-			ret 4
-    }
+    push(ecx);
+    push(dword[esp + 8]);
+    call(oldInitCShip);
+    call(CShipInit);
+    ret(4);
+}
+
+IEngineHook::CallAndRet::CallAndRet(void* toCall, void* ret)
+{
+    push(ecx); // Reserve ecx
+    push(ecx);
+    call(toCall);
+    pop(ecx); // Restore ecx
+    jmp(ret);
 }
 
 void __stdcall IEngineHook::CShipDestroy(CShip* ship) { CallPlugins(&Plugin::OnCShipDestroy, ship); }
 
-__declspec(naked) void IEngineHook::NakedCShipDestroy()
-{
-    __asm {
-			push ecx
-			push ecx
-			call CShipDestroy
-			pop ecx
-			jmp oldDestroyCShip
-    }
-}
-
 void __stdcall IEngineHook::CLootDestroy(CLoot* loot) { CallPlugins(&Plugin::OnCLootDestroy, loot); }
-
-__declspec(naked) void IEngineHook::NakedCLootDestroy()
-{
-    __asm {
-        push ecx
-        push ecx
-        call CLootDestroy
-        pop ecx
-        jmp oldDestroyCLoot
-    }
-}
 
 void __stdcall IEngineHook::CSolarDestroy(CSolar* solar) { CallPlugins(&Plugin::OnCSolarDestroy, solar); }
 
-__declspec(naked) void IEngineHook::NakedCSolarDestroy()
-{
-    __asm {
-        push ecx
-        push ecx
-        call CSolarDestroy
-        pop ecx
-        jmp oldDestroyCSolar
-    }
-}
-
 int IEngineHook::FreeReputationVibe(const int& p1)
 {
-    __asm {
-			mov eax, p1
-			push eax
-            mov eax, [FLHook::serverDll]
-			add eax, 0x65C20
-			call eax
-			add esp, 4
-    }
+    struct Code : Xbyak::CodeGenerator
+    {
+            explicit Code(int p)
+            {
+                mov(eax, p);
+                push(eax);
+                mov(eax, dword[FLHook::serverDll]);
+                add(eax, 0x65C20);
+                call(eax);
+                add(esp, 4);
+            }
+    };
+
+    Code code(p1);
+
+    static auto call = code.getCode<void (*)()>();
+    call();
 
     return Reputation::Vibe::Free(p1);
 }
@@ -144,19 +127,17 @@ bool __stdcall IEngineHook::LaunchPosition(const uint spaceId, CEqObj& obj, Vect
     return obj.launch_pos(position, orientation, dock);
 }
 
-__declspec(naked) void IEngineHook::NakedLaunchPosition()
+IEngineHook::LaunchPositionAssembly::LaunchPositionAssembly()
 {
-    __asm {
-			push ecx // 4
-			push [esp+8+8] // 8
-			push [esp+12+4] // 12
-			push [esp+16+0] // 16
-			push ecx
-			push [ecx+176]
-			call LaunchPosition
-			pop ecx
-			ret 0x0C
-    }
+    push(ecx);
+    push(dword[esp+16]);
+    push(dword[esp+16]);
+    push(dword[esp+16]);
+    push(ecx);
+    push(dword[ecx+176]);
+    call(LaunchPosition);
+    pop(ecx);
+    ret(0xC);
 }
 
 auto __stdcall IEngineHook::LoadReputationFromCharacterFile(const RepDataList* savedReps, const LoadRepData* repToSave) -> bool
@@ -183,18 +164,18 @@ auto __stdcall IEngineHook::LoadReputationFromCharacterFile(const RepDataList* s
     return true;
 }
 
-__declspec(naked) void IEngineHook::NakedLoadReputationFromCharacterFile()
+IEngineHook::LoadReputationFromCharacterFileAssembly::LoadReputationFromCharacterFileAssembly()
 {
-    __asm {
-			push ecx // save ecx because thiscall
-			push [esp+4+4+8] // rep data
-			push ecx // rep data list
-			call LoadReputationFromCharacterFile
-			pop ecx // recover ecx
-			test al, al
-			jz abort_lbl
-			jmp [oldLoadReputationFromCharacterFile]
-			abort_lbl:
-			ret 0x0C
-    }
+    push(ecx);
+    push(dword[esp+16]);
+    push(ecx);
+    call(LoadReputationFromCharacterFile);
+    pop(ecx);
+    test(al, al);
+    jz(".abort");
+    jmp(dword[oldLoadReputationFromCharacterFile]);
+
+    inLocalLabel();
+    L(".abort");
+    ret(0xC);
 }

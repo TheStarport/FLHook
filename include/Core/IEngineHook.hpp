@@ -43,19 +43,50 @@ class IEngineHook
         static bool __stdcall LaunchPosition(uint spaceId, CEqObj& obj, Vector& position, Matrix& orientation, int dock);
         static void __stdcall CShipInit(CShip* ship);
 
-        static void NakedCShipDestroy();
-        static void NakedCShipInit();
-        static void NakedShipDestroyed();
-        static void NakedCLootDestroy();
-        static void NakedCSolarDestroy();
-        static void NakedGuidedHit();
-        static void NakedDamageHit();
-        static void NakedDamageHit2();
-        static void NakedNonGunWeaponHitsBase();
-        static void NakedDisconnectPacketSent();
-        static void NakedAddDamageEntry();
-        static void NakedLaunchPosition();
-        static void NakedLoadReputationFromCharacterFile();
+        struct CallAndRet : Xbyak::CodeGenerator
+        {
+                CallAndRet(void* toCall, void* ret);
+        };
+
+        inline static struct CShipInitAssembly : Xbyak::CodeGenerator
+        {
+                CShipInitAssembly();
+        } cShipInitAssembly;
+
+        inline static struct ShipDestroyAssembly : Xbyak::CodeGenerator
+        {
+                ShipDestroyAssembly();
+        } shipDestroyAssembly;
+
+        inline static struct GuidedHitAssembly : Xbyak::CodeGenerator
+        {
+                GuidedHitAssembly();
+        } guidedHitAssembly;
+
+        inline static struct NonGunWeaponHitBaseAssembly : Xbyak::CodeGenerator
+        {
+                NonGunWeaponHitBaseAssembly();
+        } nonGunWeaponHitBaseAssembly;
+
+        inline static struct DisconnectPacketSentAssembly : Xbyak::CodeGenerator
+        {
+                DisconnectPacketSentAssembly();
+        } disconnectPacketSentAssembly;
+
+        inline static struct AddDamageEntryAssembly : Xbyak::CodeGenerator
+        {
+                AddDamageEntryAssembly();
+        } addDamageEntryAssembly;
+
+        inline static struct LaunchPositionAssembly : Xbyak::CodeGenerator
+        {
+                LaunchPositionAssembly();
+        } launchPositionAssembly;
+
+        inline static struct LoadReputationFromCharacterFileAssembly : Xbyak::CodeGenerator
+        {
+                LoadReputationFromCharacterFileAssembly();
+        } loadReputationFromCharacterFileAssembly;
 
         static bool AllowPlayerDamage(ClientId client, ClientId clientTarget);
 
@@ -69,4 +100,10 @@ class IEngineHook
         static int __stdcall DisconnectPacketSent(ClientId client);
         static void SendDeathMessage(const std::wstring& msg, SystemId systemId, ClientId clientVictim, ClientId clientKiller);
         static void __stdcall ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint kill);
+
+        inline static CallAndRet cShipDestroyAssembly{ IEngineHook::CShipDestroy, &oldDestroyCShip };
+        inline static CallAndRet cSolarDestroyAssembly{ IEngineHook::CSolarDestroy, &oldDestroyCSolar };
+        inline static CallAndRet cLootDestroyAssembly { IEngineHook::CLootDestroy, &oldDestroyCLoot };;
+        inline static CallAndRet damageHitAssembly1{ IEngineHook::DamageHit, &oldDamageHit };
+        inline static CallAndRet damageHitAssembly2{ IEngineHook::DamageHit, &oldDamageHit2 };
 };

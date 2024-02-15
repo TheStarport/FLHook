@@ -236,7 +236,7 @@ void ExceptionHandler::LogException(const SehException& ex)
 
             HMODULE module = NULL;
             GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)address, &module);
-            TCHAR moduleName[MAX_PATH];
+            WCHAR moduleName[MAX_PATH];
             GetModuleBaseNameW(GetCurrentProcess(), module, moduleName, MAX_PATH);
 
             Logger::Log(LogFile::Default, LogLevel::Err, std::format(L"Code={:X} Offset={:X} Module=\"{}\"", code, offset, moduleName));

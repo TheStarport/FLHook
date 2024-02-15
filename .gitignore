@@ -1,31 +1,56 @@
-int
-bin
-dist
-.vs
-.vscode
-Debug
-Release
-*.vcxproj.user
-*.log
-vcpkg_installed/
+# Prerequisites
+*.d
 
-*.lib
-*.pdb
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
 *.dll
 
-!misc/acctpath_patch/bin/*.cfg
+# Fortran module files
+*.mod
+*.smod
 
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
 
-CMakeLists.txt.user
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
-cmake_install.cmake
-install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
-_deps
-cppastgen
-docs_output
+# Executables
+*.exe
+*.out
+*.app
+
+# CMake
+**/CMakeCache.txt
+**/Makefile
+**/*.cmake
+**/CMakeFiles/**
+**/reflect-cpp-tests
+**/build/**
+**/build_clang/**
+
+# Output files
+*.bson
+*.cbor
+*.json
+*.fb
+*.xml
+*.yml
+*.yaml
+
+# IDE Files
+*.iml
+*.user
+vs/
+.idea/

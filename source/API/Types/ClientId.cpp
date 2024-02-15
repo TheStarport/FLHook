@@ -357,7 +357,8 @@ Action<std::wstring, Error> ClientId::GetPlayerIp() const
     wchar_t wIp[1024] = L"";
     long sizeOfIp = sizeof wIp;
     long dataType = 1;
-    __asm {
+    // TODO: Reimplement with Xbyak
+    /*__asm {
 		push 0 ; flags
 		lea edx, address
 		push edx ; address
@@ -388,7 +389,7 @@ Action<std::wstring, Error> ClientId::GetPlayerIp() const
 		push ecx
 		mov ecx, [ecx]
 		call dword ptr[ecx+0x08] ; Release
-    }
+    }*/
 
     return { std::wstring(wIp) };
 }

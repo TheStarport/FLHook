@@ -64,25 +64,25 @@ bool __stdcall IEngineHook::GuidedHit(char* ecx, char* p1, DamageList* dmgList)
     return retValue;
 }
 
-__declspec(naked) void IEngineHook::NakedGuidedHit()
+
+IEngineHook::GuidedHitAssembly::GuidedHitAssembly()
 {
-    __asm {
-		mov eax, [esp+4]
-		mov edx, [esp+8]
-		push ecx
-		push edx
-		push eax
-		push ecx
-		call GuidedHit
-		pop ecx
-		test al, al
-		jnz go_ahead
-		mov edx, [esp] ; suppress
-		add esp, 0Ch
-		jmp edx
-		go_ahead:
-		jmp [oldGuidedHit]
-    }
+    mov(eax, dword[esp+4]);
+    mov(edx, dword[esp+8]);
+    push(ecx);
+    push(edx);
+    push(eax);
+    push(ecx);
+    call(GuidedHit);
+    pop(ecx);
+    test(al, al);
+    jnz(".go_ahead");
+    mov(edx, dword[esp]);
+    add(esp, 0xC);
+    jmp(edx);
+    inLocalLabel();
+    L(".go_ahead");
+    jmp(dword[oldGuidedHit]);
 }
 
 /*
@@ -174,18 +174,16 @@ void __stdcall IEngineHook::AddDamageEntry(DamageList* dmgList, unsigned short s
     FLHook::dmgToSpaceId = ObjectId();
 }
 
-__declspec(naked) void IEngineHook::NakedAddDamageEntry()
+IEngineHook::AddDamageEntryAssembly::AddDamageEntryAssembly()
 {
-    __asm {
-		push [esp+0Ch]
-		push [esp+0Ch]
-		push [esp+0Ch]
-		push ecx
-		call AddDamageEntry
-		mov eax, [esp]
-		add esp, 10h
-		jmp eax
-    }
+    push(dword[esp+0xC]);
+    push(dword[esp+0xC]);
+    push(dword[esp+0xC]);
+    push(ecx);
+    call(AddDamageEntry);
+    mov(eax, dword[esp]);
+    add(esp, 0x10);
+    jmp(eax);
 }
 
 void __stdcall IEngineHook::DamageHit(char* ecx)
@@ -205,28 +203,6 @@ void __stdcall IEngineHook::DamageHit(char* ecx)
         CallPlugins(&Plugin::OnDamageHit, ClientId(client), ObjectId(spaceId));
     }
     CatchHook({});
-}
-
-__declspec(naked) void IEngineHook::NakedDamageHit()
-{
-    __asm {
-		push ecx
-		push ecx
-		call DamageHit
-		pop ecx
-		jmp [oldDamageHit]
-    }
-}
-
-__declspec(naked) void IEngineHook::NakedDamageHit2()
-{
-    __asm {
-		push ecx
-		push ecx
-		call DamageHit
-		pop ecx
-		jmp [oldDamageHit2]
-    }
 }
 
 bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
@@ -295,27 +271,28 @@ void __stdcall IEngineHook::NonGunWeaponHitsBaseBefore(const char* ecx, [[maybe_
 
 void IEngineHook::NonGunWeaponHitsBaseAfter() { FLHook::nonGunHitsBase = false; }
 
-__declspec(naked) void IEngineHook::NakedNonGunWeaponHitsBase()
+IEngineHook::NonGunWeaponHitBaseAssembly::NonGunWeaponHitBaseAssembly()
 {
-    __asm {
-		mov eax, [esp+4]
-		mov edx, [esp+8]
-		push ecx
-		push edx
-		push eax
-		push ecx
-		call NonGunWeaponHitsBaseBefore
-		pop ecx
+    Xbyak::Label returnHere;
+    mov(eax, dword[esp+4]);
+    mov(eax, dword[esp+8]);
+    push(ecx);
+    push(edx);
+    push(eax);
+    push(ecx);
+    call(NonGunWeaponHitsBaseBefore);
+    pop(ecx);
 
-		mov eax, [esp]
-		mov [nonGunWeaponHitsBaseRetAddress], eax
-		lea eax, return_here
-		mov [esp], eax
-		jmp [oldNonGunWeaponHitsBase]
-		return_here:
-		pushad
-		call NonGunWeaponHitsBaseAfter
-		popad
-		jmp [nonGunWeaponHitsBaseRetAddress]
-    }
+    mov(eax, dword[esp]);
+    mov(dword[nonGunWeaponHitsBaseRetAddress], eax);
+    mov(eax, returnHere); // TODO: Verify
+    mov(dword[esp], eax);
+    jmp(dword[oldNonGunWeaponHitsBase]);
+
+    inLocalLabel();
+    L(returnHere);
+    pushad();
+    call(NonGunWeaponHitsBaseAfter);
+    popad();
+    jmp(dword[nonGunWeaponHitsBaseRetAddress]);
 }

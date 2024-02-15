@@ -13,11 +13,11 @@ MessageHandler::MessageHandler()
 
     Logger::Log(LogLevel::Info, L"Attempting connection to RabbitMQ");
 
-    loop = uvw::Loop::getDefault();
-    connectHandle = loop->resource<uvw::TCPHandle>();
+    loop = uvw::loop::get_default();
+    connectHandle = loop->resource<uvw::tcp_handle>();
 
-    connectHandle->once<uvw::ErrorEvent>(
-        [this](const uvw::ErrorEvent& event, uvw::TCPHandle&)
+    connectHandle->on<uvw::error_event>(
+        [this](const uvw::error_event& event, uvw::tcp_handle&)
         {
             Logger::Log(LogLevel::Err, std::format(L"Socket error: {}", StringUtils::stows(event.what())));
             FLHook::GetConfig().messageQueue.enableQueues = false;
@@ -25,8 +25,8 @@ MessageHandler::MessageHandler()
             isInitalizing = false;
         });
 
-    connectHandle->once<uvw::ConnectEvent>(
-        [this](const uvw::ConnectEvent&, uvw::TCPHandle& tcp)
+    connectHandle->on<uvw::connect_event>(
+        [this](const uvw::connect_event&, uvw::tcp_handle& tcp)
         {
             // Authenticate with the RabbitMQ cluster.
             connection = std::make_unique<AMQP::Connection>(this, AMQP::Login("guest", "guest"), "/");
@@ -35,15 +35,24 @@ MessageHandler::MessageHandler()
             connectHandle->read();
         });
 
-    connectHandle->on<uvw::DataEvent>([this](const uvw::DataEvent& event, const uvw::TCPHandle&) { connection->parse(event.data.get(), event.length); });
+    connectHandle->on<uvw::data_event>([this](const uvw::data_event& event, const uvw::tcp_handle&) { connection->parse(event.data.get(), event.length); });
 
     connectHandle->connect("localhost", 5672);
-    runner = std::jthread([this] { loop->run<uvw::Loop::Mode::DEFAULT>(); });
+    runner = std::jthread([this] { loop->run(); });
 
     while (isInitalizing)
     {
+        static int i = 0;
+        i++;
         // TODO: Add if trace mode log to console
         Sleep(1000);
+
+        if (i >= 20)
+        {
+            connectHandle->close_reset();
+            connectHandle = nullptr;
+            break;
+        }
     }
 }
 
@@ -69,7 +78,7 @@ MessageHandler::~MessageHandler() = default;
 
 void MessageHandler::Subscribe(const std::wstring& queue, QueueOnData callback, std::optional<QueueOnFail> onFail)
 {
-    if (!FLHook::GetConfig().messageQueue.enableQueues)
+    if (!FLHook::GetConfig().messageQueue.enableQueues || !connectHandle)
     {
         return;
     }

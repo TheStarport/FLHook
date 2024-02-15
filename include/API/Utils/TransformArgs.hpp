@@ -58,3 +58,24 @@ auto CreateTupleImpl(std::index_sequence<Is...>, std::vector<std::wstring>& argu
 
     return std::make_tuple(TransformArg<Args>(arguments[Is], Is)...);
 }
+
+template <typename... Args>
+auto CreateTuple(std::vector<std::wstring>& arguments)
+{
+    return CreateTupleImpl<Args...>(std::index_sequence_for<Args...>{}, arguments);
+}
+
+template <typename F, F f>
+class ClassFunctionWrapper;
+
+template <class Ret, class Cl, class... Args, Ret (Cl::*func)(Args...)>
+class ClassFunctionWrapper<Ret (Cl::*)(Args...), func>
+{
+    public:
+    static Ret ProcessParam(Cl* cl, std::vector<std::wstring>& params)
+    {
+        auto arg = CreateTuple<Args...>(params);
+        auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cl->*func)(args...); } };
+        return std::apply(lambda, arg);
+    }
+};

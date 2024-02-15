@@ -69,6 +69,10 @@ FLHook::FLHook()
     dalibDll = GetModuleHandle(L"dalib.dll");
 
     instance = this;
+
+    // Load our settings before anything that might need access to debug mode
+    LoadSettings();
+
     infocardManager = new InfocardManager();
     clientList = new ClientList();
     tempbanManager = new TempBanManager();
@@ -76,9 +80,6 @@ FLHook::FLHook()
     accountManager = new AccountManager();
 
     flProc = GetModuleHandle(nullptr);
-
-    // Load our settings before anything that might need access to debug mode
-    LoadSettings();
 
     // Replace the global exception filter with our own so we can write exception dumps
     // ExceptionHandler::SetupExceptionHandling();
@@ -270,16 +271,16 @@ bool FLHook::OnServerStart()
 
 void FLHook::LoadSettings()
 {
-    FLHookConfig* config;
-
+    auto* config = &instance->flhookConfig;
+    auto e = 2;
     std::ifstream stream("flhook.json");
     if (!stream.is_open())
     {
-        config = new FLHookConfig();
+        *config = new FLHookConfig();
     }
     else
     {
-        config = new FLHookConfig();
+        *config = new FLHookConfig();
         auto configResult = rfl::json::read<FLHookConfig>(stream);
         if (auto err = configResult.error(); err.has_value())
         {
@@ -289,22 +290,22 @@ void FLHook::LoadSettings()
         else
         {
             rfl::internal::wrap_in_rfl_array_t<FLHookConfig> value = configResult.value();
-            memcpy_s(config, sizeof(FLHookConfig), &value, sizeof(FLHookConfig));
+            **config = value;
         }
     }
 
     // NoPVP
-    config->general.noPVPSystemsHashed.clear();
-    for (const auto& system : config->general.noPVPSystems)
+    (*config)->general.noPVPSystemsHashed.clear();
+    for (const auto& system : (*config)->general.noPVPSystems)
     {
         uint systemId;
         pub::GetSystemID(systemId, StringUtils::wstos(system).c_str());
-        config->general.noPVPSystemsHashed.emplace_back(systemId);
+        (*config)->general.noPVPSystemsHashed.emplace_back(systemId);
     }
 
     // Resave to add any missing properties that have been added
     std::ofstream outStream("flhook.json");
-    rfl::json::write(config, outStream);
+    rfl::json::write(*config, outStream);
 }
 
 DWORD __stdcall Unload(const LPVOID module)

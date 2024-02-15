@@ -29,31 +29,30 @@ FLHook::PatchInfo FLHook::commonPatch = {
     "common.dll",
     0x6260000,
     {
-
-      { 0x0639C138, &IEngineHook::NakedCShipInit, 4, &IEngineHook::oldInitCShip, false },
-      { 0x0639C064, &IEngineHook::NakedCShipDestroy, 4, &IEngineHook::oldDestroyCShip, false },
-      { 0x0639D854, &IEngineHook::NakedCLootDestroy, 4, &IEngineHook::oldDestroyCLoot, false },
-      { 0x0639D3FC, &IEngineHook::NakedCSolarDestroy, 4, &IEngineHook::oldDestroyCSolar, false },
-      }
+      { 0x0639C138, PVOID(IEngineHook::cShipInitAssembly.getCode()), 4, &IEngineHook::oldInitCShip, false },
+      { 0x0639C064, PVOID(IEngineHook::cShipDestroyAssembly.getCode()), 4, &IEngineHook::oldDestroyCShip, false },
+      { 0x0639D854, PVOID(IEngineHook::cLootDestroyAssembly.getCode()), 4, &IEngineHook::oldDestroyCLoot, false },
+      { 0x0639D3FC, PVOID(IEngineHook::cSolarDestroyAssembly.getCode()), 4, &IEngineHook::oldDestroyCSolar, false },
+  }
 };
 
 FLHook::PatchInfo FLHook::serverPatch = {
     "server.dll",
     0x6CE0000,
     {
-      { 0x6D67274, &IEngineHook::NakedShipDestroyed, 4, &IEngineHook::oldShipDestroyed, false },
-      { 0x6D641EC, &IEngineHook::NakedAddDamageEntry, 4, nullptr, false },
-      { 0x6D67320, &IEngineHook::NakedGuidedHit, 4, &IEngineHook::oldGuidedHit, false },
-      { 0x6D65448, &IEngineHook::NakedGuidedHit, 4, nullptr, false },
-      { 0x6D67670, &IEngineHook::NakedGuidedHit, 4, nullptr, false },
-      { 0x6D653F4, &IEngineHook::NakedDamageHit, 4, &IEngineHook::oldDamageHit, false },
-      { 0x6D672CC, &IEngineHook::NakedDamageHit, 4, nullptr, false },
-      { 0x6D6761C, &IEngineHook::NakedDamageHit, 4, nullptr, false },
-      { 0x6D65458, &IEngineHook::NakedDamageHit2, 4, &IEngineHook::oldDamageHit2, false },
-      { 0x6D67330, &IEngineHook::NakedDamageHit2, 4, nullptr, false },
-      { 0x6D67680, &IEngineHook::NakedDamageHit2, 4, nullptr, false },
-      { 0x6D67668, &IEngineHook::NakedNonGunWeaponHitsBase, 4, &IEngineHook::oldNonGunWeaponHitsBase, false },
-      { 0x6D6420C, &IEngineHook::NakedLaunchPosition, 4, &IEngineHook::oldLaunchPosition, false },
+      { 0x6D67274, PVOID(IEngineHook::shipDestroyAssembly.getCode()), 4, &IEngineHook::oldShipDestroyed, false },
+      { 0x6D641EC, PVOID(IEngineHook::addDamageEntryAssembly.getCode()), 4, nullptr, false },
+      { 0x6D67320, PVOID(IEngineHook::guidedHitAssembly.getCode()), 4, &IEngineHook::oldGuidedHit, false },
+      { 0x6D65448, PVOID(IEngineHook::guidedHitAssembly.getCode()), 4, nullptr, false },
+      { 0x6D67670, PVOID(IEngineHook::guidedHitAssembly.getCode()), 4, nullptr, false },
+      { 0x6D653F4, PVOID(IEngineHook::damageHitAssembly1.getCode()), 4, &IEngineHook::oldDamageHit, false },
+      { 0x6D672CC, PVOID(IEngineHook::damageHitAssembly1.getCode()), 4, nullptr, false },
+      { 0x6D6761C, PVOID(IEngineHook::damageHitAssembly1.getCode()), 4, nullptr, false },
+      { 0x6D65458, PVOID(IEngineHook::damageHitAssembly2.getCode()), 4, &IEngineHook::oldDamageHit2, false },
+      { 0x6D67330, PVOID(IEngineHook::damageHitAssembly2.getCode()), 4, nullptr, false },
+      { 0x6D67680, PVOID(IEngineHook::damageHitAssembly2.getCode()), 4, nullptr, false },
+      { 0x6D67668, PVOID(IEngineHook::nonGunWeaponHitBaseAssembly.getCode()), 4, &IEngineHook::oldNonGunWeaponHitsBase, false },
+      { 0x6D6420C, PVOID(IEngineHook::launchPositionAssembly.getCode()), 4, &IEngineHook::oldLaunchPosition, false },
       { 0x6D648E0, &IEngineHook::FreeReputationVibe, 4, nullptr, false },
       }
 };
@@ -70,7 +69,7 @@ FLHook::PatchInfo FLHook::dalibPatch = {
     "dalib.dll",
     0x65C0000,
     {
-      { 0x65C4BEC, &IEngineHook::NakedDisconnectPacketSent, 4, &IEngineHook::oldDisconnectPacketSent, false },
+      { 0x65C4BEC, PVOID(IEngineHook::disconnectPacketSentAssembly.getCode()), 4, &IEngineHook::oldDisconnectPacketSent, false },
       }
 };
 
@@ -232,7 +231,7 @@ void FLHook::InitHookExports()
     std::array<byte, 1> movEax = { 0xB8 };
     std::array<byte, 2> jumpEax = { 0xFF, 0xE0 };
 
-    auto loadRepFromCharFile = reinterpret_cast<FARPROC>(IEngineHook::NakedLoadReputationFromCharacterFile);
+    auto loadRepFromCharFile = reinterpret_cast<const void*>(IEngineHook::loadReputationFromCharacterFileAssembly.getCode());
 
     MemUtils::WriteProcMem(address, movEax.data(), 1);
     MemUtils::WriteProcMem(address + 1, &loadRepFromCharFile, 4);

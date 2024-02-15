@@ -67,4 +67,4 @@ std::vector<std::wstring_view> TransformArg(std::wstring_view s, size_t paramNum
 }
 
 // Include our JSON parser
-#include <reflect-cpp/src/yyjson.c> // NOLINT
+#include <yyjson.c> // NOLINT

@@ -3,6 +3,7 @@
 class FLHook;
 class IServerImplHook;
 class IEngineHook;
+class UserCommandProcessor;
 class InternalApi
 {
         friend UserCommandProcessor;

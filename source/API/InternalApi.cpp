@@ -22,23 +22,7 @@ Action<void, Error> InternalApi::FMsgEncodeXml(std::wstring_view xml, char* buff
 
 void InternalApi::FMsgSendChat(ClientId client, char* buffer, uint size)
 {
-    auto p4 = reinterpret_cast<uint>(buffer);
-    uint p3 = size;
-    uint p2 = 0x00010000;
-    uint p1 = client.GetValue();
-
-    auto unkClient = FLHook::hookClientImpl;
-    auto rc = FLHook::rcSendChatMsg;
-
-    __asm {
-			push [p4]
-			push [p3]
-			push [p2]
-			push [p1]
-			mov ecx, [unkClient]
-			add ecx, 4
-			call [rc]
-    }
+    FLHook::rcSendChatMsg(static_cast<PVOID>(reinterpret_cast<PCHAR>(&Client) + 4), client.GetValue(), 0x10000, size, buffer);
 }
 
 Action<void, Error> InternalApi::SendMessage(const ClientId to, const std::wstring_view message, const ClientId from, std::wstring_view fromXml)

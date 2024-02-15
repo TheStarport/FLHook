@@ -118,18 +118,7 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
         }
         else
         {
-            uint packetSize = size;
-            __asm {
-					pushad
-					push [rdl]
-					push [packetSize]
-					push [clientTo]
-					push [client]
-					mov ecx, [Client]
-					add ecx, 4
-					call [FLHook::rcSendChatMsg]
-					popad
-            }
+            FLHook::rcSendChatMsg(static_cast<PVOID>(reinterpret_cast<PCHAR>(&Client) + 4), client.GetValue(), clientTo.GetValue(), size, rdl);
         }
     }
     CatchHook({})

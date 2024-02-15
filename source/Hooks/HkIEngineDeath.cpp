@@ -266,20 +266,18 @@ void __stdcall IEngineHook::ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint 
     CatchHook({})
 }
 
-__declspec(naked) void IEngineHook::NakedShipDestroyed()
+IEngineHook::ShipDestroyAssembly::ShipDestroyAssembly()
 {
-    __asm {
-		mov eax, [esp+0Ch] ; +4
-		mov edx, [esp+4]
-		push ecx
-		push edx
-		push ecx
-		push eax
-		call IEngineHook::ShipDestroyed
-		pop ecx
-		mov eax, [IEngineHook::oldShipDestroyed]
-		jmp eax
-    }
+    mov(eax, dword[esp+0xC]);
+    mov(eax, dword[esp+0x4]);
+    push(ecx);
+    push(edx);
+    push(ecx);
+    push(eax);
+    call(IEngineHook::ShipDestroyed);
+    pop(ecx);
+    mov(eax, dword[IEngineHook::oldShipDestroyed]);
+    jmp(eax);
 }
 
 void IEngineHook::BaseDestroyed(ObjectId objectId, ClientId clientBy)

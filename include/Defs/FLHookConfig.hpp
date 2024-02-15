@@ -2,8 +2,6 @@
 
 struct DLL FLHookConfig final
 {
-        FLHookConfig& operator=(const FLHookConfig&) = delete; // NOLINT
-
         struct Debug final
         {
                 //! If true, enables FLHook debug mode, also enabled debug level logs

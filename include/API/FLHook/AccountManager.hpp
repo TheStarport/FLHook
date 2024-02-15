@@ -74,8 +74,16 @@ struct AccountData
         std::unordered_map<std::string, VanillaLoadData> characters;
 };
 
+struct PlayerDbLoadUserDataAssembly final : Xbyak::CodeGenerator
+{
+    PlayerDbLoadUserDataAssembly();
+    private:
+        static void* GetInternalCall();
+};
+
 class AccountManager
 {
+        friend PlayerDbLoadUserDataAssembly;
         friend FLHook;
         friend IServerImplHook;
         friend Database;
@@ -96,7 +104,7 @@ class AccountManager
         // The current account string we are loading
         std::wstring currentAccountString;
         static void LoadCharacter(VanillaLoadData* data, std::wstring_view characterName);
-        LoginReturnCode AccountLoginInternal(PlayerData* data, uint clientId);
+        static __stdcall LoginReturnCode AccountLoginInternal(PlayerData* data, uint clientId);
         static void LoadNewPlayerFLInfo();
 
         // Detours/Assembly
@@ -110,7 +118,9 @@ class AccountManager
         bool static __fastcall OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCharacterInfo* character);
         bool static __fastcall OnPlayerSave(PlayerData* data);
         void static __fastcall PlayerDbInitDetour(PlayerDB* db, void* edx, uint unk, bool unk2);
-        void static PlayerDbLoadUserDataNaked();
+        void static __fastcall CreateAccountInitFromFolderBypass(CAccount* account, void* edx, char* dir);
+
+        PlayerDbLoadUserDataAssembly loadUserDataAssembly;
 
         AccountManager();
 

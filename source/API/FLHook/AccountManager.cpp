@@ -274,7 +274,7 @@ void AccountManager::LoadCharacter(VanillaLoadData* data, std::wstring_view char
     }*/
 }
 
-AccountManager::LoginReturnCode AccountManager::AccountLoginInternal(PlayerData* data, const uint clientId)
+AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(PlayerData* data, const uint clientId)
 {
     // TODO: Log account login
 
@@ -304,13 +304,13 @@ AccountManager::LoginReturnCode AccountManager::AccountLoginInternal(PlayerData*
 
     data->account = accounts[clientId - 1].account;
     data->account->dunno4[1] = clientId;
-    wcscpy_s(data->accId, currentAccountString.c_str());
+    wcscpy_s(data->accId, instance->currentAccountString.c_str());
     data->onlineId = clientId;
     data->exitedBase = 0;
 
     data->account->numberOfCharacters = i;
 
-    currentAccountString = L"";
+    instance->currentAccountString = L"";
 
     return LoginReturnCode::Success;
 }
@@ -449,46 +449,45 @@ void AccountManager::PlayerDbInitDetour(PlayerDB* db, void* edx, uint unk, bool 
     std::mt19937 generator(seq);
     uuids::uuid_random_generator gen{ generator };
 
+    static auto lastAccountStr = (wchar_t**)(DWORD(GetModuleHandleA("server.dll")) + 0x84EFC);
+
     for (auto& account : accounts)
     {
         const auto uuid = gen();
 
         const std::string uuidStr = to_string(uuid);
         newAccountString = StringUtils::stows(uuidStr);
+
         st6::wstring st6Str(reinterpret_cast<const unsigned short*>(newAccountString.data()), newAccountString.size());
 
         assert(db->CreateAccount(st6Str));
         db->numAccounts++;
-
-        account.account = db->FindAccountFromName(st6Str);
     }
 }
 
-void __declspec(naked) AccountManager::PlayerDbLoadUserDataNaked()
+// EAX return
+// 3 = login success
+// 2 = login username / password incorrect
+// 1 = already in use
+// 0 = banned
+
+PlayerDbLoadUserDataAssembly::PlayerDbLoadUserDataAssembly()
 {
-    __asm {
-        mov eax, [esp+0x1320+0x8]
-        mov edx, [esp+0x1320-0x1310]
-        push eax
-        imul eax, 0x418
-        lea ecx, [esp+0x1324-0x1208]
-        mov ecx, [edx]
-        lea ecx, [eax+ecx-0x418] // PlayerData*
-        push ecx
-        mov ecx, AccountManager::instance
-        call AccountManager::AccountLoginInternal
-        pop edi
-        pop esi
-        pop ebp
-        pop ebx
-        add esp, 0x1310
-        retn 8
-        // EAX return
-        // 3 = login success
-        // 2 = login username / password incorrect
-        // 1 = already in use
-        // 0 = banned
-    }
+    mov(eax, dword[esp + 0x1320 + 0x8]);
+    mov(edx, dword[esp + 0x1320 - 0x1310]);
+    push(eax);
+    imul(eax, eax, 0x418);
+    lea(ecx, dword[esp + 0x1324 - 0x1208]);
+    mov(ecx, dword[edx]);
+    lea(ecx, dword[eax + ecx - 0x418]);
+    push(ecx); // Player Data
+    call(AccountManager::AccountLoginInternal);
+    pop(edi);
+    pop(esi);
+    pop(ebp);
+    pop(ebx);
+    add(esp, 0x1310);
+    ret(8);
 }
 
 uint __fastcall CopyToBuffer(WORD* buffer)
@@ -526,6 +525,25 @@ _declspec(naked) void InitFromFolderIoBypass()
     }
 }
 
+void __fastcall AccountManager::CreateAccountInitFromFolderBypass(CAccount* account, void* edx, char* dir)
+{
+    account->InitFromFolder(dir);
+
+    for (auto& acc : accounts)
+    {
+        if (!acc.account)
+        {
+            account->accId[36] = L'\0';
+            account->accId[37] = L'\0';
+            account->accId[38] = L'\0';
+            account->accId[39] = L'\0';
+            account->dunno2[0] = 36;
+            acc.account = account;
+            break;
+        }
+    }
+}
+
 AccountManager::AccountManager()
 {
     instance = this;
@@ -559,11 +577,13 @@ AccountManager::AccountManager()
     std::array<byte, 3> stackFix = { 0x83, 0xEC, 0x14 };
     MemUtils::WriteProcMem(mod + 0x7357A, stackFix.data(), stackFix.size());
 
-    MemUtils::PatchAssembly(mod + 0x735A9, PlayerDbLoadUserDataNaked);
+    MemUtils::PatchAssembly(mod + 0x735A9, loadUserDataAssembly.getCode());
 
     // Patch out folder creation in create account
     MemUtils::NopAddress(mod + 0x72499, 0x6D5252C - 0x6D52499);
     MemUtils::NopAddress(mod + 0x725A6, 0x6D525FE - 0x6D525A6);
+
+    MemUtils::PatchCallAddr(mod, 0x72697, CreateAccountInitFromFolderBypass);
 
     // Patch out IO in InitFromFolder
     MemUtils::PatchAssembly(mod + 0x76955, InitFromFolderIoBypass);
