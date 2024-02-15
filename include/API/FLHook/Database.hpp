@@ -6,6 +6,10 @@
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
 #include <mongocxx/pool.hpp>
+#include <bsoncxx/json.hpp>
+#include <bsoncxx/exception/exception.hpp>
+#include <mongocxx/exception/exception.hpp>
+#include <mongocxx/exception/bulk_write_exception.hpp>
 
 template <typename T>
 concept MongoSupportedType = std::is_fundamental_v<T> || std::is_same_v<T, std::string> || std::is_same_v<T, std::wstring> ||
@@ -13,17 +17,45 @@ concept MongoSupportedType = std::is_fundamental_v<T> || std::is_same_v<T, std::
 
 class ClientList;
 class FLHook;
-
-struct Collection
+class Database;
+class Collection
 {
-        mongocxx::pool::entry client;
-        mongocxx::database database;
+        friend Database;
+        std::string_view collectionName;
+        mongocxx::pool::entry& client;
+        mongocxx::database db;
         mongocxx::collection collection;
 
-        Collection() = delete;
-        Collection(mongocxx::pool::entry cl, mongocxx::database db, mongocxx::collection col)
-            : client(std::move(cl)), database(std::move(db)), collection(std::move(col))
-        {}
+    public:
+        explicit Collection(mongocxx::pool::entry& client, std::string_view collection);
+
+        mongocxx::collection& GetRaw() { return collection; }
+        void CreateIndex(std::string_view field, bool ascending = true);
+        bool InsertIntoCollection(std::string_view document);
+        bool OverwriteItem(std::string_view id, std::string_view document);
+        bool UpdateItemById(std::string_view id, bsoncxx::document::view value);
+        bool UpdateItemByFilter(bsoncxx::document::view filter, bsoncxx::document::view value);
+        std::optional<bsoncxx::document::value> GetItemByIdRaw(std::string_view id);
+
+        template<typename T>
+        std::optional<T> GetItemById(std::string_view id)
+        {
+            auto item = GetItemByIdRaw(id);
+            if (item.has_value())
+            {
+                auto result = rfl::bson::read<T>(item.value());
+                if (result.has_error())
+                {
+                    return std::nullopt;
+                }
+
+                return result.value();
+            }
+
+            return std::nullopt;
+        }
+
+        std::stop_token GetItemByIdRawDeferred(std::string id);
 };
 
 class Database

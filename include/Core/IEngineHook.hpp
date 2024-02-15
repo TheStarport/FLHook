@@ -39,7 +39,7 @@ class IEngineHook
         static int FreeReputationVibe(const int& p1);
         static void UpdateTime(double interval);
         static void __stdcall ElapseTime(float interval);
-        static int _cdecl DockCall(const uint& shipId, const uint& spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response);
+        static int DockCall(const uint& shipId, const uint& spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response);
         static bool __stdcall LaunchPosition(uint spaceId, CEqObj& obj, Vector& position, Matrix& orientation, int dock);
         static void __stdcall CShipInit(CShip* ship);
 

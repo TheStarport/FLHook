@@ -2,8 +2,6 @@
 
 #include "API/FLHook/Database.hpp"
 
-#include <mongocxx/exception/exception.hpp>
-
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
 using bsoncxx::builder::basic::make_document;
@@ -105,7 +103,7 @@ void Database::CreateCharacter(std::string accountId, VanillaLoadData* newPlayer
     std::wstring charNameWide = reinterpret_cast<const wchar_t*>(newPlayer->name.c_str());
     std::string charName = StringUtils::wstos(charNameWide);
 
-    // We cast to long long as mongo does not care about sign and we want to prevent any sort of signed overflow
+    // We cast to long long as mongo does not care about sign, and we want to prevent any sort of signed overflow
     auto newCharDoc = make_document(kvp("characterName", charName),
                                     kvp("money", static_cast<long long>(newPlayer->money)),
                                     kvp("rank", static_cast<long long>(newPlayer->rank)),
@@ -135,14 +133,13 @@ void Database::CreateCharacter(std::string accountId, VanillaLoadData* newPlayer
     {
         std::cout << "Account not found.";
         throw;
+        // TODO: Handle correctly
     }
 
-    bsoncxx::builder::basic::document updateBuilder;
-    bsoncxx::builder::basic::array characterArray;
+    auto characterArray = make_array(str);
+    auto updateDoc = make_document(kvp("$set", make_document(kvp("characters", characterArray))));
 
-    characterArray.append(str);
-    updateBuilder.append(kvp("$set", make_document(kvp("characters", characterArray))));
-    accounts.collection.update_one(findRes->view(), updateBuilder.view());
+    accounts.collection.update_one(findRes->view(), updateDoc.view());
 }
 
 std::optional<mongocxx::pool::entry> Database::AcquireClient() { return pool.try_acquire(); }
@@ -152,10 +149,7 @@ std::optional<Collection> Database::GetCollection(std::string_view collectionNam
     try
     {
         auto client = pool.acquire();
-        auto db = client->database("FLHook");
-        auto collection = db.collection(collectionName);
-
-        return Collection(std::move(client), std::move(db), std::move(collection));
+        return Collection(client, collectionName);
     }
     catch (mongocxx::exception& ex)
     {
@@ -180,7 +174,7 @@ std::optional<Collection> Database::CreateCollection(std::string_view collection
         concern.acknowledge_level(mongocxx::write_concern::level::k_acknowledged);
         auto collection = db.create_collection(collectionName, {}, concern);
 
-        return Collection(std::move(client), std::move(db), std::move(collection));
+        return Collection(client, collectionName);
     }
     catch (mongocxx::exception& ex)
     {
@@ -204,9 +198,9 @@ void Database::RemoveValueFromCharacter(std::string character, std::string value
     auto& accounts = accountsOpt.value();
 
     auto searchDoc = make_document(kvp("character_name", character));
-    auto updateDoc = make_document(kvp("$unset", make_document(kvp(value, 0))));
+    auto updateDoc = make_document(kvp("$unset", make_array(value)));
 
-    accounts.collection.update_one(searchDoc.view(), updateDoc.view());
+    accounts.UpdateItemByFilter(searchDoc.view(), updateDoc.view());
 }
 
 void Database::RemoveValueFromAccount(AccountId account, std::string value)
@@ -227,7 +221,130 @@ void Database::RemoveValueFromAccount(AccountId account, std::string value)
     using bsoncxx::builder::basic::make_document;
 
     auto searchDoc = make_document(kvp("_id", key));
-    auto updateDoc = make_document(kvp("$unset", make_document(kvp(value, 0))));
+    auto updateDoc = make_document(kvp("$unset", make_array(value)));
 
-    accounts.collection.update_one(searchDoc.view(), updateDoc.view());
+    accounts.UpdateItemByFilter(searchDoc.view(), updateDoc.view());
+}
+
+Collection::Collection(mongocxx::pool::entry& client, std::string_view collection) : client(client), collectionName(collection)
+{
+    db = client->database("flhook");
+    this->collection = db.collection(collectionName);
+}
+
+bool Collection::InsertIntoCollection(std::string_view document)
+{
+    try
+    {
+        auto doc_value = bsoncxx::from_json(document);
+        auto result = collection.insert_one(std::move(doc_value));
+        return result.has_value();
+    }
+    catch(const bsoncxx::exception& e)
+    {
+        std::string errInfo = std::format("Error converting string to BSON. Error: {}", e.what());
+    }
+    catch (mongocxx::exception& e)
+    {
+        std::string errInfo = std::format("Error in inserting document. Error: {}", e.what());
+    }
+
+    return false;
+}
+
+bool Collection::OverwriteItem(std::string_view id, std::string_view document)
+{
+    try
+    {
+        auto filter = make_document(kvp("_id", id));
+        auto doc_value = bsoncxx::from_json(document);
+        auto result = collection.find_one_and_replace(filter.view(), doc_value.view());
+        return result.has_value();
+    }
+    catch(const bsoncxx::exception& e)
+    {
+        //std::string errInfo = std::format("Error converting string to BSON. Error: {}", e.what());
+    }
+    catch (mongocxx::exception& e)
+    {
+        //std::string errInfo = std::format("Error in replacing document. Error: {}", e.what());
+    }
+
+    return false;
+}
+
+bool Collection::UpdateItemById(std::string_view id, bsoncxx::document::view value)
+{
+    try
+    {
+        auto filter = make_document(kvp("_id", id));
+        auto result = collection.find_one_and_update(filter.view(), value);
+        return result.has_value();
+    }
+    catch(const bsoncxx::exception& e)
+    {
+        //std::string errInfo = std::format("Error converting string to BSON. Error: {}", e.what());
+    }
+    catch (mongocxx::exception& e)
+    {
+        //std::string errInfo = std::format("Error in replacing document. Error: {}", e.what());
+    }
+
+    return false;
+}
+bool Collection::UpdateItemByFilter(bsoncxx::document::view filter, bsoncxx::document::view value)
+{
+    try
+    {
+        auto result = collection.find_one_and_update(filter, value);
+        return result.has_value();
+    }
+    catch(const bsoncxx::exception& e)
+    {
+        //std::string errInfo = std::format("Error converting string to BSON. Error: {}", e.what());
+    }
+    catch (mongocxx::exception& e)
+    {
+        //std::string errInfo = std::format("Error in replacing document. Error: {}", e.what());
+    }
+
+    return false;
+}
+
+void Collection::CreateIndex(std::string_view field, bool ascending)
+{
+    try
+    {
+        auto index = make_document(kvp(field, ascending ? 1 : -1));
+        collection.create_index(std::move(index));
+    }
+    catch (mongocxx::exception& e)
+    {
+        // std::string errInfo = std::format("Error in replacing document. Error: {}", e.what());
+    }
+}
+
+std::optional<bsoncxx::document::value> Collection::GetItemByIdRaw(std::string_view id)
+{
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
+
+    try
+    {
+        auto filter = make_document(kvp("_id", id));
+        std::optional<bsoncxx::document::value> mongoResult;
+        mongoResult = collection.find_one(filter.view());
+        if (!mongoResult.has_value())
+        {
+            return std::nullopt;
+        }
+
+        return mongoResult.value();
+    }
+    catch (mongocxx::exception& e)
+    {
+        //std::string errInfo = std::format("Error in replacing document. Error: {}", e.what());
+    }
+
+    return std::nullopt;
 }
