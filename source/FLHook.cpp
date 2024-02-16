@@ -272,7 +272,6 @@ bool FLHook::OnServerStart()
 void FLHook::LoadSettings()
 {
     auto* config = &instance->flhookConfig;
-    auto e = 2;
     std::ifstream stream("flhook.json");
     if (!stream.is_open())
     {
@@ -304,8 +303,7 @@ void FLHook::LoadSettings()
     }
 
     // Resave to add any missing properties that have been added
-    std::ofstream outStream("flhook.json");
-    rfl::json::write(*config, outStream);
+    Json::Save(*config, "flhook.json");
 }
 
 DWORD __stdcall Unload(const LPVOID module)

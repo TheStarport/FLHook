@@ -389,28 +389,28 @@ std::wstring AdminCommandProcessor::SetDamageType(std::wstring_view newDamageTyp
     if (lower == L"none")
     {
         config.general.damageMode = DamageMode::None;
-        Json::SaveJson(config, "flhook.json");
+        Json::Save(config, "flhook.json");
         return L"Set damage mode to None. No player ship can take damage, but NPCs can still hurt each other.";
     }
 
     if (lower == L"all")
     {
         config.general.damageMode = DamageMode::All;
-        Json::SaveJson(config, "flhook.json");
+        Json::Save(config, "flhook.json");
         return L"Set damage mode to All. All ships can take damage.";
     }
 
     if (lower == L"pvp")
     {
         config.general.damageMode = DamageMode::PvP;
-        Json::SaveJson(config, "flhook.json");
+        Json::Save(config, "flhook.json");
         return L"Set damage mode to PvP. Players can hurt players, and NPCs can hurt NPCs, but they cannot hurt each other.";
     }
 
     if (lower == L"pve")
     {
         config.general.damageMode = DamageMode::PvE;
-        Json::SaveJson(config, "flhook.json");
+        Json::Save(config, "flhook.json");
         return L"Set damage mode to PvE. Players cannot hurt each other, but can hurt and be hurt by NPCs.";
     }
 

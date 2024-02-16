@@ -1,6 +1,11 @@
 // ReSharper disable CppClangTidyClangDiagnosticReservedMacroIdentifier
 
 #pragma once
+
+// Disable specific clang warnings
+#pragma clang diagnostic ignored "-Wdynamic-class-memaccess"
+#pragma clang diagnostic ignored "-Wmicrosoft-cast"
+
 #pragma warning(push, 0)
 
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING // NOLINT
@@ -90,25 +95,28 @@
 namespace Json
 {
     template <typename T>
-    bool SaveJson(const T& obj, std::string_view path, const bool useSaveGameFolder = false)
+    bool Save(const T& obj, std::string_view path, const bool useSaveGameFolder = false)
     {
         std::string relativePath;
         if (useSaveGameFolder)
         {
-            std::array<char, MAX_PATH> pathArr;
+            static std::array<char, MAX_PATH> pathArr{};
+            std::fill(pathArr.begin(), pathArr.end(), '\0');
+
             GetUserDataPath(pathArr.data());
             relativePath += std::string(pathArr.data(), strlen(pathArr.data()));
         }
 
-        std::ofstream stream(std::format("{}\\{}", relativePath, path));
+        std::string newPath = std::format("{}{}", relativePath.empty() ? "" : relativePath + "\\", path);
+        std::ofstream stream(newPath);
         if (!stream.is_open())
         {
             Logger::Log(LogLevel::Warn, L"Unable to save JSON file.");
             return false;
         }
 
-        rfl::json::write(obj, stream);
-
+        rfl::json::write(obj, stream, rfl::json::pretty);
+        Logger::Log(LogLevel::Debug, std::format(L"Successfully saved JSON file: {}", StringUtils::stows(newPath)));
         return true;
     }
 } // namespace Json

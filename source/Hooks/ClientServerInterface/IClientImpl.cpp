@@ -2,6 +2,10 @@
 
 #include "Core/ClientServerInterface.hpp"
 
+#pragma clang diagnostic push
+// We overwrite the vtable and then call the original, clang (rightfully) sees that infinite recursion
+#pragma clang diagnostic ignored "-Winfinite-recursion"
+
 bool IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint client, XFireWeaponInfo& fwi)
 {
     Logger::Log(LogLevel::Trace, std::format(L"IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(\n\tClientId client = {}\n)", client));
@@ -1692,3 +1696,5 @@ bool IClientImpl::DispatchMsgs()
     // IClientImpl functions
     return true;
 }
+
+#pragma clang diagnostic pop
