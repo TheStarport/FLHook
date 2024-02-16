@@ -1,8 +1,10 @@
 #pragma once
 
 #include <bsoncxx/oid.hpp>
+#include "rfl/bson.hpp"
 
-struct Cargo
+//Cargo is a namespace in Freelancer, appended with FL to avoid name conflicts
+struct FLCargo
 {
         int64 id;
         int64 amount;
@@ -49,12 +51,12 @@ struct Character
         int64 totalTimePlayed;
         std::optional<Costume> baseCostume;
         std::optional<Costume> commCostume;
-        std::vector<Cargo> cargo;
-        std::vector<Cargo> baseCargo;
+        std::vector<FLCargo> cargo;
+        std::vector<FLCargo> baseCargo;
         std::vector<Equipment> equipment;
         std::vector<Equipment> baseEquipment;
-        std::unordered_map<std::string, float> collisionGroups;
-        std::unordered_map<std::string, float> reputation;
+        std::unordered_map<int, float> collisionGroups;
+        std::unordered_map<int64, float> reputation;
         std::unordered_map<int64, int> shipTypesKilled;
         std::unordered_map<int64, int> visits;
         std::vector<int64> systemsVisited;

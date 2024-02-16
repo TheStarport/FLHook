@@ -10,6 +10,7 @@
 #include <bsoncxx/exception/exception.hpp>
 #include <mongocxx/exception/exception.hpp>
 #include <mongocxx/exception/bulk_write_exception.hpp>
+#include "Defs/Database/Account.hpp"
 
 template <typename T>
 concept MongoSupportedType = std::is_fundamental_v<T> || std::is_same_v<T, std::string> || std::is_same_v<T, std::wstring> ||
@@ -72,6 +73,10 @@ class Database
 
         void ResetDatabase();
         void CreateCharacter(std::string accountId, VanillaLoadData* newPlayer);
+
+		//This searches based on the objectId on the database
+		Character GrabCharacterById(std::string objId);
+		Account GetOrCreateAccount(std::string accountId, bool deferred = true);
 
     public:
         std::optional<mongocxx::pool::entry> AcquireClient();
