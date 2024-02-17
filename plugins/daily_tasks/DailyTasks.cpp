@@ -276,11 +276,13 @@ namespace Plugins::DailyTasks
 					}
 					if (task.quantityCompleted == task.quantity && task.taskType == TaskType::KillPlayer && task.isCompleted == false)
 					{
+						auto remainingHoldSize = 0.f;
+						pub::Player::GetRemainingHoldSize(killerId.value(), remainingHoldSize);
 						task.isCompleted = true;
 						SaveTaskStatusToJson(Hk::Client::GetAccountByClientID(killerId.value()));
-						PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
-						Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
-						GenerateReward(client);
+						PrintUserCmdText(killerId.value(), std::format(L"You have completed {}", stows(task.taskDescription)));
+						Hk::Client::PlaySoundEffect(killerId.value(), CreateID("ui_gain_level"));
+						GenerateReward(killerId.value(), remainingHoldSize);
 					}
 				}
 			}
@@ -303,11 +305,13 @@ namespace Plugins::DailyTasks
 					if (task.quantityCompleted == task.quantity && task.taskType == TaskType::KillNpc && !task.isCompleted &&
 					    task.npcFactionTarget == affiliation)
 					{
+						auto remainingHoldSize = 0.f;
+						pub::Player::GetRemainingHoldSize(killerId.value(), remainingHoldSize);
 						task.isCompleted = true;
 						SaveTaskStatusToJson(Hk::Client::GetAccountByClientID(killerId.value()));
-						PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
-						Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
-						GenerateReward(client);
+						PrintUserCmdText(killerId.value(), std::format(L"You have completed {}", stows(task.taskDescription)));
+						Hk::Client::PlaySoundEffect(killerId.value(), CreateID("ui_gain_level"));
+						GenerateReward(killerId.value(), remainingHoldSize);
 					}
 				}
 			}
