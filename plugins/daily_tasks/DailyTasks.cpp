@@ -241,8 +241,10 @@ namespace Plugins::DailyTasks
 		Hk::Player::AddCash(client, creditReward + surplusCreditReward);
 		if (itemQuantity > 0)
 		{
-			// Hk::Player::AddCargo causes a kick here, so we have to do this with the pub function
-			pub::Player::AddCargo(client, itemReward, itemQuantity, 1, false);
+			Hk::Player::AddCargo(client, itemReward, itemQuantity, false);
+			auto& equip = Players[client].equipDescList.equip;
+			if (&equip != &Players[client].lShadowEquipDescList.equip)
+				Players[client].lShadowEquipDescList.equip = equip;
 		}
 		PrintUserCmdText(client,
 		    std::format(L"Task completed! You have been awarded {} credits and {} units of {}.",
@@ -416,7 +418,7 @@ namespace Plugins::DailyTasks
 			pub::Reputation::GetGroupName(npcFactionTarget, npcFactionIds);
 
 			task.taskType = KillNpc;
-			task.taskDescription = std::format("Destroy {} ships belonging to {}.", npcQuantity, wstos(Hk::Message::GetWStringFromIdS(npcFactionIds)));
+			task.taskDescription = std::format("Destroy {} ships belonging to {}", npcQuantity, wstos(Hk::Message::GetWStringFromIdS(npcFactionIds)));
 			task.npcFactionTarget = npcFactionTarget;
 			task.quantity = npcQuantity;
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill NPCs' task to '{}'", task.taskDescription));
@@ -506,8 +508,11 @@ namespace Plugins::DailyTasks
 			if (!task.isCompleted)
 			{
 				PrintUserCmdText(client,
-				    std::format(
-				        L"{} | Expires in {} hours | {}/{} remaining.", stows(task.taskDescription), taskExpiry, task.quantityCompleted, task.quantity));
+				    std::format(L"{} | Expires in {} hours | {}/{} remaining.",
+				        stows(task.taskDescription),
+				        taskExpiry,
+				        task.quantity - task.quantityCompleted,
+				        task.quantity));
 			}
 			else
 			{
