@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.22
+- Add call to Release() after a CObject::Find that was causing poor performance.
+
 ## 4.0.21
 - Create 'daily_tasks' a plugin that assigns basic daily tasks to player accounts for them to complete.
 
