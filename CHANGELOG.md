@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.23
+- Fixed some major issues with daily_tasks.
+
 ## 4.0.22
 - Add call to Release() after a CObject::Find that was causing poor performance.
 
