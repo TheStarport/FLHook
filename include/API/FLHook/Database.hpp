@@ -75,7 +75,7 @@ class Database
         void CreateCharacter(std::string accountId, VanillaLoadData* newPlayer);
 
 		//This searches based on the objectId on the database
-		Character GrabCharacterById(std::string objId);
+		Character GrabCharacterById(bsoncxx::oid objId);
 		Account GetOrCreateAccount(std::string accountId, bool deferred = true);
 
     public:

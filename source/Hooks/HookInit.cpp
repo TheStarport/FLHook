@@ -29,7 +29,8 @@ FLHook::PatchInfo FLHook::commonPatch = {
     "common.dll",
     0x6260000,
     {
-      { 0x0639C138, PVOID(IEngineHook::cShipInitAssembly.getCode()), 4, &IEngineHook::oldInitCShip, false },
+	  //TODO: CshipInitAssembly causes a crash on character login.
+      //{ 0x0639C138, PVOID(IEngineHook::cShipInitAssembly.getCode()), 4, &IEngineHook::oldInitCShip, false },
       { 0x0639C064, PVOID(IEngineHook::cShipDestroyAssembly.getCode()), 4, &IEngineHook::oldDestroyCShip, false },
       { 0x0639D854, PVOID(IEngineHook::cLootDestroyAssembly.getCode()), 4, &IEngineHook::oldDestroyCLoot, false },
       { 0x0639D3FC, PVOID(IEngineHook::cSolarDestroyAssembly.getCode()), 4, &IEngineHook::oldDestroyCSolar, false },
