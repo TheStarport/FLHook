@@ -242,7 +242,7 @@ namespace Plugins::DailyTasks
 		if (itemQuantity > 0)
 		{
 			Hk::Player::AddCargo(client, itemReward, itemQuantity, false);
-			auto& equip = Players[client].equipDescList.equip;
+			const auto& equip = Players[client].equipDescList.equip;
 			if (&equip != &Players[client].lShadowEquipDescList.equip)
 				Players[client].lShadowEquipDescList.equip = equip;
 		}
