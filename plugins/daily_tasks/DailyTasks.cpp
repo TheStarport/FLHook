@@ -239,12 +239,13 @@ namespace Plugins::DailyTasks
 		}
 
 		Hk::Player::AddCash(client, creditReward + surplusCreditReward);
-		if (itemQuantity > 0)
+		if (itemQuantity)
 		{
 			Hk::Player::AddCargo(client, itemReward, itemQuantity, false);
-			const auto& equip = Players[client].equipDescList.equip;
-			if (&equip != &Players[client].lShadowEquipDescList.equip)
+			if (const auto& equip = Players[client].equipDescList.equip; &equip != &Players[client].lShadowEquipDescList.equip)
+			{
 				Players[client].lShadowEquipDescList.equip = equip;
+			}
 		}
 		PrintUserCmdText(client,
 		    std::format(L"Task completed! You have been awarded {} credits and {} units of {}.",
@@ -520,7 +521,7 @@ namespace Plugins::DailyTasks
 			}
 			else
 			{
-				PrintUserCmdText(client, stows(task.taskDescription + " | TASK COMPLETED"));
+				PrintUserCmdText(client, stows(task.taskDescription + " | Task Completed"));
 			}
 		}
 	}
