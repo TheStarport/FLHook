@@ -72,7 +72,9 @@ class Database
         mongocxx::pool pool;
 
         void ResetDatabase();
-        void CreateCharacter(std::string accountId, VanillaLoadData* newPlayer);
+
+		//Will return true if a character is created, false if a character is not successfully created in the database.
+        bool CreateCharacter(std::string accountId,  Character&  newPlayer);
 
 		//This searches based on the objectId on the database
 		Character GrabCharacterById(bsoncxx::oid objId);
@@ -82,6 +84,8 @@ class Database
         std::optional<mongocxx::pool::entry> AcquireClient();
         std::optional<Collection> GetCollection(std::string_view collectionName);
         std::optional<Collection> CreateCollection(std::string_view collectionName);
+		bool SaveCharacter(const Character& character);
+
 
         template <typename T>
             requires MongoSupportedType<T>

@@ -427,7 +427,7 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
     }
 
     auto& mongo = FLHook::GetDatabase();
-    mongo.CreateCharacter(StringUtils::wstos(data->accId), loadData);
+   // mongo.CreateCharacter(StringUtils::wstos(data->accId), loadData);
 
     LoadCharacter(loadData, character->charname);
     return true;
