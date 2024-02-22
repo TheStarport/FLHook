@@ -125,14 +125,11 @@ bool Database::CreateCharacter(std::string accountId, Character& newPlayer)
 	bsoncxx::builder::basic::array jumpHolesVisited;
 	bsoncxx::builder::basic::document weaponGroups;
 
-
 	std::string repGroup = {};
 	if (newPlayer.repGroup.has_value())
 	{
 	    repGroup = newPlayer.repGroup.value();
 	}
-
-
 
     auto newCharDoc = make_document(kvp("characterName", newPlayer.characterName),
                                     kvp("money", static_cast<int>(newPlayer.money)),
@@ -380,9 +377,6 @@ Character Database::GrabCharacterById(bsoncxx::oid objId)
 	commCostume.rightHand = commCostumeDoc["rightHand"].get_int32();
 	character.commCostume = commCostume;
 
-
-
-/*
 		//This is bad, but I can't find any easier way to convert a mongo array to a c-array.
 	auto posArray =  charDoc.view()["pos"].get_array().value;
 	int counter = 0;
@@ -541,7 +535,7 @@ Character Database::GrabCharacterById(bsoncxx::oid objId)
 	   character.weaponGroups.emplace(key, weaponGroup);
 	   weaponGroup.clear();
 	}
-*/
+
 
 
 	return character;
@@ -613,6 +607,7 @@ bool Collection::UpdateItemById(std::string_view id, bsoncxx::document::view val
 
     return false;
 }
+
 bool Collection::UpdateItemByFilter(bsoncxx::document::view filter, bsoncxx::document::view value)
 {
     try
@@ -681,8 +676,6 @@ bool Database::SaveCharacter(const Character& character)
         // TODO: Log issue
         return false;
     }
-
-
 
     auto& accounts = accountsOpt.value();
 
@@ -762,8 +755,6 @@ bool Database::SaveCharacter(const Character& character)
 	    repGroup = character.repGroup.value();
 	}
 
-
-
     auto charDoc = make_document(kvp("characterName", character.characterName),
                                     kvp("money", static_cast<int>(character.money)),
                                     kvp("rank", static_cast<int>(character.rank)),
@@ -796,16 +787,10 @@ bool Database::SaveCharacter(const Character& character)
 									kvp("jumpHolesVisited,", jumpHolesVisited),
 									kvp("weaponGroups", weaponGroups));
 
-
 	bsoncxx::builder::basic::document charUpdate;
-
 	charUpdate.append(kvp("$set", charDoc));
-
 	auto filterDoc = make_document(kvp("_id", findCharDoc.view()["_id"].get_oid()));
-
-
 	accounts.collection.update_one(filterDoc.view(),charUpdate.view());
-
 
 	return true;
 }
