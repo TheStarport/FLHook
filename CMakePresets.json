@@ -1,0 +1,50 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "default",
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+            },
+            "hidden": true
+        },
+        {
+            "name": "ninja-multi",
+            "inherits": "default",
+            "displayName": "Ninja Multi-Config",
+            "generator": "Ninja Multi-Config"
+        },
+        {
+            "name": "vs2022",
+            "inherits": "default",
+            "displayName": "VS2022",
+            "generator": "Visual Studio 17 2022",
+            "architecture": "Win32",
+            "toolset": "ClangCL",
+            "hidden": true
+        },
+        {
+            "name": "vs2022-debug",
+            "inherits": "vs2022",
+            "displayName": "VS2022 Debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "vs2022-release",
+            "inherits": "vs2022",
+            "displayName": "VS2022 Release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ]
+}
