@@ -377,7 +377,7 @@ Character Database::GrabCharacterById(bsoncxx::oid objId)
 	commCostume.rightHand = commCostumeDoc["rightHand"].get_int32();
 	character.commCostume = commCostume;
 
-		//This is bad, but I can't find any easier way to convert a mongo array to a c-array.
+	//This is bad, but I can't find any easier way to convert a mongo array to a c-array.
 	auto posArray =  charDoc.view()["pos"].get_array().value;
 	int counter = 0;
 	for (const auto& i : posArray)

@@ -66,7 +66,7 @@ VanillaLoadData ConvertCharacterToVanillaData(const Character& character)
 	equipDesc.id = equip.id;
 	equipDesc.health = equip.health;
 	equipDesc.mounted = equip.mounted;
-	//TODO: std::string to Cache String.
+	equipDesc.hardPoint.value = StringAlloc(equip.hardPoint.c_str(), false);
 
 	equipAndCargo.push_back(equipDesc);
   }
@@ -93,7 +93,8 @@ VanillaLoadData ConvertCharacterToVanillaData(const Character& character)
 	equipDesc.id = equip.id;
 	equipDesc.health = equip.health;
 	equipDesc.mounted = equip.mounted;
-	//TODO: std::string to Cache String.
+	equipDesc.hardPoint.value = StringAlloc(equip.hardPoint.c_str(), false);
+
 
 	baseEquipAndCargo.push_back(equipDesc);
   }
@@ -118,6 +119,100 @@ VanillaLoadData ConvertCharacterToVanillaData(const Character& character)
   return vanData;
 }
 
+Character ConvertVanillaDataToCharacter(VanillaLoadData& vanData)
+{
+  Character character;
+
+  std::wstring wCharName = reinterpret_cast<const wchar_t*>(vanData.name.c_str());
+  character.shipHash = vanData.shipHash;
+  character.money = vanData.money;
+  character.killCount = vanData.numOfKills;
+  character.missionSuccessCount = vanData.numOfSuccessMissions;
+  character.missionFailureCount = vanData.numOfFailedMissions;
+  character.hullStatus = vanData.hullStatus;
+  character.baseHullStatus = vanData.baseHullStatus;
+  character.currentBase	= vanData.currentBase;
+  character.lastDockedBase = vanData.lastDockedBase;
+  character.currentRoom = vanData.currentRoom;
+  character.system = vanData.system;
+  character.rank = vanData.rank;
+  character.reputationId = vanData.reputationId;
+  character.interfaceState = vanData.interfaceState;
+
+  Costume cos;
+  character.commCostume.value_or(cos) = vanData.commCostume;
+  character.baseCostume.value_or(cos) = vanData.baseCostume;
+
+  Vector vec = {0.0f,0.0f,0.0f};
+  character.pos.value_or(vec) = vanData.pos;
+  EulerMatrix(character.rot.value_or(vec)) = vanData.rot;
+
+  for(const auto& rep: vanData.repList)
+  {
+	character.reputation.insert({rep.hash,rep.reptuation});
+  }
+
+  for (const auto& equip : vanData.currentEquipAndCargo)
+  {
+	Equipment equipment = {};
+	FLCargo cargo = {};
+
+	bool isCommodity = false;
+	pub::IsCommodity(equip.archId, isCommodity);
+	if(!isCommodity)
+	{
+	  equipment.id = equip.archId;
+	  equipment.health = equip.health;
+	  equipment.mounted = equip.mounted;
+	  equipment.hardPoint = equip.hardPoint.value;
+	  character.equipment.emplace_back(equipment);
+	}
+	else
+	{
+	  cargo.id = equip.archId;
+	  cargo.health = equip.health;
+	  cargo.isMissionCargo = equip.mission;
+	  cargo.amount = equip.count;
+	  character.cargo.emplace_back(cargo);
+	}
+  }
+
+  for (const auto& equip : vanData.baseEquipAndCargo)
+  {
+	Equipment equipment = {};
+	FLCargo cargo = {};
+
+	bool isCommodity = false;
+	pub::IsCommodity(equip.archId, isCommodity);
+	if(!isCommodity)
+	{
+	  equipment.id = equip.archId;
+	  equipment.health = equip.health;
+	  equipment.mounted = equip.mounted;
+	  equipment.hardPoint = equip.hardPoint.value;
+	  character.baseEquipment.emplace_back(equipment);
+	}
+	else
+	{
+	  cargo.id = equip.archId;
+	  cargo.health = equip.health;
+	  cargo.isMissionCargo = equip.mission;
+	  cargo.amount = equip.count;
+	  character.baseCargo.emplace_back(cargo);
+	}
+  }
+
+  for(const auto& col : vanData.currentCollisionGroups)
+  {
+	character.collisionGroups.insert({col.id,col.health});
+  }
+    for(const auto& col : vanData.baseCollisionGroups)
+  {
+	character.baseCollisionGroups.insert({col.id,col.health});
+  }
+
+	return character;
+}
 
 
 using CreateCharacterLoadingData = void*(__thiscall*)(PlayerData* data, const char* buffer);
