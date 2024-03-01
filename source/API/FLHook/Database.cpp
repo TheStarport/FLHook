@@ -19,6 +19,17 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
 
         const auto ping = make_document(kvp("ping", 1));
         db.run_command(ping.view());
+
+		if (!db.has_collection("accounts"))
+		{
+		  auto accounts = db["accounts"];
+		  auto index = make_document(kvp("characterName", 1));
+
+		  mongocxx::options::index indexOptions{};
+		  indexOptions.unique(true);
+
+		  accounts.create_index(make_document(kvp("characterName", 1)), indexOptions);
+		}
     }
     catch (std::exception& err)
     {
@@ -28,7 +39,7 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
     }
 }
 
-void Database::CreateCharacter(std::string accountId, VanillaLoadData* newPlayer)
+bool Database::CreateCharacter(std::string accountId, Character& newPlayer)
 {
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
@@ -37,75 +48,74 @@ void Database::CreateCharacter(std::string accountId, VanillaLoadData* newPlayer
     if (!accountsOpt.has_value())
     {
         // TODO: Log issue
-        return;
+        return false;
     }
+
+
 
     auto& accounts = accountsOpt.value();
 
-    auto dbBaseCostume = make_document(kvp("body", static_cast<long long>(newPlayer->baseCostume.body)),
-                                       kvp("head", static_cast<long long>(newPlayer->baseCostume.head)),
-                                       kvp("leftHand", static_cast<long long>(newPlayer->baseCostume.leftHand)),
-                                       kvp("rightHand", static_cast<long long>(newPlayer->baseCostume.rightHand)));
 
-    auto dbCommCostume = make_document(kvp("body", static_cast<long long>(newPlayer->commCostume.body)),
-                                       kvp("head", static_cast<long long>(newPlayer->commCostume.head)),
-                                       kvp("leftHand", static_cast<long long>(newPlayer->commCostume.leftHand)),
-                                       kvp("rightHand", static_cast<long long>(newPlayer->commCostume.rightHand)));
+	auto checkCharNameDoc = accounts.collection.find_one(make_document(kvp("characterName", accountId)));
+	if (checkCharNameDoc.has_value())
+	{
+	  //TODO: Inform that the character already exists.
+
+	  return false;
+	}
 
 
-    bsoncxx::builder::basic::array equipmentArray;
+    auto dbBaseCostume = make_document(kvp("body", static_cast<int>(newPlayer.baseCostume->body)),
+                                       kvp("head", static_cast<int>(newPlayer.baseCostume->head)),
+                                       kvp("leftHand", static_cast<int>(newPlayer.baseCostume->leftHand)),
+                                       kvp("rightHand", static_cast<int>(newPlayer.baseCostume->rightHand)));
 
-        for (const auto& equip : newPlayer->currentEquipAndCargo)
+    auto dbCommCostume = make_document(kvp("body", static_cast<int>(newPlayer.commCostume->body)),
+                                       kvp("head", static_cast<int>(newPlayer.commCostume->head)),
+                                       kvp("leftHand", static_cast<int>(newPlayer.commCostume->leftHand)),
+                                       kvp("rightHand", static_cast<int>(newPlayer.commCostume->rightHand)));
+
+
+    	bsoncxx::builder::basic::array equipmentArray;
+
+        for (const auto& equip : newPlayer.equipment)
         {
-            bool commodity;
-            pub::IsCommodity(equip.archId, commodity);
-            if (!commodity)
-            {
-                std::string equipStr;
-                equipStr = equip.hardPoint.value;
-                equipmentArray.append(make_document(
-                    kvp("archId", static_cast<long long>(equip.archId)), kvp("hardPoint", equipStr), kvp("mounted", equip.mounted), kvp("health",
-       equip.health)));
-            }
+		  equipmentArray.append(make_document(kvp("id", static_cast<int>(equip.id)), kvp("hardPoint", equip.hardPoint), kvp("health",equip.health)));
         }
 
-        bsoncxx::builder::basic::array cargoArray;
+		bsoncxx::builder::basic::array cargoArray;
 
-        for (const auto& cargo : newPlayer->currentEquipAndCargo)
+		for (const auto& cargo : newPlayer.cargo)
         {
-            bool commodity;
-            pub::IsCommodity(cargo.archId, commodity);
-            if (commodity)
-            {
-                std::string equipStr;
-                equipStr = cargo.hardPoint.value;
-                cargoArray.append(make_document(
-                    kvp("archId", static_cast<long long>(cargo.archId)), kvp("hardPoint", equipStr), kvp("mounted", cargo.mounted), kvp("health",
-       cargo.health)));
-            }
+		  cargoArray.append(make_document(
+			  kvp("id", static_cast<int>(cargo.id)),
+			  kvp("amount", static_cast<int>(cargo.amount)),
+			  kvp("health", cargo.health),
+			  kvp("isMissionCargo", static_cast<int>(cargo.isMissionCargo))));
         }
 
 
     bsoncxx::builder::basic::document visitArray;
 
-    for (auto visit = newPlayer->visitLists.begin(); visit != newPlayer->visitLists.end(); ++visit)
+  /* for (auto visit = newPlayer->visitLists.begin(); visit != newPlayer->visitLists.end(); ++visit)
     {
 	  visitArray.append(kvp(std::to_string(visit->key),static_cast<bsoncxx::types::b_int64>(visit->value.visitValue)));
     }
+    */
 
     bsoncxx::builder::basic::document reputationArray;
 
 
-    for ( auto& rep : newPlayer->repList)
+    for ( auto& rep : newPlayer.reputation)
     {
-		reputationArray.append(kvp(std::to_string(rep.hash),rep.reptuation));
+		reputationArray.append(kvp(std::to_string(rep.first),rep.second));
     }
 
 	bsoncxx::builder::basic::document collisionGroups;
 
-	for (const auto& col : newPlayer->currentCollisionGroups)
+	for (const auto& col : newPlayer.collisionGroups)
 	{
-	  collisionGroups.append(kvp(std::to_string(col.id),col.health));
+	  collisionGroups.append(kvp(std::to_string(col.first),col.second));
 	}
 
 	//Initialize these on the database even though they'll just be empty.
@@ -115,26 +125,29 @@ void Database::CreateCharacter(std::string accountId, VanillaLoadData* newPlayer
 	bsoncxx::builder::basic::array jumpHolesVisited;
 	bsoncxx::builder::basic::document weaponGroups;
 
+	std::string repGroup = {};
+	if (newPlayer.repGroup.has_value())
+	{
+	    repGroup = newPlayer.repGroup.value();
+	}
 
-    std::wstring charNameWide = reinterpret_cast<const wchar_t*>(newPlayer->name.c_str());
-    std::string charName = StringUtils::wstos(charNameWide);
-
-    // We cast to long long as mongo does not care about sign, and we want to prevent any sort of signed overflow
-    auto newCharDoc = make_document(kvp("characterName", charName),
-                                    kvp("money", static_cast<long long>(newPlayer->money)),
-                                    kvp("rank", static_cast<long long>(newPlayer->rank)),
-                                    kvp("repGroup", "toBeDetermined"),
-                                    kvp("datetimeHigh", static_cast<long long>(newPlayer->datetimeHigh)),
-                                    kvp("datetimeLow", static_cast<long long>(newPlayer->datetimeLow)),
+    auto newCharDoc = make_document(kvp("characterName", newPlayer.characterName),
+                                    kvp("money", static_cast<int>(newPlayer.money)),
+                                    kvp("rank", static_cast<int>(newPlayer.rank)),
+                                    kvp("repGroup", repGroup),
                                     kvp("canDock", 1),
-									kvp("currentRoom", static_cast<long long>(newPlayer->currentRoom)),
+									kvp("currentRoom", static_cast<int>(newPlayer.currentRoom)),
                                     kvp("canTradeLane", 1),
+									kvp("interfaceState", 1),
                                     kvp("killCount", 0),
                                     kvp("missionFailureCount", 0),
                                     kvp("missionSuccessCount", 0),
-                                    kvp("shipHash", static_cast<long long>(newPlayer->shipHash)),
-                                    kvp("system", static_cast<long long>(newPlayer->system)),
-                                    kvp("totalTimePlayed", 0.0000f),
+									kvp("lastDockedBase", static_cast<int>(newPlayer.lastDockedBase)),
+									kvp("hullStatus", 1.0f),
+									kvp("baseHullStatus", 1.0f),
+                                    kvp("shipHash", static_cast<int>(newPlayer.shipHash)),
+                                    kvp("system", static_cast<int>(newPlayer.system)),
+                                    kvp("totalTimePlayed", 0),
                                     kvp("baseCostume", dbBaseCostume),
                                     kvp("commCostume", dbCommCostume),
                                     kvp("reputation", reputationArray),
@@ -150,29 +163,43 @@ void Database::CreateCharacter(std::string accountId, VanillaLoadData* newPlayer
 									kvp("jumpHolesVisited,", jumpHolesVisited),
 									kvp("weaponGroups", weaponGroups));
 
-    const auto updateDoc = accounts.collection.find_one(make_document(kvp("characterName", charName)).view());
+	accounts.collection.insert_one(newCharDoc.view());
+
+    const auto updateDoc = accounts.collection.find_one(make_document(kvp("characterName", newPlayer.characterName)).view());
+	if (!updateDoc.has_value())
+	{
+	  //TODO: Log Issue;
+
+	  throw;
+	}
+
+	auto account = GetOrCreateAccount(accountId);
+
     const auto elem = updateDoc.value()["_id"];
-    auto str = elem.get_oid().value.to_string();
-    const auto findRes = accounts.collection.find_one(make_document(kvp("_id", accountId)));
+    auto charId = elem.get_oid().value;
+    const auto findRes = accounts.collection.find_one(make_document(kvp("_id", account._id)));
 
     // Update the account's character list to include the newly created character.
     if (!findRes.has_value())
     {
-        std::cout << "Account not found.";
-        throw;
-        // TODO: Handle correctly
+	  //TODO: log and describe issue.
+    	throw;
     }
 
-    auto characterArray = make_array(str);
+    auto characterArray = make_array(charId);
     auto charUpdateDoc = make_document(kvp("$set", make_document(kvp("characters", characterArray))));
 
     accounts.collection.update_one(findRes->view(), charUpdateDoc.view());
+
+	return true;
 }
 
 std::optional<mongocxx::pool::entry> Database::AcquireClient() { return pool.try_acquire(); }
 
 std::optional<Collection> Database::GetCollection(std::string_view collectionName)
 {
+
+
     try
     {
         auto client = pool.acquire();
@@ -271,27 +298,29 @@ Account Database::GetOrCreateAccount(std::string accountId, bool deferred)
 	  bsoncxx::builder::basic::array characters;
 	  auto newAccDoc = make_document(kvp("_id", accountId), kvp("characters", characters));
 	  accountDb.collection.insert_one(newAccDoc.view());
+
+	  account._id = accountId;
+
+	  return account;
 	}
 
 	account._id = accountId;
-
 	bsoncxx::array::view characters = accDoc.value()["characters"].get_array();
 
 	for (const auto& i : characters)
 	{
-
-	  std::string charId = i.get_string().value.data();
-	  account.characters.emplace_back(GrabCharacterById(charId));
-
+	  auto val = i.get_oid().value;
+	  account.characters.emplace_back(GrabCharacterById(val));
 	}
 
 	return account;
 }
 
 //TODO: Reflect-cpp claims to have serialization and deserialization support for Bson, look into.
-Character Database::GrabCharacterById(std::string objId)
+Character Database::GrabCharacterById(bsoncxx::oid objId)
 {
 	Character character;
+
 
    auto accountsOpt = GetCollection("accounts");
     if (!accountsOpt.has_value())
@@ -308,20 +337,22 @@ Character Database::GrabCharacterById(std::string objId)
 
 	}
 
+
 	auto& charDoc = charDocOpt.value();
 
 	character._id = charDoc.view()["_id"].get_oid().value;
 	character.characterName = charDoc.view()["characterName"].get_string().value;
-	character.money	= charDoc.view()["money"].get_int32().value;
-	character.rank = charDoc.view()["rank"].get_int32().value;
+
+	character.rank = charDoc.view()["rank"].get_int32();
 	character.repGroup = charDoc.view()["repGroup"].get_string();
-	character.interfaceState = charDoc.view()["interfaceState"].get_int32().value;
-	character.hullStatus = static_cast<float>(charDoc.view()["hullStatus"].get_double().value);
-	character.baseHullStatus = static_cast<float>(charDoc.view()["baseHullStatus"].get_double().value);
-	character.canDock = charDoc.view()["canDoc"].get_bool();
-	character.canTradeLane = charDoc.view()["canTradeLane"].get_bool();
-	character.lastDockedBase = charDoc.view()["lastDockedBase"].get_int64();
-	character.currentRoom = charDoc.view()["currentRoom"].get_int64();
+	character.money	= charDoc.view()["money"].get_int32();
+	character.interfaceState = charDoc.view()["interfaceState"].get_int32();
+	character.hullStatus = static_cast<float>(charDoc.view()["hullStatus"].get_double());
+	character.baseHullStatus = static_cast<float>(charDoc.view()["baseHullStatus"].get_double());
+	character.canDock = static_cast<bool>(charDoc.view()["canDock"].get_int32());
+	character.canTradeLane = static_cast<bool>(charDoc.view()["canTradeLane"].get_int32());
+	character.lastDockedBase = charDoc.view()["lastDockedBase"].get_int32();
+	character.currentRoom = charDoc.view()["currentRoom"].get_int32();
 	character.killCount = charDoc.view()["killCount"].get_int32();
 	character.missionFailureCount = charDoc.view()["missionFailureCount"].get_int32();
 	character.missionSuccessCount = charDoc.view()["missionSuccessCount"].get_int32();
@@ -335,7 +366,8 @@ Character Database::GrabCharacterById(std::string objId)
 	baseCostume.head = baseCostumeDoc["head"].get_int32();
 	baseCostume.leftHand = baseCostumeDoc["leftHand"].get_int32();
 	baseCostume.rightHand = baseCostumeDoc["rightHand"].get_int32();
-	character.baseCostume.value() = baseCostume;
+
+	character.baseCostume = baseCostume;
 
 	bsoncxx::document::view commCostumeDoc = charDoc.view()["baseCostume"].get_document();
 	Costume commCostume;
@@ -343,7 +375,7 @@ Character Database::GrabCharacterById(std::string objId)
 	commCostume.head = commCostumeDoc["head"].get_int32();
 	commCostume.leftHand = commCostumeDoc["leftHand"].get_int32();
 	commCostume.rightHand = commCostumeDoc["rightHand"].get_int32();
-	character.commCostume.value() = commCostume;
+	character.commCostume = commCostume;
 
 		//This is bad, but I can't find any easier way to convert a mongo array to a c-array.
 	auto posArray =  charDoc.view()["pos"].get_array().value;
@@ -505,6 +537,7 @@ Character Database::GrabCharacterById(std::string objId)
 	}
 
 
+
 	return character;
 }
 
@@ -574,6 +607,7 @@ bool Collection::UpdateItemById(std::string_view id, bsoncxx::document::view val
 
     return false;
 }
+
 bool Collection::UpdateItemByFilter(bsoncxx::document::view filter, bsoncxx::document::view value)
 {
     try
@@ -629,4 +663,134 @@ std::optional<bsoncxx::document::value> Collection::GetItemByIdRaw(std::string_v
     }
 
     return std::nullopt;
+}
+
+bool Database::SaveCharacter(const Character& character)
+{
+  	using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
+
+	auto accountsOpt = GetCollection("accounts");
+    if (!accountsOpt.has_value())
+    {
+        // TODO: Log issue
+        return false;
+    }
+
+    auto& accounts = accountsOpt.value();
+
+	auto findCharDocOpt = accounts.collection.find_one(make_document(kvp("characterName", character.characterName)));
+	if (!findCharDocOpt.has_value())
+	{
+	  // TODO: Log issue.
+	  return false;
+	}
+
+	auto findCharDoc = findCharDocOpt.value();
+
+
+    auto dbBaseCostume = make_document(kvp("body", static_cast<int>(character.baseCostume->body)),
+                                       kvp("head", static_cast<int>(character.baseCostume->head)),
+                                       kvp("leftHand", static_cast<int>(character.baseCostume->leftHand)),
+                                       kvp("rightHand", static_cast<int>(character.baseCostume->rightHand)));
+
+    auto dbCommCostume = make_document(kvp("body", static_cast<int>(character.commCostume->body)),
+                                       kvp("head", static_cast<int>(character.commCostume->head)),
+                                       kvp("leftHand", static_cast<int>(character.commCostume->leftHand)),
+                                       kvp("rightHand", static_cast<int>(character.commCostume->rightHand)));
+
+    	bsoncxx::builder::basic::array equipmentArray;
+
+        for (const auto& equip : character.equipment)
+        {
+		  equipmentArray.append(make_document(kvp("id", static_cast<int>(equip.id)), kvp("hardPoint", equip.hardPoint), kvp("health",equip.health)));
+        }
+
+		bsoncxx::builder::basic::array cargoArray;
+
+		for (const auto& cargo : character.cargo)
+        {
+		  cargoArray.append(make_document(
+			  kvp("id", static_cast<int>(cargo.id)),
+			  kvp("amount", static_cast<int>(cargo.amount)),
+			  kvp("health", cargo.health),
+			  kvp("isMissionCargo", static_cast<int>(cargo.isMissionCargo))));
+        }
+
+
+    bsoncxx::builder::basic::document visitArray;
+
+  /* for (auto visit = newPlayer->visitLists.begin(); visit != newPlayer->visitLists.end(); ++visit)
+    {
+	  visitArray.append(kvp(std::to_string(visit->key),static_cast<bsoncxx::types::b_int64>(visit->value.visitValue)));
+    }
+    */
+
+    bsoncxx::builder::basic::document reputationArray;
+
+
+    for ( auto& rep : character.reputation)
+    {
+		reputationArray.append(kvp(std::to_string(rep.first),rep.second));
+    }
+
+	bsoncxx::builder::basic::document collisionGroups;
+
+	for (const auto& col : character.collisionGroups)
+	{
+	  collisionGroups.append(kvp(std::to_string(col.first),col.second));
+	}
+
+	//Initialize these on the database even though they'll just be empty.
+	bsoncxx::builder::basic::document shipTypesKilled;
+	bsoncxx::builder::basic::array basesVisited;
+	bsoncxx::builder::basic::array systemsVisited;
+	bsoncxx::builder::basic::array jumpHolesVisited;
+	bsoncxx::builder::basic::document weaponGroups;
+
+
+	std::string repGroup = {};
+	if (character.repGroup.has_value())
+	{
+	    repGroup = character.repGroup.value();
+	}
+
+    auto charDoc = make_document(kvp("characterName", character.characterName),
+                                    kvp("money", static_cast<int>(character.money)),
+                                    kvp("rank", static_cast<int>(character.rank)),
+                                    kvp("repGroup", repGroup),
+                                    kvp("canDock", 1),
+									kvp("currentRoom", static_cast<int>(character.currentRoom)),
+                                    kvp("canTradeLane", 1),
+									kvp("interfaceState", 1),
+                                    kvp("killCount", 0),
+                                    kvp("missionFailureCount", 0),
+                                    kvp("missionSuccessCount", 0),
+									kvp("lastDockedBase", static_cast<int>(character.lastDockedBase)),
+									kvp("hullStatus", 1.0f),
+									kvp("baseHullStatus", 1.0f),
+                                    kvp("shipHash", static_cast<int>(character.shipHash)),
+                                    kvp("system", static_cast<int>(character.system)),
+                                    kvp("totalTimePlayed", 0),
+                                    kvp("baseCostume", dbBaseCostume),
+                                    kvp("commCostume", dbCommCostume),
+                                    kvp("reputation", reputationArray),
+                                    kvp("visits", visitArray),
+									kvp("cargo", cargoArray),
+									kvp("baseCargo",cargoArray),
+									kvp("equipment", equipmentArray),
+									kvp("baseEquipment",equipmentArray),
+									kvp("collisionGroups", collisionGroups),
+									kvp("shipTypesKilled", shipTypesKilled),
+									kvp("systemsVisited", systemsVisited),
+									kvp("basesVisited",basesVisited),
+									kvp("jumpHolesVisited,", jumpHolesVisited),
+									kvp("weaponGroups", weaponGroups));
+
+	bsoncxx::builder::basic::document charUpdate;
+	charUpdate.append(kvp("$set", charDoc));
+	auto filterDoc = make_document(kvp("_id", findCharDoc.view()["_id"].get_oid()));
+	accounts.collection.update_one(filterDoc.view(),charUpdate.view());
+
+	return true;
 }

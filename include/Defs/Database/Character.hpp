@@ -25,6 +25,7 @@ struct Equipment
         int64 id;
         std::string hardPoint;
         float health;
+		bool mounted;
 };
 
 struct Character
@@ -33,15 +34,17 @@ struct Character
         std::string characterName;
         int money;
         int rank;
+		int64 reputationId;
         std::optional<std::string> repGroup;
-        std::optional<std::array<float, 3>> pos;
-        std::optional<std::array<float, 3>> rot;
+        std::optional<Vector> pos;
+        std::optional<Vector> rot;
         int interfaceState;
         float hullStatus;
         float baseHullStatus;
         bool canDock;
         bool canTradeLane;
         int64 lastDockedBase;
+		int64 currentBase;
         int64 currentRoom;
         int killCount;
         int missionFailureCount;
@@ -56,6 +59,7 @@ struct Character
         std::vector<Equipment> equipment;
         std::vector<Equipment> baseEquipment;
         std::unordered_map<int, float> collisionGroups;
+		std::unordered_map<int, float> baseCollisionGroups;
         std::unordered_map<int64, float> reputation;
         std::unordered_map<int64, int> shipTypesKilled;
         std::unordered_map<int64, int> visits;

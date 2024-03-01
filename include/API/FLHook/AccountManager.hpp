@@ -34,7 +34,7 @@ struct VanillaLoadData
         uint reputationId;                                    // 720, see Reputation::get_id();
         Costume commCostume;                                  // 724 - 776
         uint voiceLen;                                        // 780
-        char voice[32];                                       // 812
+        char voice[32] = "trent_voice";                       // 812
         Costume baseCostume;                                  // 816 - 868
         uint tempCargoIdEnumerator;                           // 872
         st6::string prefilledWeaponGroupIni;                  // 886

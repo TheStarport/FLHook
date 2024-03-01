@@ -6,6 +6,120 @@
 
 #include <stduuid/uuid.h>
 
+VanillaLoadData ConvertCharacterToVanillaData(const Character& character)
+{
+  VanillaLoadData vanData;
+
+  std::wstring wCharName = StringUtils::stows(character.characterName);
+  vanData.name	= reinterpret_cast<const wchar_t>(wCharName.c_str());
+
+  vanData.shipHash = character.shipHash;
+  vanData.money = character.money;
+  vanData.numOfKills = character.killCount;
+  vanData.numOfSuccessMissions = character.missionSuccessCount;
+  vanData.numOfFailedMissions = character.missionFailureCount;
+  vanData.hullStatus = character.hullStatus;
+  vanData.baseHullStatus = character.baseHullStatus;
+  vanData.currentBase = character.currentBase;
+  vanData.lastDockedBase = character.lastDockedBase;
+  vanData.currentRoom = character.currentRoom;
+  vanData.system = character.system;
+  vanData.rank = character.rank;
+  vanData.reputationId = character.reputationId;
+  vanData.interfaceState = character.interfaceState;
+
+
+  Costume cos;
+  vanData.commCostume = character.commCostume.value_or(cos);
+  vanData.commCostume = character.commCostume.value_or(cos);
+
+  Vector vec = {0.0f,0.0f,0.0f};
+  vanData.pos = character.pos.value_or(vec);
+  vanData.rot = EulerMatrix(character.rot.value_or(vec));
+
+
+  for(const auto rep : character.reputation)
+  {
+	Reputation::Relation relation;
+	relation.hash = rep.first;
+	relation.reptuation = rep.second;
+	vanData.repList.push_back(relation);
+  }
+
+  st6::list<EquipDesc> equipAndCargo;
+
+  for(const auto& cargo : character.cargo)
+  {
+	EquipDesc equipDesc;
+
+	equipDesc.id = cargo.id;
+	equipDesc.mounted = false;
+	equipDesc.count = cargo.amount;
+	equipDesc.health = cargo.health;
+
+	equipAndCargo.push_back(equipDesc);
+  }
+  for (const auto& equip : character.equipment)
+  {
+	EquipDesc equipDesc;
+
+	equipDesc.id = equip.id;
+	equipDesc.health = equip.health;
+	equipDesc.mounted = equip.mounted;
+	//TODO: std::string to Cache String.
+
+	equipAndCargo.push_back(equipDesc);
+  }
+
+  vanData.currentEquipAndCargo = equipAndCargo;
+
+  st6::list<EquipDesc> baseEquipAndCargo;
+
+  for(const auto& cargo : character.baseCargo)
+  {
+	EquipDesc equipDesc;
+
+	equipDesc.id = cargo.id;
+	equipDesc.mounted = false;
+	equipDesc.count = cargo.amount;
+	equipDesc.health = cargo.health;
+
+	baseEquipAndCargo.push_back(equipDesc);
+  }
+  for (const auto& equip : character.baseEquipment)
+  {
+	EquipDesc equipDesc;
+
+	equipDesc.id = equip.id;
+	equipDesc.health = equip.health;
+	equipDesc.mounted = equip.mounted;
+	//TODO: std::string to Cache String.
+
+	baseEquipAndCargo.push_back(equipDesc);
+  }
+  vanData.currentEquipAndCargo = baseEquipAndCargo;
+
+  for(const auto& col : character.collisionGroups)
+  {
+	CollisionGroupDesc colDesc = {};
+	colDesc.id = col.first;
+	colDesc.health = col.second;
+	vanData.currentCollisionGroups.push_back(colDesc);
+  }
+
+  for(const auto& col : character.baseCollisionGroups)
+  {
+	CollisionGroupDesc colDesc = {};
+	colDesc.id = col.first;
+	colDesc.health = col.second;
+	vanData.baseCollisionGroups.push_back(colDesc);
+  }
+
+  return vanData;
+}
+
+
+
 using CreateCharacterLoadingData = void*(__thiscall*)(PlayerData* data, const char* buffer);
 CreateCharacterLoadingData createCharacterLoadingData = reinterpret_cast<CreateCharacterLoadingData>(0x77090);
 
@@ -427,7 +541,7 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
     }
 
     auto& mongo = FLHook::GetDatabase();
-    mongo.CreateCharacter(StringUtils::wstos(data->accId), loadData);
+   // mongo.CreateCharacter(StringUtils::wstos(data->accId), loadData);
 
     LoadCharacter(loadData, character->charname);
     return true;

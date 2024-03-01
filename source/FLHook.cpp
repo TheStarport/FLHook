@@ -77,6 +77,7 @@ FLHook::FLHook()
     clientList = new ClientList();
     tempbanManager = new TempBanManager();
     personalityHelper = new PersonalityHelper();
+	database = new Database(flhookConfig->databaseConfig.uri);
     accountManager = new AccountManager();
 
     flProc = GetModuleHandle(nullptr);
