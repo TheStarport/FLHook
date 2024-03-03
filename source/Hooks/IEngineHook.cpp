@@ -2,8 +2,6 @@
 
 #include "Core/IEngineHook.hpp"
 
-void __stdcall IEngineHook::CShipInit(CShip* ship) { CallPlugins(&Plugin::OnCShipInit, ship); }
-
 IEngineHook::CShipInitAssembly::CShipInitAssembly()
 {
     push(ecx);
@@ -125,6 +123,13 @@ bool __stdcall IEngineHook::LaunchPosition(const uint spaceId, CEqObj& obj, Vect
     }
 
     return obj.launch_pos(position, orientation, dock);
+}
+
+void __fastcall IEngineHook::CShipInit(CShip* ship, void* edx, CShip::CreateParms* creationParams)
+{
+    static_cast<CShipInitType>(cshipVTable.GetOriginal(67))(ship, creationParams);
+
+    CallPlugins(&Plugin::OnCShipInit, ship);
 }
 
 IEngineHook::LaunchPositionAssembly::LaunchPositionAssembly()

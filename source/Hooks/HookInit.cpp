@@ -203,13 +203,17 @@ void FLHook::InitHookExports()
         MemUtils::WriteProcMem(address, &proc, 4);
     }
 
+    const auto ptr = &IEngineHook::CShipInit;
+    IEngineHook::cshipVTable.Hook(67, &ptr);
+
     // patch it
     ApplyPatch(exePatch);
     ApplyPatch(contentPatch);
-    ApplyPatch(commonPatch);
-    ApplyPatch(serverPatch);
+    //ApplyPatch(commonPatch);
+    //ApplyPatch(serverPatch);
     ApplyPatch(remoteClientPatch);
-    ApplyPatch(dalibPatch);
+    ////ApplyPatch(dalibPatch);
+    ////ApplyPatch(dalibPatch);
 
     // DetourSendComm();
 

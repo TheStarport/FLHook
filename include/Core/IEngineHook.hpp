@@ -1,4 +1,5 @@
 #pragma once
+#include "Utils/Detour.hpp"
 
 class FLHook;
 class IEngineHook
@@ -41,7 +42,10 @@ class IEngineHook
         static void __stdcall ElapseTime(float interval);
         static int DockCall(const uint& shipId, const uint& spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response);
         static bool __stdcall LaunchPosition(uint spaceId, CEqObj& obj, Vector& position, Matrix& orientation, int dock);
-        static void __stdcall CShipInit(CShip* ship);
+
+        inline static VTableHook<CShip, 0x639C02C, 0x639C138> cshipVTable;
+        using CShipInitType = void(__thiscall*)(CShip* ship, CShip::CreateParms* createParms);
+        static void __fastcall CShipInit(CShip* ship, void* edx, CShip::CreateParms* creationParams);
 
         struct CallAndRet : Xbyak::CodeGenerator
         {
