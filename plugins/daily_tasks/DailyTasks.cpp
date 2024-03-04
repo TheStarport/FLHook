@@ -529,10 +529,13 @@ namespace Plugins::DailyTasks
 	/** @ingroup DailyTasks
 	 * @brief Hook on PlayerLaunch to display the task list when the player undocks.
 	 */
-	void DisplayTasksOnLaunch([[maybe_unused]] const uint& ship, ClientId& client)
+	void DisplayTasksOnLaunch([[maybe_unused]] const std::string_view& charFilename, ClientId& client)
 	{
-		PrintTasks(client);
-		PrintUserCmdText(client, L"To view this list again, type /showtasks in chat.");
+		if (global->config->displayMessage)
+		{
+			PrintTasks(client);
+			PrintUserCmdText(client, L"To view this list again, type /showtasks in chat.");
+		}
 	}
 
 	/** @ingroup DailyTasks
@@ -677,7 +680,7 @@ using namespace Plugins::DailyTasks;
 
 REFL_AUTO(type(Config), field(taskQuantity), field(minCreditsReward), field(maxCreditsReward), field(itemRewardPool), field(taskTradeBaseTargets),
     field(taskTradeItemTargets), field(taskItemAcquisitionTargets), field(taskNpcKillTargets), field(taskPlayerKillTargets), field(taskDuration),
-    field(resetTime));
+    field(resetTime), field(displayMessage));
 
 REFL_AUTO(type(Tasks), field(tasks));
 
@@ -703,5 +706,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &ItemSold, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &SaveTaskStatusOnBaseEnter, HookStep::After);
-	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &DisplayTasksOnLaunch);
+	pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &DisplayTasksOnLaunch);
 }
