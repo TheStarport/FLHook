@@ -36,6 +36,8 @@ namespace Plugins::DailyTasks
 		int resetTime = 12;
 		//! The amount of time in seconds a player has to complete a set of assigned tasks before they get cleaned up during the hourly check or at login.
 		int taskDuration = 86400;
+		//! Whether or not to display a message with daily task data when a player logs in.
+		bool displayMessage = true;
 	};
 
 	enum class TaskType
