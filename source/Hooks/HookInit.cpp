@@ -7,6 +7,7 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Core/IEngineHook.hpp"
 #include "Core/IpResolver.hpp"
+#include "Core/VTables.hpp"
 
 FLHook::PatchInfo FLHook::exePatch = {
     "flserver.exe",
@@ -203,8 +204,16 @@ void FLHook::InitHookExports()
         MemUtils::WriteProcMem(address, &proc, 4);
     }
 
-    const auto ptr = &IEngineHook::CShipInit;
-    IEngineHook::cshipVTable.Hook(67, &ptr);
+    #define VTablePtr(x) static_cast<unsigned short>(x)
+
+    const auto CShipPtr = &IEngineHook::CShipInit;
+    IEngineHook::cShipVTable.Hook(VTablePtr(CShipVTable::InitCShip), &CShipPtr);
+    const auto CLootPtr = &IEngineHook::CLootInit;
+    IEngineHook::cLootVTable.Hook(VTablePtr(CLootVTable::InitCLoot), &CLootPtr);
+    const auto CSolarPtr = &IEngineHook::CSolarInit;
+    IEngineHook::csolarVtable.Hook(VTablePtr(CSolarVTable::LinkShields), &CSolarPtr);
+
+    #undef VtablePtr
 
     // patch it
     ApplyPatch(exePatch);

@@ -127,9 +127,22 @@ bool __stdcall IEngineHook::LaunchPosition(const uint spaceId, CEqObj& obj, Vect
 
 void __fastcall IEngineHook::CShipInit(CShip* ship, void* edx, CShip::CreateParms* creationParams)
 {
-    static_cast<CShipInitType>(cshipVTable.GetOriginal(67))(ship, creationParams);
+    static_cast<CShipInitType>(cShipVTable.GetOriginal(static_cast<ushort>(CShipVTable::InitCShip)))(ship, creationParams);
 
     CallPlugins(&Plugin::OnCShipInit, ship);
+}
+
+void __fastcall IEngineHook::CLootInit(CLoot* loot, void* edx, CLoot::CreateParms* creationParams)
+{
+    static_cast<CLootInitType>(cLootVTable.GetOriginal(static_cast<ushort>(CLootVTable::InitCLoot)))(loot, creationParams);
+
+    CallPlugins(&Plugin::OnCLootDestroy, loot);
+}
+void IEngineHook::CSolarInit(CSolar* solar, void* edx, CSolar::CreateParms* createParms)
+{
+    static_cast<CSolarInitType>(csolarVtable.GetOriginal(static_cast<ushort>(CSolarVTable::LinkShields)))(solar,createParms);
+
+    CallPlugins(&Plugin::OnCSolarDestroy, solar);
 }
 
 IEngineHook::LaunchPositionAssembly::LaunchPositionAssembly()

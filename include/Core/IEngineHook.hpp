@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/VTables.hpp"
 #include "Utils/Detour.hpp"
 
 class FLHook;
@@ -43,9 +44,22 @@ class IEngineHook
         static int DockCall(const uint& shipId, const uint& spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response);
         static bool __stdcall LaunchPosition(uint spaceId, CEqObj& obj, Vector& position, Matrix& orientation, int dock);
 
-        inline static VTableHook<CShip, 0x639C02C, 0x639C138> cshipVTable;
+#define VTablePtr(x) static_cast<DWORD>(x)
+
+        inline static VTableHook<CShip, VTablePtr(CShipVTable::Start), VTablePtr(CShipVTable::End)> cShipVTable;
+        inline static VTableHook<CLoot, VTablePtr(CLootVTable::Start), VTablePtr(CLootVTable::End)> cLootVTable;
+        inline static VTableHook<CShip, VTablePtr(CSolarVTable::Start), VTablePtr(CSolarVTable::End)> csolarVtable;
+
+#undef VTablePtr
+
         using CShipInitType = void(__thiscall*)(CShip* ship, CShip::CreateParms* createParms);
         static void __fastcall CShipInit(CShip* ship, void* edx, CShip::CreateParms* creationParams);
+
+        using CLootInitType = void(__thiscall*)(CLoot* loot, CLoot::CreateParms* createParms);
+        static void __fastcall CLootInit(CLoot* loot, void* edx, CLoot::CreateParms* createParams);
+
+        using CSolarInitType = void(__thiscall*)(CSolar* solar, CSolar::CreateParms* createParms);
+        static void __fastcall CSolarInit(CSolar* solar, void* edx, CSolar::CreateParms* createParms);
 
         struct CallAndRet : Xbyak::CodeGenerator
         {
@@ -107,7 +121,8 @@ class IEngineHook
 
         inline static CallAndRet cShipDestroyAssembly{ IEngineHook::CShipDestroy, &oldDestroyCShip };
         inline static CallAndRet cSolarDestroyAssembly{ IEngineHook::CSolarDestroy, &oldDestroyCSolar };
-        inline static CallAndRet cLootDestroyAssembly { IEngineHook::CLootDestroy, &oldDestroyCLoot };;
+        inline static CallAndRet cLootDestroyAssembly{ IEngineHook::CLootDestroy, &oldDestroyCLoot };
+        ;
         inline static CallAndRet damageHitAssembly1{ IEngineHook::DamageHit, &oldDamageHit };
         inline static CallAndRet damageHitAssembly2{ IEngineHook::DamageHit, &oldDamageHit2 };
 };
