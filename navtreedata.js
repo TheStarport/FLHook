@@ -87,10 +87,10 @@ var NAVTREEINDEX =
 "namespace_plugins_1_1_sound_manager.html#aa0ff74b7b0216a31e1f8228f0cb5473b",
 "struct_hk_1_1_ini_1_1_f_l_h_o_o_k___p_l_a_y_e_r___d_a_t_a.html#a37707f3c9ac2ce44fd489dbdac35d703",
 "struct_plugins_1_1_cash_manager_1_1_bank.html",
-"struct_plugins_1_1_death_penalty_1_1_config.html#a020ce33e91b50c76d3e01b48f17043eb",
-"struct_plugins_1_1_mark_1_1_m_a_r_k___i_n_f_o.html#ace1bcac6d245f0d14b164c9dfc6ecf98",
-"struct_plugins_1_1_npc_1_1_npc.html#a8b05e5440aa150f6273dc5871957f09f",
-"struct_plugins_1_1_system_sensor_1_1_sensor.html#afbbbbe391c1e84ff085894befd3f82cc"
+"struct_plugins_1_1_death_penalty_1_1_config.html",
+"struct_plugins_1_1_mark_1_1_m_a_r_k___i_n_f_o.html#ac64418d25f5a3c2e4ac99577272dfafb",
+"struct_plugins_1_1_npc_1_1_npc.html#a80f9001e5e12d029284bd0f2dab58e67",
+"struct_plugins_1_1_system_sensor_1_1_sensor.html#aa41ea80ab5a0596d08176f10888a6f9d"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

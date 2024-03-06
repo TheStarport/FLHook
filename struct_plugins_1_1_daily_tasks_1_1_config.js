@@ -1,6 +1,7 @@
 var struct_plugins_1_1_daily_tasks_1_1_config =
 [
     [ "File", "struct_plugins_1_1_daily_tasks_1_1_config.html#a1757ca84775a50e7e20583613e1d6c40", null ],
+    [ "displayMessage", "struct_plugins_1_1_daily_tasks_1_1_config.html#ad1f810961534beb0532b5e798a7bd768", null ],
     [ "itemRewardPool", "struct_plugins_1_1_daily_tasks_1_1_config.html#a617d3ae4618e55b42d5ca5ef410c1e65", null ],
     [ "maxCreditsReward", "struct_plugins_1_1_daily_tasks_1_1_config.html#abb4775d384bcfe29afe2528665ae0b0a", null ],
     [ "minCreditsReward", "struct_plugins_1_1_daily_tasks_1_1_config.html#a7ddd3de0596a3be76d3f47ee474f7bf1", null ],

@@ -2,7 +2,7 @@ var group___daily_tasks =
 [
     [ "Plugins::DailyTasks::DailyTaskCheck", "group___daily_tasks.html#ga51cddef78b7d0da4b519582920c51ab2", null ],
     [ "Plugins::DailyTasks::DailyTimerTick", "group___daily_tasks.html#ga09a663e54d89cd66d0c51327a513e4a1", null ],
-    [ "Plugins::DailyTasks::DisplayTasksOnLaunch", "group___daily_tasks.html#ga8332be4372092d7e7f6c092fc9d29edf", null ],
+    [ "Plugins::DailyTasks::DisplayTasksOnLaunch", "group___daily_tasks.html#gaaecdde91dbf91c7577e19b20d3cb921b", null ],
     [ "Plugins::DailyTasks::GenerateDailyTask", "group___daily_tasks.html#ga64bc8734438bbcf8771c0c9d9a73bebc", null ],
     [ "Plugins::DailyTasks::GenerateReward", "group___daily_tasks.html#ga955d59f7a5852232fe742da260b3758a", null ],
     [ "Plugins::DailyTasks::GetGoodBaseValues", "group___daily_tasks.html#gaa39a6aae52ddf5720a839e79a330883d", null ],

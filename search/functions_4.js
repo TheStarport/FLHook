@@ -24,7 +24,7 @@ var searchData=
   ['disconnect_5fafter_21',['DisConnect_AFTER',['../group___stats.html#gac11f7dc48195aada7116b010acc7fec1',1,'Plugins::Stats']]],
   ['disconnectcheck_22',['DisconnectCheck',['../group___cargo_drop.html#gaa98820463d3ace5df2edb318a64450fd',1,'Plugins::CargoDrop']]],
   ['disconnectpacketsent_23',['DisconnectPacketSent',['../_hk_i_engine_disconnect_8cpp.html#ae76ac50c9321eec7fd2b09a752a985b5',1,'HkIEngineDisconnect.cpp']]],
-  ['displaytasksonlaunch_24',['DisplayTasksOnLaunch',['../group___daily_tasks.html#ga8332be4372092d7e7f6c092fc9d29edf',1,'Plugins::DailyTasks']]],
+  ['displaytasksonlaunch_24',['DisplayTasksOnLaunch',['../group___daily_tasks.html#gaaecdde91dbf91c7577e19b20d3cb921b',1,'Plugins::DailyTasks']]],
   ['distance3d_25',['Distance3D',['../namespace_hk_1_1_math.html#ab287748a760807713402e62609f95eae',1,'Hk::Math']]],
   ['distance3dbyship_26',['Distance3DByShip',['../namespace_hk_1_1_math.html#aa2d65446985e308e0f9425b20ee4b8b7',1,'Hk::Math']]],
   ['dllmain_27',['DllMain',['../_f_l_hook_8cpp.html#a4b10b033c4c34d2de4d7cd2b6e863a02',1,'DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved):&#160;FLHook.cpp'],['../_hooks_8cpp.html#a4b10b033c4c34d2de4d7cd2b6e863a02',1,'DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved):&#160;Hooks.cpp']]],

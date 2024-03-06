@@ -247,7 +247,7 @@ var NAVTREEINDEX4 =
 "class_plugins_1_1_cargo_drop_1_1_info.html#ab7f91c234e9baf5c1bc6fdedf0cd2a81":[2,2,0,2,6,2,0],
 "class_plugins_1_1_cargo_drop_1_1_info.html#aef47fdd05817aeeb737df8778e583c52":[2,1,0,4,6,2,2],
 "class_plugins_1_1_cargo_drop_1_1_info.html#aef47fdd05817aeeb737df8778e583c52":[2,2,0,2,6,2,2],
-"class_plugins_1_1_cargo_drop_1_1_info.html#af47d1a6af4346577022b062d7f87b8f1":[2,2,0,2,6,2,3],
 "class_plugins_1_1_cargo_drop_1_1_info.html#af47d1a6af4346577022b062d7f87b8f1":[2,1,0,4,6,2,3],
+"class_plugins_1_1_cargo_drop_1_1_info.html#af47d1a6af4346577022b062d7f87b8f1":[2,2,0,2,6,2,3],
 "class_plugins_1_1_cash_manager_1_1_cash_manager_communicator.html":[2,2,0,2,7,1]
 };

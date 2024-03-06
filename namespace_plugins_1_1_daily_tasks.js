@@ -12,7 +12,7 @@ var namespace_plugins_1_1_daily_tasks =
     ] ],
     [ "DailyTaskCheck", "group___daily_tasks.html#ga51cddef78b7d0da4b519582920c51ab2", null ],
     [ "DailyTimerTick", "group___daily_tasks.html#ga09a663e54d89cd66d0c51327a513e4a1", null ],
-    [ "DisplayTasksOnLaunch", "group___daily_tasks.html#ga8332be4372092d7e7f6c092fc9d29edf", null ],
+    [ "DisplayTasksOnLaunch", "group___daily_tasks.html#gaaecdde91dbf91c7577e19b20d3cb921b", null ],
     [ "GenerateDailyTask", "group___daily_tasks.html#ga64bc8734438bbcf8771c0c9d9a73bebc", null ],
     [ "GenerateIndividualTask", "namespace_plugins_1_1_daily_tasks.html#a113ddbc46db2841a44448892b51cd273", null ],
     [ "GenerateReward", "group___daily_tasks.html#ga955d59f7a5852232fe742da260b3758a", null ],
