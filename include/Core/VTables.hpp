@@ -18,7 +18,7 @@ enum class CShipVTable
     SetInstanceFlags,
     GetInstanceFlags,
     WriteFile,
-    dunno, //Vtable has it as sub_62881E10, just seems to be an empty ptr.
+    Destructor, // VTable has it as sub_62881E10, related to ship being cleaned up
     GetVelocity,
     SetVelocity,
     GetAngularVelocity,
@@ -96,7 +96,7 @@ enum class CLootVTable
     SetInstanceFlags,
     GetInstanceFlags,
     WriteFile,
-    dunno, //.rdata:0639D854                 dd offset sub_629D800
+    Destructor, //.rdata:0639D854                 dd offset sub_629D800
     GetVelocity,
     SetVelocity,
     GetAngularVelocity,
@@ -143,7 +143,7 @@ enum class CSolarVTable
     SetInstanceFlags,
     GetInstanceFlags,
     WriteFile,
-    dunno, //.rdata:0639D3FC                 dd offset sub_629AC10
+    Destructor, //.rdata:0639D3FC                 dd offset sub_629AC10
     GetVelocity,
     SetVelocity,
     GetAngularVelocity,

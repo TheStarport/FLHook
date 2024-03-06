@@ -73,7 +73,6 @@ class FLHook final
 
         static PatchInfo exePatch;
         static PatchInfo contentPatch;
-        static PatchInfo commonPatch;
         static PatchInfo serverPatch;
         static PatchInfo remoteClientPatch;
         static PatchInfo dalibPatch;

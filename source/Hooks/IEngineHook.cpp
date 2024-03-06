@@ -20,11 +20,29 @@ IEngineHook::CallAndRet::CallAndRet(void* toCall, void* ret)
     jmp(ret);
 }
 
-void __stdcall IEngineHook::CShipDestroy(CShip* ship) { CallPlugins(&Plugin::OnCShipDestroy, ship); }
+void __fastcall IEngineHook::CShipDestroy(CShip* ship)
+{
+    using CShipDestroyType = void(__thiscall*)(CShip*);
+    static_cast<CShipDestroyType>(cShipVTable.GetOriginal(static_cast<ushort>(CShipVTable::Destructor)))(ship);
 
-void __stdcall IEngineHook::CLootDestroy(CLoot* loot) { CallPlugins(&Plugin::OnCLootDestroy, loot); }
+    CallPlugins(&Plugin::OnCShipDestroy, ship);
+}
 
-void __stdcall IEngineHook::CSolarDestroy(CSolar* solar) { CallPlugins(&Plugin::OnCSolarDestroy, solar); }
+void __fastcall IEngineHook::CLootDestroy(CLoot* loot)
+{
+    using CLootDestroyType = void(__thiscall*)(CLoot*);
+    static_cast<CLootDestroyType>(cLootVTable.GetOriginal(static_cast<ushort>(CLootVTable::Destructor)))(loot);
+
+    CallPlugins(&Plugin::OnCLootDestroy, loot);
+}
+
+void __fastcall IEngineHook::CSolarDestroy(CSolar* solar)
+{
+    using CSolarDestroyType = void(__thiscall*)(CSolar*);
+    static_cast<CSolarDestroyType>(cSolarVtable.GetOriginal(static_cast<ushort>(CSolarVTable::Destructor)))(solar);
+
+    CallPlugins(&Plugin::OnCSolarDestroy, solar);
+}
 
 int IEngineHook::FreeReputationVibe(const int& p1)
 {
@@ -98,7 +116,7 @@ int IEngineHook::DockCall(const uint& shipId, const uint& spaceId, int dockPortI
             {
                 std::wstring msg = L"Traffic control alert: %player has docked.";
                 msg = StringUtils::ReplaceStr(msg, std::wstring_view(L"%player"), client.GetCharacterName().Unwrap());
-                client.MessageLocal(msg, 15000.0f);
+                (void)client.MessageLocal(msg, 15000.0f);
             }
         }
         // Actually dock
@@ -106,7 +124,7 @@ int IEngineHook::DockCall(const uint& shipId, const uint& spaceId, int dockPortI
     }
     CatchHook({})
 
-        CallPlugins(&Plugin::OnDockCallAfter, ShipId(shipId), ObjectId(spaceId), dockPortIndex, response);
+    CallPlugins(&Plugin::OnDockCallAfter, ShipId(shipId), ObjectId(spaceId), dockPortIndex, response);
 
     return retVal;
 }
@@ -127,6 +145,7 @@ bool __stdcall IEngineHook::LaunchPosition(const uint spaceId, CEqObj& obj, Vect
 
 void __fastcall IEngineHook::CShipInit(CShip* ship, void* edx, CShip::CreateParms* creationParams)
 {
+    using CShipInitType = void(__thiscall*)(CShip*, CShip::CreateParms*);
     static_cast<CShipInitType>(cShipVTable.GetOriginal(static_cast<ushort>(CShipVTable::InitCShip)))(ship, creationParams);
 
     CallPlugins(&Plugin::OnCShipInit, ship);
@@ -134,13 +153,15 @@ void __fastcall IEngineHook::CShipInit(CShip* ship, void* edx, CShip::CreateParm
 
 void __fastcall IEngineHook::CLootInit(CLoot* loot, void* edx, CLoot::CreateParms* creationParams)
 {
+    using CLootInitType = void(__thiscall*)(CLoot*, CLoot::CreateParms*);
     static_cast<CLootInitType>(cLootVTable.GetOriginal(static_cast<ushort>(CLootVTable::InitCLoot)))(loot, creationParams);
 
     CallPlugins(&Plugin::OnCLootDestroy, loot);
 }
-void IEngineHook::CSolarInit(CSolar* solar, void* edx, CSolar::CreateParms* createParms)
+void __fastcall IEngineHook::CSolarInit(CSolar* solar, void* edx, CSolar::CreateParms* createParms)
 {
-    static_cast<CSolarInitType>(csolarVtable.GetOriginal(static_cast<ushort>(CSolarVTable::LinkShields)))(solar,createParms);
+    using CSolarInitType = void(__thiscall*)(CSolar*, CSolar::CreateParms*);
+    static_cast<CSolarInitType>(cSolarVtable.GetOriginal(static_cast<ushort>(CSolarVTable::LinkShields)))(solar,createParms);
 
     CallPlugins(&Plugin::OnCSolarDestroy, solar);
 }

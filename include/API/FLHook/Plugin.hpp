@@ -128,7 +128,9 @@ class DLL Plugin
         // Hooks
         virtual void OnCShipInit(CShip* ship) {}
         virtual void OnCShipDestroy(CShip* ship) {}
+        virtual void OnCLootInit(CLoot* loot) {}
         virtual void OnCLootDestroy(CLoot* loot) {}
+        virtual void OnCSolarInit(CSolar* solar) {}
         virtual void OnCSolarDestroy(CSolar* loot) {}
         Aft(std::optional<DOCK_HOST_RESPONSE>, OnDockCall, (ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response));
         virtual std::optional<LaunchData> OnLaunchPosition(ObjectId spaceId, const LaunchData& data) { return std::nullopt; }

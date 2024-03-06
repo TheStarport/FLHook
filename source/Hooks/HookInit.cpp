@@ -26,18 +26,6 @@ FLHook::PatchInfo FLHook::contentPatch = {
       }
 };
 
-FLHook::PatchInfo FLHook::commonPatch = {
-    "common.dll",
-    0x6260000,
-    {
-	  //TODO: CshipInitAssembly causes a crash on character login.
-      //{ 0x0639C138, PVOID(IEngineHook::cShipInitAssembly.getCode()), 4, &IEngineHook::oldInitCShip, false },
-      { 0x0639C064, PVOID(IEngineHook::cShipDestroyAssembly.getCode()), 4, &IEngineHook::oldDestroyCShip, false },
-      { 0x0639D854, PVOID(IEngineHook::cLootDestroyAssembly.getCode()), 4, &IEngineHook::oldDestroyCLoot, false },
-      { 0x0639D3FC, PVOID(IEngineHook::cSolarDestroyAssembly.getCode()), 4, &IEngineHook::oldDestroyCSolar, false },
-  }
-};
-
 FLHook::PatchInfo FLHook::serverPatch = {
     "server.dll",
     0x6CE0000,
@@ -206,12 +194,23 @@ void FLHook::InitHookExports()
 
     #define VTablePtr(x) static_cast<unsigned short>(x)
 
-    const auto CShipPtr = &IEngineHook::CShipInit;
-    IEngineHook::cShipVTable.Hook(VTablePtr(CShipVTable::InitCShip), &CShipPtr);
-    const auto CLootPtr = &IEngineHook::CLootInit;
-    IEngineHook::cLootVTable.Hook(VTablePtr(CLootVTable::InitCLoot), &CLootPtr);
-    const auto CSolarPtr = &IEngineHook::CSolarInit;
-    IEngineHook::csolarVtable.Hook(VTablePtr(CSolarVTable::LinkShields), &CSolarPtr);
+    // Common.dll
+    const void* ptr = &IEngineHook::CShipInit;
+    IEngineHook::cShipVTable.Hook(VTablePtr(CShipVTable::InitCShip), &ptr);
+    ptr = &IEngineHook::CShipDestroy;
+    IEngineHook::cShipVTable.Hook(VTablePtr(CShipVTable::Destructor), &ptr);
+
+    ptr = &IEngineHook::CLootInit;
+    IEngineHook::cLootVTable.Hook(VTablePtr(CLootVTable::InitCLoot), &ptr);
+    ptr = &IEngineHook::CLootDestroy;
+    IEngineHook::cLootVTable.Hook(VTablePtr(CLootVTable::Destructor), &ptr);
+
+    ptr = &IEngineHook::CSolarInit;
+    IEngineHook::cSolarVtable.Hook(VTablePtr(CSolarVTable::InitializeInstance), &ptr);
+    ptr = &IEngineHook::CSolarDestroy;
+    IEngineHook::cSolarVtable.Hook(VTablePtr(CSolarVTable::Destructor), &ptr);
+
+    // Server.dll
 
     #undef VtablePtr
 
@@ -412,7 +411,6 @@ void FLHook::UnloadHookExports()
     // restore other hooks
     RevertPatch(exePatch);
     RevertPatch(contentPatch);
-    RevertPatch(commonPatch);
     RevertPatch(serverPatch);
     RevertPatch(remoteClientPatch);
     RevertPatch(dalibPatch);
