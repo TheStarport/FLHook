@@ -11,7 +11,7 @@ VanillaLoadData ConvertCharacterToVanillaData(const Character& character)
   VanillaLoadData vanData;
 
   std::wstring wCharName = StringUtils::stows(character.characterName);
-  vanData.name	= reinterpret_cast<const wchar_t>(wCharName.c_str());
+  vanData.name	= reinterpret_cast<const ushort*>(wCharName.c_str());
 
   vanData.shipHash = character.shipHash;
   vanData.money = character.money;
@@ -230,7 +230,7 @@ void VanillaLoadData::SetRelation(Reputation::Relation relation)
 
 void AccountManager::LoadCharacter(VanillaLoadData* data, std::wstring_view characterName)
 {
-    DWORD server = DWORD(GetModuleHandleA("server.dll"));
+    // DWORD server = DWORD(GetModuleHandleA("server.dll"));
     // loadDetour.UnDetour();
     // auto result = loadDetour.GetOriginalFunc()(unk, edx, filename, data);
     // loadDetour.Detour(LoadDetour);
@@ -388,8 +388,6 @@ void AccountManager::LoadCharacter(VanillaLoadData* data, std::wstring_view char
     }
 
     {
-        float colGrpHitPts = .5f;
-
         const Archetype::Ship* ship = Archetype::GetShip(data->shipHash);
 
         auto cg = ship->collisionGroup;
@@ -635,7 +633,7 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
         }
     }
 
-    auto& mongo = FLHook::GetDatabase();
+   // auto& mongo = FLHook::GetDatabase();
    // mongo.CreateCharacter(StringUtils::wstos(data->accId), loadData);
 
     LoadCharacter(loadData, character->charname);
@@ -658,9 +656,9 @@ void AccountManager::PlayerDbInitDetour(PlayerDB* db, void* edx, uint unk, bool 
     std::mt19937 generator(seq);
     uuids::uuid_random_generator gen{ generator };
 
-    static auto lastAccountStr = (wchar_t**)(DWORD(GetModuleHandleA("server.dll")) + 0x84EFC);
+    //static auto lastAccountStr = (wchar_t**)(DWORD(GetModuleHandleA("server.dll")) + 0x84EFC);
 
-    for (auto& account : accounts)
+    for (int i = 0; i < accounts.size(); ++i)
     {
         const auto uuid = gen();
 

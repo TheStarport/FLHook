@@ -30,7 +30,7 @@ class MessageHandler final : public AMQP::ConnectionHandler, public Singleton<Me
 
     public:
         explicit MessageHandler();
-        ~MessageHandler() noexcept override;
+        ~MessageHandler() override;
 
         enum class Queue
         {

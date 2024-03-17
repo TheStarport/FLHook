@@ -9,6 +9,8 @@
 #include "Core/IpResolver.hpp"
 #include "Core/VTables.hpp"
 
+//TODO: @Laz rewrite patch system to use STL, this is OOOOLD
+
 FLHook::PatchInfo FLHook::exePatch = {
     "flserver.exe",
     0x0400000,

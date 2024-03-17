@@ -157,7 +157,6 @@ void __stdcall IEngineHook::ShipDestroyed(DamageList* dmgList, DWORD* ecx, uint 
 
         auto& data = client.GetData();
         auto systemId = client.GetSystemId().Unwrap();
-        std::wstring_view name = systemId.GetName().Unwrap();
 
         if (!magic_enum::enum_integer(dmg.get_cause()))
         {

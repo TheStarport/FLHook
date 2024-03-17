@@ -19,12 +19,12 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
         static std::array<byte, 8> num1RewriteBytes = { 0xBA, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90 };
 
         const auto content = DWORD(GetModuleHandle(L"content.dll"));
-        constexpr DWORD factionOffset = 0x6fb632c + 18 - 0x6ea0000;
+        //constexpr DWORD factionOffset = 0x6fb632c + 18 - 0x6ea0000;
         constexpr DWORD numberOffset1 = 0x6eeb49b - 0x6ea0000;
         constexpr DWORD numberOffset2 = 0x6eeb523 + 1 - 0x6ea0000;
         constexpr DWORD formationOffset = 0x6fb7524 + 25 - 0x6ea0000;
 
-        const auto playerFactionAddr = PVOID(content + factionOffset);
+        //const auto playerFactionAddr = PVOID(content + factionOffset);
         const auto playerNumber1 = PVOID(content + numberOffset1);
         const auto playerNumber2 = PVOID(content + numberOffset2);
         const auto playerFormation = PCHAR(content + formationOffset);

@@ -104,21 +104,6 @@ void __stdcall IEngineHook::AddDamageEntry(DamageList* dmgList, unsigned short s
         return;
     }
 
-    // check if we got damaged by a cd with changed behaviour
-    if (dmgList->get_cause() == DamageCause::DummyDisrupter)
-    {
-        // check if player should be protected (f.e. in a docking cut scene)
-        bool unk1 = false;
-        bool unk2 = false;
-        float unk;
-        pub::SpaceObj::GetInvincible(FLHook::dmgToSpaceId.GetValue(), unk1, unk2, unk);
-        // if so, suppress the damage
-        if (unk1 && unk2)
-        {
-            return;
-        }
-    }
-
     if (FLHook::nonGunHitsBase && dmgList->get_cause() == DamageCause::MissileTorpedo)
     {
         const float damage = FLHook::lastHitPts - hitPts;

@@ -10,7 +10,7 @@ Action<void, Error> GroupId::ForEachGroupMember(const std::function<std::optiona
         return { cpp::fail(members.Raw().error()) };
     }
 
-    for (const auto member : members.Unwrap())
+    for (const auto& member : members.Unwrap())
     {
         if (auto err = func(ClientId(member)); err.has_value() && stopIfErr)
         {

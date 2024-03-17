@@ -23,7 +23,7 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
 
         // Anything outside normal bounds is aborted to prevent crashes
         if (to.GetValue() > static_cast<uint>(SpecialChatIds::GroupEvent) ||
-            to.GetValue() > static_cast<uint>(SpecialChatIds::PlayerMax) && to.GetValue() < static_cast<uint>(SpecialChatIds::SpecialBase))
+            (to.GetValue() > static_cast<uint>(SpecialChatIds::PlayerMax) && to.GetValue() < static_cast<uint>(SpecialChatIds::SpecialBase)))
         {
             return false;
         }

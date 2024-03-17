@@ -541,7 +541,7 @@ Character Database::GrabCharacterById(bsoncxx::oid objId)
 	return character;
 }
 
-Collection::Collection(mongocxx::pool::entry& client, std::string_view collection) : client(client), collectionName(collection)
+Collection::Collection(mongocxx::pool::entry& client, std::string_view collection) : collectionName(collection), client(client)
 {
     db = client->database("flhook");
     this->collection = db.collection(collectionName);

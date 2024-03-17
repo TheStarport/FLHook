@@ -271,7 +271,7 @@ void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_v
                                          L"<id>: client id of character which should be ignored\n"
                                          L"<flags>: if \"p\"(without quotation marks) then only affect private chat";
 
-    if (!ignoredClient || !flags.empty() && flags != L"p")
+    if (!ignoredClient || (!flags.empty() && flags != L"p"))
     {
         userCmdClient.Message(errorMsg);
         return;

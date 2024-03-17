@@ -168,7 +168,6 @@ ______ _      _   _             _        ___   __                _ _
                                                     | |                        
                                                     |_|                        )";
     welcomeText += L"\n\n";
-    DWORD _;
     std::wcout << welcomeText << std::flush;
 
     commandThread = std::jthread(std::bind_front(&Logger::GetConsoleInput));

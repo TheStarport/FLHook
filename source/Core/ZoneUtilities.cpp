@@ -4,7 +4,7 @@
 
 ZoneUtilities::TransformMatrix ZoneUtilities::MultiplyMatrix(const TransformMatrix& mat1, const TransformMatrix& mat2)
 {
-    TransformMatrix result = { 0 };
+    TransformMatrix result{};
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 4; j++)
@@ -26,11 +26,11 @@ ZoneUtilities::TransformMatrix ZoneUtilities::SetupTransform(const Vector& p, co
     const float az = r.z * (static_cast<float>(std::numbers::pi) / 180);
 
     // Initial matrix
-    TransformMatrix smat = { 0 };
+    TransformMatrix smat{};
     smat.d[0][0] = smat.d[1][1] = smat.d[2][2] = smat.d[3][3] = 1;
 
     // Translation matrix
-    TransformMatrix tmat;
+    TransformMatrix tmat{};
     tmat.d[0][0] = 1;
     tmat.d[0][1] = 0;
     tmat.d[0][2] = 0;
@@ -49,7 +49,7 @@ ZoneUtilities::TransformMatrix ZoneUtilities::SetupTransform(const Vector& p, co
     tmat.d[3][3] = 1;
 
     // X-axis rotation matrix
-    TransformMatrix xmat;
+    TransformMatrix xmat{};
     xmat.d[0][0] = 1;
     xmat.d[0][1] = 0;
     xmat.d[0][2] = 0;
@@ -68,7 +68,7 @@ ZoneUtilities::TransformMatrix ZoneUtilities::SetupTransform(const Vector& p, co
     xmat.d[3][3] = 1;
 
     // Y-axis rotation matrix
-    TransformMatrix ymat;
+    TransformMatrix ymat{};
     ymat.d[0][0] = std::cos(ay);
     ymat.d[0][1] = 0;
     ymat.d[0][2] = -std::sin(ay);
@@ -87,7 +87,7 @@ ZoneUtilities::TransformMatrix ZoneUtilities::SetupTransform(const Vector& p, co
     ymat.d[3][3] = 1;
 
     // Z-axis rotation matrix
-    TransformMatrix zmat;
+    TransformMatrix zmat{};
     zmat.d[0][0] = std::cos(az);
     zmat.d[0][1] = std::sin(az);
     zmat.d[0][2] = 0;
@@ -105,7 +105,7 @@ ZoneUtilities::TransformMatrix ZoneUtilities::SetupTransform(const Vector& p, co
     zmat.d[3][2] = 0;
     zmat.d[3][3] = 1;
 
-    TransformMatrix tm;
+    TransformMatrix tm{};
     tm = MultiplyMatrix(smat, tmat);
     tm = MultiplyMatrix(tm, xmat);
     tm = MultiplyMatrix(tm, ymat);

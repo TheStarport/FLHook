@@ -336,13 +336,14 @@ ClientData& ClientId::GetData() const { return FLHook::Clients()[value]; }
 
 Action<std::wstring, Error> ClientId::GetPlayerIp() const
 {
+    /*
     const CDPClientProxy* cdpClient = FLHook::clientProxyArray[value - 1];
     // clang-format off
     if (!cdpClient)
     {
-    
+        //TODO: Rewrite this whole thing
         // I hate labels, but it allows our inline asm to escape properly
-        invalid:
+        //invalid:
         return { cpp::fail(Error::InvalidClientId) };
         // clang-format on
     }
@@ -358,7 +359,7 @@ Action<std::wstring, Error> ClientId::GetPlayerIp() const
     long sizeOfIp = sizeof wIp;
     long dataType = 1;
     // TODO: Reimplement with Xbyak
-    /*__asm {
+    __asm {
 		push 0 ; flags
 		lea edx, address
 		push edx ; address
@@ -391,7 +392,7 @@ Action<std::wstring, Error> ClientId::GetPlayerIp() const
 		call dword ptr[ecx+0x08] ; Release
     }*/
 
-    return { std::wstring(wIp) };
+    throw std::exception();
 }
 
 EngineState ClientId::GetEngineState() const
@@ -465,7 +466,7 @@ Action<void, Error> ClientId::SaveChar() const
     pub::Save(value, 1);
     MemUtils::WriteProcMem(jmp, testAl.data(), testAl.size()); // restore
 
-    const auto& data = FLHook::Clients()[value];
+    //const auto& data = FLHook::Clients()[value];
 
     // Save account data
     // TODO: write to DB
@@ -667,7 +668,8 @@ Action<void, Error> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
         setEquipItem.mounted = item.mounted;
         setEquipItem.mission = item.mission;
 
-        if (const uint len = strlen(item.hardPoint.value); len && item.hardPoint.value != "BAY")
+        static const std::string bayHp = "BAY";
+        if (const uint len = strlen(item.hardPoint.value); len && item.hardPoint.value != bayHp)
         {
             setEquipItem.hardPointLen = static_cast<ushort>(len + 1); // add 1 for the null - char* is a null-terminated string in C++
         }
