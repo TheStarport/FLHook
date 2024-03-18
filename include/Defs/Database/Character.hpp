@@ -31,6 +31,7 @@ struct Equipment
 struct Character
 {
         bsoncxx::oid _id;
+        std::string accountId;
         std::string characterName;
         int money;
         int rank;
@@ -38,6 +39,7 @@ struct Character
         std::optional<std::string> repGroup;
         std::optional<Vector> pos;
         std::optional<Vector> rot;
+        std::string voice;
         int interfaceState;
         float hullStatus;
         float baseHullStatus;
@@ -52,8 +54,8 @@ struct Character
         int64 shipHash;
         int64 system;
         int64 totalTimePlayed;
-        std::optional<Costume> baseCostume;
-        std::optional<Costume> commCostume;
+        Costume baseCostume;
+        Costume commCostume;
         std::vector<FLCargo> cargo;
         std::vector<FLCargo> baseCargo;
         std::vector<Equipment> equipment;

@@ -9,31 +9,6 @@
 #include "API/Utils/TempBan.hpp"
 #include "Core/IpResolver.hpp"
 
-bool LoginInnerBefore(const SLoginInfo& li, ClientId client)
-{
-    // The startup cache disables reading of the banned file. Check this manually on login and boot the player if they are banned.
-    if (auto acc = client.GetAccount().Unwrap())
-    {
-        const auto dir = acc.GetDirectoryName().Unwrap();
-
-        char DataPath[MAX_PATH];
-        GetUserDataPath(DataPath);
-
-        const std::wstring path = std::format(L"{}\\Accts\\MultiPlayer\\{}\\banned", StringUtils::stows(std::string(DataPath)), dir);
-
-        if (std::filesystem::exists(path))
-        {
-            acc.Ban();
-            acc.Logout();
-            return false;
-        }
-    }
-
-    FLHook::GetAccountManager().OnLogin(client);
-
-    return true;
-}
-
 bool IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
 {
     TryHook
@@ -97,8 +72,9 @@ void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
 {
     Logger::Log(LogLevel::Trace, std::format(L"Login(\n\tClientId client = {}\n)", client));
 
-    if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip && LoginInnerBefore(li, client))
+    if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip)
     {
+        FLHook::GetAccountManager().Login(li.account, client);
         CallServerPreamble { Server.Login(li, client.GetValue()); }
         CallServerPostamble(true, );
     }

@@ -5,14 +5,14 @@
 struct Account
 {
         std::string _id;
-        std::vector<Character> characters;
-        bool banned;
-        int64 scheduledUnbanDate;
-        int64 cash;
+        std::vector<bsoncxx::oid> characters;
+        bool banned = false;
+        int64 scheduledUnbanDate = 0;
+        int64 cash = 0;
         std::optional<std::vector<std::string>> gameRoles;
         std::optional<std::vector<std::string>> webRoles;
         std::optional<std::string> hashedToken;
         std::optional<std::vector<byte>> salt;
-        std::string username;
-        std::string passwordHash;
+        std::optional<std::string> username;
+        std::optional<std::string> passwordHash;
 };

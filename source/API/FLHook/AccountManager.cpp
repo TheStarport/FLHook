@@ -6,442 +6,101 @@
 
 #include <stduuid/uuid.h>
 
-VanillaLoadData ConvertCharacterToVanillaData(const Character& character)
+void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& character)
 {
-  VanillaLoadData vanData;
+    std::wstring wCharName = StringUtils::stows(character.characterName);
+    data->name = reinterpret_cast<const ushort*>(wCharName.c_str());
 
-  std::wstring wCharName = StringUtils::stows(character.characterName);
-  vanData.name	= reinterpret_cast<const ushort*>(wCharName.c_str());
+    // Play time
+    data->datetimeHigh = static_cast<uint>((character.totalTimePlayed & 0xFFFFFFFF00000000LL) >> 32);
+    data->datetimeLow = static_cast<uint>(character.totalTimePlayed & 0xFFFFFFFFLL);
 
-  vanData.shipHash = character.shipHash;
-  vanData.money = character.money;
-  vanData.numOfKills = character.killCount;
-  vanData.numOfSuccessMissions = character.missionSuccessCount;
-  vanData.numOfFailedMissions = character.missionFailureCount;
-  vanData.hullStatus = character.hullStatus;
-  vanData.baseHullStatus = character.baseHullStatus;
-  vanData.currentBase = character.currentBase;
-  vanData.lastDockedBase = character.lastDockedBase;
-  vanData.currentRoom = character.currentRoom;
-  vanData.system = character.system;
-  vanData.rank = character.rank;
-  vanData.reputationId = character.reputationId;
-  vanData.interfaceState = character.interfaceState;
+    data->shipHash = character.shipHash;
+    data->money = character.money;
+    data->numOfKills = character.killCount;
+    data->numOfSuccessMissions = character.missionSuccessCount;
+    data->numOfFailedMissions = character.missionFailureCount;
+    data->hullStatus = character.hullStatus;
+    data->baseHullStatus = character.baseHullStatus;
+    data->currentBase = character.currentBase;
+    data->lastDockedBase = character.lastDockedBase;
+    data->currentRoom = character.currentRoom;
+    data->system = character.system;
+    data->rank = character.rank;
+    data->reputationId = character.reputationId;
+    data->interfaceState = character.interfaceState;
 
+    data->baseCostume = character.baseCostume;
+    data->commCostume = character.commCostume;
 
-  Costume cos;
-  vanData.commCostume = character.commCostume.value_or(cos);
-  vanData.commCostume = character.commCostume.value_or(cos);
+    Vector vec = { 0.0f, 0.0f, 0.0f };
+    data->pos = character.pos.value_or(vec);
+    data->rot = EulerMatrix(character.rot.value_or(vec));
 
-  Vector vec = {0.0f,0.0f,0.0f};
-  vanData.pos = character.pos.value_or(vec);
-  vanData.rot = EulerMatrix(character.rot.value_or(vec));
-
-
-  for(const auto rep : character.reputation)
-  {
-	Reputation::Relation relation;
-	relation.hash = rep.first;
-	relation.reptuation = rep.second;
-	vanData.repList.push_back(relation);
-  }
-
-  st6::list<EquipDesc> equipAndCargo;
-
-  for(const auto& cargo : character.cargo)
-  {
-	EquipDesc equipDesc;
-
-	equipDesc.id = cargo.id;
-	equipDesc.mounted = false;
-	equipDesc.count = cargo.amount;
-	equipDesc.health = cargo.health;
-
-	equipAndCargo.push_back(equipDesc);
-  }
-  for (const auto& equip : character.equipment)
-  {
-	EquipDesc equipDesc;
-
-	equipDesc.id = equip.id;
-	equipDesc.health = equip.health;
-	equipDesc.mounted = equip.mounted;
-	equipDesc.hardPoint.value = StringAlloc(equip.hardPoint.c_str(), false);
-
-	equipAndCargo.push_back(equipDesc);
-  }
-
-  vanData.currentEquipAndCargo = equipAndCargo;
-
-  st6::list<EquipDesc> baseEquipAndCargo;
-
-  for(const auto& cargo : character.baseCargo)
-  {
-	EquipDesc equipDesc;
-
-	equipDesc.id = cargo.id;
-	equipDesc.mounted = false;
-	equipDesc.count = cargo.amount;
-	equipDesc.health = cargo.health;
-
-	baseEquipAndCargo.push_back(equipDesc);
-  }
-  for (const auto& equip : character.baseEquipment)
-  {
-	EquipDesc equipDesc;
-
-	equipDesc.id = equip.id;
-	equipDesc.health = equip.health;
-	equipDesc.mounted = equip.mounted;
-	equipDesc.hardPoint.value = StringAlloc(equip.hardPoint.c_str(), false);
-
-
-	baseEquipAndCargo.push_back(equipDesc);
-  }
-  vanData.currentEquipAndCargo = baseEquipAndCargo;
-
-  for(const auto& col : character.collisionGroups)
-  {
-	CollisionGroupDesc colDesc = {};
-	colDesc.id = col.first;
-	colDesc.health = col.second;
-	vanData.currentCollisionGroups.push_back(colDesc);
-  }
-
-  for(const auto& col : character.baseCollisionGroups)
-  {
-	CollisionGroupDesc colDesc = {};
-	colDesc.id = col.first;
-	colDesc.health = col.second;
-	vanData.baseCollisionGroups.push_back(colDesc);
-  }
-
-  return vanData;
-}
-
-Character ConvertVanillaDataToCharacter(VanillaLoadData& vanData)
-{
-  Character character;
-
-  std::wstring wCharName = reinterpret_cast<const wchar_t*>(vanData.name.c_str());
-  character.shipHash = vanData.shipHash;
-  character.money = vanData.money;
-  character.killCount = vanData.numOfKills;
-  character.missionSuccessCount = vanData.numOfSuccessMissions;
-  character.missionFailureCount = vanData.numOfFailedMissions;
-  character.hullStatus = vanData.hullStatus;
-  character.baseHullStatus = vanData.baseHullStatus;
-  character.currentBase	= vanData.currentBase;
-  character.lastDockedBase = vanData.lastDockedBase;
-  character.currentRoom = vanData.currentRoom;
-  character.system = vanData.system;
-  character.rank = vanData.rank;
-  character.reputationId = vanData.reputationId;
-  character.interfaceState = vanData.interfaceState;
-
-  Costume cos;
-  character.commCostume.value_or(cos) = vanData.commCostume;
-  character.baseCostume.value_or(cos) = vanData.baseCostume;
-
-  Vector vec = {0.0f,0.0f,0.0f};
-  character.pos.value_or(vec) = vanData.pos;
-  EulerMatrix(character.rot.value_or(vec)) = vanData.rot;
-
-  for(const auto& rep: vanData.repList)
-  {
-	character.reputation.insert({rep.hash,rep.reptuation});
-  }
-
-  for (const auto& equip : vanData.currentEquipAndCargo)
-  {
-	Equipment equipment = {};
-	FLCargo cargo = {};
-
-	bool isCommodity = false;
-	pub::IsCommodity(equip.archId, isCommodity);
-	if(!isCommodity)
-	{
-	  equipment.id = equip.archId;
-	  equipment.health = equip.health;
-	  equipment.mounted = equip.mounted;
-	  equipment.hardPoint = equip.hardPoint.value;
-	  character.equipment.emplace_back(equipment);
-	}
-	else
-	{
-	  cargo.id = equip.archId;
-	  cargo.health = equip.health;
-	  cargo.isMissionCargo = equip.mission;
-	  cargo.amount = equip.count;
-	  character.cargo.emplace_back(cargo);
-	}
-  }
-
-  for (const auto& equip : vanData.baseEquipAndCargo)
-  {
-	Equipment equipment = {};
-	FLCargo cargo = {};
-
-	bool isCommodity = false;
-	pub::IsCommodity(equip.archId, isCommodity);
-	if(!isCommodity)
-	{
-	  equipment.id = equip.archId;
-	  equipment.health = equip.health;
-	  equipment.mounted = equip.mounted;
-	  equipment.hardPoint = equip.hardPoint.value;
-	  character.baseEquipment.emplace_back(equipment);
-	}
-	else
-	{
-	  cargo.id = equip.archId;
-	  cargo.health = equip.health;
-	  cargo.isMissionCargo = equip.mission;
-	  cargo.amount = equip.count;
-	  character.baseCargo.emplace_back(cargo);
-	}
-  }
-
-  for(const auto& col : vanData.currentCollisionGroups)
-  {
-	character.collisionGroups.insert({col.id,col.health});
-  }
-    for(const auto& col : vanData.baseCollisionGroups)
-  {
-	character.baseCollisionGroups.insert({col.id,col.health});
-  }
-
-	return character;
-}
-
-
-using CreateCharacterLoadingData = void*(__thiscall*)(PlayerData* data, const char* buffer);
-CreateCharacterLoadingData createCharacterLoadingData = reinterpret_cast<CreateCharacterLoadingData>(0x77090);
-
-void VanillaLoadData::SetRelation(Reputation::Relation relation)
-{
-    static DWORD server = DWORD(GetModuleHandleA("server.dll"));
-
-    using sub_6D58B40Type = int(__thiscall*)(void* ptr, void* unk1, uint unk2, Reputation::Relation* fac);
-    static auto sub_6D58B40 = sub_6D58B40Type(DWORD(server) + 0x78B40);
-
-    sub_6D58B40(&repList, repList.end(), 1, &relation);
-}
-
-void AccountManager::LoadCharacter(VanillaLoadData* data, std::wstring_view characterName)
-{
-    // DWORD server = DWORD(GetModuleHandleA("server.dll"));
-    // loadDetour.UnDetour();
-    // auto result = loadDetour.GetOriginalFunc()(unk, edx, filename, data);
-    // loadDetour.Detour(LoadDetour);
-    //  return result;
-
-    data->baseCostume = {
-        2223155968, 3144214861, 2479975689, 2264565644, {0, 0, 0, 0, 0, 0, 0, 0},
-            0
-    };
-    data->commCostume = {
-        2223155968, 3144214861, 2479975689, 2264565644, {0, 0, 0, 0, 0, 0, 0, 0},
-            0
-    };
-    data->money = 42069;
-    data->rank = 69;
-    data->baseHullStatus = 0.9f;
-    data->hullStatus = 0.8f;
-    data->currentBase = 0;
-    data->pos = { 30000.0f, 0, -25000.0f };
-    data->rot = EulerMatrix({ 0.0f, 0.0f, 0.0f });
-    data->datetimeHigh = 0;
-    data->datetimeLow = 0;
-    data->descripStrId = 0;
-    data->name = reinterpret_cast<const unsigned short*>(characterName.data());
-    data->description = reinterpret_cast<const unsigned short*>(L"08/16/23 19:29:11");
-    data->interfaceState = 1;
-    data->lastDockedBase = CreateID("Li01_01_Base");
-    data->currentRoom = 0;
-    data->numOfKills = 5;
-    data->numOfFailedMissions = 6;
-    data->numOfSuccessMissions = 7;
-    data->shipHash = CreateID("co_elite2");
-    Archetype::GetShip(data->shipHash)->get_undamaged_collision_group_list(data->baseCollisionGroups);
-    Archetype::GetShip(data->shipHash)->get_undamaged_collision_group_list(data->currentCollisionGroups);
-    data->system = CreateID("li03");
-    const auto voice = "trent_voice";
-    memcpy(data->voice, voice, strlen(voice) + 1);
-    data->voiceLen = 11;
-    /*{
-        EquipDesc powerplant;
-        powerplant.mounted = true;
-        powerplant.health = 1;
-        powerplant.archId = CreateID("li_elite_power01");
-        powerplant.count = 1;
-        powerplant.id = 1;
-        powerplant.make_internal();
-
-        EquipDesc engine;
-        engine.mounted = true;
-        engine.health = 1;
-        engine.archId = CreateID("ge_le_engine_01");
-        engine.count = 1;
-        engine.id = 2;
-        engine.make_internal();
-
-        EquipDesc scanner;
-        scanner.mounted = true;
-        scanner.health = 1;
-        scanner.archId = CreateID("ge_s_scanner_01");
-        scanner.count = 1;
-        scanner.id = 34;
-        scanner.make_internal();
-
-        EquipDesc tractorBeam;
-        tractorBeam.mounted = true;
-        tractorBeam.health = 1;
-        tractorBeam.archId = CreateID("ge_s_tractor_01");
-        tractorBeam.count = 1;
-        tractorBeam.id = 35;
-        tractorBeam.make_internal();
-
-        EquipDesc shield;
-        shield.set_equipped(true);
-        const char* shieldHPName = "HpShield01";
-        CacheString str((PCHAR)shieldHPName);
-        shield.set_hardpoint(str);
-        shield.set_status(1.0f);
-        shield.set_arch_id(CreateID("shield03_mark04_hf"));
-
-        data->baseEquipAndCargo.push_back(powerplant);
-        data->baseEquipAndCargo.push_back(engine);
-        data->baseEquipAndCargo.push_back(scanner);
-        data->baseEquipAndCargo.push_back(tractorBeam);
-        data->baseEquipAndCargo.push_back(shield);
-
-        data->currentEquipAndCargo.push_back(powerplant);
-        data->currentEquipAndCargo.push_back(engine);
-        data->currentEquipAndCargo.push_back(scanner);
-        data->currentEquipAndCargo.push_back(tractorBeam);
-        data->currentEquipAndCargo.push_back(shield);
-    }*/
-
+    for (const auto rep : character.reputation)
     {
-        EquipDesc powerplant;
-
-        const uint archId = CreateID("li_elite_power01");
-        CacheString hardpointName;
-        hardpointName.value = (char*)"";
-        const float health = 1.0f;
-
-        powerplant.set_equipped(true);
-        powerplant.set_count(1);
-        powerplant.set_arch_id(archId);
-        if (strlen(hardpointName.value) == 0)
-        {
-            powerplant.make_internal();
-        }
-        else
-        {
-            powerplant.set_hardpoint(hardpointName);
-        }
-        if (health != 0.0f)
-        {
-            powerplant.set_status(health);
-        }
-
-        data->baseEquipAndCargo.push_back(powerplant);
-        data->currentEquipAndCargo.push_back(powerplant);
+        Reputation::Relation relation;
+        relation.hash = rep.first;
+        relation.reptuation = rep.second;
+        data->repList.push_back(relation);
     }
 
+    ushort id = 1;
+#define AddCargo(cargo, list)        \
+    EquipDesc equipDesc;             \
+    equipDesc.id = id++;             \
+    equipDesc.archId = cargo.id;     \
+    equipDesc.mounted = false;       \
+    equipDesc.count = cargo.amount;  \
+    equipDesc.health = cargo.health; \
+    list.push_back(equipDesc);
+
+#define AddEquip(equip, list)          \
+    EquipDesc equipDesc;               \
+    equipDesc.id = id++;               \
+    equipDesc.archId = equip.id;       \
+    equipDesc.health = equip.health;   \
+    equipDesc.mounted = equip.mounted; \
+    equipDesc.hardPoint.value = StringAlloc(equip.hardPoint.c_str(), false);
+
+    for (const auto& cargo : character.cargo)
     {
-        const bool isMission = false;
-        const int count = 5;
-        const uint archId = CreateID("commodity_gold");
-        EquipDesc cargo;
-        CacheString hardpointName;
-        hardpointName.value = (char*)"";
-        const float health = 0.5f;
-
-        cargo.set_equipped(false);
-        cargo.set_arch_id(archId);
-        if (count)
-        {
-            cargo.set_count(count);
-        }
-        if (strlen(hardpointName.value) == 0)
-        {
-            cargo.make_internal();
-        }
-        else
-        {
-            cargo.set_hardpoint(hardpointName);
-        }
-        if (health != 0.0f)
-        {
-            cargo.set_status(health);
-        }
-        if (isMission)
-        {
-            cargo.mission = isMission;
-        }
-
-        data->baseEquipAndCargo.push_back(cargo);
-        data->currentEquipAndCargo.push_back(cargo);
+        AddCargo(cargo, data->currentEquipAndCargo);
     }
 
+    for (const auto& equip : character.equipment)
     {
-        const Archetype::Ship* ship = Archetype::GetShip(data->shipHash);
-
-        auto cg = ship->collisionGroup;
-        while (cg)
-        {
-            if (std::string(cg->name.value) == "wing_port_lod1")
-            {
-                for (auto& colGrp : data->currentCollisionGroups)
-                {
-                    if (colGrp.id == cg->id)
-                    {
-                        // set health
-                        colGrp.health = 0.5f;
-                        break;
-                    }
-                }
-                break;
-            }
-            cg = cg->next;
-        }
+        AddEquip(equip, data->currentEquipAndCargo);
     }
 
-    EquipDesc engine;
-    engine.mounted = true;
-    engine.health = 1;
-    engine.archId = CreateID("ge_le_engine_01");
-    engine.count = 1;
-    engine.id = 2;
-    engine.make_internal();
+    id = 1;
+    for (const auto& cargo : character.baseCargo)
+    {
+        AddCargo(cargo, data->baseEquipAndCargo);
+    }
 
-    EquipDesc scanner;
-    scanner.mounted = true;
-    scanner.health = 1;
-    scanner.archId = CreateID("ge_s_scanner_01");
-    scanner.count = 1;
-    scanner.id = 34;
-    scanner.make_internal();
+    for (const auto& equip : character.baseEquipment)
+    {
+        AddEquip(equip, data->baseEquipAndCargo);
+    }
 
-    EquipDesc tractorBeam;
-    tractorBeam.mounted = true;
-    tractorBeam.health = 1;
-    tractorBeam.archId = CreateID("ge_s_tractor_01");
-    tractorBeam.count = 1;
-    tractorBeam.id = 35;
-    tractorBeam.make_internal();
+#undef AddEquip
+#undef AddCargo
 
-    data->currentEquipAndCargo.push_back(engine);
-    data->currentEquipAndCargo.push_back(tractorBeam);
-    data->currentEquipAndCargo.push_back(scanner);
-    data->baseEquipAndCargo.push_back(scanner);
-    data->baseEquipAndCargo.push_back(tractorBeam);
-    data->baseEquipAndCargo.push_back(engine);
+    // Collision groups
+    for (const auto& cg : character.baseCollisionGroups)
+    {
+        data->baseCollisionGroups.push_back({ static_cast<ushort>(cg.first), 0, cg.second });
+    }
 
-    data->tempCargoIdEnumerator = 37;
+    for (const auto& cg : character.collisionGroups)
+    {
+        data->currentCollisionGroups.push_back({ static_cast<ushort>(cg.first), 0, cg.second });
+    }
+
+    // Copy voice
+    memcpy(data->voice, character.voice.c_str(), character.voice.size() + 1);
+    data->voiceLen = character.voice.size() + 1;
 
     /*for (auto& visit : visitValues)
     {
@@ -481,24 +140,143 @@ void AccountManager::LoadCharacter(VanillaLoadData* data, std::wstring_view char
     }*/
 }
 
-AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(PlayerData* data, const uint clientId)
+Character ConvertVanillaDataToCharacter(VanillaLoadData* data)
 {
-    // TODO: Log account login
+    Character character;
 
-    // foreach character
-    std::string name = "e";
-    auto i = 0u;
-    for (; i < 2; i++)
+    std::wstring wCharName = reinterpret_cast<const wchar_t*>(data->name.c_str());
+    character.shipHash = data->shipHash;
+    character.money = data->money;
+    character.killCount = data->numOfKills;
+    character.missionSuccessCount = data->numOfSuccessMissions;
+    character.missionFailureCount = data->numOfFailedMissions;
+    character.hullStatus = data->hullStatus;
+    character.baseHullStatus = data->baseHullStatus;
+    character.currentBase = data->currentBase;
+    character.lastDockedBase = data->lastDockedBase;
+    character.currentRoom = data->currentRoom;
+    character.system = data->system;
+    character.rank = data->rank;
+    character.reputationId = data->reputationId;
+    character.interfaceState = data->interfaceState;
+
+    character.commCostume = data->commCostume;
+    character.baseCostume = data->baseCostume;
+
+    SYSTEMTIME sysTime;
+    FILETIME fileTime;
+    GetLocalTime(&sysTime);
+    SystemTimeToFileTime(&sysTime, &fileTime);
+    character.totalTimePlayed = static_cast<int64>(fileTime.dwHighDateTime) << 32 | fileTime.dwLowDateTime;
+
+    Vector vec = { 0.0f, 0.0f, 0.0f };
+    character.pos = data->pos;
+    character.rot = data->rot.ToEuler(true);
+
+    for (const auto& rep : data->repList)
     {
-        static std::array<char, 512> characterLoadingBuffer;
-        std::memset(characterLoadingBuffer.data(), 0, characterLoadingBuffer.size());
-        memcpy_s(characterLoadingBuffer.data(), characterLoadingBuffer.size(), name.c_str(), name.size());
-        auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->x050), characterLoadingBuffer.data()));
-        LoadCharacter(loadData, StringUtils::stows(name));
-        name += "e";
+        character.reputation.insert({ rep.hash, rep.reptuation });
     }
 
-    data->numberOfCharacters = i;
+    for (const auto& equip : data->currentEquipAndCargo)
+    {
+        Equipment equipment = {};
+        FLCargo cargo = {};
+
+        bool isCommodity = false;
+        pub::IsCommodity(equip.archId, isCommodity);
+        if (!isCommodity)
+        {
+            equipment.id = equip.archId;
+            equipment.health = equip.health;
+            equipment.mounted = equip.mounted;
+            equipment.hardPoint = equip.hardPoint.value;
+            character.equipment.emplace_back(equipment);
+        }
+        else
+        {
+            cargo.id = equip.archId;
+            cargo.health = equip.health;
+            cargo.isMissionCargo = equip.mission;
+            cargo.amount = equip.count;
+            character.cargo.emplace_back(cargo);
+        }
+    }
+
+    for (const auto& equip : data->baseEquipAndCargo)
+    {
+        Equipment equipment = {};
+        FLCargo cargo = {};
+
+        bool isCommodity = false;
+        pub::IsCommodity(equip.archId, isCommodity);
+        if (!isCommodity)
+        {
+            equipment.id = equip.archId;
+            equipment.health = equip.health;
+            equipment.mounted = equip.mounted;
+            equipment.hardPoint = equip.hardPoint.value;
+            character.baseEquipment.emplace_back(equipment);
+        }
+        else
+        {
+            cargo.id = equip.archId;
+            cargo.health = equip.health;
+            cargo.isMissionCargo = equip.mission;
+            cargo.amount = equip.count;
+            character.baseCargo.emplace_back(cargo);
+        }
+    }
+
+    for (const auto& col : data->currentCollisionGroups)
+    {
+        character.collisionGroups.insert({ col.id, col.health });
+    }
+    for (const auto& col : data->baseCollisionGroups)
+    {
+        character.baseCollisionGroups.insert({ col.id, col.health });
+    }
+
+    return character;
+}
+
+using CreateCharacterLoadingData = void*(__thiscall*)(PlayerData* data, const char* buffer);
+CreateCharacterLoadingData createCharacterLoadingData = reinterpret_cast<CreateCharacterLoadingData>(0x77090);
+
+void VanillaLoadData::SetRelation(Reputation::Relation relation)
+{
+    static DWORD server = DWORD(GetModuleHandleA("server.dll"));
+
+    using sub_6D58B40Type = int(__thiscall*)(void* ptr, void* unk1, uint unk2, Reputation::Relation* fac);
+    static auto sub_6D58B40 = sub_6D58B40Type(DWORD(server) + 0x78B40);
+
+    sub_6D58B40(&repList, repList.end(), 1, &relation);
+}
+
+AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(PlayerData* data, const uint clientId)
+{
+    const auto& account = accounts[clientId - 1];
+
+    for (auto& character : account.characters)
+    {
+        // Freelancer uses a temporary buffer to hold the character data
+        // We need to emulate this behaviour
+        static std::array<char, 512> characterLoadingBuffer;                          // Statically preallocate it
+        std::memset(characterLoadingBuffer.data(), 0, characterLoadingBuffer.size()); // Ensure that the buffer is empty every time
+
+        // Copy the character name into the buffer
+        memcpy_s(characterLoadingBuffer.data(), characterLoadingBuffer.size(), character.characterName.c_str(), character.characterName.size());
+
+        // Pass the buffer into the original function that we populate with our data
+        auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->x050), characterLoadingBuffer.data()));
+
+        // Copy the data from our DB type to the internal type
+        ConvertCharacterToVanillaData(loadData, character);
+    }
+
+    auto& internalAccount = accounts[clientId - 1];
+
+    data->numberOfCharacters = account.characters.size();
 
     data->systemId = 0;
     data->shipId = 0;
@@ -509,15 +287,11 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
     data->createdShipId = 0;
     data->baseRoomId = 0;
 
-    data->account = accounts[clientId - 1].account;
+    data->account = internalAccount.internalAccount;
     data->account->dunno4[1] = clientId;
-    wcscpy_s(data->accId, instance->currentAccountString.c_str());
+    wcscpy_s(data->accId, internalAccount.internalAccount->accId);
     data->onlineId = clientId;
     data->exitedBase = 0;
-
-    data->account->numberOfCharacters = i;
-
-    instance->currentAccountString = L"";
 
     return LoginReturnCode::Success;
 }
@@ -564,7 +338,7 @@ void AccountManager::LoadNewPlayerFLInfo()
         else if (key == "system")
         {
             newPlayerTemplate.system = ini.get_value_string();
-            // TODO: look up and validate system
+            // TODO: Validate system
         }
         else if (key == "base")
         {
@@ -591,14 +365,14 @@ void AccountManager::LoadNewPlayerFLInfo()
     }
 }
 
-bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCharacterInfo* character)
+bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCharacterInfo* characterInfo)
 {
     const auto db = NewChar::TheDB;
 
-    const auto package = db->FindPackage(character->package);
-    const auto faction = db->FindFaction(character->nickName);
-    const auto pilot = db->FindPilot(character->pilot);
-    const auto base = db->FindBase(character->base);
+    const auto package = db->FindPackage(characterInfo->package);
+    const auto faction = db->FindFaction(characterInfo->nickName);
+    const auto pilot = db->FindPilot(characterInfo->pilot);
+    const auto base = db->FindBase(characterInfo->base);
 
     if (!package || !faction || !pilot || !base)
     {
@@ -607,12 +381,12 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
 
     static std::array<char, 512> characterNameBuffer;
     std::memset(characterNameBuffer.data(), 0, characterNameBuffer.size());
-    memcpy_s(characterNameBuffer.data(), characterNameBuffer.size(), character->charname, sizeof(character->charname));
+    memcpy_s(characterNameBuffer.data(), characterNameBuffer.size(), characterInfo->charname, sizeof(characterInfo->charname));
     auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->x050), characterNameBuffer.data()));
 
-    loadData->currentBase = newPlayerTemplate.base == "%%HOME_BASE%%" ? character->base : CreateID(newPlayerTemplate.base.c_str());
+    loadData->currentBase = newPlayerTemplate.base == "%%HOME_BASE%%" ? characterInfo->base : CreateID(newPlayerTemplate.base.c_str());
     // TODO: System needs to be reverse engineered. loadData->system = newPlayerTemplate.system == "%%HOME_SYSTEM%%%" ? character
-    loadData->name = reinterpret_cast<unsigned short*>(character->charname);
+    loadData->name = reinterpret_cast<unsigned short*>(characterInfo->charname);
 
     const auto costDesc = GetCostumeDescriptions();
     costDesc->get_costume(pilot->body.c_str(), loadData->baseCostume);
@@ -633,10 +407,10 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
         }
     }
 
-   // auto& mongo = FLHook::GetDatabase();
-   // mongo.CreateCharacter(StringUtils::wstos(data->accId), loadData);
+    auto& mongo = FLHook::GetDatabase();
+    auto character = ConvertVanillaDataToCharacter(loadData);
+    mongo.CreateCharacter(StringUtils::wstos(data->accId), character);
 
-    LoadCharacter(loadData, character->charname);
     return true;
 }
 
@@ -656,7 +430,7 @@ void AccountManager::PlayerDbInitDetour(PlayerDB* db, void* edx, uint unk, bool 
     std::mt19937 generator(seq);
     uuids::uuid_random_generator gen{ generator };
 
-    //static auto lastAccountStr = (wchar_t**)(DWORD(GetModuleHandleA("server.dll")) + 0x84EFC);
+    // static auto lastAccountStr = (wchar_t**)(DWORD(GetModuleHandleA("server.dll")) + 0x84EFC);
 
     for (int i = 0; i < accounts.size(); ++i)
     {
@@ -738,14 +512,14 @@ void __fastcall AccountManager::CreateAccountInitFromFolderBypass(CAccount* acco
 
     for (auto& acc : accounts)
     {
-        if (!acc.account)
+        if (!acc.internalAccount)
         {
             account->accId[36] = L'\0';
             account->accId[37] = L'\0';
             account->accId[38] = L'\0';
             account->accId[39] = L'\0';
             account->dunno2[0] = 36;
-            acc.account = account;
+            acc.internalAccount = account;
             break;
         }
     }
@@ -802,4 +576,38 @@ void AccountManager::DeleteCharacter(const std::wstring& characterName)
     //
 }
 
-void AccountManager::OnLogin(const ClientId& client) { currentAccountString = accounts[client.GetValue() - 1].account->accId; }
+void AccountManager::Login(const std::wstring& info, const ClientId& client)
+{
+    auto& db = FLHook::GetDatabase();
+    // TODO: Make accounts a dynamic config field
+    auto accountsCollection = db.GetCollection("accounts");
+    if (!accountsCollection.has_value())
+    {
+        return;
+    }
+
+    std::string accId = StringUtils::wstos(info);
+
+    const auto accountBson = accountsCollection->GetItemByIdRaw(accId);
+    if (!accountBson.has_value())
+    {
+        using bsoncxx::builder::basic::kvp;
+        using bsoncxx::builder::basic::make_array;
+        using bsoncxx::builder::basic::make_document;
+        const auto doc = make_document(kvp("_id", accId));
+
+        accountsCollection->InsertIntoCollection(doc.view());
+        return;
+    }
+
+    auto& accountRaw = accountBson.value();
+    auto accountResult = rfl::bson::read<Account>(accountRaw.view().data(), accountRaw.view().length());
+    if (accountResult.error().has_value())
+    {
+        return;
+    }
+
+    const auto account = accountResult.value();
+    auto& internalAcc = accounts[client.GetValue() - 1];
+    internalAcc.account = account;
+}

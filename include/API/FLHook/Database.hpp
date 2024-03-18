@@ -32,6 +32,7 @@ class Collection
 
         mongocxx::collection& GetRaw() { return collection; }
         void CreateIndex(std::string_view field, bool ascending = true);
+        bool InsertIntoCollection(bsoncxx::document::view document);
         bool InsertIntoCollection(std::string_view document);
         bool OverwriteItem(std::string_view id, std::string_view document);
         bool UpdateItemById(std::string_view id, bsoncxx::document::view value);

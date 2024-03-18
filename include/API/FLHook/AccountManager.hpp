@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Defs/Database/Account.hpp"
 #include "Utils/Detour.hpp"
 
 // TODO: Reputation list and affiliation needs to be figured.
@@ -12,10 +13,10 @@ struct VanillaLoadData
         uint datetimeHigh;                                    // 548
         uint datetimeLow;                                     // 552
         uint shipHash;                                        // 556
-        uint money;                                           // 560
-        uint numOfKills;                                      // 564
-        uint numOfSuccessMissions;                            // 568
-        uint numOfFailedMissions;                             // 572
+        int money;                                           // 560
+        int numOfKills;                                      // 564
+        int numOfSuccessMissions;                            // 568
+        int numOfFailedMissions;                             // 572
         float hullStatus;                                     // 576
         st6::list<EquipDesc> currentEquipAndCargo;            // 580
         st6::list<CollisionGroupDesc> currentCollisionGroups; // 592
@@ -29,8 +30,8 @@ struct VanillaLoadData
         Vector pos;                                           // 648 - 656
         Matrix rot;                                           // 660 - 692
         uint startingRing;                                    // 696
-        uint rank;                                            // 700
-        st6::vector<Reputation::Relation> repList;            // 704, TODO:Find out if this rep list is either a vector or map
+        int rank;                                            // 700
+        st6::vector<Reputation::Relation> repList;            // 704
         uint reputationId;                                    // 720, see Reputation::get_id();
         Costume commCostume;                                  // 724 - 776
         uint voiceLen;                                        // 780
@@ -39,7 +40,7 @@ struct VanillaLoadData
         uint tempCargoIdEnumerator;                           // 872
         st6::string prefilledWeaponGroupIni;                  // 886
         st6::list<FmtStr> neuralNetLog;                       // 902 - probably wrong, 'log' entries from character file. Also 'mostly' SP only.
-        uint interfaceState;                                  // 914
+        int interfaceState;                                  // 914
         uint unused2;                                         // 918
         BinarySearchTree<VisitEntry> visitLists;              // 922
                                                               // 934
@@ -70,8 +71,9 @@ struct NewPlayerTemplate
 
 struct AccountData
 {
-        CAccount* account;
-        std::unordered_map<std::string, VanillaLoadData> characters;
+        CAccount* internalAccount;
+        Account account;
+        std::vector<Character> characters;
 };
 
 struct PlayerDbLoadUserDataAssembly final : Xbyak::CodeGenerator
@@ -101,10 +103,7 @@ class AccountManager
             Success
         };
 
-        // The current account string we are loading
-        std::wstring currentAccountString;
-        static void LoadCharacter(VanillaLoadData* data, std::wstring_view characterName);
-        static __stdcall LoginReturnCode AccountLoginInternal(PlayerData* data, uint clientId);
+        static LoginReturnCode __stdcall AccountLoginInternal(PlayerData* data, uint clientId);
         static void LoadNewPlayerFLInfo();
 
         // Detours/Assembly
@@ -115,7 +114,7 @@ class AccountManager
         inline static std::unique_ptr<FunctionDetour<DbInitType>> dbInitDetour;
         inline static std::unique_ptr<FunctionDetour<OnPlayerSaveType>> onPlayerSaveDetour;
         inline static std::unique_ptr<FunctionDetour<OnCreateNewCharacterType>> onCreateNewCharacterDetour;
-        bool static __fastcall OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCharacterInfo* character);
+        bool static __fastcall OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCharacterInfo* characterInfo);
         bool static __fastcall OnPlayerSave(PlayerData* data);
         void static __fastcall PlayerDbInitDetour(PlayerDB* db, void* edx, uint unk, bool unk2);
         void static __fastcall CreateAccountInitFromFolderBypass(CAccount* account, void* edx, char* dir);
@@ -126,5 +125,5 @@ class AccountManager
 
     public:
         void DeleteCharacter(const std::wstring& characterName);
-        void OnLogin(const ClientId& client);
+        void Login(const std::wstring& info, const ClientId& client);
 };
