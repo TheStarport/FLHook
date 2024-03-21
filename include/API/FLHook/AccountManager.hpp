@@ -115,7 +115,7 @@ class AccountManager
         inline static std::unique_ptr<FunctionDetour<OnPlayerSaveType>> onPlayerSaveDetour;
         inline static std::unique_ptr<FunctionDetour<OnCreateNewCharacterType>> onCreateNewCharacterDetour;
         bool static __fastcall OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCharacterInfo* characterInfo);
-        bool static __fastcall OnPlayerSave(PlayerData* data);
+        bool static __fastcall OnPlayerSave(PlayerData* pd);
         void static __fastcall PlayerDbInitDetour(PlayerDB* db, void* edx, uint unk, bool unk2);
         void static __fastcall CreateAccountInitFromFolderBypass(CAccount* account, void* edx, char* dir);
 

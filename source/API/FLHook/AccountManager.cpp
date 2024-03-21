@@ -1,6 +1,8 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/AccountManager.hpp"
+
+#include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
 #include "API/Utils/Reflection.hpp"
 
@@ -43,11 +45,11 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
     {
         Reputation::Relation relation{};
         relation.hash = rep.first;
-        relation.reptuation = rep.second;
+        relation.reputation = rep.second;
         data->repList.push_back(relation);
     }
 
-    ushort id = 1;
+    ushort id = 34;
 #define AddCargo(cargo, list)        \
     EquipDesc equipDesc;             \
     equipDesc.id = id++;             \
@@ -63,7 +65,8 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
     equipDesc.archId = equip.id;       \
     equipDesc.health = equip.health;   \
     equipDesc.mounted = equip.mounted; \
-    equipDesc.hardPoint.value = StringAlloc(equip.hardPoint.c_str(), false);
+    equipDesc.hardPoint.value = StringAlloc(equip.hardPoint.c_str(), false); \
+    list.push_back(equipDesc);
 
     for (const auto& cargo : character.cargo)
     {
@@ -75,7 +78,7 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
         AddEquip(equip, data->currentEquipAndCargo);
     }
 
-    id = 1;
+    id = 34;
     for (const auto& cargo : character.baseCargo)
     {
         AddCargo(cargo, data->baseEquipAndCargo);
@@ -178,9 +181,9 @@ Character ConvertVanillaDataToCharacter(VanillaLoadData* data)
     character.pos = data->pos;
     character.rot = data->rot.ToEuler(true);
 
-    for (const auto& rep : data->repList)
+    for (const auto& [hash, reputation] : data->repList)
     {
-        character.reputation.insert({ rep.hash, rep.reptuation });
+        character.reputation.insert({ hash, reputation });
     }
 
     for (const auto& equip : data->currentEquipAndCargo)
@@ -398,7 +401,7 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
     auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->x050), characterNameBuffer.data()));
 
     loadData->currentBase = newPlayerTemplate.base == "%%HOME_BASE%%" ? characterInfo->base : CreateID(newPlayerTemplate.base.c_str());
-    newPlayerTemplate.system =
+    loadData->system =
         newPlayerTemplate.system == "%%HOME_SYSTEM%%%" ? Universe::get_base(characterInfo->base)->systemId : CreateID(newPlayerTemplate.system.c_str());
 
     loadData->name = reinterpret_cast<unsigned short*>(characterInfo->charname);
@@ -424,7 +427,6 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
 
         const auto loadOut = Loadout::Get(CreateID(package->loadout.c_str()));
 
-        // TODO: Verify this map traverse works.
         for (const EquipDesc* equip = loadOut->first; equip != loadOut->end; equip++)
         {
             EquipDesc e = *equip;
@@ -448,7 +450,114 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
     return SaveCharacter(character, true);
 }
 
-bool AccountManager::OnPlayerSave(PlayerData* data) { return true; }
+bool AccountManager::OnPlayerSave(PlayerData* pd)
+{
+    auto& client = FLHook::GetClient(ClientId(pd->onlineId));
+    Character character;
+
+    character.characterName = StringUtils::wstos(client.characterName);
+    character.shipHash = pd->shipArchetype;
+    character.money = pd->money;
+    character.killCount = pd->numKills;
+    character.missionSuccessCount = pd->numMissionSuccesses;
+    character.missionFailureCount = pd->numMissionFailures;
+    character.hullStatus = pd->relativeHealth;
+    character.baseHullStatus = pd->baseHullStatus;
+    character.currentBase = pd->baseId;
+    character.lastDockedBase = pd->lastBaseId;
+    character.currentRoom = pd->baseRoomId;
+    character.system = pd->systemId;
+    character.rank = pd->rank;
+    character.reputationId = pd->reputation;
+    character.interfaceState = pd->interfaceState;
+
+    character.commCostume = pd->commCostume;
+    character.baseCostume = pd->baseCostume;
+
+    character.voice = pd->voice;
+
+    SYSTEMTIME sysTime;
+    FILETIME fileTime;
+    GetLocalTime(&sysTime);
+    SystemTimeToFileTime(&sysTime, &fileTime);
+    character.totalTimePlayed = static_cast<int64>(fileTime.dwHighDateTime) << 32 | fileTime.dwLowDateTime;
+
+    Vector vec = { 0.0f, 0.0f, 0.0f };
+    character.pos = pd->position;
+    character.rot = pd->orientation.ToEuler(true);
+
+    uint affiliation;
+    uint rank;
+    unsigned char relationCount;
+    FmtStr firstName, secondName;
+    const unsigned short* name;
+    std::vector<Reputation::Relation> relations;
+    relations.resize(Reputation::group_count());
+    Reputation::Vibe::Get(pd->reputation, affiliation, rank, relationCount, relations.data(), firstName, secondName, name);
+    for (const auto& [hash, reputation] : relations)
+    {
+        character.reputation.insert({ hash, reputation });
+    }
+
+    for (const auto& equip : pd->equipAndCargo.equip)
+    {
+        Equipment equipment = {};
+        FLCargo cargo = {};
+
+        bool isCommodity = false;
+        pub::IsCommodity(equip.archId, isCommodity);
+        if (!isCommodity)
+        {
+            equipment.id = equip.archId;
+            equipment.health = equip.health;
+            equipment.mounted = equip.mounted;
+            equipment.hardPoint = equip.hardPoint.value;
+            character.equipment.emplace_back(equipment);
+        }
+        else
+        {
+            cargo.id = equip.archId;
+            cargo.health = equip.health;
+            cargo.isMissionCargo = equip.mission;
+            cargo.amount = equip.count;
+            character.cargo.emplace_back(cargo);
+        }
+    }
+
+    for (const auto& equip : pd->baseEquipAndCargo.equip)
+    {
+        Equipment equipment = {};
+        FLCargo cargo = {};
+
+        bool isCommodity = false;
+        pub::IsCommodity(equip.archId, isCommodity);
+        if (!isCommodity)
+        {
+            equipment.id = equip.archId;
+            equipment.health = equip.health;
+            equipment.mounted = equip.mounted;
+            equipment.hardPoint = equip.hardPoint.value;
+            character.baseEquipment.emplace_back(equipment);
+        }
+        else
+        {
+            cargo.id = equip.archId;
+            cargo.health = equip.health;
+            cargo.isMissionCargo = equip.mission;
+            cargo.amount = equip.count;
+            character.baseCargo.emplace_back(cargo);
+        }
+    }
+
+    for (const auto& col : pd->collisionGroupDesc)
+    {
+        character.collisionGroups.insert({ col.id, col.health });
+    }
+    for (const auto& col : pd->baseCollisionGroups)
+    {
+        character.baseCollisionGroups.insert({ col.id, col.health });
+    }
+}
 
 std::wstring newAccountString;
 void AccountManager::PlayerDbInitDetour(PlayerDB* db, void* edx, uint unk, bool unk2)
@@ -606,8 +715,37 @@ AccountManager::AccountManager()
 
 void AccountManager::DeleteCharacter(const std::wstring& characterName)
 {
-    //
-    //
+    auto db = FLHook::GetDbClient();
+    auto session = db->start_session();
+    session.start_transaction();
+
+    try
+    {
+        // TODO: Handle soft deletes
+        auto accountsCollection = db->database("FLHook")["accounts"];
+
+        std::string accId = StringUtils::wstos(characterName);
+
+        using bsoncxx::builder::basic::kvp;
+        using bsoncxx::builder::basic::make_array;
+        using bsoncxx::builder::basic::make_document;
+
+        const auto findDoc = make_document(kvp("_id", accId));
+        const auto ret = accountsCollection.find_one_and_delete(findDoc.view());
+
+        session.commit_transaction();
+        Logger::Log(LogLevel::Info, std::format(L"Successfully hard deleted character: {}", characterName));
+    }
+    catch (bsoncxx::exception& ex)
+    {
+        Logger::Log(LogLevel::Err, std::format(L"Error hard deleted character ({}): {}", characterName, StringUtils::stows(ex.what())));
+        session.abort_transaction();
+    }
+    catch (mongocxx::exception& ex)
+    {
+        Logger::Log(LogLevel::Err, std::format(L"Error hard deleted character ({}): {}", characterName, StringUtils::stows(ex.what())));
+        session.abort_transaction();
+    }
 }
 
 void AccountManager::Login(const std::wstring& info, const ClientId& client)
@@ -695,8 +833,8 @@ void AccountManager::Login(const std::wstring& info, const ClientId& client)
 bool AccountManager::SaveCharacter(const Character& newCharacter, const bool isNewCharacter)
 {
     using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_document;
     using bsoncxx::builder::basic::make_array;
+    using bsoncxx::builder::basic::make_document;
 
     const auto db = FLHook::GetDbClient();
     auto session = db->start_session();

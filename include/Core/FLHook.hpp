@@ -166,6 +166,7 @@ class FLHook final
         static bool GetShipInspect(uint& ship, IObjInspectImpl*& inspect, uint& dunno) { return getShipInspect(ship, inspect, dunno); }
 
         static ClientList& Clients() { return *instance->clientList; }
+        static ClientData& GetClient(ClientId client);
         static Database& GetDatabase() { return *instance->database; }
         static mongocxx::pool::entry GetDbClient();
         static InfocardManager& GetInfocardManager() { return *instance->infocardManager; }

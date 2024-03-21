@@ -125,7 +125,6 @@ void FLHook::ClearClientInfo(ClientId client)
     info.playerData = nullptr;
 
     info.characterName = L"";
-    info.characterFile = L"";
 
     info.dieMsg = DieMsgType::All;
     info.ship = ShipId();

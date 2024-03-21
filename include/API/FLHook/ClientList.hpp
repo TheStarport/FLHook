@@ -1,14 +1,14 @@
 #pragma once
 
+#include "Defs/Database/Account.hpp"
+
 struct ClientData
 {
         ClientId id;
-        CAccount* account = nullptr;
+        Account* account = nullptr;
         std::wstring_view characterName{};
         PlayerData* playerData = nullptr;
         bool isValid = false;
-
-        std::wstring characterFile{};
 
         ShipId ship{};
         ShipId shipOld{};

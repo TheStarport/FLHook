@@ -31,7 +31,7 @@ void __stdcall IServerImplHook::DisConnect(ClientId client, EFLConnection conn)
 
     if (!skip)
     {
-        static PerfTimer timer(StringUtils::stows(__FUNCTION__), 100);
+        static PerfTimer timer(FUNCTION_W, 100);
         timer.Start();
         TryHook
         {

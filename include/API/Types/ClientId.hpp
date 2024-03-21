@@ -21,9 +21,6 @@ class DLL ClientId
         Action<void, Error> AdjustCash(int amount) const;
 
         [[nodiscard]]
-        bool IsValidClientId() const;
-
-        [[nodiscard]]
         static uint GetClientIdFromCharacterName(std::wstring_view name);
 
     public:
@@ -36,6 +33,9 @@ class DLL ClientId
         explicit operator uint() const noexcept { return value; }
         bool operator==(const ClientId next) const { return value == next.value; }
         explicit operator bool() const;
+
+        [[nodiscard]]
+        bool IsValidClientId() const;
 
         // Returns the underlying value of the ClientId, it is generally recommended to not use this.
         [[nodiscard]]

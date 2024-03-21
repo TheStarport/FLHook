@@ -34,7 +34,6 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
     TryHook
     {
         auto& info = client.GetData();
-        info.characterFile = StringUtils::stows(charId.charFilename);
 
         if (const auto charName = client.GetCharacterName().Handle(); charBefore != charName)
         {
@@ -42,14 +41,14 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
 
             if (FLHook::GetConfig().userCommands.userCmdHelp)
             {
-                client.Message(L"To get a list of available commands, type \"/help\" in chat.");
+                (void)client.Message(L"To get a list of available commands, type \"/help\" in chat.");
             }
 
             int hold;
             auto cargoList = client.EnumCargo(hold).Raw();
             if (cargoList.has_error())
             {
-                client.Kick();
+                (void)client.Kick();
                 return;
             }
 
@@ -70,6 +69,12 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
             {
                 GroupId(info.groupId).AddMember(client);
             }
+            else
+            {
+                info.groupId = 0;
+            }
+
+            info.characterName = charName;
 
             // Assign their random formation id.
             // Numbers are between 0-20 (inclusive)
@@ -100,7 +105,7 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
 {
     Logger::Log(LogLevel::Trace, std::format(L"CharacterSelect(\n\tClientId client = {}\n)", client));
 
-    const std::wstring charName = StringUtils::stows(cid.charFilename);
+    std::wstring charName = StringUtils::stows(static_cast<const char*>(cid.charFilename));
     const auto skip = CallPlugins(&Plugin::OnCharacterSelect, client, std::wstring_view(charName));
 
     CheckForDisconnect;
@@ -136,7 +141,7 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
 {
     Logger::Log(LogLevel::Trace, std::format(L"DestroyCharacter(\n\tClientId client = {}\n)", client));
 
-    const std::wstring charName = StringUtils::stows(cid.charFilename);
+    const std::wstring charName = StringUtils::stows(static_cast<const char*>(cid.charFilename));
 
     if (const auto skip = CallPlugins(&Plugin::OnCharacterDelete, client, std::wstring_view(charName)); !skip)
     {

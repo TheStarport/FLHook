@@ -187,14 +187,14 @@ class IServerImplHook
 
 #define CallServerPreamble                                             \
     {                                                                  \
-        static PerfTimer timer(StringUtils::stows(__FUNCTION__), 100); \
+        static PerfTimer timer(FUNCTION_W, 100); \
         timer.Start();                                                 \
         TryHook                                                        \
         {
 #define CallServerPostamble(catchArgs, rval)                                                                          \
     }                                                                                                                 \
     CatchHook({                                                                                                       \
-        Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", StringUtils::stows(__FUNCTION__))); \
+        Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", FUNCTION_W)); \
         bool ret = catchArgs;                                                                                         \
         if (!ret)                                                                                                     \
         {                                                                                                             \
@@ -220,7 +220,7 @@ class IServerImplHook
     {                                                                                                                                         \
         if (client.GetData().disconnected)                                                                                                    \
         {                                                                                                                                     \
-            Logger::Log(LogLevel::Debug, std::format(L"Ignoring disconnected client in {} id={}", StringUtils::stows(__FUNCTION__), client)); \
+            Logger::Log(LogLevel::Debug, std::format(L"Ignoring disconnected client in {} id={}", FUNCTION_W, client)); \
             return;                                                                                                                           \
         };                                                                                                                                    \
     }

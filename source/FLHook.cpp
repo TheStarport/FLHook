@@ -27,6 +27,8 @@
 #include "API/Utils/TempBan.hpp"
 #include "API/Utils/ZoneUtilities.hpp"
 
+#include "API/Exceptions/InvalidClientException.hpp"
+
 #include <mongocxx/exception/exception.hpp>
 
 // ReSharper disable CppClangTidyClangDiagnosticCastFunctionTypeStrict
@@ -210,6 +212,16 @@ DWORD __stdcall FLHook::Offset(const BinaryType type, AddressList address)
         case BinaryType::RemoteClient: return reinterpret_cast<DWORD>(remoteClient) + offset;
         default: throw std::runtime_error("Provided BinaryType is not loaded."); // NOLINT(clang-diagnostic-covered-switch-default)
     }
+}
+
+ClientData& FLHook::GetClient(ClientId client)
+{
+    if (!client.IsValidClientId())
+    {
+        throw InvalidClientException(client);
+    }
+
+    return Clients()[client];
 }
 
 mongocxx::pool::entry FLHook::GetDbClient() { return instance->database->AcquireClient(); }

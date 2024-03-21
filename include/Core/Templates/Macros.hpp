@@ -93,3 +93,6 @@ public:                                                                         
     GetCommandsFunc(commandArray);                                                                                                      \
                                                                                                                                         \
 private:
+
+#define FUNCTION reinterpret_cast<const char*>(__FUNCTION__)
+#define FUNCTION_W reinterpret_cast<const wchar_t*>(__FUNCTIONW__)

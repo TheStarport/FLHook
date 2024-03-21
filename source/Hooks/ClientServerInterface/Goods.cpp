@@ -41,7 +41,7 @@ bool IServerImplHook::GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId clien
     }
     CatchHook({
         Logger::Log(LogLevel::Trace,
-                                std::format(L"Exception in {} (client={} ({}))", StringUtils::stows(__FUNCTION__), client, client.GetCharacterName().Unwrap()));
+                                std::format(L"Exception in {} (client={} ({}))", FUNCTION_W, client, client.GetCharacterName().Unwrap()));
     })
 
         return true;

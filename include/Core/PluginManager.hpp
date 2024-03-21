@@ -110,7 +110,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
                     }
                 }
             }
-            CatchHook({ Logger::Log(LogLevel::Err, std::format(L"Exception {}", StringUtils::stows(__FUNCTION__))); });
+            CatchHook({ Logger::Log(LogLevel::Err, std::format(L"Exception {}", StringUtils::stows(FUNCTION))); });
 
             if constexpr (!returnTypeIsVoid)
             {

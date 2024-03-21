@@ -1,4 +1,4 @@
 ---
 CheckOptions:
   - key: performance-unnecessary-value-param.AllowedTypes
-    value: ClientId;SystemId;ObjectId
+    value: ClientId;SystemId;ObjectId;BaseId;EquipmentId;GroupId;RepId;RepGroupId;ShipId;AccountId
