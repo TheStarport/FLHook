@@ -16,21 +16,6 @@
             "hidden": true
         },
         {
-            "name": "ninja-multi",
-            "inherits": "default",
-            "displayName": "Ninja Multi-Config",
-            "generator": "Ninja Multi-Config"
-        },
-        {
-            "name": "vs2022",
-            "inherits": "default",
-            "displayName": "VS2022",
-            "generator": "Visual Studio 17 2022",
-            "architecture": "Win32",
-            "toolset": "ClangCL",
-            "hidden": true
-        },
-        {
             "name": "vs2022-debug",
             "inherits": "vs2022",
             "displayName": "VS2022 Debug",
@@ -45,6 +30,36 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
+        },
+        {
+            "name": "ninja-debug",
+            "inherits": "default",
+            "displayName": "Ninja Clang Debug",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_COMPILER": "clang-cl",
+                "CMAKE_CXX_COMPILER": "clang-cl",
+                "CFLAGS": "-m32",
+                "CXXFLAGS": "-m32"
+            }
+        },
+        {
+            "name": "ninja-release",
+            "inherits": "ninja-debug",
+            "displayName": "Ninja Clang Release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "vs2022",
+            "inherits": "default",
+            "displayName": "VS2022",
+            "generator": "Visual Studio 17 2022",
+            "architecture": "Win32",
+            "toolset": "ClangCL",
+            "hidden": true
         }
     ]
 }

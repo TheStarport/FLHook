@@ -104,12 +104,19 @@ target_link_libraries(${PROJECT_NAME} PRIVATE "${SDK_PATH}/lib/FLCoreRemoteClien
 target_link_libraries(${PROJECT_NAME} PRIVATE "${SDK_PATH}/lib/FLCoreServer.lib")
 
 # Build Scripts
+if (${CMAKE_GENERATOR} STREQUAL "Ninja")
+    set(OUTPUT_DIR ${CMAKE_BINARY_DIR})
+else()
+    set(OUTPUT_DIR ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE_INIT})
+endif()
+
+message(STATUS "Set binary output to: ${OUTPUT_DIR}")
 
 find_package(Python3 COMPONENTS Interpreter)
 if (${Python3_FOUND} STREQUAL "TRUE" AND ${Python3_Interpreter_FOUND} STREQUAL "TRUE")
     message(STATUS "Adding post build step")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/scripts/post_build.py -o ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE_INIT}
+        COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/scripts/post_build.py -o ${OUTPUT_DIR}
     )
 else()
     message(STATUS "Python3 interpreter not found. Not adding post build step.")
