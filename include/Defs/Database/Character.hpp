@@ -1,9 +1,10 @@
 #pragma once
 
-#include <bsoncxx/oid.hpp>
 #include "rfl/bson.hpp"
 
-//Cargo is a namespace in Freelancer, appended with FL to avoid name conflicts
+#include <bsoncxx/oid.hpp>
+
+// Cargo is a namespace in Freelancer, appended with FL to avoid name conflicts
 struct FLCargo
 {
         int64 id;
@@ -30,30 +31,30 @@ struct Equipment
 
 struct Character
 {
-        bsoncxx::oid _id;
+        bson_oid_t _id;
         std::string accountId;
         std::string characterName;
-        int money;
-        int rank;
-		int64 reputationId;
+        int money = 0;
+        int rank = 0;
+		int64 reputationId = 0;
         std::optional<std::string> repGroup;
         std::optional<Vector> pos;
         std::optional<Vector> rot;
         std::string voice;
-        int interfaceState;
-        float hullStatus;
-        float baseHullStatus;
-        bool canDock;
-        bool canTradeLane;
-        int64 lastDockedBase;
-		int64 currentBase;
-        int64 currentRoom;
-        int killCount;
-        int missionFailureCount;
-        int missionSuccessCount;
-        int64 shipHash;
-        int64 system;
-        int64 totalTimePlayed;
+        int interfaceState = 0;
+        float hullStatus = 1.f;
+        float baseHullStatus = 1.f;
+        bool canDock = true;
+        bool canTradeLane = true;
+        int64 lastDockedBase = 0;
+		int64 currentBase = 0;
+        int64 currentRoom = 0;
+        int killCount = 0;
+        int missionFailureCount = 0;
+        int missionSuccessCount = 0;
+        int64 shipHash = 0;
+        int64 system = 0;
+        int64 totalTimePlayed = 0;
         Costume baseCostume;
         Costume commCostume;
         std::vector<FLCargo> cargo;

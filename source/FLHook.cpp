@@ -77,7 +77,7 @@ FLHook::FLHook()
     clientList = new ClientList();
     tempbanManager = new TempBanManager();
     personalityHelper = new PersonalityHelper();
-	database = new Database(flhookConfig->databaseConfig.uri);
+    database = new Database(flhookConfig->databaseConfig.uri);
     accountManager = new AccountManager();
 
     flProc = GetModuleHandle(nullptr);
@@ -211,6 +211,8 @@ DWORD __stdcall FLHook::Offset(const BinaryType type, AddressList address)
         default: throw std::runtime_error("Provided BinaryType is not loaded."); // NOLINT(clang-diagnostic-covered-switch-default)
     }
 }
+
+mongocxx::pool::entry FLHook::GetDbClient() { return instance->database->AcquireClient(); }
 
 Action<pub::AI::Personality, Error> FLHook::GetPersonality(const std::wstring& pilotNickname)
 {

@@ -66,7 +66,7 @@ struct NewPlayerTemplate
         std::vector<EquipDesc> equipment;
         std::vector<EquipDesc> cargo;
 
-        uint ship;
+        uint ship = 0;
 };
 
 struct AccountData
@@ -124,6 +124,7 @@ class AccountManager
         AccountManager();
 
     public:
-        void DeleteCharacter(const std::wstring& characterName);
-        void Login(const std::wstring& info, const ClientId& client);
+        static bool SaveCharacter(const Character& newCharacter, bool isNewCharacter);
+        static void DeleteCharacter(const std::wstring& characterName);
+        static void Login(const std::wstring& info, const ClientId& client);
 };

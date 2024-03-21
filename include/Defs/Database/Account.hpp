@@ -5,9 +5,9 @@
 struct Account
 {
         std::string _id;
-        std::vector<bsoncxx::oid> characters;
+        std::vector<bson_oid_t> characters;
         bool banned = false;
-        int64 scheduledUnbanDate = 0;
+        std::optional<int64> scheduledUnbanDate = 0;
         int64 cash = 0;
         std::optional<std::vector<std::string>> gameRoles;
         std::optional<std::vector<std::string>> webRoles;

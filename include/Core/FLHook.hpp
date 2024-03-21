@@ -4,6 +4,8 @@
 
 #include "AddressList.hpp"
 
+#include <mongocxx/pool.hpp>
+
 class InternalApi;
 class IServerImplHook;
 class IEngineHook;
@@ -165,6 +167,7 @@ class FLHook final
 
         static ClientList& Clients() { return *instance->clientList; }
         static Database& GetDatabase() { return *instance->database; }
+        static mongocxx::pool::entry GetDbClient();
         static InfocardManager& GetInfocardManager() { return *instance->infocardManager; }
         static TempBanManager& GetTempBanManager() { return *instance->tempbanManager; }
         static LastHitInformation GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }

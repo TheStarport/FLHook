@@ -1,9 +1,11 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/AccountManager.hpp"
-
 #include "API/FLHook/Database.hpp"
+#include "API/Utils/Reflection.hpp"
 
+#include <mongocxx/exception/error_code.hpp>
+#include <mongocxx/exception/write_exception.hpp>
 #include <stduuid/uuid.h>
 
 void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& character)
@@ -39,7 +41,7 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
 
     for (const auto rep : character.reputation)
     {
-        Reputation::Relation relation;
+        Reputation::Relation relation{};
         relation.hash = rep.first;
         relation.reptuation = rep.second;
         data->repList.push_back(relation);
@@ -144,7 +146,8 @@ Character ConvertVanillaDataToCharacter(VanillaLoadData* data)
 {
     Character character;
 
-    std::wstring wCharName = reinterpret_cast<const wchar_t*>(data->name.c_str());
+    std::wstring charName = reinterpret_cast<const wchar_t*>(data->name.c_str());
+    character.characterName = StringUtils::wstos(charName);
     character.shipHash = data->shipHash;
     character.money = data->money;
     character.killCount = data->numOfKills;
@@ -162,6 +165,8 @@ Character ConvertVanillaDataToCharacter(VanillaLoadData* data)
 
     character.commCostume = data->commCostume;
     character.baseCostume = data->baseCostume;
+
+    character.voice = data->voice;
 
     SYSTEMTIME sysTime;
     FILETIME fileTime;
@@ -299,7 +304,7 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
 void AccountManager::LoadNewPlayerFLInfo()
 {
     INI_Reader ini;
-    if (!ini.open("mpnewplayer.fl", false) || !ini.find_header("Player"))
+    if (!ini.open("mpnewcharacter.fl", false) || !ini.find_header("Player"))
     {
         // TODO: Log
         return;
@@ -307,7 +312,8 @@ void AccountManager::LoadNewPlayerFLInfo()
 
     while (ini.read_value())
     {
-        std::string key = ini.get_name();
+        const std::string key = ini.get_name_ptr();
+        // TODO: add more copy possible data fields, like pos, voice, etc
         if (key == "initial_rep")
         {
             newPlayerTemplate.initialRep = ini.get_value_string();
@@ -353,6 +359,11 @@ void AccountManager::LoadNewPlayerFLInfo()
         {
             newPlayerTemplate.visitValues[ini.get_value_int(0)] = ini.get_value_int(0);
         }
+        else if (key == "ship")
+        {
+            // TODO: Look up if valid ship
+            newPlayerTemplate.ship = CreateID(ini.get_value_string());
+        }
         else if (key == "%%PACKAGE%%")
         {
             newPlayerTemplate.hasPackage = true;
@@ -361,7 +372,9 @@ void AccountManager::LoadNewPlayerFLInfo()
 
     if (!newPlayerTemplate.hasPackage)
     {
-        // TODO: Log the absolute disaster this can cause
+        Logger::Log(LogLevel::Warn,
+                    L"Missing %%PACKAGE%% from mpnewplayer.fl. If the package is missing any data from a valid save file, "
+                    L"new characters can cause server and client crashes.");
     }
 }
 
@@ -385,12 +398,24 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
     auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->x050), characterNameBuffer.data()));
 
     loadData->currentBase = newPlayerTemplate.base == "%%HOME_BASE%%" ? characterInfo->base : CreateID(newPlayerTemplate.base.c_str());
-    // TODO: System needs to be reverse engineered. loadData->system = newPlayerTemplate.system == "%%HOME_SYSTEM%%%" ? character
+    newPlayerTemplate.system =
+        newPlayerTemplate.system == "%%HOME_SYSTEM%%%" ? Universe::get_base(characterInfo->base)->systemId : CreateID(newPlayerTemplate.system.c_str());
+
     loadData->name = reinterpret_cast<unsigned short*>(characterInfo->charname);
 
     const auto costDesc = GetCostumeDescriptions();
     costDesc->get_costume(pilot->body.c_str(), loadData->baseCostume);
     costDesc->get_costume(pilot->comm.c_str(), loadData->commCostume);
+    if (pilot->voice.empty())
+    {
+        strcpy_s(loadData->voice, "trent_voice");
+        loadData->voiceLen = 12;
+    }
+    else
+    {
+        strcpy_s(loadData->voice, pilot->voice.c_str());
+        loadData->voiceLen = pilot->voice.size() + 1; // +1 for null terminator
+    }
 
     if (newPlayerTemplate.hasPackage)
     {
@@ -402,16 +427,25 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
         // TODO: Verify this map traverse works.
         for (const EquipDesc* equip = loadOut->first; equip != loadOut->end; equip++)
         {
-            loadData->currentEquipAndCargo.push_back(*equip);
-            loadData->baseEquipAndCargo.push_back(*equip);
+            EquipDesc e = *equip;
+            // For some reason some loadouts contain valid, but totally empty entries
+            if (e.archId == 0)
+            {
+                continue;
+            }
+
+            loadData->currentEquipAndCargo.push_back(e);
+            loadData->baseEquipAndCargo.push_back(e);
         }
     }
+    else
+    {
+        loadData->shipHash = newPlayerTemplate.ship;
+    }
 
-    auto& mongo = FLHook::GetDatabase();
     auto character = ConvertVanillaDataToCharacter(loadData);
-    mongo.CreateCharacter(StringUtils::wstos(data->accId), character);
-
-    return true;
+    character.accountId = accounts[data->onlineId - 1].account._id;
+    return SaveCharacter(character, true);
 }
 
 bool AccountManager::OnPlayerSave(PlayerData* data) { return true; }
@@ -578,36 +612,149 @@ void AccountManager::DeleteCharacter(const std::wstring& characterName)
 
 void AccountManager::Login(const std::wstring& info, const ClientId& client)
 {
-    auto& db = FLHook::GetDatabase();
-    // TODO: Make accounts a dynamic config field
-    auto accountsCollection = db.GetCollection("accounts");
-    if (!accountsCollection.has_value())
-    {
-        return;
-    }
+    auto db = FLHook::GetDbClient();
+    auto session = db->start_session();
+    session.start_transaction();
 
-    std::string accId = StringUtils::wstos(info);
-
-    const auto accountBson = accountsCollection->GetItemByIdRaw(accId);
-    if (!accountBson.has_value())
+    try
     {
+        auto accountsCollection = db->database("FLHook")["accounts"];
+
+        std::string accId = StringUtils::wstos(info);
+
         using bsoncxx::builder::basic::kvp;
         using bsoncxx::builder::basic::make_array;
         using bsoncxx::builder::basic::make_document;
-        const auto doc = make_document(kvp("_id", accId));
 
-        accountsCollection->InsertIntoCollection(doc.view());
+        const auto findDoc = make_document(kvp("_id", accId));
+        const auto accountBson = accountsCollection.find_one(findDoc.view());
+
+        // If account does not exist
+        if (!accountBson.has_value())
+        {
+            // Create a new account with the provided ID
+            Account account{ accId };
+            auto bytes = rfl::bson::write(account);
+            bsoncxx::document::view doc{ reinterpret_cast<uint8_t*>(bytes.data()), bytes.size() };
+
+            accountsCollection.insert_one(doc);
+            accounts[client.GetValue() - 1].account = account;
+            session.commit_transaction();
+            return;
+        }
+
+        auto& accountRaw = accountBson.value();
+        auto accountResult = rfl::bson::read<Account>(accountRaw.view().data(), accountRaw.view().length());
+        if (accountResult.error().has_value())
+        {
+            // TODO: Log
+            session.abort_transaction();
+            return;
+        }
+
+        const auto account = accountResult.value();
+
+        auto& internalAcc = accounts[client.GetValue() - 1];
+        internalAcc.account = account;
+
+        // Convert vector to bson array
+        auto idArr = bsoncxx::builder::basic::array{};
+        for (auto& [bytes] : account.characters)
+        {
+            idArr.append(bsoncxx::oid(reinterpret_cast<const char*>(bytes), bsoncxx::oid::size()));
+        }
+
+        // Get all documents that are in the provided array
+        auto filter = make_document(kvp("_id", make_document(kvp("$in", idArr))));
+
+        for (auto cursor = accountsCollection.find(filter.view()); auto doc : cursor)
+        {
+            auto characterResult = rfl::bson::read<Character>(doc.data(), doc.length());
+            if (characterResult.error().has_value())
+            {
+                // TODO: Log what went wrong
+                session.abort_transaction();
+                return;
+            }
+
+            internalAcc.characters.emplace_back(characterResult.value());
+        }
+        session.commit_transaction();
         return;
     }
-
-    auto& accountRaw = accountBson.value();
-    auto accountResult = rfl::bson::read<Account>(accountRaw.view().data(), accountRaw.view().length());
-    if (accountResult.error().has_value())
+    catch (bsoncxx::exception& ex)
     {
-        return;
+        session.abort_transaction();
+    }
+    catch (mongocxx::exception& ex)
+    {
+        session.abort_transaction();
+    }
+}
+
+bool AccountManager::SaveCharacter(const Character& newCharacter, const bool isNewCharacter)
+{
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
+    using bsoncxx::builder::basic::make_array;
+
+    const auto db = FLHook::GetDbClient();
+    auto session = db->start_session();
+    session.start_transaction();
+
+    try
+    {
+        auto accounts = db->database("FLHook")["accounts"];
+        auto findCharDoc = make_document(kvp("characterName", newCharacter.characterName));
+
+        if (isNewCharacter)
+        {
+            if (const auto checkCharNameDoc = accounts.find_one(findCharDoc.view()); checkCharNameDoc.has_value())
+            {
+                throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
+                                                "Character already exists while trying to create new character");
+            }
+        }
+
+        // Upsert Character
+        auto bsonBytes = rfl::bson::write(newCharacter);
+        bsoncxx::document::view newCharDoc{ reinterpret_cast<uint8_t*>(bsonBytes.data()), bsonBytes.size() };
+
+        mongocxx::options::find_one_and_replace replaceOptions;
+        // Create if not exists
+        replaceOptions.upsert(true);
+        // The ID shouldn't change if we are updating, but lets make sure we get a valid ID back
+        replaceOptions.return_document(mongocxx::options::return_document::k_after);
+        // Only return the _id field to update the character list
+        replaceOptions.projection(make_document(kvp("_id", 1)));
+        auto replacedDoc = accounts.find_one_and_replace(findCharDoc.view(), newCharDoc, replaceOptions);
+
+        if (!replacedDoc.has_value())
+        {
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Unable to upsert a character.");
+        }
+
+        // Update account character list if new character
+        if (isNewCharacter)
+        {
+            const auto findAccDoc = make_document(kvp("_id", newCharacter.accountId));
+            const auto charUpdateDoc = make_document(kvp("$push", make_document(kvp("characters", replacedDoc->view()["_id"].get_oid()))));
+            accounts.update_one(findAccDoc.view(), charUpdateDoc.view());
+        }
+    }
+    catch (bsoncxx::exception& ex)
+    {
+        Logger::Log(LogLevel::Err, std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
+        session.abort_transaction();
+        return false;
+    }
+    catch (mongocxx::exception& ex)
+    {
+        Logger::Log(LogLevel::Err, std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
+        session.abort_transaction();
+        return false;
     }
 
-    const auto account = accountResult.value();
-    auto& internalAcc = accounts[client.GetValue() - 1];
-    internalAcc.account = account;
+    session.commit_transaction();
+    return true;
 }

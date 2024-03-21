@@ -13,6 +13,9 @@ if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     message(FATAL_ERROR "Only the Clang compiler is currently supported for FLHook")
 endif()
 
+# Ensure reflect-cpp doesn't fail with complex structs
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /clang:-fconstexpr-depth=2048")
+
 set(SOURCE_PATH "${PROJECT_SOURCE_DIR}/source" )
 set(FLHOOK_COPY_PATH "$ENV{FLHOOK_COPY_PATH}" )
 set(INCLUDE_PATH "${PROJECT_SOURCE_DIR}/include")
@@ -83,9 +86,11 @@ target_link_libraries("${PROJECT_NAME}" PRIVATE xbyak::xbyak)
 # MongoCXX
 find_package(mongocxx REQUIRED)
 find_package(bsoncxx REQUIRED)
+find_package(mongoc-1.0 CONFIG REQUIRED)
 include_directories(${LIBMONGOCXX_INCLUDE_DIR})
 include_directories(${LIBBSONCXX_INCLUDE_DIR})
 
+target_link_libraries(${PROJECT_NAME} PRIVATE mongo::mongoc_shared)
 target_link_libraries(${PROJECT_NAME} PRIVATE mongo::bsoncxx_shared)
 target_link_libraries(${PROJECT_NAME} PRIVATE mongo::mongocxx_shared)
 
