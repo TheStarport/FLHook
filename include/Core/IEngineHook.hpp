@@ -56,50 +56,61 @@ class IEngineHook
         static void __fastcall CLootInit(CLoot* loot, void* edx, CLoot::CreateParms* createParams);
         static void __fastcall CSolarInit(CSolar* solar, void* edx, CSolar::CreateParms* createParms);
 
-        struct CallAndRet : Xbyak::CodeGenerator
+        struct CallAndRet final : Xbyak::CodeGenerator
         {
                 CallAndRet(void* toCall, void* ret);
         };
 
-        inline static struct CShipInitAssembly : Xbyak::CodeGenerator
+        struct CShipInitAssembly final : Xbyak::CodeGenerator
         {
                 CShipInitAssembly();
-        } cShipInitAssembly;
+        };
 
-        inline static struct ShipDestroyAssembly : Xbyak::CodeGenerator
+        struct ShipDestroyAssembly final : Xbyak::CodeGenerator
         {
                 ShipDestroyAssembly();
-        } shipDestroyAssembly;
+        };
 
-        inline static struct GuidedHitAssembly : Xbyak::CodeGenerator
+        struct GuidedHitAssembly final : Xbyak::CodeGenerator
         {
                 GuidedHitAssembly();
-        } guidedHitAssembly;
+        };
 
-        inline static struct NonGunWeaponHitBaseAssembly : Xbyak::CodeGenerator
+        struct NonGunWeaponHitBaseAssembly final : Xbyak::CodeGenerator
         {
                 NonGunWeaponHitBaseAssembly();
-        } nonGunWeaponHitBaseAssembly;
+        };
 
-        inline static struct DisconnectPacketSentAssembly : Xbyak::CodeGenerator
+        struct DisconnectPacketSentAssembly final : Xbyak::CodeGenerator
         {
                 DisconnectPacketSentAssembly();
-        } disconnectPacketSentAssembly;
+        };
 
-        inline static struct AddDamageEntryAssembly : Xbyak::CodeGenerator
+        struct AddDamageEntryAssembly final : Xbyak::CodeGenerator
         {
                 AddDamageEntryAssembly();
-        } addDamageEntryAssembly;
+        };
 
-        inline static struct LaunchPositionAssembly : Xbyak::CodeGenerator
+        struct LaunchPositionAssembly final : Xbyak::CodeGenerator
         {
                 LaunchPositionAssembly();
-        } launchPositionAssembly;
+        };
 
-        inline static struct LoadReputationFromCharacterFileAssembly : Xbyak::CodeGenerator
+        struct LoadReputationFromCharacterFileAssembly final : Xbyak::CodeGenerator
         {
                 LoadReputationFromCharacterFileAssembly();
-        } loadReputationFromCharacterFileAssembly;
+        };
+
+        // The pointers are for
+
+        inline static CShipInitAssembly* cShipInitAssembly;
+        inline static ShipDestroyAssembly* shipDestroyAssembly;
+        inline static NonGunWeaponHitBaseAssembly* nonGunWeaponHitBaseAssembly;
+        inline static DisconnectPacketSentAssembly* disconnectPacketSentAssembly;
+        inline static AddDamageEntryAssembly* addDamageEntryAssembly;
+        inline static LoadReputationFromCharacterFileAssembly* loadReputationFromCharacterFileAssembly;
+        inline static LaunchPositionAssembly launchPositionAssembly;
+        inline static GuidedHitAssembly guidedHitAssembly;
 
         static bool AllowPlayerDamage(ClientId client, ClientId clientTarget);
 

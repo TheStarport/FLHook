@@ -9,113 +9,9 @@
 #include "Core/IpResolver.hpp"
 #include "Core/VTables.hpp"
 
-//TODO: @Laz rewrite patch system to use STL, this is OOOOLD
+#include "Core/FLPatch.hpp"
 
-FLHook::PatchInfo FLHook::exePatch = {
-    "flserver.exe",
-    0x0400000,
-    {
-      { 0x041B094, &IEngineHook::UpdateTime, 4, nullptr, false },
-      { 0x041BAB0, &IEngineHook::ElapseTime, 4, nullptr, false },
-      }
-};
-
-FLHook::PatchInfo FLHook::contentPatch = {
-    "content.dll",
-    0x6EA0000,
-    {
-      { 0x6FB358C, &IEngineHook::DockCall, 4, nullptr, false },
-      }
-};
-
-FLHook::PatchInfo FLHook::serverPatch = {
-    "server.dll",
-    0x6CE0000,
-    {
-      { 0x6D67274, PVOID(IEngineHook::shipDestroyAssembly.getCode()), 4, &IEngineHook::oldShipDestroyed, false },
-      { 0x6D641EC, PVOID(IEngineHook::addDamageEntryAssembly.getCode()), 4, nullptr, false },
-      { 0x6D67320, PVOID(IEngineHook::guidedHitAssembly.getCode()), 4, &IEngineHook::oldGuidedHit, false },
-      { 0x6D65448, PVOID(IEngineHook::guidedHitAssembly.getCode()), 4, nullptr, false },
-      { 0x6D67670, PVOID(IEngineHook::guidedHitAssembly.getCode()), 4, nullptr, false },
-      { 0x6D653F4, PVOID(IEngineHook::damageHitAssembly1.getCode()), 4, &IEngineHook::oldDamageHit, false },
-      { 0x6D672CC, PVOID(IEngineHook::damageHitAssembly1.getCode()), 4, nullptr, false },
-      { 0x6D6761C, PVOID(IEngineHook::damageHitAssembly1.getCode()), 4, nullptr, false },
-      { 0x6D65458, PVOID(IEngineHook::damageHitAssembly2.getCode()), 4, &IEngineHook::oldDamageHit2, false },
-      { 0x6D67330, PVOID(IEngineHook::damageHitAssembly2.getCode()), 4, nullptr, false },
-      { 0x6D67680, PVOID(IEngineHook::damageHitAssembly2.getCode()), 4, nullptr, false },
-      { 0x6D67668, PVOID(IEngineHook::nonGunWeaponHitBaseAssembly.getCode()), 4, &IEngineHook::oldNonGunWeaponHitsBase, false },
-      { 0x6D6420C, PVOID(IEngineHook::launchPositionAssembly.getCode()), 4, &IEngineHook::oldLaunchPosition, false },
-      { 0x6D648E0, &IEngineHook::FreeReputationVibe, 4, nullptr, false },
-      }
-};
-
-FLHook::PatchInfo FLHook::remoteClientPatch = {
-    "remoteclient.dll",
-    0x6B30000,
-    {
-      { 0x6B6BB80, &IServerImplHook::SendChat, 4, &rcSendChatMsg, false },
-      }
-};
-
-FLHook::PatchInfo FLHook::dalibPatch = {
-    "dalib.dll",
-    0x65C0000,
-    {
-      { 0x65C4BEC, PVOID(IEngineHook::disconnectPacketSentAssembly.getCode()), 4, &IEngineHook::oldDisconnectPacketSent, false },
-      }
-};
-
-bool FLHook::ApplyPatch(PatchInfo& pi)
-{
-    const HMODULE hMod = GetModuleHandleA(pi.BinName);
-    if (!hMod)
-    {
-        return false;
-    }
-
-    for (auto& entry : pi.entries)
-    {
-        char* address = reinterpret_cast<char*>(hMod) + (entry.address - pi.baseAddress);
-        if (!entry.oldValue)
-        {
-            entry.oldValue = new char[entry.size];
-            entry.allocated = true;
-        }
-        else
-        {
-            entry.allocated = false;
-        }
-
-        MemUtils::ReadProcMem(address, entry.oldValue, entry.size);
-        MemUtils::WriteProcMem(address, &entry.newValue, entry.size);
-    }
-
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool FLHook::RevertPatch(PatchInfo& pi)
-{
-    const HMODULE hMod = GetModuleHandleA(pi.BinName);
-    if (!hMod)
-    {
-        return false;
-    }
-
-    for (const auto& entry : pi.entries)
-    {
-        char* address = (char*)hMod + (entry.address - pi.baseAddress);
-        MemUtils::WriteProcMem(address, entry.oldValue, entry.size);
-        if (entry.allocated)
-        {
-            // ReSharper disable once CppDeletingVoidPointer
-            delete[] entry.oldValue;
-        }
-    }
-
-    return true;
-}
+std::vector<FLPatch> patches;
 
 inline static char repFreeFixOld[5];
 
@@ -179,9 +75,57 @@ void FLHook::InitHookExports()
     FLHook::contentDll = GetModuleHandle(L"content.dll");
     FLHook::remoteClient = GetModuleHandle(L"remoteclient.dll");
 
-    IpResolver::resolveThread = std::thread(IpResolver::ThreadResolver);
-
     getShipInspect = reinterpret_cast<GetShipInspectT>(Offset(BinaryType::Server, AddressList::GetInspect));
+    crcAntiCheat = reinterpret_cast<CRCAntiCheatT>(Offset(BinaryType::Server, AddressList::CrcAntiCheat));
+    IEngineHook::oldLoadReputationFromCharacterFile = reinterpret_cast<FARPROC>(Offset(BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 7);
+
+    IEngineHook::cShipInitAssembly = new IEngineHook::CShipInitAssembly;
+    IEngineHook::shipDestroyAssembly = new IEngineHook::ShipDestroyAssembly;
+    IEngineHook::nonGunWeaponHitBaseAssembly = new IEngineHook::NonGunWeaponHitBaseAssembly;
+    IEngineHook::disconnectPacketSentAssembly = new IEngineHook::DisconnectPacketSentAssembly;
+    IEngineHook::addDamageEntryAssembly = new IEngineHook::AddDamageEntryAssembly;
+    IEngineHook::loadReputationFromCharacterFileAssembly = new IEngineHook::LoadReputationFromCharacterFileAssembly;
+
+    patches.emplace_back(FLPatch("flserver.exe", {
+        {0x1B094, &IEngineHook::UpdateTime},
+        {0x1BAB0, &IEngineHook::ElapseTime},
+    }));
+
+    patches.emplace_back(FLPatch("content.dll", {
+        { 0x11358C, &IEngineHook::DockCall }
+    }));
+
+    patches.emplace_back(FLPatch("remoteclient.dll", {
+        { 0x3BB80, &IServerImplHook::SendChat, &rcSendChatMsg }
+    }));
+
+    patches.emplace_back(FLPatch("dalib.dll", {
+        { 0x4BEC, PVOID(IEngineHook::disconnectPacketSentAssembly->getCode()), &IEngineHook::oldDisconnectPacketSent }
+    }));
+
+    patches.emplace_back(FLPatch("server.dll", {
+        { 0x87274, PVOID(IEngineHook::shipDestroyAssembly->getCode()), &IEngineHook::oldShipDestroyed },
+        { 0x841EC, PVOID(IEngineHook::addDamageEntryAssembly->getCode()) },
+        { 0x87320, PVOID(IEngineHook::guidedHitAssembly.getCode()), &IEngineHook::oldGuidedHit },
+        { 0x85448, PVOID(IEngineHook::guidedHitAssembly.getCode()) },
+        { 0x87670, PVOID(IEngineHook::guidedHitAssembly.getCode()) },
+        { 0x853F4, PVOID(IEngineHook::damageHitAssembly1.getCode()), &IEngineHook::oldDamageHit },
+        { 0x872CC, PVOID(IEngineHook::damageHitAssembly1.getCode()) },
+        { 0x8761C, PVOID(IEngineHook::damageHitAssembly1.getCode()) },
+        { 0x85458, PVOID(IEngineHook::damageHitAssembly2.getCode()), &IEngineHook::oldDamageHit2 },
+        { 0x87330, PVOID(IEngineHook::damageHitAssembly2.getCode()) },
+        { 0x87680, PVOID(IEngineHook::damageHitAssembly2.getCode()) },
+        { 0x87668, PVOID(IEngineHook::nonGunWeaponHitBaseAssembly->getCode()), &IEngineHook::oldNonGunWeaponHitsBase },
+        { 0x8420C, PVOID(IEngineHook::launchPositionAssembly.getCode()), &IEngineHook::oldLaunchPosition },
+        { 0x848E0, &IEngineHook::FreeReputationVibe },
+    }));
+
+    for (auto& patch : patches)
+    {
+        patch.Apply();
+    }
+
+    IpResolver::resolveThread = std::thread(IpResolver::ThreadResolver);
 
     // install IServerImpl callbacks in remoteclient.dll
     auto* serverPointer = reinterpret_cast<char*>(&Server);
@@ -215,15 +159,6 @@ void FLHook::InitHookExports()
 
     #undef VtablePtr
 
-    // patch it
-    ApplyPatch(exePatch);
-    ApplyPatch(contentPatch);
-    //ApplyPatch(commonPatch);
-    //ApplyPatch(serverPatch);
-    ApplyPatch(remoteClientPatch);
-    ////ApplyPatch(dalibPatch);
-    ////ApplyPatch(dalibPatch);
-
     // DetourSendComm();
 
     // patch rep array free
@@ -245,17 +180,11 @@ void FLHook::InitHookExports()
     std::array<byte, 1> movEax = { 0xB8 };
     std::array<byte, 2> jumpEax = { 0xFF, 0xE0 };
 
-    auto loadRepFromCharFile = reinterpret_cast<const void*>(IEngineHook::loadReputationFromCharacterFileAssembly.getCode());
+    auto loadRepFromCharFile = reinterpret_cast<const void*>(IEngineHook::loadReputationFromCharacterFileAssembly->getCode());
 
     MemUtils::WriteProcMem(address, movEax.data(), 1);
     MemUtils::WriteProcMem(address + 1, &loadRepFromCharFile, 4);
     MemUtils::WriteProcMem(address + 5, jumpEax.data(), 2);
-
-    IEngineHook::oldLoadReputationFromCharacterFile =
-        reinterpret_cast<FARPROC>(Offset(BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 7);
-
-    // crc anti-cheat
-    crcAntiCheat = reinterpret_cast<CRCAntiCheatT>(Offset(BinaryType::Server, AddressList::CrcAntiCheat));
 
     // get CDPServer
     address = Offset(BinaryType::DaLib, AddressList::CdpServer);
@@ -409,12 +338,17 @@ void FLHook::UnloadHookExports()
     // TODO: Handle NPC spawns
     // Hk::Admin::ChangeNPCSpawn(false);
 
-    // restore other hooks
-    RevertPatch(exePatch);
-    RevertPatch(contentPatch);
-    RevertPatch(serverPatch);
-    RevertPatch(remoteClientPatch);
-    RevertPatch(dalibPatch);
+    for (auto& patch : patches)
+    {
+        patch.Revert();
+    }
+
+    delete IEngineHook::cShipInitAssembly;
+    delete IEngineHook::shipDestroyAssembly;
+    delete IEngineHook::nonGunWeaponHitBaseAssembly;
+    delete IEngineHook::disconnectPacketSentAssembly;
+    delete IEngineHook::addDamageEntryAssembly;
+    delete IEngineHook::loadReputationFromCharacterFileAssembly;
 
     // UnDetourSendComm();
 
