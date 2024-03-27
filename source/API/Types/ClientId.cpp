@@ -636,11 +636,6 @@ Action<void, Error> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
     auto& data = GetData();
 
     // Update FLHook's lists to make anticheat pleased.
-    if (&equip != &data.playerData->baseEquipAndCargo.equip)
-    {
-        data.playerData->baseEquipAndCargo.equip = equip;
-    }
-
     if (&equip != &data.playerData->equipAndCargo.equip)
     {
         data.playerData->equipAndCargo.equip = equip;
@@ -724,7 +719,6 @@ Action<void, Error> ClientId::AddEquip(uint goodId, const std::wstring& hardpoin
     ed.id = data.playerData->lastEquipId;
     ed.count = 1;
     ed.archId = goodId;
-    data.playerData->baseEquipAndCargo.add_equipment_item(ed, false);
 
     return { {} };
 }

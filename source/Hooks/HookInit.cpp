@@ -79,12 +79,8 @@ void FLHook::InitHookExports()
     crcAntiCheat = reinterpret_cast<CRCAntiCheatT>(Offset(BinaryType::Server, AddressList::CrcAntiCheat));
     IEngineHook::oldLoadReputationFromCharacterFile = reinterpret_cast<FARPROC>(Offset(BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 7);
 
-    IEngineHook::cShipInitAssembly = new IEngineHook::CShipInitAssembly;
-    IEngineHook::shipDestroyAssembly = new IEngineHook::ShipDestroyAssembly;
-    IEngineHook::nonGunWeaponHitBaseAssembly = new IEngineHook::NonGunWeaponHitBaseAssembly;
-    IEngineHook::disconnectPacketSentAssembly = new IEngineHook::DisconnectPacketSentAssembly;
-    IEngineHook::addDamageEntryAssembly = new IEngineHook::AddDamageEntryAssembly;
     IEngineHook::loadReputationFromCharacterFileAssembly = new IEngineHook::LoadReputationFromCharacterFileAssembly;
+    IEngineHook::disconnectPacketSentAssembly = new IEngineHook::DisconnectPacketSentAssembly;
 
     patches.emplace_back(FLPatch("flserver.exe", {
         {0x1B094, &IEngineHook::UpdateTime},
@@ -99,23 +95,11 @@ void FLHook::InitHookExports()
         { 0x3BB80, &IServerImplHook::SendChat, &rcSendChatMsg }
     }));
 
-    patches.emplace_back(FLPatch("dalib.dll", {
-        { 0x4BEC, PVOID(IEngineHook::disconnectPacketSentAssembly->getCode()), &IEngineHook::oldDisconnectPacketSent }
-    }));
+    //patches.emplace_back(FLPatch("dalib.dll", {
+    //    { 0x3FEC, PVOID(IEngineHook::disconnectPacketSentAssembly->getCode()), &IEngineHook::oldDisconnectPacketSent }
+    //}));
 
     patches.emplace_back(FLPatch("server.dll", {
-        { 0x87274, PVOID(IEngineHook::shipDestroyAssembly->getCode()), &IEngineHook::oldShipDestroyed },
-        { 0x841EC, PVOID(IEngineHook::addDamageEntryAssembly->getCode()) },
-        { 0x87320, PVOID(IEngineHook::guidedHitAssembly.getCode()), &IEngineHook::oldGuidedHit },
-        { 0x85448, PVOID(IEngineHook::guidedHitAssembly.getCode()) },
-        { 0x87670, PVOID(IEngineHook::guidedHitAssembly.getCode()) },
-        { 0x853F4, PVOID(IEngineHook::damageHitAssembly1.getCode()), &IEngineHook::oldDamageHit },
-        { 0x872CC, PVOID(IEngineHook::damageHitAssembly1.getCode()) },
-        { 0x8761C, PVOID(IEngineHook::damageHitAssembly1.getCode()) },
-        { 0x85458, PVOID(IEngineHook::damageHitAssembly2.getCode()), &IEngineHook::oldDamageHit2 },
-        { 0x87330, PVOID(IEngineHook::damageHitAssembly2.getCode()) },
-        { 0x87680, PVOID(IEngineHook::damageHitAssembly2.getCode()) },
-        { 0x87668, PVOID(IEngineHook::nonGunWeaponHitBaseAssembly->getCode()), &IEngineHook::oldNonGunWeaponHitsBase },
         { 0x8420C, PVOID(IEngineHook::launchPositionAssembly.getCode()), &IEngineHook::oldLaunchPosition },
         { 0x848E0, &IEngineHook::FreeReputationVibe },
     }));
@@ -343,11 +327,7 @@ void FLHook::UnloadHookExports()
         patch.Revert();
     }
 
-    delete IEngineHook::cShipInitAssembly;
-    delete IEngineHook::shipDestroyAssembly;
-    delete IEngineHook::nonGunWeaponHitBaseAssembly;
     delete IEngineHook::disconnectPacketSentAssembly;
-    delete IEngineHook::addDamageEntryAssembly;
     delete IEngineHook::loadReputationFromCharacterFileAssembly;
 
     // UnDetourSendComm();

@@ -2,15 +2,6 @@
 
 #include "Core/IEngineHook.hpp"
 
-IEngineHook::CShipInitAssembly::CShipInitAssembly()
-{
-    push(ecx);
-    push(dword[esp + 8]);
-    call(oldInitCShip);
-    call(CShipInit);
-    ret(4);
-}
-
 IEngineHook::CallAndRet::CallAndRet(void* toCall, void* ret)
 {
     push(ecx); // Reserve ecx
@@ -20,50 +11,35 @@ IEngineHook::CallAndRet::CallAndRet(void* toCall, void* ret)
     jmp(ret);
 }
 
-void __fastcall IEngineHook::CShipDestroy(CShip* ship)
+void __fastcall IEngineHook::CShipDestroy(CShip* ship, void* edx, char flag)
 {
-    using CShipDestroyType = void(__thiscall*)(CShip*);
-    static_cast<CShipDestroyType>(cShipVTable.GetOriginal(static_cast<ushort>(CShipVTable::Destructor)))(ship);
-
     CallPlugins(&Plugin::OnCShipDestroy, ship);
+
+    using CShipDestroyType = void(__thiscall*)(CShip*, char);
+    static_cast<CShipDestroyType>(cShipVTable.GetOriginal(static_cast<ushort>(CShipVTable::Destructor)))(ship, flag);
 }
 
-void __fastcall IEngineHook::CLootDestroy(CLoot* loot)
+void __fastcall IEngineHook::CLootDestroy(CLoot* loot, void* edx, char flag)
 {
-    using CLootDestroyType = void(__thiscall*)(CLoot*);
-    static_cast<CLootDestroyType>(cLootVTable.GetOriginal(static_cast<ushort>(CLootVTable::Destructor)))(loot);
-
     CallPlugins(&Plugin::OnCLootDestroy, loot);
+
+    using CLootDestroyType = void(__thiscall*)(CLoot*, char);
+    static_cast<CLootDestroyType>(cLootVTable.GetOriginal(static_cast<ushort>(CLootVTable::Destructor)))(loot, flag);
 }
 
-void __fastcall IEngineHook::CSolarDestroy(CSolar* solar)
+void __fastcall IEngineHook::CSolarDestroy(CSolar* solar, void* edx, char flag)
 {
-    using CSolarDestroyType = void(__thiscall*)(CSolar*);
-    static_cast<CSolarDestroyType>(cSolarVtable.GetOriginal(static_cast<ushort>(CSolarVTable::Destructor)))(solar);
-
     CallPlugins(&Plugin::OnCSolarDestroy, solar);
+
+    using CSolarDestroyType = void(__thiscall*)(CSolar*, char);
+    static_cast<CSolarDestroyType>(cSolarVtable.GetOriginal(static_cast<ushort>(CSolarVTable::Destructor)))(solar, flag);
 }
 
 int IEngineHook::FreeReputationVibe(const int& p1)
 {
-    struct Code : Xbyak::CodeGenerator
-    {
-            explicit Code(int p)
-            {
-                mov(eax, p);
-                push(eax);
-                mov(eax, dword[FLHook::serverDll]);
-                add(eax, 0x65C20);
-                call(eax);
-                add(esp, 4);
-            }
-    };
-
-    Code code(p1);
-
-    static auto call = code.getCode<void (*)()>();
-    call();
-
+    using FreeRepFunc = void (*)(const int& p);
+    static auto freeRep = FreeRepFunc(DWORD(FLHook::serverDll) + 0x65C20);
+    freeRep(p1);
     return Reputation::Vibe::Free(p1);
 }
 
@@ -212,7 +188,7 @@ IEngineHook::LoadReputationFromCharacterFileAssembly::LoadReputationFromCharacte
     pop(ecx);
     test(al, al);
     jz(".abort");
-    jmp(dword[oldLoadReputationFromCharacterFile]);
+    jmp(oldLoadReputationFromCharacterFile);
 
     inLocalLabel();
     L(".abort");

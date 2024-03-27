@@ -4,7 +4,7 @@
 #include "Core/IEngineHook.hpp"
 #include "Defs/FLHookConfig.hpp"
 
-int __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
+bool __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
 {
     TryHook
     {

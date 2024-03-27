@@ -30,7 +30,7 @@ class FLPatch
 
         void Apply()
         {
-            if (!applied)
+            if (applied)
             {
                 throw std::logic_error("ERROR: Cannot apply patch multiple times.");
             }

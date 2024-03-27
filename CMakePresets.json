@@ -20,7 +20,10 @@
             "inherits": "vs2022",
             "displayName": "VS2022 Debug",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "VCPKG_TARGET_ARCHITECTURE": "x86",
+                "VCPKG_TARGET_TRIPLET": "x86-windows",
+                "CMAKE_MT": "mt"
             }
         },
         {
@@ -28,28 +31,10 @@
             "inherits": "vs2022",
             "displayName": "VS2022 Release",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "ninja-debug",
-            "inherits": "default",
-            "displayName": "Ninja Clang Debug",
-            "generator": "Ninja",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_C_COMPILER": "clang-cl",
-                "CMAKE_CXX_COMPILER": "clang-cl",
-                "CFLAGS": "-m32",
-                "CXXFLAGS": "-m32"
-            }
-        },
-        {
-            "name": "ninja-release",
-            "inherits": "ninja-debug",
-            "displayName": "Ninja Clang Release",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "VCPKG_TARGET_ARCHITECTURE": "x86",
+                "VCPKG_TARGET_TRIPLET": "x86-windows",
+                "CMAKE_MT": "mt"
             }
         },
         {
