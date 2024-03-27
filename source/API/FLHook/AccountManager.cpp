@@ -276,7 +276,7 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
         memcpy_s(characterLoadingBuffer.data(), characterLoadingBuffer.size(), character.characterName.c_str(), character.characterName.size());
 
         // Pass the buffer into the original function that we populate with our data
-        auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->x050), characterLoadingBuffer.data()));
+        auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterLoadingBuffer.data()));
 
         // Copy the data from our DB type to the internal type
         ConvertCharacterToVanillaData(loadData, character);
@@ -398,7 +398,7 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
     static std::array<char, 512> characterNameBuffer;
     std::memset(characterNameBuffer.data(), 0, characterNameBuffer.size());
     memcpy_s(characterNameBuffer.data(), characterNameBuffer.size(), characterInfo->charname, sizeof(characterInfo->charname));
-    auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->x050), characterNameBuffer.data()));
+    auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterNameBuffer.data()));
 
     loadData->currentBase = newPlayerTemplate.base == "%%HOME_BASE%%" ? characterInfo->base : CreateID(newPlayerTemplate.base.c_str());
     loadData->system =
@@ -430,8 +430,9 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
         for (const EquipDesc* equip = loadOut->first; equip != loadOut->end; equip++)
         {
             EquipDesc e = *equip;
-            // For some reason some loadouts contain valid, but totally empty entries
-            if (e.archId == 0)
+            // For some reason some loadouts contain invalid entries
+            // Since all hashes are over 2 billion, we can detect them
+            if (e.archId < 2'000'000'000)
             {
                 continue;
             }
@@ -462,7 +463,6 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     character.missionSuccessCount = pd->numMissionSuccesses;
     character.missionFailureCount = pd->numMissionFailures;
     character.hullStatus = pd->relativeHealth;
-    character.baseHullStatus = pd->baseHullStatus;
     character.currentBase = pd->baseId;
     character.lastDockedBase = pd->lastBaseId;
     character.currentRoom = pd->baseRoomId;
@@ -524,39 +524,12 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         }
     }
 
-    for (const auto& equip : pd->baseEquipAndCargo.equip)
-    {
-        Equipment equipment = {};
-        FLCargo cargo = {};
-
-        bool isCommodity = false;
-        pub::IsCommodity(equip.archId, isCommodity);
-        if (!isCommodity)
-        {
-            equipment.id = equip.archId;
-            equipment.health = equip.health;
-            equipment.mounted = equip.mounted;
-            equipment.hardPoint = equip.hardPoint.value;
-            character.baseEquipment.emplace_back(equipment);
-        }
-        else
-        {
-            cargo.id = equip.archId;
-            cargo.health = equip.health;
-            cargo.isMissionCargo = equip.mission;
-            cargo.amount = equip.count;
-            character.baseCargo.emplace_back(cargo);
-        }
-    }
-
     for (const auto& col : pd->collisionGroupDesc)
     {
         character.collisionGroups.insert({ col.id, col.health });
     }
-    for (const auto& col : pd->baseCollisionGroups)
-    {
-        character.baseCollisionGroups.insert({ col.id, col.health });
-    }
+
+    return true;
 }
 
 std::wstring newAccountString;

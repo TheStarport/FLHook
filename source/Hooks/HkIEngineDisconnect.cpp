@@ -6,6 +6,7 @@
 
 bool __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
 {
+    Logger::Log(LogLevel::Info, L"Client disconnecting!!");
     TryHook
     {
         uint ship = 0;
@@ -14,12 +15,12 @@ bool __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
         {
             // in space
             client.GetData().timeDisconnect = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHook::GetConfig().general.disconnectDelay;
-            return 0; // don't pass on
+            return false; // suppress
         }
     }
-    CatchHook({})
+    CatchHook({});
 
-        return 1; // pass on
+    return true; // don't suppress
 }
 
 IEngineHook::DisconnectPacketSentAssembly::DisconnectPacketSentAssembly()
@@ -27,14 +28,14 @@ IEngineHook::DisconnectPacketSentAssembly::DisconnectPacketSentAssembly()
     pushad();
     mov(eax, dword[esi+0x68]);
     push(eax);
-    call(DisconnectPacketSent);
-    cmp(eax, 0);
+    call((void*)DisconnectPacketSent);
+    test(al, al);
     popad();
     jz(".suppress");
-    jmp(dword[IEngineHook::oldDisconnectPacketSent]);
+    jmp(ptr[&oldDisconnectPacketSent]);
 
     L(".suppress");
-    mov(eax, dword[FLHook::dalibDll]);
+    mov(eax, ptr[FLHook::dalibDll]);
     add(eax, static_cast<DWORD>(AddressList::DalibDiscSuppress));
     jmp(eax);
 }

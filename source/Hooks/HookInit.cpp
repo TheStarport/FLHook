@@ -95,9 +95,9 @@ void FLHook::InitHookExports()
         { 0x3BB80, &IServerImplHook::SendChat, &rcSendChatMsg }
     }));
 
-    //patches.emplace_back(FLPatch("dalib.dll", {
-    //    { 0x3FEC, PVOID(IEngineHook::disconnectPacketSentAssembly->getCode()), &IEngineHook::oldDisconnectPacketSent }
-    //}));
+    patches.emplace_back(FLPatch("dalib.dll", {
+        { 0x3FEC, PVOID(IEngineHook::disconnectPacketSentAssembly->getCode()), &IEngineHook::oldDisconnectPacketSent }
+    }));
 
     patches.emplace_back(FLPatch("server.dll", {
         { 0x8420C, PVOID(IEngineHook::launchPositionAssembly.getCode()), &IEngineHook::oldLaunchPosition },
