@@ -52,5 +52,5 @@
 # IDE Files
 *.iml
 *.user
-vs/
+**/.vs/
 .idea/
