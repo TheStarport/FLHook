@@ -96,7 +96,7 @@ void FLHook::InitHookExports()
     }));
 
     patches.emplace_back(FLPatch("dalib.dll", {
-        { 0x3FEC, PVOID(IEngineHook::disconnectPacketSentAssembly->getCode()), &IEngineHook::oldDisconnectPacketSent }
+        { 0x4BEC, PVOID(IEngineHook::disconnectPacketSentAssembly->getCode()), &IEngineHook::oldDisconnectPacketSent }
     }));
 
     patches.emplace_back(FLPatch("server.dll", {

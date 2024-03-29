@@ -6,12 +6,10 @@
 
 bool __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
 {
-    Logger::Log(LogLevel::Info, L"Client disconnecting!!");
     TryHook
     {
-        uint ship = 0;
-        pub::Player::GetShip(client.GetValue(), ship);
-        if (FLHook::GetConfig().general.disconnectDelay && ship)
+        ShipId shipId = FLHook::GetClient(client).ship;
+        if (FLHook::GetConfig().general.disconnectDelay && shipId.GetValue())
         {
             // in space
             client.GetData().timeDisconnect = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHook::GetConfig().general.disconnectDelay;
