@@ -162,7 +162,7 @@ namespace Plugins::SolarControl
 	pub::AI::SetPersonalityParams GetPersonality(const std::string& personalityString)
 	{
 		pub::AI::SetPersonalityParams p;
-		p.iStateGraph = pub::StateGraph::get_state_graph("STATION", pub::StateGraph::TYPE_STANDARD);
+		p.iStateGraph = pub::StateGraph::get_state_graph("NOTHING", pub::StateGraph::TYPE_STANDARD);
 		p.bStateId = true;
 
 		if (const auto personality = Hk::Personalities::GetPersonality(personalityString); personality.has_error())
