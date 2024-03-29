@@ -200,7 +200,6 @@ namespace Plugins::SolarControl
 		si.Costume.righthand = 0;
 		si.Costume.accessories = 0;
 		si.iVoiceId = CreateID("atc_leg_m01");
-		//si.iRep = MakeId("fc_lr_grp");
 		std::string npcId = wstos(name) + std::to_string(global->spawnedSolars.size());
 		strncpy_s(si.cNickName, sizeof(si.cNickName), npcId.c_str(), name.size() + global->spawnedSolars.size());
 
