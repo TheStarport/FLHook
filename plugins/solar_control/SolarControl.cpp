@@ -138,7 +138,7 @@ namespace Plugins::SolarControl
 	/** @ingroup SolarControl
 	 * @brief Creates a solar from a solarInfo struct
 	 */
-	int CreateSolar(uint& spaceId, pub::SpaceObj::SolarInfo& solarInfo)
+	void CreateSolar(uint& spaceId, pub::SpaceObj::SolarInfo& solarInfo)
 	{
 		// Hack server.dll so it does not call create solar packet send
 		char* serverHackAddress = reinterpret_cast<char*>(hModServer) + 0x2A62A;
@@ -146,7 +146,7 @@ namespace Plugins::SolarControl
 		WriteProcMem(serverHackAddress, &serverHack, 1);
 
 		// Create the Solar
-		const int returnValue = pub::SpaceObj::CreateSolar(spaceId, solarInfo);
+		pub::SpaceObj::CreateSolar(spaceId, solarInfo);
 
 		// Send solar creation packet
 		SendSolarPacket(spaceId, solarInfo);
@@ -154,8 +154,6 @@ namespace Plugins::SolarControl
 		// Undo the server.dll hack
 		constexpr char serverUnHack[] = {'\x74'};
 		WriteProcMem(serverHackAddress, &serverUnHack, 1);
-
-		return returnValue;
 	}
 
 	/** @ingroup SolarControl
@@ -202,7 +200,7 @@ namespace Plugins::SolarControl
 		si.Costume.righthand = 0;
 		si.Costume.accessories = 0;
 		si.iVoiceId = CreateID("atc_leg_m01");
-		si.iRep = MakeId("fc_lr_grp");
+		//si.iRep = MakeId("fc_lr_grp");
 		std::string npcId = wstos(name) + std::to_string(global->spawnedSolars.size());
 		strncpy_s(si.cNickName, sizeof(si.cNickName), npcId.c_str(), name.size() + global->spawnedSolars.size());
 
@@ -229,28 +227,31 @@ namespace Plugins::SolarControl
 		{
 			si.mission = 1;
 		}
+		else
+		{
+			si.mission = 0;
+		}
 
-		// Define the string used for the scanner name.
-		// Because this is empty, the solar_name will be used instead.
-		FmtStr scannerName(0, nullptr);
-		scannerName.begin_mad_lib(0);
+		// Define the string used for the scanner name.ad.
+		FmtStr scannerName(arch.infocard, nullptr);
+		scannerName.begin_mad_lib(arch.infocard);
 		scannerName.end_mad_lib();
 
 		// Define the string used for the solar name.
-		FmtStr solarName(0, nullptr);
-		solarName.begin_mad_lib(16163); // ids of "%s0 %s1"
-		solarName.append_string(arch.infocard);
+		FmtStr solarName(arch.infocard, nullptr);
+		solarName.begin_mad_lib(arch.infocard);
 		solarName.end_mad_lib();
 
 		// Set Reputation
 		pub::Reputation::Alloc(si.iRep, scannerName, solarName);
-		uint iff;
-		pub::Reputation::GetReputationGroup(iff, arch.iff.c_str());
-		pub::Reputation::SetAffiliation(si.iRep, iff);
 
 		// Spawn the solar object
 		uint spaceId;
 		CreateSolar(spaceId, si);
+
+		uint iff;
+		pub::Reputation::GetReputationGroup(iff, arch.iff.c_str());
+		pub::Reputation::SetAffiliation(si.iRep, iff);
 
 		pub::AI::SetPersonalityParams personalityParams = GetPersonality(arch.pilot);
 		pub::AI::SubmitState(spaceId, &personalityParams);
