@@ -240,6 +240,7 @@ Character ConvertVanillaDataToCharacter(VanillaLoadData* data)
     {
         character.collisionGroups.insert({ col.id, col.health });
     }
+
     for (const auto& col : data->baseCollisionGroups)
     {
         character.baseCollisionGroups.insert({ col.id, col.health });
@@ -263,6 +264,7 @@ void VanillaLoadData::SetRelation(Reputation::Relation relation)
 
 AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(PlayerData* data, const uint clientId)
 {
+    const auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
     const auto& account = accounts[clientId - 1];
 
     for (auto& character : account.characters)
@@ -272,8 +274,13 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
         static std::array<char, 512> characterLoadingBuffer;                          // Statically preallocate it
         std::memset(characterLoadingBuffer.data(), 0, characterLoadingBuffer.size()); // Ensure that the buffer is empty every time
 
-        // Copy the character name into the buffer
-        memcpy_s(characterLoadingBuffer.data(), characterLoadingBuffer.size(), character.characterName.c_str(), character.characterName.size());
+        static std::array<char,512> characterFileNameBuffer;
+        std::memset(characterFileNameBuffer.data(), 0, characterFileNameBuffer.size());
+        getFlName(characterFileNameBuffer.data(), StringUtils::stows(character.characterName).c_str());
+        strcat(characterFileNameBuffer.data(), ".fl");
+
+        // Copy the character file name into the buffer
+        memcpy_s(characterLoadingBuffer.data(), characterLoadingBuffer.size(), characterFileNameBuffer.data(), characterFileNameBuffer.size());
 
         // Pass the buffer into the original function that we populate with our data
         auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterLoadingBuffer.data()));
@@ -383,6 +390,7 @@ void AccountManager::LoadNewPlayerFLInfo()
 
 bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCharacterInfo* characterInfo)
 {
+    const auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
     const auto db = NewChar::TheDB;
 
     const auto package = db->FindPackage(characterInfo->package);
@@ -397,12 +405,18 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
 
     static std::array<char, 512> characterNameBuffer;
     std::memset(characterNameBuffer.data(), 0, characterNameBuffer.size());
+
+    static std::array<char,512> characterFileNameBuffer;
+    std::memset(characterFileNameBuffer.data(), 0, characterFileNameBuffer.size());
+    getFlName(characterFileNameBuffer.data(), characterInfo->charname);
+    strcat(characterFileNameBuffer.data(), ".fl");
+
     memcpy_s(characterNameBuffer.data(), characterNameBuffer.size(), characterInfo->charname, sizeof(characterInfo->charname));
-    auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterNameBuffer.data()));
+    auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterFileNameBuffer.data()));
 
     loadData->currentBase = newPlayerTemplate.base == "%%HOME_BASE%%" ? characterInfo->base : CreateID(newPlayerTemplate.base.c_str());
     loadData->system =
-        newPlayerTemplate.system == "%%HOME_SYSTEM%%%" ? Universe::get_base(characterInfo->base)->systemId : CreateID(newPlayerTemplate.system.c_str());
+        newPlayerTemplate.system == "%%HOME_SYSTEM%%" ? Universe::get_base(characterInfo->base)->systemId : CreateID(newPlayerTemplate.system.c_str());
 
     loadData->name = reinterpret_cast<unsigned short*>(characterInfo->charname);
 
@@ -527,6 +541,60 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     for (const auto& col : pd->collisionGroupDesc)
     {
         character.collisionGroups.insert({ col.id, col.health });
+    }
+
+    const auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
+
+    char fileName[50];
+    getFlName(fileName, client.characterName.data());
+    strcat(fileName, ".fl");
+
+    CharacterBaseDataInfo* currPlayer = pd->accountCharacterDataBegin->root;
+    while(currPlayer != pd->accountCharacterDataEnd)
+    {
+        int i = _stricmp(currPlayer->filename, fileName);
+        if(i == 0)
+        {
+            break;
+        }
+        else if(i < 0 )
+        {
+            currPlayer = currPlayer->left;
+        }
+        else
+        {
+            currPlayer = currPlayer->right;
+        }
+    }
+
+    character.baseHullStatus = currPlayer->baseHealth;
+    for (const auto& col : currPlayer->baseColgrps)
+    {
+        character.baseCollisionGroups.insert({ col.id, col.health });
+    }
+    for (const auto& equip : currPlayer->baseEquipList)
+    {
+        Equipment equipment = {};
+        FLCargo cargo = {};
+
+        bool isCommodity = false;
+        pub::IsCommodity(equip.archId, isCommodity);
+        if (!isCommodity)
+        {
+            equipment.id = equip.archId;
+            equipment.health = equip.health;
+            equipment.mounted = equip.mounted;
+            equipment.hardPoint = equip.hardPoint.value;
+            character.baseEquipment.emplace_back(equipment);
+        }
+        else
+        {
+            cargo.id = equip.archId;
+            cargo.health = equip.health;
+            cargo.isMissionCargo = equip.mission;
+            cargo.amount = equip.count;
+            character.baseCargo.emplace_back(cargo);
+        }
     }
 
     return true;
