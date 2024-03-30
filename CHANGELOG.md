@@ -1,5 +1,39 @@
 # Changelog
 
+## 4.0.24
+- Implement the Solar Control plugin, allowing users to spawn and manipulate solars in space.
+- Implement the Wave Defence plugin.
+
+## 4.0.23
+- Fixed some major issues with daily_tasks.
+
+## 4.0.22
+- Add call to Release() after a CObject::Find that was causing poor performance.
+
+## 4.0.21
+- Create 'daily_tasks' a plugin that assigns basic daily tasks to player accounts for them to complete.
+
+## 4.0.20
+- Fixed issue where repair cost was not fetched from base inis.
+- Fixed CargoDrop and Condata that wouldn't compile as a result of a breaking SDK change.
+
+## 4.0.19
+- Updated the SonarScan to use version 17 of Java, as 11 is no longer working and causes the pipeline to fail.
+- Updated SonarScan to 5.0.1.3006
+
+## 4.0.18
+- Changed IServerImpl::RequestBestPath hook to use new BestPathInfo struct
+- Added Hk::Player::SendBestPath function which sets the waypoints of a player
+
+## 4.0.17
+- Provided configs for 0x86AEC, 0x84018, 0xD3D6E and 0x58F46 in server.dll in crash catcher. These offsets were hardcoding several values that are often changed by mods manually relating to NPC spawn and scanner range. 0 values disables each respective hook.
+
+## 4.0.16
+- Removed a PrintUserCmd from Autobuy that was printing on every repair.
+
+## 4.0.15
+- Fixed a typo in the Autobuy plugin header that caused incorrect configs to be generated.
+
 ## 4.0.14
 - Fix the description of a release created by the build pipeline.
 
