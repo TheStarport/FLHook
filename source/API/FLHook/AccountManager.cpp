@@ -468,6 +468,10 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
 bool AccountManager::OnPlayerSave(PlayerData* pd)
 {
     auto& client = FLHook::GetClient(ClientId(pd->onlineId));
+    if (client.characterName.empty())
+    {
+        return true;
+    }
     Character character;
 
     character.characterName = StringUtils::wstos(client.characterName);
