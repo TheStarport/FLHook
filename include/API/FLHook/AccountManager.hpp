@@ -73,7 +73,7 @@ struct AccountData
 {
         CAccount* internalAccount;
         Account account;
-        std::vector<Character> characters;
+        std::map<std::string, Character> characters;
 };
 
 struct PlayerDbLoadUserDataAssembly final : Xbyak::CodeGenerator

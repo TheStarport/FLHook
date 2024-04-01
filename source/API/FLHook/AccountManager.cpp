@@ -268,7 +268,6 @@ void VanillaLoadData::SetRelation(Reputation::Relation relation)
 
 AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(PlayerData* data, const uint clientId)
 {
-    const auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
     const auto& account = accounts[clientId - 1];
 
     for (auto& character : account.characters)
@@ -278,19 +277,14 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
         static std::array<char, 512> characterLoadingBuffer;                          // Statically preallocate it
         std::memset(characterLoadingBuffer.data(), 0, characterLoadingBuffer.size()); // Ensure that the buffer is empty every time
 
-        static std::array<char,512> characterFileNameBuffer;
-        std::memset(characterFileNameBuffer.data(), 0, characterFileNameBuffer.size());
-        getFlName(characterFileNameBuffer.data(), StringUtils::stows(character.characterName).c_str());
-        strcat(characterFileNameBuffer.data(), ".fl");
-
         // Copy the character file name into the buffer
-        memcpy_s(characterLoadingBuffer.data(), characterLoadingBuffer.size(), characterFileNameBuffer.data(), characterFileNameBuffer.size());
+        memcpy_s(characterLoadingBuffer.data(), characterLoadingBuffer.size(), character.first.data(), character.first.size());
 
         // Pass the buffer into the original function that we populate with our data
         auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterLoadingBuffer.data()));
 
         // Copy the data from our DB type to the internal type
-        ConvertCharacterToVanillaData(loadData, character);
+        ConvertCharacterToVanillaData(loadData, character.second);
     }
 
     auto& internalAccount = accounts[clientId - 1];
@@ -413,7 +407,6 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
     static std::array<char,512> characterFileNameBuffer;
     std::memset(characterFileNameBuffer.data(), 0, characterFileNameBuffer.size());
     getFlName(characterFileNameBuffer.data(), characterInfo->charname);
-    strcat(characterFileNameBuffer.data(), ".fl");
 
     memcpy_s(characterNameBuffer.data(), characterNameBuffer.size(), characterInfo->charname, sizeof(characterInfo->charname));
     auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterFileNameBuffer.data()));
@@ -555,12 +548,11 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 
     char fileName[50];
     getFlName(fileName, client.characterName.data());
-    strcat(fileName, ".fl");
 
     CharacterBaseDataInfo* currPlayer = pd->accountCharacterDataBegin->root;
     while(currPlayer != pd->accountCharacterDataEnd)
     {
-        int i = _stricmp(currPlayer->filename, fileName);
+        int i = _stricmp(fileName, currPlayer->filename);
         if(i == 0)
         {
             break;
@@ -573,6 +565,11 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         {
             currPlayer = currPlayer->right;
         }
+    }
+    if (currPlayer == pd->accountCharacterDataEnd)
+    {
+        //TODO: character failed to fetch, handle/fix
+        return true;
     }
 
     character.baseHullStatus = currPlayer->baseHealth;
@@ -863,8 +860,17 @@ void AccountManager::Login(const std::wstring& info, const ClientId& client)
                 session.abort_transaction();
                 return;
             }
-
-            internalAcc.characters.emplace_back(characterResult.value());
+            auto character = characterResult.value();
+            if (character.characterName.empty())
+            {
+                // TODO: Log error
+                continue;
+            }
+            char charNameBuf[50];
+            const static auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
+            getFlName(charNameBuf, StringUtils::stows(character.characterName).c_str());
+            std::string charFileName = charNameBuf;
+            internalAcc.characters[charFileName] = character;
         }
         session.commit_transaction();
         return;
