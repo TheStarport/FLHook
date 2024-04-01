@@ -447,8 +447,8 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
         {
             EquipDesc e = *equip;
             // For some reason some loadouts contain invalid entries
-            // Since all hashes are over 2 billion, we can detect them
-            if (e.archId < 2'000'000'000)
+            // Since all hashes have the first bit set, we can filter those out
+            if (!(e.archId & 0x80000000))
             {
                 continue;
             }
