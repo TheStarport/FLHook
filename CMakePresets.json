@@ -16,6 +16,15 @@
             "hidden": true
         },
         {
+            "name": "vs2022",
+            "inherits": "default",
+            "displayName": "VS2022",
+            "generator": "Visual Studio 17 2022",
+            "architecture": "Win32",
+            "toolset": "ClangCL",
+            "hidden": true
+        },
+        {
             "name": "vs2022-debug",
             "inherits": "vs2022",
             "displayName": "VS2022 Debug",
@@ -36,15 +45,6 @@
                 "VCPKG_TARGET_TRIPLET": "x86-windows",
                 "CMAKE_MT": "mt"
             }
-        },
-        {
-            "name": "vs2022",
-            "inherits": "default",
-            "displayName": "VS2022",
-            "generator": "Visual Studio 17 2022",
-            "architecture": "Win32",
-            "toolset": "ClangCL",
-            "hidden": true
         }
     ]
 }
