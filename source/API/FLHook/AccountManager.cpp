@@ -49,24 +49,36 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
         data->repList.push_back(relation);
     }
 
-    ushort id = 33;
-#define AddCargo(cargo, list)        \
-    EquipDesc equipDesc;             \
-    equipDesc.id = ++id;             \
-    equipDesc.archId = cargo.id;     \
-    equipDesc.mounted = false;       \
-    equipDesc.count = cargo.amount;  \
-    equipDesc.health = cargo.health; \
+    SubObjectID::EquipIdMaker eqId;
+#define AddCargo(cargo, list)           \
+    EquipDesc equipDesc;                \
+    equipDesc.id = eqId.CreateEquipID();\
+    equipDesc.archId = cargo.id;        \
+    equipDesc.mounted = false;          \
+    equipDesc.count = cargo.amount;     \
+    equipDesc.health = cargo.health;    \
     list.push_back(equipDesc);
 
-#define AddEquip(equip, list)          \
-    EquipDesc equipDesc;               \
-    equipDesc.id = ++id;               \
-    equipDesc.archId = equip.id;       \
-    equipDesc.health = equip.health;   \
-    equipDesc.mounted = equip.mounted; \
+#define AddEquip(equip, list)           \
+    EquipDesc equipDesc;                \
+    equipDesc.id = eqId.CreateEquipID();\
+    equipDesc.archId = equip.id;        \
+    equipDesc.health = equip.health;    \
+    equipDesc.mounted = equip.mounted;  \
     equipDesc.hardPoint.value = StringAlloc(equip.hardPoint.c_str(), false); \
     list.push_back(equipDesc);
+
+    for (const auto& cargo : character.baseCargo)
+    {
+        AddCargo(cargo, data->baseEquipAndCargo);
+    }
+
+    for (const auto& equip : character.baseEquipment)
+    {
+        AddEquip(equip, data->baseEquipAndCargo);
+    }
+    
+    eqId.Reset();
 
     for (const auto& cargo : character.cargo)
     {
@@ -78,18 +90,8 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
         AddEquip(equip, data->currentEquipAndCargo);
     }
 
-    data->equipIdEnumerator = id;
+    data->equipIdEnumerator = eqId;
 
-    id = 33;
-    for (const auto& cargo : character.baseCargo)
-    {
-        AddCargo(cargo, data->baseEquipAndCargo);
-    }
-
-    for (const auto& equip : character.baseEquipment)
-    {
-        AddEquip(equip, data->baseEquipAndCargo);
-    }
 
 #undef AddEquip
 #undef AddCargo

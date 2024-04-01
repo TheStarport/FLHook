@@ -37,7 +37,7 @@ struct VanillaLoadData
         uint voiceLen;                                        // 780
         char voice[32] = "trent_voice";                       // 812
         Costume baseCostume;                                  // 816 - 868
-        uint equipIdEnumerator;                           // 872
+        SubObjectID::EquipIdMaker equipIdEnumerator;          // 872
         st6::string prefilledWeaponGroupIni;                  // 886
         st6::list<FmtStr> neuralNetLog;                       // 902 - probably wrong, 'log' entries from character file. Also 'mostly' SP only.
         int interfaceState;                                  // 914
