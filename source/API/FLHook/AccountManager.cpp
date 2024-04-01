@@ -49,10 +49,10 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
         data->repList.push_back(relation);
     }
 
-    ushort id = 34;
+    ushort id = 33;
 #define AddCargo(cargo, list)        \
     EquipDesc equipDesc;             \
-    equipDesc.id = id++;             \
+    equipDesc.id = ++id;             \
     equipDesc.archId = cargo.id;     \
     equipDesc.mounted = false;       \
     equipDesc.count = cargo.amount;  \
@@ -61,7 +61,7 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
 
 #define AddEquip(equip, list)          \
     EquipDesc equipDesc;               \
-    equipDesc.id = id++;               \
+    equipDesc.id = ++id;               \
     equipDesc.archId = equip.id;       \
     equipDesc.health = equip.health;   \
     equipDesc.mounted = equip.mounted; \
@@ -78,7 +78,9 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
         AddEquip(equip, data->currentEquipAndCargo);
     }
 
-    id = 34;
+    data->equipIdEnumerator = id;
+
+    id = 33;
     for (const auto& cargo : character.baseCargo)
     {
         AddCargo(cargo, data->baseEquipAndCargo);
