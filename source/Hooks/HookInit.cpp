@@ -126,19 +126,26 @@ void FLHook::InitHookExports()
     // Common.dll
     const void* ptr = &IEngineHook::CShipInit;
     IEngineHook::cShipVTable.Hook(VTablePtr(CShipVTable::InitCShip), &ptr);
-    ptr = &IEngineHook::CShipDestroy;
-    IEngineHook::cShipVTable.Hook(VTablePtr(CShipVTable::Destructor), &ptr);
+    ptr = &IEngineHook::ShipDestroy;
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::ObjectDestroyed), &ptr);
 
     ptr = &IEngineHook::CLootInit;
     IEngineHook::cLootVTable.Hook(VTablePtr(CLootVTable::InitCLoot), &ptr);
-    ptr = &IEngineHook::CLootDestroy;
-    IEngineHook::cLootVTable.Hook(VTablePtr(CLootVTable::Destructor), &ptr);
+    ptr = &IEngineHook::LootDestroy;
+    IEngineHook::iLootVTable.Hook(VTablePtr(ILootInspectVTable::ObjectDestroyed), &ptr);
 
     ptr = &IEngineHook::CSolarInit;
     IEngineHook::cSolarVtable.Hook(VTablePtr(CSolarVTable::InitializeInstance), &ptr);
-    ptr = &IEngineHook::CSolarDestroy;
-    IEngineHook::cSolarVtable.Hook(VTablePtr(CSolarVTable::Destructor), &ptr);
+    ptr = &IEngineHook::SolarDestroy;
+    IEngineHook::iSolarVTable.Hook(VTablePtr(ISolarInspectVTable::ObjectDestroyed), &ptr);
 
+    ptr = &IEngineHook::ShipHullDamage;
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::DamageHull), &ptr);
+    ptr = &IEngineHook::SolarHullDamage;
+    IEngineHook::iSolarVTable.Hook(VTablePtr(ISolarInspectVTable::DamageHull), &ptr);
+
+    ptr = &IEngineHook::ShipExplosionHit;
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::ProcessExplosionDamage), &ptr);
     // Server.dll
 
     #undef VtablePtr

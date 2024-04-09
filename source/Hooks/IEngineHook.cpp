@@ -11,30 +11,6 @@ IEngineHook::CallAndRet::CallAndRet(void* toCall, void* ret)
     jmp(ret);
 }
 
-void __fastcall IEngineHook::CShipDestroy(CShip* ship, void* edx, char flag)
-{
-    CallPlugins(&Plugin::OnCShipDestroy, ship);
-
-    using CShipDestroyType = void(__thiscall*)(CShip*, char);
-    static_cast<CShipDestroyType>(cShipVTable.GetOriginal(static_cast<ushort>(CShipVTable::Destructor)))(ship, flag);
-}
-
-void __fastcall IEngineHook::CLootDestroy(CLoot* loot, void* edx, char flag)
-{
-    CallPlugins(&Plugin::OnCLootDestroy, loot);
-
-    using CLootDestroyType = void(__thiscall*)(CLoot*, char);
-    static_cast<CLootDestroyType>(cLootVTable.GetOriginal(static_cast<ushort>(CLootVTable::Destructor)))(loot, flag);
-}
-
-void __fastcall IEngineHook::CSolarDestroy(CSolar* solar, void* edx, char flag)
-{
-    CallPlugins(&Plugin::OnCSolarDestroy, solar);
-
-    using CSolarDestroyType = void(__thiscall*)(CSolar*, char);
-    static_cast<CSolarDestroyType>(cSolarVtable.GetOriginal(static_cast<ushort>(CSolarVTable::Destructor)))(solar, flag);
-}
-
 int IEngineHook::FreeReputationVibe(const int& p1)
 {
     using FreeRepFunc = void (*)(const int& p);
@@ -132,14 +108,14 @@ void __fastcall IEngineHook::CLootInit(CLoot* loot, void* edx, CLoot::CreateParm
     using CLootInitType = void(__thiscall*)(CLoot*, CLoot::CreateParms*);
     static_cast<CLootInitType>(cLootVTable.GetOriginal(static_cast<ushort>(CLootVTable::InitCLoot)))(loot, creationParams);
 
-    CallPlugins(&Plugin::OnCLootDestroy, loot);
+    CallPlugins(&Plugin::OnCLootInit, loot);
 }
 void __fastcall IEngineHook::CSolarInit(CSolar* solar, void* edx, CSolar::CreateParms* createParms)
 {
     using CSolarInitType = void(__thiscall*)(CSolar*, CSolar::CreateParms*);
     static_cast<CSolarInitType>(cSolarVtable.GetOriginal(static_cast<ushort>(CSolarVTable::LinkShields)))(solar,createParms);
 
-    CallPlugins(&Plugin::OnCSolarDestroy, solar);
+    CallPlugins(&Plugin::OnCSolarInit, solar);
 }
 
 IEngineHook::LaunchPositionAssembly::LaunchPositionAssembly()

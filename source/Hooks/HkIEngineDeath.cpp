@@ -6,6 +6,31 @@
 
 std::wstring SetSizeToSmall(const std::wstring& dataFormat) { return dataFormat.substr(0, 8) + L"90"; }
 
+void __fastcall IEngineHook::ShipDestroy(Ship* ship, void* edx, bool isKill, uint killerId)
+{
+    //TODO: Perhaps only run this on isKill == true? I don't see a use case for a plugin caring about a ship naturally despawning
+    CallPlugins(&Plugin::OnShipDestroy, ship, isKill, killerId);
+
+    using IShipDestroyType = void(__thiscall*)(Ship*, bool, uint);
+    static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(ship, isKill, killerId);
+}
+
+void __fastcall IEngineHook::LootDestroy(Loot* loot, void* edx, bool isKill, uint killerId)
+{
+    CallPlugins(&Plugin::OnLootDestroy, loot, isKill, killerId);
+
+    using ILootDestroyType = void(__thiscall*)(Loot*, bool, uint);
+    static_cast<ILootDestroyType>(iLootVTable.GetOriginal(static_cast<ushort>(ILootInspectVTable::ObjectDestroyed)))(loot, isKill, killerId);
+}
+
+void __fastcall IEngineHook::SolarDestroy(Solar* solar, void* edx, bool isKill, uint killerId)
+{
+    CallPlugins(&Plugin::OnSolarDestroy, solar, isKill, killerId);
+
+    using ISolarDestroyType = void(__thiscall*)(Solar*, bool, uint);
+    static_cast<ISolarDestroyType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::ObjectDestroyed)))(solar, isKill, killerId);
+}
+
 void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, ClientId clientVictim, ClientId clientKiller)
 {
     CallPlugins(&Plugin::OnSendDeathMessage, clientKiller, clientVictim, systemId, std::wstring_view(msg));

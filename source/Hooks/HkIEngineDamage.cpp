@@ -7,6 +7,30 @@
 
 using namespace magic_enum::bitwise_operators;
 
+void __fastcall IEngineHook::ShipExplosionHit(Ship* ship, void* edx, ExplosionDamageEvent* explosion, DamageList* dmgList)
+{
+    CallPlugins(&Plugin::OnShipExplosionHit, ship, explosion, dmgList);
+
+    using IShipHullDmgType = void(__thiscall*)(Ship*, ExplosionDamageEvent*, DamageList*);
+    static_cast<IShipHullDmgType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::DamageHull)))(ship, explosion, dmgList);
+}
+
+void __fastcall IEngineHook::ShipHullDamage(Ship* ship, void* edx, float damage, DamageList* dmgList)
+{
+    CallPlugins(&Plugin::OnShipHullDmg, ship, damage, dmgList);
+
+    using IShipHullDmgType = void(__thiscall*)(Ship*, float, DamageList*);
+    static_cast<IShipHullDmgType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::DamageHull)))(ship, damage, dmgList);
+}
+
+void __fastcall IEngineHook::SolarHullDamage(Solar* solar, void* edx, float damage, DamageList* dmgList)
+{
+    CallPlugins(&Plugin::OnSolarHullDmg, solar, damage, dmgList);
+
+    using ISolarHullDmgType = void(__thiscall*)(Solar*, float, DamageList*);
+    static_cast<ISolarHullDmgType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::DamageHull)))(solar, damage, dmgList);
+}
+
 bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
 {
     auto [rval, skip] = CallPlugins<bool>(&Plugin::OnAllowPlayerDamage, client, clientTarget);

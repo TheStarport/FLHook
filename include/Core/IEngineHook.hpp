@@ -49,11 +49,21 @@ class IEngineHook
         inline static VTableHook<CLoot, VTablePtr(CLootVTable::Start), VTablePtr(CLootVTable::End)> cLootVTable;
         inline static VTableHook<CShip, VTablePtr(CSolarVTable::Start), VTablePtr(CSolarVTable::End)> cSolarVtable;
 
+        inline static VTableHook<Ship, VTablePtr(IShipInspectVTable::Start), VTablePtr(IShipInspectVTable::End)> iShipVTable;
+        inline static VTableHook<Solar, VTablePtr(ISolarInspectVTable::Start), VTablePtr(ISolarInspectVTable::End)> iSolarVTable;
+        inline static VTableHook<Loot, VTablePtr(ILootInspectVTable::Start), VTablePtr(ILootInspectVTable::End)> iLootVTable;
+
 #undef VTablePtr
 
-        static void __fastcall CShipDestroy(CShip* ship, void* edx, char flag);
-        static void __fastcall CLootDestroy(CLoot* loot, void* edx, char flag);
-        static void __fastcall CSolarDestroy(CSolar* solar, void* edx, char flag);
+        static void __fastcall ShipDestroy(Ship* ship, void* edx, bool isKill, uint killerId);
+        static void __fastcall LootDestroy(Loot* ship, void* edx, bool isKill, uint killerId);
+        static void __fastcall SolarDestroy(Solar* ship, void* edx, bool isKill, uint killerId);
+
+        static void __fastcall ShipHullDamage(Ship* ship, void* edx, float damage, DamageList* dmgList);
+        static void __fastcall SolarHullDamage(Solar* ship, void* edx, float damage, DamageList* dmgList);
+
+        static void __fastcall ShipExplosionHit(Ship* ship, void* edx, ExplosionDamageEvent* explosion, DamageList* dmgList);
+
         static void __fastcall CShipInit(CShip* ship, void* edx, CShip::CreateParms* creationParams);
         static void __fastcall CLootInit(CLoot* loot, void* edx, CLoot::CreateParms* createParams);
         static void __fastcall CSolarInit(CSolar* solar, void* edx, CSolar::CreateParms* createParms);
