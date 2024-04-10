@@ -10,6 +10,7 @@
 #include "Core/VTables.hpp"
 
 #include "Core/FLPatch.hpp"
+#include "API/FLHook/AccountManager.hpp"
 
 std::vector<FLPatch> patches;
 
@@ -62,6 +63,7 @@ void FLHook::ClearClientInfo(ClientId client)
         }
     }
 
+    AccountManager::ClearClientInfo(client);
     CallPlugins(&Plugin::OnClearClientInfo, client);
 }
 

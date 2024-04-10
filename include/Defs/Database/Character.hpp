@@ -26,17 +26,17 @@ struct Equipment
         int64 id;
         std::string hardPoint;
         float health;
-		bool mounted;
+	bool mounted;
 };
 
 struct Character
 {
-        bson_oid_t _id;
+        std::optional<bson_oid_t> _id;
         std::string accountId;
         std::string characterName;
         int money = 0;
         int rank = 0;
-		int64 reputationId = 0;
+        int64 affiliation = 0;
         std::optional<std::string> repGroup;
         std::optional<Vector> pos;
         std::optional<Vector> rot;
@@ -47,7 +47,7 @@ struct Character
         bool canDock = true;
         bool canTradeLane = true;
         int64 lastDockedBase = 0;
-		int64 currentBase = 0;
+	int64 currentBase = 0;
         int64 currentRoom = 0;
         int killCount = 0;
         int missionFailureCount = 0;
@@ -62,7 +62,7 @@ struct Character
         std::vector<Equipment> equipment;
         std::vector<Equipment> baseEquipment;
         std::unordered_map<int, float> collisionGroups;
-		std::unordered_map<int, float> baseCollisionGroups;
+	std::unordered_map<int, float> baseCollisionGroups;
         std::unordered_map<int64, float> reputation;
         std::unordered_map<int64, int> shipTypesKilled;
         std::unordered_map<int64, int> visits;

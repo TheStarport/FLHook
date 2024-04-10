@@ -52,7 +52,7 @@ uint ClientId::GetClientIdFromCharacterName(std::wstring_view name)
     {
         if (playerDb->account == account)
         {
-            client = playerDb->onlineId;
+            client = playerDb->clientId;
             break;
         }
     }

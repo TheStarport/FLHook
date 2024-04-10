@@ -32,7 +32,7 @@ struct VanillaLoadData
         uint startingRing;                                    // 696
         int rank;                                            // 700
         st6::vector<Reputation::Relation> repList;            // 704
-        uint reputationId;                                    // 720, see Reputation::get_id();
+        uint affiliation;                                    // 720, see Reputation::get_id();
         Costume commCostume;                                  // 724 - 776
         uint voiceLen;                                        // 780
         char voice[32] = "trent_voice";                       // 812
@@ -73,7 +73,7 @@ struct AccountData
 {
         CAccount* internalAccount;
         Account account;
-        std::map<std::string, Character> characters;
+        std::unordered_map<std::string, Character> characters;
 };
 
 struct PlayerDbLoadUserDataAssembly final : Xbyak::CodeGenerator
@@ -124,7 +124,8 @@ class AccountManager
         AccountManager();
 
     public:
-        static bool SaveCharacter(const Character& newCharacter, bool isNewCharacter);
-        static void DeleteCharacter(const std::wstring& characterName);
-        static void Login(const std::wstring& info, const ClientId& client);
+        static bool SaveCharacter(Character& newCharacter, bool isNewCharacter);
+        static bool DeleteCharacter(ClientId clientId, const std::wstring& characterCode);
+        static void Login(const std::wstring& wideAccountId, const ClientId& client);
+        static void ClearClientInfo(ClientId clientId);
 };

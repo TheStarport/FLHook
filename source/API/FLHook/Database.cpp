@@ -17,10 +17,6 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
         const auto client = pool.acquire();
         auto db = client->database("FLHook");
 
-        mongocxx::write_concern wc;
-        wc.acknowledge_level(mongocxx::write_concern::level::k_unacknowledged);
-        db.write_concern(wc);
-
         const auto ping = make_document(kvp("ping", 1));
         db.run_command(ping.view());
 

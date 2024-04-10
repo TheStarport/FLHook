@@ -132,6 +132,7 @@ void __stdcall IServerImplHook::CreateNewCharacter(const SCreateCharacterInfo& u
     {
         CallServerPreamble { Server.CreateNewCharacter(unk1, client.GetValue()); }
         CallServerPostamble(true, );
+        Server.CharacterInfoReq(client.GetValue(), true);
     }
 
     CallPlugins(&Plugin::OnCharacterCreationAfter, client, unk1);
@@ -145,7 +146,10 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
 
     if (const auto skip = CallPlugins(&Plugin::OnCharacterDelete, client, std::wstring_view(charName)); !skip)
     {
-        FLHook::GetAccountManager().DeleteCharacter(charName);
+        if (!FLHook::GetAccountManager().DeleteCharacter(client, charName))
+        {
+            return;
+        }
 
         CallServerPreamble { Server.DestroyCharacter(cid, client.GetValue()); }
         CallServerPostamble(true, );
@@ -180,7 +184,7 @@ void __stdcall IServerImplHook::RequestPlayerStats(ClientId client, uint unk1, i
     CallPlugins(&Plugin::OnRequestPlayerStats, client, unk1, unk2);
 }
 
-bool IServerImplHook::CharacterInfoReqInner(ClientId client, bool)
+bool IServerImplHook::CharacterInfoReqInner(ClientId client, bool unk1)
 {
     TryHook
     {
