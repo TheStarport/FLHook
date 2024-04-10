@@ -31,7 +31,7 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
     data->currentRoom = character.currentRoom;
     data->system = character.system;
     data->rank = character.rank;
-    data->reputationId = character.reputationId;
+    data->affiliation = character.affiliation;
     data->interfaceState = character.interfaceState;
 
     data->baseCostume = character.baseCostume;
@@ -149,10 +149,8 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
     }*/
 }
 
-Character ConvertVanillaDataToCharacter(VanillaLoadData* data)
+void ConvertVanillaDataToCharacter(VanillaLoadData* data, Character& character)
 {
-    Character character;
-
     std::wstring charName = reinterpret_cast<const wchar_t*>(data->name.c_str());
     character.characterName = StringUtils::wstos(charName);
     character.shipHash = data->shipHash;
@@ -167,7 +165,7 @@ Character ConvertVanillaDataToCharacter(VanillaLoadData* data)
     character.currentRoom = data->currentRoom;
     character.system = data->system;
     character.rank = data->rank;
-    character.reputationId = data->reputationId;
+    character.affiliation = data->affiliation;
     character.interfaceState = data->interfaceState;
 
     character.commCostume = data->commCostume;
@@ -249,8 +247,6 @@ Character ConvertVanillaDataToCharacter(VanillaLoadData* data)
     {
         character.baseCollisionGroups.insert({ col.id, col.health });
     }
-
-    return character;
 }
 
 using CreateCharacterLoadingData = void*(__thiscall*)(PlayerData* data, const char* buffer);
@@ -268,7 +264,7 @@ void VanillaLoadData::SetRelation(Reputation::Relation relation)
 
 AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(PlayerData* data, const uint clientId)
 {
-    const auto& account = accounts[clientId - 1];
+    const auto& account = accounts[clientId];
 
     for (auto& character : account.characters)
     {
@@ -287,9 +283,8 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
         ConvertCharacterToVanillaData(loadData, character.second);
     }
 
-    auto& internalAccount = accounts[clientId - 1];
-
-    data->numberOfCharacters = account.characters.size();
+    auto& internalAccount = accounts[clientId];
+    internalAccount.internalAccount->numberOfCharacters = account.characters.size();
 
     data->systemId = 0;
     data->shipId = 0;
@@ -303,7 +298,7 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
     data->account = internalAccount.internalAccount;
     data->account->dunno4[1] = clientId;
     wcscpy_s(data->accId, internalAccount.internalAccount->accId);
-    data->onlineId = clientId;
+    data->clientId = clientId;
     data->exitedBase = 0;
 
     return LoginReturnCode::Success;
@@ -401,15 +396,11 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
         return false;
     }
 
-    static std::array<char, 512> characterNameBuffer;
-    std::memset(characterNameBuffer.data(), 0, characterNameBuffer.size());
+    static std::array<char, 512> characterCodeBuffer;
+    std::memset(characterCodeBuffer.data(), 0, characterCodeBuffer.size());
 
-    static std::array<char,512> characterFileNameBuffer;
-    std::memset(characterFileNameBuffer.data(), 0, characterFileNameBuffer.size());
-    getFlName(characterFileNameBuffer.data(), characterInfo->charname);
-
-    memcpy_s(characterNameBuffer.data(), characterNameBuffer.size(), characterInfo->charname, sizeof(characterInfo->charname));
-    auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterFileNameBuffer.data()));
+    getFlName(characterCodeBuffer.data(), characterInfo->charname);
+    auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterCodeBuffer.data()));
 
     loadData->currentBase = newPlayerTemplate.base == "%%HOME_BASE%%" ? characterInfo->base : CreateID(newPlayerTemplate.base.c_str());
     loadData->system =
@@ -443,7 +434,7 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
             EquipDesc e = *equip;
             // For some reason some loadouts contain invalid entries
             // Since all hashes have the first bit set, we can filter those out
-            if (!(e.archId & 0x80000000))
+            if (!(e.archId & 0x80000000) || !e.id)
             {
                 continue;
             }
@@ -456,20 +447,33 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
     {
         loadData->shipHash = newPlayerTemplate.ship;
     }
+    auto& account = accounts[data->clientId];
+    static std::array<char,512> characterFileNameBuffer;
+    std::memset(characterFileNameBuffer.data(), 0, characterFileNameBuffer.size());
+    getFlName(characterFileNameBuffer.data(), characterInfo->charname);
 
-    auto character = ConvertVanillaDataToCharacter(loadData);
-    character.accountId = accounts[data->onlineId - 1].account._id;
+    Character& character = account.characters[characterFileNameBuffer.data()] = {};
+    ConvertVanillaDataToCharacter(loadData, character);
+    character.accountId = account.account._id;
+
     return SaveCharacter(character, true);
 }
 
 bool AccountManager::OnPlayerSave(PlayerData* pd)
 {
-    auto& client = FLHook::GetClient(ClientId(pd->onlineId));
-    if (client.characterName.empty())
+    auto& client = FLHook::GetClient(ClientId(pd->clientId));
+    if (client.characterName.empty() || !pd->systemId)
     {
         return true;
     }
-    Character character;
+    auto& character = accounts[pd->clientId].characters.at(pd->charFile.charFilename);
+
+    character.equipment.clear();
+    character.baseEquipment.clear();
+    character.cargo.clear();
+    character.baseCargo.clear();
+    character.collisionGroups.clear();
+    character.baseCollisionGroups.clear();
 
     character.characterName = StringUtils::wstos(client.characterName);
     character.shipHash = pd->shipArchetype;
@@ -478,12 +482,19 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     character.missionSuccessCount = pd->numMissionSuccesses;
     character.missionFailureCount = pd->numMissionFailures;
     character.hullStatus = pd->relativeHealth;
-    character.currentBase = pd->baseId;
+
+    if (pd->exitedBase && !pd->shipId)
+    {
+        character.currentBase = pd->exitedBase;
+    }
+    else
+    {
+        character.currentBase = pd->baseId;
+    }
+
     character.lastDockedBase = pd->lastBaseId;
     character.currentRoom = pd->baseRoomId;
     character.system = pd->systemId;
-    character.rank = pd->rank;
-    character.reputationId = pd->reputation;
     character.interfaceState = pd->interfaceState;
 
     character.commCostume = pd->commCostume;
@@ -513,6 +524,9 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     {
         character.reputation.insert({ hash, reputation });
     }
+
+    character.rank = rank;
+    character.affiliation = affiliation;
 
     for (const auto& equip : pd->equipAndCargo.equip)
     {
@@ -544,65 +558,76 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         character.collisionGroups.insert({ col.id, col.health });
     }
 
-    const auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
-
-    char fileName[50];
-    getFlName(fileName, client.characterName.data());
-
-    CharacterBaseDataInfo* currPlayer = pd->accountCharacterDataBegin->root;
-    while(currPlayer != pd->accountCharacterDataEnd)
+    if(character.currentBase)
     {
-        int i = _stricmp(fileName, currPlayer->filename);
-        if(i == 0)
+        character.baseCargo = character.cargo;
+        character.baseEquipment = character.equipment;
+        character.baseHullStatus = character.hullStatus;
+    }
+    else
+    {
+        std::string charName = StringUtils::wstos(client.characterName.data());
+        const auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
+
+        char fileName[50];
+        getFlName(fileName, client.characterName.data());
+
+        CharacterBaseDataInfo* currPlayer = pd->accountCharacterDataBegin->root;
+        while(currPlayer != pd->accountCharacterDataEnd)
         {
-            break;
+            int i = _stricmp(fileName,currPlayer->filename);
+            if(i == 0)
+            {
+                break;
+            }
+            else if(i < 0)
+            {
+                currPlayer = currPlayer->left;
+            }
+            else
+            {
+                currPlayer = currPlayer->right;
+            }
         }
-        else if(i < 0 )
+        if (currPlayer == pd->accountCharacterDataEnd)
         {
-            currPlayer = currPlayer->left;
+            //TODO: character failed to fetch, handle/fix
+            Logger::Log(LogLevel::Err, std::format(L"Fetching Base Status failed for {}", client.characterName));
+            return true;
         }
-        else
+
+        character.baseHullStatus = currPlayer->baseHealth;
+        for (const auto& col : currPlayer->baseColgrps)
         {
-            currPlayer = currPlayer->right;
+            character.baseCollisionGroups.insert({ col.id, col.health });
+        }
+        for (const auto& equip : currPlayer->baseEquipList)
+        {
+            Equipment equipment = {};
+            FLCargo cargo = {};
+
+            bool isCommodity = false;
+            pub::IsCommodity(equip.archId, isCommodity);
+            if (!isCommodity)
+            {
+                equipment.id = equip.archId;
+                equipment.health = equip.health;
+                equipment.mounted = equip.mounted;
+                equipment.hardPoint = equip.hardPoint.value;
+                character.baseEquipment.emplace_back(equipment);
+            }
+            else
+            {
+                cargo.id = equip.archId;
+                cargo.health = equip.health;
+                cargo.isMissionCargo = equip.mission;
+                cargo.amount = equip.count;
+                character.baseCargo.emplace_back(cargo);
+            }
         }
     }
-    if (currPlayer == pd->accountCharacterDataEnd)
-    {
-        //TODO: character failed to fetch, handle/fix
-        return true;
-    }
 
-    character.baseHullStatus = currPlayer->baseHealth;
-    for (const auto& col : currPlayer->baseColgrps)
-    {
-        character.baseCollisionGroups.insert({ col.id, col.health });
-    }
-    for (const auto& equip : currPlayer->baseEquipList)
-    {
-        Equipment equipment = {};
-        FLCargo cargo = {};
-
-        bool isCommodity = false;
-        pub::IsCommodity(equip.archId, isCommodity);
-        if (!isCommodity)
-        {
-            equipment.id = equip.archId;
-            equipment.health = equip.health;
-            equipment.mounted = equip.mounted;
-            equipment.hardPoint = equip.hardPoint.value;
-            character.baseEquipment.emplace_back(equipment);
-        }
-        else
-        {
-            cargo.id = equip.archId;
-            cargo.health = equip.health;
-            cargo.isMissionCargo = equip.mission;
-            cargo.amount = equip.count;
-            character.baseCargo.emplace_back(cargo);
-        }
-    }
-
-    return true;
+    return SaveCharacter(character, false);
 }
 
 std::wstring newAccountString;
@@ -618,8 +643,6 @@ void AccountManager::PlayerDbInitDetour(PlayerDB* db, void* edx, uint unk, bool 
     std::seed_seq seq(std::begin(seed), std::end(seed));
     std::mt19937 generator(seq);
     uuids::uuid_random_generator gen{ generator };
-
-    // static auto lastAccountStr = (wchar_t**)(DWORD(GetModuleHandleA("server.dll")) + 0x84EFC);
 
     for (int i = 0; i < accounts.size(); ++i)
     {
@@ -718,83 +741,107 @@ AccountManager::AccountManager()
 {
     instance = this;
 
-    const auto mod = reinterpret_cast<DWORD>(GetModuleHandleA("server.dll"));
+    const auto serverOffset = reinterpret_cast<DWORD>(GetModuleHandleA("server.dll"));
 
     LoadNewPlayerFLInfo();
 
-    createCharacterLoadingData = reinterpret_cast<CreateCharacterLoadingData>(reinterpret_cast<DWORD>(createCharacterLoadingData) + mod);
+    createCharacterLoadingData = reinterpret_cast<CreateCharacterLoadingData>(reinterpret_cast<DWORD>(createCharacterLoadingData) + serverOffset);
 
     // Replace Server.dll PlayerDB init
-    MemUtils::PatchAssembly(mod + 0x713FF, reinterpret_cast<void*>(mod + 0x714D2)); // Bypass reading folders for accounts
+    MemUtils::PatchAssembly(serverOffset + 0x713FF, reinterpret_cast<void*>(serverOffset + 0x714D2)); // Bypass reading folders for accounts
     // Create 256 CAccounts on startup, replace Login function entirely.
 
-    onPlayerSaveDetour = std::make_unique<FunctionDetour<OnPlayerSaveType>>(reinterpret_cast<OnPlayerSaveType>(mod + 0x6C430));
+    onPlayerSaveDetour = std::make_unique<FunctionDetour<OnPlayerSaveType>>(reinterpret_cast<OnPlayerSaveType>(serverOffset + 0x6C430));
     onPlayerSaveDetour->Detour(OnPlayerSave);
 
-    dbInitDetour = std::make_unique<FunctionDetour<DbInitType>>(reinterpret_cast<DbInitType>(mod + 0x710C0)); // Detour the init function
+    dbInitDetour = std::make_unique<FunctionDetour<DbInitType>>(reinterpret_cast<DbInitType>(serverOffset + 0x710C0)); // Detour the init function
     dbInitDetour->Detour(PlayerDbInitDetour);
 
-    onCreateNewCharacterDetour = std::make_unique<FunctionDetour<OnCreateNewCharacterType>>(reinterpret_cast<OnCreateNewCharacterType>(mod + 0x6B790));
+    onCreateNewCharacterDetour = std::make_unique<FunctionDetour<OnCreateNewCharacterType>>(reinterpret_cast<OnCreateNewCharacterType>(serverOffset + 0x6B790));
     onCreateNewCharacterDetour->Detour(OnCreateNewCharacter);
 
     // MemUtils::PatchAssembly(mod + 0x76940, reinterpret_cast<PVOID>(mod + 0x76BBA)); // Patch out CAccount::InitFromFolder
     //  PlayerDB::load_user_data hacks
-    MemUtils::NopAddress(mod + 0x734DE, 0x6D534F1 - 0x6D534DE); // Don't call Access to look for a file
+    MemUtils::NopAddress(serverOffset + 0x734DE, 0x6D534F1 - 0x6D534DE); // Don't call Access to look for a file
 
     std::array<byte, 2> removeStringCheck = { 0xB0, 0x01 }; // mov al, 1
-    MemUtils::WriteProcMem(mod + 0x734FEE, removeStringCheck.data(), removeStringCheck.size());
-    MemUtils::NopAddress(mod + 0x7352B, 0x6D53589 - 0x6D5352B);
+    MemUtils::WriteProcMem(serverOffset + 0x734FEE, removeStringCheck.data(), removeStringCheck.size());
+    MemUtils::NopAddress(serverOffset + 0x7352B, 0x6D53589 - 0x6D5352B);
     std::array<byte, 3> stackFix = { 0x83, 0xEC, 0x14 };
-    MemUtils::WriteProcMem(mod + 0x7357A, stackFix.data(), stackFix.size());
+    MemUtils::WriteProcMem(serverOffset + 0x7357A, stackFix.data(), stackFix.size());
 
-    MemUtils::PatchAssembly(mod + 0x735A9, loadUserDataAssembly.getCode());
+    MemUtils::PatchAssembly(serverOffset + 0x735A9, loadUserDataAssembly.getCode());
 
     // Patch out folder creation in create account
-    MemUtils::NopAddress(mod + 0x72499, 0x6D5252C - 0x6D52499);
-    MemUtils::NopAddress(mod + 0x725A6, 0x6D525FE - 0x6D525A6);
+    MemUtils::NopAddress(serverOffset + 0x72499, 0x6D5252C - 0x6D52499);
+    MemUtils::NopAddress(serverOffset + 0x725A6, 0x6D525FE - 0x6D525A6);
 
-    MemUtils::PatchCallAddr(mod, 0x72697, CreateAccountInitFromFolderBypass);
+    MemUtils::PatchCallAddr(serverOffset, 0x72697, CreateAccountInitFromFolderBypass);
 
     // Patch out IO in InitFromFolder
-    MemUtils::PatchAssembly(mod + 0x76955, InitFromFolderIoBypass);
+    MemUtils::PatchAssembly(serverOffset + 0x76955, InitFromFolderIoBypass);
 }
 
-void AccountManager::DeleteCharacter(const std::wstring& characterName)
+void AccountManager::ClearClientInfo(ClientId client)
+{
+    auto& account = accounts.at(client.GetValue());
+    account.characters.clear();
+}
+
+bool AccountManager::DeleteCharacter(ClientId client, const std::wstring& characterCode)
 {
     auto db = FLHook::GetDbClient();
     auto session = db->start_session();
     session.start_transaction();
 
+    auto& account = accounts.at(client.GetValue());
+    std::string charCodeString = StringUtils::wstos(characterCode);
+    std::string charName = account.characters.at(charCodeString).characterName;
+    std::wstring wideCharName = StringUtils::stows(charName);
     try
     {
         // TODO: Handle soft deletes
         auto accountsCollection = db->database("FLHook")["accounts"];
 
-        std::string accId = StringUtils::wstos(characterName);
-
         using bsoncxx::builder::basic::kvp;
-        using bsoncxx::builder::basic::make_array;
         using bsoncxx::builder::basic::make_document;
 
-        const auto findDoc = make_document(kvp("_id", accId));
-        const auto ret = accountsCollection.find_one_and_delete(findDoc.view());
+        mongocxx::options::find_one_and_delete deleteOptions;
+        deleteOptions.projection(make_document(kvp("accountId", 1)));
+        
+        const auto findDoc = make_document(kvp("characterName", charName));
+        const auto ret = accountsCollection.find_one_and_delete(findDoc.view(), deleteOptions);
+        if(!ret.has_value())
+        {
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
+                                                "Character deletion failed!");
+        }
+        auto oid = ret->view()["_id"].get_oid();
+        const auto findAcc = make_document(kvp("_id", ret->view()["accountId"].get_string()));
+        const auto deleteCharacter = make_document(kvp("$pull", make_document(kvp("characters", oid))));
+        accountsCollection.update_one(findAcc.view(), deleteCharacter.view());
 
         session.commit_transaction();
-        Logger::Log(LogLevel::Info, std::format(L"Successfully hard deleted character: {}", characterName));
+        account.characters.erase(charCodeString);
+        account.internalAccount->numberOfCharacters = account.characters.size();
+        Logger::Log(LogLevel::Info, std::format(L"Successfully hard deleted character: {}", wideCharName));
+        return true;
     }
     catch (bsoncxx::exception& ex)
     {
-        Logger::Log(LogLevel::Err, std::format(L"Error hard deleted character ({}): {}", characterName, StringUtils::stows(ex.what())));
+        Logger::Log(LogLevel::Err, std::format(L"Error hard deleted character ({}): {}", wideCharName, StringUtils::stows(ex.what())));
         session.abort_transaction();
+        return false;
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Log(LogLevel::Err, std::format(L"Error hard deleted character ({}): {}", characterName, StringUtils::stows(ex.what())));
+        Logger::Log(LogLevel::Err, std::format(L"Error hard deleted character ({}): {}", wideCharName, StringUtils::stows(ex.what())));
         session.abort_transaction();
+        return false;
     }
 }
 
-void AccountManager::Login(const std::wstring& info, const ClientId& client)
+void AccountManager::Login(const std::wstring& wideAccountId, const ClientId& client)
 {
     auto db = FLHook::GetDbClient();
     auto session = db->start_session();
@@ -804,10 +851,9 @@ void AccountManager::Login(const std::wstring& info, const ClientId& client)
     {
         auto accountsCollection = db->database("FLHook")["accounts"];
 
-        std::string accId = StringUtils::wstos(info);
+        std::string accId = StringUtils::wstos(wideAccountId);
 
         using bsoncxx::builder::basic::kvp;
-        using bsoncxx::builder::basic::make_array;
         using bsoncxx::builder::basic::make_document;
 
         const auto findDoc = make_document(kvp("_id", accId));
@@ -822,7 +868,7 @@ void AccountManager::Login(const std::wstring& info, const ClientId& client)
             bsoncxx::document::view doc{ reinterpret_cast<uint8_t*>(bytes.data()), bytes.size() };
 
             accountsCollection.insert_one(doc);
-            accounts[client.GetValue() - 1].account = account;
+            accounts[client.GetValue()].account = account;
             session.commit_transaction();
             return;
         }
@@ -838,7 +884,7 @@ void AccountManager::Login(const std::wstring& info, const ClientId& client)
 
         const auto account = accountResult.value();
 
-        auto& internalAcc = accounts[client.GetValue() - 1];
+        auto& internalAcc = accounts[client.GetValue()];
         internalAcc.account = account;
 
         // Convert vector to bson array
@@ -856,14 +902,14 @@ void AccountManager::Login(const std::wstring& info, const ClientId& client)
             auto characterResult = rfl::bson::read<Character>(doc.data(), doc.length());
             if (characterResult.error().has_value())
             {
-                // TODO: Log what went wrong
+                Logger::Log(LogLevel::Err, std::format(L"Error when loading a character: {}", StringUtils::stows(characterResult.error().value().what())));
                 session.abort_transaction();
                 return;
             }
             auto character = characterResult.value();
             if (character.characterName.empty())
             {
-                // TODO: Log error
+                Logger::Log(LogLevel::Err, std::format(L"Error when reading character name for account: {}", wideAccountId));
                 continue;
             }
             char charNameBuf[50];
@@ -885,10 +931,9 @@ void AccountManager::Login(const std::wstring& info, const ClientId& client)
     }
 }
 
-bool AccountManager::SaveCharacter(const Character& newCharacter, const bool isNewCharacter)
+bool AccountManager::SaveCharacter(Character& newCharacter, const bool isNewCharacter)
 {
     using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_array;
     using bsoncxx::builder::basic::make_document;
 
     const auto db = FLHook::GetDbClient();
@@ -911,39 +956,54 @@ bool AccountManager::SaveCharacter(const Character& newCharacter, const bool isN
 
         // Upsert Character
         auto bsonBytes = rfl::bson::write(newCharacter);
-        bsoncxx::document::view newCharDoc{ reinterpret_cast<uint8_t*>(bsonBytes.data()), bsonBytes.size() };
-
-        mongocxx::options::find_one_and_replace replaceOptions;
-        // Create if not exists
-        replaceOptions.upsert(true);
-        // The ID shouldn't change if we are updating, but lets make sure we get a valid ID back
-        replaceOptions.return_document(mongocxx::options::return_document::k_after);
-        // Only return the _id field to update the character list
-        replaceOptions.projection(make_document(kvp("_id", 1)));
-        auto replacedDoc = accounts.find_one_and_replace(findCharDoc.view(), newCharDoc, replaceOptions);
-
-        if (!replacedDoc.has_value())
-        {
-            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Unable to upsert a character.");
-        }
+        bsoncxx::document::view savedCharDoc{ reinterpret_cast<uint8_t*>(bsonBytes.data()), bsonBytes.size() };
 
         // Update account character list if new character
         if (isNewCharacter)
         {
+            auto insertedDoc = accounts.insert_one(savedCharDoc);
+
+            if (!insertedDoc.has_value())
+            {
+                throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Unable to upsert a character.");
+            }
+            bson_oid_t charOid;
+            memcpy_s(charOid.bytes, sizeof(charOid.bytes), insertedDoc->inserted_id().get_oid().value.bytes(), bsoncxx::v_noabi::oid::k_oid_length);
+
+            newCharacter._id = charOid;
             const auto findAccDoc = make_document(kvp("_id", newCharacter.accountId));
-            const auto charUpdateDoc = make_document(kvp("$push", make_document(kvp("characters", replacedDoc->view()["_id"].get_oid()))));
+            const auto charUpdateDoc = make_document(kvp("$push", make_document(kvp("characters", insertedDoc->inserted_id()))));
             accounts.update_one(findAccDoc.view(), charUpdateDoc.view());
+        }
+        else
+        {
+            auto updateDoc = make_document(kvp("$set", savedCharDoc));
+            accounts.update_one(findCharDoc.view(), updateDoc.view());
         }
     }
     catch (bsoncxx::exception& ex)
     {
-        Logger::Log(LogLevel::Err, std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
+        if(isNewCharacter)
+        {
+            Logger::Log(LogLevel::Err, std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
+        }
+        else
+        {
+            Logger::Log(LogLevel::Err, std::format(L"Error while updating character {}", StringUtils::stows(ex.what())));
+        }
         session.abort_transaction();
         return false;
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Log(LogLevel::Err, std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
+        if(isNewCharacter)
+        {
+            Logger::Log(LogLevel::Err, std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
+        }
+        else
+        {
+            Logger::Log(LogLevel::Err, std::format(L"Error while updating character {}", StringUtils::stows(ex.what())));
+        }
         session.abort_transaction();
         return false;
     }
