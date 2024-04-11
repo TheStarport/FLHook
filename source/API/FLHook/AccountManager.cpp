@@ -508,10 +508,12 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     SystemTimeToFileTime(&sysTime, &fileTime);
     character.totalTimePlayed = static_cast<int64>(fileTime.dwHighDateTime) << 32 | fileTime.dwLowDateTime;
 
-    Vector vec = { 0.0f, 0.0f, 0.0f };
-    character.pos = pd->position;
-    character.rot = pd->orientation.ToEuler(true);
-
+    if(pd->shipId)
+    {
+        auto cship = ShipId(pd->shipId).GetCShip(false).Handle();
+        character.pos.value() = cship->position;
+        character.rot.value() = cship->orientation.ToEuler(true);
+    }
     uint affiliation;
     uint rank;
     unsigned char relationCount;
