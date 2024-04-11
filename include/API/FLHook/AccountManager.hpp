@@ -40,7 +40,7 @@ struct VanillaLoadData
         SubObjectID::EquipIdMaker equipIdEnumerator;          // 872
         st6::string prefilledWeaponGroupIni;                  // 886
         st6::list<FmtStr> neuralNetLog;                       // 902 - probably wrong, 'log' entries from character file. Also 'mostly' SP only.
-        int interfaceState;                                  // 914
+        int interfaceState = 3;                               // 914
         uint unused2;                                         // 918
         BinarySearchTree<VisitEntry> visitLists;              // 922
                                                               // 934

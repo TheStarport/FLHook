@@ -10,6 +10,57 @@
 #include <mongocxx/exception/write_exception.hpp>
 #include <stduuid/uuid.h>
 
+struct Rumor
+{
+    uint IDS;
+    uint unknown; // number of times read?
+};
+
+struct VNpc
+{
+    enum class NpcMissionStatus
+    {
+        NotOnAMissionForThisNpc,
+        OnAMissionForThisNpc,
+        CompletedMissionForThisNpc
+    };
+
+    uint baseHash;
+    uint npcHash;
+    uint interactionCount;
+    NpcMissionStatus missionStatus = NpcMissionStatus::NotOnAMissionForThisNpc;
+};
+
+struct MPlayerDataSaveStruct
+{
+        uint padding0[8];
+        bool padding8;                           // 32
+        bool canDock;                            // 33
+        uint can_dock2;                          // 36
+        st6::list<uint> DockExceptions;          // 40
+        bool can_tl;                             // 52
+        uint padding51;                          // 56
+        st6::list<uint> TL_Exceptions;           // 60
+        BinarySearchTree<uint> BST_killed_ships; // 72
+        BinarySearchTree<uint> BST_rm_completed; // 92
+        BinarySearchTree<uint> BST_rm_Aborted;   // 112
+        BinarySearchTree<uint> BST_rm_Failed;    // 132
+        float totalCashEarned;                   // 156
+        float totalTimePlayed;                   // 160
+        st6::vector<uint> visitedSystems;        // 164
+        st6::vector<uint> visitedBases;          // 180
+        st6::vector<uint> visitedHoles;          // 196
+        uint padding52;                          // 200
+        uint padding53;                          // 204
+        uint padding54;                          // 208
+        uint padding55;                          // 212
+        uint padding56;                          // 216
+        uint padding57;                          // 220
+        uint padding58;                          // 224
+        st6::vector<VNpc> visitedNPCs;  // 240
+        st6::vector<Rumor> receivedRumors;// 252
+};
+
 void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& character)
 {
     std::wstring wCharName = StringUtils::stows(character.characterName);
@@ -466,7 +517,44 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     {
         return true;
     }
+
+    static DWORD contentModule = DWORD(GetModuleHandleA("content.dll")) + 0x130BBC;
+    static BinarySearchTree<MPlayerDataSaveStruct*>* mdataBST = (BinarySearchTree<MPlayerDataSaveStruct*>*)contentModule;
+
+    auto mdata = mdataBST->Find(pd->clientId);
+    if (mdata == mdataBST->end())
+    {
+        Logger::Log(LogLevel::Err, std::format(L"Fetching mPlayer data for {}", client.characterName));
+        return true;
+    }
+
     auto& character = accounts[pd->clientId].characters.at(pd->charFile.charFilename);
+
+    character.basesVisited.clear();
+    character.jumpHolesVisited.clear();
+    character.systemsVisited.clear();
+    character.npcVisits.clear();
+
+    for (auto visitedBase : mdata->value->visitedBases)
+    {
+        character.basesVisited.emplace_back(visitedBase);
+    }
+    for (auto visitedJH : mdata->value->visitedHoles)
+    {
+        character.jumpHolesVisited.emplace_back(visitedJH);
+    }
+    for (auto visitedNPC : mdata->value->visitedNPCs)
+    {
+        NpcVisit vnpc = { visitedNPC.baseHash, visitedNPC.npcHash, visitedNPC.interactionCount, static_cast<int>(visitedNPC.missionStatus) };
+        character.npcVisits.emplace_back(vnpc);
+    }
+    for (auto visitedSystem : mdata->value->visitedSystems)
+    {
+        character.systemsVisited.emplace_back(visitedSystem);
+    }
+
+    character.shipTypesKilled.clear();
+
 
     character.equipment.clear();
     character.baseEquipment.clear();
@@ -510,9 +598,10 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 
     if(pd->shipId)
     {
+        //TODO: Release the cship?
         auto cship = ShipId(pd->shipId).GetCShip(false).Handle();
-        character.pos.value() = cship->position;
-        character.rot.value() = cship->orientation.ToEuler(true);
+        character.pos = cship->position;
+        character.rot = cship->orientation.ToEuler(true);
     }
     uint affiliation;
     uint rank;
@@ -584,7 +673,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
             }
             else if(i < 0)
             {
-                currPlayer = currPlayer->left;
+                currPlayer = currPlayer->head;
             }
             else
             {
