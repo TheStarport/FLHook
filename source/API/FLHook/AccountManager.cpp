@@ -12,53 +12,53 @@
 
 struct Rumor
 {
-    uint IDS;
-    uint unknown; // number of times read?
+        uint IDS;
+        uint unknown; // number of times read?
 };
 
 struct VNpc
 {
-    enum class NpcMissionStatus
-    {
-        NotOnAMissionForThisNpc,
-        OnAMissionForThisNpc,
-        CompletedMissionForThisNpc
-    };
+        enum class NpcMissionStatus
+        {
+            NotOnAMissionForThisNpc,
+            OnAMissionForThisNpc,
+            CompletedMissionForThisNpc
+        };
 
-    uint baseHash;
-    uint npcHash;
-    uint interactionCount;
-    NpcMissionStatus missionStatus = NpcMissionStatus::NotOnAMissionForThisNpc;
+        uint baseHash;
+        uint npcHash;
+        int interactionCount;
+        NpcMissionStatus missionStatus = NpcMissionStatus::NotOnAMissionForThisNpc;
 };
 
 struct MPlayerDataSaveStruct
 {
         uint padding0[8];
-        bool padding8;                           // 32
-        bool canDock;                            // 33
-        uint can_dock2;                          // 36
-        st6::list<uint> DockExceptions;          // 40
-        bool can_tl;                             // 52
-        uint padding51;                          // 56
-        st6::list<uint> TL_Exceptions;           // 60
-        BinarySearchTree<uint> BST_killed_ships; // 72
-        BinarySearchTree<uint> BST_rm_completed; // 92
-        BinarySearchTree<uint> BST_rm_Aborted;   // 112
-        BinarySearchTree<uint> BST_rm_Failed;    // 132
-        float totalCashEarned;                   // 156
-        float totalTimePlayed;                   // 160
-        st6::vector<uint> visitedSystems;        // 164
-        st6::vector<uint> visitedBases;          // 180
-        st6::vector<uint> visitedHoles;          // 196
-        uint padding52;                          // 200
-        uint padding53;                          // 204
-        uint padding54;                          // 208
-        uint padding55;                          // 212
-        uint padding56;                          // 216
-        uint padding57;                          // 220
-        uint padding58;                          // 224
-        st6::vector<VNpc> visitedNPCs;  // 240
-        st6::vector<Rumor> receivedRumors;// 252
+        bool padding8;                     // 32
+        bool canDock;                      // 33
+        uint can_dock2;                    // 36
+        st6::list<uint> DockExceptions;    // 40
+        bool can_tl;                       // 52
+        uint padding51;                    // 56
+        st6::list<uint> TL_Exceptions;     // 60
+        FlMap<uint> BST_killed_ships;      // 72
+        FlMap<uint> BST_rm_Completed;      // 92
+        FlMap<uint> BST_rm_Aborted;        // 112
+        FlMap<uint> BST_rm_Failed;         // 132
+        float totalCashEarned;             // 156
+        float totalTimePlayed;             // 160
+        st6::vector<uint> visitedSystems;  // 164
+        st6::vector<uint> visitedBases;    // 180
+        st6::vector<uint> visitedHoles;    // 196
+        uint padding52;                    // 200
+        uint padding53;                    // 204
+        uint padding54;                    // 208
+        uint padding55;                    // 212
+        uint padding56;                    // 216
+        uint padding57;                    // 220
+        uint padding58;                    // 224
+        st6::vector<VNpc> visitedNPCs;     // 240
+        st6::vector<Rumor> receivedRumors; // 252
 };
 
 void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& character)
@@ -101,21 +101,21 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
     }
 
     SubObjectID::EquipIdMaker eqId;
-#define AddCargo(cargo, list)           \
-    EquipDesc equipDesc;                \
-    equipDesc.id = eqId.CreateEquipID();\
-    equipDesc.archId = cargo.id;        \
-    equipDesc.mounted = false;          \
-    equipDesc.count = cargo.amount;     \
-    equipDesc.health = cargo.health;    \
+#define AddCargo(cargo, list)            \
+    EquipDesc equipDesc;                 \
+    equipDesc.id = eqId.CreateEquipID(); \
+    equipDesc.archId = cargo.id;         \
+    equipDesc.mounted = false;           \
+    equipDesc.count = cargo.amount;      \
+    equipDesc.health = cargo.health;     \
     list.push_back(equipDesc);
 
-#define AddEquip(equip, list)           \
-    EquipDesc equipDesc;                \
-    equipDesc.id = eqId.CreateEquipID();\
-    equipDesc.archId = equip.id;        \
-    equipDesc.health = equip.health;    \
-    equipDesc.mounted = equip.mounted;  \
+#define AddEquip(equip, list)                                                \
+    EquipDesc equipDesc;                                                     \
+    equipDesc.id = eqId.CreateEquipID();                                     \
+    equipDesc.archId = equip.id;                                             \
+    equipDesc.health = equip.health;                                         \
+    equipDesc.mounted = equip.mounted;                                       \
     equipDesc.hardPoint.value = StringAlloc(equip.hardPoint.c_str(), false); \
     list.push_back(equipDesc);
 
@@ -128,7 +128,7 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
     {
         AddEquip(equip, data->baseEquipAndCargo);
     }
-    
+
     eqId.Reset();
 
     for (const auto& cargo : character.cargo)
@@ -142,7 +142,6 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
     }
 
     data->equipIdEnumerator = eqId;
-
 
 #undef AddEquip
 #undef AddCargo
@@ -162,6 +161,11 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
     memcpy(data->voice, character.voice.c_str(), character.voice.size() + 1);
     data->voiceLen = character.voice.size() + 1;
 
+    // for (auto visit : character.visits)
+    //{
+    //     data->visitLists[visit.first] = visit.second;
+    // }
+
     /*for (auto& visit : visitValues)
     {
         using sub_6D5C600Type = int(__fastcall*)(void* ptr, void* null, uint* u, uint* state);
@@ -172,31 +176,6 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
         uint input[2] = { visit.first, visit.second };
         sub_6D5C600(unkThis, edx, v166, input);
         *(v166 + 16) = static_cast<byte>(visit.second);
-    }*/
-
-    /*for (auto& rep : reps)
-    {
-        if (rep.second.empty())
-        {
-            continue;
-        }
-
-        struct Input
-        {
-                uint hash;
-                float rep;
-        };
-
-        Input input = { 0, rep.first };
-        TString<16> str;
-        str.len = sprintf_s(str.data, "%s", rep.second.c_str());
-        input.hash = Reputation::get_id(str);
-
-        using sub_6D58B40Type = int(__fastcall*)(void* ptr, void* null, void* unk1, uint unk2, void* fac);
-        static auto sub_6D58B40 = sub_6D58B40Type(DWORD(server) + 0x78B40);
-        void* unkThis = PDWORD(DWORD(data) + 704);
-        void* unk2 = *(PDWORD*)(DWORD(data) + 712);
-        sub_6D58B40(unkThis, edx, unk2, 1, &input);
     }*/
 }
 
@@ -328,7 +307,8 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
         memcpy_s(characterLoadingBuffer.data(), characterLoadingBuffer.size(), character.first.data(), character.first.size());
 
         // Pass the buffer into the original function that we populate with our data
-        auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterLoadingBuffer.data()));
+        auto* loadData = static_cast<VanillaLoadData*>(
+            createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterLoadingBuffer.data()));
 
         // Copy the data from our DB type to the internal type
         ConvertCharacterToVanillaData(loadData, character.second);
@@ -451,7 +431,8 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
     std::memset(characterCodeBuffer.data(), 0, characterCodeBuffer.size());
 
     getFlName(characterCodeBuffer.data(), characterInfo->charname);
-    auto* loadData = static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterCodeBuffer.data()));
+    auto* loadData =
+        static_cast<VanillaLoadData*>(createCharacterLoadingData(reinterpret_cast<PlayerData*>(&data->chararacterCreationPtr), characterCodeBuffer.data()));
 
     loadData->currentBase = newPlayerTemplate.base == "%%HOME_BASE%%" ? characterInfo->base : CreateID(newPlayerTemplate.base.c_str());
     loadData->system =
@@ -499,7 +480,7 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
         loadData->shipHash = newPlayerTemplate.ship;
     }
     auto& account = accounts[data->clientId];
-    static std::array<char,512> characterFileNameBuffer;
+    static std::array<char, 512> characterFileNameBuffer;
     std::memset(characterFileNameBuffer.data(), 0, characterFileNameBuffer.size());
     getFlName(characterFileNameBuffer.data(), characterInfo->charname);
 
@@ -554,8 +535,32 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     }
 
     character.shipTypesKilled.clear();
+    character.randomMissionsCompleted.clear();
+    character.randomMissionsAborted.clear();
+    character.randomMissionsFailed.clear();
+    for (auto iterBST : mdata->value->BST_killed_ships)
+    {
+        character.shipTypesKilled[iterBST->key] = iterBST->data;
+    }
+    for (auto iterBST : mdata->value->BST_rm_Completed)
+    {
+        character.randomMissionsCompleted[iterBST->key] = iterBST->data;
+    }
+    for (auto iterBST : mdata->value->BST_rm_Aborted)
+    {
+        character.randomMissionsAborted[iterBST->key] = iterBST->data;
+    }
+    for (auto iterBST : mdata->value->BST_rm_Failed)
+    {
+        character.randomMissionsFailed[iterBST->key] = iterBST->data;
+    }
 
-
+    character.visits.clear();
+    // for (auto visit = pd->visitEntries.begin(); visit != pd->visitEntries.end(); ++visit)
+    for (auto visit : pd->visitEntries)
+    {
+        character.visits[visit->key] = visit->data.visitValue;
+    }
     character.equipment.clear();
     character.baseEquipment.clear();
     character.cargo.clear();
@@ -596,9 +601,9 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     SystemTimeToFileTime(&sysTime, &fileTime);
     character.totalTimePlayed = static_cast<int64>(fileTime.dwHighDateTime) << 32 | fileTime.dwLowDateTime;
 
-    if(pd->shipId)
+    if (pd->shipId)
     {
-        //TODO: Release the cship?
+        // TODO: Release the cship?
         auto cship = ShipId(pd->shipId).GetCShip(false).Handle();
         character.pos = cship->position;
         character.rot = cship->orientation.ToEuler(true);
@@ -649,7 +654,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         character.collisionGroups.insert({ col.id, col.health });
     }
 
-    if(character.currentBase)
+    if (character.currentBase)
     {
         character.baseCargo = character.cargo;
         character.baseEquipment = character.equipment;
@@ -664,16 +669,16 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         getFlName(fileName, client.characterName.data());
 
         CharacterBaseDataInfo* currPlayer = pd->accountCharacterDataBegin->root;
-        while(currPlayer != pd->accountCharacterDataEnd)
+        while (currPlayer != pd->accountCharacterDataEnd)
         {
-            int i = _stricmp(fileName,currPlayer->filename);
-            if(i == 0)
+            int i = _stricmp(fileName, currPlayer->filename);
+            if (i == 0)
             {
                 break;
             }
-            else if(i < 0)
+            else if (i < 0)
             {
-                currPlayer = currPlayer->head;
+                currPlayer = currPlayer->left;
             }
             else
             {
@@ -682,7 +687,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         }
         if (currPlayer == pd->accountCharacterDataEnd)
         {
-            //TODO: character failed to fetch, handle/fix
+            // TODO: character failed to fetch, handle/fix
             Logger::Log(LogLevel::Err, std::format(L"Fetching Base Status failed for {}", client.characterName));
             return true;
         }
@@ -899,13 +904,12 @@ bool AccountManager::DeleteCharacter(ClientId client, const std::wstring& charac
 
         mongocxx::options::find_one_and_delete deleteOptions;
         deleteOptions.projection(make_document(kvp("accountId", 1)));
-        
+
         const auto findDoc = make_document(kvp("characterName", charName));
         const auto ret = accountsCollection.find_one_and_delete(findDoc.view(), deleteOptions);
-        if(!ret.has_value())
+        if (!ret.has_value())
         {
-            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
-                                                "Character deletion failed!");
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Character deletion failed!");
         }
         auto oid = ret->view()["_id"].get_oid();
         const auto findAcc = make_document(kvp("_id", ret->view()["accountId"].get_string()));
@@ -1074,7 +1078,7 @@ bool AccountManager::SaveCharacter(Character& newCharacter, const bool isNewChar
     }
     catch (bsoncxx::exception& ex)
     {
-        if(isNewCharacter)
+        if (isNewCharacter)
         {
             Logger::Log(LogLevel::Err, std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
         }
@@ -1087,7 +1091,7 @@ bool AccountManager::SaveCharacter(Character& newCharacter, const bool isNewChar
     }
     catch (mongocxx::exception& ex)
     {
-        if(isNewCharacter)
+        if (isNewCharacter)
         {
             Logger::Log(LogLevel::Err, std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
         }

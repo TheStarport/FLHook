@@ -42,7 +42,7 @@ struct VanillaLoadData
         st6::list<FmtStr> neuralNetLog;                       // 902 - probably wrong, 'log' entries from character file. Also 'mostly' SP only.
         int interfaceState = 3;                               // 914
         uint unused2;                                         // 918
-        BinarySearchTree<VisitEntry> visitLists;              // 922
+        FlMap<VisitEntry> visitLists;              // 922
                                                               // 934
 
         void SetRelation(Reputation::Relation relation);

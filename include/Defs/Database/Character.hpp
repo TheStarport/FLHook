@@ -47,7 +47,7 @@ struct Character
         bool canDock = true;
         bool canTradeLane = true;
         int64 lastDockedBase = 0;
-	int64 currentBase = 0;
+	    int64 currentBase = 0;
         int64 currentRoom = 0;
         int killCount = 0;
         int missionFailureCount = 0;
@@ -62,10 +62,14 @@ struct Character
         std::vector<Equipment> equipment;
         std::vector<Equipment> baseEquipment;
         std::unordered_map<int, float> collisionGroups;
-	std::unordered_map<int, float> baseCollisionGroups;
-        std::unordered_map<int64, float> reputation;
-        std::unordered_map<int64, int> shipTypesKilled;
-        std::unordered_map<int64, int> visits;
+	    std::unordered_map<int, float> baseCollisionGroups;
+    //keys are actually unsigned ints, but this works anyway
+        std::unordered_map<int, float> reputation;
+        std::unordered_map<int, int> shipTypesKilled;
+        std::unordered_map<int, int> randomMissionsCompleted;
+        std::unordered_map<int, int> randomMissionsAborted;
+        std::unordered_map<int, int> randomMissionsFailed;
+        std::unordered_map<int, char> visits;
         std::vector<int64> systemsVisited;
         std::vector<int64> basesVisited;
         std::vector<NpcVisit> npcVisits;
