@@ -85,7 +85,7 @@ namespace Plugins::LootTables
 			uint cumulativeWeight = 0;
 			uint randomNumber = distribution(mersenneTwisterEngine);
 
-			for (const auto weight : lootTable.dropWeights)
+			for (const auto& weight : lootTable.dropWeights)
 			{
 				cumulativeWeight += weight.weighting;
 				if (randomNumber < cumulativeWeight && weight.itemHashed)
