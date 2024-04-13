@@ -15,7 +15,7 @@ namespace Plugins::LootTables
 
 	struct LootTable final : Reflectable
 	{
-		uint dropCount = 0;
+		std::vector<uint> dropCount = {0, 1, 1, 2, 3};
 		bool applyToPlayers = false;
 		bool applyToNpcs = false;
 		std::string triggerItem = "missile01_mark02";

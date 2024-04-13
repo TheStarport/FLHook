@@ -86,13 +86,17 @@ namespace Plugins::LootTables
 				sum += weight;
 				if (randomFloat <= sum && itemHashed)
 				{
-     					Server.MineAsteroid(
-					    ship->iSystem, 
-						ship->get_position(), 
-						global->config->lootDropContainerHashed, 
-						itemHashed, 
-						lootTable.dropCount, 
-						ship->GetOwnerPlayer());
+					// Randomly select a dropCount value
+					std::uniform_int_distribution<std::size_t> countDist(0, lootTable.dropCount.size() - 1);
+					const std::size_t randomIndex = countDist(mersenneTwisterEngine);
+
+     				Server.MineAsteroid(
+					ship->iSystem, 
+					ship->get_position(), 
+					global->config->lootDropContainerHashed, 
+					itemHashed, 
+					lootTable.dropCount[randomIndex], 
+					ship->GetOwnerPlayer());
 					return;
 				}
 			}
