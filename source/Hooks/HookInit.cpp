@@ -77,6 +77,11 @@ void FLHook::InitHookExports()
     FLHook::contentDll = GetModuleHandle(L"content.dll");
     FLHook::remoteClient = GetModuleHandle(L"remoteclient.dll");
 
+    //TODO: move this thing somewhere more fitting
+
+    // Patch out actual mPlayerData execution code
+    AccountManager::InitContentDLLDetours();
+
     getShipInspect = reinterpret_cast<GetShipInspectT>(Offset(BinaryType::Server, AddressList::GetInspect));
     crcAntiCheat = reinterpret_cast<CRCAntiCheatT>(Offset(BinaryType::Server, AddressList::CrcAntiCheat));
     IEngineHook::oldLoadReputationFromCharacterFile = reinterpret_cast<FARPROC>(Offset(BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 7);
