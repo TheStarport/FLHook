@@ -8,7 +8,7 @@ namespace Plugins::LootTables
 {
 	struct DropWeight final : Reflectable
 	{
-		float weighting = 0; // These should add up to 1 for each DropWeight entry in LootTable
+		uint weighting = 0; // Weights are relative, meaning to compute drop likelihood, do w_i / sum(w_1, w_2, ...)
 		uint itemHashed = 0;
 		std::string item = "missile01_mark02_ammo";
 	};

@@ -76,27 +76,30 @@ namespace Plugins::LootTables
 			}
 
 			// Calculate what Item to drop
-			std::random_device randomDevice; // Used to obtain a seed
+			std::random_device randomDevice;                    // Used to obtain a seed
 			std::mt19937 mersenneTwisterEngine(randomDevice()); //  Mersenne Twister algorithm seeded with the variable above
-			std::uniform_real_distribution dist(0.0f, 1.0f);
-			const float randomFloat = dist(mersenneTwisterEngine);
-			float sum = 0.0;
-			for (const auto& [weight, itemHashed, item] : lootTable.dropWeights)
+			uint weightSum = std::accumulate(lootTable.dropWeights.begin(), lootTable.dropWeights.end(), 0, [](uint accumulator, const DropWeight& dropWeight) {
+				return accumulator + dropWeight.weighting;
+			});
+			std::uniform_int_distribution<uint> distribution(0, weightSum);
+			uint cumulativeWeight = 0;
+			uint randomNumber = distribution(mersenneTwisterEngine);
+
+			for (const auto weight : lootTable.dropWeights)
 			{
-				sum += weight;
-				if (randomFloat <= sum && itemHashed)
+				cumulativeWeight += weight.weighting;
+				if (randomNumber < cumulativeWeight && weight.itemHashed)
 				{
 					// Randomly select a dropCount value
-					std::uniform_int_distribution<std::size_t> countDist(0, lootTable.dropCount.size() - 1);
-					const std::size_t randomIndex = countDist(mersenneTwisterEngine);
+					std::uniform_int_distribution<std::size_t> countDistribution(0, lootTable.dropCount.size() - 1);
+					const std::size_t randomIndex = countDistribution(mersenneTwisterEngine);
 
-     				Server.MineAsteroid(
-					ship->iSystem, 
-					ship->get_position(), 
-					global->config->lootDropContainerHashed, 
-					itemHashed, 
-					lootTable.dropCount[randomIndex], 
-					ship->GetOwnerPlayer());
+					Server.MineAsteroid(ship->iSystem,
+					    ship->get_position(),
+					    global->config->lootDropContainerHashed,
+					    weight.itemHashed,
+					    lootTable.dropCount[randomIndex],
+					    ship->GetOwnerPlayer());
 					return;
 				}
 			}
@@ -117,23 +120,6 @@ namespace Plugins::LootTables
 		for (auto& lootTable : config.lootTables)
 		{
 			lootTable.triggerItemHashed = CreateID(lootTable.triggerItem.c_str());
-
-			// Check that weighting in this loot table entry add up to 1
-			float weightingCheck = 0;
-			for (auto& weighting : lootTable.dropWeights)
-			{
-				weightingCheck += weighting.weighting;
-				if (ToLower(weighting.item) != "none")
-				{
-					weighting.itemHashed = CreateID(weighting.item.c_str());
-				}
-				
-			}
-
-			if (abs(weightingCheck - 1.0f) > 1e-9) // Can't just use != due to floating point precision
-			{
-				Console::ConErr(std::format("Loot Table for trigger item: {} does not have weightings that add up to exactly 1.", lootTable.triggerItem));
-			}
 		}
 
 		global->config = std::make_unique<Config>(std::move(config));
