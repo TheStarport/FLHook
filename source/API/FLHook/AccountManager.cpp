@@ -120,7 +120,7 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
 
 	FlMap<char>::Node* insertNode = nullptr;
 
-	InitializeMDataInsertNode(data->visits, insertNode, data->visits.headNode, data->visits.headNode);
+	InitializeMDataInsertNode(data->visits, insertNode, *data->visits.end(), *data->visits.end());
 	insertNode = insertNode->parent;
 	for (auto& visit : character.visits)
 	{
@@ -1019,7 +1019,7 @@ bool AccountManager::DeleteCharacter(ClientId client, const std::wstring& charac
 	}
 }
 
-void AccountManager::Login(const std::wstring& wideAccountId, const ClientId& client)
+void AccountManager::Login(const std::wstring& wideAccountId, const ClientId client)
 {
 	auto db = FLHook::GetDbClient();
 	auto session = db->start_session();
