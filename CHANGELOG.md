@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.24
+- Add checks for NPC defined in npcInfo. If you define a shipArch, reputation or pilot that's invalid, the FLHook console will log an error.
+- Add a check to ensure that invalid NPCs cannot be spawned via startupNpcs, which would cause the server to crash.
+
 ## 4.0.23
 - Fixed some major issues with daily_tasks.
 
