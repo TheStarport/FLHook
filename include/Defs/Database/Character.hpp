@@ -3,6 +3,7 @@
 #include "rfl/bson.hpp"
 
 #include <bsoncxx/oid.hpp>
+#include <API/Utils/Reflection.hpp>
 
 // Cargo is a namespace in Freelancer, appended with FL to avoid name conflicts
 struct FLCargo
@@ -76,15 +77,15 @@ struct Character
 	std::vector<FLCargo> baseCargo;
 	std::vector<Equipment> equipment;
 	std::vector<Equipment> baseEquipment;
-	std::unordered_map<ushort, float> collisionGroups;
-	std::unordered_map<ushort, float> baseCollisionGroups;
+	std::unordered_map<short, float> collisionGroups;
+	std::unordered_map<short, float> baseCollisionGroups;
 	//keys are actually unsigned ints, but this works anyway
-	std::unordered_map<uint, float> reputation;
-	std::unordered_map<uint, int> shipTypesKilled;
-	std::unordered_map<uint, int> randomMissionsCompleted;
-	std::unordered_map<uint, int> randomMissionsAborted;
-	std::unordered_map<uint, int> randomMissionsFailed;
-	std::unordered_map<uint, char> visits;
+	std::unordered_map<int, float> reputation;
+	std::unordered_map<int, int> shipTypesKilled;
+	std::unordered_map<int, int> randomMissionsCompleted;
+	std::unordered_map<int, int> randomMissionsAborted;
+	std::unordered_map<int, int> randomMissionsFailed;
+	std::unordered_map<int, char> visits;
 	std::vector<uint> systemsVisited;
 	std::vector<uint> basesVisited;
 	std::vector<NpcVisit> npcVisits;
