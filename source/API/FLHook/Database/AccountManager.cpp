@@ -158,7 +158,6 @@ void __fastcall AccountManager::LoadPlayerMData(MPlayerDataSaveStruct* mdata, vo
 
 	char selectedCharBuffer[50];
 
-	const auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
 	getFlName(selectedCharBuffer, selectedChar.c_str());
 
 	Character character = accounts[mdata->clientId2].characters.at(std::string(selectedCharBuffer));
@@ -344,6 +343,10 @@ void VanillaLoadData::SetRelation(Reputation::Relation relation)
 AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(PlayerData* data, const uint clientId)
 {
 	const auto& account = accounts[clientId];
+    if(!account.loginSuccess)
+    {
+        return LoginReturnCode::InvalidUsernamePassword;
+    }
 
 	for (auto& character : account.characters)
 	{
@@ -383,8 +386,6 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
 
 	return LoginReturnCode::Success;
 }
-
-
 
 void AccountManager::LoadNewPlayerFLInfo()
 {
@@ -465,7 +466,6 @@ void AccountManager::LoadNewPlayerFLInfo()
 
 bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCharacterInfo* characterInfo)
 {
-	const auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
 	const auto db = NewChar::TheDB;
 
 	const auto package = db->FindPackage(characterInfo->package);
@@ -516,8 +516,8 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
 		{
 			EquipDesc e = *equip;
 			// For some reason some loadouts contain invalid entries
-			// Since all hashes have the first bit set, we can filter those out
-			if (!(e.archId & 0x80000000) || !e.id)
+			// Since all hashes have the first two bit set, we can filter those out
+			if ((e.archId & 0x3FFFFFFF) != e.archId || !e.id)
 			{
 				continue;
 			}
@@ -745,7 +745,6 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 	else
 	{
 		std::string charName = StringUtils::wstos(client.characterName.data());
-		const auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
 
 		char fileName[50];
 		getFlName(fileName, client.characterName.data());
@@ -920,6 +919,7 @@ AccountManager::AccountManager()
 	instance = this;
 
 	const auto serverOffset = reinterpret_cast<DWORD>(GetModuleHandleA("server.dll"));
+    getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
 
 	LoadNewPlayerFLInfo();
 
