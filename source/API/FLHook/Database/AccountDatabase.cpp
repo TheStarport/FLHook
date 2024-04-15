@@ -1,11 +1,9 @@
 #include "API/FLHook/Database.hpp"
-#include "API/Utils/Reflection.hpp"
 #include "PCH.hpp"
 #include <API/FLHook/AccountManager.hpp>
 #include <Defs/Database/Account.hpp>
 #include <mongocxx/exception/error_code.hpp>
 #include <mongocxx/exception/write_exception.hpp>
-#include <stduuid/uuid.h>
 
 bool AccountManager::SaveCharacter(Character& newCharacter, const bool isNewCharacter)
 {
