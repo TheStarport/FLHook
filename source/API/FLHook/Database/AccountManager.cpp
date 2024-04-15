@@ -818,6 +818,11 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 		}
 	}
 
+    // Update the character kept in the account cache.
+    auto* loadData = static_cast<VanillaLoadData*>(
+        createCharacterLoadingData(reinterpret_cast<PlayerData*>(&pd->chararacterCreationPtr), pd->charFile.charFilename));
+    ConvertCharacterToVanillaData(loadData, character, pd->clientId);
+
     TaskScheduler::Schedule(std::bind(SaveCharacter, character, false));
 	return true;
 }
