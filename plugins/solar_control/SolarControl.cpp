@@ -69,8 +69,8 @@
  * @endcode
  *
  * @paragraph ipc IPC Interfaces Exposed
- * SolarCommunicator: exposes CreateUserDefinedSolar method with parameters (const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool
- * varyPosition, bool mission)
+ * SolarCommunicator: exposes CreateUserDefinedSolar method with parameters (const std::wstring& name, Vector position, const Matrix& rotation, SystemId
+ * systemId, bool varyPosition, bool mission)
  */
 
 #include "SolarControl.h"
@@ -98,7 +98,7 @@ namespace Plugins::SolarControl
 		if (IObjInspectImpl * inspect; GetShipInspect(spaceId, inspect, unknown))
 		{
 			auto const* solar = reinterpret_cast<CSolar const*>(inspect->cobject());
-			
+
 			solar->launch_pos(solarInfo.vPos, solarInfo.mOrientation, 1);
 
 			struct SolarStruct
@@ -113,7 +113,7 @@ namespace Plugins::SolarControl
 
 			// fill struct
 			__asm
-			{
+			    {
 			lea ecx, solarPacket
 			mov eax, address1
 			call eax
@@ -123,7 +123,7 @@ namespace Plugins::SolarControl
 			mov eax, address2
 			call eax
 			add esp, 8
-			}
+			    }
 
 			// Send packet to every client in the system
 			PlayerData* playerData = nullptr;
@@ -353,7 +353,7 @@ namespace Plugins::SolarControl
 	{
 		// Hook solar creation to fix fl-bug in MP where loadout is not sent
 		std::byte* addressCreateSolar = (reinterpret_cast<std::byte*>(GetModuleHandle("content.dll")) + 0x1134D4);
-		auto const createSolar = reinterpret_cast <FARPROC>(CreateSolar);
+		auto const createSolar = reinterpret_cast<FARPROC>(CreateSolar);
 		WriteProcMem(addressCreateSolar, &createSolar, 4);
 
 		auto config = Serializer::JsonToObject<Config>();
@@ -395,8 +395,45 @@ namespace Plugins::SolarControl
 		{
 			for (const auto& solar : global->config->startupSolars)
 			{
+				if (!global->config->solarArches.contains(solar.name))
+				{
+					Console::ConWarn(
+					    std::format("Attempted to load a solar that was not defined in solarArches as a startupSolars: Did not load {}", wstos(solar.name)));
+					continue;
+				}
+
 				CreateUserDefinedSolar(solar.name, solar.pos, solar.rot, solar.systemId, false, false);
 			}
+
+			for (const auto& [key, value] : global->config->solarArches)
+			{
+				// Check solar base is valid
+				if (!Hk::Admin::GetBaseStatus(stows(value.base)))
+				{
+					Console::ConWarn(std::format("Attempted to load invalid base for a solarArch: {}", value.base));
+				}
+
+				// Check if solar iff is valid
+				uint npcIff;
+				pub::Reputation::GetReputationGroup(npcIff, value.iff.c_str());
+				if (npcIff == UINT_MAX)
+				{
+					Console::ConErr(std::format("Loaded invalid reputation for a solarArch: {}", value.iff));
+				}
+
+				// Check solar pilot is valid
+				if (!Hk::Personalities::GetPersonality(value.pilot).has_value())
+				{
+					Console::ConErr(std::format("Loaded invalid pilot for a solarArch: {}", value.pilot));
+				}
+
+				// Check solar solarArch is valid
+				if (!Archetype::GetSolar(CreateID(value.solarArch.c_str())))
+				{
+					Console::ConErr(std::format("Attempted to load invalid solarArch {}", value.solarArch));
+				}
+			}
+
 			global->firstRun = false;
 		}
 	}
@@ -408,7 +445,7 @@ namespace Plugins::SolarControl
 	{
 		uint type;
 		pub::SpaceObj::GetType(target.iSpaceId, type);
-		
+
 		if ((type & OBJ_AIRLOCK_GATE) && std::ranges::find(global->pendingDockingRequests, client) == global->pendingDockingRequests.end())
 		{
 			pub::SpaceObj::DockRequest(Hk::Player::GetShip(client).value(), target.iSpaceId);
