@@ -63,7 +63,8 @@ class FLHook final
         static void LoadSettings();
         static void ClearClientInfo(ClientId client);
         static void ProcessPendingCommands();
-
+        static void ProcessPendingAsyncTasks();
+    
         // Timers
         static void PublishServerStats();
         static void TimerTempBanCheck();

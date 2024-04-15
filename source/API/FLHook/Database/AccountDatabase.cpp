@@ -58,7 +58,7 @@ bool AccountManager::SaveCharacter(Character& newCharacter, const bool isNewChar
         {
             auto updateDoc = make_document(kvp("$set", savedCharDoc));
             auto updateResult = accounts.update_one(findCharDoc.view(), updateDoc.view());
-            if (!updateResult.has_value() || updateResult.value().modified_count() == 0)
+            if (!updateResult.has_value())
             {
                 throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Updating character failed.");
             }
@@ -92,7 +92,7 @@ bool AccountManager::SaveCharacter(Character& newCharacter, const bool isNewChar
     return false;
 }
 
-bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring& characterCode)
+bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring characterCode)
 {
     auto db = FLHook::GetDbClient();
     auto session = db->start_session();

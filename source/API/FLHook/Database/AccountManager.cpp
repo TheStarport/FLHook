@@ -3,6 +3,7 @@
 #include "API/FLHook/AccountManager.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/TaskScheduler.hpp"
 #include "API/Utils/Reflection.hpp"
 
 #include <stduuid/uuid.h>
@@ -463,7 +464,14 @@ void AccountManager::LoadNewPlayerFLInfo()
 	}
 }
 
-bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCharacterInfo* characterInfo)
+void CreateNewCharacterCallback(const SCreateCharacterInfo& createCharacterInfo, ClientId client, bool creationSuccess)
+{
+    Server.CharacterInfoReq(client.GetValue(), !creationSuccess);
+    //TODO: Implement a queue for firing After type plugin calls after async actions
+    //CallPlugins(&Plugin::OnCharacterCreationAfter, client, createCharacterInfo);
+}
+
+bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCharacterInfo* characterInfo)
 {
 	const auto db = NewChar::TheDB;
 
@@ -511,12 +519,12 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
 
 		const auto loadOut = Loadout::Get(CreateID(package->loadout.c_str()));
 
-		for (const EquipDesc* equip = loadOut->first; equip != loadOut->end; equip++)
+		for (const EquipDesc* equip = loadOut->first; equip != loadOut->last; equip++)
 		{
 			EquipDesc e = *equip;
 			// For some reason some loadouts contain invalid entries
 			// Since all hashes have the first two bit set, we can filter those out
-			if ((e.archId & 0x3FFFFFFF) != e.archId || !e.id)
+			if ((e.archId & 0x3FFFFFFF) == 0 || !e.id)
 			{
 				continue;
 			}
@@ -538,7 +546,14 @@ bool AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCh
 	ConvertVanillaDataToCharacter(loadData, character);
 	character.accountId = account.account._id;
 
-	return SaveCharacter(character, true);
+    bool creationSuccessful = SaveCharacter(character, true);
+	CreateNewCharacterCallback(*characterInfo, ClientId(data->clientId), creationSuccessful);
+    return creationSuccessful;
+}
+
+void AccountManager::OnCreateNewCharacterCopy(PlayerData* data, SCreateCharacterInfo characterInfo)
+{
+    OnCreateNewCharacter(data, nullptr, &characterInfo);
 }
 
 bool AccountManager::OnPlayerSave(PlayerData* pd)
@@ -803,7 +818,8 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 		}
 	}
 
-	return SaveCharacter(character, false);
+    TaskScheduler::Schedule(std::bind(SaveCharacter, character, false));
+	return true;
 }
 
 std::wstring newAccountString;

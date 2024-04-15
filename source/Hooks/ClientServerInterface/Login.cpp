@@ -2,6 +2,7 @@
 
 #include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/TaskScheduler.hpp"
 #include "Core/ClientServerInterface.hpp"
 
 #include "API/Utils/Logger.hpp"
@@ -9,13 +10,13 @@
 #include "API/Utils/TempBan.hpp"
 #include "Core/IpResolver.hpp"
 
-bool IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
+void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
 {
     TryHook
     {
         if (!client)
         {
-            return false; // DisconnectDelay bug
+            return; // DisconnectDelay bug
         }
 
         // Kick the player if the account Id doesn't exist. This is caused by a duplicate log on.
@@ -23,7 +24,7 @@ bool IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
         if (acc)
         {
             acc.Logout();
-            return false;
+            return;
         }
 
         // check for ip ban
@@ -62,22 +63,13 @@ bool IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
         {
             acc->ForceLogout();
         }
-        return false;
     });
-
-    return true;
 }
 
-void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
+void IServerImplHook::DelayedLogin(const SLoginInfo& li, ClientId client)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"Login(\n\tClientId client = {}\n)", client));
-
-    if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip)
-    {
-        FLHook::GetAccountManager().Login(li.account, client);
-        CallServerPreamble { Server.Login(li, client.GetValue()); }
-        CallServerPostamble(true, );
-    }
+    CallServerPreamble { Server.Login(li, client.GetValue()); }
+    CallServerPostamble(true, );
 
     LoginInnerAfter(li, client);
 
@@ -89,4 +81,15 @@ void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
     }
 
     CallPlugins(&Plugin::OnLoginAfter, client, li);
+}
+
+void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
+{
+    Logger::Log(LogLevel::Trace, std::format(L"Login(\n\tClientId client = {}\n)", client));
+
+    if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip)
+    {
+        TaskScheduler::ScheduleWithCallback(std::bind(AccountManager::Login, li.account, client),
+            std::bind(&IServerImplHook::DelayedLogin, li, client));
+    }
 }

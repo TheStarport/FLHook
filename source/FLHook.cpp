@@ -7,6 +7,7 @@
 #include "API/FLHook/Database.hpp"
 #include "API/FLHook/InfocardManager.hpp"
 #include "API/FLHook/PersonalityHelper.hpp"
+#include "API/FLHook/TaskScheduler.hpp"
 #include "API/InternalApi.hpp"
 #include "Core/MemoryManager.hpp"
 #include <API/Utils/Logger.hpp>
@@ -167,9 +168,26 @@ FLHook::FLHook()
         }
     }
 
+    Timer::Add(ProcessPendingAsyncTasks, &ProcessPendingAsyncTasks, 1000);
+
     PatchClientImpl();
 
     CallPlugins(&Plugin::OnLoadSettings);
+}
+
+void FLHook::ProcessPendingAsyncTasks()
+{
+    std::optional<TaskScheduler::Task> task;
+    while ((task = TaskScheduler::GetCompletedTask()).has_value())
+    {
+        auto& t = task.value();
+        if (!t.callback.has_value())
+        {
+            continue;
+        }
+
+        t.callback.value()();
+    }
 }
 
 void FLHook::SetupEventLoop()

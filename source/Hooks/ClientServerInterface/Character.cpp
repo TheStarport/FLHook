@@ -2,6 +2,7 @@
 
 #include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/TaskScheduler.hpp"
 #include "API/Utils/PerfTimer.hpp"
 
 #include "API/Utils/Logger.hpp"
@@ -124,18 +125,21 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
     CallPlugins(&Plugin::OnCharacterSelectAfter, client, std::wstring_view(charName));
 }
 
-void __stdcall IServerImplHook::CreateNewCharacter(const SCreateCharacterInfo& unk1, ClientId client)
+void __stdcall IServerImplHook::CreateNewCharacter(const SCreateCharacterInfo& createCharacterInfo, ClientId client)
 {
     Logger::Log(LogLevel::Trace, std::format(L"CreateNewCharacter(\n\tClientId client = {}\n)", client));
 
-    if (const auto skip = CallPlugins(&Plugin::OnCharacterCreation, client, unk1); !skip)
+    if (const auto skip = CallPlugins(&Plugin::OnCharacterCreation, client, createCharacterInfo); !skip)
     {
-        CallServerPreamble { Server.CreateNewCharacter(unk1, client.GetValue()); }
-        CallServerPostamble(true, );
-        Server.CharacterInfoReq(client.GetValue(), true);
+        TaskScheduler::Schedule(std::bind(AccountManager::OnCreateNewCharacterCopy, &Players[client.GetValue()], createCharacterInfo));
     }
+}
 
-    CallPlugins(&Plugin::OnCharacterCreationAfter, client, unk1);
+// ReSharper disable twice CppPassValueParameterByConstReference
+void IServerImplHook::DestroyCharacterCallback(const ClientId client, CHARACTER_ID cid)
+{
+    CallServerPreamble { Server.DestroyCharacter(cid, client.GetValue()); }
+    CallServerPostamble(true, );
 }
 
 void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, ClientId client)
@@ -146,16 +150,10 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
 
     if (const auto skip = CallPlugins(&Plugin::OnCharacterDelete, client, std::wstring_view(charName)); !skip)
     {
-        if (!FLHook::GetAccountManager().DeleteCharacter(client, charName))
-        {
-            return;
-        }
-
-        CallServerPreamble { Server.DestroyCharacter(cid, client.GetValue()); }
-        CallServerPostamble(true, );
+        CHARACTER_ID cidCopy = cid;
+        TaskScheduler::ScheduleWithCallback(std::bind(AccountManager::DeleteCharacter, client, charName),
+            std::bind(IServerImplHook::DestroyCharacterCallback, client, cidCopy));
     }
-
-    CallPlugins(&Plugin::OnCharacterDeleteAfter, client, std::wstring_view(charName));
 }
 
 void __stdcall IServerImplHook::RequestRankLevel(ClientId client, uint unk1, int unk2)

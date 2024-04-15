@@ -45,8 +45,9 @@ class IServerImplHook
         static bool CharacterSelectInner(const CHARACTER_ID& cid, ClientId client);
         static void CharacterSelectInnerAfter(const CHARACTER_ID& charId, ClientId client);
         static void __stdcall CharacterSelect(const CHARACTER_ID& cid, ClientId client);
-        static void __stdcall CreateNewCharacter(const SCreateCharacterInfo& unk1, ClientId client);
+        static void __stdcall CreateNewCharacter(const SCreateCharacterInfo& createCharacterInfo, ClientId client);
         static void __stdcall DestroyCharacter(const CHARACTER_ID& unk1, ClientId client);
+        static void DestroyCharacterCallback(ClientId client, CHARACTER_ID cid);
         static void __stdcall RequestRankLevel(ClientId client, uint unk1, int unk2);
         static void __stdcall RequestPlayerStats(ClientId client, uint unk1, int unk2);
         static bool CharacterInfoReqInner(ClientId client, bool);
@@ -102,7 +103,8 @@ class IServerImplHook
         static void __stdcall LocationEnter(uint locationId, ClientId client);
 
         // Login.cpp
-        static bool LoginInnerAfter(const SLoginInfo& li, ClientId client);
+        static void DelayedLogin(const SLoginInfo& li, ClientId client);
+        static void LoginInnerAfter(const SLoginInfo& li, ClientId client);
         static void __stdcall Login(const SLoginInfo& li, ClientId client);
 
         // Maneuver.cpp
@@ -185,23 +187,23 @@ class IServerImplHook
         IServerImplHook() = delete;
 };
 
-#define CallServerPreamble                                             \
-    {                                                                  \
+#define CallServerPreamble                       \
+    {                                            \
         static PerfTimer timer(FUNCTION_W, 100); \
-        timer.Start();                                                 \
-        TryHook                                                        \
+        timer.Start();                           \
+        TryHook                                  \
         {
-#define CallServerPostamble(catchArgs, rval)                                                                          \
-    }                                                                                                                 \
-    CatchHook({                                                                                                       \
+#define CallServerPostamble(catchArgs, rval)                                                    \
+    }                                                                                           \
+    CatchHook({                                                                                 \
         Logger::Log(LogLevel::Err, std::format(L"Exception in {} on server call", FUNCTION_W)); \
-        bool ret = catchArgs;                                                                                         \
-        if (!ret)                                                                                                     \
-        {                                                                                                             \
-            timer.Stop();                                                                                             \
-            return rval;                                                                                              \
-        }                                                                                                             \
-    }) timer.Stop();                                                                                                  \
+        bool ret = catchArgs;                                                                   \
+        if (!ret)                                                                               \
+        {                                                                                       \
+            timer.Stop();                                                                       \
+            return rval;                                                                        \
+        }                                                                                       \
+    }) timer.Stop();                                                                            \
     }
 
 #define CallClientPreamble        \
@@ -216,11 +218,11 @@ class IServerImplHook
     memcpy(&Client, &tmp, 4); \
     }
 
-#define CheckForDisconnect                                                                                                                    \
-    {                                                                                                                                         \
-        if (client.GetData().disconnected)                                                                                                    \
-        {                                                                                                                                     \
+#define CheckForDisconnect                                                                                              \
+    {                                                                                                                   \
+        if (client.GetData().disconnected)                                                                              \
+        {                                                                                                               \
             Logger::Log(LogLevel::Debug, std::format(L"Ignoring disconnected client in {} id={}", FUNCTION_W, client)); \
-            return;                                                                                                                           \
-        };                                                                                                                                    \
+            return;                                                                                                     \
+        };                                                                                                              \
     }
