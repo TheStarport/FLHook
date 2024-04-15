@@ -116,7 +116,7 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
 
 	FlMap<char>::Node* insertNode = nullptr;
 
-	InitializeMDataInsertNode(data->visits, insertNode, data->visits.headNode, data->visits.headNode);
+	InitializeMDataInsertNode(data->visits, insertNode, *data->visits.end(), *data->visits.end());
 	insertNode = insertNode->parent;
 	for (auto& visit : character.visits)
 	{

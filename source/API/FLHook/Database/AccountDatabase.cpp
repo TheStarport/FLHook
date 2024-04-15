@@ -232,10 +232,11 @@ void AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
     catch (bsoncxx::exception& ex)
     {
         Logger::Log(LogLevel::Err, std::format(L"Error logging in for account ({}): {}", wideAccountId, StringUtils::stows(ex.what())));
+        session.abort_transaction();
     }
     catch (mongocxx::exception& ex)
     {
         Logger::Log(LogLevel::Err, std::format(L"Error logging in for account ({}): {}", wideAccountId, StringUtils::stows(ex.what())));
+        session.abort_transaction();
     }
-    session.abort_transaction();
 }
