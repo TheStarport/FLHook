@@ -10,7 +10,7 @@
 
 void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& character, uint clientId)
 {
-	std::wstring wCharName = StringUtils::stows(character.characterName);
+	const std::wstring wCharName = StringUtils::stows(character.characterName);
 	data->name = reinterpret_cast<const ushort*>(wCharName.c_str());
 
 	//TODO: figure out last time online
@@ -37,11 +37,11 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
 	data->pos = character.pos.value_or(vec);
 	data->rot = EulerMatrix(character.rot.value_or(vec));
 
-	for (const auto rep : character.reputation)
+	for (const auto [factionHash, rep] : character.reputation)
 	{
 		Reputation::Relation relation{};
-		relation.hash = rep.first;
-		relation.reputation = rep.second;
+		relation.hash = factionHash;
+		relation.reputation = rep;
 		data->repList.push_back(relation);
 	}
 
@@ -92,14 +92,14 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
 #undef AddCargo
 
 	// Collision groups
-	for (const auto& cg : character.baseCollisionGroups)
+	for (const auto& [sId, health] : character.baseCollisionGroups)
 	{
-		data->baseCollisionGroups.push_back({ static_cast<ushort>(cg.first), 0, cg.second });
+		data->baseCollisionGroups.push_back({ static_cast<ushort>(sId), 0, health });
 	}
 
-	for (const auto& cg : character.collisionGroups)
+	for (const auto& [sId, health] : character.collisionGroups)
 	{
-		data->currentCollisionGroups.push_back({ static_cast<ushort>(cg.first), 0, cg.second });
+		data->currentCollisionGroups.push_back({ static_cast<ushort>(sId), 0, health });
 	}
 
 	// Copy voice
@@ -118,15 +118,15 @@ void ConvertCharacterToVanillaData(VanillaLoadData* data, const Character& chara
 
 	InitializeMDataInsertNode(data->visits, insertNode, *data->visits.end(), *data->visits.end());
 	insertNode = insertNode->parent;
-	for (auto& visit : character.visits)
+	for (auto& [objectId, visitFlag] : character.visits)
 	{
-		insertNode = InsertNewMDataNode(data->visits, insertNode, visit.first);
-		insertNode->left->data = visit.second;
+		insertNode = InsertNewMDataNode(data->visits, insertNode, objectId);
+		insertNode->left->data = visitFlag;
 	}
 }
 
 using MDataSetterFinish = uint(__thiscall*)(MPlayerDataSaveStruct* mdata);
-static MDataSetterFinish MDataSetterFinishFunc;// = MDataSetterFinish(contentHandle + 0xA9440);
+static MDataSetterFinish MDataSetterFinishFunc;
 
 using PrepareNPCVisitVector = uint(__cdecl*)(void*, void*, void*);
 static PrepareNPCVisitVector PrepareNPCVisitVectorFunc;
@@ -162,19 +162,19 @@ void __fastcall AccountManager::LoadPlayerMData(MPlayerDataSaveStruct* mdata, vo
 
 	Character character = accounts[mdata->clientId2].characters.at(std::string(selectedCharBuffer));
 
-	uint* visitedNPCEnd = ((uint*)&mdata->visitedNPCs) + 2;
+	uint* visitedNPCEnd = reinterpret_cast<uint*>(&mdata->visitedNPCs) + 2;
 	*visitedNPCEnd = PrepareNPCVisitVectorFunc(mdata->visitedNPCs.end(), mdata->visitedNPCs.end(), mdata->visitedNPCs.begin());
 
-	uint* rumorsEnd = ((uint*)&mdata->receivedRumors) + 2;
+	uint* rumorsEnd = reinterpret_cast<uint*>(&mdata->receivedRumors) + 2;
 	*rumorsEnd = PrepareRumorVectorFunc(mdata->receivedRumors.end(), mdata->receivedRumors.end(), mdata->receivedRumors.begin());
 
 	mdata->canDock = character.canDock;
 	mdata->canTL = character.canTradeLane;
 	if (character.tlExceptions.has_value())
 	{
-		for (auto tlException : character.tlExceptions.value())
+		for (auto [startRing, nextRing] : character.tlExceptions.value())
 		{
-			mdata->tlExceptions.push_back({ tlException.startRingId,tlException.nextRingId });
+			mdata->tlExceptions.push_back({ static_cast<uint>(startRing), static_cast<uint>(nextRing) });
 		}
 	}
 	if (character.dockExceptions.has_value())
@@ -202,32 +202,32 @@ void __fastcall AccountManager::LoadPlayerMData(MPlayerDataSaveStruct* mdata, vo
 	}
 	for (auto vnpc : character.npcVisits)
 	{
-		mdata->visitedNPCs.push_back({ vnpc.baseId, vnpc.id, vnpc.interactionCount, static_cast<VNpc::NpcMissionStatus>(vnpc.missionStatus) });
+		mdata->visitedNPCs.push_back({ static_cast<uint>(vnpc.baseId), static_cast<uint>(vnpc.id), vnpc.interactionCount, static_cast<VNpc::NpcMissionStatus>(vnpc.missionStatus) });
 	}
-	for (auto rumor : character.rumorsReceived)
+	for (auto [rumorIDS, rumorPriority] : character.rumorsReceived)
 	{
-		mdata->receivedRumors.push_back({ rumor.rumorIds, rumor.unk });
+		mdata->receivedRumors.push_back({ static_cast<uint>(rumorIDS), static_cast<uint>(rumorPriority) });
 	}
 
-	for (auto shipKilled : character.shipTypesKilled)
+	for (auto [shipArch, killCount] : character.shipTypesKilled)
 	{
-		int var = shipKilled.second;
-		FLMapInsertShipFunc(&mdata->killedShips, var, shipKilled.first);
+		int var = killCount;
+		FLMapInsertShipFunc(&mdata->killedShips, var, shipArch);
 	}
 	for (auto abortedMission : character.randomMissionsAborted)
 	{
 		int var = abortedMission.second;
-		FLMapInsertRMFunc(&mdata->killedShips, var, abortedMission.first);
+		FLMapInsertRMFunc(&mdata->rmAborted, var, abortedMission.first);
 	}
 	for (auto completedMission : character.randomMissionsCompleted)
 	{
 		int var = completedMission.second;
-		FLMapInsertRMFunc(&mdata->killedShips, var, completedMission.first);
+		FLMapInsertRMFunc(&mdata->rmCompleted, var, completedMission.first);
 	}
 	for (auto failedMission : character.randomMissionsFailed)
 	{
 		int var = failedMission.second;
-		FLMapInsertRMFunc(&mdata->killedShips, var, failedMission.first);
+		FLMapInsertRMFunc(&mdata->rmFailed, var, failedMission.first);
 	}
 
 	MDataSetterFinishFunc(mdata);
@@ -468,6 +468,7 @@ void CreateNewCharacterCallback(const SCreateCharacterInfo& createCharacterInfo,
 {
     Server.CharacterInfoReq(client.GetValue(), !creationSuccess);
     //TODO: Implement a queue for firing After type plugin calls after async actions
+    //Probably just call Schedule() with callback doing only the plugin callout
     //CallPlugins(&Plugin::OnCharacterCreationAfter, client, createCharacterInfo);
 }
 
@@ -572,7 +573,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 	auto mdataIter = mdataBST->find(pd->clientId);
 	if (mdataIter == mdataBST->end())
 	{
-		Logger::Log(LogLevel::Err, std::format(L"Fetching mPlayer data for {}", client.characterName));
+		Logger::Log(LogLevel::Err, std::format(L"Fetching mPlayer data failed for {}", client.characterName));
 		return true;
 	}
 
@@ -595,8 +596,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 	}
 	for (auto visitedNPC : mdata->visitedNPCs)
 	{
-		NpcVisit vnpc = { visitedNPC.baseHash, visitedNPC.npcHash, visitedNPC.interactionCount, static_cast<int>(visitedNPC.missionStatus) };
-		character.npcVisits.emplace_back(vnpc);
+		character.npcVisits.push_back({ static_cast<int>(visitedNPC.baseHash), static_cast<int>(visitedNPC.npcHash), visitedNPC.interactionCount, static_cast<int>(visitedNPC.missionStatus) });
 	}
 	for (auto visitedSystem : mdata->visitedSystems)
 	{
@@ -615,7 +615,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 		}
 		for (auto tlException : mdata->tlExceptions)
 		{
-			character.tlExceptions.value().push_back({ tlException.startRing, tlException.nextRing });
+			character.tlExceptions.value().push_back({ static_cast<int>(tlException.startRing), static_cast<int>(tlException.nextRing) });
 		}
 	}
 	if (!mdata->dockExceptions.empty())
