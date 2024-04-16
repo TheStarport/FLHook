@@ -166,33 +166,31 @@ void AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
         const auto findDoc = make_document(kvp("_id", accId));
         const auto accountBson = accountsCollection.find_one(findDoc.view());
 
+        Account& account = accounts[client.GetValue()].account;
         // If account does not exist
         if (!accountBson.has_value())
         {
             // Create a new account with the provided ID
-            Account account{ accId };
+            account = { accId };
             auto bytes = rfl::bson::write(account);
             bsoncxx::document::view doc{ reinterpret_cast<uint8_t*>(bytes.data()), bytes.size() };
 
             accountsCollection.insert_one(doc);
-            accounts[client.GetValue()].account = account;
             session.commit_transaction();
             accounts[client.GetValue()].loginSuccess = true;
         }
-
-        auto& accountRaw = accountBson.value();
-        auto accountResult = rfl::bson::read<Account>(accountRaw.view().data(), accountRaw.view().length());
-        if (accountResult.error().has_value())
+        else
         {
-            Logger::Log(LogLevel::Err, std::format(L"Unable to read account: {}", wideAccountId));
-            session.abort_transaction();
-            return;
+            auto& accountRaw = accountBson.value();
+            auto acc = rfl::bson::read<Account>(accountRaw.view().data(), accountRaw.view().length());
+            if (acc.error().has_value())
+            {
+                Logger::Log(LogLevel::Err, std::format(L"Unable to read account: {}", wideAccountId));
+                session.abort_transaction();
+                return;
+            }
+            account = acc.value();
         }
-
-        const auto account = accountResult.value();
-
-        auto& internalAcc = accounts[client.GetValue()];
-        internalAcc.account = account;
 
         // Convert vector to bson array
         auto idArr = bsoncxx::builder::basic::array{};
@@ -219,10 +217,9 @@ void AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
                 continue;
             }
             char charNameBuf[50];
-            const static auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
             getFlName(charNameBuf, StringUtils::stows(character.characterName).c_str());
             std::string charFileName = charNameBuf;
-            internalAcc.characters[charFileName] = character;
+            accounts[client.GetValue()].characters[charFileName] = character;
         }
         session.commit_transaction();
         accounts[client.GetValue()].loginSuccess = true;
