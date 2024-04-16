@@ -35,7 +35,7 @@ struct DLL FLHookConfig final
 
                 //! Maximum amount of players in a group.
                 uint maxGroupSize = 8;
-                //! TODO: NOT IMPLEMENTED YET: if true, keeps the player in the group if they switch characters within one account.
+                //! If true, keeps the player in the group if they switch characters within one account.
                 bool persistGroup = false;
 
                 //! Global damage multiplier to missile and torpedo type weapons.

@@ -48,10 +48,10 @@ struct MPlayerDataSaveStruct
         bool canTL;                          // 52
         uint padding51;                      // 56
         st6::list<TLException> tlExceptions; // 60
-        FlMap<uint> killedShips;             // 72
-        FlMap<uint> rmCompleted;             // 92
-        FlMap<uint> rmAborted;               // 112
-        FlMap<uint> rmFailed;                // 132
+        FlMap<uint, uint> killedShips;       // 72
+        FlMap<uint, uint> rmCompleted;       // 92
+        FlMap<uint, uint> rmAborted;         // 112
+        FlMap<uint, uint> rmFailed;          // 132
         float totalCashEarned;               // 156
         float totalTimePlayed;               // 160
         st6::vector<uint> visitedSystems;    // 164
@@ -66,51 +66,6 @@ struct MPlayerDataSaveStruct
         uint padding58;                      // 232
         st6::vector<VNpc> visitedNPCs;       // 236
         st6::vector<Rumor> receivedRumors;   // 252
-};
-
-struct VanillaLoadData
-{
-        uint padding[128];
-        st6::wstring name;                                    // 512
-        st6::wstring description;                             // 528
-        uint descripStrId;                                    // 544
-        uint datetimeHigh;                                    // 548
-        uint datetimeLow;                                     // 552
-        uint shipHash;                                        // 556
-        int money;                                            // 560
-        int numOfKills;                                       // 564
-        int numOfSuccessMissions;                             // 568
-        int numOfFailedMissions;                              // 572
-        float hullStatus;                                     // 576
-        st6::list<EquipDesc> currentEquipAndCargo;            // 580
-        st6::list<CollisionGroupDesc> currentCollisionGroups; // 592
-        float baseHullStatus;                                 // 604
-        st6::list<EquipDesc> baseEquipAndCargo;               // 608
-        st6::list<CollisionGroupDesc> baseCollisionGroups;    // 620
-        uint currentBase;                                     // 632
-        uint lastDockedBase;                                  // 636
-        uint currentRoom;                                     // 640
-        uint system;                                          // 644
-        Vector pos;                                           // 648 - 656
-        Matrix rot;                                           // 660 - 692
-        uint startingRing;                                    // 696
-        int rank;                                             // 700
-        st6::vector<Reputation::Relation> repList;            // 704
-        uint affiliation;                                     // 720, see Reputation::get_id();
-        Costume commCostume;                                  // 724 - 772
-        uint voiceLen;                                        // 776
-        char voice[32] = "trent_voice";                       // 780
-        Costume baseCostume;                                  // 812 - 860
-        SubObjectID::EquipIdMaker equipIdEnumerator;          // 864
-        st6::string prefilledWeaponGroupIni;                  // 876
-        st6::list<uint> logInfo;                              // 888
-        int interfaceState = 3;                               // 896
-        FlMap<char> visits;                                   // 900
-        // uint unused2;                                         // 918
-        // FlMap<VisitEntry> visitLists;                         // 922
-        //  934
-
-        void SetRelation(Reputation::Relation relation);
 };
 
 struct NewPlayerTemplate
@@ -178,6 +133,10 @@ class AccountManager
         using LoadMDataType = void(__fastcall*)(MPlayerDataSaveStruct* mdata, void* edx, struct INI_Reader* ini);
         using OnPlayerSaveType = bool(__fastcall*)(PlayerData* data);
         using OnCreateNewCharacterType = bool(__fastcall*)(PlayerData* data, void* edx, SCreateCharacterInfo* character);
+        using FlMapVisitErase = uint* (__thiscall*)
+            (FlMap<uint, char>&, FlMap<uint, char>::Node*&, FlMap<uint, char>::Node*, FlMap<uint, char>::Node*);
+        using FlMapVisitInsert = FlMap<uint, char>::Node* (__thiscall*)
+            (FlMap<uint, char>& visitMap, FlMap<uint, char>::Node* node, const uint& key);
 
         inline static std::unique_ptr<FunctionDetour<DbInitType>> dbInitDetour;
         inline static std::unique_ptr<FunctionDetour<LoadMDataType>> loadPlayerMDataDetour;
@@ -201,4 +160,6 @@ class AccountManager
         static void ClearClientInfo(ClientId clientId);
         static void __fastcall LoadPlayerMData(MPlayerDataSaveStruct* mdata, void* edx, struct INI_Reader* ini);
         static void InitContentDLLDetours();
+        inline static FlMapVisitErase flMapVisitErase;
+        inline static FlMapVisitInsert flMapVisitInsert;
 };
