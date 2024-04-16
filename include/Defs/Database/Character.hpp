@@ -8,7 +8,7 @@
 // Cargo is a namespace in Freelancer, appended with FL to avoid name conflicts
 struct FLCargo
 {
-	uint archId;
+	int archId;
 	ushort amount;
 	float health;
 	bool isMissionCargo;
@@ -16,15 +16,15 @@ struct FLCargo
 
 struct NpcVisit
 {
-	uint id;
-	uint baseId;
+	int id;
+	int baseId;
 	int interactionCount;
 	int missionStatus;
 };
 
 struct Equipment
 {
-	uint archId;
+	int archId;
 	std::string hardPoint;
 	float health;
 	bool mounted;
@@ -32,14 +32,14 @@ struct Equipment
 
 struct TradeLaneException
 {
-	uint startRingId;
-	uint nextRingId;
+	int startRingId;
+	int nextRingId;
 };
 
 struct RumorData
 {
-	uint rumorIds;
-	uint unk;
+	int rumorIds;
+	int unk;
 };
 
 struct Character
@@ -49,7 +49,7 @@ struct Character
 	std::string characterName;
 	int money = 0;
 	int rank = 0;
-	uint affiliation = 0;
+	int affiliation = 0;
 	std::optional<std::string> repGroup;
 	std::optional<Vector> pos;
 	std::optional<Vector> rot;
@@ -60,15 +60,15 @@ struct Character
 	bool canDock = true;
 	bool canTradeLane = true;
 	std::optional<std::vector<TradeLaneException>> tlExceptions;
-	std::optional<std::vector<uint>> dockExceptions;
-	uint lastDockedBase = 0;
-	uint currentBase = 0;
-	uint currentRoom = 0;
+	std::optional<std::vector<int>> dockExceptions;
+	int lastDockedBase = 0;
+	int currentBase = 0;
+	int currentRoom = 0;
 	int killCount = 0;
 	int missionFailureCount = 0;
 	int missionSuccessCount = 0;
-	uint shipHash = 0;
-	uint system = 0;
+	int shipHash = 0;
+	int system = 0;
 	float totalTimePlayed = 0.f;
 	float totalCashEarned = 0.f;
 	Costume baseCostume;
@@ -86,10 +86,10 @@ struct Character
 	std::unordered_map<int, int> randomMissionsAborted;
 	std::unordered_map<int, int> randomMissionsFailed;
 	std::unordered_map<int, char> visits;
-	std::vector<uint> systemsVisited;
-	std::vector<uint> basesVisited;
+	std::vector<int> systemsVisited;
+	std::vector<int> basesVisited;
 	std::vector<NpcVisit> npcVisits;
-	std::vector<uint> jumpHolesVisited;
+	std::vector<int> jumpHolesVisited;
 	std::vector<RumorData> rumorsReceived;
 	std::unordered_map<int, std::vector<std::string>> weaponGroups;
 };
