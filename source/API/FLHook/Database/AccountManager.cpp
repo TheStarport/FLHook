@@ -537,6 +537,8 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
 	{
 		loadData->shipHash = newPlayerTemplate.ship;
 	}
+	loadData->equipIdEnumerator.currSID += loadData->currentEquipAndCargo.size();
+
 	auto& account = accounts[data->clientId];
 	static std::array<char, 512> characterFileNameBuffer;
 	std::memset(characterFileNameBuffer.data(), 0, characterFileNameBuffer.size());
