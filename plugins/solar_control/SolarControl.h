@@ -23,10 +23,10 @@ namespace Plugins::SolarControl
 	{
 		std::string solarArch = "largestation1";
 		std::string loadout = "space_station";
-		std::string iff = "fc_uk_grp";
+		std::string iff;
 		uint infocard = 197808;
-		std::string base = "li01_01_base";
-		std::string pilot = "pilot_solar_hardest";
+		std::string base;
+		std::string pilot;
 
 		uint solarArchId {};
 		uint loadoutId {};

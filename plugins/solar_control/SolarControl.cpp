@@ -73,6 +73,12 @@
  * systemId, bool varyPosition, bool mission)
  */
 
+// TODO: Test checks for pilot, iff and base being invalid/empty
+// TODO: Checks for valid loadout on load if it's present
+// TODO: Fix for name and IFF bugs
+// TODO: Test for and fix for random positioning if required
+// TODO: Solar formations
+
 #include "SolarControl.h"
 
 #include <ranges>
@@ -218,8 +224,11 @@ namespace Plugins::SolarControl
 			si.vPos.z = position.z;
 		}
 
-		// Which base this links to
-		si.baseId = arch.baseId;
+		if (arch.baseId)
+		{
+			// Which base this links to
+			si.baseId = arch.baseId;
+		}
 
 		// Mission base?
 		if (mission)
@@ -248,12 +257,18 @@ namespace Plugins::SolarControl
 		uint spaceId;
 		CreateSolar(spaceId, si);
 
-		uint iff;
-		pub::Reputation::GetReputationGroup(iff, arch.iff.c_str());
-		pub::Reputation::SetAffiliation(si.iRep, iff);
+		if (!arch.iff.empty())
+		{
+			uint iff;
+			pub::Reputation::GetReputationGroup(iff, arch.iff.c_str());
+			pub::Reputation::SetAffiliation(si.iRep, iff);
+		}
 
-		pub::AI::SetPersonalityParams personalityParams = GetPersonality(arch.pilot);
-		pub::AI::SubmitState(spaceId, &personalityParams);
+		if (!arch.pilot.empty())
+		{
+			pub::AI::SetPersonalityParams personalityParams = GetPersonality(arch.pilot);
+			pub::AI::SubmitState(spaceId, &personalityParams);
+		}
 
 		// Set the visible health for the Space Object
 		pub::SpaceObj::SetRelativeHealth(spaceId, 1);
@@ -398,17 +413,18 @@ namespace Plugins::SolarControl
 				if (!global->config->solarArches.contains(solar.name))
 				{
 					Console::ConWarn(
-					    std::format("Attempted to load a solar that was not defined in solarArches as a startupSolars: Did not load {}", wstos(solar.name)));
+					    std::format("Attempted to load a solar that was not defined in solarArches as a startupSolar: Did not load {}", wstos(solar.name)));
 					continue;
 				}
 
 				CreateUserDefinedSolar(solar.name, solar.pos, solar.rot, solar.systemId, false, false);
 			}
 
+			// Check some values on first load. base, iff and pilot are all optional, but do require valid values to avoid a crash if populated:
 			for (const auto& [key, value] : global->config->solarArches)
 			{
 				// Check solar base is valid
-				if (!Hk::Admin::GetBaseStatus(stows(value.base)))
+				if (!value.base.empty() && !Universe::get_base(value.baseId))
 				{
 					Console::ConWarn(std::format("Attempted to load invalid base for a solarArch: {}", value.base));
 				}
@@ -416,13 +432,13 @@ namespace Plugins::SolarControl
 				// Check if solar iff is valid
 				uint npcIff;
 				pub::Reputation::GetReputationGroup(npcIff, value.iff.c_str());
-				if (npcIff == UINT_MAX)
+				if (!value.iff.empty() && npcIff == UINT_MAX)
 				{
 					Console::ConErr(std::format("Loaded invalid reputation for a solarArch: {}", value.iff));
 				}
 
 				// Check solar pilot is valid
-				if (!Hk::Personalities::GetPersonality(value.pilot).has_value())
+				if (!value.pilot.empty() && !Hk::Personalities::GetPersonality(value.pilot).has_value())
 				{
 					Console::ConErr(std::format("Loaded invalid pilot for a solarArch: {}", value.pilot));
 				}
@@ -453,6 +469,7 @@ namespace Plugins::SolarControl
 		}
 	}
 
+	// TODO: Move this over to OnTarget with additional checks
 	/** @ingroup SolarControl
 	 * @brief Timer to set the relative health of spawned solars. This fixes the glitch where spawned solars are not dockable
 	 */
@@ -460,7 +477,10 @@ namespace Plugins::SolarControl
 	{
 		for (const auto& name : global->spawnedSolars | std::views::keys)
 		{
-			pub::SpaceObj::SetRelativeHealth(name, 1.0f);
+			if (Universe::get_base(global->spawnedSolars[name].baseId))
+			{
+				pub::SpaceObj::SetRelativeHealth(name, 1.0f);
+			}
 		}
 	}
 
