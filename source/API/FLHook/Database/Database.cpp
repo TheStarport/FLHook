@@ -25,10 +25,7 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
         {
             auto accounts = db["accounts"];
 
-            mongocxx::options::index indexOptions{};
-            indexOptions.unique(true);
-
-            accounts.create_index(make_document(kvp("characterName", 1)), indexOptions); // Mandate character id is unique
+            accounts.create_index(make_document(kvp("characterName", 1))); // Mandate character id is unique
             accounts.create_index(make_document(kvp("accountId", 1)));
         }
     }
