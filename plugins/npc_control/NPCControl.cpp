@@ -66,7 +66,8 @@
  * @endcode
  *
  * @paragraph ipc IPC Interfaces Exposed
- * NpcCommunicator: exposes CreateNpc method with parameters (const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
+ * NpcCommunicator: exposes CreateNpc method with parameters (const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool
+ * varyPosition)
  */
 
 #define SPDLOG_USE_STD_FORMAT
@@ -132,10 +133,61 @@ namespace Plugins::Npc
 	}
 
 	/** @ingroup NPCControl
+	 * @brief Checks to ensure an NPC is valid before attempting to spawn it. loadout, iff and pilot are all optional, but do require valid values to
+	 * avoid a crash if populated
+	 */
+	bool CheckNpc(const std::wstring& npcInfo)
+	{
+		auto npc = global->config->npcInfo[npcInfo];
+		bool validity = true;
+
+		// Check solar solarArch is valid
+		if (!Archetype::GetShip(CreateID(npc.shipArch.c_str())))
+		{
+			Console::ConErr(std::format("The shipArch '{}' for '{}' is invalid. Spawning this NPC may cause a crash", npc.shipArch, wstos(npcInfo)));
+			validity = false;
+		}
+
+		// Check the loadout is valid
+		EquipDescVector loadout;
+		pub::GetLoadout(loadout, npc.loadoutId);
+
+		if (!npc.loadout.empty() && loadout.equip.empty())
+		{
+			Console::ConErr(std::format("The loadout '{}' loaded for '{}' is invalid. Spawning this NPC may cause a crash", npc.loadout, wstos(npcInfo)));
+			validity = false;
+		}
+
+		// Check if solar iff is valid
+		uint npcIff;
+		pub::Reputation::GetReputationGroup(npcIff, npc.iff.c_str());
+		if (!npc.iff.empty() && npcIff == UINT_MAX)
+		{
+			Console::ConErr(std::format("The reputation '{}' loaded for '{}' is invalid. Spawning this NPC may cause a crash", npc.iff, wstos(npcInfo)));
+			validity = false;
+		}
+
+		// Check solar pilot is valid
+		if (!npc.pilot.empty() && !Hk::Personalities::GetPersonality(npc.pilot).has_value())
+		{
+			Console::ConErr(std::format("The pilot '{}' loaded for '{}' is invalid. Spawning this NPC may cause a crash", npc.pilot, wstos(npcInfo)));
+			validity = false;
+		}
+		return validity;
+	}
+
+	/** @ingroup NPCControl
 	 * @brief Function to spawn an NPC
 	 */
 	uint CreateNPC(const std::wstring& name, Vector position, const Matrix& rotation, SystemId systemId, bool varyPosition)
 	{
+		if (!CheckNpc(name))
+		{
+			Console::ConWarn(std::format("Unable to spawn '{}', invalid data was found in the npcInfo", wstos(name)));
+			return 0;
+		}
+
+		Console::ConDebug(std::format("Spawning npc '{}'", wstos(name)));
 		Npc arch = global->config->npcInfo[name];
 
 		pub::SpaceObj::ShipInfo si;
@@ -261,6 +313,12 @@ namespace Plugins::Npc
 	{
 		LoadSettings();
 
+		// Check validity of NPCs on server startup and print any problems to the console
+		for (const auto& [key, value] : global->config->npcInfo)
+		{
+			CheckNpc(key);
+		}
+
 		// Initalize for random number generator (new C++ 11 standard)
 		std::random_device rd; // Used to obtain a seed
 		std::mt19937 mt(rd()); //  Mersenne Twister algorithm seeded with the variable above
@@ -272,7 +330,7 @@ namespace Plugins::Npc
 			// Check spawn chance is valid
 			if (npc.spawnChance < 0 || npc.spawnChance > 1)
 			{
-				Console::ConErr(std::format("Spawn chance must be between 0 and 1 for NPC {}", wstos(npc.name)));
+				Console::ConErr(std::format("Spawn chance must be between 0 and 1 for NPC '{}'", wstos(npc.name)));
 				continue;
 			}
 
@@ -568,7 +626,10 @@ namespace Plugins::Npc
 		return true;
 	}
 
-	NpcCommunicator::NpcCommunicator(const std::string& plug) : PluginCommunicator(plug) { this->CreateNpc = CreateNPC; }
+	NpcCommunicator::NpcCommunicator(const std::string& plug) : PluginCommunicator(plug)
+	{
+		this->CreateNpc = CreateNPC;
+	}
 } // namespace Plugins::Npc
 
 using namespace Plugins::Npc;
