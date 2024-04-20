@@ -33,6 +33,18 @@ namespace Plugins::SolarControl
 		uint baseId {};
 	};
 
+	struct SolarArchFormationComponent final : Reflectable
+	{
+		std::string solarArchName;
+		std::vector<float> relativePosition;
+		std::vector<float> rotation;
+	};
+
+	struct SolarArchFormation final : Reflectable
+	{
+		std::vector<SolarArchFormationComponent> components;
+	};
+
 	struct Config final : Reflectable
 	{
 		std::vector<StartupSolar> startupSolars = {StartupSolar()};
@@ -41,6 +53,8 @@ namespace Plugins::SolarControl
 		std::map<uint, uint> hashedBaseRedirects;
 		//! The config file we load out of
 		std::string File() override { return "config/solar.json"; }
+		// std::vector<SolarArchFormation> solarArchFormations;
+		std::map<std::wstring, SolarArchFormation> solarArchFormations;
 	};
 
 	//! Communicator class for this plugin. This is used by other plugins
@@ -51,6 +65,7 @@ namespace Plugins::SolarControl
 		explicit SolarCommunicator(const std::string& plug);
 
 		uint PluginCall(CreateSolar, const std::wstring& name, Vector position, const Matrix& rotation, SystemId system, bool varyPosition, bool mission);
+		void PluginCall(CreateSolarFormation, const SolarArchFormation& formation, const Vector& position, uint system);
 	};
 
 	//! Global data for this plugin

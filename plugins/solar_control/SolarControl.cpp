@@ -77,7 +77,6 @@
 // TODO: Checks for valid loadout on load if it's present
 // TODO: Fix for name and IFF bugs
 // TODO: Test for and fix for random positioning if required
-// TODO: Solar formations
 
 #include "SolarControl.h"
 
@@ -188,6 +187,7 @@ namespace Plugins::SolarControl
 	 */
 	uint CreateUserDefinedSolar(const std::wstring& name, Vector position, const Matrix& rotation, SystemId system, bool varyPosition, bool mission)
 	{
+		Console::ConDebug(std::format("Spawning solar '{}'", wstos(name)));
 		SolarArch arch = global->config->solarArches[name];
 
 		pub::SpaceObj::SolarInfo si {};
@@ -279,6 +279,23 @@ namespace Plugins::SolarControl
 	}
 
 	/** @ingroup SolarControl
+	 * @brief Creates a premade group of solars defined in the solar json file
+	 */
+	void CreateUserDefinedSolarFormation(const SolarArchFormation& formation, const Vector& position, uint system)
+	{
+		for (const auto& component : formation.components)
+		{
+			CreateUserDefinedSolar(stows(component.solarArchName),
+			    Vector {
+			        {position.x + component.relativePosition[0]}, {position.y + component.relativePosition[1]}, {position.z + component.relativePosition[2]}},
+			    EulerMatrix(Vector {component.rotation[0], component.rotation[1], component.rotation[2]}),
+			    system,
+			    false,
+			    false);
+		}
+	}
+
+	/** @ingroup SolarControl
 	 * @brief Admin command to create a user defined solar
 	 */
 	void AdminCommandSolarCreate(CCmds* commands, int amount, const std::wstring& solarType)
@@ -317,6 +334,39 @@ namespace Plugins::SolarControl
 			CreateUserDefinedSolar(solarType, pos, rot, system, true, false);
 	}
 
+	void AdminCommandSolarFormationCreate(CCmds* commands, const std::wstring& formationName)
+	{
+		if (!(commands->rights & RIGHT_SUPERADMIN))
+		{
+			commands->Print("ERR No permission\n");
+			return;
+		}
+
+		if (const auto iter = global->config->solarArchFormations.find(formationName); iter != global->config->solarArchFormations.end())
+			SolarArchFormation arch = iter->second;
+
+		else
+		{
+			commands->Print("ERR Wrong Solar formation name\n");
+			return;
+		}
+
+		const uint client = Hk::Client::GetClientIdFromCharName(commands->GetAdminName()).value();
+		uint ship;
+		pub::Player::GetShip(client, ship);
+		if (!ship)
+			return;
+
+		uint system;
+		pub::Player::GetSystem(client, system);
+
+		Vector pos {};
+		Matrix rot {};
+		pub::SpaceObj::GetLocation(ship, pos, rot);
+
+		CreateUserDefinedSolarFormation(global->config->solarArchFormations[formationName], pos, system);
+	}
+
 	/** @ingroup SolarControl
 	 * @brief Admin command to delete all spawned solars
 	 */
@@ -346,6 +396,12 @@ namespace Plugins::SolarControl
 		{
 			global->returnCode = ReturnCode::SkipAll;
 			AdminCommandSolarCreate(commands, commands->ArgInt(1), commands->ArgStr(2));
+			return true;
+		}
+		if (command == L"solarformationcreate")
+		{
+			global->returnCode = ReturnCode::SkipAll;
+			AdminCommandSolarFormationCreate(commands, commands->ArgStr(1));
 			return true;
 		}
 		else if (command == L"solardestroy")
@@ -408,25 +464,14 @@ namespace Plugins::SolarControl
 	{
 		if (global->firstRun)
 		{
-			for (const auto& solar : global->config->startupSolars)
-			{
-				if (!global->config->solarArches.contains(solar.name))
-				{
-					Console::ConWarn(
-					    std::format("Attempted to load a solar that was not defined in solarArches as a startupSolar: Did not load {}", wstos(solar.name)));
-					continue;
-				}
-
-				CreateUserDefinedSolar(solar.name, solar.pos, solar.rot, solar.systemId, false, false);
-			}
-
 			// Check some values on first load. base, iff and pilot are all optional, but do require valid values to avoid a crash if populated:
 			for (const auto& [key, value] : global->config->solarArches)
 			{
 				// Check solar base is valid
 				if (!value.base.empty() && !Universe::get_base(value.baseId))
 				{
-					Console::ConWarn(std::format("Attempted to load invalid base for a solarArch: {}", value.base));
+					Console::ConWarn(std::format(
+					    "The base {} loaded for the solarArch {} is invalid. Docking with this solar may cause a crash", value.base, value.solarArch));
 				}
 
 				// Check if solar iff is valid
@@ -434,20 +479,34 @@ namespace Plugins::SolarControl
 				pub::Reputation::GetReputationGroup(npcIff, value.iff.c_str());
 				if (!value.iff.empty() && npcIff == UINT_MAX)
 				{
-					Console::ConErr(std::format("Loaded invalid reputation for a solarArch: {}", value.iff));
+					Console::ConErr(std::format(
+					    "The reputation {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", value.iff, value.solarArch));
 				}
 
 				// Check solar pilot is valid
 				if (!value.pilot.empty() && !Hk::Personalities::GetPersonality(value.pilot).has_value())
 				{
-					Console::ConErr(std::format("Loaded invalid pilot for a solarArch: {}", value.pilot));
+					Console::ConErr(std::format(
+					    "The pilot {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", value.pilot, value.solarArch));
 				}
 
 				// Check solar solarArch is valid
 				if (!Archetype::GetSolar(CreateID(value.solarArch.c_str())))
 				{
-					Console::ConErr(std::format("Attempted to load invalid solarArch {}", value.solarArch));
+					Console::ConErr(std::format("The solarArch {} is invalid. Spawning this solar may cause a crash", value.solarArch));
 				}
+			}
+
+			for (const auto& solar : global->config->startupSolars)
+			{
+				if (!global->config->solarArches.contains(solar.name))
+				{
+					Console::ConWarn(
+					    std::format("Attempted to load the startupSolar {}, but it was not defined in solarArches as a startupSolar", wstos(solar.name)));
+					continue;
+				}
+
+				CreateUserDefinedSolar(solar.name, solar.pos, solar.rot, solar.systemId, false, false);
 			}
 
 			global->firstRun = false;
@@ -533,6 +592,7 @@ namespace Plugins::SolarControl
 	SolarCommunicator::SolarCommunicator(const std::string& plug) : PluginCommunicator(plug)
 	{
 		this->CreateSolar = CreateUserDefinedSolar;
+		this->CreateSolarFormation = CreateUserDefinedSolarFormation;
 	}
 } // namespace Plugins::SolarControl
 
@@ -540,9 +600,11 @@ using namespace Plugins::SolarControl;
 
 DefaultDllMainSettings(LoadSettings);
 
+REFL_AUTO(type(SolarArchFormation), field(components));
+REFL_AUTO(type(SolarArchFormationComponent), field(solarArchName), field(relativePosition), field(rotation));
 REFL_AUTO(type(SolarArch), field(solarArch), field(loadout), field(iff), field(infocard), field(base), field(pilot));
 REFL_AUTO(type(StartupSolar), field(name), field(system), field(position), field(rotation));
-REFL_AUTO(type(Config), field(startupSolars), field(solarArches), field(baseRedirects));
+REFL_AUTO(type(Config), field(startupSolars), field(solarArches), field(baseRedirects), field(solarArchFormations));
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pluginInfo)
 {
