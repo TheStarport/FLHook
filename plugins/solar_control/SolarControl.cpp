@@ -144,7 +144,7 @@ namespace Plugins::SolarControl
 		// Check solar solarArch is valid
 		if (!Archetype::GetSolar(CreateID(arch.solarArch.c_str())))
 		{
-			Console::ConErr(std::format("The solarArch {} is invalid. Spawning this solar may cause a crash", arch.solarArch));
+			Console::ConErr(std::format("The solarArch {} loaded for {} is invalid. Spawning this solar may cause a crash", arch.solarArch, wstos(solarArch)));
 			validity = false;
 		}
 
@@ -154,8 +154,7 @@ namespace Plugins::SolarControl
 
 		if (!arch.loadout.empty() && loadout.equip.empty())
 		{
-			Console::ConErr(
-			    std::format("The loadout {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", arch.loadout, arch.solarArch));
+			Console::ConErr(std::format("The loadout {} loaded for {} is invalid. Spawning this solar may cause a crash", arch.loadout, wstos(solarArch)));
 			validity = false;
 		}
 
@@ -164,24 +163,21 @@ namespace Plugins::SolarControl
 		pub::Reputation::GetReputationGroup(npcIff, arch.iff.c_str());
 		if (!arch.iff.empty() && npcIff == UINT_MAX)
 		{
-			Console::ConErr(
-			    std::format("The reputation {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", arch.iff, arch.solarArch));
+			Console::ConErr(std::format("The reputation {} loaded for {} is invalid. Spawning this solar may cause a crash", arch.iff, wstos(solarArch)));
 			validity = false;
 		}
 
 		// Check solar base is valid
 		if (!arch.base.empty() && !Universe::get_base(arch.baseId))
 		{
-			Console::ConWarn(
-			    std::format("The base {} loaded for the solarArch {} is invalid. Docking with this solar may cause a crash", arch.base, arch.solarArch));
+			Console::ConWarn(std::format("The base {} loaded for {} is invalid. Docking with this solar may cause a crash", arch.base, wstos(solarArch)));
 			validity = false;
 		}
 
 		// Check solar pilot is valid
 		if (!arch.pilot.empty() && !Hk::Personalities::GetPersonality(arch.pilot).has_value())
 		{
-			Console::ConErr(
-			    std::format("The pilot {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", arch.pilot, arch.solarArch));
+			Console::ConErr(std::format("The pilot {} loaded for {} is invalid. Spawning this solar may cause a crash", arch.pilot, wstos(solarArch)));
 			validity = false;
 		}
 		return validity;
@@ -194,7 +190,7 @@ namespace Plugins::SolarControl
 	{
 		if (!CheckSolar(name))
 		{
-			Console::ConDebug(std::format("Unable to spawn {}, invalid data was found in the solarArch", wstos(name)));
+			Console::ConWarn(std::format("Unable to spawn {}, invalid data was found in the solarArch", wstos(name)));
 			return 0;
 		}
 
