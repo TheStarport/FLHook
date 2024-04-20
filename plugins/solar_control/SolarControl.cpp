@@ -73,8 +73,6 @@
  * systemId, bool varyPosition, bool mission)
  */
 
-// TODO: Test checks for pilot, iff and base being invalid/empty
-// TODO: Checks for valid loadout on load if it's present
 // TODO: Fix for name and IFF bugs
 // TODO: Test for and fix for random positioning if required
 
@@ -196,7 +194,10 @@ namespace Plugins::SolarControl
 
 		// Prepare the settings for the space object
 		si.iArchId = arch.solarArchId;
-		si.iLoadoutId = arch.loadoutId;
+		if (!arch.loadout.empty())
+		{
+			si.iLoadoutId = arch.loadoutId;
+		}
 		si.iHitPointsLeft = 1000;
 		si.systemId = system;
 		si.mOrientation = rotation;
@@ -464,14 +465,23 @@ namespace Plugins::SolarControl
 	{
 		if (global->firstRun)
 		{
-			// Check some values on first load. base, iff and pilot are all optional, but do require valid values to avoid a crash if populated:
+			// Check some values on first load. loadout, iff, base and pilot are all optional, but do require valid values to avoid a crash if populated:
 			for (const auto& [key, value] : global->config->solarArches)
 			{
-				// Check solar base is valid
-				if (!value.base.empty() && !Universe::get_base(value.baseId))
+				// Check solar solarArch is valid
+				if (!Archetype::GetSolar(CreateID(value.solarArch.c_str())))
 				{
-					Console::ConWarn(std::format(
-					    "The base {} loaded for the solarArch {} is invalid. Docking with this solar may cause a crash", value.base, value.solarArch));
+					Console::ConErr(std::format("The solarArch {} is invalid. Spawning this solar may cause a crash", value.solarArch));
+				}
+
+				// Check the loadout is valid
+				EquipDescVector loadout;
+				pub::GetLoadout(loadout, value.loadoutId);
+
+				if (!value.loadout.empty() && loadout.equip.empty())
+				{
+					Console::ConErr(std::format(
+					    "The loadout {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", value.loadout, value.solarArch));
 				}
 
 				// Check if solar iff is valid
@@ -483,17 +493,18 @@ namespace Plugins::SolarControl
 					    "The reputation {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", value.iff, value.solarArch));
 				}
 
+				// Check solar base is valid
+				if (!value.base.empty() && !Universe::get_base(value.baseId))
+				{
+					Console::ConWarn(std::format(
+					    "The base {} loaded for the solarArch {} is invalid. Docking with this solar may cause a crash", value.base, value.solarArch));
+				}
+
 				// Check solar pilot is valid
 				if (!value.pilot.empty() && !Hk::Personalities::GetPersonality(value.pilot).has_value())
 				{
 					Console::ConErr(std::format(
 					    "The pilot {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", value.pilot, value.solarArch));
-				}
-
-				// Check solar solarArch is valid
-				if (!Archetype::GetSolar(CreateID(value.solarArch.c_str())))
-				{
-					Console::ConErr(std::format("The solarArch {} is invalid. Spawning this solar may cause a crash", value.solarArch));
 				}
 			}
 
