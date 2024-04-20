@@ -12,69 +12,21 @@
  * @paragraph adminCmds Admin Commands
  * All commands are prefixed with '.' unless explicitly specified.
  * - solarcreate [number] [name] - Creates X amount of the specified Solars. The name for the Solar is configured in the json file.
+ * - solarcreateformation [name] - Creates a specified premade formation of solars. The name for the formation is configured in the json file.
  * - solardestroy - Destroys all spawned solars.
  *
  * @paragraph configuration Configuration
  * @code
- * {
- *     "solarArches": {
- *         "osiris": {
- *             "base": "Li01_15_base",
- *             "iff": "fc_or_grp",
- *             "infocard": 217114,
- *             "loadout": "or_osiris",
- *             "pilot": "pilot_solar_hardest",
- *             "solarArch": "o_osiris"
- *         },
- *         "osirisb": {
- *             "base": "St01_02_base",
- *             "iff": "fc_or_grp",
- *             "infocard": 217114,
- *             "loadout": "or_osiris",
- *             "pilot": "pilot_solar_hardest",
- *             "solarArch": "o_osiris"
- *         }
- *     },
- *     "startupSolars": [
- *         {
- *             "name": "osiris",
- *             "position": [
- *                 -30367.0,
- *                 120.0,
- *                 -25810.0
- *             ],
- *             "rotation": [
- *                 0.0,
- *                 0.0,
- *                 0.0
- *             ],
- *             "system": "li01"
- *         },
- *         {
- *             "name": "osirisb",
- *             "position": [
- *                 5000.0,
- *                 0.0,
- *                 0.0
- *             ],
- *             "rotation": [
- *                 0.0,
- *                 0.0,
- *                 0.0
- *             ],
- *             "system": "st01"
- *         }
- *     ]
- * }
+ * {}
  * @endcode
  *
  * @paragraph ipc IPC Interfaces Exposed
  * SolarCommunicator: exposes CreateUserDefinedSolar method with parameters (const std::wstring& name, Vector position, const Matrix& rotation, SystemId
- * systemId, bool varyPosition, bool mission)
+ * systemId, bool varyPosition, bool mission) and CreateUserDefinedSolarFormation method with parameters (SolarArchFormation& formation, const Vector& position,
+ * uint system)
  */
 
 // TODO: Fix for name and IFF bugs
-// TODO: Test for and fix for random positioning if required
 
 #include "SolarControl.h"
 
@@ -181,11 +133,72 @@ namespace Plugins::SolarControl
 	}
 
 	/** @ingroup SolarControl
+	 * @brief Checks to ensure a solarArch is valid before attempting to spawn it. loadout, iff, base and pilot are all optional, but do require valid values to
+	 * avoid a crash if populated
+	 */
+	bool CheckSolar(const std::wstring& solarArch)
+	{
+		auto arch = global->config->solarArches[solarArch];
+		bool validity = true;
+
+		// Check solar solarArch is valid
+		if (!Archetype::GetSolar(CreateID(arch.solarArch.c_str())))
+		{
+			Console::ConErr(std::format("The solarArch {} is invalid. Spawning this solar may cause a crash", arch.solarArch));
+			validity = false;
+		}
+
+		// Check the loadout is valid
+		EquipDescVector loadout;
+		pub::GetLoadout(loadout, arch.loadoutId);
+
+		if (!arch.loadout.empty() && loadout.equip.empty())
+		{
+			Console::ConErr(
+			    std::format("The loadout {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", arch.loadout, arch.solarArch));
+			validity = false;
+		}
+
+		// Check if solar iff is valid
+		uint npcIff;
+		pub::Reputation::GetReputationGroup(npcIff, arch.iff.c_str());
+		if (!arch.iff.empty() && npcIff == UINT_MAX)
+		{
+			Console::ConErr(
+			    std::format("The reputation {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", arch.iff, arch.solarArch));
+			validity = false;
+		}
+
+		// Check solar base is valid
+		if (!arch.base.empty() && !Universe::get_base(arch.baseId))
+		{
+			Console::ConWarn(
+			    std::format("The base {} loaded for the solarArch {} is invalid. Docking with this solar may cause a crash", arch.base, arch.solarArch));
+			validity = false;
+		}
+
+		// Check solar pilot is valid
+		if (!arch.pilot.empty() && !Hk::Personalities::GetPersonality(arch.pilot).has_value())
+		{
+			Console::ConErr(
+			    std::format("The pilot {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", arch.pilot, arch.solarArch));
+			validity = false;
+		}
+		return validity;
+	}
+
+	/** @ingroup SolarControl
 	 * @brief Creates a solar defined in the solar json file
 	 */
 	uint CreateUserDefinedSolar(const std::wstring& name, Vector position, const Matrix& rotation, SystemId system, bool varyPosition, bool mission)
 	{
-		Console::ConDebug(std::format("Spawning solar '{}'", wstos(name)));
+		if (!CheckSolar(name))
+		{
+			Console::ConDebug(std::format("Unable to spawn {}, invalid data was found in the solarArch", wstos(name)));
+			return 0;
+		}
+
+		Console::ConDebug(std::format("Spawning solar {}", wstos(name)));
 		SolarArch arch = global->config->solarArches[name];
 
 		pub::SpaceObj::SolarInfo si {};
@@ -465,47 +478,9 @@ namespace Plugins::SolarControl
 	{
 		if (global->firstRun)
 		{
-			// Check some values on first load. loadout, iff, base and pilot are all optional, but do require valid values to avoid a crash if populated:
 			for (const auto& [key, value] : global->config->solarArches)
 			{
-				// Check solar solarArch is valid
-				if (!Archetype::GetSolar(CreateID(value.solarArch.c_str())))
-				{
-					Console::ConErr(std::format("The solarArch {} is invalid. Spawning this solar may cause a crash", value.solarArch));
-				}
-
-				// Check the loadout is valid
-				EquipDescVector loadout;
-				pub::GetLoadout(loadout, value.loadoutId);
-
-				if (!value.loadout.empty() && loadout.equip.empty())
-				{
-					Console::ConErr(std::format(
-					    "The loadout {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", value.loadout, value.solarArch));
-				}
-
-				// Check if solar iff is valid
-				uint npcIff;
-				pub::Reputation::GetReputationGroup(npcIff, value.iff.c_str());
-				if (!value.iff.empty() && npcIff == UINT_MAX)
-				{
-					Console::ConErr(std::format(
-					    "The reputation {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", value.iff, value.solarArch));
-				}
-
-				// Check solar base is valid
-				if (!value.base.empty() && !Universe::get_base(value.baseId))
-				{
-					Console::ConWarn(std::format(
-					    "The base {} loaded for the solarArch {} is invalid. Docking with this solar may cause a crash", value.base, value.solarArch));
-				}
-
-				// Check solar pilot is valid
-				if (!value.pilot.empty() && !Hk::Personalities::GetPersonality(value.pilot).has_value())
-				{
-					Console::ConErr(std::format(
-					    "The pilot {} loaded for the solarArch {} is invalid. Spawning this solar may cause a crash", value.pilot, value.solarArch));
-				}
+				CheckSolar(key);
 			}
 
 			for (const auto& solar : global->config->startupSolars)
@@ -539,7 +514,6 @@ namespace Plugins::SolarControl
 		}
 	}
 
-	// TODO: Move this over to OnTarget with additional checks
 	/** @ingroup SolarControl
 	 * @brief Timer to set the relative health of spawned solars. This fixes the glitch where spawned solars are not dockable
 	 */

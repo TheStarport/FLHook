@@ -22,7 +22,7 @@ namespace Plugins::SolarControl
 	struct SolarArch final : Reflectable
 	{
 		std::string solarArch = "largestation1";
-		std::string loadout = "space_station";
+		std::string loadout;
 		std::string iff;
 		uint infocard = 197808;
 		std::string base;
