@@ -1,8 +1,22 @@
 # Changelog
 
+## 4.0.27
+- Improve checks for spawning NPCs
+- Implement 'Solar Control': Spawn solars and formations of solars via admin command.
+
+## 4.0.27
+- Improved functionality of loot tables plugin: weights & drop counts are now more customisable, reverted to weight based system instead of percentages.
+
+## 4.0.26
+- Add checks for NPC defined in npcInfo. If you define a shipArch, reputation or pilot that's invalid, the FLHook console will log an error.
+- Add a check to ensure that invalid NPCs cannot be spawned via startupNpcs, which would cause the server to crash.
+
+## 4.0.25
+- Fixed some major issues with daily_tasks.
+
 ## 4.0.24
-- Implement the Solar Control plugin, allowing users to spawn and manipulate solars in space.
-- Implement the Wave Defence plugin.
+- Add checks for NPC defined in npcInfo. If you define a shipArch, reputation or pilot that's invalid, the FLHook console will log an error.
+- Add a check to ensure that invalid NPCs cannot be spawned via startupNpcs, which would cause the server to crash.
 
 ## 4.0.23
 - Fixed some major issues with daily_tasks.
