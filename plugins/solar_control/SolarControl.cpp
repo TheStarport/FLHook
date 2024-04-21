@@ -17,7 +17,77 @@
  *
  * @paragraph configuration Configuration
  * @code
- * {}
+ * {
+ *    "baseRedirects": {
+ *      "li01_01_base": "li01_02_base"
+ *  },
+ *  "solarArchFormations": {
+ *      "wplatform_form": {
+ *          "components": [
+ *              {
+ *                  "relativePosition": [
+ *                      0.0,
+ *                      0.0,
+ *                      0.0
+ *                  ],
+ *                  "rotation": [
+ *                      0.0,
+ *                      0.0,
+ *                      0.0
+ *                  ],
+ *                  "solarArchName": "wplatform"
+ *              },
+ *              {
+ *                  "relativePosition": [
+ *                      0.0,
+ *                      100.0,
+ *                      0.0
+ *                  ],
+ *                  "rotation": [
+ *                      0.0,
+ *                      0.0,
+ *                      0.0
+ *                  ],
+ *                  "solarArchName": "wplatform"
+ *              }
+ *          ]
+ *      }
+ *  },
+ *  "solarArches": {
+ *      "largestation1": {
+ *          "base": "li01_01_base",
+ *          "iff": "li_n_grp",
+ *          "infocard": 197808,
+ *          "loadout": "",
+ *          "pilot": "pilot_solar_hardest",
+ *          "solarArch": "largestation1"
+ *      },
+ *      "wplatform": {
+ *          "base": "",
+ *          "iff": "li_p_grp",
+ *          "infocard": 197808,
+ *          "loadout": "weapon_platform_1",
+ *          "pilot": "pilot_solar_hardest",
+ *          "solarArch": "wplatform"
+ *      }
+ *  },
+ *  "startupSolars": [
+ *      {
+ *          "name": "largestation1",
+ *          "position": [
+ *              -30367.0,
+ *              120.0,
+ *              -25810.0
+ *          ],
+ *          "rotation": [
+ *              0.0,
+ *              0.0,
+ *              0.0
+ *          ],
+ *          "system": "li01"
+ *      }
+ *  ]
+ * }
  * @endcode
  *
  * @paragraph ipc IPC Interfaces Exposed
