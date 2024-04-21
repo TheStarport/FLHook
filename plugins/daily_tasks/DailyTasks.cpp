@@ -239,10 +239,13 @@ namespace Plugins::DailyTasks
 		}
 
 		Hk::Player::AddCash(client, creditReward + surplusCreditReward);
-		if (itemQuantity > 0)
+		if (itemQuantity)
 		{
-			// Hk::Player::AddCargo causes a kick here, so we have to do this with the pub function
-			pub::Player::AddCargo(client, itemReward, itemQuantity, 1, false);
+			Hk::Player::AddCargo(client, itemReward, itemQuantity, false);
+			if (const auto& equip = Players[client].equipDescList.equip; &equip != &Players[client].lShadowEquipDescList.equip)
+			{
+				Players[client].lShadowEquipDescList.equip = equip;
+			}
 		}
 		PrintUserCmdText(client,
 		    std::format(L"Task completed! You have been awarded {} credits and {} units of {}.",
@@ -274,11 +277,13 @@ namespace Plugins::DailyTasks
 					}
 					if (task.quantityCompleted == task.quantity && task.taskType == TaskType::KillPlayer && task.isCompleted == false)
 					{
+						auto remainingHoldSize = 0.f;
+						pub::Player::GetRemainingHoldSize(killerId.value(), remainingHoldSize);
 						task.isCompleted = true;
 						SaveTaskStatusToJson(Hk::Client::GetAccountByClientID(killerId.value()));
-						PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
-						Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
-						GenerateReward(client);
+						PrintUserCmdText(killerId.value(), std::format(L"You have completed {}", stows(task.taskDescription)));
+						Hk::Client::PlaySoundEffect(killerId.value(), CreateID("ui_gain_level"));
+						GenerateReward(killerId.value(), remainingHoldSize);
 					}
 				}
 			}
@@ -301,11 +306,13 @@ namespace Plugins::DailyTasks
 					if (task.quantityCompleted == task.quantity && task.taskType == TaskType::KillNpc && !task.isCompleted &&
 					    task.npcFactionTarget == affiliation)
 					{
+						auto remainingHoldSize = 0.f;
+						pub::Player::GetRemainingHoldSize(killerId.value(), remainingHoldSize);
 						task.isCompleted = true;
 						SaveTaskStatusToJson(Hk::Client::GetAccountByClientID(killerId.value()));
-						PrintUserCmdText(client, std::format(L"You have completed {}", stows(task.taskDescription)));
-						Hk::Client::PlaySoundEffect(client, CreateID("ui_gain_level"));
-						GenerateReward(client);
+						PrintUserCmdText(killerId.value(), std::format(L"You have completed {}", stows(task.taskDescription)));
+						Hk::Client::PlaySoundEffect(killerId.value(), CreateID("ui_gain_level"));
+						GenerateReward(killerId.value(), remainingHoldSize);
 					}
 				}
 			}
@@ -416,7 +423,7 @@ namespace Plugins::DailyTasks
 			pub::Reputation::GetGroupName(npcFactionTarget, npcFactionIds);
 
 			task.taskType = KillNpc;
-			task.taskDescription = std::format("Destroy {} ships belonging to the {}.", npcQuantity, wstos(Hk::Message::GetWStringFromIdS(npcFactionIds)));
+			task.taskDescription = std::format("Destroy {} ships belonging to {}", npcQuantity, wstos(Hk::Message::GetWStringFromIdS(npcFactionIds)));
 			task.npcFactionTarget = npcFactionTarget;
 			task.quantity = npcQuantity;
 			AddLog(LogType::Normal, LogLevel::Debug, std::format("Creating a 'Kill NPCs' task to '{}'", task.taskDescription));
@@ -506,11 +513,15 @@ namespace Plugins::DailyTasks
 			if (!task.isCompleted)
 			{
 				PrintUserCmdText(client,
-				    std::format(L"{} Expires in {} hours. {}/{} remaining.", stows(task.taskDescription), taskExpiry, task.quantityCompleted, task.quantity));
+				    std::format(L"{} | Expires in {} hours | {}/{} remaining.",
+				        stows(task.taskDescription),
+				        taskExpiry,
+				        task.quantity - task.quantityCompleted,
+				        task.quantity));
 			}
 			else
 			{
-				PrintUserCmdText(client, stows(task.taskDescription + " TASK COMPLETED"));
+				PrintUserCmdText(client, stows(task.taskDescription + " | Task Completed"));
 			}
 		}
 	}
@@ -518,10 +529,13 @@ namespace Plugins::DailyTasks
 	/** @ingroup DailyTasks
 	 * @brief Hook on PlayerLaunch to display the task list when the player undocks.
 	 */
-	void DisplayTasksOnLaunch([[maybe_unused]] const uint& ship, ClientId& client)
+	void DisplayTasksOnLaunch([[maybe_unused]] const std::string_view& charFilename, ClientId& client)
 	{
-		PrintTasks(client);
-		PrintUserCmdText(client, L"To view this list again, type /showtasks in chat.");
+		if (global->config->displayMessage)
+		{
+			PrintTasks(client);
+			PrintUserCmdText(client, L"To view this list again, type /showtasks in chat.");
+		}
 	}
 
 	/** @ingroup DailyTasks
@@ -666,7 +680,7 @@ using namespace Plugins::DailyTasks;
 
 REFL_AUTO(type(Config), field(taskQuantity), field(minCreditsReward), field(maxCreditsReward), field(itemRewardPool), field(taskTradeBaseTargets),
     field(taskTradeItemTargets), field(taskItemAcquisitionTargets), field(taskNpcKillTargets), field(taskPlayerKillTargets), field(taskDuration),
-    field(resetTime));
+    field(resetTime), field(displayMessage));
 
 REFL_AUTO(type(Tasks), field(tasks));
 
@@ -692,5 +706,5 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->emplaceHook(HookedCall::IEngine__ShipDestroyed, &ShipDestroyed);
 	pi->emplaceHook(HookedCall::IServerImpl__GFGoodSell, &ItemSold, HookStep::After);
 	pi->emplaceHook(HookedCall::IServerImpl__BaseEnter, &SaveTaskStatusOnBaseEnter, HookStep::After);
-	pi->emplaceHook(HookedCall::IServerImpl__PlayerLaunch, &DisplayTasksOnLaunch);
+	pi->emplaceHook(HookedCall::IServerImpl__CharacterSelect, &DisplayTasksOnLaunch);
 }
