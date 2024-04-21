@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.23
+- Improved functionality of loot tables plugin.
+
 ## 4.0.22
 - Add call to Release() after a CObject::Find that was causing poor performance.
 
