@@ -1,7 +1,7 @@
 # Changelog
 
 ## 4.0.23
-- Improved functionality of loot tables plugin.
+- Drop counts & weights in loot tables are not more customisable. Reverted to integer-based weighting instead of percentages.
 
 ## 4.0.22
 - Add call to Release() after a CObject::Find that was causing poor performance.

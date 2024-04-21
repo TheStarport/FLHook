@@ -58,8 +58,8 @@ namespace Plugins::LootTables
 	void ShipDestroyed([[maybe_unused]] DamageList** dmgList, const DWORD** ecx, [[maybe_unused]] const uint& kill)
 	{
 		// Calculate what Item to drop
-		std::random_device randomDevice;                    // Used to obtain a seed
-		std::mt19937 mersenneTwisterEngine(randomDevice()); //  Mersenne Twister algorithm seeded with the variable above
+		static std::random_device randomDevice;                    // Used to obtain a seed
+		static std::mt19937 mersenneTwisterEngine(randomDevice()); //  Mersenne Twister algorithm seeded with the variable above
 
 		// Get cShip from NPC?
 		CShip* ship = Hk::Player::CShipFromShipDestroyed(ecx);
