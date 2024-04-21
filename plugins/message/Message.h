@@ -72,9 +72,6 @@ namespace Plugins::Message
 		//! String that stores the disconnect message for swearing in space
 		std::wstring disconnectSwearingInSpaceMsg = L"%player has been kicked for swearing";
 
-		//! Amount of time in minutes for which to tempban a player in case of swearing
-		uint swearingTempBanDuration = 10;
-
 		//! What radius around the player the message should be broadcasted to
 		float disconnectSwearingInSpaceRange = 5000.0f;
 

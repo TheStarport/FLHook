@@ -3,7 +3,6 @@
 #include <Psapi.h>
 
 #include "API/FLHook/ClientList.hpp"
-#include "API/Utils/TempBan.hpp"
 #include "Core/FLHook.hpp"
 #include "Core/MessageHandler.hpp"
 #include "Defs/ServerStats.hpp"
@@ -69,14 +68,6 @@ void FLHook::PublishServerStats()
      * TODO: Restore once wstring support sorted
      const auto json = rfl::json::write(stats);
     MessageHandler::i()->Publish(StringUtils::stows(json), std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), L"");*/
-}
-
-void FLHook::TimerTempBanCheck()
-{
-    if (const auto& config = FLHook::GetConfig(); config.general.tempBansEnabled)
-    {
-        GetTempBanManager().ClearFinishedTempBans();
-    }
 }
 
 void FLHook::TimerCheckKick()

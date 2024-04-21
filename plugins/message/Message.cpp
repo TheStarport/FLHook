@@ -55,7 +55,6 @@
 
 #include "Message.h"
 #include "Features/Mail.hpp"
-#include "Features/TempBan.hpp"
 
 namespace Plugins::Message
 {

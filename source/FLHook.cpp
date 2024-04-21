@@ -25,7 +25,6 @@
 #include "Exceptions/InvalidParameterException.hpp"
 
 #include "API/FLHook/Plugin.hpp"
-#include "API/Utils/TempBan.hpp"
 #include "API/Utils/ZoneUtilities.hpp"
 
 #include "API/Exceptions/InvalidClientException.hpp"
@@ -78,7 +77,6 @@ FLHook::FLHook()
 
     infocardManager = new InfocardManager();
     clientList = new ClientList();
-    tempbanManager = new TempBanManager();
     personalityHelper = new PersonalityHelper();
     database = new Database(flhookConfig->databaseConfig.uri);
     accountManager = new AccountManager();
@@ -286,7 +284,6 @@ bool FLHook::OnServerStart()
         Timer::Add(TimerCheckKick, &TimerCheckKick, 50);
         Timer::Add(TimerNpcAndF1Check, &TimerCheckKick, 1000);
         Timer::Add(IpResolver::TimerCheckResolveResults, &IpResolver::TimerCheckResolveResults, 0);
-        Timer::Add(TimerTempBanCheck, &TimerTempBanCheck, 15000);
 
         ZoneUtilities::Init();
     }

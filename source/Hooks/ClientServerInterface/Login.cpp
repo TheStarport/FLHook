@@ -7,7 +7,6 @@
 
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
-#include "API/Utils/TempBan.hpp"
 #include "Core/IpResolver.hpp"
 
 void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
@@ -19,13 +18,7 @@ void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
             return; // DisconnectDelay bug
         }
 
-        // Kick the player if the account Id doesn't exist. This is caused by a duplicate log on.
-        auto acc = client.GetAccount().Unwrap();
-        if (acc)
-        {
-            acc.Logout();
-            return;
-        }
+        // TODO: Verify we have not already logged in (duplicate login error)
 
         // check for ip ban
         const auto ip = client.GetPlayerIp().Unwrap();
@@ -72,13 +65,6 @@ void IServerImplHook::DelayedLogin(const SLoginInfo& li, ClientId client)
     CallServerPostamble(true, );
 
     LoginInnerAfter(li, client);
-
-    auto acc = client.GetAccount().Unwrap();
-    if (FLHook::GetTempBanManager().CheckIfTempBanned(acc))
-    {
-        client.Kick();
-        return;
-    }
 
     CallPlugins(&Plugin::OnLoginAfter, client, li);
 }

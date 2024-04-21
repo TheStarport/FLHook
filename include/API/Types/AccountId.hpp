@@ -23,10 +23,6 @@ class DLL AccountId final
 
         Action<void, Error> UnBan() const;
         Action<void, Error> Ban(uint tempBanDays = 0) const;
-        Action<void, Error> LockAccountAccess(bool kick) const;
-        Action<void, Error> UnlockAccountAccess() const;
-        Action<void, Error> Logout() const;
-        Action<void, Error> CreateCharacter(std::wstring_view name) const;
         Action<void, Error> DeleteCharacter(std::wstring_view name) const;
 
         Action<void, Error> AddRoles(const std::vector<std::wstring_view>& roles);

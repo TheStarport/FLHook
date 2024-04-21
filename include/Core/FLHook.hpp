@@ -13,7 +13,6 @@ class StartupCache;
 class ClientList;
 class InfocardManager;
 class Logger;
-class TempBanManager;
 class FlPacket;
 class PersonalityHelper;
 class Database;
@@ -67,7 +66,6 @@ class FLHook final
     
         // Timers
         static void PublishServerStats();
-        static void TimerTempBanCheck();
         static void TimerCheckKick();
         static void TimerNpcAndF1Check();
 
@@ -76,7 +74,6 @@ class FLHook final
         ClientList* clientList;
         Database* database;
         InfocardManager* infocardManager;
-        TempBanManager* tempbanManager;
         PersonalityHelper* personalityHelper;
         AccountManager* accountManager;
         FLHookConfig* flhookConfig;
@@ -145,7 +142,6 @@ class FLHook final
         static Database& GetDatabase() { return *instance->database; }
         static mongocxx::pool::entry GetDbClient();
         static InfocardManager& GetInfocardManager() { return *instance->infocardManager; }
-        static TempBanManager& GetTempBanManager() { return *instance->tempbanManager; }
         static LastHitInformation GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }
         static Action<pub::AI::Personality, Error> GetPersonality(const std::wstring& pilotNickname);
         static AccountManager& GetAccountManager() { return *instance->accountManager; }

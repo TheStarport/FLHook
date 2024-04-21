@@ -1,11 +1,8 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/ClientList.hpp"
-
-#include "API/Types/AccountId.hpp"
-#include "API/Utils/TempBan.hpp"
-
 #include "API/FLHook/Database.hpp"
+#include "API/Types/AccountId.hpp"
 
 AccountId::operator bool() const { return accountId.empty(); }
 
@@ -23,12 +20,12 @@ ClientData* AccountId::IsOnline() const
 }
 
 using bsoncxx::builder::basic::kvp;
-using bsoncxx::builder::basic::make_document;
 using bsoncxx::builder::basic::make_array;
+using bsoncxx::builder::basic::make_document;
 
 std::optional<AccountId> AccountId::GetAccountFromClient(ClientId client)
 {
-    if (!client) 
+    if (!client)
     {
         return std::nullopt;
     }
@@ -56,7 +53,6 @@ std::optional<AccountId> AccountId::GetAccountFromCharacterName(std::wstring_vie
         }
     }
 
-
     const auto db = FLHook::GetDbClient();
 
     auto accounts = db->database("FLHook")["accounts"];
@@ -65,7 +61,7 @@ std::optional<AccountId> AccountId::GetAccountFromCharacterName(std::wstring_vie
     mongocxx::options::find options;
     options.projection(make_document(kvp("_id", 1)));
 
-    const auto databaseAccount = accounts.find_one(findAccDoc.view(), options); 
+    const auto databaseAccount = accounts.find_one(findAccDoc.view(), options);
     if (!databaseAccount.has_value())
     {
         return std::nullopt;
@@ -97,7 +93,7 @@ std::optional<AccountId> AccountId::GetAccountFromAccountId(std::wstring_view ac
     mongocxx::options::find options;
     options.projection(make_document(kvp("_id", 1)));
 
-    const auto databaseAccount = accounts.find_one(findAccDoc.view(), options); 
+    const auto databaseAccount = accounts.find_one(findAccDoc.view(), options);
     if (!databaseAccount.has_value())
     {
         return std::nullopt;
@@ -113,7 +109,7 @@ std::string_view AccountId::GetValue() const { return accountId; }
 bool AccountId::IsAdmin() const
 {
     auto client = IsOnline();
-    if (client) 
+    if (client)
     {
         return client->account->gameRoles.has_value() && !client->account->gameRoles.value().empty();
     }
@@ -146,13 +142,13 @@ Action<void, Error> AccountId::UnBan() const
     static auto updateDoc = make_document(kvp("$set", make_document(kvp("banned", false))), kvp("$unset", make_document(kvp("scheduledUnbanDate", ""))));
 
     const auto responseDoc = accounts.update_one(findAccDoc.view(), updateDoc.view());
-    if(responseDoc->modified_count() == 0)
+    if (responseDoc->modified_count() == 0)
     {
         // TODO: Err
-        return {{}};
+        return { {} };
     }
 
-    return {{}};
+    return { {} };
 }
 
 Action<void, Error> AccountId::Ban(uint tempBanDays) const
@@ -167,21 +163,21 @@ Action<void, Error> AccountId::Ban(uint tempBanDays) const
         auto time = static_cast<int64>(TimeUtils::UnixTime<std::chrono::seconds>() + static_cast<int64>(60 * 60 * 24 * tempBanDays));
         banUpdateDoc = make_document(kvp("$set", make_document(kvp("banned", true), kvp("scheduledUnbanDate", time))));
     }
-    else 
+    else
     {
         static auto permaBanDoc = make_document(kvp("$set", make_document(kvp("banned", true))), kvp("$unset", make_document(kvp("scheduledUnbanDate", ""))));
         banUpdateDoc = permaBanDoc.view();
     }
 
     const auto responseDoc = accounts.update_one(findAccDoc.view(), banUpdateDoc.view());
-    if(responseDoc->modified_count() == 0)
+    if (responseDoc->modified_count() == 0)
     {
         // TODO: Err
-        return {{}};
+        return { {} };
     }
 
     auto client = IsOnline();
-    if (client) 
+    if (client)
     {
         client->id.Kick();
     }
@@ -189,11 +185,10 @@ Action<void, Error> AccountId::Ban(uint tempBanDays) const
     return { {} };
 }
 
-
 Action<void, Error> AccountId::DeleteCharacter(std::wstring_view name) const
 {
     auto client = IsOnline();
-    if (client) 
+    if (client)
     {
         client->id.Kick();
     }
@@ -209,7 +204,7 @@ Action<void, Error> AccountId::DeleteCharacter(std::wstring_view name) const
     auto foundCharDoc = accounts.find_one_and_delete(findCharDoc.view(), deleteOptions);
     if (!foundCharDoc.has_value())
     {
-        return {{}};
+        return { {} };
     }
 
     auto findAccDoc = make_document(kvp("_id", accountId));
@@ -218,7 +213,7 @@ Action<void, Error> AccountId::DeleteCharacter(std::wstring_view name) const
 
     if (updateResponse->modified_count() == 0)
     {
-        return {{}};
+        return { {} };
     }
 
     return { {} };
@@ -232,7 +227,7 @@ Action<void, Error> AccountId::AddRoles(const std::vector<std::wstring_view>& ro
     auto findAccDoc = make_document(kvp("_id", accountId));
 
     bsoncxx::builder::basic::array arrayBuilder;
-    for(auto& role : roles)
+    for (auto& role : roles)
     {
         arrayBuilder.append(StringUtils::wstos(role));
     }
@@ -242,7 +237,7 @@ Action<void, Error> AccountId::AddRoles(const std::vector<std::wstring_view>& ro
 
     if (updateResponse->modified_count() == 0)
     {
-        return {{}};
+        return { {} };
     }
 
     return { {} };
@@ -255,7 +250,7 @@ Action<void, Error> AccountId::RemoveRoles(const std::vector<std::wstring_view>&
     auto findAccDoc = make_document(kvp("_id", accountId));
 
     bsoncxx::builder::basic::array arrayBuilder;
-    for(auto& role : roles)
+    for (auto& role : roles)
     {
         arrayBuilder.append(StringUtils::wstos(role));
     }
@@ -265,7 +260,7 @@ Action<void, Error> AccountId::RemoveRoles(const std::vector<std::wstring_view>&
 
     if (updateResponse->modified_count() == 0)
     {
-        return {{}};
+        return { {} };
     }
 
     return { {} };
@@ -278,7 +273,7 @@ Action<void, Error> AccountId::SetRoles(const std::vector<std::wstring_view>& ro
     auto findAccDoc = make_document(kvp("_id", accountId));
 
     bsoncxx::builder::basic::array arrayBuilder;
-    for(auto& role : roles)
+    for (auto& role : roles)
     {
         arrayBuilder.append(StringUtils::wstos(role));
     }
@@ -288,7 +283,7 @@ Action<void, Error> AccountId::SetRoles(const std::vector<std::wstring_view>& ro
 
     if (updateResponse->modified_count() == 0)
     {
-        return {{}};
+        return { {} };
     }
 
     return { {} };
@@ -305,7 +300,7 @@ Action<void, Error> AccountId::SetCash(std::wstring_view characterName, int64 am
 
     if (updateResponse->modified_count() == 0)
     {
-        return {{}};
+        return { {} };
     }
 
     return { {} };
