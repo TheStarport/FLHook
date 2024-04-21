@@ -57,6 +57,10 @@ namespace Plugins::LootTables
 	 */
 	void ShipDestroyed([[maybe_unused]] DamageList** dmgList, const DWORD** ecx, [[maybe_unused]] const uint& kill)
 	{
+		// Calculate what Item to drop
+		static std::random_device randomDevice;                    // Used to obtain a seed
+		static std::mt19937 mersenneTwisterEngine(randomDevice()); //  Mersenne Twister algorithm seeded with the variable above
+
 		// Get cShip from NPC?
 		CShip* ship = Hk::Player::CShipFromShipDestroyed(ecx);
 		for (auto const& lootTable : global->config->lootTables)
@@ -75,26 +79,25 @@ namespace Plugins::LootTables
 				return;
 			}
 
-			// Calculate what Item to drop
-			std::random_device randomDevice; // Used to obtain a seed
-			std::mt19937 mersenneTwisterEngine(randomDevice()); //  Mersenne Twister algorithm seeded with the variable above
-			std::uniform_real_distribution dist(0.0f, 1.0f);
-			const float randomFloat = dist(mersenneTwisterEngine);
-			float sum = 0.0;
-			for (const auto& [weight, itemHashed, item] : lootTable.dropWeights)
+			// roll n times, depending on loottable
+			for (int i = 0; i < lootTable.rollCount; i++)
 			{
-				sum += weight;
-				if (randomFloat <= sum && itemHashed)
-				{
-     					Server.MineAsteroid(
-					    ship->iSystem, 
-						ship->get_position(), 
-						global->config->lootDropContainerHashed, 
-						itemHashed, 
-						lootTable.dropCount, 
-						ship->GetOwnerPlayer());
-					return;
-				}
+				// Accumulate weights
+				std::vector<uint> weights;
+				weights.reserve(lootTable.dropWeights.size());
+				std::ranges::transform(lootTable.dropWeights, std::back_inserter(weights), [](const DropWeight& dw) { return dw.weighting; });
+
+				// Choose a random index
+				std::discrete_distribution<> discreteDistribution(weights.begin(), weights.end());
+				auto chosenIndex = discreteDistribution(mersenneTwisterEngine);
+
+				// Drop item corresponding to said index
+				Server.MineAsteroid(ship->iSystem,
+				    ship->get_position(),
+				    global->config->lootDropContainerHashed,
+				    lootTable.dropWeights[chosenIndex].itemHashed,
+				    lootTable.dropWeights[chosenIndex].dropCount,
+				    ship->GetOwnerPlayer());
 			}
 		}
 	}
@@ -113,23 +116,6 @@ namespace Plugins::LootTables
 		for (auto& lootTable : config.lootTables)
 		{
 			lootTable.triggerItemHashed = CreateID(lootTable.triggerItem.c_str());
-
-			// Check that weighting in this loot table entry add up to 1
-			float weightingCheck = 0;
-			for (auto& weighting : lootTable.dropWeights)
-			{
-				weightingCheck += weighting.weighting;
-				if (ToLower(weighting.item) != "none")
-				{
-					weighting.itemHashed = CreateID(weighting.item.c_str());
-				}
-				
-			}
-
-			if (abs(weightingCheck - 1.0f) > 1e-9) // Can't just use != due to floating point precision
-			{
-				Console::ConErr(std::format("Loot Table for trigger item: {} does not have weightings that add up to exactly 1.", lootTable.triggerItem));
-			}
 		}
 
 		global->config = std::make_unique<Config>(std::move(config));
@@ -138,8 +124,8 @@ namespace Plugins::LootTables
 
 using namespace Plugins::LootTables;
 
-REFL_AUTO(type(DropWeight), field(weighting), field(item));
-REFL_AUTO(type(LootTable), field(dropCount), field(applyToPlayers), field(applyToNpcs), field(triggerItem), field(dropWeights));
+REFL_AUTO(type(DropWeight), field(weighting), field(item), field(dropCount));
+REFL_AUTO(type(LootTable), field(rollCount), field(applyToPlayers), field(applyToNpcs), field(triggerItem), field(dropWeights));
 REFL_AUTO(type(Config), field(lootDropContainer), field(lootTables));
 
 DefaultDllMainSettings(LoadSettings);
