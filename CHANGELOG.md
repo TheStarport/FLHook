@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.0.27
+## 4.0.28
 - Improve checks for spawning NPCs
 - Implement 'Solar Control': Spawn solars and formations of solars via admin command.
 

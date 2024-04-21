@@ -294,6 +294,13 @@ namespace Plugins::Npc
 
 		for (auto& npc : config.startupNpcs)
 		{
+			// Check if defined startupNpcs are valid before spawning them
+			if (!config.npcInfo.contains(npc.name))
+			{
+				Console::ConErr(std::format("Attempted to load an NPC that was not defined in npcInfo: {}", wstos(npc.name)));
+				continue;
+			}
+
 			npc.systemId = CreateID(npc.system.c_str());
 
 			npc.positionVector.x = npc.position[0];
@@ -325,6 +332,30 @@ namespace Plugins::Npc
 		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 		int spawned = 0;
 
+		// Some checks on load, to ensure that values provided for NPCs are valid. Unfortunately we can't easily check loadouts or the state graph here
+		for (const auto& [key, value] : global->config->npcInfo)
+		{
+			// Check if NPC iff is valid
+			uint npcIff;
+			pub::Reputation::GetReputationGroup(npcIff, value.iff.c_str());
+			if (npcIff == UINT_MAX)
+			{
+				Console::ConErr(std::format("Loaded invalid reputation {}", value.iff));
+			}
+
+			// Check NPC pilot is valid
+			if (!Hk::Personalities::GetPersonality(value.pilot).has_value())
+			{
+				Console::ConErr(std::format("Loaded invalid pilot {}", value.pilot));
+			}
+
+			// Check NPC shipArch is valid
+			if (!Archetype::GetShip(CreateID(value.shipArch.c_str())))
+			{
+				Console::ConErr(std::format("Attempted to load invalid shipArch {}", value.shipArch));
+			}
+		}
+
 		for (const auto& npc : global->config->startupNpcs)
 		{
 			// Check spawn chance is valid
@@ -341,7 +372,6 @@ namespace Plugins::Npc
 				spawned++;
 			}
 		}
-
 		Console::ConInfo(std::format("{} NPCs loaded on startup", spawned));
 	}
 
