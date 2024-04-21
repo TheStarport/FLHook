@@ -246,10 +246,6 @@ namespace Plugins::SolarControl
 		{
 			si.mission = 1;
 		}
-		else
-		{
-			si.mission = 0;
-		}
 
 		// Define the string used for the scanner name.ad.
 		FmtStr scannerName(arch.infocard, nullptr);
@@ -264,16 +260,16 @@ namespace Plugins::SolarControl
 		// Set Reputation
 		pub::Reputation::Alloc(si.iRep, scannerName, solarName);
 
-		// Spawn the solar object
-		uint spaceId;
-		CreateSolar(spaceId, si);
-
 		if (!arch.iff.empty())
 		{
 			uint iff;
 			pub::Reputation::GetReputationGroup(iff, arch.iff.c_str());
 			pub::Reputation::SetAffiliation(si.iRep, iff);
 		}
+
+		// Spawn the solar object
+		uint spaceId;
+		CreateSolar(spaceId, si);
 
 		if (!arch.pilot.empty())
 		{
