@@ -68,7 +68,7 @@ var searchData=
   ['docknpc_65',['dockNpc',['../struct_plugins_1_1_npc_1_1_global.html#ab269c37e355abfe94f08ea9bb0410989',1,'Plugins::Npc::Global']]],
   ['done_66',['Done',['../namespace_startup_cache.html#a9576219cbc480ea6435fbb741fd99777',1,'StartupCache']]],
   ['doprint_67',['DoPrint',['../class_c_console.html#a1157a99739f35550b3586fc7b5b73633',1,'CConsole']]],
-  ['dropcount_68',['dropCount',['../struct_plugins_1_1_loot_tables_1_1_loot_table.html#a7503b8f68ef87517bb6d340471e6e6de',1,'Plugins::LootTables::LootTable']]],
+  ['dropcount_68',['dropCount',['../struct_plugins_1_1_loot_tables_1_1_drop_weight.html#a35719a13e5e53874b128e1527f9fdc38',1,'Plugins::LootTables::DropWeight']]],
   ['dropweight_69',['DropWeight',['../struct_plugins_1_1_loot_tables_1_1_drop_weight.html',1,'Plugins::LootTables']]],
   ['dropweights_70',['dropWeights',['../struct_plugins_1_1_loot_tables_1_1_loot_table.html#a83b6b30f3f14ea51b1b6ce322211ac02',1,'Plugins::LootTables::LootTable']]],
   ['duel_71',['Duel',['../struct_plugins_1_1_betting_1_1_duel.html',1,'Plugins::Betting']]],

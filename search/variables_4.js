@@ -27,7 +27,7 @@ var searchData=
   ['dll_24',['dll',['../struct_plugin_data.html#a7329497365831096b4c6bd0399ec1e55',1,'PluginData']]],
   ['dllname_25',['dllName',['../struct_plugin_data.html#a8e7723e2ea8f7343e9c5d7b1f545a199',1,'PluginData']]],
   ['docknpc_26',['dockNpc',['../struct_plugins_1_1_npc_1_1_global.html#ab269c37e355abfe94f08ea9bb0410989',1,'Plugins::Npc::Global']]],
-  ['dropcount_27',['dropCount',['../struct_plugins_1_1_loot_tables_1_1_loot_table.html#a7503b8f68ef87517bb6d340471e6e6de',1,'Plugins::LootTables::LootTable']]],
+  ['dropcount_27',['dropCount',['../struct_plugins_1_1_loot_tables_1_1_drop_weight.html#a35719a13e5e53874b128e1527f9fdc38',1,'Plugins::LootTables::DropWeight']]],
   ['dropweights_28',['dropWeights',['../struct_plugins_1_1_loot_tables_1_1_loot_table.html#a83b6b30f3f14ea51b1b6ce322211ac02',1,'Plugins::LootTables::LootTable']]],
   ['duels_29',['duels',['../struct_plugins_1_1_betting_1_1_global.html#a4ddb954dbfb24932c2cd34e406dc737a',1,'Plugins::Betting::Global']]]
 ];

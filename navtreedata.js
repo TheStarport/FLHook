@@ -78,7 +78,7 @@ var NAVTREEINDEX =
 "_admin_8cpp.html",
 "_error_8cpp.html#aaca63c42cee84bd480eba6e4b1f5ebc3",
 "_hk_client_server_interface_8cpp.html#a81dd7e1c3ebb148cf5b31bd459fd16c1",
-"_loot_tables_8cpp.html#abf27c781e7e00398be6eb75adba0be0f",
+"_loot_tables_8cpp.html#acb5c9db17e98b34703c52023a7f2a656",
 "_rename_8cpp.html#a8e80b3539a6c9920c8ec4e18d492ea8b",
 "class_plugins_1_1_cash_manager_1_1_cash_manager_communicator.html",
 "group___crash_catcher.html#ga808fd0debb79ed1c980ca1703ac6a42b",
@@ -88,9 +88,9 @@ var NAVTREEINDEX =
 "struct_hk_1_1_ini_1_1_f_l_h_o_o_k___p_l_a_y_e_r___d_a_t_a.html#a37707f3c9ac2ce44fd489dbdac35d703",
 "struct_plugins_1_1_cash_manager_1_1_bank.html",
 "struct_plugins_1_1_death_penalty_1_1_config.html",
-"struct_plugins_1_1_mark_1_1_m_a_r_k___i_n_f_o.html#ac64418d25f5a3c2e4ac99577272dfafb",
-"struct_plugins_1_1_npc_1_1_npc.html#a80f9001e5e12d029284bd0f2dab58e67",
-"struct_plugins_1_1_system_sensor_1_1_sensor.html#aa41ea80ab5a0596d08176f10888a6f9d"
+"struct_plugins_1_1_mark_1_1_m_a_r_k___i_n_f_o.html#a8edaefe50ab49d9cce2f4c316179d1c4",
+"struct_plugins_1_1_npc_1_1_npc.html#a785f596c8d5a9c9c2acd207e194c0094",
+"struct_plugins_1_1_system_sensor_1_1_sensor.html#a533ce3ffd501a0e92330f87ebc7ab60a"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

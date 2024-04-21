@@ -5,8 +5,8 @@ var _loot_tables_8cpp =
     [ "ExportPluginInfo", "_loot_tables_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692", null ],
     [ "LoadSettings", "_loot_tables_8cpp.html#ga6f4fe100bc2d0abc05b5781aab680f93", null ],
     [ "REFL_AUTO", "_loot_tables_8cpp.html#a79f2582b9fdbb2071f666e592f0bb8bf", null ],
-    [ "REFL_AUTO", "_loot_tables_8cpp.html#aa9d69fb976cc83ca4dbcd661785a9769", null ],
-    [ "REFL_AUTO", "_loot_tables_8cpp.html#abf27c781e7e00398be6eb75adba0be0f", null ],
+    [ "REFL_AUTO", "_loot_tables_8cpp.html#a5ff049b105866da7bc29e9f3b5620178", null ],
+    [ "REFL_AUTO", "_loot_tables_8cpp.html#aed2dae15e5b2ed95e497f25cb33b015a", null ],
     [ "ShipDestroyed", "_loot_tables_8cpp.html#ga3cfcf137055bf53a297485d6ce05323a", null ],
     [ "global", "_loot_tables_8cpp.html#acb5c9db17e98b34703c52023a7f2a656", null ]
 ];

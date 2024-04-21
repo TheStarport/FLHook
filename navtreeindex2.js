@@ -247,7 +247,7 @@ var NAVTREEINDEX2 =
 "_logging_8cpp.html#affff21a95f9d48977885ae470819b153":[2,3,0,2,1,1,1],
 "_loot_tables_8cpp.html":[2,3,0,1,18,0],
 "_loot_tables_8cpp.html#a3d3cd4fa23cee6674351a14458bef535":[2,3,0,1,18,0,1],
+"_loot_tables_8cpp.html#a5ff049b105866da7bc29e9f3b5620178":[2,3,0,1,18,0,5],
 "_loot_tables_8cpp.html#a79f2582b9fdbb2071f666e592f0bb8bf":[2,3,0,1,18,0,4],
-"_loot_tables_8cpp.html#aa9d69fb976cc83ca4dbcd661785a9769":[2,3,0,1,18,0,5],
 "_loot_tables_8cpp.html#aaa169af4be9e225f3f00ec061f2f5692":[2,3,0,1,18,0,2]
 };

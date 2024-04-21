@@ -1,7 +1,7 @@
 var NAVTREEINDEX3 =
 {
-"_loot_tables_8cpp.html#abf27c781e7e00398be6eb75adba0be0f":[2,3,0,1,18,0,6],
 "_loot_tables_8cpp.html#acb5c9db17e98b34703c52023a7f2a656":[2,3,0,1,18,0,8],
+"_loot_tables_8cpp.html#aed2dae15e5b2ed95e497f25cb33b015a":[2,3,0,1,18,0,6],
 "_loot_tables_8hpp.html":[2,3,0,1,18,1],
 "_loot_tables_8hpp_source.html":[2,3,0,1,18,1],
 "_mail_8cpp.html":[2,3,0,2,1,2],
