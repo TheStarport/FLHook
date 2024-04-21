@@ -72,7 +72,7 @@ uint ClientId::GetClientIdFromCharacterName(std::wstring_view name)
 
 ClientId::operator bool() const
 {
-    if (value > 0 || value < MaxClientId)
+    if (value == 0 || value > MaxClientId)
     {
         return false;
     }
@@ -122,7 +122,12 @@ Action<AccountId, Error> ClientId::GetAccount() const
 {
     ClientCheck;
 
-    return { AccountId(*this) };
+    auto acc = AccountId::GetAccountFromClient(*this);
+    if(acc.has_value())
+    {
+        return {acc.value()};
+    }
+    return { cpp::fail(Error::InvalidClientId) };
 }
 
 Action<const Archetype::Ship*, Error> ClientId::GetShipArch() const

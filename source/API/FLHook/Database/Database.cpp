@@ -81,7 +81,7 @@ void Database::RemoveValueFromAccount(AccountId account, std::string value)
     {
         auto accounts = db->database("FLHook")["accounts"];
 
-        auto searchDoc = make_document(kvp("_id", StringUtils::wstos(account.GetValue()->accId)));
+        auto searchDoc = make_document(kvp("_id", account.GetValue()));
         auto updateDoc = make_document(kvp("$unset", make_array(value)));
 
         session.commit_transaction();

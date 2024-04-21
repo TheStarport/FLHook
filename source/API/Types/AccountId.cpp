@@ -1,252 +1,312 @@
 #include "PCH.hpp"
 
-#include "API/Types/AccountId.hpp"
+#include "API/FLHook/ClientList.hpp"
 
+#include "API/Types/AccountId.hpp"
 #include "API/Utils/TempBan.hpp"
 
-#define ValidAccountCheck                            \
-    if (!this->operator bool())                      \
-    {                                                \
-        return { cpp::fail(Error::InvalidAccount) }; \
-    }
+#include "API/FLHook/Database.hpp"
 
-AccountId::AccountId(const ClientId client) { value = Players.FindAccountFromClientID(client.GetValue()); }
+AccountId::operator bool() const { return accountId.empty(); }
 
-AccountId::AccountId(const std::wstring_view characterName)
+ClientData* AccountId::IsOnline() const
 {
-    st6::wstring wStr{ reinterpret_cast<const unsigned short*>(characterName.data()), characterName.size() };
-    value = Players.FindAccountFromCharacterName(wStr);
-
-    // It wasn't a character name, attempt an id search
-    if (!value)
+    for (auto& client : FLHook::Clients())
     {
-        auto str = StringUtils::wstos(std::wstring(characterName));
-        st6::string str6 = { str.data(), str.size() };
-        value = Players.FindAccountFromCharacterID(str6);
+        if (client.account && client.account->_id == accountId)
+        {
+            return &client;
+        }
     }
+
+    return nullptr;
 }
 
-AccountId::operator bool() const { return value != nullptr; }
+using bsoncxx::builder::basic::kvp;
+using bsoncxx::builder::basic::make_document;
+using bsoncxx::builder::basic::make_array;
 
-CAccount* AccountId::GetValue() const { return value; }
-
-Action<std::wstring, Error> AccountId::GetDirectoryName() const
+std::optional<AccountId> AccountId::GetAccountFromClient(ClientId client)
 {
-    ValidAccountCheck;
+    if (!client) 
+    {
+        return std::nullopt;
+    }
 
-    const auto getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
+    auto& data = client.GetData();
+    if (!data.account)
+    {
+        return std::nullopt;
+    }
 
-    static std::array<char, 64> buffer;
-    std::fill_n(buffer.begin(), buffer.size(), '\0');
-    getFlName(buffer.data(), value->accId);
-    return { StringUtils::stows(buffer.data()) };
+    AccountId acc;
+    acc.accountId = data.account->_id;
+    return acc;
 }
+
+std::optional<AccountId> AccountId::GetAccountFromCharacterName(std::wstring_view characterName)
+{
+    for (auto& client : FLHook::Clients())
+    {
+        if (client.characterName == characterName && client.account)
+        {
+            AccountId acc;
+            acc.accountId = client.account->_id;
+            return acc;
+        }
+    }
+
+
+    const auto db = FLHook::GetDbClient();
+
+    auto accounts = db->database("FLHook")["accounts"];
+    auto findAccDoc = make_document(kvp("characterName", StringUtils::wstos(characterName)));
+
+    mongocxx::options::find options;
+    options.projection(make_document(kvp("_id", 1)));
+
+    const auto databaseAccount = accounts.find_one(findAccDoc.view(), options); 
+    if (!databaseAccount.has_value())
+    {
+        return std::nullopt;
+    }
+
+    AccountId acc;
+    acc.accountId = databaseAccount.value()["_id"].get_string();
+    return acc;
+}
+
+std::optional<AccountId> AccountId::GetAccountFromAccountId(std::wstring_view accountId)
+{
+    auto accountIdString = StringUtils::wstos(accountId);
+    for (auto& client : FLHook::Clients())
+    {
+        if (client.account && client.account->_id == accountIdString)
+        {
+            AccountId acc;
+            acc.accountId = client.account->_id;
+            return acc;
+        }
+    }
+
+    const auto db = FLHook::GetDbClient();
+
+    auto accounts = db->database("FLHook")["accounts"];
+    auto findAccDoc = make_document(kvp("_id", accountIdString));
+
+    mongocxx::options::find options;
+    options.projection(make_document(kvp("_id", 1)));
+
+    const auto databaseAccount = accounts.find_one(findAccDoc.view(), options); 
+    if (!databaseAccount.has_value())
+    {
+        return std::nullopt;
+    }
+
+    AccountId acc;
+    acc.accountId = databaseAccount.value()["_id"].get_string();
+    return acc;
+}
+
+std::string_view AccountId::GetValue() const { return accountId; }
 
 bool AccountId::IsAdmin() const
 {
-    // TODO once db setup
+    auto client = IsOnline();
+    if (client) 
+    {
+        return client->account->gameRoles.has_value() && !client->account->gameRoles.value().empty();
+    }
+
+    const auto db = FLHook::GetDbClient();
+
+    auto accounts = db->database("FLHook")["accounts"];
+    auto findAccDoc = make_document(kvp("_id", accountId));
+
+    mongocxx::pipeline pipeline{};
+    pipeline.match(make_document(kvp("_id", accountId)));
+    pipeline.count("gameRoles");
+
+    auto cursor = accounts.aggregate(pipeline, mongocxx::options::aggregate{});
+
+    for (auto data : cursor)
+    {
+        return data["gameRoles"].get_int32() != 0;
+    }
+
     return false;
 }
+
 Action<void, Error> AccountId::UnBan() const
 {
-    ValidAccountCheck;
+    const auto db = FLHook::GetDbClient();
 
-    st6::wstring fr(reinterpret_cast<ushort*>(value->accId));
-    Players.BanAccount(fr, false);
+    auto accounts = db->database("FLHook")["accounts"];
+    auto findAccDoc = make_document(kvp("_id", accountId));
+    static auto updateDoc = make_document(kvp("$set", make_document(kvp("banned", false))), kvp("$unset", make_document(kvp("scheduledUnbanDate", ""))));
 
-    return { {} };
+    const auto responseDoc = accounts.update_one(findAccDoc.view(), updateDoc.view());
+    if(responseDoc->modified_count() == 0)
+    {
+        // TODO: Err
+        return {{}};
+    }
+
+    return {{}};
 }
 
 Action<void, Error> AccountId::Ban(uint tempBanDays) const
 {
-    ValidAccountCheck;
+    const auto db = FLHook::GetDbClient();
+    auto accounts = db->database("FLHook")["accounts"];
+    auto findAccDoc = make_document(kvp("_id", accountId));
 
+    bsoncxx::document::view_or_value banUpdateDoc;
     if (tempBanDays)
     {
-        FLHook::GetTempBanManager().AddTempBan(*this, tempBanDays);
+        auto time = static_cast<int64>(TimeUtils::UnixTime<std::chrono::seconds>() + static_cast<int64>(60 * 60 * 24 * tempBanDays));
+        banUpdateDoc = make_document(kvp("$set", make_document(kvp("banned", true), kvp("scheduledUnbanDate", time))));
+    }
+    else 
+    {
+        static auto permaBanDoc = make_document(kvp("$set", make_document(kvp("banned", true))), kvp("$unset", make_document(kvp("scheduledUnbanDate", ""))));
+        banUpdateDoc = permaBanDoc.view();
     }
 
-    st6::wstring fr(reinterpret_cast<ushort*>(value->accId));
-    Players.BanAccount(fr, true);
-    return { {} };
-}
-
-Action<void, Error> AccountId::LockAccountAccess(const bool kick) const
-{
-    ValidAccountCheck;
-
-    static const std::array<byte, 1> jmp = { 0xEB };
-    static const std::array<byte, 1> jbe = { 0x76 };
-
-    st6::wstring fr((ushort*)value->accId);
-
-    if (!kick)
+    const auto responseDoc = accounts.update_one(findAccDoc.view(), banUpdateDoc.view());
+    if(responseDoc->modified_count() == 0)
     {
-        MemUtils::WriteProcMem((void*)0x06D52A6A, jmp.data(), 1);
+        // TODO: Err
+        return {{}};
     }
 
-    Players.LockAccountAccess(fr); // also kicks player on this account
-
-    if (!kick)
+    auto client = IsOnline();
+    if (client) 
     {
-        MemUtils::WriteProcMem((void*)0x06D52A6A, jbe.data(), 1);
+        client->id.Kick();
     }
 
     return { {} };
 }
 
-Action<void, Error> AccountId::UnlockAccountAccess() const
-{
-    ValidAccountCheck;
-
-    st6::wstring id(reinterpret_cast<ushort*>(value->accId));
-    Players.UnlockAccountAccess(id);
-    return { {} };
-}
-Action<void, Error> AccountId::Logout() const
-{
-    ValidAccountCheck;
-
-    value->ForceLogout();
-
-    return { {} };
-}
-
-Action<void, Error> AccountId::CreateCharacter(const std::wstring_view name) const
-{
-    ValidAccountCheck;
-
-    LockAccountAccess(true);
-    UnlockAccountAccess();
-
-    INI_Reader ini;
-    if (!ini.open(R"(..\DATA\CHARACTERS\newcharacter.ini)", false))
-    {
-        return { cpp::fail(Error::MpNewCharacterFileNotFoundOrInvalid) };
-    }
-
-    // Emulate char create by logging in.
-    SLoginInfo loginData;
-    wcsncpy_s(loginData.account, value->accId, 36);
-    Players.login(loginData, Players.GetMaxPlayerCount() + 1);
-
-    SCreateCharacterInfo newCharacter;
-    wcsncpy_s(newCharacter.charname, name.data(), name.size());
-    newCharacter.charname[23] = 0;
-
-    newCharacter.nickName = 0;
-    newCharacter.base = 0;
-    newCharacter.package = 0;
-    newCharacter.pilot = 0;
-
-    if (!ini.find_header("Faction"))
-    {
-        return { cpp::fail(Error::MalformedData) };
-    }
-
-    while (ini.read_value())
-    {
-        if (ini.is_value("nickname"))
-        {
-            newCharacter.nickName = CreateID(ini.get_value_string());
-        }
-        else if (ini.is_value("base"))
-        {
-            newCharacter.base = CreateID(ini.get_value_string());
-        }
-        else if (ini.is_value("package"))
-        {
-            newCharacter.package = CreateID(ini.get_value_string());
-        }
-        else if (ini.is_value("pilot"))
-        {
-            newCharacter.pilot = CreateID(ini.get_value_string());
-        }
-    }
-
-    ini.close();
-
-    if (newCharacter.nickName == 0)
-    {
-        newCharacter.nickName = CreateID("new_player");
-    }
-    if (newCharacter.base == 0)
-    {
-        newCharacter.base = CreateID("Li01_01_Base");
-    }
-    if (newCharacter.package == 0)
-    {
-        newCharacter.package = CreateID("ge_fighter");
-    }
-    if (newCharacter.pilot == 0)
-    {
-        newCharacter.pilot = CreateID("trent");
-    }
-
-    // Fill struct with valid data (though it isn't used it is needed)
-    newCharacter.dunno[4] = 65536;
-    newCharacter.dunno[5] = 65538;
-    newCharacter.dunno[6] = 0;
-    newCharacter.dunno[7] = 1058642330;
-    newCharacter.dunno[8] = 3206125978;
-    newCharacter.dunno[9] = 65537;
-    newCharacter.dunno[10] = 0;
-    newCharacter.dunno[11] = 3206125978;
-    newCharacter.dunno[12] = 65539;
-    newCharacter.dunno[13] = 65540;
-    newCharacter.dunno[14] = 65536;
-    newCharacter.dunno[15] = 65538;
-
-    Server.CreateNewCharacter(newCharacter, Players.GetMaxPlayerCount() + 1);
-    ClientId(Players.GetMaxPlayerCount() + 1).SaveChar();
-    Players.logout(Players.GetMaxPlayerCount() + 1);
-
-    return { {} };
-}
 
 Action<void, Error> AccountId::DeleteCharacter(std::wstring_view name) const
 {
-    ValidAccountCheck;
-
-    LockAccountAccess(true);
-
-    if (st6::wstring str(reinterpret_cast<const ushort*>(name.data()), name.size()); !Players.DeleteCharacterFromName(str))
+    auto client = IsOnline();
+    if (client) 
     {
-        UnlockAccountAccess();
-        return { cpp::fail(Error::UnknownError) };
+        client->id.Kick();
     }
 
-    UnlockAccountAccess();
+    const auto db = FLHook::GetDbClient();
+    auto accounts = db->database("FLHook")["accounts"];
+
+    auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(name)));
+
+    mongocxx::options::find_one_and_delete deleteOptions;
+    deleteOptions.projection(make_document(kvp("_id", 1)));
+
+    auto foundCharDoc = accounts.find_one_and_delete(findCharDoc.view(), deleteOptions);
+    if (!foundCharDoc.has_value())
+    {
+        return {{}};
+    }
+
+    auto findAccDoc = make_document(kvp("_id", accountId));
+    auto updateAccDoc = make_document(kvp("$pull", make_document(kvp("characters", foundCharDoc.value()["_id"].get_oid()))));
+    auto updateResponse = accounts.update_one(findAccDoc.view(), updateAccDoc.view());
+
+    if (updateResponse->modified_count() == 0)
+    {
+        return {{}};
+    }
 
     return { {} };
 }
 
 Action<void, Error> AccountId::AddRoles(const std::vector<std::wstring_view>& roles)
 {
-    // TODO once db setp
+
+    const auto db = FLHook::GetDbClient();
+    auto accounts = db->database("FLHook")["accounts"];
+    auto findAccDoc = make_document(kvp("_id", accountId));
+
+    bsoncxx::builder::basic::array arrayBuilder;
+    for(auto& role : roles)
+    {
+        arrayBuilder.append(StringUtils::wstos(role));
+    }
+
+    auto roleUpdateDoc = make_document(kvp("$push", make_document(kvp("gameRoles", arrayBuilder.view()))));
+    auto updateResponse = accounts.update_one(findAccDoc.view(), roleUpdateDoc.view());
+
+    if (updateResponse->modified_count() == 0)
+    {
+        return {{}};
+    }
+
     return { {} };
 }
 
 Action<void, Error> AccountId::RemoveRoles(const std::vector<std::wstring_view>& roles, bool clear)
 {
-    // TODO once db setp
+    const auto db = FLHook::GetDbClient();
+    auto accounts = db->database("FLHook")["accounts"];
+    auto findAccDoc = make_document(kvp("_id", accountId));
+
+    bsoncxx::builder::basic::array arrayBuilder;
+    for(auto& role : roles)
+    {
+        arrayBuilder.append(StringUtils::wstos(role));
+    }
+
+    auto roleUpdateDoc = make_document(kvp("$pull", make_document(kvp("gameRoles", arrayBuilder.view()))));
+    auto updateResponse = accounts.update_one(findAccDoc.view(), roleUpdateDoc.view());
+
+    if (updateResponse->modified_count() == 0)
+    {
+        return {{}};
+    }
+
     return { {} };
 }
 
 Action<void, Error> AccountId::SetRoles(const std::vector<std::wstring_view>& roles)
 {
-    // TODO once db setp
+    const auto db = FLHook::GetDbClient();
+    auto accounts = db->database("FLHook")["accounts"];
+    auto findAccDoc = make_document(kvp("_id", accountId));
+
+    bsoncxx::builder::basic::array arrayBuilder;
+    for(auto& role : roles)
+    {
+        arrayBuilder.append(StringUtils::wstos(role));
+    }
+
+    auto roleUpdateDoc = make_document(kvp("$set", make_document(kvp("gameRoles", arrayBuilder.view()))));
+    auto updateResponse = accounts.update_one(findAccDoc.view(), roleUpdateDoc.view());
+
+    if (updateResponse->modified_count() == 0)
+    {
+        return {{}};
+    }
+
     return { {} };
 }
 
-Action<uint, Error> AccountId::GetCash(std::wstring_view characterName) const
+Action<void, Error> AccountId::SetCash(std::wstring_view characterName, int64 amount) const
 {
-    // TODO once db setup
-    return { {} };
-}
+    const auto db = FLHook::GetDbClient();
+    auto accounts = db->database("FLHook")["accounts"];
+    auto findAccDoc = make_document(kvp("_id", accountId));
 
-Action<void, Error> AccountId::SetCash(std::wstring_view characterName, uint amount) const
-{
-    // TODO once db setup
+    auto roleUpdateDoc = make_document(kvp("$set", make_document(kvp("cash", amount))));
+    auto updateResponse = accounts.update_one(findAccDoc.view(), roleUpdateDoc.view());
+
+    if (updateResponse->modified_count() == 0)
+    {
+        return {{}};
+    }
+
     return { {} };
 }

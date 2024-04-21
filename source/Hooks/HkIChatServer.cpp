@@ -89,7 +89,7 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
                 traDataSenderColor = L"00FF00";
                 traDataColor = L"FFFFFF"; // universe chat color
             }
-            else if (!clientTo || clientTo.GetValue() == 0x10000)
+            else if (clientTo.GetValue() == 0x10000)
             {
                 traDataColor = L"FFFFFF"; // universe chat color
             }
@@ -101,7 +101,7 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             {
                 traDataColor = L"FF8F40"; // local chat color
             }
-            else if (clientTo.GetValue() & 0x10000)
+            else if (clientTo.GetValue() & 0x10001)
             {
                 traDataColor = L"E6C684"; // system chat color
             }

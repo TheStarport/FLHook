@@ -70,16 +70,22 @@ std::wstring AdminCommandProcessor::SetCash(std::wstring_view characterName,
                                             uint amount) // TODO: Need to implement functionality here for offline chars as well.
 {
     // Rights check here.
-    const auto account = AccountId(characterName);
-    account.SetCash(characterName, amount).Handle();
+    const auto account = AccountId::GetAccountFromCharacterName(characterName);
+    if(!account.has_value())
+    {
+        // TODO: fix the error handling
+        return L"Error lol";
+    }
+    account->SetCash(characterName, amount).Handle();
 
     return std::format(L"{} cash set to {} credits", characterName, amount);
 }
 
 std::wstring AdminCommandProcessor::GetCash(std::wstring_view characterName)
 {
-    const auto res = AccountId(characterName).GetCash(characterName).Handle();
-    return std::format(L"{} has been set {} credits.", characterName, res);
+    //const auto res = AccountId(characterName).GetCash(characterName).Handle();
+    //return std::format(L"{} has been set {} credits.", characterName, res);
+    return L"Not Implemented";
 }
 
 std::wstring AdminCommandProcessor::KickPlayer(std::wstring_view characterName, std::wstring_view reason)
@@ -91,7 +97,13 @@ std::wstring AdminCommandProcessor::KickPlayer(std::wstring_view characterName, 
 
 std::wstring AdminCommandProcessor::BanPlayer(std::wstring_view characterName)
 {
-    AccountId(characterName).Ban().Handle();
+    const auto account = AccountId::GetAccountFromCharacterName(characterName);
+    if(!account.has_value())
+    {
+        // TODO: fix the error handling
+        return L"Error lol";
+    }
+    (void)account->Ban(0);
     return std::format(L"{} has been successfully banned.", characterName);
 }
 
@@ -99,7 +111,13 @@ std::wstring AdminCommandProcessor::TempbanPlayer(std::wstring_view characterNam
 
 std::wstring AdminCommandProcessor::UnBanPlayer(std::wstring_view characterName)
 {
-    AccountId(characterName).UnBan().Handle();
+    const auto account = AccountId::GetAccountFromCharacterName(characterName);
+    if(!account.has_value())
+    {
+        // TODO: fix the error handling
+        return L"Error lol";
+    }
+    (void)account->UnBan();
     return std::format(L"{} has been successfully unbanned.", characterName);
 }
 

@@ -2,21 +2,22 @@
 
 class DLL AccountId final
 {
-        CAccount* value = nullptr;
+        std::string accountId = "";
+
+        struct ClientData* IsOnline() const;
 
     public:
-        explicit AccountId(ClientId client);
-        explicit AccountId(std::wstring_view characterName);
-        explicit AccountId(CAccount* acc) : value(acc) {}
         explicit AccountId() = default;
 
-        bool operator==(const CAccount* next) const { return value == next; }
+        static std::optional<AccountId> GetAccountFromClient(ClientId client);
+        static std::optional<AccountId> GetAccountFromCharacterName(std::wstring_view characterName);
+        static std::optional<AccountId> GetAccountFromAccountId(std::wstring_view accountId);
+
+        bool operator==(AccountId acc) const { return accountId == acc.accountId; }
         explicit operator bool() const;
 
         [[nodiscard]]
-        CAccount* GetValue() const;
-
-        Action<std::wstring, Error> GetDirectoryName() const;
+        std::string_view GetValue() const;
 
         bool IsAdmin() const;
 
@@ -32,6 +33,5 @@ class DLL AccountId final
         Action<void, Error> RemoveRoles(const std::vector<std::wstring_view>& roles, bool clear);
         Action<void, Error> SetRoles(const std::vector<std::wstring_view>& roles);
 
-        Action<uint, Error> GetCash(std::wstring_view characterName) const;              // TODO: Implement this as part of the account reworks.
-        Action<void, Error> SetCash(std::wstring_view characterName, uint amount) const; // TODO: Implement this as part of the account reworks.
+        Action<void, Error> SetCash(std::wstring_view characterName, int64 amount) const;
 };
