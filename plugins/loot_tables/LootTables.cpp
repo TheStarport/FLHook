@@ -57,6 +57,10 @@ namespace Plugins::LootTables
 	 */
 	void ShipDestroyed([[maybe_unused]] DamageList** dmgList, const DWORD** ecx, [[maybe_unused]] const uint& kill)
 	{
+		// Calculate what Item to drop
+		std::random_device randomDevice;                    // Used to obtain a seed
+		std::mt19937 mersenneTwisterEngine(randomDevice()); //  Mersenne Twister algorithm seeded with the variable above
+
 		// Get cShip from NPC?
 		CShip* ship = Hk::Player::CShipFromShipDestroyed(ecx);
 		for (auto const& lootTable : global->config->lootTables)
@@ -75,33 +79,25 @@ namespace Plugins::LootTables
 				return;
 			}
 
-			// Calculate what Item to drop
-			std::random_device randomDevice;                    // Used to obtain a seed
-			std::mt19937 mersenneTwisterEngine(randomDevice()); //  Mersenne Twister algorithm seeded with the variable above
-			uint weightSum = std::accumulate(lootTable.dropWeights.begin(), lootTable.dropWeights.end(), 0, [](uint accumulator, const DropWeight& dropWeight) {
-				return accumulator + dropWeight.weighting;
-			});
-			std::uniform_int_distribution<uint> distribution(0, weightSum);
-			uint cumulativeWeight = 0;
-			uint randomNumber = distribution(mersenneTwisterEngine);
-
-			for (const auto& weight : lootTable.dropWeights)
+			// roll n times, depending on loottable
+			for (int i = 0; i < lootTable.rollCount; i++)
 			{
-				cumulativeWeight += weight.weighting;
-				if (randomNumber < cumulativeWeight && weight.itemHashed)
-				{
-					// Randomly select a dropCount value
-					std::uniform_int_distribution<std::size_t> countDistribution(0, lootTable.dropCount.size() - 1);
-					const std::size_t randomIndex = countDistribution(mersenneTwisterEngine);
+				// Accumulate weights
+				std::vector<uint> weights;
+				weights.reserve(lootTable.dropWeights.size());
+				std::ranges::transform(lootTable.dropWeights, std::back_inserter(weights), [](const DropWeight& dw) { return dw.weighting; });
 
-					Server.MineAsteroid(ship->iSystem,
-					    ship->get_position(),
-					    global->config->lootDropContainerHashed,
-					    weight.itemHashed,
-					    lootTable.dropCount[randomIndex],
-					    ship->GetOwnerPlayer());
-					return;
-				}
+				// Choose a random index
+				std::discrete_distribution<> discreteDistribution(weights.begin(), weights.end());
+				auto chosenIndex = discreteDistribution(mersenneTwisterEngine);
+
+				// Drop item corresponding to said index
+				Server.MineAsteroid(ship->iSystem,
+				    ship->get_position(),
+				    global->config->lootDropContainerHashed,
+				    lootTable.dropWeights[chosenIndex].itemHashed,
+				    lootTable.dropWeights[chosenIndex].dropCount,
+				    ship->GetOwnerPlayer());
 			}
 		}
 	}
@@ -128,8 +124,8 @@ namespace Plugins::LootTables
 
 using namespace Plugins::LootTables;
 
-REFL_AUTO(type(DropWeight), field(weighting), field(item));
-REFL_AUTO(type(LootTable), field(dropCount), field(applyToPlayers), field(applyToNpcs), field(triggerItem), field(dropWeights));
+REFL_AUTO(type(DropWeight), field(weighting), field(item), field(dropCount));
+REFL_AUTO(type(LootTable), field(rollCount), field(applyToPlayers), field(applyToNpcs), field(triggerItem), field(dropWeights));
 REFL_AUTO(type(Config), field(lootDropContainer), field(lootTables));
 
 DefaultDllMainSettings(LoadSettings);
