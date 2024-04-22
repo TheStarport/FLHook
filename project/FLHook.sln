@@ -84,7 +84,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Kill Tracker", "..\plugins\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Loot Tables", "..\plugins\loot_tables\Loot Tables.vcxproj", "{DECED50E-AEE2-4327-94FC-6DAAEA6D8B61}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DailyTasks", "..\plugins\daily_tasks\DailyTasks.vcxproj", "{4270E660-9DF3-4BB3-B55D-5107824D9D10}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Daily Tasks", "..\plugins\daily_tasks\DailyTasks.vcxproj", "{4270E660-9DF3-4BB3-B55D-5107824D9D10}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Solar Control", "..\plugins\solar_control\solar_control.vcxproj", "{6F69FEED-80B6-4DFB-865E-90A195281BAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -300,6 +302,14 @@ Global
 		{4270E660-9DF3-4BB3-B55D-5107824D9D10}.ReleaseWithDebug|Win32.Build.0 = ReleaseWithDebug|Win32
 		{4270E660-9DF3-4BB3-B55D-5107824D9D10}.ReleaseWithDebug|x64.ActiveCfg = ReleaseWithDebug|Win32
 		{4270E660-9DF3-4BB3-B55D-5107824D9D10}.ReleaseWithDebug|x64.Build.0 = ReleaseWithDebug|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.Release|Win32.ActiveCfg = Release|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.Release|Win32.Build.0 = Release|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.Release|x64.ActiveCfg = Release|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.Release|x64.Build.0 = Release|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.ReleaseWithDebug|Win32.ActiveCfg = ReleaseWithDebug|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.ReleaseWithDebug|Win32.Build.0 = ReleaseWithDebug|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.ReleaseWithDebug|x64.ActiveCfg = ReleaseWithDebug|Win32
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB}.ReleaseWithDebug|x64.Build.0 = ReleaseWithDebug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -339,6 +349,7 @@ Global
 		{91E8438D-F413-4A2C-8A9B-6CE3544116DB} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{DECED50E-AEE2-4327-94FC-6DAAEA6D8B61} = {88754785-84CA-4F78-8906-F8C39564BA83}
 		{4270E660-9DF3-4BB3-B55D-5107824D9D10} = {88754785-84CA-4F78-8906-F8C39564BA83}
+		{6F69FEED-80B6-4DFB-865E-90A195281BAB} = {88754785-84CA-4F78-8906-F8C39564BA83}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAC9ADCA-E201-4AA0-8494-1C3804461C24}

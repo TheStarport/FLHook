@@ -181,6 +181,33 @@ struct DLL FLHookConfig final : Reflectable, Singleton<FLHookConfig>
 		uint antiBaseIdle = 600;
 		//! Amount of time spent idly on character select screen resulting in a server kick, in seconds.
 		uint antiCharMenuIdle = 600;
+		//! Bases that beam commands will not work for
+		std::vector<std::string> noBeamBases = {"br_m_beryllium_miner",
+		    "[br_m_hydrocarbon_miner]",
+		    "[br_m_niobium_miner]",
+		    "[co_khc_copper_miner]",
+		    "[co_khc_cobalt_miner]",
+		    "[co_kt_hydrocarbon_miner]",
+		    "[co_shi_h-fuel_miner]",
+		    "[co_shi_water_miner]",
+		    "[co_ti_water_miner]",
+		    "[gd_gm_h-fuel_miner]",
+		    "[gd_im_oxygen_miner]",
+		    "[gd_im_copper_miner]",
+		    "[gd_im_silver_miner]",
+		    "[gd_im_water_miner]",
+		    "[rh_m_diamond_miner]",
+		    "intro3_base",
+		    "intro2_base",
+		    "intro1_base",
+		    "st03b_01_base",
+		    "st02_01_base",
+		    "st01_02_base",
+		    "iw02_03_base",
+		    "rh02_07_base",
+		    "li04_06_base",
+		    "li01_15_base"};
+		std::vector<uint> noBeamBasesHashed = {};
 	};
 
 	struct Plugins final : Reflectable

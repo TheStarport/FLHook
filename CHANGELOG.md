@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.28
+- Improve checks for spawning NPCs
+- Implement 'Solar Control': Spawn solars and formations of solars via admin command.
+
 ## 4.0.27
 - Improved functionality of loot tables plugin: weights & drop counts are now more customisable, reverted to weight based system instead of percentages.
 
