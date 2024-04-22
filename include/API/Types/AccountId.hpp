@@ -28,6 +28,7 @@ class DLL AccountId final
         Action<void, Error> AddRoles(const std::vector<std::wstring_view>& roles);
         Action<void, Error> RemoveRoles(const std::vector<std::wstring_view>& roles, bool clear);
         Action<void, Error> SetRoles(const std::vector<std::wstring_view>& roles);
+        Action<bool, Error> HasRole(std::wstring_view role) const;
 
         Action<void, Error> SetCash(std::wstring_view characterName, int64 amount) const;
 };

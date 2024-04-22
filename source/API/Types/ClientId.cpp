@@ -48,7 +48,7 @@ ClientId ClientId::GetClientIdFromCharacterName(std::wstring_view name)
         }
     }
 
-    return 0;
+    return ClientId(0);
 }
 
 ClientId::operator bool() const
