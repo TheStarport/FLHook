@@ -365,7 +365,7 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
     data->baseRoomId = 0;
 
     data->account = internalAccount.internalAccount;
-    data->account->dunno4[1] = clientId;
+    data->account->clientId = clientId;
     wcscpy_s(data->accId, internalAccount.internalAccount->accId);
     data->clientId = clientId;
     data->exitedBase = 0;

@@ -37,37 +37,18 @@ bool ClientId::IsValidClientId() const
     return FLHook::Clients()[value].isValid;
 }
 
-uint ClientId::GetClientIdFromCharacterName(std::wstring_view name)
+ClientId ClientId::GetClientIdFromCharacterName(std::wstring_view name)
 {
-    st6::wstring st6Name{ (unsigned short*)name.data(), name.size() };
-    const auto account = Players.FindAccountFromCharacterName(st6Name);
-    if (!account)
-    {
-        return 0;
-    }
 
-    uint client = 0;
-    PlayerData* playerDb = nullptr;
-    while ((playerDb = Players.traverse_active(playerDb)))
+    for (auto& client : FLHook::Clients())
     {
-        if (playerDb->account == account)
+        if (client.characterName == name)
         {
-            client = playerDb->clientId;
-            break;
+            return client.id;
         }
     }
 
-    if (!client || ClientId(client).InCharacterSelect())
-    {
-        return 0;
-    }
-
-    if (const auto newCharacter = ClientId(client).GetCharacterName().Unwrap(); StringUtils::ToLower(newCharacter) != StringUtils::ToLower(name))
-    {
-        return 0;
-    }
-
-    return client;
+    return 0;
 }
 
 ClientId::operator bool() const
@@ -341,7 +322,7 @@ ClientData& ClientId::GetData() const { return FLHook::Clients()[value]; }
 
 Action<std::wstring, Error> ClientId::GetPlayerIp() const
 {
-    /*
+    
     const CDPClientProxy* cdpClient = FLHook::clientProxyArray[value - 1];
     // clang-format off
     if (!cdpClient)
@@ -395,9 +376,10 @@ Action<std::wstring, Error> ClientId::GetPlayerIp() const
 		push ecx
 		mov ecx, [ecx]
 		call dword ptr[ecx+0x08] ; Release
-    }*/
+        invalid:
+    }
 
-    throw std::exception();
+    return { wIp };
 }
 
 EngineState ClientId::GetEngineState() const

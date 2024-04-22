@@ -21,7 +21,7 @@ class DLL ClientId
         Action<void, Error> AdjustCash(int amount) const;
 
         [[nodiscard]]
-        static uint GetClientIdFromCharacterName(std::wstring_view name);
+        static ClientId GetClientIdFromCharacterName(std::wstring_view name);
 
     public:
         explicit ClientId(const uint val) : value(val) {}
