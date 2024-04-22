@@ -96,8 +96,6 @@
  * uint system)
  */
 
-// TODO: Fix for name and IFF bugs
-
 #include "SolarControl.h"
 
 #include <ranges>

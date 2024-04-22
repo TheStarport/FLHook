@@ -53,7 +53,6 @@ namespace Plugins::SolarControl
 		std::map<uint, uint> hashedBaseRedirects;
 		//! The config file we load out of
 		std::string File() override { return "config/solar.json"; }
-		// std::vector<SolarArchFormation> solarArchFormations;
 		std::map<std::wstring, SolarArchFormation> solarArchFormations;
 	};
 
