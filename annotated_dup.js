@@ -131,6 +131,7 @@ var annotated_dup =
         [ "Fleet", "struct_plugins_1_1_npc_1_1_fleet.html", "struct_plugins_1_1_npc_1_1_fleet" ],
         [ "Global", "struct_plugins_1_1_npc_1_1_global.html", "struct_plugins_1_1_npc_1_1_global" ],
         [ "Npc", "struct_plugins_1_1_npc_1_1_npc.html", "struct_plugins_1_1_npc_1_1_npc" ],
+        [ "NpcCommunicator", "class_plugins_1_1_npc_1_1_npc_communicator.html", "class_plugins_1_1_npc_1_1_npc_communicator" ],
         [ "StartupNpc", "struct_plugins_1_1_npc_1_1_startup_npc.html", "struct_plugins_1_1_npc_1_1_startup_npc" ]
       ] ],
       [ "NPCSpinProtection", "namespace_plugins_1_1_n_p_c_spin_protection.html", [
@@ -153,6 +154,15 @@ var annotated_dup =
         [ "Config", "struct_plugins_1_1_restart_1_1_config.html", "struct_plugins_1_1_restart_1_1_config" ],
         [ "Global", "struct_plugins_1_1_restart_1_1_global.html", "struct_plugins_1_1_restart_1_1_global" ],
         [ "Restart", "struct_plugins_1_1_restart_1_1_restart.html", "struct_plugins_1_1_restart_1_1_restart" ]
+      ] ],
+      [ "SolarControl", "namespace_plugins_1_1_solar_control.html", [
+        [ "Config", "struct_plugins_1_1_solar_control_1_1_config.html", "struct_plugins_1_1_solar_control_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_solar_control_1_1_global.html", "struct_plugins_1_1_solar_control_1_1_global" ],
+        [ "SolarArch", "struct_plugins_1_1_solar_control_1_1_solar_arch.html", "struct_plugins_1_1_solar_control_1_1_solar_arch" ],
+        [ "SolarArchFormation", "struct_plugins_1_1_solar_control_1_1_solar_arch_formation.html", "struct_plugins_1_1_solar_control_1_1_solar_arch_formation" ],
+        [ "SolarArchFormationComponent", "struct_plugins_1_1_solar_control_1_1_solar_arch_formation_component.html", "struct_plugins_1_1_solar_control_1_1_solar_arch_formation_component" ],
+        [ "SolarCommunicator", "class_plugins_1_1_solar_control_1_1_solar_communicator.html", "class_plugins_1_1_solar_control_1_1_solar_communicator" ],
+        [ "StartupSolar", "struct_plugins_1_1_solar_control_1_1_startup_solar.html", "struct_plugins_1_1_solar_control_1_1_startup_solar" ]
       ] ],
       [ "SoundManager", "namespace_plugins_1_1_sound_manager.html", [
         [ "Config", "struct_plugins_1_1_sound_manager_1_1_config.html", "struct_plugins_1_1_sound_manager_1_1_config" ],

@@ -36,6 +36,7 @@ var namespace_plugins =
     [ "PurchaseRestrictions", "namespace_plugins_1_1_purchase_restrictions.html", "namespace_plugins_1_1_purchase_restrictions" ],
     [ "Rename", "namespace_plugins_1_1_rename.html", "namespace_plugins_1_1_rename" ],
     [ "Restart", "namespace_plugins_1_1_restart.html", "namespace_plugins_1_1_restart" ],
+    [ "SolarControl", "namespace_plugins_1_1_solar_control.html", "namespace_plugins_1_1_solar_control" ],
     [ "SoundManager", "namespace_plugins_1_1_sound_manager.html", "namespace_plugins_1_1_sound_manager" ],
     [ "Stats", "namespace_plugins_1_1_stats.html", "namespace_plugins_1_1_stats" ],
     [ "SystemSensor", "namespace_plugins_1_1_system_sensor.html", "namespace_plugins_1_1_system_sensor" ],

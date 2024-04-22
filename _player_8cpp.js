@@ -62,6 +62,5 @@ var _player_8cpp =
     [ "AddrAntiCheat2", "_player_8cpp.html#a358460693ef0a3b8f15fcb11d3a72f09", null ],
     [ "AddrAntiCheat3", "_player_8cpp.html#a1d95ae2bfc01a4c1bfdfce8d7099f87b", null ],
     [ "AddrAntiCheat4", "_player_8cpp.html#a24e234ee7c782c06467736809d5f9569", null ],
-    [ "bannedBases", "_player_8cpp.html#a3958c3ae73901bac0b08e66300027ca0", null ],
     [ "PossibleCheatingDetectedAddr", "_player_8cpp.html#a90f739cbe9f2d4f65e58b86428785b7d", null ]
 ];

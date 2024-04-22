@@ -27,12 +27,13 @@ var searchData=
   ['purchaserestrictions_24',['PurchaseRestrictions',['../namespace_plugins_1_1_purchase_restrictions.html',1,'Plugins']]],
   ['rename_25',['Rename',['../namespace_plugins_1_1_rename.html',1,'Plugins']]],
   ['restart_26',['Restart',['../namespace_plugins_1_1_restart.html',1,'Plugins']]],
-  ['soundmanager_27',['SoundManager',['../namespace_plugins_1_1_sound_manager.html',1,'Plugins']]],
-  ['sql_28',['Sql',['../namespace_plugins_1_1_cash_manager_1_1_sql.html',1,'Plugins::CashManager']]],
-  ['stats_29',['Stats',['../namespace_plugins_1_1_stats.html',1,'Plugins']]],
-  ['systemsensor_30',['SystemSensor',['../namespace_plugins_1_1_system_sensor.html',1,'Plugins']]],
-  ['tax_31',['Tax',['../namespace_plugins_1_1_tax.html',1,'Plugins']]],
-  ['template_32',['Template',['../namespace_plugins_1_1_template.html',1,'Plugins']]],
-  ['wardrobe_33',['Wardrobe',['../namespace_plugins_1_1_wardrobe.html',1,'Plugins']]],
-  ['warehouse_34',['Warehouse',['../namespace_plugins_1_1_warehouse.html',1,'Plugins']]]
+  ['solarcontrol_27',['SolarControl',['../namespace_plugins_1_1_solar_control.html',1,'Plugins']]],
+  ['soundmanager_28',['SoundManager',['../namespace_plugins_1_1_sound_manager.html',1,'Plugins']]],
+  ['sql_29',['Sql',['../namespace_plugins_1_1_cash_manager_1_1_sql.html',1,'Plugins::CashManager']]],
+  ['stats_30',['Stats',['../namespace_plugins_1_1_stats.html',1,'Plugins']]],
+  ['systemsensor_31',['SystemSensor',['../namespace_plugins_1_1_system_sensor.html',1,'Plugins']]],
+  ['tax_32',['Tax',['../namespace_plugins_1_1_tax.html',1,'Plugins']]],
+  ['template_33',['Template',['../namespace_plugins_1_1_template.html',1,'Plugins']]],
+  ['wardrobe_34',['Wardrobe',['../namespace_plugins_1_1_wardrobe.html',1,'Plugins']]],
+  ['warehouse_35',['Warehouse',['../namespace_plugins_1_1_warehouse.html',1,'Plugins']]]
 ];

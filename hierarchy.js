@@ -52,6 +52,7 @@ var hierarchy =
     [ "Plugins::PurchaseRestrictions::Global", "struct_plugins_1_1_purchase_restrictions_1_1_global.html", null ],
     [ "Plugins::Rename::Global", "struct_plugins_1_1_rename_1_1_global.html", null ],
     [ "Plugins::Restart::Global", "struct_plugins_1_1_restart_1_1_global.html", null ],
+    [ "Plugins::SolarControl::Global", "struct_plugins_1_1_solar_control_1_1_global.html", null ],
     [ "Plugins::SoundManager::Global", "struct_plugins_1_1_sound_manager_1_1_global.html", null ],
     [ "Plugins::Stats::Global", "struct_plugins_1_1_stats_1_1_global.html", null ],
     [ "Plugins::SystemSensor::Global", "struct_plugins_1_1_system_sensor_1_1_global.html", null ],
@@ -75,7 +76,9 @@ var hierarchy =
     [ "Plugins::Event::NPC_MISSION", "struct_plugins_1_1_event_1_1_n_p_c___m_i_s_s_i_o_n.html", null ],
     [ "PluginCommunicator", null, [
       [ "Plugins::CashManager::CashManagerCommunicator", "class_plugins_1_1_cash_manager_1_1_cash_manager_communicator.html", null ],
-      [ "Plugins::ConData::ConDataCommunicator", "class_plugins_1_1_con_data_1_1_con_data_communicator.html", null ]
+      [ "Plugins::ConData::ConDataCommunicator", "class_plugins_1_1_con_data_1_1_con_data_communicator.html", null ],
+      [ "Plugins::Npc::NpcCommunicator", "class_plugins_1_1_npc_1_1_npc_communicator.html", null ],
+      [ "Plugins::SolarControl::SolarCommunicator", "class_plugins_1_1_solar_control_1_1_solar_communicator.html", null ]
     ] ],
     [ "PluginData", "struct_plugin_data.html", null ],
     [ "PluginHookData", "struct_plugin_hook_data.html", null ],
@@ -122,6 +125,11 @@ var hierarchy =
       [ "Plugins::Rename::TagData", "struct_plugins_1_1_rename_1_1_tag_data.html", null ],
       [ "Plugins::Rename::TagList", "struct_plugins_1_1_rename_1_1_tag_list.html", null ],
       [ "Plugins::Restart::Config", "struct_plugins_1_1_restart_1_1_config.html", null ],
+      [ "Plugins::SolarControl::Config", "struct_plugins_1_1_solar_control_1_1_config.html", null ],
+      [ "Plugins::SolarControl::SolarArch", "struct_plugins_1_1_solar_control_1_1_solar_arch.html", null ],
+      [ "Plugins::SolarControl::SolarArchFormation", "struct_plugins_1_1_solar_control_1_1_solar_arch_formation.html", null ],
+      [ "Plugins::SolarControl::SolarArchFormationComponent", "struct_plugins_1_1_solar_control_1_1_solar_arch_formation_component.html", null ],
+      [ "Plugins::SolarControl::StartupSolar", "struct_plugins_1_1_solar_control_1_1_startup_solar.html", null ],
       [ "Plugins::SoundManager::Config", "struct_plugins_1_1_sound_manager_1_1_config.html", null ],
       [ "Plugins::Stats::FileName", "struct_plugins_1_1_stats_1_1_file_name.html", null ],
       [ "Plugins::SystemSensor::Config", "struct_plugins_1_1_system_sensor_1_1_config.html", null ],

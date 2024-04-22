@@ -210,10 +210,10 @@ Configuration</h4>
 <div class="line">}</div>
 </div><!-- fragment --><h4><a class="anchor" id="ipc"></a>
 IPC Interfaces Exposed</h4>
-<p>This plugin does not expose any functionality. </p>
+<p>NpcCommunicator: exposes CreateNpc method with parameters (const std::wstring&amp; name, Vector position, const Matrix&amp; rotation, SystemId systemId, bool varyPosition) </p>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="gaaa367e338bbdee8131d6ee9d183384c1" name="gaaa367e338bbdee8131d6ee9d183384c1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaaa367e338bbdee8131d6ee9d183384c1">&#9670;&#160;</a></span>AdminCmdAICancel()</h2>
+<a id="ga2c01793fe3dae214e79edee0dd3d9991" name="ga2c01793fe3dae214e79edee0dd3d9991"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2c01793fe3dae214e79edee0dd3d9991">&#9670;&#160;</a></span>AdminCmdAICancel()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -222,7 +222,7 @@ IPC Interfaces Exposed</h4>
           <td class="memname">void Plugins::Npc::AdminCmdAICancel </td>
           <td>(</td>
           <td class="paramtype">CCmds *&#160;</td>
-          <td class="paramname"><em>cmds</em></td><td>)</td>
+          <td class="paramname"><em>commands</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -232,8 +232,8 @@ IPC Interfaces Exposed</h4>
 
 </div>
 </div>
-<a id="gaeceaeb6fe24b39cea7694db1991849f3" name="gaeceaeb6fe24b39cea7694db1991849f3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaeceaeb6fe24b39cea7694db1991849f3">&#9670;&#160;</a></span>AdminCmdAICome()</h2>
+<a id="gae1b8464997e9f7395b3413157387e43d" name="gae1b8464997e9f7395b3413157387e43d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae1b8464997e9f7395b3413157387e43d">&#9670;&#160;</a></span>AdminCmdAICome()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -242,7 +242,7 @@ IPC Interfaces Exposed</h4>
           <td class="memname">void Plugins::Npc::AdminCmdAICome </td>
           <td>(</td>
           <td class="paramtype">CCmds *&#160;</td>
-          <td class="paramname"><em>cmds</em></td><td>)</td>
+          <td class="paramname"><em>commands</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -252,8 +252,8 @@ IPC Interfaces Exposed</h4>
 
 </div>
 </div>
-<a id="gaa251bdf40038810ca35cf22d6afca1e2" name="gaa251bdf40038810ca35cf22d6afca1e2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaa251bdf40038810ca35cf22d6afca1e2">&#9670;&#160;</a></span>AdminCmdAIFleet()</h2>
+<a id="ga83cb52c6738823eadba5e9fcb34f617e" name="ga83cb52c6738823eadba5e9fcb34f617e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga83cb52c6738823eadba5e9fcb34f617e">&#9670;&#160;</a></span>AdminCmdAIFleet()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -262,13 +262,13 @@ IPC Interfaces Exposed</h4>
           <td class="memname">void Plugins::Npc::AdminCmdAIFleet </td>
           <td>(</td>
           <td class="paramtype">CCmds *&#160;</td>
-          <td class="paramname"><em>cmds</em>, </td>
+          <td class="paramname"><em>commands</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const std::wstring &amp;&#160;</td>
-          <td class="paramname"><em>FleetName</em>&#160;</td>
+          <td class="paramname"><em>fleetName</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -282,8 +282,8 @@ IPC Interfaces Exposed</h4>
 
 </div>
 </div>
-<a id="gaf1cc15d650e086976a866ae367541432" name="gaf1cc15d650e086976a866ae367541432"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaf1cc15d650e086976a866ae367541432">&#9670;&#160;</a></span>AdminCmdAIFollow()</h2>
+<a id="gac3bdc27941cdcfaf70abfafa8fbfc3af" name="gac3bdc27941cdcfaf70abfafa8fbfc3af"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac3bdc27941cdcfaf70abfafa8fbfc3af">&#9670;&#160;</a></span>AdminCmdAIFollow()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -292,13 +292,13 @@ IPC Interfaces Exposed</h4>
           <td class="memname">void Plugins::Npc::AdminCmdAIFollow </td>
           <td>(</td>
           <td class="paramtype">CCmds *&#160;</td>
-          <td class="paramname"><em>cmds</em>, </td>
+          <td class="paramname"><em>commands</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">std::wstring&#160;</td>
-          <td class="paramname"><em>charname</em>&#160;</td>
+          <td class="paramname"><em>characterName</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -312,8 +312,8 @@ IPC Interfaces Exposed</h4>
 
 </div>
 </div>
-<a id="ga5339220d33d9734b5909298eda921de0" name="ga5339220d33d9734b5909298eda921de0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga5339220d33d9734b5909298eda921de0">&#9670;&#160;</a></span>AdminCmdAIKill()</h2>
+<a id="ga050dcf885de580f2199949e9dd8f020e" name="ga050dcf885de580f2199949e9dd8f020e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga050dcf885de580f2199949e9dd8f020e">&#9670;&#160;</a></span>AdminCmdAIKill()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -322,7 +322,7 @@ IPC Interfaces Exposed</h4>
           <td class="memname">void Plugins::Npc::AdminCmdAIKill </td>
           <td>(</td>
           <td class="paramtype">CCmds *&#160;</td>
-          <td class="paramname"><em>cmds</em></td><td>)</td>
+          <td class="paramname"><em>commands</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -388,8 +388,8 @@ IPC Interfaces Exposed</h4>
 
 </div>
 </div>
-<a id="gac14f5f516f151356172e750372f8889e" name="gac14f5f516f151356172e750372f8889e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gac14f5f516f151356172e750372f8889e">&#9670;&#160;</a></span>AdminCmdListNPCs()</h2>
+<a id="ga4df2898684ad3e60fe8823d6f744ee4c" name="ga4df2898684ad3e60fe8823d6f744ee4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4df2898684ad3e60fe8823d6f744ee4c">&#9670;&#160;</a></span>AdminCmdListNPCs()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -398,7 +398,7 @@ IPC Interfaces Exposed</h4>
           <td class="memname">void Plugins::Npc::AdminCmdListNPCs </td>
           <td>(</td>
           <td class="paramtype">CCmds *&#160;</td>
-          <td class="paramname"><em>cmds</em></td><td>)</td>
+          <td class="paramname"><em>commands</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -427,14 +427,34 @@ IPC Interfaces Exposed</h4>
 
 </div>
 </div>
-<a id="ga5e6975b8616dee43319eee0552f33f70" name="ga5e6975b8616dee43319eee0552f33f70"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga5e6975b8616dee43319eee0552f33f70">&#9670;&#160;</a></span>CreateNPC()</h2>
+<a id="ga3c4047ea92bc9ca222d888300e3bbed5" name="ga3c4047ea92bc9ca222d888300e3bbed5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3c4047ea92bc9ca222d888300e3bbed5">&#9670;&#160;</a></span>CheckNpc()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void Plugins::Npc::CreateNPC </td>
+          <td class="memname">bool Plugins::Npc::CheckNpc </td>
+          <td>(</td>
+          <td class="paramtype">const std::wstring &amp;&#160;</td>
+          <td class="paramname"><em>npcInfo</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Checks to ensure an NPC is valid before attempting to spawn it. loadout, iff and pilot are all optional, but do require valid values to avoid a crash if populated. </p>
+
+</div>
+</div>
+<a id="ga63381063e073165987561320f0afd57b" name="ga63381063e073165987561320f0afd57b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga63381063e073165987561320f0afd57b">&#9670;&#160;</a></span>CreateNPC()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint Plugins::Npc::CreateNPC </td>
           <td>(</td>
           <td class="paramtype">const std::wstring &amp;&#160;</td>
           <td class="paramname"><em>name</em>, </td>
@@ -475,8 +495,8 @@ IPC Interfaces Exposed</h4>
 
 </div>
 </div>
-<a id="ga4a49985a14863a0f6381e060e8e4cdc4" name="ga4a49985a14863a0f6381e060e8e4cdc4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga4a49985a14863a0f6381e060e8e4cdc4">&#9670;&#160;</a></span>ExecuteCommandString()</h2>
+<a id="ga3bba8aeff40ce998e2fbd32d8c6cdabb" name="ga3bba8aeff40ce998e2fbd32d8c6cdabb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3bba8aeff40ce998e2fbd32d8c6cdabb">&#9670;&#160;</a></span>ExecuteCommandString()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -485,7 +505,7 @@ IPC Interfaces Exposed</h4>
           <td class="memname">bool Plugins::Npc::ExecuteCommandString </td>
           <td>(</td>
           <td class="paramtype">CCmds *&#160;</td>
-          <td class="paramname"><em>cmds</em>, </td>
+          <td class="paramname"><em>commands</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -505,14 +525,14 @@ IPC Interfaces Exposed</h4>
 
 </div>
 </div>
-<a id="ga8d57b7bfd0a3ab8e7a55677fc9e0fb56" name="ga8d57b7bfd0a3ab8e7a55677fc9e0fb56"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga8d57b7bfd0a3ab8e7a55677fc9e0fb56">&#9670;&#160;</a></span>IsFLHookNPC()</h2>
+<a id="ga220a554f9ab2b3376c61ecc31dbe43e0" name="ga220a554f9ab2b3376c61ecc31dbe43e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga220a554f9ab2b3376c61ecc31dbe43e0">&#9670;&#160;</a></span>IsHookNPC()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool Plugins::Npc::IsFLHookNPC </td>
+          <td class="memname">bool Plugins::Npc::IsHookNPC </td>
           <td>(</td>
           <td class="paramtype">CShip *&#160;</td>
           <td class="paramname"><em>ship</em></td><td>)</td>

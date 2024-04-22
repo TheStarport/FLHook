@@ -1,0 +1,4 @@
+<map id="Plugins::SolarControl::SolarCommunicator" name="Plugins::SolarControl::SolarCommunicator">
+<area shape="rect" id="node1" title="Communicator class for this plugin. This is used by other plugins." alt="" coords="5,79,164,119"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,5,164,31"/>
+</map>

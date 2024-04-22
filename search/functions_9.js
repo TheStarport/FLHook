@@ -29,7 +29,7 @@ var searchData=
   ['ipcconsumebankcash_26',['IpcConsumeBankCash',['../namespace_plugins_1_1_cash_manager.html#a2a2a93dc805b94594a5e7d62ad324046',1,'Plugins::CashManager']]],
   ['isdockedclient_27',['IsDockedClient',['../group___arena.html#ga1b8c44ffc30cc8cdb25db6f66e188951',1,'Plugins::Arena']]],
   ['isencoded_28',['IsEncoded',['../namespace_hk_1_1_client.html#a7c3e9d9b82217d97b0c7a84596f7344f',1,'Hk::Client']]],
-  ['isflhooknpc_29',['IsFLHookNPC',['../group___n_p_c_control.html#ga8d57b7bfd0a3ab8e7a55677fc9e0fb56',1,'Plugins::Npc']]],
+  ['ishooknpc_29',['IsHookNPC',['../group___n_p_c_control.html#ga220a554f9ab2b3376c61ecc31dbe43e0',1,'Plugins::Npc']]],
   ['isincharselectmenu_30',['IsInCharSelectMenu',['../namespace_hk_1_1_client.html#a3dd60df47dd1715e3952be0e41ab6ab3',1,'Hk::Client']]],
   ['isinexcludedsystem_31',['IsInExcludedSystem',['../group___death_penalty.html#gaf9b4ba15e7650780a6425cda07907ce1',1,'Plugins::DeathPenalty']]],
   ['isinrange_32',['IsInRange',['../namespace_hk_1_1_player.html#a5959bab6527b9814d1d92dc228bfb8b8',1,'Hk::Player']]],

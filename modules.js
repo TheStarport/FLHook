@@ -25,6 +25,7 @@ var modules =
     [ "Stats", "group___stats.html", "group___stats" ],
     [ "Purchase Restrictions", "group___purchase_restrictions.html", null ],
     [ "Rename", "group___rename.html", null ],
+    [ "Solar Control", "group___solar_control.html", "group___solar_control" ],
     [ "Sound Manager", "group___sound_manager.html", null ],
     [ "System Sensor", "group___system_sensor.html", null ],
     [ "Tax", "group___tax.html", null ],

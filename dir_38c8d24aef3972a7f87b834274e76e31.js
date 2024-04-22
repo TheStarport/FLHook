@@ -28,6 +28,7 @@ var dir_38c8d24aef3972a7f87b834274e76e31 =
     [ "purchase_restrictions", "dir_ca3a9dfbf0479df7c4b549afde744ef5.html", "dir_ca3a9dfbf0479df7c4b549afde744ef5" ],
     [ "rename", "dir_689913a4fc3467a3c630b487470f44d1.html", "dir_689913a4fc3467a3c630b487470f44d1" ],
     [ "restarts", "dir_4a52713137b0d7ca6a9749229803fe92.html", "dir_4a52713137b0d7ca6a9749229803fe92" ],
+    [ "solar_control", "dir_88bc1185c79a988adb7b14f2efb04966.html", "dir_88bc1185c79a988adb7b14f2efb04966" ],
     [ "sound_manager", "dir_685463416cdec5cf041eee44b5c89bfc.html", "dir_685463416cdec5cf041eee44b5c89bfc" ],
     [ "stats", "dir_7424dc18e30a3bb9316ef45b569ea0b6.html", "dir_7424dc18e30a3bb9316ef45b569ea0b6" ],
     [ "system_sensor", "dir_ad675f14a9b14ad0849db2548d60d996.html", "dir_ad675f14a9b14ad0849db2548d60d996" ],
