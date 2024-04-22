@@ -137,25 +137,28 @@ namespace Plugins::SolarControl
 			const std::byte* address2 = reinterpret_cast<std::byte*>(hModServer) + 0x27950;
 
 			// fill struct
+			// clang-format off
 			__asm
-			    {
-			lea ecx, solarPacket
-			mov eax, address1
-			call eax
-			push solar
-			lea ecx, solarPacket
-			push ecx
-			mov eax, address2
-			call eax
-			add esp, 8
-			    }
-
+			{
+				lea ecx, solarPacket
+				mov eax, address1
+				call eax
+				push solar
+				lea ecx, solarPacket
+				push ecx
+				mov eax, address2
+				call eax
+				add esp, 8
+			}
+			// clang-format on
 			// Send packet to every client in the system
 			PlayerData* playerData = nullptr;
 			while (playerData = Players.traverse_active(playerData))
 			{
 				if (playerData->systemId == solarInfo.systemId)
+				{
 					GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(playerData->iOnlineId, reinterpret_cast<FLPACKET_CREATESOLAR&>(solarPacket));
+				}
 			}
 		}
 	}
@@ -384,10 +387,14 @@ namespace Plugins::SolarControl
 		}
 
 		if (amount == 0)
+		{
 			amount = 1;
+		}
 
 		if (const auto iter = global->config->solarArches.find(solarType); iter != global->config->solarArches.end())
+		{
 			SolarArch arch = iter->second;
+		}
 		else
 		{
 			commands->Print("ERR Wrong Solar name\n");
@@ -398,7 +405,9 @@ namespace Plugins::SolarControl
 		uint ship;
 		pub::Player::GetShip(client, ship);
 		if (!ship)
+		{
 			return;
+		}
 
 		uint system;
 		pub::Player::GetSystem(client, system);
@@ -408,7 +417,9 @@ namespace Plugins::SolarControl
 		pub::SpaceObj::GetLocation(ship, pos, rot);
 
 		for (int i = 0; i < amount; i++)
+		{
 			CreateUserDefinedSolar(solarType, pos, rot, system, true, false);
+		}
 	}
 
 	void AdminCommandSolarFormationCreate(CCmds* commands, const std::wstring& formationName)
@@ -420,7 +431,9 @@ namespace Plugins::SolarControl
 		}
 
 		if (const auto iter = global->config->solarArchFormations.find(formationName); iter != global->config->solarArchFormations.end())
+		{
 			SolarArchFormation arch = iter->second;
+		}
 
 		else
 		{
@@ -432,7 +445,9 @@ namespace Plugins::SolarControl
 		uint ship;
 		pub::Player::GetShip(client, ship);
 		if (!ship)
+		{
 			return;
+		}
 
 		uint system;
 		pub::Player::GetSystem(client, system);
@@ -456,7 +471,9 @@ namespace Plugins::SolarControl
 		}
 
 		for (auto const& [id, name] : global->spawnedSolars)
+		{
 			pub::SpaceObj::SetRelativeHealth(id, 0.0f);
+		}
 
 		global->spawnedSolars.clear();
 		commands->Print("OK\n");
