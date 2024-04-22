@@ -123,7 +123,7 @@ bool AccountId::IsAdmin() const
     pipeline.count("gameRoles");
 
 
-    for (const auto cursor = accounts.aggregate(pipeline, mongocxx::options::aggregate{}); const auto data : cursor)
+    for (auto cursor = accounts.aggregate(pipeline, mongocxx::options::aggregate{}); const auto data : cursor)
     {
         return data["gameRoles"].get_int32() != 0;
     }
