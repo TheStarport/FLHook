@@ -1,4 +1,66 @@
-﻿// This is free software; you can redistribute it and/or modify it as
+﻿/**
+ * @date April, 2024
+ * @author IrateRedKite
+ * @defgroup AdvancedStartupSolars Advanced Startup Solars
+ * @brief
+ * This plugin allows server owners to specify startupSolars with more finesse, allowing for mutually exclusive spawns
+ *
+ * @paragraph cmds Player Commands
+ * None
+ *
+ * @paragraph adminCmds Admin Commands
+ * None
+ *
+ * @paragraph configuration Configuration
+ * @code
+ *
+ * {
+ *  "solarFamilies": [
+ *      {
+ *          "name": "largestation1",
+ *          "solarFormations": [
+ *              {
+ *                  "formation": "largestation1",
+ *                  "npcs": {
+ *                       "example": 2
+ *                   },
+ *                  "spawnWeight": 1
+ *              }
+ *          ],
+ *          "spawnChance": 75,
+ *          "spawnLocations": [
+ *              {
+ *                  "location": [
+ *                      -31630.4453125,
+ *                      1000.0,
+ *                      -25773.7421875
+ *                  ],
+ *                  "system": "li01"
+ *              },
+ *              {
+ *                  "location": [
+ *                      -30401.986328125,
+ *                      -1000.0,
+ *                      -25730.84375
+ *                  ],
+ *                  "system": "li01"
+ *              }
+ *          ],
+ *          "spawnQuantity": 1
+ *      }
+ *   ]
+ * }
+ *
+ * @endcode
+ *
+ * @paragraph ipc IPC Interfaces Exposed
+ * None
+ *
+ * @paragraph optional Optional Plugin Dependencies
+ * Solar Control and NPC Control
+ */
+
+// This is free software; you can redistribute it and/or modify it as
 // you wish without restriction. If you do then I would appreciate
 // being notified and/or mentioned somewhere.
 
@@ -156,9 +218,7 @@ DefaultDllMainSettings(LoadSettings);
 
 extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 {
-	// Full name of your plugin
 	pi->name("Advanced Startup Solars");
-	// Shortened name, all lower case, no spaces. Abbreviation when possible.
 	pi->shortName("advanced_startup_solars");
 	pi->mayUnload(true);
 	pi->returnCode(&global->returnCode);
