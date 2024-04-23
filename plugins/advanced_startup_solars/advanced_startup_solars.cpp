@@ -45,19 +45,38 @@ namespace Plugins::AdvancedStartupSolars
 			Console::ConErr(std::format("solar.dll not found. The plugin is required for this module to function."));
 			global->pluginActive = false;
 		}
-
 		if (!global->pluginActive)
 		{
 			Console::ConErr(
 			    std::format("Critical components of Advanced Startup Solars were not found or were configured incorrectly. The plugin has been disabled."));
+			return;
 		}
+
+		// Validate our user define config
+		int formationCount = 0;
+		for (auto solarFamily : global->config->solarFamilies)
+		{
+			// Clamps spawnChance between 0 and 100
+			solarFamily.spawnChance = std::clamp(solarFamily.spawnChance, 0, 100);
+
+			for (const auto& formation : solarFamily.solarFormations)
+			{
+				Console::ConDebug(std::format("Loaded formation '{}' into the {} solarFamily pool", formation.formation, solarFamily.name));
+				formationCount++;
+			}
+		}
+
+		Console::ConDebug(std::format("Loaded {} solarFamilies into the spawn pool", global->config->solarFamilies.size()));
+		Console::ConDebug(std::format("Loaded a total of {} formations between the collective solarFamily pool", formationCount));
 	}
 
 } // namespace Plugins::AdvancedStartupSolars
 
 using namespace Plugins::AdvancedStartupSolars;
-
-REFL_AUTO(type(Config));
+REFL_AUTO(type(SolarFormation), field(formation), field(npcs), field(spawnWeight));
+REFL_AUTO(type(Position), field(x), field(y), field(z));
+REFL_AUTO(type(SolarFamily), field(name), field(solarFormations), field(spawnLocations), field(spawnChance), field(spawnQuantity));
+REFL_AUTO(type(Config), field(solarFamilies));
 
 DefaultDllMainSettings(LoadSettings);
 
