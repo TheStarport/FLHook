@@ -11,17 +11,16 @@ namespace Plugins::AdvancedStartupSolars
 
 	struct SolarFormation final : Reflectable
 	{
-		std::string formation;
+		std::wstring formation;
 		std::map<std::wstring, int> npcs;
 		int spawnWeight = 0;
+		std::string system;
 	};
 
 	// Struct for position as vectors are not supported as reflectables in serializer.hpp
 	struct Position final : Reflectable
 	{
-		float x;
-		float y;
-		float z;
+		std::vector<float> location;
 	};
 
 	struct SolarFamily final : Reflectable
@@ -47,5 +46,6 @@ namespace Plugins::AdvancedStartupSolars
 		Plugins::Npc::NpcCommunicator* npcCommunicator = nullptr;
 		Plugins::SolarControl::SolarCommunicator* solarCommunicator = nullptr;
 		bool pluginActive = true;
+		bool firstRun = true;
 	};
 } // namespace Plugins::AdvancedStartupSolars

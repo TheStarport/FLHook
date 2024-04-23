@@ -20,6 +20,40 @@ namespace Plugins::AdvancedStartupSolars
 		return range(engine);
 	}
 
+	SolarFormation SelectSolarFormation(SolarFamily family)
+	{
+		std::vector<int> weights {};
+
+		for (auto formation : family.solarFormations)
+		{
+			weights.emplace_back(formation.spawnWeight);
+		}
+
+		std::discrete_distribution<> dist(weights.begin(), weights.end());
+		static std::mt19937 engine;
+		auto numberIndex = dist(engine);
+
+		auto solarFormation = family.solarFormations[numberIndex];
+		family.solarFormations.erase(family.solarFormations.begin() + numberIndex);
+
+		return solarFormation;
+	}
+
+	Vector SelectSpawnLocation(SolarFamily family)
+	{
+		auto locationIndex = RandomNumber(0, family.spawnLocations.size() - 1);
+
+		Vector location;
+		location.x = family.spawnLocations[locationIndex].location[0];
+		location.y = family.spawnLocations[locationIndex].location[1];
+		location.z = family.spawnLocations[locationIndex].location[2];
+
+		// Remove the spawnLocation from the pool of possible locations before returning the vector;
+		family.spawnLocations.erase(family.spawnLocations.begin() + locationIndex);
+
+		return location;
+	}
+
 	// Put things that are performed on plugin load here!
 	void LoadSettings()
 	{
@@ -52,7 +86,7 @@ namespace Plugins::AdvancedStartupSolars
 			return;
 		}
 
-		// Validate our user define config
+		// Validate our user defined config
 		int formationCount = 0;
 		for (auto solarFamily : global->config->solarFamilies)
 		{
@@ -61,7 +95,7 @@ namespace Plugins::AdvancedStartupSolars
 
 			for (const auto& formation : solarFamily.solarFormations)
 			{
-				Console::ConDebug(std::format("Loaded formation '{}' into the {} solarFamily pool", formation.formation, solarFamily.name));
+				Console::ConDebug(std::format("Loaded formation '{}' into the {} solarFamily pool", wstos(formation.formation), solarFamily.name));
 				formationCount++;
 			}
 		}
@@ -70,11 +104,47 @@ namespace Plugins::AdvancedStartupSolars
 		Console::ConDebug(std::format("Loaded a total of {} formations between the collective solarFamily pool", formationCount));
 	}
 
+	// We have to spawn here since the Startup/LoadSettings hooks are too early
+	void Login([[maybe_unused]] struct SLoginInfo const& loginInfo, [[maybe_unused]] const uint& client)
+	{
+		if (!global->firstRun)
+		{
+			return;
+		}
+
+		for (const auto& family : global->config->solarFamilies)
+		{
+			auto dist = RandomNumber(0, 100);
+
+			if (dist <= family.spawnChance)
+			{
+				for (int i = 0; i < family.spawnQuantity; i++)
+				{
+					auto spawnLocation = SelectSpawnLocation(family);
+					auto solarFormation = SelectSolarFormation(family);
+					auto spawnSystem = CreateID(solarFormation.system.c_str());
+
+					global->solarCommunicator->CreateSolarFormation(solarFormation.formation, spawnLocation, spawnSystem);
+
+					for (const auto& [key, value] : solarFormation.npcs)
+					{
+						for (int i = 0; i < value; i++)
+						{
+							global->npcCommunicator->CreateNpc(key, spawnLocation, EulerMatrix({0, 0, 0}), spawnSystem, true);
+						}
+					}
+				}
+			}
+		}
+
+		global->firstRun = false;
+	}
+
 } // namespace Plugins::AdvancedStartupSolars
 
 using namespace Plugins::AdvancedStartupSolars;
-REFL_AUTO(type(SolarFormation), field(formation), field(npcs), field(spawnWeight));
-REFL_AUTO(type(Position), field(x), field(y), field(z));
+REFL_AUTO(type(SolarFormation), field(formation), field(npcs), field(spawnWeight), field(system));
+REFL_AUTO(type(Position), field(location));
 REFL_AUTO(type(SolarFamily), field(name), field(solarFormations), field(spawnLocations), field(spawnChance), field(spawnQuantity));
 REFL_AUTO(type(Config), field(solarFamilies));
 
@@ -90,5 +160,6 @@ extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
 	pi->returnCode(&global->returnCode);
 	pi->versionMajor(PluginMajorVersion::VERSION_04);
 	pi->versionMinor(PluginMinorVersion::VERSION_00);
+	pi->emplaceHook(HookedCall::IServerImpl__Login, &Login);
 	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
 }
