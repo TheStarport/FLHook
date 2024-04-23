@@ -14,7 +14,6 @@ namespace Plugins::AdvancedStartupSolars
 		std::wstring formation;
 		std::map<std::wstring, int> npcs;
 		int spawnWeight = 0;
-		// std::string system;
 	};
 
 	struct Position final : Reflectable

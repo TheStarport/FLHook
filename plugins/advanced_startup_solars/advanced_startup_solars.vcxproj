@@ -72,7 +72,7 @@
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
   <ItemGroup>
-    <ClCompile Include="advanced_startup_solars.cpp" />
+    <ClCompile Include="AdvancedStartupSolars.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\project\FLHook.vcxproj">
@@ -80,7 +80,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="advanced_startup_solars.hpp" />
+    <ClInclude Include="AdvancedStartupSolars.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
