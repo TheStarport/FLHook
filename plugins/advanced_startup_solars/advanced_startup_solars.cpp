@@ -11,6 +11,15 @@ namespace Plugins::AdvancedStartupSolars
 {
 	const auto global = std::make_unique<Global>();
 
+	// Function: Generates a random int between min and max
+	int RandomNumber(int min, int max)
+	{
+		static std::random_device dev;
+		static auto engine = std::mt19937(dev());
+		auto range = std::uniform_int_distribution(min, max);
+		return range(engine);
+	}
+
 	// Put things that are performed on plugin load here!
 	void LoadSettings()
 	{
