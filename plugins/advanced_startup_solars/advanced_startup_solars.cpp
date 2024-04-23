@@ -39,19 +39,21 @@ namespace Plugins::AdvancedStartupSolars
 		return solarFormation;
 	}
 
-	Vector SelectSpawnLocation(SolarFamily family)
+	Position SelectSpawnLocation(SolarFamily family)
 	{
 		auto locationIndex = RandomNumber(0, family.spawnLocations.size() - 1);
 
-		Vector location;
-		location.x = family.spawnLocations[locationIndex].location[0];
-		location.y = family.spawnLocations[locationIndex].location[1];
-		location.z = family.spawnLocations[locationIndex].location[2];
+		Position spawnPosition;
+
+		spawnPosition.location = {{family.spawnLocations[locationIndex].location[0]},
+		    {family.spawnLocations[locationIndex].location[1]},
+		    {family.spawnLocations[locationIndex].location[2]}};
+		spawnPosition.system = family.spawnLocations[locationIndex].system;
 
 		// Remove the spawnLocation from the pool of possible locations before returning the vector;
 		family.spawnLocations.erase(family.spawnLocations.begin() + locationIndex);
 
-		return location;
+		return spawnPosition;
 	}
 
 	// Put things that are performed on plugin load here!
@@ -120,9 +122,11 @@ namespace Plugins::AdvancedStartupSolars
 			{
 				for (int i = 0; i < family.spawnQuantity; i++)
 				{
-					auto spawnLocation = SelectSpawnLocation(family);
+					auto spawnPosition = SelectSpawnLocation(family);
 					auto solarFormation = SelectSolarFormation(family);
-					auto spawnSystem = CreateID(solarFormation.system.c_str());
+					auto spawnSystem = CreateID(spawnPosition.system.c_str());
+
+					Vector spawnLocation = {{spawnPosition.location[0]}, {spawnPosition.location[1]}, {spawnPosition.location[2]}};
 
 					global->solarCommunicator->CreateSolarFormation(solarFormation.formation, spawnLocation, spawnSystem);
 
@@ -143,8 +147,8 @@ namespace Plugins::AdvancedStartupSolars
 } // namespace Plugins::AdvancedStartupSolars
 
 using namespace Plugins::AdvancedStartupSolars;
-REFL_AUTO(type(SolarFormation), field(formation), field(npcs), field(spawnWeight), field(system));
-REFL_AUTO(type(Position), field(location));
+REFL_AUTO(type(SolarFormation), field(formation), field(npcs), field(spawnWeight));
+REFL_AUTO(type(Position), field(location), field(system));
 REFL_AUTO(type(SolarFamily), field(name), field(solarFormations), field(spawnLocations), field(spawnChance), field(spawnQuantity));
 REFL_AUTO(type(Config), field(solarFamilies));
 

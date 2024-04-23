@@ -14,13 +14,13 @@ namespace Plugins::AdvancedStartupSolars
 		std::wstring formation;
 		std::map<std::wstring, int> npcs;
 		int spawnWeight = 0;
-		std::string system;
+		// std::string system;
 	};
 
-	// Struct for position as vectors are not supported as reflectables in serializer.hpp
 	struct Position final : Reflectable
 	{
 		std::vector<float> location;
+		std::string system;
 	};
 
 	struct SolarFamily final : Reflectable
