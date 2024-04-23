@@ -5,12 +5,12 @@
 #include "../npc_control/NPCControl.h"
 #include "../solar_control/SolarControl.h"
 
-namespace Plugins::Template
+namespace Plugins::AdvancedStartupSolars
 {
 	// Loadable json configuration
 	struct Config : Reflectable
 	{
-		std::string File() override { return "config/template.json"; }
+		std::string File() override { return "config/advanced_startup_solars.json"; }
 	};
 
 	struct Global
@@ -21,4 +21,4 @@ namespace Plugins::Template
 		Plugins::SolarControl::SolarCommunicator* solarCommunicator = nullptr;
 		bool pluginActive = true;
 	};
-} // namespace Plugins::Template
+} // namespace Plugins::AdvancedStartupSolars

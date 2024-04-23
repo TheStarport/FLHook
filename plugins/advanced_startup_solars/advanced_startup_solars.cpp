@@ -7,7 +7,7 @@
 
 #include <random>
 
-namespace Plugins::Template
+namespace Plugins::AdvancedStartupSolars
 {
 	const auto global = std::make_unique<Global>();
 
@@ -44,9 +44,9 @@ namespace Plugins::Template
 		}
 	}
 
-} // namespace Plugins::Template
+} // namespace Plugins::AdvancedStartupSolars
 
-using namespace Plugins::Template;
+using namespace Plugins::AdvancedStartupSolars;
 
 REFL_AUTO(type(Config));
 
