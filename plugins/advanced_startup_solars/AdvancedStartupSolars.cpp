@@ -138,11 +138,13 @@ namespace Plugins::AdvancedStartupSolars
 			Console::ConErr(std::format("npc.dll not found. The plugin is required for this module to function."));
 			global->pluginActive = false;
 		}
+
 		if (!global->solarCommunicator)
 		{
 			Console::ConErr(std::format("solar.dll not found. The plugin is required for this module to function."));
 			global->pluginActive = false;
 		}
+
 		if (!global->pluginActive)
 		{
 			Console::ConErr(
