@@ -196,7 +196,7 @@ namespace Plugins::AdvancedStartupSolars
 
 					for (const auto& [key, value] : solarFormation.npcs)
 					{
-						for (int i = 0; i < value; i++)
+						for (int j = 0; j < value; j++)
 						{
 							global->npcCommunicator->CreateNpc(key, spawnLocation, EulerMatrix({0, 0, 0}), spawnSystem, true);
 						}
