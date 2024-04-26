@@ -359,9 +359,9 @@ namespace Plugins::SolarControl
 	/** @ingroup SolarControl
 	 * @brief Creates a premade group of solars defined in the solar json file
 	 */
-	void CreateUserDefinedSolarFormation(const SolarArchFormation& formation, const Vector& position, uint system)
+	void CreateUserDefinedSolarFormation(const std::wstring& formation, const Vector& position, uint system)
 	{
-		for (const auto& component : formation.components)
+		for (auto component : global->config->solarArchFormations[formation].components)
 		{
 			CreateUserDefinedSolar(stows(component.solarArchName),
 			    Vector {
@@ -454,7 +454,7 @@ namespace Plugins::SolarControl
 		Matrix rot {};
 		pub::SpaceObj::GetLocation(ship, pos, rot);
 
-		CreateUserDefinedSolarFormation(global->config->solarArchFormations[formationName], pos, system);
+		CreateUserDefinedSolarFormation(formationName, pos, system);
 	}
 
 	/** @ingroup SolarControl

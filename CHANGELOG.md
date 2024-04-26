@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.29
+- Advanced Startup Solars: Finer control over solars that spawn on startup, requires solar.dll and npc.dll to function
+- Fix the IPC interface for `CreateUserDefinedSolarFormation()` in solar control
+
 ## 4.0.28
 - Improve checks for spawning NPCs
 - Implement 'Solar Control': Spawn solars and formations of solars via admin command.
