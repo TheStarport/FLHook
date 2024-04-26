@@ -16,6 +16,13 @@ var annotated_dup =
       [ "REP_DATA_LIST", "struct_i_engine_hook_1_1_r_e_p___d_a_t_a___l_i_s_t.html", "struct_i_engine_hook_1_1_r_e_p___d_a_t_a___l_i_s_t" ]
     ] ],
     [ "Plugins", "namespace_plugins.html", [
+      [ "AdvancedStartupSolars", "namespace_plugins_1_1_advanced_startup_solars.html", [
+        [ "Config", "struct_plugins_1_1_advanced_startup_solars_1_1_config.html", "struct_plugins_1_1_advanced_startup_solars_1_1_config" ],
+        [ "Global", "struct_plugins_1_1_advanced_startup_solars_1_1_global.html", "struct_plugins_1_1_advanced_startup_solars_1_1_global" ],
+        [ "Position", "struct_plugins_1_1_advanced_startup_solars_1_1_position.html", "struct_plugins_1_1_advanced_startup_solars_1_1_position" ],
+        [ "SolarFamily", "struct_plugins_1_1_advanced_startup_solars_1_1_solar_family.html", "struct_plugins_1_1_advanced_startup_solars_1_1_solar_family" ],
+        [ "SolarFormation", "struct_plugins_1_1_advanced_startup_solars_1_1_solar_formation.html", "struct_plugins_1_1_advanced_startup_solars_1_1_solar_formation" ]
+      ] ],
       [ "Afk", "namespace_plugins_1_1_afk.html", [
         [ "Global", "struct_plugins_1_1_afk_1_1_global.html", "struct_plugins_1_1_afk_1_1_global" ]
       ] ],

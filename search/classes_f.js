@@ -7,6 +7,8 @@ var searchData=
   ['solararchformation_4',['SolarArchFormation',['../struct_plugins_1_1_solar_control_1_1_solar_arch_formation.html',1,'Plugins::SolarControl']]],
   ['solararchformationcomponent_5',['SolarArchFormationComponent',['../struct_plugins_1_1_solar_control_1_1_solar_arch_formation_component.html',1,'Plugins::SolarControl']]],
   ['solarcommunicator_6',['SolarCommunicator',['../class_plugins_1_1_solar_control_1_1_solar_communicator.html',1,'Plugins::SolarControl']]],
-  ['startupnpc_7',['StartupNpc',['../struct_plugins_1_1_npc_1_1_startup_npc.html',1,'Plugins::Npc']]],
-  ['startupsolar_8',['StartupSolar',['../struct_plugins_1_1_solar_control_1_1_startup_solar.html',1,'Plugins::SolarControl']]]
+  ['solarfamily_7',['SolarFamily',['../struct_plugins_1_1_advanced_startup_solars_1_1_solar_family.html',1,'Plugins::AdvancedStartupSolars']]],
+  ['solarformation_8',['SolarFormation',['../struct_plugins_1_1_advanced_startup_solars_1_1_solar_formation.html',1,'Plugins::AdvancedStartupSolars']]],
+  ['startupnpc_9',['StartupNpc',['../struct_plugins_1_1_npc_1_1_startup_npc.html',1,'Plugins::Npc']]],
+  ['startupsolar_10',['StartupSolar',['../struct_plugins_1_1_solar_control_1_1_startup_solar.html',1,'Plugins::SolarControl']]]
 ];

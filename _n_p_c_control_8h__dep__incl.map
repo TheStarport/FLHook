@@ -1,4 +1,6 @@
 <map id="plugins/npc_control/NPCControl.h" name="plugins/npc_control/NPCControl.h">
-<area shape="rect" id="node1" title=" " alt="" coords="5,5,153,45"/>
-<area shape="rect" id="node2" href="$_n_p_c_control_8cpp.html" title=" " alt="" coords="5,93,153,133"/>
+<area shape="rect" id="node1" title=" " alt="" coords="169,5,317,45"/>
+<area shape="rect" id="node2" href="$_advanced_startup_solars_8hpp.html" title=" " alt="" coords="5,93,256,133"/>
+<area shape="rect" id="node4" href="$_n_p_c_control_8cpp.html" title=" " alt="" coords="281,93,429,133"/>
+<area shape="rect" id="node3" href="$_advanced_startup_solars_8cpp.html" title=" " alt="" coords="5,181,256,221"/>
 </map>

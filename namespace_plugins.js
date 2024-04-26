@@ -1,5 +1,6 @@
 var namespace_plugins =
 [
+    [ "AdvancedStartupSolars", "namespace_plugins_1_1_advanced_startup_solars.html", "namespace_plugins_1_1_advanced_startup_solars" ],
     [ "Afk", "namespace_plugins_1_1_afk.html", "namespace_plugins_1_1_afk" ],
     [ "AntiJumpDisconnect", "namespace_plugins_1_1_anti_jump_disconnect.html", "namespace_plugins_1_1_anti_jump_disconnect" ],
     [ "Arena", "namespace_plugins_1_1_arena.html", "namespace_plugins_1_1_arena" ],

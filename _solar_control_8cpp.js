@@ -10,7 +10,7 @@ var _solar_control_8cpp =
     [ "ClearDockingRequestsTimer", "_solar_control_8cpp.html#ga10c09637960a3c480ca61b33fd6ba974", null ],
     [ "CreateSolar", "_solar_control_8cpp.html#gab526d84738d9b982f9728cff00fd4057", null ],
     [ "CreateUserDefinedSolar", "_solar_control_8cpp.html#ga6cc94593491aac8ba3477732705d30a1", null ],
-    [ "CreateUserDefinedSolarFormation", "_solar_control_8cpp.html#ga0a1ad7c885ed9c328dc9315020025819", null ],
+    [ "CreateUserDefinedSolarFormation", "_solar_control_8cpp.html#gaaab9b5cdd71be610bc933adf3ac7fa7c", null ],
     [ "DefaultDllMainSettings", "_solar_control_8cpp.html#a3d3cd4fa23cee6674351a14458bef535", null ],
     [ "ExportPluginInfo", "_solar_control_8cpp.html#a91b3934c859257062e677f7572a21615", null ],
     [ "GetPersonality", "_solar_control_8cpp.html#ga5dbcc88a4ba4fd96bcf43713684d7424", null ],

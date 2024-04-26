@@ -76,22 +76,22 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_admin_8cpp.html",
-"_error_8cpp.html#aaca63c42cee84bd480eba6e4b1f5ebc3",
-"_hk_client_server_interface_8cpp.html#a81dd7e1c3ebb148cf5b31bd459fd16c1",
-"_loot_tables_8cpp.html#acb5c9db17e98b34703c52023a7f2a656",
-"_rename_8cpp.html#a942066513b16128d8ac0040691ccd371",
-"class_plugins_1_1_autobuy_1_1_autobuy_info.html#af0cc11d6fab37a089c4fa0324d3fa451",
-"group___bounty_hunt.html#ga65b97de8b6036bba24a85440c351e43b",
-"namespace_hk_1_1_client.html#a8603445e68688bca8048c3f767f2bb93",
-"namespace_i_server_impl_hook.html#a732222471b8722f81748009bc7afc8ce",
-"namespace_plugins_1_1_n_p_c_spin_protection.html#a4ef9ebf65cb11f33a1aaf04a6ca57c30",
-"source_2_helpers_2_message_8cpp.html#a8a9848e5f8e3cdb25d2b56161e83614d",
-"struct_plugins_1_1_bounty_hunt_1_1_config.html#a9fcb076ff0c17f5a1ecda6c5aa07ce9f",
-"struct_plugins_1_1_daily_tasks_1_1_global.html#a30ca7affb0a1caf7d6adab91a70a3556",
-"struct_plugins_1_1_loot_tables_1_1_drop_weight.html#a554069d2252c11352d2097cbaaa2b647",
-"struct_plugins_1_1_misc_commands_1_1_misc_client_info.html#af6c7506647c512a08cec76ab25412198",
-"struct_plugins_1_1_solar_control_1_1_global.html#a45a085bd4239af50eb69241818cd1020",
-"struct_plugins_1_1_warehouse_1_1_ware_house_item.html"
+"_death_penalty_8cpp.html#a31d19f37208e55fecdac2b1e5bdc5980",
+"_hk_client_server_interface_8cpp.html#a6d145b63d2d6f58d574b5a6f0f205e4a",
+"_logging_8cpp.html#a42fa0bbd259b7d42179137b0b6d07622",
+"_purchase_restrictions_8h_source.html",
+"class_plugins_1_1_autobuy_1_1_autobuy_info.html#a0e359935afc82135124fde2fde74fae4",
+"group___away_from_keyboard.html#gabfd571d66bf3885e13802871c600f0e8",
+"namespace_hk_1_1_client.html#a05cb459bbf3d7ea7f90476b406163b14",
+"namespace_i_server_impl_hook.html#a4bb6e8cb0917b7e5106abe1ed32e16dd",
+"namespace_plugins_1_1_mark.html#ad73b51615e9afb2e533296fa6980fecb",
+"source_2_features_2_user_commands_8cpp.html#aa47153a89442c55893c9bd3ac3a463ac",
+"struct_plugins_1_1_autobuy_1_1_config.html#a460e769640a7ae8b27890f19256dc35b",
+"struct_plugins_1_1_con_data_1_1_global.html#a6b14d434d6a240cd9f2a1e22aed1f45a",
+"struct_plugins_1_1_kill_tracker_1_1_global.html#af4b06013a634deb2e3fc6c27b9a9f1fc",
+"struct_plugins_1_1_mining_control_1_1_player_bonus.html#ab4833a709f40ba90a1d2586adb63c779",
+"struct_plugins_1_1_rename_1_1_tag_data.html#a188c33ac1ca8c08572f78777ecfce750",
+"struct_plugins_1_1_tax_1_1_tax.html#a73d2e8eaf131e6a2644d9a9b09547b56"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

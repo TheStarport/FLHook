@@ -11,10 +11,10 @@
 <!-- Node0 -->
 <g id="node1" class="node">
 <title>Node0</title>
-<g id="a_node1"><a xlink:href="struct_plugins_1_1_bounty_hunt_1_1_global.html" target="_top" xlink:title="Global data for this plugin.">
+<g id="a_node1"><a xlink:href="struct_plugins_1_1_bounty_hunt_1_1_bounty_hunt.html" target="_top" xlink:title="Structs.">
 <polygon fill="white" stroke="#666666" points="116,-30 0,-30 0,0 116,0 116,-30"/>
 <text text-anchor="start" x="8" y="-18" font-family="Helvetica,sans-Serif" font-size="10.00">Plugins::BountyHunt</text>
-<text text-anchor="middle" x="58" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">::Global</text>
+<text text-anchor="middle" x="58" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">::BountyHunt</text>
 </a>
 </g>
 </g>

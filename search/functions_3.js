@@ -60,7 +60,7 @@ var searchData=
   ['createsqltables_57',['CreateSqlTables',['../namespace_plugins_1_1_warehouse.html#a628e4be31b4fe64317192772998221ec',1,'Plugins::Warehouse::CreateSqlTables()'],['../namespace_plugins_1_1_cash_manager_1_1_sql.html#af7f5728fef4e651843ef086664438a7c',1,'Plugins::CashManager::Sql::CreateSqlTables()']]],
   ['createusercommand_58',['CreateUserCommand',['../source_2_features_2_user_commands_8cpp.html#a64120089de88d698057f609bede3cd3a',1,'UserCommands.cpp']]],
   ['createuserdefinedsolar_59',['CreateUserDefinedSolar',['../group___solar_control.html#ga6cc94593491aac8ba3477732705d30a1',1,'Plugins::SolarControl']]],
-  ['createuserdefinedsolarformation_60',['CreateUserDefinedSolarFormation',['../group___solar_control.html#ga0a1ad7c885ed9c328dc9315020025819',1,'Plugins::SolarControl']]],
+  ['createuserdefinedsolarformation_60',['CreateUserDefinedSolarFormation',['../group___solar_control.html#gaaab9b5cdd71be610bc933adf3ac7fa7c',1,'Plugins::SolarControl']]],
   ['cship_5f_5fdestroy_61',['CShip__Destroy',['../namespace_i_engine_hook.html#af50e71023f5930ce3af8086201e93946',1,'IEngineHook']]],
   ['cship_5f_5finit_62',['CShip__Init',['../namespace_i_engine_hook.html#abad0b4354af3d88f36d01af92748a52b',1,'IEngineHook']]],
   ['cship_5fdestroy_63',['CShip_destroy',['../namespace_hk_i_engine.html#a11136fa3cc0f8b25d0bc0723059c1f1a',1,'HkIEngine']]],

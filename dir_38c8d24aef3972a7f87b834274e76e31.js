@@ -1,6 +1,7 @@
 var dir_38c8d24aef3972a7f87b834274e76e31 =
 [
     [ "_plugin_template", "dir_93f8da189241c290854b407a877c2368.html", "dir_93f8da189241c290854b407a877c2368" ],
+    [ "advanced_startup_solars", "dir_6e245122153ab5174307ee732a6e3ec0.html", "dir_6e245122153ab5174307ee732a6e3ec0" ],
     [ "afk", "dir_3cb81cd6d379273a9d1a5ed99fc6ea41.html", "dir_3cb81cd6d379273a9d1a5ed99fc6ea41" ],
     [ "anti_jump_disconnect", "dir_e37264039f89f262c5d1a8b144c1f26a.html", "dir_e37264039f89f262c5d1a8b144c1f26a" ],
     [ "arena", "dir_df57beea59c7eba2da8cb53973af8132.html", "dir_df57beea59c7eba2da8cb53973af8132" ],

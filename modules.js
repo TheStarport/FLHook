@@ -1,5 +1,6 @@
 var modules =
 [
+    [ "Advanced Startup Solars", "group___advanced_startup_solars.html", null ],
     [ "Away from Keyboard", "group___away_from_keyboard.html", "group___away_from_keyboard" ],
     [ "Anti Jump Disconnect", "group___anti_jump_disconnect.html", "group___anti_jump_disconnect" ],
     [ "Arena", "group___arena.html", "group___arena" ],
