@@ -28,6 +28,7 @@
 #include "API/Utils/ZoneUtilities.hpp"
 
 #include "API/Exceptions/InvalidClientException.hpp"
+#include "Defs/BsonWrapper.hpp"
 
 #include <mongocxx/exception/exception.hpp>
 
@@ -103,15 +104,16 @@ FLHook::FLHook()
         msg->DeclareQueue(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)), AMQP::durable);
 
         msg->Subscribe(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)),
-                       [](const AMQP::Message& message, std::optional<yyjson_mut_doc*>& response)
+                       [](const AMQP::Message& message, std::optional<bsoncxx::document::view>& response)
                        {
-                           std::string body = message.body();
+                           std::string_view body = {message.body(), message.body() + message.bodySize()};
+
                            try
                            {
                                // TODO: Setup external command processor
-                               // const auto json = nlohmann::json::parse(body, nullptr);
-                               // response = ExternalCommandProcessor::i()->ProcessCommand(json);
-                               // if (!response.has_value())
+                               BsonWrapper bsonWrapper(body);
+                               auto bson = bsonWrapper.GetValue();
+                               if (!bson.has_value())
                                {
                                    // Iterate through plugins and see if they have a valid json output
                                }
