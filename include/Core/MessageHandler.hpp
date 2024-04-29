@@ -2,16 +2,18 @@
 
 #pragma warning(push, 0)
 #pragma warning(disable : 4244)
-#include <uvw.hpp>
+#include "Defs/BsonWrapper.hpp"
+
 #include <amqpcpp.h>
 #include <memory>
 #include <thread>
+#include <uvw.hpp>
 #include <vector>
 #pragma warning(pop)
 
 class MessageHandler final : public AMQP::ConnectionHandler, public Singleton<MessageHandler>
 {
-        using QueueOnData = std::function<bool(const AMQP::Message& msg, std::optional<yyjson_mut_doc*>& replyBody)>;
+        using QueueOnData = std::function<bool(const AMQP::Message& msg, std::shared_ptr<BsonWrapper>& replyBody)>;
         using QueueOnFail = std::function<void(const char* err)>;
 
         std::shared_ptr<uvw::loop> loop;

@@ -199,7 +199,7 @@ void AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
             idArr.append(bsoncxx::oid(reinterpret_cast<const char*>(bytes), bsoncxx::oid::size()));
         }
 
-        bsoncxx::v_noabi::builder::basic::make_document()
+        bsoncxx::v_noabi::builder::basic::make_document();
         // Get all documents that are in the provided array
         auto filter = make_document(kvp("_id", make_document(kvp("$in", idArr))));
 

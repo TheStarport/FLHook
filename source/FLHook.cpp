@@ -104,7 +104,7 @@ FLHook::FLHook()
         msg->DeclareQueue(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)), AMQP::durable);
 
         msg->Subscribe(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)),
-                       [](const AMQP::Message& message, std::optional<bsoncxx::document::view>& response)
+                       [](const AMQP::Message& message, std::shared_ptr<BsonWrapper>& response)
                        {
                            std::string_view body = {message.body(), message.body() + message.bodySize()};
 
@@ -122,22 +122,10 @@ FLHook::FLHook()
                            }
                            catch (GameException& ex)
                            {
-                               auto doc = yyjson_mut_doc_new(nullptr);
-                               auto* root = yyjson_mut_doc_get_root(doc);
-                               yyjson_mut_doc_set_root(doc, root);
-                               yyjson_mut_obj_add_str(doc, root, "err", ex.what());
-
                                return true;
                            }
                            catch (std::exception& ex)
                            {
-                               auto doc = yyjson_mut_doc_new(nullptr);
-                               auto* root = yyjson_mut_doc_get_root(doc);
-                               yyjson_mut_doc_set_root(doc, root);
-                               yyjson_mut_obj_add_str(doc, root, "err", ex.what());
-
-                               response = doc;
-
                                return true;
                            }
                        });

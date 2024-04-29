@@ -103,7 +103,7 @@ void MessageHandler::Subscribe(const std::wstring& queue, QueueOnData callback, 
                     const auto callbacks = onMessageCallbacks.find(queue);
                     for (const auto& cb : callbacks->second)
                     {
-                        std::optional<yyjson_mut_doc*> responseBody;
+                        std::shared_ptr<BsonWrapper> responseBody;
                         if (cb(message, responseBody))
                         {
                             if (message.headers().contains("reply_to"))
@@ -111,16 +111,14 @@ void MessageHandler::Subscribe(const std::wstring& queue, QueueOnData callback, 
                                 std::stringstream ss;
                                 message.headers()["reply_to"].output(ss);
 
-                                if (responseBody.has_value())
+                                if (responseBody)
                                 {
-                                    uint size;
-                                    auto str = yyjson_mut_write(responseBody.value(), 0, &size);
-                                    channel->publish("", ss.str(), std::string(str, size));
-                                    free(str);
+                                    auto bytes = responseBody->GetBytes();
+                                    channel->publish("", ss.str(), bytes);
                                 }
                                 else
                                 {
-                                    channel->publish("", ss.str(), "{}");
+                                    channel->publish("", ss.str(), "");
                                 }
                             }
 

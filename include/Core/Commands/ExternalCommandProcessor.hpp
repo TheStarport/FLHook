@@ -13,9 +13,9 @@ class ExternalCommandProcessor final : public AbstractExternalCommandProcessor, 
         };
         // clang-format on
 
-        static nlohmann::json Beam(const nlohmann::json& parameters);
+        static bsoncxx::document::view Beam( bsoncxx::document::view parameters);
 
     public:
-        std::optional<nlohmann::json> ProcessCommand(const nlohmann::json& command) override;
+        std::shared_ptr<BsonWrapper> ProcessCommand(bsoncxx::document::view command) override;
         std::vector<std::wstring_view> GetCommands() override;
 };
