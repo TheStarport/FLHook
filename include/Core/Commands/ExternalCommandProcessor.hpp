@@ -2,20 +2,21 @@
 
 #include "AbstractExternalCommandProcessor.hpp"
 
-class ExternalCommandProcessor final : public AbstractExternalCommandProcessor, public Singleton<ExternalCommandProcessor>
+class ExternalCommandProcessor final : public Singleton<ExternalCommandProcessor>
 {
         // clang-format off
-        std::unordered_map<std::wstring, std::function<nlohmann::json(const nlohmann::json&)>> functions =
+        std::unordered_map<std::string, std::function<std::pair<bool, std::shared_ptr<BsonWrapper>>(bsoncxx::document::view)>,
+            StringHash, std::equal_to<>> functions =
         {
             {
-               std::wstring(L"beam"), Beam
+               std::string("beam"), Beam
             }
         };
         // clang-format on
 
-        static bsoncxx::document::view Beam( bsoncxx::document::view parameters);
+        static std::pair<bool, std::shared_ptr<BsonWrapper>> Beam(bsoncxx::document::view parameters);
 
     public:
-        std::shared_ptr<BsonWrapper> ProcessCommand(bsoncxx::document::view command) override;
-        std::vector<std::wstring_view> GetCommands() override;
+        std::pair<bool, std::shared_ptr<BsonWrapper>> ProcessCommand(bsoncxx::document::view document);
+        std::vector<std::wstring> GetCommands() const;
 };

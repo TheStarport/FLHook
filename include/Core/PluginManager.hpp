@@ -5,6 +5,7 @@
 
 #ifdef FLHOOK
     #include "Commands/AdminCommandProcessor.hpp"
+    #include "Commands/ExternalCommandProcessor.hpp"
     #include "Commands/UserCommandProcessor.hpp"
     #include "Core/ExceptionHandler.hpp"
     #include "Utils/TemplateHelpers.hpp"
@@ -15,11 +16,13 @@ class DLL PluginManager final : public Singleton<PluginManager>
 #ifdef FLHOOK
         friend AdminCommandProcessor;
         friend UserCommandProcessor;
+        friend ExternalCommandProcessor;
 
         // TODO: Add a getter function of a const ref so other classes can look at thi list of plugins.
         std::vector<std::shared_ptr<Plugin>> plugins;
         std::vector<std::weak_ptr<AbstractUserCommandProcessor>> userCommands;
         std::vector<std::weak_ptr<AbstractAdminCommandProcessor>> adminCommands;
+        std::vector<std::weak_ptr<AbstractExternalCommandProcessor>> externalCommands;
 
         void ClearData(bool free);
 

@@ -106,22 +106,30 @@ FLHook::FLHook()
         msg->Subscribe(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)),
                        [](const AMQP::Message& message, std::shared_ptr<BsonWrapper>& response)
                        {
-                           std::string_view body = {message.body(), message.body() + message.bodySize()};
+                           // TODO: ensure this runs on the main thread and therefore is safe to manipulate players
+                           const std::string_view body = { message.body(), message.body() + message.bodySize() };
 
                            try
                            {
-                               // TODO: Setup external command processor
-                               BsonWrapper bsonWrapper(body);
-                               auto bson = bsonWrapper.GetValue();
+                               const BsonWrapper bsonWrapper(body);
+                               const auto bson = bsonWrapper.GetValue();
                                if (!bson.has_value())
                                {
-                                   // Iterate through plugins and see if they have a valid json output
+                                   return false;
                                }
 
-                               return true;
+                               if (const auto [successful, responseDoc] = ExternalCommandProcessor::i()->ProcessCommand(bson.value());
+                                   successful || responseDoc)
+                               {
+                                   response = responseDoc;
+                                   return true;
+                               }
+
+                               return false;
                            }
                            catch (GameException& ex)
                            {
+                               // TODO: Log but no reply?
                                return true;
                            }
                            catch (std::exception& ex)

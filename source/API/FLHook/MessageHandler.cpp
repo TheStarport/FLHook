@@ -98,33 +98,34 @@ void MessageHandler::Subscribe(const std::wstring& queue, QueueOnData callback, 
         channel->consume(StringUtils::wstos(queue))
             .onSuccess([queue]() { Logger::Log(LogLevel::Info, std::format(L"successfully subscribed to {}", queue)); })
             .onReceived(
-                [this, queue](const AMQP::Message& message, uint64_t deliveryTag, bool redelivered)
+                [this, queue](const AMQP::Message& message, const uint64_t deliveryTag, bool)
                 {
-                    const auto callbacks = onMessageCallbacks.find(queue);
-                    for (const auto& cb : callbacks->second)
+                    for (const auto callbacks = onMessageCallbacks.find(queue); const auto& cb : callbacks->second)
                     {
                         std::shared_ptr<BsonWrapper> responseBody;
-                        if (cb(message, responseBody))
+                        if (!cb(message, responseBody))
                         {
-                            if (message.headers().contains("reply_to"))
-                            {
-                                std::stringstream ss;
-                                message.headers()["reply_to"].output(ss);
-
-                                if (responseBody)
-                                {
-                                    auto bytes = responseBody->GetBytes();
-                                    channel->publish("", ss.str(), bytes);
-                                }
-                                else
-                                {
-                                    channel->publish("", ss.str(), "");
-                                }
-                            }
-
-                            channel->ack(deliveryTag);
-                            return;
+                            continue;
                         }
+
+                        if (message.headers().contains("reply_to"))
+                        {
+                            std::stringstream ss;
+                            message.headers()["reply_to"].output(ss);
+
+                            if (responseBody)
+                            {
+                                const auto bytes = responseBody->GetBytes();
+                                channel->publish("", ss.str(), bytes);
+                            }
+                            else
+                            {
+                                channel->publish("", ss.str(), "");
+                            }
+                        }
+
+                        channel->reject(deliveryTag);
+                        return;
                     }
 
                     channel->reject(deliveryTag);
