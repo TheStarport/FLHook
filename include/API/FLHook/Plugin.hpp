@@ -270,11 +270,19 @@ class DLL PacketInterface
 
 #undef Aft
 
-#define SetupPlugin(type, info)                                               \
-    EXPORT std::shared_ptr<type> PluginFactory()                              \
-    {                                                                         \
-        __pragma(comment(linker, "/EXPORT:" __FUNCTION__ "=" __FUNCDNAME__)); \
-        return std::move(std::make_shared<type>(info));                       \
+#define API_ALIAS_NESTED_3(part) __pragma(#part)
+#define API_ALIAS_NESTED_2(part) API_ALIAS_NESTED_3(comment(linker, part))
+#define API_ALIAS_NESTED_1(part) API_ALIAS_NESTED_2(#part)
+#define API_ALIAS(alias, func)   API_ALIAS_NESTED_1(/ EXPORT : alias = func)
+
+#define SetupPlugin(type, info)                        \
+    EXPORT std::shared_ptr<type> PluginFactory()       \
+    {                                                  \
+        __pragma(clang diagnostic push);               \
+        __pragma(clang diagnostic ignored "-Wunknown-pragmas"); \
+        API_ALIAS(__FUNCTION__, __FUNCDNAME__);        \
+        __pragma(clang diagnostic pop);                \
+        return std::make_shared<type>(info);           \
     }
 
 #define AddPluginTimer(func, time) AddTimer(static_cast<void (Plugin::*)()>(func), time)

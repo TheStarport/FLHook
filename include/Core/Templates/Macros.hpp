@@ -22,21 +22,14 @@
     catch ([[maybe_unused]] const StopProcessingException&) {} \
     catch (const GameException& ex)                            \
     {                                                          \
-        Logger::Info(ex.Msg());                 \
+        Logger::Info(ex.Msg());                                \
         e;                                                     \
     }                                                          \
     catch ([[maybe_unused]] std::exception & exc) { e; }       \
     catch (...) { e; }
 
-#define DefaultDllMain(x, xx)                                                                                            \
-    BOOL WINAPI DllMain([[maybe_unused]] HINSTANCE dll, [[maybe_unused]] DWORD reason, [[maybe_unused]] LPVOID reserved) \
-    {                                                                                                                    \
-        if (xx reason == DLL_PROCESS_ATTACH)                                                                             \
-        {                                                                                                                \
-            x;                                                                                                           \
-        }                                                                                                                \
-        return true;                                                                                                     \
-    }
+#define DefaultDllMain() \
+    BOOL WINAPI DllMain([[maybe_unused]] HINSTANCE dll, [[maybe_unused]] DWORD reason, [[maybe_unused]] LPVOID reserved) { return true; }
 
 #define DeduceClassType(variableName, type, value)                         \
 private:                                                                   \
@@ -91,5 +84,5 @@ public:                                                                         
                                                                                                                                         \
 private:
 
-#define FUNCTION reinterpret_cast<const char*>(__FUNCTION__)
+#define FUNCTION   reinterpret_cast<const char*>(__FUNCTION__)
 #define FUNCTION_W reinterpret_cast<const wchar_t*>(__FUNCTIONW__)
