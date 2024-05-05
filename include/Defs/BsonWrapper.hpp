@@ -10,7 +10,12 @@ class BsonWrapper
 
         void AssembleBson(uint8_t* bytes, size_t size)
         {
-            bson = bson_new_from_buffer(&bytes, &size, bson_realloc_ctx, nullptr);
+            bson = bson_new_from_data(bytes, size);
+
+            if (!bson)
+            {
+                return;
+            }
 
             size_t errorOffset;
             if (!bson_validate(bson, static_cast<bson_validate_flags_t>(BSON_VALIDATE_DOT_KEYS | BSON_VALIDATE_UTF8 | BSON_VALIDATE_EMPTY_KEYS |

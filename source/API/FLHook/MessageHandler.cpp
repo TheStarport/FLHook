@@ -6,7 +6,8 @@
 
 MessageHandler::MessageHandler()
 {
-    if (!FLHook::GetConfig().messageQueue.enableQueues)
+    auto& config = FLHook::GetConfig();
+    if (!config.messageQueue.enableQueues)
     {
         return;
     }
@@ -26,31 +27,33 @@ MessageHandler::MessageHandler()
         });
 
     connectHandle->on<uvw::connect_event>(
-        [this](const uvw::connect_event&, uvw::tcp_handle& tcp)
+        [this, config](const uvw::connect_event&, uvw::tcp_handle& tcp)
         {
+            Logger::Log(LogLevel::Info, L"Connected to RabbitMQ, attempting authentication");
             // Authenticate with the RabbitMQ cluster.
-            connection = std::make_unique<AMQP::Connection>(this, AMQP::Login("guest", "guest"), "/");
+            connection = std::make_unique<AMQP::Connection>(this, AMQP::Login(StringUtils::wstos(config.messageQueue.username), StringUtils::wstos(config.messageQueue.password)), "/");
 
+            Logger::Log(LogLevel::Info, L"Authenticated to RabbitMQ");
             // Start reading from the socket.
             connectHandle->read();
         });
 
     connectHandle->on<uvw::data_event>([this](const uvw::data_event& event, const uvw::tcp_handle&) { connection->parse(event.data.get(), event.length); });
 
-    connectHandle->connect("localhost", 5672);
+    connectHandle->connect(StringUtils::wstos(config.messageQueue.hostName), config.messageQueue.port);
     runner = std::jthread([this] { loop->run(); });
 
     while (isInitalizing)
     {
         static int i = 0;
         i++;
-        // TODO: Add if trace mode log to console
         Sleep(1000);
 
-        if (i >= 20)
+        if (i >= 5)
         {
             connectHandle->close_reset();
             connectHandle = nullptr;
+            Logger::Log(LogLevel::Warn, L"Failed to connect to RabbitMQ, but queues are enabled");
             break;
         }
     }

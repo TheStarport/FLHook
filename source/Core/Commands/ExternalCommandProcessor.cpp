@@ -135,7 +135,7 @@ std::pair<bool, std::shared_ptr<BsonWrapper>> ExternalCommandProcessor::Beam(bso
         errors.emplace_back("The provided character is not currently online or does not exist.");
     }
 
-    if (errors.size() == 0)
+    if (!errors.empty())
     {
         return { false, BsonWrapper::CreateErrorDocument(errors) };
     }
@@ -148,7 +148,7 @@ std::pair<bool, std::shared_ptr<BsonWrapper>> ExternalCommandProcessor::Beam(bso
             return true;
         });
 
-    if (errors.size() == 0)
+    if (!errors.empty())
     {
         return { false, BsonWrapper::CreateErrorDocument(errors) };
     }

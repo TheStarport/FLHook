@@ -100,7 +100,7 @@ struct DLL FLHookConfig final
                 bool enableQueues = true;
 
                 //! The hostname of your RabbitMQ instance
-                std::wstring hostName = L"localhost";
+                std::wstring hostName = L"127.0.0.1";
 
                 //! The port of your RabbitMQ instance
                 int port = 5672;
