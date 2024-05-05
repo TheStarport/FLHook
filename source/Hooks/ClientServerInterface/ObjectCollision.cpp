@@ -7,7 +7,7 @@
 
 void __stdcall IServerImplHook::SpObjCollision(const SSPObjCollisionInfo& oci, ClientId client)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"SPObjCollision(\n\tClientId client = {}\n)", client));
+    Logger::Trace(std::format(L"SPObjCollision(\n\tClientId client = {}\n)", client));
 
     const auto skip = CallPlugins(&Plugin::OnSpObjectCollision, client, oci);
 

@@ -104,7 +104,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
 
 void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientId client)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"CharacterSelect(\n\tClientId client = {}\n)", client));
+    Logger::Trace(std::format(L"CharacterSelect(\n\tClientId client = {}\n)", client));
 
     std::wstring charName = StringUtils::stows(static_cast<const char*>(cid.charFilename));
     const auto skip = CallPlugins(&Plugin::OnCharacterSelect, client, std::wstring_view(charName));
@@ -127,7 +127,7 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
 
 void __stdcall IServerImplHook::CreateNewCharacter(const SCreateCharacterInfo& createCharacterInfo, ClientId client)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"CreateNewCharacter(\n\tClientId client = {}\n)", client));
+    Logger::Trace(std::format(L"CreateNewCharacter(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnCharacterCreation, client, createCharacterInfo); !skip)
     {
@@ -144,7 +144,7 @@ void IServerImplHook::DestroyCharacterCallback(const ClientId client, CHARACTER_
 
 void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, ClientId client)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"DestroyCharacter(\n\tClientId client = {}\n)", client));
+    Logger::Trace(std::format(L"DestroyCharacter(\n\tClientId client = {}\n)", client));
 
     const std::wstring charName = StringUtils::stows(static_cast<const char*>(cid.charFilename));
 
@@ -158,7 +158,7 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
 
 void __stdcall IServerImplHook::RequestRankLevel(ClientId client, uint unk1, int unk2)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"RequestRankLevel(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
+    Logger::Trace(std::format(L"RequestRankLevel(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestRankLevel, client, unk1, unk2); !skip)
     {
@@ -171,7 +171,7 @@ void __stdcall IServerImplHook::RequestRankLevel(ClientId client, uint unk1, int
 
 void __stdcall IServerImplHook::RequestPlayerStats(ClientId client, uint unk1, int unk2)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"RequestPlayerStats(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
+    Logger::Trace(std::format(L"RequestPlayerStats(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestPlayerStats, client, unk1, unk2); !skip)
     {
@@ -218,7 +218,7 @@ bool CharacterInfoReqCatch(ClientId client, bool)
 
 void __stdcall IServerImplHook::CharacterInfoReq(ClientId client, bool unk1)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"CharacterInfoReq(\n\tClientId client = {}\n\tbool unk1 = {}\n)", client, unk1));
+    Logger::Trace(std::format(L"CharacterInfoReq(\n\tClientId client = {}\n\tbool unk1 = {}\n)", client, unk1));
 
     const auto skip = CallPlugins(&Plugin::OnCharacterInfoRequest, client, unk1);
 

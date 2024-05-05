@@ -30,7 +30,7 @@ void IServerImplHook::LaunchCompleteInner(BaseId, ShipId shipId)
 
 void __stdcall IServerImplHook::LaunchComplete(BaseId baseId, ShipId shipId)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"LaunchComplete(\n\tuint baseId = {}\n\tuint shipId = {}\n)", baseId, shipId));
+    Logger::Trace(std::format(L"LaunchComplete(\n\tuint baseId = {}\n\tuint shipId = {}\n)", baseId, shipId));
 
     const auto skip = CallPlugins(&Plugin::OnLaunchComplete, baseId, shipId);
 

@@ -5,6 +5,7 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/InternalApi.hpp"
 #include "Core/FLHook.hpp"
+#include "Defs/FLPacket.hpp"
 
 #define ClientCheck                                   \
     if (!IsValidClientId())                           \

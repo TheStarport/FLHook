@@ -70,22 +70,22 @@ bool AccountManager::SaveCharacter(Character& newCharacter, const bool isNewChar
     {
         if (isNewCharacter)
         {
-            Logger::Log(LogLevel::Err, std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
+            Logger::Err(std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
         }
         else
         {
-            Logger::Log(LogLevel::Err, std::format(L"Error while updating character {}", StringUtils::stows(ex.what())));
+            Logger::Err(std::format(L"Error while updating character {}", StringUtils::stows(ex.what())));
         }
     }
     catch (mongocxx::exception& ex)
     {
         if (isNewCharacter)
         {
-            Logger::Log(LogLevel::Err, std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
+            Logger::Err(std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
         }
         else
         {
-            Logger::Log(LogLevel::Err, std::format(L"Error while updating character {}", StringUtils::stows(ex.what())));
+            Logger::Err(std::format(L"Error while updating character {}", StringUtils::stows(ex.what())));
         }
     }
     session.abort_transaction();
@@ -132,16 +132,16 @@ bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring c
         session.commit_transaction();
         account.characters.erase(charCodeString);
         account.internalAccount->numberOfCharacters = account.characters.size();
-        Logger::Log(LogLevel::Info, std::format(L"Successfully hard deleted character: {}", wideCharName));
+        Logger::Info(std::format(L"Successfully hard deleted character: {}", wideCharName));
         return true;
     }
     catch (bsoncxx::exception& ex)
     {
-        Logger::Log(LogLevel::Err, std::format(L"Error hard deleted character ({}): {}", wideCharName, StringUtils::stows(ex.what())));
+        Logger::Err(std::format(L"Error hard deleted character ({}): {}", wideCharName, StringUtils::stows(ex.what())));
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Log(LogLevel::Err, std::format(L"Error hard deleted character ({}): {}", wideCharName, StringUtils::stows(ex.what())));
+        Logger::Err(std::format(L"Error hard deleted character ({}): {}", wideCharName, StringUtils::stows(ex.what())));
     }
     session.abort_transaction();
     return false;
@@ -185,7 +185,7 @@ void AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
             auto acc = rfl::bson::read<Account>(accountRaw.view().data(), accountRaw.view().length());
             if (acc.error().has_value())
             {
-                Logger::Log(LogLevel::Err, std::format(L"Unable to read account: {}", wideAccountId));
+                Logger::Err(std::format(L"Unable to read account: {}", wideAccountId));
                 session.abort_transaction();
                 return;
             }
@@ -208,13 +208,13 @@ void AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
             auto characterResult = rfl::bson::read<Character>(doc.data(), doc.length());
             if (characterResult.error().has_value())
             {
-                Logger::Log(LogLevel::Err, std::format(L"Error when loading a character: {}", StringUtils::stows(characterResult.error().value().what())));
+                Logger::Err(std::format(L"Error when loading a character: {}", StringUtils::stows(characterResult.error().value().what())));
                 session.abort_transaction();
             }
             auto character = characterResult.value();
             if (character.characterName.empty())
             {
-                Logger::Log(LogLevel::Err, std::format(L"Error when reading character name for account: {}", wideAccountId));
+                Logger::Err(std::format(L"Error when reading character name for account: {}", wideAccountId));
                 continue;
             }
             char charNameBuf[50];
@@ -227,12 +227,12 @@ void AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
     }
     catch (bsoncxx::exception& ex)
     {
-        Logger::Log(LogLevel::Err, std::format(L"Error logging in for account ({}): {}", wideAccountId, StringUtils::stows(ex.what())));
+        Logger::Err(std::format(L"Error logging in for account ({}): {}", wideAccountId, StringUtils::stows(ex.what())));
         session.abort_transaction();
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Log(LogLevel::Err, std::format(L"Error logging in for account ({}): {}", wideAccountId, StringUtils::stows(ex.what())));
+        Logger::Err(std::format(L"Error logging in for account ({}): {}", wideAccountId, StringUtils::stows(ex.what())));
         session.abort_transaction();
     }
 }

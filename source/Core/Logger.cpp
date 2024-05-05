@@ -157,16 +157,16 @@ void Logger::Init()
     std::wcin.clear();
 
     // change version number here:
-    // https://patorjk.com/software/taag/#p=display&f=Doom&t=FLHook%204.1%20pallas
+    // https://patorjk.com/software/taag/#p=display&f=Doom&t=FLHook%205.0%20pallas
     std::wstring welcomeText = LR"(
-______ _      _   _             _        ___   __                _ _           
-|  ___| |    | | | |           | |      /   | /  |              | | |          
-| |_  | |    | |_| | ___   ___ | | __  / /| | `| |   _ __   __ _| | | __ _ ___ 
-|  _| | |    |  _  |/ _ \ / _ \| |/ / / /_| |  | |  | '_ \ / _` | | |/ _` / __|
-| |   | |____| | | | (_) | (_) |   <  \___  |__| |_ | |_) | (_| | | | (_| \__ \
-\_|   \_____/\_| |_/\___/ \___/|_|\_\     |_(_)___/ | .__/ \__,_|_|_|\__,_|___/
-                                                    | |                        
-                                                    |_|                        )";
+______ _      _   _             _      _____  _____               _ _
+|  ___| |    | | | |           | |    |  ___||  _  |             | | |
+| |_  | |    | |_| | ___   ___ | | __ |___ \ | |/' |  _ __   __ _| | | __ _ ___
+|  _| | |    |  _  |/ _ \ / _ \| |/ /     \ \|  /| | | '_ \ / _` | | |/ _` / __|
+| |   | |____| | | | (_) | (_) |   <  /\__/ /\ |_/ / | |_) | (_| | | | (_| \__ \
+\_|   \_____/\_| |_/\___/ \___/|_|\_\ \____(_)\___/  | .__/ \__,_|_|_|\__,_|___/
+                                                     | |
+                                                     |_|                        )";
     welcomeText += L"\n\n";
     std::wcout << welcomeText << std::flush;
 
@@ -174,25 +174,37 @@ ______ _      _   _             _        ___   __                _ _
     loggingThread = std::jthread(std::bind_front(&Logger::PrintToConsole));
 }
 
-void Logger::Log(LogFile file, LogLevel level, std::wstring_view str)
+void Logger::Trace(const std::wstring_view str)
 {
-    if ((!FLHook::GetConfig().debug.logTraceLevel && level == LogLevel::Trace) || (!FLHook::GetConfig().debug.debugMode && level == LogLevel::Debug))
+    if (FLHook::GetConfig().logging.minLogLevel == 0)
     {
-        return;
+        logQueue.enqueue({ LogLevel::Trace, std::wstring(str), _ReturnAddress() });
     }
-
-    logQueue.enqueue({ level, file, std::wstring(str), _ReturnAddress() });
 }
-
-void Logger::Log(LogLevel level, std::wstring_view str)
+void Logger::Debug(const std::wstring_view str)
 {
-    auto& config = FLHook::GetConfig();
-    if ((!config.debug.logTraceLevel && level == LogLevel::Trace) || (!config.debug.debugMode && level == LogLevel::Debug))
+    if (FLHook::GetConfig().logging.minLogLevel <= 1)
     {
-        return;
+        logQueue.enqueue({ LogLevel::Debug, std::wstring(str), _ReturnAddress() });
     }
-
-    logQueue.enqueue({ level, LogFile::Default, std::wstring(str), _ReturnAddress() });
+}
+void Logger::Info(const std::wstring_view str)
+{
+    if (FLHook::GetConfig().logging.minLogLevel <= 2)
+    {
+        logQueue.enqueue({ LogLevel::Info, std::wstring(str), _ReturnAddress() });
+    }
+}
+void Logger::Warn(const std::wstring_view str)
+{
+    if (FLHook::GetConfig().logging.minLogLevel <= 3)
+    {
+        logQueue.enqueue({ LogLevel::Warn, std::wstring(str), _ReturnAddress() });
+    }
+}
+void Logger::Err(const std::wstring_view str)
+{
+        logQueue.enqueue({ LogLevel::Err, std::wstring(str), _ReturnAddress() });
 }
 
 std::optional<std::wstring> Logger::GetCommand()

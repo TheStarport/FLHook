@@ -10,17 +10,17 @@ ulong PerfTimer::Stop()
 {
     auto timeDelta = static_cast<uint>(TimeUtils::UnixTime<std::chrono::microseconds>() - tmStart);
 
-    if (FLHook::GetConfig().debug.logPerformanceTimers)
+    if (FLHook::GetConfig().logging.logPerformanceTimers)
     {
         if (timeDelta > max && timeDelta > warning)
         {
             auto str = std::format(L"Spent {} μs in {}, longest so far.", timeDelta, function);
-            Logger::Log(LogLevel::Info, std::format(L"Spent {} μs in {}, longest so far.", timeDelta, function));
+            Logger::Info(std::format(L"Spent {} μs in {}, longest so far.", timeDelta, function));
             max = timeDelta;
         }
         else if (timeDelta > 100)
         {
-            Logger::Log(LogLevel::Info, std::format(L"Spent {} μs in {}", timeDelta, function));
+            Logger::Info(std::format(L"Spent {} μs in {}", timeDelta, function));
         }
     }
     return timeDelta;

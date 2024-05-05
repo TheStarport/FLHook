@@ -22,14 +22,11 @@
     catch ([[maybe_unused]] const StopProcessingException&) {} \
     catch (const GameException& ex)                            \
     {                                                          \
-        Logger::Log(LogLevel::Info, ex.Msg());                 \
+        Logger::Info(ex.Msg());                 \
         e;                                                     \
     }                                                          \
     catch ([[maybe_unused]] std::exception & exc) { e; }       \
     catch (...) { e; }
-
-#define LOG_EXCEPTION \
-    {}
 
 #define DefaultDllMain(x, xx)                                                                                            \
     BOOL WINAPI DllMain([[maybe_unused]] HINSTANCE dll, [[maybe_unused]] DWORD reason, [[maybe_unused]] LPVOID reserved) \

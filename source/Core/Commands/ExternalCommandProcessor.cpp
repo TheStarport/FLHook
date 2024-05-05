@@ -57,7 +57,7 @@ std::pair<bool, std::shared_ptr<BsonWrapper>> ExternalCommandProcessor::ProcessC
     }
     catch (bsoncxx::exception& ex)
     {
-        Logger::Log(LogLevel::Warn, std::format(L"Exception was thrown while trying to process an external command. {}", StringUtils::stows(ex.what())));
+        Logger::Warn(std::format(L"Exception was thrown while trying to process an external command. {}", StringUtils::stows(ex.what())));
     }
 
     return { false, BsonWrapper::CreateErrorDocument({ "An unknown error occured and the command was unable to be processed." }) };

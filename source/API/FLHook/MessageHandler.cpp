@@ -12,7 +12,7 @@ MessageHandler::MessageHandler()
         return;
     }
 
-    Logger::Log(LogLevel::Info, L"Attempting connection to RabbitMQ");
+    Logger::Info(L"Attempting connection to RabbitMQ");
 
     loop = uvw::loop::get_default();
     connectHandle = loop->resource<uvw::tcp_handle>();
@@ -20,7 +20,7 @@ MessageHandler::MessageHandler()
     connectHandle->on<uvw::error_event>(
         [this](const uvw::error_event& event, uvw::tcp_handle&)
         {
-            Logger::Log(LogLevel::Err, std::format(L"Socket error: {}", StringUtils::stows(event.what())));
+            Logger::Err(std::format(L"Socket error: {}", StringUtils::stows(event.what())));
             FLHook::GetConfig().messageQueue.enableQueues = false;
             runner.request_stop(); // Terminate thread runner
             isInitalizing = false;
@@ -29,11 +29,11 @@ MessageHandler::MessageHandler()
     connectHandle->on<uvw::connect_event>(
         [this, config](const uvw::connect_event&, uvw::tcp_handle& tcp)
         {
-            Logger::Log(LogLevel::Info, L"Connected to RabbitMQ, attempting authentication");
+            Logger::Info(L"Connected to RabbitMQ, attempting authentication");
             // Authenticate with the RabbitMQ cluster.
             connection = std::make_unique<AMQP::Connection>(this, AMQP::Login(StringUtils::wstos(config.messageQueue.username), StringUtils::wstos(config.messageQueue.password)), "/");
 
-            Logger::Log(LogLevel::Info, L"Authenticated to RabbitMQ");
+            Logger::Info(L"Authenticated to RabbitMQ");
             // Start reading from the socket.
             connectHandle->read();
         });
@@ -53,7 +53,7 @@ MessageHandler::MessageHandler()
         {
             connectHandle->close_reset();
             connectHandle = nullptr;
-            Logger::Log(LogLevel::Warn, L"Failed to connect to RabbitMQ, but queues are enabled");
+            Logger::Warn(L"Failed to connect to RabbitMQ, but queues are enabled");
             break;
         }
     }
@@ -63,7 +63,7 @@ void MessageHandler::onData(AMQP::Connection* conn, const char* data, const size
 
 void MessageHandler::onReady(AMQP::Connection* conn)
 {
-    Logger::Log(LogLevel::Info, L"Connected to RabbitMQ!");
+    Logger::Info(L"Connected to RabbitMQ!");
     isInitalizing = false;
 
     channel = std::make_unique<AMQP::Channel>(conn);
@@ -72,7 +72,7 @@ void MessageHandler::onReady(AMQP::Connection* conn)
 void MessageHandler::onError(AMQP::Connection* conn, const char* message)
 {
     isInitalizing = false;
-    Logger::Log(LogLevel::Err, std::format(L"AMQP error: {}", StringUtils::stows(message)));
+    Logger::Err(std::format(L"AMQP error: {}", StringUtils::stows(message)));
 }
 
 void MessageHandler::onClosed(AMQP::Connection* conn) { std::cout << "closed" << std::endl; }
@@ -99,7 +99,7 @@ void MessageHandler::Subscribe(const std::wstring& queue, const QueueOnData& cal
         }
 
         channel->consume(StringUtils::wstos(queue))
-            .onSuccess([queue]() { Logger::Log(LogLevel::Info, std::format(L"successfully subscribed to {}", queue)); })
+            .onSuccess([queue]() { Logger::Info(std::format(L"successfully subscribed to {}", queue)); })
             .onReceived(
                 [this, queue](const AMQP::Message& message, const uint64_t deliveryTag, bool)
                 {
@@ -136,7 +136,7 @@ void MessageHandler::Subscribe(const std::wstring& queue, const QueueOnData& cal
             .onError(
                 [this, queue](const char* msg)
                 {
-                    Logger::Log(LogLevel::Warn, std::format(L"connection terminated with {} - {}", queue, StringUtils::stows(std::string(msg))));
+                    Logger::Warn(std::format(L"connection terminated with {} - {}", queue, StringUtils::stows(std::string(msg))));
                     for (const auto callbacks = onFailCallbacks.find(queue); const auto& cb : callbacks->second)
                     {
                         cb(msg);

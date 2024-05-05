@@ -84,7 +84,7 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
     // Clean up any mail to chars that no longer exist
     // TODO: Mail Rework MailManager::i()->CleanUpOldMail();
 
-    Logger::Log(LogLevel::Info, L"FLHook Ready");
+    Logger::Info(L"FLHook Ready");
 
     FLHook::instance->flhookReady = true;
 }
@@ -108,7 +108,7 @@ int __stdcall IServerImplHook::Update()
 
 void __stdcall IServerImplHook::Shutdown()
 {
-    Logger::Log(LogLevel::Trace, L"Shutdown()");
+    Logger::Trace(L"Shutdown()");
 
     if (const auto skip = CallPlugins(&Plugin::OnServerShutdown); !skip)
     {

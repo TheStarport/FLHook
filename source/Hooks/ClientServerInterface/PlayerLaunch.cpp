@@ -47,7 +47,7 @@ void IServerImplHook::PlayerLaunchInnerAfter([[maybe_unused]] ShipId shipId, Cli
 
 void __stdcall IServerImplHook::PlayerLaunch(ShipId shipId, ClientId client)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"PlayerLaunch(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
+    Logger::Trace(std::format(L"PlayerLaunch(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
 
     const auto skip = CallPlugins(&Plugin::OnPlayerLaunch, client, shipId);
 

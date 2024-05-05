@@ -71,7 +71,7 @@ void IServerImplHook::DelayedLogin(const SLoginInfo& li, ClientId client)
 
 void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"Login(\n\tClientId client = {}\n)", client));
+    Logger::Trace(std::format(L"Login(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip)
     {

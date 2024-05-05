@@ -6,8 +6,7 @@
 
 void __stdcall IServerImplHook::MineAsteroid(SystemId systemId, const Vector& pos, ArchId crateId, ArchId lootId, uint count, ClientId client)
 {
-    Logger::Log(LogLevel::Trace,
-                            std::format(L"MineAsteroid(\n\tuint systemId = {}\n\tuint crateId = {}\n\tuint lootId = {}\n\tuint count = "
+    Logger::Trace(std::format(L"MineAsteroid(\n\tuint systemId = {}\n\tuint crateId = {}\n\tuint lootId = {}\n\tuint count = "
                                         L"{}\n\tClientId client = {}\n)",
                                         systemId,
                                         crateId,

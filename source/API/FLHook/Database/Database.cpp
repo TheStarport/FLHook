@@ -31,7 +31,7 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
     }
     catch (std::exception& err)
     {
-        Logger::Log(LogLevel::Err, StringUtils::stows(std::string(err.what())));
+        Logger::Err(StringUtils::stows(std::string(err.what())));
         MessageBoxA(nullptr, (std::string("Unable to connect to MongoDB. Cannot start FLHook.\n\n") + err.what()).c_str(), "MongoDB Connection Error", MB_OK);
         std::quick_exit(-1);
     }

@@ -2,13 +2,10 @@
 
 struct DLL FLHookConfig final
 {
-        struct Debug final
+        struct Logging final
         {
                 //! If true, enables FLHook debug mode, also enabled debug level logs
-                bool debugMode = false;
-
-                //! If true, any log statement made at a 'Trace', will be allowed.
-                bool logTraceLevel = false;
+                int minLogLevel = 2;
 
                 //! If true, it logs performance of functions if they take too long to execute.
                 bool logPerformanceTimers = false;
@@ -184,9 +181,11 @@ struct DLL FLHookConfig final
         struct DatabaseConfig final
         {
                 std::string uri = "mongodb://localhost:27017";
+                std::string dbName = "FLHook";
+                std::string accountsCollection = "accounts";
         };
 
-        Debug debug;
+        Logging logging;
         General general;
         AutoKicks autoKicks;
         Plugins plugins;

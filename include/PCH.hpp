@@ -88,7 +88,6 @@
 #include "Defs/SehException.hpp"
 
 #include "Defs/FLHookConfig.hpp"
-#include "Defs/FLPacket.hpp"
 
 #include "Core/PluginManager.hpp"
 
@@ -111,12 +110,12 @@ namespace Json
         std::ofstream stream(newPath);
         if (!stream.is_open())
         {
-            Logger::Log(LogLevel::Warn, L"Unable to save JSON file.");
+            Logger::Warn(L"Unable to save JSON file.");
             return false;
         }
 
         rfl::json::write(obj, stream, rfl::json::pretty);
-        Logger::Log(LogLevel::Debug, std::format(L"Successfully saved JSON file: {}", StringUtils::stows(newPath)));
+        Logger::Debug(std::format(L"Successfully saved JSON file: {}", StringUtils::stows(newPath)));
         return true;
     }
 } // namespace Json

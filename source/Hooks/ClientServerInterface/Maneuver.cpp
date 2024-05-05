@@ -6,7 +6,7 @@
 
 void __stdcall IServerImplHook::SetManeuver(ClientId client, const XSetManeuver& sm)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"SetManeuver(\n\tClientId client = {}\n)", client));
+    Logger::Trace(std::format(L"SetManeuver(\n\tClientId client = {}\n)", client));
 
     if (const auto skip = CallPlugins(&Plugin::OnSetManeuver, client, sm); !skip)
     {

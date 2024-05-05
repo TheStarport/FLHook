@@ -444,8 +444,7 @@ void AccountManager::LoadNewPlayerFLInfo()
 
     if (!newPlayerTemplate.hasPackage)
     {
-        Logger::Log(LogLevel::Warn,
-                    L"Missing %%PACKAGE%% from mpnewplayer.fl. If the package is missing any data from a valid save file, "
+        Logger::Warn(L"Missing %%PACKAGE%% from mpnewplayer.fl. If the package is missing any data from a valid save file, "
                     L"new characters can cause server and client crashes.");
     }
 }
@@ -556,7 +555,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     auto mdataIter = mdataBST->find(pd->clientId);
     if (mdataIter == mdataBST->end())
     {
-        Logger::Log(LogLevel::Err, std::format(L"Fetching mPlayer data failed for {}", client.characterName));
+        Logger::Err(std::format(L"Fetching mPlayer data failed for {}", client.characterName));
         return true;
     }
 
@@ -753,7 +752,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         auto currPlayer = pd->characterMap.find(CHARACTER_ID(fileName));
         if (currPlayer == pd->characterMap.end())
         {
-            Logger::Log(LogLevel::Err, std::format(L"Fetching Base Status failed for {}", client.characterName));
+            Logger::Err(std::format(L"Fetching Base Status failed for {}", client.characterName));
             return true;
         }
 

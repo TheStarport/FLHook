@@ -239,7 +239,7 @@ void ExceptionHandler::LogException(const SehException& ex)
             WCHAR moduleName[MAX_PATH];
             GetModuleBaseNameW(GetCurrentProcess(), module, moduleName, MAX_PATH);
 
-            Logger::Log(LogFile::Default, LogLevel::Err, std::format(L"Code={:X} Offset={:X} Module=\"{}\"", code, offset, moduleName));
+            Logger::Err(std::format(L"Code={:X} Offset={:X} Module=\"{}\"", code, offset, moduleName));
             if (code == 0xE06D7363 && exception->NumberParameters == 3) // C++ exception
             {
                 const auto* info = reinterpret_cast<const msvc__ThrowInfo*>(exception->ExceptionInformation[2]);
@@ -265,9 +265,7 @@ void ExceptionHandler::LogException(const SehException& ex)
                     GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)address, &module);
                     GetModuleBaseNameW(GetCurrentProcess(), module, moduleName, MAX_PATH);
                 }
-                Logger::Log(LogFile::Default,
-                            LogLevel::Err,
-                            std::format(L"Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"",
+                Logger::Err(std::format(L"Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"",
                                         StringUtils::stows(szName),
                                         StringUtils::stows(szMessage),
                                         offset,
@@ -284,13 +282,11 @@ void ExceptionHandler::LogException(const SehException& ex)
         }
         else
         {
-            Logger::Log(LogFile::Default, LogLevel::Err, L"No exception information available");
+            Logger::Err(L"No exception information available");
         }
         if (reg)
         {
-            Logger::Log(LogFile::Default,
-                        LogLevel::Err,
-                        std::format(L"eax={:X} ebx={:X} ecx={:X} edx={:X} edi={:X} esi={:X} ebp={:X} eip={:X} esp={:X}",
+            Logger::Err(std::format(L"eax={:X} ebx={:X} ecx={:X} edx={:X} edi={:X} esi={:X} ebp={:X} eip={:X} esp={:X}",
                                     reg->Eax,
                                     reg->Ebx,
                                     reg->Ecx,
@@ -303,11 +299,11 @@ void ExceptionHandler::LogException(const SehException& ex)
         }
         else
         {
-            Logger::Log(LogFile::Default, LogLevel::Err, L"No register information available");
+            Logger::Err(L"No register information available");
         }
     }
     catch (...)
     {
-        Logger::Log(LogFile::Default, LogLevel::Err, L"Exception in AddExceptionInfoLog!");
+        Logger::Err(L"Exception in AddExceptionInfoLog!");
     }
 }

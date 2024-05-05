@@ -1,35 +1,23 @@
 #pragma once
 
-#include <Singleton.hpp>
-
 #include <concurrentqueue/concurrentqueue.h>
 #include <optional>
-#include <spdlog/spdlog.h>
-
-enum class LogLevel
-{
-    Trace = spdlog::level::trace,
-    Debug = spdlog::level::debug,
-    Info = spdlog::level::info,
-    Warn = spdlog::level::warn,
-    Err = spdlog::level::err,
-};
-
-enum class LogFile
-{
-    // Log to FLHook.log & Console
-    Default,
-    // Only log to console
-    ConsoleOnly,
-};
 
 class FLHook;
 class DLL Logger final
 {
+        enum class LogLevel
+        {
+            Trace,
+            Debug,
+            Info,
+            Warn,
+            Err,
+        };
+
         struct LogMessage
         {
                 LogLevel level;
-                LogFile file;
                 std::wstring message;
                 void* retAddress;
         };
@@ -41,7 +29,7 @@ class DLL Logger final
 
         inline static std::jthread commandThread;
         inline static std::jthread loggingThread;
-        inline static moodycamel::ConcurrentQueue<LogMessage> logQueue; // NOLINT
+        inline static moodycamel::ConcurrentQueue<LogMessage> logQueue;       // NOLINT
         inline static moodycamel::ConcurrentQueue<std::wstring> commandQueue; // NOLINT
 
         static std::wstring SetLogSource(void* addr);
@@ -54,8 +42,11 @@ class DLL Logger final
         static void Init();
 
     public:
-        static void Log(LogFile file, LogLevel level, std::wstring_view str);
-        static void Log(LogLevel level, std::wstring_view str);
+        static void Trace(std::wstring_view str);
+        static void Debug(std::wstring_view str);
+        static void Info(std::wstring_view str);
+        static void Warn(std::wstring_view str);
+        static void Err(std::wstring_view str);
 
         static std::optional<std::wstring> GetCommand();
 };

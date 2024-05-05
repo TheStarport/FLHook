@@ -6,7 +6,7 @@
 
 void __stdcall IServerImplHook::JumpInComplete(SystemId systemId, ShipId shipId)
 {
-    Logger::Log(LogLevel::Trace, std::format(L"JumpInComplete(\n\tuint systemId = {}\n\tuint shipId = {}\n)", systemId, shipId));
+    Logger::Trace(std::format(L"JumpInComplete(\n\tuint systemId = {}\n\tuint shipId = {}\n)", systemId, shipId));
 
     if (const auto skip = CallPlugins(&Plugin::OnJumpInComplete, systemId, shipId); !skip)
     {

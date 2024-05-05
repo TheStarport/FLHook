@@ -160,7 +160,7 @@ FLHook::FLHook()
         }
         catch (std::filesystem::filesystem_error& error)
         {
-            Logger::Log(LogLevel::Err, StringUtils::stows(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what())));
+            Logger::Err(StringUtils::stows(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what())));
         }
     }
 
@@ -289,7 +289,7 @@ bool FLHook::OnServerStart()
     {
         UnloadHookExports();
 
-        Logger::Log(LogLevel::Err, StringUtils::stows(err.what()));
+        Logger::Err(StringUtils::stows(err.what()));
         return false;
     }
 
@@ -311,8 +311,7 @@ void FLHook::LoadSettings()
         auto configResult = rfl::json::read<FLHookConfig>(stream);
         if (auto err = configResult.error(); err.has_value())
         {
-            Logger::Log(LogLevel::Warn,
-                        std::format(L"Error while trying to read FLHook.json. Writing new config.\nErrors: {}", StringUtils::stows(err.value().what())));
+            Logger::Warn(std::format(L"Error while trying to read FLHook.json. Writing new config.\nErrors: {}", StringUtils::stows(err.value().what())));
         }
         else
         {
@@ -367,16 +366,15 @@ void FLHook::ProcessPendingCommands()
         try
         {
             const auto response = AdminCommandProcessor::i()->ProcessCommand(cmd.value());
-            Logger::Log(LogFile::ConsoleOnly, LogLevel::Info, response);
+            Logger::Info(response);
         }
         catch (InvalidParameterException& ex)
         {
-            Logger::Log(LogFile::ConsoleOnly, LogLevel::Warn, ex.Msg());
+            Logger::Warn(ex.Msg());
         }
         catch (GameException& ex)
         {
-            // TODO: Log to admin command file
-            Logger::Log(LogFile::ConsoleOnly, LogLevel::Warn, ex.Msg());
+            Logger::Warn(ex.Msg());
         }
         catch (StopProcessingException&)
         {
@@ -385,8 +383,7 @@ void FLHook::ProcessPendingCommands()
         catch (std::exception& ex)
         {
             // Anything else critically log
-            // TODO: Log to error log file
-            Logger::Log(LogFile::ConsoleOnly, LogLevel::Err, StringUtils::stows(ex.what()));
+            Logger::Err(StringUtils::stows(ex.what()));
         }
 
         cmd = Logger::GetCommand();

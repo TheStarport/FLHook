@@ -1214,11 +1214,11 @@ PersonalityHelper::PersonalityHelper()
     INI_Reader ini;
     if (!ini.open(R"(..\DATA\MISSIONS\pilots_population.ini)", false))
     {
-        Logger::Log(LogLevel::Warn, L"Unable to parse pilot_population");
+        Logger::Warn(L"Unable to parse pilot_population");
         return;
     }
 
-    Logger::Log(LogLevel::Info, L"Parsing Pilot Population");
+    Logger::Info(L"Parsing Pilot Population");
 
     while (ini.read_header())
     {
@@ -1292,5 +1292,5 @@ PersonalityHelper::PersonalityHelper()
         }
     }
 
-    Logger::Log(LogLevel::Info, std::format(L"Parsed Pilot Population: {} personalities", pilots.size()));
+    Logger::Info(std::format(L"Parsed Pilot Population: {} personalities", pilots.size()));
 }
