@@ -2,8 +2,9 @@
 
 class DLL AccountId final
 {
-        std::string accountId = "";
+        std::string accountId;
 
+        [[nodiscard]]
         struct ClientData* IsOnline() const;
 
     public:
@@ -13,12 +14,13 @@ class DLL AccountId final
         static std::optional<AccountId> GetAccountFromCharacterName(std::wstring_view characterName);
         static std::optional<AccountId> GetAccountFromAccountId(std::wstring_view accountId);
 
-        bool operator==(AccountId acc) const { return accountId == acc.accountId; }
+        bool operator==(const AccountId& acc) const { return accountId == acc.accountId; }
         explicit operator bool() const;
 
         [[nodiscard]]
         std::string_view GetValue() const;
 
+        [[nodiscard]]
         bool IsAdmin() const;
 
         Action<void, Error> UnBan() const;

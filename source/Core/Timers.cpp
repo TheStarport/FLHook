@@ -64,10 +64,8 @@ void FLHook::PublishServerStats()
         stats.players.emplace_back(player);
     }
 
-    /*
-     * TODO: Restore once wstring support sorted
-     const auto json = rfl::json::write(stats);
-    MessageHandler::i()->Publish(StringUtils::stows(json), std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), L"");*/
+    const auto bson = rfl::bson::write(stats);
+    MessageHandler::i()->Publish(bson.data(), std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), L"");
 }
 
 void FLHook::TimerCheckKick()
@@ -81,7 +79,7 @@ void FLHook::TimerCheckKick()
             {
                 if (time >= client.kickTime)
                 {
-                    client.id.Kick();
+                    (void)client.id.Kick();
                     client.kickTime = 0;
                 }
 
@@ -94,7 +92,7 @@ void FLHook::TimerCheckKick()
                 // anti base-idle check
                 if (client.baseEnterTime && time - client.baseEnterTime >= config.autoKicks.antiBaseIdle)
                 {
-                    client.id.Kick(L"Base idling", 10);
+                    (void)client.id.Kick(L"Base idling", 10);
                     client.baseEnterTime = 0;
                 }
             }
@@ -110,7 +108,7 @@ void FLHook::TimerCheckKick()
                     }
                     else if (time - client.charMenuEnterTime >= config.autoKicks.antiCharMenuIdle)
                     {
-                        client.id.Kick();
+                        (void)client.id.Kick();
                         client.charMenuEnterTime = 0;
                     }
                 }
@@ -143,7 +141,7 @@ void FLHook::TimerNpcAndF1Check()
             {
                 ulong dataArray[64] = { 0 };
                 dataArray[26] = client.id.GetValue();
-                DWORD rcDisconnect = static_cast<DWORD>(AddressList::RcDisconnect);
+                auto rcDisconnect = static_cast<DWORD>(AddressList::RcDisconnect);
                 __asm {
 						pushad
 						lea ecx, dataArray
@@ -158,8 +156,8 @@ void FLHook::TimerNpcAndF1Check()
             }
         }
 
-        const auto& config = FLHook::GetConfig();
-        if (config.general.disableNPCSpawns && instance->serverLoadInMs >= config.general.disableNPCSpawns)
+
+        if (const auto& config = FLHook::GetConfig(); config.general.disableNPCSpawns && instance->serverLoadInMs >= config.general.disableNPCSpawns)
         {
             // TODO: NPC SPAWN TIME!!
             // Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs

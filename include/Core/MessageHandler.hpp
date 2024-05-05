@@ -25,10 +25,10 @@ class MessageHandler final : public AMQP::ConnectionHandler, public Singleton<Me
         std::atomic_bool isInitalizing = true;
         std::jthread runner;
 
-        void onData(AMQP::Connection* connection, const char* data, size_t size) override;
-        void onReady(AMQP::Connection* connection) override;
-        void onError(AMQP::Connection* connection, const char* message) override;
-        void onClosed(AMQP::Connection* connection) override;
+        void onData(AMQP::Connection* conn, const char* data, size_t size) override;
+        void onReady(AMQP::Connection* conn) override;
+        void onError(AMQP::Connection* conn, const char* message) override;
+        void onClosed(AMQP::Connection* conn) override;
 
     public:
         explicit MessageHandler();
@@ -41,8 +41,9 @@ class MessageHandler final : public AMQP::ConnectionHandler, public Singleton<Me
         };
 
         static std::wstring_view QueueToStr(const Queue queue) { return magic_enum::enum_name<Queue>(queue); }
-        void Subscribe(const std::wstring& queue, QueueOnData callback, std::optional<QueueOnFail> onFail = std::nullopt);
-        void Publish(const std::wstring& jsonData, const std::wstring& exchange = L"", const std::wstring& queue = L"") const;
+        void Subscribe(const std::wstring& queue, const QueueOnData& callback, std::optional<QueueOnFail> onFail = std::nullopt);
+        void Publish(bsoncxx::document::view bsonData, const std::wstring& exchange = L"", const std::wstring& queue = L"") const;
+        void Publish(std::string_view bytes, const std::wstring& exchange = L"", const std::wstring& queue = L"") const;
         void DeclareQueue(const std::wstring& queue, int flags = 0) const;
         void DeclareExchange(const std::wstring& exchange, AMQP::ExchangeType type = AMQP::fanout, int flags = 0) const;
 };

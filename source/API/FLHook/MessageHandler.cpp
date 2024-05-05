@@ -59,7 +59,7 @@ MessageHandler::MessageHandler()
     }
 }
 
-void MessageHandler::onData(AMQP::Connection* conn, const char* data, size_t size) { connectHandle->write((char*)data, size); }
+void MessageHandler::onData(AMQP::Connection* conn, const char* data, const size_t size) { connectHandle->write(const_cast<char*>(data), size); }
 
 void MessageHandler::onReady(AMQP::Connection* conn)
 {
@@ -79,7 +79,7 @@ void MessageHandler::onClosed(AMQP::Connection* conn) { std::cout << "closed" <<
 
 MessageHandler::~MessageHandler() = default;
 
-void MessageHandler::Subscribe(const std::wstring& queue, QueueOnData callback, std::optional<QueueOnFail> onFail)
+void MessageHandler::Subscribe(const std::wstring& queue, const QueueOnData& callback, std::optional<QueueOnFail> onFail)
 {
     if (!FLHook::GetConfig().messageQueue.enableQueues || !connectHandle)
     {
@@ -137,8 +137,7 @@ void MessageHandler::Subscribe(const std::wstring& queue, QueueOnData callback, 
                 [this, queue](const char* msg)
                 {
                     Logger::Log(LogLevel::Warn, std::format(L"connection terminated with {} - {}", queue, StringUtils::stows(std::string(msg))));
-                    const auto callbacks = onFailCallbacks.find(queue);
-                    for (const auto& cb : callbacks->second)
+                    for (const auto callbacks = onFailCallbacks.find(queue); const auto& cb : callbacks->second)
                     {
                         cb(msg);
                     }
@@ -174,12 +173,18 @@ void MessageHandler::DeclareExchange(const std::wstring& exchange, const AMQP::E
     channel->declareExchange(StringUtils::wstos(exchange), type, flags);
 }
 
-void MessageHandler::Publish(const std::wstring& jsonData, const std::wstring& exchange, const std::wstring& queue) const
+void MessageHandler::Publish(const std::string_view bytes, const std::wstring& exchange, const std::wstring& queue) const
 {
     if (!channel)
     {
         return;
     }
 
-    channel->publish(StringUtils::wstos(exchange), StringUtils::wstos(queue), StringUtils::wstos(jsonData));
+    channel->publish(StringUtils::wstos(exchange), StringUtils::wstos(queue), bytes);
+}
+
+void MessageHandler::Publish(const bsoncxx::document::view bsonData, const std::wstring& exchange, const std::wstring& queue) const
+{
+    const std::string_view data = {reinterpret_cast<const char*>(bsonData.data()), reinterpret_cast<const char*>(bsonData.data()) + bsonData.length()};
+    Publish(data, exchange, queue);
 }
