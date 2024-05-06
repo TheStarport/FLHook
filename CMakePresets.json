@@ -25,9 +25,9 @@
             "hidden": true
         },
         {
-            "name": "vs2022-debug",
+            "name": "vs2022-debug-core",
             "inherits": "vs2022",
-            "displayName": "VS2022 Debug",
+            "displayName": "VS2022 Debug (Core Only)",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "VCPKG_TARGET_ARCHITECTURE": "x86",
@@ -36,14 +36,48 @@
             }
         },
         {
-            "name": "vs2022-release",
+            "name": "vs2022-release-core",
             "inherits": "vs2022",
-            "displayName": "VS2022 Release",
+            "displayName": "VS2022 Release (Core Only)",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "VCPKG_TARGET_ARCHITECTURE": "x86",
                 "VCPKG_TARGET_TRIPLET": "x86-windows",
                 "CMAKE_MT": "mt"
+            }
+        },
+        {
+            "name": "vs2022-debug-plugins",
+            "inherits": "vs2022-debug-core",
+            "displayName": "VS2022 Debug (Plugins)",
+            "cacheVariables": {
+                "COMPILE_PLUGINS": true
+            }
+        },
+        {
+            "name": "vs2022-release-plugins",
+            "inherits": "vs2022-release-core",
+            "displayName": "VS2022 Release (Plugins)",
+            "cacheVariables": {
+                "COMPILE_PLUGINS": true
+            }
+        },
+        {
+            "name": "vs2022-debug-all",
+            "inherits": "vs2022-debug-core",
+            "displayName": "VS2022 Debug (Plugins)",
+            "cacheVariables": {
+                "COMPILE_PLUGINS": true,
+                "COMPILE_EXAMPLES": true
+            }
+        },
+        {
+            "name": "vs2022-release-all",
+            "inherits": "vs2022-release-core",
+            "displayName": "VS2022 Release (Plugins)",
+            "cacheVariables": {
+                "COMPILE_PLUGINS": true,
+                "COMPILE_EXAMPLES": true
             }
         }
     ]

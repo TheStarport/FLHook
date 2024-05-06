@@ -1,5 +1,6 @@
 set(PLUGIN_NAME AFK)
 set(PLUGIN_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 set(PLUGIN_VERSION 1.0.0)
+set(PLUGIN_IS_EXAMPLE TRUE)
 
-include("${PLUGIN_PATH}/../Plugin.cmake")
+include("${PLUGIN_PATH}/../../Plugin.cmake")
