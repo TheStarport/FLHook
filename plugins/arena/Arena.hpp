@@ -38,7 +38,7 @@ namespace Plugins
                 BaseId returnBase;
             };
 
-            std::unordered_map<ClientId, ArenaClientData> clientData;
+            std::unordered_map<uint, ArenaClientData> clientData;
 
             void UserCmdArena();
             void UserCmdReturn();

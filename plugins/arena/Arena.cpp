@@ -40,10 +40,7 @@ namespace Plugins
     ArenaPlugin::ArenaPlugin(const PluginInfo& info) : Plugin(info) {}
 
     /// Clear client info when a client connects.
-    void ArenaPlugin::OnClearClientInfo(const ClientId client)
-    {
-        clientData[client].flag = TransferFlag::None;
-    }
+    void ArenaPlugin::OnClearClientInfo(const ClientId client) { clientData[client.GetValue()].flag = TransferFlag::None; }
 
     /// Load the configuration
     void ArenaPlugin::OnLoadSettings()
@@ -97,17 +94,14 @@ namespace Plugins
     /** @ingroup Arena
      * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
      */
-    void ArenaPlugin::OnCharacterSelect(const ClientId client, std::wstring_view charFilename)
-    {
-        clientData[client].flag = TransferFlag::None;
-    }
+    void ArenaPlugin::OnCharacterSelect(const ClientId client, std::wstring_view charFilename) { clientData[client.GetValue()].flag = TransferFlag::None; }
 
     /** @ingroup Arena
      * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, redirect the undock to either the arena base or the return point
      */
     void ArenaPlugin::OnPlayerLaunchAfter(ClientId client, ShipId ship)
     {
-        const auto state = clientData[client].flag;
+        const auto state = clientData[client.GetValue()].flag;
         if (state == TransferFlag::Transfer)
         {
             if (!ValidateCargo(client))
@@ -116,7 +110,7 @@ namespace Plugins
                 return;
             }
 
-            clientData[client].flag = TransferFlag::None;
+            clientData[client.GetValue()].flag = TransferFlag::None;
             (void)client.Beam(targetBaseId);
             return;
         }
@@ -129,7 +123,7 @@ namespace Plugins
                 return;
             }
 
-            clientData[client].flag = TransferFlag::None;
+            clientData[client.GetValue()].flag = TransferFlag::None;
             const BaseId returnPoint = ReadReturnPointForClient(client);
 
             if (!returnPoint)
@@ -138,16 +132,16 @@ namespace Plugins
             }
 
             (void)client.Beam(returnPoint);
-            // TODO: Unset in DB
-            // Hk::IniUtils::i()->SetCharacterIni(client, L"conn.retbase", L"0");
         }
     }
     void ArenaPlugin::OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
     {
-        if (const auto data = clientData.find(client); data != clientData.end())
+        int value = 0;
+        if (const auto data = clientData.find(client.GetValue()); data != clientData.end())
         {
-            document.append(bsoncxx::builder::basic::kvp("arenaReturnBase", static_cast<int>(data->second.returnBase.GetValue())));
+            value = static_cast<int>(data->second.returnBase.GetValue());
         }
+        document.append(bsoncxx::builder::basic::kvp("arenaReturnBase", value));
     }
 
     /** @ingroup Arena
@@ -175,9 +169,8 @@ namespace Plugins
             return;
         }
 
-        StoreReturnPointForClient(userCmdClient);
         (void)userCmdClient.Message(L"Redirecting undock to Arena.");
-        clientData[userCmdClient].flag = TransferFlag::Transfer;
+        clientData[userCmdClient.GetValue()].flag = TransferFlag::Transfer;
     }
 
     /** @ingroup Arena
@@ -210,7 +203,7 @@ namespace Plugins
         }
 
         (void)userCmdClient.Message(L"Redirecting undock to previous base");
-        clientData[userCmdClient].flag = TransferFlag::Return;
+        clientData[userCmdClient.GetValue()].flag = TransferFlag::Return;
     }
 } // namespace Plugins
 
@@ -219,4 +212,11 @@ using namespace Plugins;
 DefaultDllMain();
 
 const PluginInfo Info(L"Arena", L"arena", PluginMajorVersion::V04, PluginMinorVersion::V01);
-SetupPlugin(ArenaPlugin, Info);
+__declspec(dllexport) std::shared_ptr<ArenaPlugin> PluginFactory()
+{
+    __pragma(clang diagnostic push);
+    __pragma(clang diagnostic ignored "-Wunknown-pragmas");
+    __pragma("comment(linker, \"/ EXPORT : __FUNCTION__ = __FUNCDNAME__\")");
+    __pragma(clang diagnostic pop);
+    return std::make_shared<ArenaPlugin>(Info);
+};
