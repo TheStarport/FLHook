@@ -14,7 +14,7 @@ RepGroupId::RepGroupId(std::wstring_view nickName)
 Action<std::wstring_view, Error> RepGroupId::GetName() const
 {
     uint ids;
-    if (pub::Reputation::GetGroupName(value, ids) != (int)ResponseCode::Success)
+    if (pub::Reputation::GetGroupName(value, ids) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidRepGroup) };
     }

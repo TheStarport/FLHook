@@ -61,7 +61,7 @@ void __stdcall IServerImplHook::SpRequestInvincibility(ShipId shipId, bool enabl
     Logger::Trace(std::format(L"SPRequestInvincibility(\n\tuint shipId = {}\n\tbool enable = {}\n\tInvincibilityReason reason = {}\n\tClientId client = {}\n)",
                     shipId,
                     enable,
-                    (int)reason,
+                    static_cast<int>(reason),
                     client));
 
     if (const auto skip = CallPlugins(&Plugin::OnSpRequestInvincibility, client, shipId, enable, reason); !skip)

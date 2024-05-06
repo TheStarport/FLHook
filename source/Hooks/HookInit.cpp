@@ -123,7 +123,7 @@ void FLHook::InitHookExports()
     memcpy(&serverPointer, serverPointer, 4);
     for (auto& [proc, remoteAddress, oldProc] : IServerImplHook::entries)
     {
-        char* address = serverPointer + remoteAddress;
+        const auto address = reinterpret_cast<DWORD>(serverPointer + remoteAddress);
         MemUtils::ReadProcMem(address, &oldProc, 4);
         MemUtils::WriteProcMem(address, &proc, 4);
     }
@@ -327,7 +327,7 @@ void FLHook::UnloadHookExports()
         memcpy(&serverAddr, serverAddr, 4);
         for (auto& [proc, remoteAddress, oldProc] : IServerImplHook::entries)
         {
-            const auto address = serverAddr + remoteAddress;
+            const auto address = reinterpret_cast<DWORD>(serverAddr + remoteAddress);
             MemUtils::WriteProcMem(address, &oldProc, 4);
         }
     }

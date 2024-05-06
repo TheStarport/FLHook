@@ -33,6 +33,8 @@
 
 #include "Arena.hpp"
 
+#include "API/FLHook/ClientList.hpp"
+
 namespace Plugins
 {
     ArenaPlugin::ArenaPlugin(const PluginInfo& info) : Plugin(info) {}
@@ -40,7 +42,7 @@ namespace Plugins
     /// Clear client info when a client connects.
     void ArenaPlugin::OnClearClientInfo(const ClientId client)
     {
-        transferFlags[client.GetValue()] = ClientState::None;
+        clientData[client].flag = TransferFlag::None;
     }
 
     /// Load the configuration
@@ -79,23 +81,16 @@ namespace Plugins
     }
 
     /** @ingroup Arena
-     * @brief Stores the return point for the client in their save file (this should be changed).
-     */
-    void ArenaPlugin::StoreReturnPointForClient(ClientId client)
-    {
-        //auto base = client.GetCurrentBase().Handle();
-        // TODO: Save in DB
-        // Hk::IniUtils::i()->SetCharacterIni(client, L"conn.retbase", std::to_wstring(base));
-    }
-
-    /** @ingroup Arena
      * @brief This returns the return base id that is stored in the client's save file.
      */
     BaseId ArenaPlugin::ReadReturnPointForClient(ClientId client)
     {
-        // TODO: Read from DB
-        // TODO: Validate base in DB still exists
-        // return StringUtils::Cast<uint>(Hk::IniUtils::i()->GetCharacterIni(client, L"conn.retbase"));
+        const auto view = client.GetData().GetCharacterData();
+        if (auto returnBase = view.find("arenaReturnBase"); returnBase != view.end())
+        {
+            return BaseId{ static_cast<uint>(returnBase->get_int32()) };
+        }
+
         return BaseId();
     }
 
@@ -104,7 +99,7 @@ namespace Plugins
      */
     void ArenaPlugin::OnCharacterSelect(const ClientId client, std::wstring_view charFilename)
     {
-        transferFlags[client.GetValue()] = ClientState::None;
+        clientData[client].flag = TransferFlag::None;
     }
 
     /** @ingroup Arena
@@ -112,8 +107,8 @@ namespace Plugins
      */
     void ArenaPlugin::OnPlayerLaunchAfter(ClientId client, ShipId ship)
     {
-        auto state = transferFlags[client.GetValue()];
-        if (state == ClientState::Transfer)
+        const auto state = clientData[client].flag;
+        if (state == TransferFlag::Transfer)
         {
             if (!ValidateCargo(client))
             {
@@ -121,12 +116,12 @@ namespace Plugins
                 return;
             }
 
-            transferFlags[client.GetValue()] = ClientState::None;
+            clientData[client].flag = TransferFlag::None;
             (void)client.Beam(targetBaseId);
             return;
         }
 
-        if (state == ClientState::Return)
+        if (state == TransferFlag::Return)
         {
             if (!ValidateCargo(client))
             {
@@ -134,7 +129,7 @@ namespace Plugins
                 return;
             }
 
-            transferFlags[client.GetValue()] = ClientState::None;
+            clientData[client].flag = TransferFlag::None;
             const BaseId returnPoint = ReadReturnPointForClient(client);
 
             if (!returnPoint)
@@ -147,10 +142,13 @@ namespace Plugins
             // Hk::IniUtils::i()->SetCharacterIni(client, L"conn.retbase", L"0");
         }
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // USER COMMANDS
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void ArenaPlugin::OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
+    {
+        if (const auto data = clientData.find(client); data != clientData.end())
+        {
+            document.append(bsoncxx::builder::basic::kvp("arenaReturnBase", static_cast<int>(data->second.returnBase.GetValue())));
+        }
+    }
 
     /** @ingroup Arena
      * @brief Used to switch to the arena system
@@ -179,7 +177,7 @@ namespace Plugins
 
         StoreReturnPointForClient(userCmdClient);
         (void)userCmdClient.Message(L"Redirecting undock to Arena.");
-        transferFlags[userCmdClient.GetValue()] = ClientState::Transfer;
+        clientData[userCmdClient].flag = TransferFlag::Transfer;
     }
 
     /** @ingroup Arena
@@ -212,7 +210,7 @@ namespace Plugins
         }
 
         (void)userCmdClient.Message(L"Redirecting undock to previous base");
-        transferFlags[userCmdClient.GetValue()] = ClientState::Return;
+        clientData[userCmdClient].flag = TransferFlag::Return;
     }
 } // namespace Plugins
 

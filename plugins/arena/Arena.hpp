@@ -7,7 +7,7 @@ namespace Plugins
     class ArenaPlugin final : public Plugin, public AbstractUserCommandProcessor
     {
             //! This plugin can communicate with the base plugin if loaded.
-            enum class ClientState
+            enum class TransferFlag
             {
                 None,
                 Transfer,
@@ -32,7 +32,13 @@ namespace Plugins
             SystemId targetSystemId;
             std::vector<SystemId> restrictedSystems;
 
-            std::array<ClientState, MaxClientId + 1> transferFlags = {};
+            struct ArenaClientData
+            {
+                TransferFlag flag;
+                BaseId returnBase;
+            };
+
+            std::unordered_map<ClientId, ArenaClientData> clientData;
 
             void UserCmdArena();
             void UserCmdReturn();
@@ -51,6 +57,7 @@ namespace Plugins
             void OnLoadSettings() override;
             void OnCharacterSelect(ClientId client, std::wstring_view charFilename) override;
             void OnPlayerLaunchAfter(ClientId client, [[maybe_unused]] ShipId ship) override;
+            void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
 
             static BaseId ReadReturnPointForClient(ClientId client);
             static bool ValidateCargo(ClientId client);

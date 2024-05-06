@@ -3,6 +3,8 @@
 #include "rfl/bson.hpp"
 
 #include <bsoncxx/oid.hpp>
+#include <bsoncxx/builder/basic/document.hpp>
+
 #include <API/Utils/Reflection.hpp>
 
 // Cargo is a namespace in Freelancer, appended with FL to avoid name conflicts
@@ -39,20 +41,20 @@ struct TradeLaneException
 struct RumorData
 {
 	int rumorIds;
-	int unk;
+	int priority;
 };
 
 struct Character
 {
-	std::optional<bson_oid_t> _id;
+	std::optional<bsoncxx::oid> _id;
 	std::string accountId;
 	std::string characterName;
 	int money = 0;
 	int rank = 0;
 	int affiliation = 0;
 	std::optional<std::string> repGroup;
-	std::optional<Vector> pos;
-	std::optional<Vector> rot;
+	Vector pos;
+	Vector rot;
 	std::string voice;
 	int interfaceState = 0;
 	float hullStatus = 1.f;
@@ -92,4 +94,8 @@ struct Character
 	std::vector<int> jumpHolesVisited;
 	std::vector<RumorData> rumorsReceived;
 	std::unordered_map<int, std::vector<std::string>> weaponGroups;
+
+    void ToBson(bsoncxx::builder::basic::document& document) const;
+    explicit Character(bsoncxx::document::view view);
+    Character() = default;
 };

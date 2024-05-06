@@ -1,6 +1,6 @@
 #pragma once
 
-#include "API/FlHook/Plugin.hpp"
+#include "API/FLHook/Plugin.hpp"
 #include "FLHook.hpp"
 
 #ifdef FLHOOK

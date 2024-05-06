@@ -1,13 +1,16 @@
+#include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
 #include "PCH.hpp"
+
 #include <API/FLHook/AccountManager.hpp>
 #include <Defs/Database/Account.hpp>
 #include <mongocxx/exception/error_code.hpp>
 #include <mongocxx/exception/write_exception.hpp>
 
-bool AccountManager::SaveCharacter(Character& newCharacter, const bool isNewCharacter)
+bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, const bool isNewCharacter)
 {
     using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_array;
     using bsoncxx::builder::basic::make_document;
 
     const auto db = FLHook::GetDbClient();
@@ -28,27 +31,27 @@ bool AccountManager::SaveCharacter(Character& newCharacter, const bool isNewChar
             }
         }
 
-        // Upsert Character
-        auto bsonBytes = rfl::bson::write(newCharacter);
-        bsoncxx::document::view savedCharDoc{ reinterpret_cast<uint8_t*>(bsonBytes.data()), bsonBytes.size() };
+        auto wideCharacterName = StringUtils::stows(newCharacter.characterName);
+        bsoncxx::builder::basic::document document;
+        newCharacter.ToBson(document);
+
+        CallPlugins(&Plugin::OnCharacterSave, client, wideCharacterName, document);
 
         // Update account character list if new character
         if (isNewCharacter)
         {
-            auto insertedDoc = accounts.insert_one(savedCharDoc);
+            auto insertedDoc = accounts.insert_one(document.view());
 
             if (!insertedDoc.has_value())
             {
                 throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Unable to upsert a character.");
             }
-            bson_oid_t charOid;
-            memcpy_s(charOid.bytes, sizeof(charOid.bytes), insertedDoc->inserted_id().get_oid().value.bytes(), bsoncxx::v_noabi::oid::k_oid_length);
 
-            newCharacter._id = charOid;
+            newCharacter._id = insertedDoc->inserted_id().get_oid().value;
             const auto findAccDoc = make_document(kvp("_id", newCharacter.accountId));
             const auto charUpdateDoc = make_document(kvp("$push", make_document(kvp("characters", insertedDoc->inserted_id()))));
-            auto updateResult = accounts.update_one(findAccDoc.view(), charUpdateDoc.view());
-            if (!updateResult.has_value() || updateResult.value().modified_count() == 0)
+            if (const auto updateResult = accounts.update_one(findAccDoc.view(), charUpdateDoc.view());
+                !updateResult.has_value() || updateResult.value().modified_count() == 0)
             {
                 throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
                                                 "Updating account during character creation failed.");
@@ -56,14 +59,16 @@ bool AccountManager::SaveCharacter(Character& newCharacter, const bool isNewChar
         }
         else
         {
-            auto updateDoc = make_document(kvp("$set", savedCharDoc));
-            auto updateResult = accounts.update_one(findCharDoc.view(), updateDoc.view());
-            if (!updateResult.has_value())
+            const auto updateDoc = make_document(kvp("$set", document.view()));
+            if (const auto updateResult = accounts.update_one(findCharDoc.view(), updateDoc.view()); !updateResult.has_value())
             {
                 throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Updating character failed.");
             }
         }
         session.commit_transaction();
+
+        client.GetData().characterData = document.extract();
+
         return true;
     }
     catch (bsoncxx::exception& ex)
@@ -122,8 +127,8 @@ bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring c
         auto oid = ret->view()["_id"].get_oid();
         const auto findAcc = make_document(kvp("_id", ret->view()["accountId"].get_string()));
         const auto deleteCharacter = make_document(kvp("$pull", make_document(kvp("characters", oid))));
-        auto deleteResult = accountsCollection.update_one(findAcc.view(), deleteCharacter.view());
-        if (!deleteResult.has_value() || deleteResult.value().modified_count() == 0)
+        if (auto deleteResult = accountsCollection.update_one(findAcc.view(), deleteCharacter.view());
+            !deleteResult.has_value() || deleteResult.value().modified_count() == 0)
         {
             throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
                                             "Removing of character id from account failed.");
@@ -171,47 +176,35 @@ void AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
         if (!accountBson.has_value())
         {
             // Create a new account with the provided ID
-            account = { accId };
-            auto bytes = rfl::bson::write(account);
-            bsoncxx::document::view doc{ reinterpret_cast<uint8_t*>(bytes.data()), bytes.size() };
+            account = { };
+            account._id = accId;
 
-            accountsCollection.insert_one(doc);
+            bsoncxx::builder::basic::document document;
+            account.ToBson(document);
+
+            accountsCollection.insert_one(document.view());
             session.commit_transaction();
             accounts[client.GetValue()].loginSuccess = true;
         }
         else
         {
             auto& accountRaw = accountBson.value();
-            auto acc = rfl::bson::read<Account>(accountRaw.view().data(), accountRaw.view().length());
-            if (acc.error().has_value())
-            {
-                Logger::Err(std::format(L"Unable to read account: {}", wideAccountId));
-                session.abort_transaction();
-                return;
-            }
-            account = acc.value();
+            account = Account{ accountRaw.view() };
         }
 
         // Convert vector to bson array
         auto idArr = bsoncxx::builder::basic::array{};
-        for (auto& [bytes] : account.characters)
+        for (auto& id : account.characters)
         {
-            idArr.append(bsoncxx::oid(reinterpret_cast<const char*>(bytes), bsoncxx::oid::size()));
+            idArr.append(id);
         }
 
-        bsoncxx::v_noabi::builder::basic::make_document();
         // Get all documents that are in the provided array
-        auto filter = make_document(kvp("_id", make_document(kvp("$in", idArr))));
+        const auto filter = make_document(kvp("_id", make_document(kvp("$in", idArr))));
 
-        for (auto cursor = accountsCollection.find(filter.view()); auto doc : cursor)
+        for (auto cursor = accountsCollection.find(filter.view()); const auto doc : cursor)
         {
-            auto characterResult = rfl::bson::read<Character>(doc.data(), doc.length());
-            if (characterResult.error().has_value())
-            {
-                Logger::Err(std::format(L"Error when loading a character: {}", StringUtils::stows(characterResult.error().value().what())));
-                session.abort_transaction();
-            }
-            auto character = characterResult.value();
+            auto character = Character{doc};
             if (character.characterName.empty())
             {
                 Logger::Err(std::format(L"Error when reading character name for account: {}", wideAccountId));

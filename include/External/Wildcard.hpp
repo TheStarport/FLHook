@@ -36,7 +36,7 @@ public:
 					wildcard--;
 					break;
 				default:
-					fit = (int)(*wildcard == *test);
+					fit = static_cast<int>(*wildcard == *test);
 					test++;
 			}
 		}

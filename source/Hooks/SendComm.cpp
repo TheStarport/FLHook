@@ -25,13 +25,13 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
         constexpr DWORD formationOffset = 0x6fb7524 + 25 - 0x6ea0000;
 
         //const auto playerFactionAddr = PVOID(content + factionOffset);
-        const auto playerNumber1 = PVOID(content + numberOffset1);
-        const auto playerNumber2 = PVOID(content + numberOffset2);
+        const auto playerNumber1 = content + numberOffset1;
+        const auto playerNumber2 = content + numberOffset2;
         const auto playerFormation = PCHAR(content + formationOffset);
 
         if (!config.callsign.disableRandomisedFormations)
         {
-            *(int*)(num1RewriteBytes.data() + 1) = ci.formationNumber1;
+            *reinterpret_cast<int*>(num1RewriteBytes.data() + 1) = ci.formationNumber1;
             MemUtils::WriteProcMem(playerNumber1, num1RewriteBytes.data(), num1RewriteBytes.size());
             MemUtils::WriteProcMem(playerNumber2, &ci.formationNumber2, 1);
             DWORD _;

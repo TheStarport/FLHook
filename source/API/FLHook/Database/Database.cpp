@@ -110,13 +110,5 @@ std::optional<Character> Database::GetCharacterById(bsoncxx::oid objId)
     }
 
     const auto& doc = charDocOpt.value();
-    auto character = rfl::bson::read<Character>(doc.data(), doc.length());
-
-    if (character.error().has_value())
-    {
-        // TODO: Log error
-        return std::nullopt;
-    }
-
-    return character.value();
+    return Character{ doc };
 }

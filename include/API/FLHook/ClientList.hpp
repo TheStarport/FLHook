@@ -4,6 +4,8 @@
 
 struct ClientData
 {
+        friend AccountManager;
+
         ClientId id;
         Account* account = nullptr;
         std::wstring_view characterName{};
@@ -78,6 +80,11 @@ struct ClientData
 
         ClientData(const ClientData&) = delete;
         ClientData(const ClientData&&) = delete;
+
+    private:
+        bsoncxx::document::view_or_value characterData;
+    public:
+        bsoncxx::document::view GetCharacterData() const { return characterData.view(); }
 };
 
 class IServerImplHook;

@@ -427,7 +427,7 @@ void UserCommandProcessor::InvitePlayer(const std::wstring_view& characterName)
     CHAT_ID chatId;
     chatId.id = userCmdClient.GetValue();
     CHAT_ID chatIdTo;
-    chatIdTo.id = (int)SpecialChatIds::System;
+    chatIdTo.id = static_cast<int>(SpecialChatIds::System);
     Server.SubmitChat(chatId, retVal, buf.data(), chatIdTo, -1);
 }
 

@@ -551,7 +551,7 @@ Action<void, Error> ClientId::MarkObject(uint objId, int markStatus) const
     ClientCheck;
     CharSelectCheck;
 
-    if (pub::Player::MarkObj(value, objId, markStatus) != (int)ResponseCode::Success)
+    if (pub::Player::MarkObj(value, objId, markStatus) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidInput) };
     }

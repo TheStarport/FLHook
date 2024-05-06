@@ -5,7 +5,7 @@
 struct Account
 {
         std::string _id;
-        std::vector<bson_oid_t> characters;
+        std::vector<bsoncxx::oid> characters;
         bool banned = false;
         std::optional<int64> scheduledUnbanDate = 0;
         int64 cash = 0;
@@ -15,4 +15,8 @@ struct Account
         std::optional<std::vector<byte>> salt;
         std::optional<std::string> username;
         std::optional<std::string> passwordHash;
+
+        Account() = default;
+        explicit Account(bsoncxx::document::view view);
+        void ToBson(bsoncxx::builder::basic::document& document) const;
 };

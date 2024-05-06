@@ -18,7 +18,7 @@ Action<CShipPtr, Error> ShipId::GetCShip(bool increment)
 Action<Archetype::Ship*, Error> ShipId::GetShipArchetype()
 {
     uint archId;
-    if (pub::SpaceObj::GetArchetypeID(value, archId) != (int)ResponseCode::Success)
+    if (pub::SpaceObj::GetArchetypeID(value, archId) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidSpaceObjId) };
     }
@@ -51,7 +51,7 @@ Action<float, Error> ShipId::GetShields(bool percentage)
 {
     float currentShield, maxShield;
     bool shieldUp;
-    if (pub::SpaceObj::GetShieldHealth(value, currentShield, maxShield, shieldUp) != (int)ResponseCode::Success)
+    if (pub::SpaceObj::GetShieldHealth(value, currentShield, maxShield, shieldUp) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidSpaceObjId) };
     }

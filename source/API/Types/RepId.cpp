@@ -19,7 +19,7 @@ RepId::operator bool() const { return value != 0; }
 Action<RepGroupId, Error> RepId::GetAffiliation() const
 {
     uint group;
-    if (pub::Reputation::GetAffiliation(value, group) != (int)ResponseCode::Success)
+    if (pub::Reputation::GetAffiliation(value, group) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::NoAffiliation) };
     }
@@ -30,7 +30,7 @@ Action<RepGroupId, Error> RepId::GetAffiliation() const
 Action<float, Error> RepId::GetAttitudeTowardsRepId(const RepId &target) const
 {
     float ret;
-    if (pub::Reputation::GetAttitude(value, target.value, ret) != (int)ResponseCode::Success)
+    if (pub::Reputation::GetAttitude(value, target.value, ret) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidReputation) };
     }
@@ -41,7 +41,7 @@ Action<float, Error> RepId::GetAttitudeTowardsRepId(const RepId &target) const
 Action<float, Error> RepId::GetAttitudeTowardsFaction(const RepGroupId &group) const
 {
     float ret;
-    if (pub::Reputation::GetGroupFeelingsTowards(value, group.GetValue(), ret) != (int)ResponseCode::Success)
+    if (pub::Reputation::GetGroupFeelingsTowards(value, group.GetValue(), ret) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidReputation) };
     }
@@ -52,7 +52,7 @@ Action<float, Error> RepId::GetAttitudeTowardsFaction(const RepGroupId &group) c
 Action<int, Error> RepId::GetRank() const
 {
     float ret;
-    if (pub::Reputation::GetRank(value, ret) != (int)ResponseCode::Success)
+    if (pub::Reputation::GetRank(value, ret) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidReputation) };
     }
@@ -63,7 +63,7 @@ Action<int, Error> RepId::GetRank() const
 Action<std::pair<FmtStr, FmtStr>, Error> RepId::GetName() const
 {
     FmtStr pilot, scanner;
-    if (pub::Reputation::GetName(value, pilot, scanner) != (int)ResponseCode::Success)
+    if (pub::Reputation::GetName(value, pilot, scanner) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidReputation) };
     }

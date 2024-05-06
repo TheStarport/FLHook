@@ -153,7 +153,7 @@ class AccountManager
         AccountManager();
 
     public:
-        static bool SaveCharacter(Character& newCharacter, bool isNewCharacter);
+        static bool SaveCharacter(ClientId client, Character& newCharacter, bool isNewCharacter);
         static void OnCreateNewCharacterCopy(PlayerData* data, SCreateCharacterInfo characterInfo);
         static bool DeleteCharacter(ClientId clientId, std::wstring characterCode);
         static void Login(const std::wstring& wideAccountId, ClientId client);

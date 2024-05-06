@@ -130,13 +130,13 @@ Action<std::vector<uint>, Error> BaseId::GetItemsForSale() const
 Action<float, Error> BaseId::GetCommodityPrice(GoodId goodId) const
 {
     float nomPrice;
-    if (pub::Market::GetNominalPrice(goodId, nomPrice) != (int)ResponseCode::Success)
+    if (pub::Market::GetNominalPrice(goodId, nomPrice) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidGood) };
     }
 
     float price;
-    if (pub::Market::GetPrice(value, goodId, price) != (int)ResponseCode::Success)
+    if (pub::Market::GetPrice(value, goodId, price) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidBase) };
     }

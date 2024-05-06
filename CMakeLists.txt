@@ -17,7 +17,7 @@ endif()
 include("Dependencies.cmake")
 
 # Ensure reflect-cpp doesn't fail with complex structs
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /clang:-ftemplate-depth=2048 /clang:-fconstexpr-depth=2048 /clang:-fconstexpr-steps=80000 /EHa")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /EHa")
 
 set(SOURCE_PATH "${PROJECT_SOURCE_DIR}/source" )
 set(FLHOOK_COPY_PATH "$ENV{FLHOOK_COPY_PATH}" )
@@ -62,6 +62,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         "NOMINMAX;"
         "SERVER;"
         "FLHOOK;"
+        "REFLECT_CPP_NO_C_ARRAYS_OR_INHERITANCE;"
 )
 
 macro(SET_POST_BUILD CUR_TARGET)

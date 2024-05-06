@@ -43,6 +43,7 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE
         "USE_GLM;"
         "NOMINMAX;"
         "SERVER;"
+        "REFLECT_CPP_NO_C_ARRAYS_OR_INHERITANCE;"
 )
 
 target_dependencies(${PLUGIN_NAME})

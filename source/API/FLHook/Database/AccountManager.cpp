@@ -33,9 +33,8 @@ void ConvertCharacterToVanillaData(CharacterData* data, const Character& charact
     data->baseCostume = character.baseCostume;
     data->commCostume = character.commCostume;
 
-    Vector vec = { 0.0f, 0.0f, 0.0f };
-    data->pos = character.pos.value_or(vec);
-    data->rot = EulerMatrix(character.rot.value_or(vec));
+    data->pos = character.pos;
+    data->rot = EulerMatrix(character.rot);
 
     for (const auto [factionHash, rep] : character.reputation)
     {
@@ -534,7 +533,7 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
     ConvertVanillaDataToCharacter(loadData, character);
     character.accountId = account.account._id;
 
-    bool creationSuccessful = SaveCharacter(character, true);
+    bool creationSuccessful = SaveCharacter(ClientId(data->clientId), character, true);
     CreateNewCharacterCallback(*characterInfo, ClientId(data->clientId), creationSuccessful);
     return creationSuccessful;
 }
@@ -791,7 +790,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     auto* characterData = *pd->characterMap.find(pd->charFile.charFilename);
     ConvertCharacterToVanillaData(&characterData->data, character, pd->clientId);
 
-    TaskScheduler::Schedule(std::bind(SaveCharacter, character, false));
+    TaskScheduler::Schedule(std::bind(SaveCharacter, client.id, character, false));
     return true;
 }
 

@@ -161,12 +161,12 @@ Action<void, Error> SystemId::PlaySoundOrMusic(const std::wstring& trackNickName
         {
             if (isMusic)
             {
-                if (pub::Audio::SetMusic(client.GetValue(), sound) != (int)ResponseCode::Success)
+                if (pub::Audio::SetMusic(client.GetValue(), sound) != static_cast<int>(ResponseCode::Success))
                 {
                     return { cpp::fail(Error::InvalidSoundId) };
                 }
             }
-            else if (pub::Audio::PlaySoundEffect(client.GetValue(), id) != (int)ResponseCode::Success)
+            else if (pub::Audio::PlaySoundEffect(client.GetValue(), id) != static_cast<int>(ResponseCode::Success))
             {
                 return { cpp::fail(Error::InvalidSoundId) };
             }
@@ -182,12 +182,12 @@ Action<void, Error> SystemId::PlaySoundOrMusic(const std::wstring& trackNickName
         {
             if (isMusic)
             {
-                if (pub::Audio::SetMusic(client.GetValue(), sound) != (int)ResponseCode::Success)
+                if (pub::Audio::SetMusic(client.GetValue(), sound) != static_cast<int>(ResponseCode::Success))
                 {
                     return { cpp::fail(Error::InvalidSoundId) };
                 }
 
-                if (pub::Audio::PlaySoundEffect(client.GetValue(), id) != (int)ResponseCode::Success)
+                if (pub::Audio::PlaySoundEffect(client.GetValue(), id) != static_cast<int>(ResponseCode::Success))
                 {
                     return { cpp::fail(Error::InvalidSoundId) };
                 }
