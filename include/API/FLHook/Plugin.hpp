@@ -167,7 +167,7 @@ class DLL Plugin
         Aft(void, OnCharacterSelect, (ClientId client, std::wstring_view id));
         Aft(void, OnCharacterCreation, (ClientId client, const SCreateCharacterInfo& info));
         Aft(void, OnCharacterDelete, (ClientId client, std::wstring_view charName));
-        virtual void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) {};
+        virtual void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document){};
         Aft(void, OnRequestShipArch, (ClientId client, ArchId arch));
         Aft(void, OnRequestHullStatus, (ClientId client, float status));
         Aft(void, OnRequestCollisionGroups, (ClientId client, const st6::list<CollisionGroupDesc>& groups));
@@ -273,19 +273,11 @@ class DLL PacketInterface
 
 #undef Aft
 
-#define API_ALIAS_NESTED_3(part) __pragma(#part)
-#define API_ALIAS_NESTED_2(part) API_ALIAS_NESTED_3(comment(linker, part))
-#define API_ALIAS_NESTED_1(part) API_ALIAS_NESTED_2(#part)
-#define API_ALIAS(alias, func)   API_ALIAS_NESTED_1(/ EXPORT : alias = func)
-
-#define SetupPlugin(type, info)                        \
-    EXPORT std::shared_ptr<type> PluginFactory()       \
-    {                                                  \
-        __pragma(clang diagnostic push);               \
-        __pragma(clang diagnostic ignored "-Wunknown-pragmas"); \
-        API_ALIAS(__FUNCTION__, __FUNCDNAME__);        \
-        __pragma(clang diagnostic pop);                \
-        return std::make_shared<type>(info);           \
+#define SetupPlugin(type, info)                                               \
+    EXPORT std::shared_ptr<type> PluginFactory()                              \
+    {                                                                         \
+        __pragma(comment(linker, "/EXPORT:" __FUNCTION__ "=" __FUNCDNAME__)); \
+        return std::move(std::make_shared<type>(info));                       \
     }
 
 #define AddPluginTimer(func, time) AddTimer(static_cast<void (Plugin::*)()>(func), time)

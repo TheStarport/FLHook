@@ -2,9 +2,9 @@
 
 #include "Core/ClientServerInterface.hpp"
 
-#pragma clang diagnostic push
+//#pragma clang diagnostic push
 // We overwrite the vtable and then call the original, clang (rightfully) sees that infinite recursion
-#pragma clang diagnostic ignored "-Weverything"
+//#pragma clang diagnostic ignored "-Weverything"
 // Existing Freelancer symbols force us to use bad naming practices. Damn you DA.
 
 bool IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint client, XFireWeaponInfo& fwi)
@@ -1628,4 +1628,4 @@ bool IClientImpl::DispatchMsgs()
     return true;
 }
 
-#pragma clang diagnostic pop
+//#pragma clang diagnostic pop

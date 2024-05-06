@@ -212,11 +212,4 @@ using namespace Plugins;
 DefaultDllMain();
 
 const PluginInfo Info(L"Arena", L"arena", PluginMajorVersion::V04, PluginMinorVersion::V01);
-__declspec(dllexport) std::shared_ptr<ArenaPlugin> PluginFactory()
-{
-    __pragma(clang diagnostic push);
-    __pragma(clang diagnostic ignored "-Wunknown-pragmas");
-    __pragma("comment(linker, \"/ EXPORT : __FUNCTION__ = __FUNCDNAME__\")");
-    __pragma(clang diagnostic pop);
-    return std::make_shared<ArenaPlugin>(Info);
-};
+SetupPlugin(ArenaPlugin, Info);
