@@ -1,4 +1,4 @@
-from shutil import copy2
+from shutil import copy2, copytree, rmtree
 import os
 from argparse import ArgumentParser, ArgumentError
 
@@ -20,8 +20,9 @@ print("Copying files from {0} to {1}".format(args.bin, copy_path))
 dirs = [d for d in os.listdir(args.bin)]
 for src in dirs:
     joined = os.path.join(args.bin, src)
-    if not src.endswith(".dll") or not os.path.isfile(joined):
-        continue
-
-    print("Copying {0} to {1}".format(src, joined))
-    copy2(joined, copy_path)
+    dest = os.path.join(copy_path, src)
+    print("Copying {0} to {1}".format(src, dest))
+    if os.path.isdir(joined):
+        copytree(joined, dest, False, None, dirs_exist_ok=True)
+    else:
+        copy2(joined, copy_path)
