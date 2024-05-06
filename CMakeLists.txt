@@ -17,7 +17,7 @@ endif()
 include("Dependencies.cmake")
 
 # Ensure reflect-cpp doesn't fail with complex structs
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /EHa")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /EHa /cgthreads8")
 
 set(SOURCE_PATH "${PROJECT_SOURCE_DIR}/source" )
 set(FLHOOK_COPY_PATH "$ENV{FLHOOK_COPY_PATH}" )
