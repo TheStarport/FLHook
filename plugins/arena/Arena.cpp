@@ -31,35 +31,39 @@
  */
 #include "PCH.hpp"
 
-#include "API/API.hpp"
 #include "Arena.hpp"
-#include "FLHook.hpp"
 
 namespace Plugins
 {
+    ArenaPlugin::ArenaPlugin(const PluginInfo& info) : Plugin(info) {}
 
     /// Clear client info when a client connects.
-    void Arena::ClearClientInfo(ClientId& client) { transferFlags[client] = ClientState::None; }
+    void ArenaPlugin::OnClearClientInfo(const ClientId client)
+    {
+        transferFlags[client.GetValue()] = ClientState::None;
+    }
 
     /// Load the configuration
-    void Arena::LoadSettings() { config = Serializer::LoadFromJson<Config>(L"config/arena.json"); }
-
-    /** @ingroup Arena
-     * @brief Returns true if the client is docked, returns false otherwise.
-     */
-    bool IsDockedClient(unsigned int client) { return Hk::Player::GetCurrentBase(client).Unwrap(); }
+    void ArenaPlugin::OnLoadSettings()
+    {
+        if (const auto conf = Json::Load<Config>("config/arena.json"); !conf.has_value())
+        {
+            Json::Save(config, "config/arena.json");
+        }
+        else
+        {
+            config = conf.value();
+        }
+    }
 
     /** @ingroup Arena
      * @brief Returns true if the client doesn't hold any commodities, returns false otherwise. This is to prevent people using the arena system as a trade
      * shortcut.
      */
-    bool ValidateCargo(ClientId& client)
+    bool ArenaPlugin::ValidateCargo(ClientId client)
     {
-        int holdSize = 0;
-
-        const auto cargo = Hk::Player::EnumCargo(client, holdSize).Handle();
-
-        for (const auto& item : cargo)
+        int remainingHoldSize;
+        for (const auto cargo = client.EnumCargo(remainingHoldSize).Handle(); const auto& item : cargo)
         {
             bool flag = false;
             pub::IsCommodity(item.archId, flag);
@@ -77,89 +81,70 @@ namespace Plugins
     /** @ingroup Arena
      * @brief Stores the return point for the client in their save file (this should be changed).
      */
-    void StoreReturnPointForClient(unsigned int client)
+    void ArenaPlugin::StoreReturnPointForClient(ClientId client)
     {
-        // It's not docked at a custom base, check for a regular base
-        auto base = Hk::Player::GetCurrentBase(client).Handle();
-
-        Hk::IniUtils::i()->SetCharacterIni(client, L"conn.retbase", std::to_wstring(base));
+        //auto base = client.GetCurrentBase().Handle();
+        // TODO: Save in DB
+        // Hk::IniUtils::i()->SetCharacterIni(client, L"conn.retbase", std::to_wstring(base));
     }
 
     /** @ingroup Arena
      * @brief This returns the return base id that is stored in the client's save file.
      */
-    unsigned int ReadReturnPointForClient(unsigned int client) { return StringUtils::Cast<uint>(Hk::IniUtils::i()->GetCharacterIni(client, L"conn.retbase")); }
-
-    /** @ingroup Arena
-     * @brief Move the specified client to the specified base.
-     */
-    void MoveClient(unsigned int client, unsigned int targetBase)
+    BaseId ArenaPlugin::ReadReturnPointForClient(ClientId client)
     {
-        // Ask that another plugin handle the beam.
-        // if (global->baseCommunicator && global->baseCommunicator->CustomBaseBeam(client, targetBase))
-        //	return;
-
-        // No plugin handled it, do it ourselves.
-        SystemId system = Hk::Player::GetSystem(client).Unwrap();
-        const Universe::IBase* base = Universe::get_base(targetBase);
-
-        Hk::Player::Beam(client, targetBase);
-    }
-
-    /** @ingroup Arena
-     * @brief Checks the client is in the specified base. Returns true is so, returns false otherwise.
-     */
-    bool CheckReturnDock(unsigned int client, unsigned int target)
-    {
-        if (auto base = Hk::Player::GetCurrentBase(client); base.Unwrap() == target)
-        {
-            return true;
-        }
-
-        return false;
+        // TODO: Read from DB
+        // TODO: Validate base in DB still exists
+        // return StringUtils::Cast<uint>(Hk::IniUtils::i()->GetCharacterIni(client, L"conn.retbase"));
+        return BaseId();
     }
 
     /** @ingroup Arena
      * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
      */
-    void Arena::CharacterSelect([[maybe_unused]] const std::string& charFilename, ClientId& client) { transferFlags[client] = ClientState::None; }
+    void ArenaPlugin::OnCharacterSelect(const ClientId client, std::wstring_view charFilename)
+    {
+        transferFlags[client.GetValue()] = ClientState::None;
+    }
 
     /** @ingroup Arena
      * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, redirect the undock to either the arena base or the return point
      */
-    void Arena::PlayerLaunch_AFTER([[maybe_unused]] const uint& ship, ClientId& client)
+    void ArenaPlugin::OnPlayerLaunchAfter(ClientId client, ShipId ship)
     {
-        if (transferFlags[client] == ClientState::Transfer)
+        auto state = transferFlags[client.GetValue()];
+        if (state == ClientState::Transfer)
         {
             if (!ValidateCargo(client))
             {
-                client.Message(cargoErrorText);
+                (void)client.Message(cargoErrorText);
                 return;
             }
 
-            transferFlags[client] = ClientState::None;
-            MoveClient(client, targetBaseId);
+            transferFlags[client.GetValue()] = ClientState::None;
+            (void)client.Beam(targetBaseId);
             return;
         }
 
-        if (transferFlags[client] == ClientState::Return)
+        if (state == ClientState::Return)
         {
             if (!ValidateCargo(client))
             {
-                client.Message(cargoErrorText);
+                (void)client.Message(cargoErrorText);
                 return;
             }
 
-            transferFlags[client] = ClientState::None;
-            const unsigned int returnPoint = ReadReturnPointForClient(client);
+            transferFlags[client.GetValue()] = ClientState::None;
+            const BaseId returnPoint = ReadReturnPointForClient(client);
 
             if (!returnPoint)
             {
                 return;
             }
 
-            MoveClient(client, returnPoint);
-            Hk::IniUtils::i()->SetCharacterIni(client, L"conn.retbase", L"0");
+            (void)client.Beam(returnPoint);
+            // TODO: Unset in DB
+            // Hk::IniUtils::i()->SetCharacterIni(client, L"conn.retbase", L"0");
         }
     }
 
@@ -170,63 +155,64 @@ namespace Plugins
     /** @ingroup Arena
      * @brief Used to switch to the arena system
      */
-    void Arena::UserCmdArena()
+    void ArenaPlugin::UserCmdArena()
     {
         // Prohibit jump if in a restricted system or in the target system
-        if (SystemId system = Hk::Player::GetSystem(client).Unwrap(); system == restrictedSystemId || system == targetSystemId)
+        if (const SystemId system = userCmdClient.GetSystemId().Unwrap();
+            std::ranges::find(restrictedSystems, system) != restrictedSystems.end() || system == targetSystemId)
         {
-            client.Message(L"ERR Cannot use command in this system or base");
+            (void)userCmdClient.Message(L"ERR Cannot use command in this system or base");
             return;
         }
 
-        if (!IsDockedClient(client))
+        if (!userCmdClient.IsDocked())
         {
-            client.Message(dockErrorText);
+            (void)userCmdClient.Message(dockErrorText);
             return;
         }
 
-        if (!ValidateCargo(client))
+        if (!ValidateCargo(userCmdClient))
         {
-            client.Message(cargoErrorText);
+            (void)userCmdClient.Message(cargoErrorText);
             return;
         }
 
-        StoreReturnPointForClient(client);
-        client.Message(L"Redirecting undock to Arena.");
-        transferFlags[client] = ClientState::Transfer;
+        StoreReturnPointForClient(userCmdClient);
+        (void)userCmdClient.Message(L"Redirecting undock to Arena.");
+        transferFlags[userCmdClient.GetValue()] = ClientState::Transfer;
     }
 
     /** @ingroup Arena
      * @brief Used to return from the arena system.
      */
-    void Arena::UserCmdReturn()
+    void ArenaPlugin::UserCmdReturn()
     {
-        if (!ReadReturnPointForClient(client))
+        if (!ReadReturnPointForClient(userCmdClient))
         {
-            client.Message(L"No return possible");
+            (void)userCmdClient.Message(L"No return possible");
             return;
         }
 
-        if (!IsDockedClient(client))
+        if (!userCmdClient.IsDocked())
         {
-            client.Message(dockErrorText);
+            (void)userCmdClient.Message(dockErrorText);
             return;
         }
 
-        if (!CheckReturnDock(client, targetBaseId))
+        if (userCmdClient.GetCurrentBase().Unwrap() != targetBaseId)
         {
-            client.Message(L"Not in correct base");
+            (void)userCmdClient.Message(L"Not in correct base");
             return;
         }
 
-        if (!ValidateCargo(client))
+        if (!ValidateCargo(userCmdClient))
         {
-            client.Message(cargoErrorText);
+            (void)userCmdClient.Message(cargoErrorText);
             return;
         }
 
-        client.Message(L"Redirecting undock to previous base");
-        transferFlags[client] = ClientState::Return;
+        (void)userCmdClient.Message(L"Redirecting undock to previous base");
+        transferFlags[userCmdClient.GetValue()] = ClientState::Return;
     }
 } // namespace Plugins
 
@@ -235,13 +221,4 @@ using namespace Plugins;
 DefaultDllMain();
 
 const PluginInfo Info(L"Arena", L"arena", PluginMajorVersion::V04, PluginMinorVersion::V01);
-
-
-Arena::Arena(const PluginInfo& info) : Plugin(info)
-{
-    EmplaceHook(HookedCall::FLHook__LoadSettings, &Arena::LoadSettings, HookStep::After);
-    EmplaceHook(HookedCall::IServerImpl__CharacterSelect, &Arena::CharacterSelect);
-    EmplaceHook(HookedCall::IServerImpl__PlayerLaunch, &Arena::PlayerLaunch_AFTER, HookStep::After);
-    EmplaceHook(HookedCall::FLHook__ClearClientInfo, &Arena::ClearClientInfo, HookStep::After);
-}
-SetupPlugin(Arena, Info);
+SetupPlugin(ArenaPlugin, Info);

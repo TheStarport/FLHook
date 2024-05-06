@@ -8,7 +8,6 @@
 
 #pragma warning(push, 0)
 
-#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING // NOLINT
 #define _SILENCE_CXX20_CISO646_REMOVED_WARNING            // NOLINT
 
 #include <WinSock2.h>
@@ -100,13 +99,13 @@ namespace Json
         if (useSaveGameFolder)
         {
             static std::array<char, MAX_PATH> pathArr{};
-            std::fill(pathArr.begin(), pathArr.end(), '\0');
+            std::ranges::fill(pathArr, '\0');
 
             GetUserDataPath(pathArr.data());
             relativePath += std::string(pathArr.data(), strlen(pathArr.data()));
         }
 
-        std::string newPath = std::format("{}{}", relativePath.empty() ? "" : relativePath + "\\", path);
+        const std::string newPath = std::format("{}{}", relativePath.empty() ? "" : relativePath + "\\", path);
         std::ofstream stream(newPath);
         if (!stream.is_open())
         {
@@ -117,6 +116,59 @@ namespace Json
         rfl::json::write(obj, stream, rfl::json::pretty);
         Logger::Debug(std::format(L"Successfully saved JSON file: {}", StringUtils::stows(newPath)));
         return true;
+    }
+
+    /**
+     * Opens the specified path and attempts to construct an object of the specified type from it.
+     * @tparam T The object type to serialize to/from JSON
+     * @param path The relative path for the JSON file
+     * @param createIfNotExist If true, the file will be created if it is not found when attempting to read it.
+     * @param useSaveGameFolder If true, the path provided will be relative to the save game folder, instead of the current working directory.
+     * @return An std::optional of type T. If reading fails for any reason, then a std::nullopt shall be returned.
+     */
+    template <typename T>
+        requires std::is_default_constructible_v<T>
+    std::optional<T> Load(std::string_view path, const bool createIfNotExist = true, const bool useSaveGameFolder = false)
+    {
+        std::string relativePath;
+        if (useSaveGameFolder)
+        {
+            static std::array<char, MAX_PATH> pathArr{};
+            std::ranges::fill(pathArr, '\0');
+
+            GetUserDataPath(pathArr.data());
+            relativePath += std::string(pathArr.data(), strlen(pathArr.data()));
+        }
+
+        const std::string newPath = std::format("{}{}", relativePath.empty() ? "" : relativePath + "\\", path);
+
+        if (!std::filesystem::exists(newPath))
+        {
+            if (createIfNotExist)
+            {
+                std::optional<T> obj{ T{} };
+                Save(obj, path, useSaveGameFolder);
+                return obj;
+            }
+
+            return std::nullopt;
+        }
+
+        std::ifstream stream(newPath);
+        if (!stream.is_open())
+        {
+            Logger::Warn(std::format(L"Unable to read JSON file: {}", StringUtils::stows(newPath)));
+            return std::nullopt;
+        }
+
+        auto result = rfl::json::read<T>(stream);
+        if (auto err = result.error(); err.has_value())
+        {
+            Logger::Err(std::format(L"Error while trying to serialize provided config: {}", StringUtils::stows(err.value().what())));
+            return std::nullopt;
+        }
+
+        return result.value();
     }
 } // namespace Json
 

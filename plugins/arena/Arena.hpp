@@ -1,10 +1,10 @@
 #pragma once
 
-#include <API/API.hpp>
+#include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 namespace Plugins
 {
-    class Arena final : public Plugin, public AbstractUserCommandProcessor
+    class ArenaPlugin final : public Plugin, public AbstractUserCommandProcessor
     {
             //! This plugin can communicate with the base plugin if loaded.
             enum class ClientState
@@ -13,46 +13,50 @@ namespace Plugins
                 Transfer,
                 Return
             };
+
             const std::wstring dockErrorText = L"Please dock at nearest base";
             const std::wstring cargoErrorText = L"Cargo hold is not empty";
-            //! Config data for this plugin
 
+            //! Config data for this plugin
             struct Config final
             {
                     std::string targetBase;
                     std::string targetSystem;
-                    std::string restrictedSystem;
-
-                Serialize(Config, targetBase, targetSystem, restrictedSystem);
+                    std::vector<std::string> restrictedSystems;
             };
 
-            std::unique_ptr<Config> config;
+            Config config;
+
             // Non-reflectable fields
-            uint targetBaseId = 0;
-            uint targetSystemId = 0;
-            uint restrictedSystemId = 0;
-            std::wstring command = L"arena";
+            BaseId targetBaseId;
+            SystemId targetSystemId;
+            std::vector<SystemId> restrictedSystems;
 
             std::array<ClientState, MaxClientId + 1> transferFlags = {};
 
             void UserCmdArena();
             void UserCmdReturn();
 
-            constexpr inline static std::array<CommandInfo<Arena>, 2> commands = {
-                {AddCommand(Arena, L"/arena", UserCmdArena, L"/arena", L" Sends you to the designated arena system."),
-                 AddCommand(Arena, L"/return", UserCmdArena, L"/return", L" Returns you from the arena system to where you last docked.")}
+            // clang-format off
+            constexpr static std::array<CommandInfo<ArenaPlugin>, 2> commands = {
+            {
+                    AddCommand(ArenaPlugin, L"/arena", UserCmdArena, L"/arena", L" Sends you to the designated arena system."),
+                    AddCommand(ArenaPlugin, L"/return", UserCmdReturn, L"/return", L" Returns you from the arena system to where you last docked.")}
             };
+            // clang-format on
 
-            SetupUserCommandHandler(Arena, commands);
+            SetupUserCommandHandler(ArenaPlugin, commands);
 
-            void ClearClientInfo(ClientId& client);
-            void LoadSettings();
-            void CharacterSelect([[maybe_unused]] const std::string& charFilename, ClientId& client);
-            void PlayerLaunch_AFTER([[maybe_unused]] const uint& ship, ClientId& client);
+            void OnClearClientInfo(ClientId client) override;
+            void OnLoadSettings() override;
+            void OnCharacterSelect(ClientId client, std::wstring_view charFilename) override;
+            void OnPlayerLaunchAfter(ClientId client, [[maybe_unused]] ShipId ship) override;
 
-           
+            static BaseId ReadReturnPointForClient(ClientId client);
+            static bool ValidateCargo(ClientId client);
+            static void StoreReturnPointForClient(ClientId client);
 
         public:
-            explicit Arena(const PluginInfo& info);
+            explicit ArenaPlugin(const PluginInfo& info);
     };
 } // namespace Plugins
