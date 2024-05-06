@@ -40,7 +40,12 @@ namespace Plugins
     ArenaPlugin::ArenaPlugin(const PluginInfo& info) : Plugin(info) {}
 
     /// Clear client info when a client connects.
-    void ArenaPlugin::OnClearClientInfo(const ClientId client) { clientData[client.GetValue()].flag = TransferFlag::None; }
+    void ArenaPlugin::OnClearClientInfo(const ClientId client)
+    {
+        auto& [flag, returnBase] = clientData[userCmdClient.GetValue()];
+        flag = TransferFlag::None;
+        returnBase = BaseId(0);
+    }
 
     /// Load the configuration
     void ArenaPlugin::OnLoadSettings()
@@ -53,13 +58,19 @@ namespace Plugins
         {
             config = conf.value();
         }
+        targetBaseId = BaseId(CreateID(config.targetBase.c_str()));
+        targetSystemId = SystemId(CreateID(config.targetBase.c_str()));
+        for(auto& system : config.restrictedSystems)
+        {
+            restrictedSystems.emplace_back(CreateID(system.c_str()));
+        }
     }
 
     /** @ingroup Arena
      * @brief Returns true if the client doesn't hold any commodities, returns false otherwise. This is to prevent people using the arena system as a trade
      * shortcut.
      */
-    bool ArenaPlugin::ValidateCargo(ClientId client)
+    bool ArenaPlugin::ValidateCargo(const ClientId client)
     {
         int remainingHoldSize;
         for (const auto cargo = client.EnumCargo(remainingHoldSize).Handle(); const auto& item : cargo)
@@ -80,7 +91,7 @@ namespace Plugins
     /** @ingroup Arena
      * @brief This returns the return base id that is stored in the client's save file.
      */
-    BaseId ArenaPlugin::ReadReturnPointForClient(ClientId client)
+    BaseId ArenaPlugin::ReadReturnPointForClient(const ClientId client)
     {
         const auto view = client.GetData().GetCharacterData();
         if (auto returnBase = view.find("arenaReturnBase"); returnBase != view.end())
@@ -94,12 +105,27 @@ namespace Plugins
     /** @ingroup Arena
      * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
      */
-    void ArenaPlugin::OnCharacterSelect(const ClientId client, std::wstring_view charFilename) { clientData[client.GetValue()].flag = TransferFlag::None; }
+    void ArenaPlugin::OnCharacterSelect(const ClientId client, std::wstring_view charFilename)
+    {
+        auto& [flag, returnBase] = clientData[userCmdClient.GetValue()];
+
+        flag = TransferFlag::None;
+
+        auto view = client.GetData().GetCharacterData();
+        if(auto findResult = view.find("arenaReturnBase"); findResult != view.end())
+        {
+            returnBase = BaseId(findResult->get_int32());
+        }
+        else
+        {
+            returnBase = BaseId(0);
+        }
+    }
 
     /** @ingroup Arena
      * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, redirect the undock to either the arena base or the return point
      */
-    void ArenaPlugin::OnPlayerLaunchAfter(ClientId client, ShipId ship)
+    void ArenaPlugin::OnPlayerLaunchAfter(const ClientId client, ShipId ship)
     {
         const auto state = clientData[client.GetValue()].flag;
         if (state == TransferFlag::Transfer)
@@ -134,7 +160,7 @@ namespace Plugins
             (void)client.Beam(returnPoint);
         }
     }
-    void ArenaPlugin::OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
+    void ArenaPlugin::OnCharacterSave(const ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
     {
         int value = 0;
         if (const auto data = clientData.find(client.GetValue()); data != clientData.end())
@@ -157,7 +183,8 @@ namespace Plugins
             return;
         }
 
-        if (!userCmdClient.IsDocked())
+        const BaseId currBase = userCmdClient.GetCurrentBase().Unwrap();
+        if (!currBase)
         {
             (void)userCmdClient.Message(dockErrorText);
             return;
@@ -170,7 +197,9 @@ namespace Plugins
         }
 
         (void)userCmdClient.Message(L"Redirecting undock to Arena.");
-        clientData[userCmdClient.GetValue()].flag = TransferFlag::Transfer;
+        auto& [flag, returnBase] = clientData[userCmdClient.GetValue()];
+        flag = TransferFlag::Transfer;
+        returnBase = currBase;
     }
 
     /** @ingroup Arena
