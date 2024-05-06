@@ -207,6 +207,7 @@ Character::Character(bsoncxx::document::view view)
             case Hash("voice"):
                 {
                     voice = element.get_string().value;
+                    break;
                 }
             case Hash("interfaceState"):
                 {
@@ -230,7 +231,7 @@ Character::Character(bsoncxx::document::view view)
                 }
             case Hash("canTradeLane"):
                 {
-                    canDock = element.get_bool().value;
+                    canTradeLane = element.get_bool().value;
                     break;
                 }
             case Hash("tlExceptions"):
@@ -239,7 +240,7 @@ Character::Character(bsoncxx::document::view view)
                     for (auto& tl : element.get_array().value)
                     {
                         auto doc = tl.get_document().value;
-                        TradeLaneException exception;
+                        TradeLaneException exception{};
 
                         for (auto el : doc)
                         {
@@ -326,7 +327,7 @@ Character::Character(bsoncxx::document::view view)
                         }
                         else if (key == "body")
                         {
-                            baseCostume.head = static_cast<uint>(el.get_int32().value);
+                            baseCostume.body = static_cast<uint>(el.get_int32().value);
                         }
                         else if (key == "leftHand")
                         {
@@ -361,7 +362,7 @@ Character::Character(bsoncxx::document::view view)
                     }
                     else if (key == "body")
                     {
-                        commCostume.head = static_cast<uint>(el.get_int32().value);
+                        commCostume.body = static_cast<uint>(el.get_int32().value);
                     }
                     else if (key == "leftHand")
                     {
@@ -384,7 +385,6 @@ Character::Character(bsoncxx::document::view view)
                         commCostume.accessories = el.get_int32().value;
                     }
                 }
-                voice = element.get_string().value;
                 break;
             }
             case Hash("cargo"):
@@ -393,7 +393,7 @@ Character::Character(bsoncxx::document::view view)
                     for (auto& item : element.get_array().value)
                     {
                         auto doc = item.get_document().value;
-                        FLCargo cargoItem;
+                        FLCargo cargoItem{};
 
                         for (auto el : doc)
                         {
@@ -425,7 +425,7 @@ Character::Character(bsoncxx::document::view view)
                 for (auto& item : element.get_array().value)
                 {
                     auto doc = item.get_document().value;
-                    FLCargo cargoItem;
+                    FLCargo cargoItem{};
 
                     for (auto el : doc)
                     {
@@ -611,7 +611,7 @@ Character::Character(bsoncxx::document::view view)
                     for (auto& vnpc : element.get_array().value)
                     {
                         auto doc = vnpc.get_document().value;
-                        NpcVisit visit;
+                        NpcVisit visit{};
 
                         for (auto& el : doc)
                         {
@@ -652,7 +652,7 @@ Character::Character(bsoncxx::document::view view)
                     for (auto& rumorData : element.get_array().value)
                     {
                         auto doc = rumorData.get_document().value;
-                        RumorData rumor;
+                        RumorData rumor{};
 
                         for (auto el : doc)
                         {
@@ -782,15 +782,6 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
     // clang-format on
 
     {
-        bsoncxx::builder::basic::document doc;
-        for (auto [id, health] : collisionGroups)
-        {
-            doc.append(kvp(std::to_string(id), health));
-        }
-        document.append(kvp("collisionGroups", doc));
-    }
-
-    {
         bsoncxx::builder::basic::array arr;
         for (auto& cargo : cargo)
         {
@@ -890,7 +881,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
         {
             doc.append(kvp(std::to_string(rank), amount));
         }
-        document.append(kvp("randomMissionsCompleted", doc));
+        document.append(kvp("randomMissionsFailed", doc));
     }
 
     {
