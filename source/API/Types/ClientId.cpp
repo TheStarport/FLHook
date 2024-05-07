@@ -38,7 +38,7 @@ bool ClientId::IsValidClientId() const
     return FLHook::Clients()[value].isValid;
 }
 
-ClientId ClientId::GetClientIdFromCharacterName(std::wstring_view name)
+ClientId ClientId::GetClientIdFromCharacterName(const std::wstring_view name)
 {
 
     for (auto& client : FLHook::Clients())
@@ -75,9 +75,7 @@ Action<BaseId, Error> ClientId::GetCurrentBase() const
     ClientCheck;
     CharSelectCheck;
 
-    uint base;
-    pub::Player::GetBase(value, base);
-    if (base)
+    if (const uint base = Players[value].baseId; base)
     {
         return { BaseId(base) };
     }
@@ -90,8 +88,7 @@ Action<SystemId, Error> ClientId::GetSystemId() const
     ClientCheck;
     CharSelectCheck;
 
-    uint sys;
-    pub::Player::GetSystem(value, sys);
+    const uint sys = Players[value].systemId;
 
     if (!sys)
     {
@@ -104,8 +101,7 @@ Action<AccountId, Error> ClientId::GetAccount() const
 {
     ClientCheck;
 
-    auto acc = AccountId::GetAccountFromClient(*this);
-    if(acc.has_value())
+    if(auto acc = AccountId::GetAccountFromClient(*this); acc.has_value())
     {
         return {acc.value()};
     }
@@ -117,8 +113,7 @@ Action<const Archetype::Ship*, Error> ClientId::GetShipArch() const
     ClientCheck;
     CharSelectCheck;
 
-    uint ship;
-    pub::Player::GetShipID(value, ship);
+    const uint ship = Players[value].shipId;
 
     if (!ship)
     {
@@ -133,8 +128,7 @@ Action<ShipId, Error> ClientId::GetShipId() const
     ClientCheck;
     CharSelectCheck;
 
-    uint ship;
-    pub::Player::GetShip(value, ship);
+    const uint ship = Players[value].shipId;
 
     if (!ship)
     {
@@ -168,8 +162,7 @@ Action<RepId, Error> ClientId::GetReputation() const
     ClientCheck;
     CharSelectCheck;
 
-    int rep;
-    pub::Player::GetRep(value, rep);
+    const int rep = Players[value].reputation;
 
     if (!Reputation::Vibe::Verify(rep))
     {
@@ -184,8 +177,7 @@ Action<CShip*, Error> ClientId::GetShip() const
     ClientCheck;
     CharSelectCheck;
 
-    uint ship;
-    pub::Player::GetShip(value, ship);
+    const uint ship = Players[value].shipId;
 
     if (!ship)
     {
@@ -199,9 +191,8 @@ Action<uint, Error> ClientId::GetRank() const
 {
     ClientCheck;
     CharSelectCheck;
-    int rank = 0;
-    pub::Player::GetRank(value, rank);
-    return { rank };
+
+    return { Players[value].rank };
 }
 
 Action<uint, Error> ClientId::GetWealth() const
@@ -209,10 +200,7 @@ Action<uint, Error> ClientId::GetWealth() const
     ClientCheck;
     CharSelectCheck;
 
-    // Cause Freelancer decided wealth should be accessed as a float.(Despite it being stored as an integer)
-    float wealth;
-    pub::Player::GetAssetValue(value, wealth);
-    return { static_cast<uint>(wealth) };
+    return { static_cast<uint>(Players[value].worth) };
 }
 
 Action<int, Error> ClientId::GetPvpKills() const
@@ -220,9 +208,7 @@ Action<int, Error> ClientId::GetPvpKills() const
     ClientCheck;
     CharSelectCheck;
 
-    int kills;
-    pub::Player::GetNumKills(value, kills);
-    return { kills };
+    return { Players[value].numKills };
 }
 
 Action<uint, Error> ClientId::GetCash() const
@@ -230,69 +216,49 @@ Action<uint, Error> ClientId::GetCash() const
     ClientCheck;
     CharSelectCheck;
 
-    int cash;
-    pub::Player::InspectCash(value, cash);
-    return { cash };
+    return { Players[value].money };
 }
+
+Action<float, Error> ClientId::GetRelativeHealth() const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    return { Players[value].relativeHealth};
+}
+
 
 Action<std::wstring_view, Error> ClientId::GetCharacterName() const
 {
     ClientCheck;
     CharSelectCheck;
 
-    const auto player = Players.GetActiveCharacterName(value);
-    const auto wcharPlayer = reinterpret_cast<const wchar_t*>(player);
-
-    return { std::wstring_view(wcharPlayer, wcsnlen_s(wcharPlayer, 36)) };
+    return { GetData().characterName };
 }
 
 bool ClientId::InSpace() const
 {
-    if (InCharacterSelect())
-    {
-        return false;
-    }
-
-    uint baseId = 0;
-    pub::Player::GetBase(value, baseId);
-
-    if (!baseId)
-    {
-        return true;
-    }
-    return false;
+    return Players[value].shipId;
 }
 
 bool ClientId::IsDocked() const
 {
-    if (InCharacterSelect())
-    {
-        return false;
-    }
-
-    return !InSpace();
+    return Players[value].systemId && Players[value].baseId;
 }
 
-bool ClientId::InCharacterSelect() const { return Players.GetActiveCharacterName(value) == nullptr; }
+bool ClientId::InCharacterSelect() const
+{
+    return Players[value].systemId;
+}
 
 bool ClientId::IsAlive() const
 {
-    const bool charMenu = InCharacterSelect();
-    const bool docked = IsDocked();
-    uint ship;
-    pub::Player::GetShip(value, ship);
-
-    // If they are not in char menu, docked, or have a valid ship id they are probably dead in space.
-    if (!(charMenu || ship || docked))
-    {
-        return false;
-    }
-
-    return true;
+    return Players[value].systemId && Players[value].shipId;
 }
 
 Action<std::list<CargoInfo>, Error> ClientId::EnumCargo(int& remainingHoldSize) const
 {
+    //TODO: Remember why we're doing it this way.
     ClientCheck;
     CharSelectCheck;
 
@@ -323,7 +289,6 @@ ClientData& ClientId::GetData() const { return FLHook::Clients()[value]; }
 
 Action<std::wstring, Error> ClientId::GetPlayerIp() const
 {
-    
     const CDPClientProxy* cdpClient = FLHook::clientProxyArray[value - 1];
     // clang-format off
     if (!cdpClient)
@@ -445,25 +410,7 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
 Action<void, Error> ClientId::SaveChar() const
 {
     // We do not validate the client id here because new/delete characters make use of this method with an invalid, transient, id
-
-    const DWORD jmp = FLHook::Offset(FLHook::BinaryType::Server, AddressList::SaveCharacter);
-
-    std::array<byte, 2> nop = { 0x90, 0x90 };
-    std::array<byte, 2> testAl = { 0x74, 0x44 };
-    MemUtils::WriteProcMem(jmp, nop.data(), nop.size()); // nop the SinglePlayer() check
     pub::Save(value, 1);
-    MemUtils::WriteProcMem(jmp, testAl.data(), testAl.size()); // restore
-
-    //const auto& data = FLHook::Clients()[value];
-
-    // Save account data
-    // TODO: write to DB
-    /*auto dir = GetAccount().Unwrap().GetDirectoryName().Unwrap();
-    const std::wstring userFile = std::format(L"{}{}\\accData.json", FLHook::GetAccountPath(), dir);
-
-    const auto content = data.accountData.dump(4);
-    std::ofstream of(userFile);
-    of.write(content.c_str(), content.size());*/
 
     return { {} };
 }
@@ -478,12 +425,13 @@ Action<void, Error> ClientId::SetPvpKills(const uint killAmount) const
     return { {} };
 }
 
-Action<void, Error> ClientId::SetCash(uint amount) const
+Action<void, Error> ClientId::SetCash(const uint amount) const
 {
     ClientCheck;
     CharSelectCheck;
 
-    // TODO: Implement me!
+    const int currCash = Players[value].money;
+    pub::Player::AdjustCash(value, static_cast<int>(amount) - currCash);
     return { {} };
 }
 
@@ -507,7 +455,7 @@ const std::array BannedBases = {
     CreateID("li01_15_base"),
 };
 
-Action<void, Error> ClientId::Beam(BaseId base) const
+Action<void, Error> ClientId::Beam(const BaseId base) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -521,8 +469,7 @@ Action<void, Error> ClientId::Beam(BaseId base) const
         return { cpp::fail(Error::InvalidBase) };
     }
 
-    uint sysId;
-    pub::Player::GetSystem(value, sysId);
+    const uint sysId = Players[value].systemId;
     const Universe::IBase* basePtr = Universe::get_base(base.GetValue());
 
     if (!basePtr)
@@ -546,7 +493,7 @@ Action<void, Error> ClientId::Beam(BaseId base) const
     return { {} };
 }
 
-Action<void, Error> ClientId::MarkObject(uint objId, int markStatus) const
+Action<void, Error> ClientId::MarkObject(const uint objId, const int markStatus) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -570,7 +517,7 @@ Action<void, Error> ClientId::Message(const std::wstring_view message, const Mes
     return { {} };
 }
 
-Action<void, Error> ClientId::MessageLocal(std::wstring_view message, float range, MessageFormat format, MessageColor color) const
+Action<void, Error> ClientId::MessageLocal(const std::wstring_view message, const float range, const MessageFormat format, const MessageColor color) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -582,7 +529,7 @@ Action<void, Error> ClientId::MessageLocal(std::wstring_view message, float rang
     }
 
     const auto system = ship->GetSystem().Unwrap();
-    const auto position = ship->GetPositionAndOrientation().Unwrap();
+    const auto [position, _] = ship->GetPositionAndOrientation().Unwrap();
     for (auto& client : FLHook::Clients())
     {
         if (client.id == *this || !client.ship || system != client.ship.GetSystem().Unwrap())
@@ -590,18 +537,18 @@ Action<void, Error> ClientId::MessageLocal(std::wstring_view message, float rang
             continue;
         }
 
-        auto otherPos = client.ship.GetPositionAndOrientation().Unwrap();
-        const auto distance = glm::abs(glm::distance<3, float, glm::packed_highp>(position.first, otherPos.first));
-        if (distance <= range)
+        auto [otherPos, _] = client.ship.GetPositionAndOrientation().Unwrap();
+        if (const auto distance = glm::abs(glm::distance<3, float, glm::packed_highp>(position, otherPos));
+            distance <= range)
         {
-            Message(message, format, color);
+            (void)Message(message, format, color);
         }
     }
 
     return { {} };
 }
 
-Action<void, Error> ClientId::MessageFrom(ClientId destinationClient, std::wstring message) const
+Action<void, Error> ClientId::MessageFrom(const ClientId destinationClient, const std::wstring_view message) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -612,7 +559,7 @@ Action<void, Error> ClientId::MessageFrom(ClientId destinationClient, std::wstri
     }
 
     // TODO: validate color
-    destinationClient.Message(std::move(message));
+    (void)destinationClient.Message(message);
     return { {} };
 }
 
@@ -621,10 +568,8 @@ Action<void, Error> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
     ClientCheck;
     CharSelectCheck;
 
-    auto& data = GetData();
-
     // Update FLHook's lists to make anticheat pleased.
-    if (&equip != &data.playerData->equipAndCargo.equip)
+    if (const auto& data = GetData(); &equip != &data.playerData->equipAndCargo.equip)
     {
         data.playerData->equipAndCargo.equip = equip;
     }
@@ -643,7 +588,7 @@ Action<void, Error> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
     uint index = 0;
     for (const auto& item : equip)
     {
-        SetEquipmentItem setEquipItem;
+        SetEquipmentItem setEquipItem{};
         setEquipItem.count = item.count;
         setEquipItem.health = item.health;
         setEquipItem.archId = item.archId;
@@ -662,13 +607,13 @@ Action<void, Error> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
         }
         setEquipmentPacket->count++;
 
-        const byte* buf = (byte*)&setEquipItem;
+        const byte* buf = reinterpret_cast<byte*>(&setEquipItem);
         for (int i = 0; i < sizeof(SetEquipmentItem); i++)
         {
             setEquipmentPacket->items[index++] = buf[i];
         }
 
-        const byte* hardPoint = (byte*)item.hardPoint.value;
+        const byte* hardPoint = reinterpret_cast<byte*>(item.hardPoint.value);
         for (int i = 0; i < setEquipItem.hardPointLen; i++)
         {
             setEquipmentPacket->items[index++] = hardPoint[i];
@@ -683,7 +628,7 @@ Action<void, Error> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
     return { cpp::fail(Error::UnknownError) };
 }
 
-Action<void, Error> ClientId::AddEquip(uint goodId, const std::wstring& hardpoint) const
+Action<void, Error> ClientId::AddEquip(const uint goodId, const std::wstring& hardpoint) const
 {
     ClientCheck;
     CharSelectCheck;

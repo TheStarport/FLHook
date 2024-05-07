@@ -159,6 +159,14 @@ class DLL ClientId
         Action<uint, Error> GetCash() const;
 
         /**
+         * @brief Gets the percentage of the ship health. Not guaranteed to be up to date when player is in space.
+         * @returns On success : Returns health percentage as a float between 0 and 1.
+         * @returns On fail : InCharacterSelect
+         */
+        [[nodiscard]]
+        Action<float, Error> GetRelativeHealth() const;
+
+        /**
          * @brief Gets the cargo items in the ship of the player.
          * @returns On success : List of CargoInfo of the cargo the player has.
          * @returns On fail : InCharacterSelect
@@ -323,7 +331,7 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect.
          */
-        Action<void, Error> MessageFrom(ClientId destinationClient, std::wstring message) const;
+        Action<void, Error> MessageFrom(ClientId destinationClient, std::wstring_view message) const;
 
         /**
          * Force the ships equipment list to match the one provided. May cause undefined behaviour if the target is in space.

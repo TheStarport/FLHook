@@ -31,14 +31,10 @@
 // Includes
 #include "PCH.hpp"
 
-#include "API/API.hpp"
 #include "Autobuy.hpp"
-#include "FLHook.hpp"
 
 namespace Plugins
 {
-
-
 
     void Autobuy::LoadPlayerAutobuy(ClientId client)
     {
@@ -56,7 +52,7 @@ namespace Plugins
         */
     }
 
-    void Autobuy::ClearClientInfo(ClientId& client) { autobuyInfo.erase(client); }
+    void Autobuy::ClearClientInfo(ClientId& client) { autobuyInfo.erase(client.GetValue()); }
 
     int PlayerGetAmmoCount(const std::list<CargoInfo>& cargoList, uint itemArchId)
     {
@@ -71,7 +67,7 @@ namespace Plugins
 
     void handleRepairs(ClientId& client)
     {
-        auto repairCost = static_cast<uint>(Archetype::GetShip(Players[client].shipArchetype)->hitPoints * (1 - Players[client].relativeHealth) / 3);
+        auto repairCost = static_cast<uint>(Archetype::GetShip(Players[client.GetValue()].shipArchetype)->hitPoints * (1 - Players[client.GetValue()].relativeHealth) / 3);
 
         std::set<short> eqToFix;
 
@@ -92,7 +88,7 @@ namespace Plugins
             eqToFix.insert(item.id);
         }
 
-        if (const uint playerCash = Hk::Player::GetCash(client).Unwrap(); playerCash < repairCost)
+        if (const uint playerCash = client.GetCash().Unwrap(); playerCash < repairCost)
         {
             client.Message(L"Insufficient Cash");
             return;

@@ -116,6 +116,9 @@ void FLHook::InitHookExports()
         patch.Apply();
     }
 
+    const DWORD saveSpCheck = FLHook::Offset(FLHook::BinaryType::Server, AddressList::SaveCharacter);
+    MemUtils::NopAddress(saveSpCheck, 2);
+
     IpResolver::resolveThread = std::thread(IpResolver::ThreadResolver);
 
     // install IServerImpl callbacks in remoteclient.dll
