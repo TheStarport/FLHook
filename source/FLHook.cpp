@@ -93,9 +93,11 @@ FLHook::FLHook()
     // Initialize the Database before everything as other systems rely on it
     // database = new Database(FLHook::GetConfig().databaseConfig.uri);
 
+    const auto& config = GetConfig();
+
     // Init our message service, this is a blocking call and some plugins might want to setup their own queues,
     // so we want to make sure the service is up at startup time
-    if (FLHook::GetConfig().messageQueue.enableQueues)
+    if (config.messageQueue.enableQueues)
     {
         const auto msg = MessageHandler::i();
 
@@ -138,10 +140,10 @@ FLHook::FLHook()
                            }
                        });
 
-        Timer::Add(PublishServerStats, &PublishServerStats, 30000);
+        Timer::Add(PublishServerStats, &PublishServerStats, config.messageQueue.timeBetweenServerUpdates);
     }
 
-    if (const auto& config = FLHook::GetConfig(); config.plugins.loadAllPlugins)
+    if (config.plugins.loadAllPlugins)
     {
         PluginManager::i()->LoadAll(true);
     }

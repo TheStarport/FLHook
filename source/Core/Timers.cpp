@@ -65,7 +65,7 @@ void FLHook::PublishServerStats()
     }
 
     const auto bson = rfl::bson::write(stats);
-    MessageHandler::i()->Publish(bson.data(), std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), L"");
+    MessageHandler::i()->Publish(std::string_view(bson.data(), bson.size()), std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), L"");
 }
 
 void FLHook::TimerCheckKick()

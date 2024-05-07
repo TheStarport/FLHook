@@ -110,6 +110,9 @@ struct DLL FLHookConfig final
 
                 //! If true FLHook will communicate with RabbitMQ over AMPQS, using a SSL connection.
                 bool ensureSecureConnection = false;
+
+                //! How frequently should FLHook send out updates to the exchange
+                int timeBetweenServerUpdates = 5000;
         };
 
         struct ChatConfig final
