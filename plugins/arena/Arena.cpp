@@ -58,12 +58,6 @@ namespace Plugins
         {
             config = conf.value();
         }
-        targetBaseId = BaseId(CreateID(config.targetBase.c_str()));
-        targetSystemId = SystemId(CreateID(config.targetBase.c_str()));
-        for(auto& system : config.restrictedSystems)
-        {
-            restrictedSystems.emplace_back(CreateID(system.c_str()));
-        }
     }
 
     /** @ingroup Arena
@@ -112,7 +106,7 @@ namespace Plugins
         flag = TransferFlag::None;
 
         auto view = client.GetData().GetCharacterData();
-        if(auto findResult = view.find("arenaReturnBase"); findResult != view.end())
+        if (auto findResult = view.find("arenaReturnBase"); findResult != view.end())
         {
             returnBase = BaseId(findResult->get_int32());
         }
@@ -137,7 +131,7 @@ namespace Plugins
             }
 
             clientData[client.GetValue()].flag = TransferFlag::None;
-            (void)client.Beam(targetBaseId);
+            (void)client.Beam(config.targetBase);
             return;
         }
 
@@ -177,7 +171,7 @@ namespace Plugins
     {
         // Prohibit jump if in a restricted system or in the target system
         if (const SystemId system = userCmdClient.GetSystemId().Unwrap();
-            std::ranges::find(restrictedSystems, system) != restrictedSystems.end() || system == targetSystemId)
+            std::ranges::find(config.restrictedSystems, system) != config.restrictedSystems.end() || system == config.targetSystem)
         {
             (void)userCmdClient.Message(L"ERR Cannot use command in this system or base");
             return;
@@ -219,7 +213,7 @@ namespace Plugins
             return;
         }
 
-        if (userCmdClient.GetCurrentBase().Unwrap() != targetBaseId)
+        if (userCmdClient.GetCurrentBase().Unwrap() != config.targetBase)
         {
             (void)userCmdClient.Message(L"Not in correct base");
             return;

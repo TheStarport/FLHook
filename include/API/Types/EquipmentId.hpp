@@ -6,7 +6,7 @@ class DLL EquipmentId
 
     public:
         explicit EquipmentId(const uint val) : value(val) {}
-        explicit EquipmentId() = default;
+        EquipmentId() = default;
         bool operator==(const EquipmentId next) const { return value == next.value; }
         explicit operator bool() const;
 

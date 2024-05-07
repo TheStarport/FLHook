@@ -10,7 +10,7 @@ class DLL RepGroupId final
         explicit RepGroupId(const uint val) : value(val) {}
         explicit RepGroupId(std::wstring_view nickName);
 
-        explicit RepGroupId() = default;
+        RepGroupId() = default;
         ~RepGroupId() = default;
         RepGroupId(const RepGroupId&) = default;
         RepGroupId& operator=(RepGroupId) = delete;

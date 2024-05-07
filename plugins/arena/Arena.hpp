@@ -20,17 +20,12 @@ namespace Plugins
             //! Config data for this plugin
             struct Config final
             {
-                    std::string targetBase;
-                    std::string targetSystem;
-                    std::vector<std::string> restrictedSystems;
+                    BaseId targetBase;
+                    SystemId targetSystem;
+                    std::vector<SystemId> restrictedSystems;
             };
 
             Config config;
-
-            // Non-reflectable fields
-            BaseId targetBaseId;
-            SystemId targetSystemId;
-            std::vector<SystemId> restrictedSystems;
 
             struct ArenaClientData
             {

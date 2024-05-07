@@ -13,7 +13,7 @@ class DLL SystemId
 
         explicit SystemId(std::wstring_view nickName, bool isInfoCardName = false);
 
-        explicit SystemId() : value(0) {}
+        SystemId() : value(0) {}
         bool operator==(const SystemId next) const { return value == next.value; }
         explicit operator bool() const;
 

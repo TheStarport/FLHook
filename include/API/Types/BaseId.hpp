@@ -11,7 +11,7 @@ class DLL BaseId
         explicit BaseId(const uint val) : value(val) {}
         explicit BaseId(std::wstring_view name, bool isWildCard = false);
         explicit operator uint() const noexcept { return value; }
-        explicit BaseId() : value(0) {}
+        BaseId() : value(0) {}
         bool operator==(const BaseId next) const { return value == next.value; }
         explicit operator bool() const;
 

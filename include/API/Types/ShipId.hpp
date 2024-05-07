@@ -7,7 +7,7 @@ class DLL ShipId final : public ObjectId
 {
     public:
         explicit ShipId(const uint val) : ObjectId(val) {}
-        explicit ShipId() = default;
+        ShipId() = default;
 
         ~ShipId() = default;
 

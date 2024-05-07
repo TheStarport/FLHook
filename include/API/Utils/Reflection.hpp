@@ -4,20 +4,52 @@
 #include "rfl/parsing/CustomParser.hpp"
 
 // Custom parsers for FL types
-namespace rfl::parsing {
+namespace rfl::parsing
+{
     struct VectorImpl
     {
-        float arr[3];
+            using ReflectionType = std::array<float, 3>;
+            std::array<float, 3> arr;
 
-        static VectorImpl from_class(const Vector& val) noexcept {
-            return VectorImpl{{val.x, val.y, val.z}};
-        }
+            static VectorImpl from_class(const Vector& val) noexcept
+            {
+                return VectorImpl{
+                    { val.x, val.y, val.z }
+                };
+            }
 
-        [[nodiscard]] Vector to_class() const { return Vector{arr[0], arr[1], arr[2]}; }
+            [[nodiscard]]
+            Vector to_class() const
+            {
+                return Vector{ arr[0], arr[1], arr[2] };
+            }
     };
 
     template <class ReaderType, class WriterType>
-    struct Parser<ReaderType, WriterType, Vector>
-        : CustomParser<ReaderType, WriterType, Vector, VectorImpl> {};
+    struct Parser<ReaderType, WriterType, Vector> : CustomParser<ReaderType, WriterType, Vector, VectorImpl>
+    {};
+
+#define HashConvert(hashType, example)                                                                                    \
+    struct hashType##_Impl                                                                                                \
+    {                                                                                                                     \
+            using ReflectionType = std::string;                                                                           \
+            std::string data;                                                                                             \
+            static hashType##_Impl from_class(const hashType##& hash) noexcept { return {##example }; }                   \
+                                                                                                                          \
+            [[nodiscard]]                                                                                                 \
+            ##hashType to_class() const                                                                                   \
+            {                                                                                                             \
+                return hashType##{ CreateID(data.c_str()) };                                                              \
+            }                                                                                                             \
+    };                                                                                                                    \
+    template <class ReaderType, class WriterType>                                                                         \
+    struct Parser<ReaderType, WriterType, hashType##> : CustomParser<ReaderType, WriterType, hashType##, hashType##_Impl> \
+    {};
+
+    HashConvert(EquipmentId, "commodity_cardamine");
+    HashConvert(BaseId, "li01_01_base");
+    HashConvert(RepGroupId, "fc_z_grp");
+    HashConvert(ShipId, "ge_starflier");
+    HashConvert(SystemId, "li01_01");
 
 } // namespace rfl::parsing
