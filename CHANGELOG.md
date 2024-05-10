@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.30
+- Adjusted the project file to ensure that Advanced Startup Solars is properly included in the build
+
 ## 4.0.29
 - Advanced Startup Solars: Finer control over solars that spawn on startup, requires solar.dll and npc.dll to function
 - Fix the IPC interface for `CreateUserDefinedSolarFormation()` in solar control
