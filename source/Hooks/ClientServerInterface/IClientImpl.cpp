@@ -314,7 +314,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(uint client, float status)
     return retVal;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(uint client, st6::list<XCollision>& collisionGroupList)
+bool IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(uint client, st6::list<CollisionGroupDesc>& collisionGroupList)
 {
     Logger::Trace(std::format(L"IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(\n\tClientId client = {}\n)", client));
 

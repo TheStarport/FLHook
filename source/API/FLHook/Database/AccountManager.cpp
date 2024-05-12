@@ -99,12 +99,12 @@ void ConvertCharacterToVanillaData(CharacterData* data, const Character& charact
     // Collision groups
     for (const auto& [sId, health] : character.baseCollisionGroups)
     {
-        data->baseCollisionGroups.push_back({ static_cast<ushort>(sId), 0, health });
+        data->baseCollisionGroups.push_back({ static_cast<ushort>(sId), health });
     }
 
     for (const auto& [sId, health] : character.collisionGroups)
     {
-        data->currentCollisionGroups.push_back({ static_cast<ushort>(sId), 0, health });
+        data->currentCollisionGroups.push_back({ static_cast<ushort>(sId), health });
     }
 
     // Copy voice

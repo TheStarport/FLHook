@@ -238,7 +238,7 @@ class DLL PacketInterface
         Aft(bool, OnActivateThrusterPacket, (ClientId client, XActivateThrusters& activate));
         Aft(bool, OnSetShipArchPacket, (ClientId client, ArchId arch));
         Aft(bool, OnSetHullStatusPacket, (ClientId client, float status));
-        Aft(bool, OnSetCollisionGroupsPacket, (ClientId client, st6::list<XCollision>& collisionGroupList));
+        Aft(bool, OnSetCollisionGroupsPacket, (ClientId client, st6::list<CollisionGroupDesc>& collisionGroupList));
         Aft(bool, OnSetEquipmentPacket, (ClientId client, st6::vector<EquipDesc>& equipmentVector));
         Aft(bool, OnSetAddItemPacket, (ClientId client, FLPACKET_UNKNOWN* unk1, FLPACKET_UNKNOWN* unk2));
         Aft(bool, OnSetStartRoomPacket, (ClientId client, uint unk1, uint unk2));
