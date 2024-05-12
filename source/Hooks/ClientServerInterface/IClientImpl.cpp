@@ -143,34 +143,6 @@ bool IClientImpl::SendPacket(uint client, void* unk1)
 
 bool IClientImpl::Startup(uint unk1, uint unk2)
 {
-    // TODO: Rewrite this base loading code
-    auto bases = FLHook::instance->allBases;
-    bases.clear();
-    Universe::IBase* base = Universe::GetFirstBase();
-    while (base)
-    {
-        BaseInfo bi;
-        bi.destroyed = false;
-        bi.objectId = base->spaceObjId;
-        auto name = "";
-
-        __asm {
-            pushad
-            mov ecx, [base]
-            mov eax, [base]
-            mov eax, [eax]
-            call [eax+4]
-            mov [name], eax
-            popad
-        }
-
-        bi.baseName = StringUtils::stows(name);
-        bi.baseId = CreateID(name);
-        bases.emplace_back(bi);
-
-        base = Universe::GetNextBase();
-    }
-
     Universe::ISystem* system = Universe::GetFirstSystem();
     while (system)
     {

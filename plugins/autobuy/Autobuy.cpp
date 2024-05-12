@@ -35,43 +35,53 @@
 
 namespace Plugins
 {
+    Autobuy::Autobuy(const PluginInfo& info) : Plugin(info), autobuyInfo() {}
 
-    void Autobuy::LoadPlayerAutobuy(ClientId client)
+    void Autobuy::LoadPlayerAutobuy(const ClientId client)
     {
+        auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[client.GetValue()];
 
-        //TODO: Implement chardata database retrieval for this as IniUtils is being deprecated for 4.1
-        AutobuyInfo playerAutobuyInfo{};
-        /*
-        playerAutobuyInfo.missiles = StringUtils::Cast<bool>(Hk::IniUtils::c()->GetFromPlayerFile(client, L"autobuy.missiles").value());
-        playerAutobuyInfo.torps = StringUtils::Cast<bool>(Hk::IniUtils::c()->GetFromPlayerFile(client, L"autobuy.torps").value());
-        playerAutobuyInfo.cd = StringUtils::Cast<bool>(Hk::IniUtils::c()->GetFromPlayerFile(client, L"autobuy.cd").value());
-        playerAutobuyInfo.cm = StringUtils::Cast<bool>(Hk::IniUtils::c()->GetFromPlayerFile(client, L"autobuy.cm").value());
-        playerAutobuyInfo.bb = StringUtils::Cast<bool>(Hk::IniUtils::c()->GetFromPlayerFile(client, L"autobuy.bb").value());
-        playerAutobuyInfo.repairs = StringUtils::Cast<bool>(Hk::IniUtils::c()->GetFromPlayerFile(client, L"autobuy.repairs").value());
-        autobuyInfo[client] = playerAutobuyInfo;
-        */
+        const auto view = client.GetData().characterData;
+        if (auto autobuyDoc = view.find("autobuy"); autobuyDoc != view.end())
+        {
+            for (const bsoncxx::document::view subDoc = autobuyDoc->get_document().view(); auto& item : subDoc)
+            {
+                switch (Hash(item.key().data()))
+                {
+                    case Hash("repairs"): repairs = item.get_bool(); break;
+                    case Hash("bb"): bb = item.get_bool(); break;
+                    case Hash("cm"): cm = item.get_bool(); break;
+                    case Hash("cd"): cd = item.get_bool(); break;
+                    case Hash("torps"): torps = item.get_bool(); break;
+                    case Hash("mines"): mines = item.get_bool(); break;
+                    case Hash("missiles"): missiles = item.get_bool(); break;
+                    default:;
+                }
+            }
+        }
     }
 
-    void Autobuy::ClearClientInfo(ClientId& client) { autobuyInfo.erase(client.GetValue()); }
+    void Autobuy::OnClearClientInfo(const ClientId client) { autobuyInfo[client.GetValue()] = {}; }
 
-    int PlayerGetAmmoCount(const std::list<CargoInfo>& cargoList, uint itemArchId)
+    int PlayerGetAmmoCount(const st6::list<EquipDesc>* cargoList, const uint itemArchId)
     {
-        if (const auto foundCargo = std::ranges::find_if(cargoList, [itemArchId](const CargoInfo& cargo) { return cargo.archId == itemArchId; });
-            foundCargo != cargoList.end())
+        for (auto& cargo : *cargoList)
         {
-            return foundCargo->count;
+            if (cargo.archId == itemArchId)
+            {
+                return cargo.count;
+            }
         }
-
         return 0;
     }
 
-    void handleRepairs(ClientId& client)
+    void HandleRepairs(const ClientId client)
     {
-        auto repairCost = static_cast<uint>(Archetype::GetShip(Players[client.GetValue()].shipArchetype)->hitPoints * (1 - Players[client.GetValue()].relativeHealth) / 3);
+        auto repairCost = static_cast<uint>(client.GetShipArch().Unwrap()->hitPoints * (1 - client.GetRelativeHealth().Unwrap()) / 3);
 
-        std::set<short> eqToFix;
+        std::vector<ushort> eqToFix;
 
-        for (const auto& item : Players[client].equipDescList.equip)
+        for (const auto& item : *client.GetEquipCargo().Unwrap())
         {
             if (!item.mounted || item.health == 1)
             {
@@ -85,37 +95,41 @@ namespace Plugins
             }
 
             repairCost += static_cast<uint>(info->price * (1.0f - item.health) / 3);
-            eqToFix.insert(item.id);
+            eqToFix.emplace_back(item.id);
         }
 
         if (const uint playerCash = client.GetCash().Unwrap(); playerCash < repairCost)
         {
-            client.Message(L"Insufficient Cash");
+            (void)client.Message(L"Insufficient Cash");
             return;
         }
 
         if (repairCost)
         {
             client.Message(std::format(L"Auto-Buy: Ship repair costed {}$", repairCost));
-            Hk::Player::RemoveCash(client, repairCost);
+            (void)client.RemoveCash(repairCost);
         }
 
         if (!eqToFix.empty())
         {
-            for (auto& item : Players[client].equipDescList.equip)
+            auto currEq = eqToFix.begin();
+            auto& equip = *client.GetEquipCargo().Unwrap();
+            for (auto& item : equip)
             {
-                if (eqToFix.contains(item.id))
+                if (item.id == *currEq)
                 {
                     item.health = 1.0f;
+                    ++currEq;
                 }
             }
 
-            auto& equip = Players[client].equipDescList.equip;
-
-            if (&equip != &Players[client].shadowEquipDescList.equip)
-            {
-                Players[client].shadowEquipDescList.equip = equip;
-            }
+            // TODO: Uncomment if anticheat gets angry
+            // auto& equip = Players[client].equipDescList.equip;
+            //
+            // if (&equip != &Players[client].shadowEquipDescList.equip)
+            //{
+            //    Players[client].shadowEquipDescList.equip = equip;
+            //}
 
             st6::vector<EquipDesc> eqVector;
             for (auto& eq : equip)
@@ -127,89 +141,89 @@ namespace Plugins
                 eqVector.push_back(eq);
             }
 
-            HookClient->Send_FLPACKET_SERVER_SETEQUIPMENT(client, eqVector);
+            FLHook::GetPacketInterface()->Send_FLPACKET_SERVER_SETEQUIPMENT(client.GetValue(), eqVector);
         }
 
-        if (auto& playerCollision = Players[client].collisionGroupDesc; !playerCollision.empty())
+        if (auto& playerCollision = *client.GetCollisionGroups().Unwrap(); !playerCollision.empty())
         {
-            st6::list<XCollision> componentList;
             for (auto& colGrp : playerCollision)
             {
-                auto* newColGrp = reinterpret_cast<XCollision*>(colGrp);
-                newColGrp->componentHp = 1.0f;
-                componentList.push_back(*newColGrp);
+                colGrp.health = 1.0f;
             }
-            client.Message(std::format(L"Attempting to repair {} components.", playerCollision.size()));
-            HookClient->Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(client, componentList);
+            FLHook::GetPacketInterface()->Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(client.GetValue(), playerCollision);
         }
 
-        if (Players[client].relativeHealth < 1.0f)
+        if (client.GetRelativeHealth().Unwrap() < 1.0f)
         {
-            Players[client].relativeHealth = 1.0f;
-            HookClient->Send_FLPACKET_SERVER_SETHULLSTATUS(client, 1.0f);
+            (void)client.SetRelativeHealth(1.0f);
+            FLHook::GetPacketInterface()->Send_FLPACKET_SERVER_SETHULLSTATUS(client.GetValue(), 1.0f);
         }
     }
 
-    void Autobuy::AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CargoInfo>& cargo, std::list<AutobuyCartItem>& cart, AutobuyCartItem& item,
-                        const std::wstring_view& desc)
+    void Autobuy::AddEquipToCart(const Archetype::Launcher* launcher, const st6::list<EquipDesc>* cargo, std::map<uint, AutobuyCartItem>& cart,
+                                 AutobuyCartItem& item, const std::wstring_view& desc)
     {
         // TODO: Update to per-weapon ammo limits once implemented
         item.archId = launcher->projectileArchId;
         item.count = MAX_PLAYER_AMMO - PlayerGetAmmoCount(cargo, item.archId);
         item.description = desc;
-        cart.emplace_back(item);
+        cart[item.archId] = item;
     }
 
-    AutobuyInfo& Autobuy::LoadAutobuyInfo(ClientId& client)
+    void Autobuy::OnCharacterSelectAfter(const ClientId client) { LoadPlayerAutobuy(client); }
+
+    void Autobuy::OnCharacterSave(const ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
     {
-        if (!autobuyInfo.contains(client))
+        using bsoncxx::builder::basic::kvp;
+        const auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[client.GetValue()];
+
+        if (!updated)
         {
-            LoadPlayerAutobuy(client);
+            return;
         }
 
-        return autobuyInfo[client];
+        document.append(kvp(
+            "autobuy",
+            bsoncxx::builder::basic::make_document(
+                kvp("cd", cd), kvp("cm", cm), kvp("bb", bb), kvp("repairs", repairs), kvp("mines", mines), kvp("torps", torps), kvp("missiles", missiles))));
     }
 
-    void Autobuy::OnBaseEnter(BaseId& baseId, ClientId& client)
+    void Autobuy::OnBaseEnterAfter(const BaseId baseId, const ClientId client)
     {
-        const AutobuyInfo& clientInfo = LoadAutobuyInfo(client);
-
-        const Archetype::Ship* ship = Archetype::GetShip(Players[client].shipArchetype);
+        const Archetype::Ship* ship = client.GetShipArch().Unwrap();
 
         // player cargo
-        int remHoldSize;
-        const auto cargo = Hk::Player::EnumCargo(client, remHoldSize).Handle();
+        float remHoldSize = client.GetRemainingCargo().Unwrap();
+        auto equipCargo = client.GetEquipCargo().Unwrap();
 
         // shopping cart
-        std::list<AutobuyCartItem> cartList;
+        std::map<uint, AutobuyCartItem> cartMap;
 
-        if (clientInfo.bb)
+        const auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[client.GetValue()];
+        if (bb)
         {
             // shield bats & nanobots
 
-            uint nanobotsId;
-            pub::GetGoodID(nanobotsId, config->nanobotNickname.c_str());
-            uint shieldBatsId;
-            pub::GetGoodID(shieldBatsId, config->shieldBatteryNickname.c_str());
             bool nanobotsFound = false;
             bool shieldBattsFound = false;
-            for (auto& item : cargo)
+            for (auto& item : *equipCargo)
             {
-                AutobuyCartItem aci;
-                if (item.archId == nanobotsId)
+                if (item.archId == config.nanobot.GetValue())
                 {
-                    aci.archId = nanobotsId;
+                    AutobuyCartItem aci;
+                    aci.archId = config.nanobot.GetValue();
                     aci.count = ship->maxNanobots - item.count;
                     aci.description = L"Nanobots";
-                    cartList.push_back(aci);
+                    cartMap[aci.archId] = aci;
                     nanobotsFound = true;
                 }
-                else if (item.archId == shieldBatsId)
+                else if (item.archId == config.shieldBattery.GetValue())
                 {
-                    aci.archId = shieldBatsId;
+                    AutobuyCartItem aci;
+                    aci.archId = config.shieldBattery.GetValue();
                     aci.count = ship->maxShieldBats - item.count;
                     aci.description = L"Shield Batteries";
-                    cartList.push_back(aci);
+                    cartMap[aci.archId] = aci;
                     shieldBattsFound = true;
                 }
             }
@@ -217,100 +231,76 @@ namespace Plugins
             if (!nanobotsFound)
             { // no nanos found -> add all
                 AutobuyCartItem aci;
-                aci.archId = nanobotsId;
+                aci.archId = config.nanobot.GetValue();
                 aci.count = ship->maxNanobots;
                 aci.description = L"Nanobots";
-                cartList.push_back(aci);
+                cartMap[aci.archId] = aci;
             }
 
             if (!shieldBattsFound)
             { // no batts found -> add all
                 AutobuyCartItem aci;
-                aci.archId = shieldBatsId;
+                aci.archId = config.shieldBattery.GetValue();
                 aci.count = ship->maxShieldBats;
                 aci.description = L"Shield Batteries";
-                cartList.push_back(aci);
+                cartMap[aci.archId] = aci;
             }
         }
 
-        if (clientInfo.cd || clientInfo.cm || clientInfo.mines || clientInfo.missiles || clientInfo.torps)
+        if (cd || cm || mines || missiles || torps)
         {
-            // add mounted equip to a new list and eliminate double equipment(such
-            // as 2x lancer etc)
-            std::list<CargoInfo> mountedList;
-            for (auto& item : cargo)
+            // check mounted equip
+            for (const auto& equip : *equipCargo)
             {
-                if (!item.mounted)
+                if(!equip.mounted)
                 {
                     continue;
                 }
-
-                bool found = false;
-                for (const auto& mounted : mountedList)
-                {
-                    if (mounted.archId == item.archId)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found)
-                {
-                    mountedList.push_back(item);
-                }
-            }
-
-            // check mounted equip
-            for (const auto& mounted : mountedList)
-            {
                 AutobuyCartItem aci;
-                Archetype::Equipment* eq = Archetype::GetEquipment(mounted.archId);
-                auto eqType = Hk::Client::GetEqType(eq);
 
-                switch (eqType)
+                switch (Archetype::Equipment* eq = Archetype::GetEquipment(equip.archId); EquipmentId(eq->archId).GetType().Unwrap())
                 {
-                    case ET_MINE:
+                    case EquipmentType::Mine:
                         {
-                            if (clientInfo.mines)
+                            if (mines)
                             {
-                                AddEquipToCart(static_cast<Archetype::Launcher*>(eq), cargo, cartList, aci, L"Mines");
+                                AddEquipToCart(dynamic_cast<Archetype::Launcher*>(eq), equipCargo, cartMap, aci, L"Mines");
                             }
 
                             break;
                         }
-                    case ET_CM:
+                    case EquipmentType::Cm:
                         {
-                            if (clientInfo.cm)
+                            if (cm)
                             {
-                                AddEquipToCart(static_cast<Archetype::Launcher*>(eq), cargo, cartList, aci, L"Countermeasures");
+                                AddEquipToCart(dynamic_cast<Archetype::Launcher*>(eq), equipCargo, cartMap, aci, L"Countermeasures");
                             }
 
                             break;
                         }
-                    case ET_TORPEDO:
+                    case EquipmentType::Torpedo:
                         {
-                            if (clientInfo.torps)
+                            if (torps)
                             {
-                                AddEquipToCart(static_cast<Archetype::Launcher*>(eq), cargo, cartList, aci, L"Torpedoes");
+                                AddEquipToCart(dynamic_cast<Archetype::Launcher*>(eq), equipCargo, cartMap, aci, L"Torpedoes");
                             }
 
                             break;
                         }
-                    case ET_CD:
+                    case EquipmentType::Cd:
                         {
-                            if (clientInfo.cd)
+                            if (cd)
                             {
-                                AddEquipToCart(static_cast<Archetype::Launcher*>(eq), cargo, cartList, aci, L"Cruise Disrupters");
+                                AddEquipToCart(dynamic_cast<Archetype::Launcher*>(eq), equipCargo, cartMap, aci, L"Cruise Disrupters");
                             }
 
                             break;
                         }
-                    case ET_MISSILE:
+                    case EquipmentType::Missile:
                         {
-                            if (clientInfo.missiles)
+                            if (missiles)
                             {
-                                AddEquipToCart(static_cast<Archetype::Launcher*>(eq), cargo, cartList, aci, L"Missiles");
+                                AddEquipToCart(dynamic_cast<Archetype::Launcher*>(eq), equipCargo, cartMap, aci, L"Missiles");
                             }
 
                             break;
@@ -321,224 +311,198 @@ namespace Plugins
             }
         }
 
-        if (clientInfo.repairs)
+        if (repairs)
         {
-            handleRepairs(client);
+            HandleRepairs(client);
         }
 
-        // search base in base-info list
-        const BaseInfo* bi = nullptr;
-
-        if (auto foundBase = std::ranges::find_if(CoreGlobals::c()->allBases, [baseId](const BaseInfo& base) { return base.baseId == baseId; });
-            foundBase != CoreGlobals::c()->allBases.end())
-        {
-            bi = std::to_address(foundBase);
-        }
+        BaseData* bi = BaseDataList_get()->get_base_data(baseId.GetValue());
 
         if (!bi)
         {
             return; // base not found
         }
 
-        const auto cash= Hk::Player::GetCash(client).Handle();
+        const auto cash = client.GetCash().Unwrap();
 
-        for (auto& buy : cartList)
+        RepId clientRep = client.GetReputation().Handle();
+        RepId baseRep = baseId.GetAffiliation().Handle();
+        float baseStanding = clientRep.GetAttitudeTowardsRepId(baseRep).Handle();
+
+        for (auto& [key, value] : cartMap)
         {
-            if (!buy.count || !Arch2Good(buy.archId))
+            if (!value.count || !Arch2Good(value.archId))
             {
                 continue;
             }
 
+            const auto itemIter = bi->marketMap.find(value.archId);
+            if (itemIter == bi->marketMap.end())
+            {
+                continue;
+            }
+
+            MarketGoodInfo& marketInfo = itemIter->second;
+
             // check if good is available and if player has the neccessary rep
-            bool goodAvailable = false;
-            for (const auto& available : bi->MarketMisc)
+            if (marketInfo.rep > baseStanding)
             {
-                if (available.archId == buy.archId)
-                {
-                    auto baseRep = Hk::Solar::GetAffiliation(bi->objectId).Handle();
-                    const auto playerRep = Hk::Player::GetRep(client, baseRep).Handle();
-
-                    // good rep, allowed to buy
-                    if (playerRep >= available.rep)
-                    {
-                        goodAvailable = true;
-                    }
-                    break;
-                }
+                continue;
             }
 
-            if (!goodAvailable)
-            {
-                continue; // base does not sell this item or bad rep
-            }
-            auto goodPrice = Hk::Solar::GetCommodityPrice(baseId, buy.archId).Raw();
-            if (goodPrice.has_error())
-            {
-                continue; // good not available
-            }
-
-            const Archetype::Equipment* eq = Archetype::GetEquipment(buy.archId);
+            const Archetype::Equipment* eq = Archetype::GetEquipment(value.archId);
+            uint amountToBuy = value.count;
             // will always fail for volume == 0, no need to worry about potential div by 0
-            if (static_cast<float>(remHoldSize) < std::ceil(eq->volume * static_cast<float>(buy.count)))
+            if (remHoldSize < eq->volume * static_cast<float>(value.count))
             {
                 // round to the nearest possible
-                auto newCount = static_cast<uint>(static_cast<float>(remHoldSize) / eq->volume);
-                if (!newCount)
+                if (const auto newCount = static_cast<uint>(remHoldSize / eq->volume); !newCount)
                 {
-                    client.Message(std::format(L"Auto-Buy({}): FAILED! Insufficient Cargo Space", buy.description));
+                    client.Message(std::format(L"Auto-Buy({}): FAILED! Insufficient Cargo Space", value.description));
                     continue;
                 }
                 else
                 {
-                    buy.count = newCount;
+                    amountToBuy = newCount;
                 }
             }
 
-            if (uint uCost = (static_cast<uint>(goodPrice.value()) * buy.count); cash < uCost)
+            if (uint uCost = static_cast<uint>(marketInfo.price) * amountToBuy; cash < uCost)
             {
-                client.Message(std::format(L"Auto-Buy({}): FAILED! Insufficient Credits", buy.description));
+                client.Message(std::format(L"Auto-Buy({}): FAILED! Insufficient Credits", value.description));
             }
             else
             {
-                Hk::Player::RemoveCash(client, uCost);
-                remHoldSize -= ((int)eq->volume * buy.count);
+                (void)client.RemoveCash(uCost);
+                remHoldSize -= eq->volume * static_cast<float>(amountToBuy);
 
                 // add the item, dont use addcargo for performance/bug reasons
                 // assume we only mount multicount goods (missiles, ammo, bots
-                Hk::Player::AddCargo(client, buy.archId, buy.count, false);
+                (void)client.AddCargo(value.archId, amountToBuy, false);
 
-                client.Message(std::format(L"Auto-Buy({}): Bought {} unit(s), cost: {}$", buy.description, buy.count, StringUtils::ToMoneyStr(uCost)));
+                client.Message(std::format(L"Auto-Buy({}): Bought {} unit(s), cost: {}$", value.description, amountToBuy, StringUtils::ToMoneyStr(uCost)));
             }
         }
-        Hk::Player::SaveChar(client);
+        (void)client.SaveChar();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // USER COMMANDS
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-    void Autobuy::UserCmdAutobuy(std::wstring_view autobuyType, std::wstring_view newState)
+    void Autobuy::UserCmdAutobuy(const std::wstring_view autobuyType, const std::wstring_view newState)
     {
-        AutobuyInfo& autobuyInfo = LoadAutobuyInfo(client);
         if (autobuyType.empty())
         {
-            client.Message(L"Error: Invalid parameters");
-            client.Message(L"Usage: /autobuy <param> [<on/off>]");
-            client.Message(L"<Param>:");
-            client.Message(L"|  info - display current autobuy-settings");
-            client.Message(L"|  missiles - enable/disable autobuy for missiles");
-            client.Message(L"|  torps - enable/disable autobuy for torpedos");
-            client.Message(L"|  mines - enable/disable autobuy for mines");
-            client.Message(L"|  cd - enable/disable autobuy for cruise disruptors");
-            client.Message(L"|  cm - enable/disable autobuy for countermeasures");
-            client.Message(L"|  bb - enable/disable autobuy for nanobots/shield batteries");
-            client.Message(L"|  repairs - enable/disable automatic repair of ship and equipment");
-            client.Message(L"|  all: enable/disable autobuy for all of the above");
-            client.Message(L"Examples:");
-            client.Message(L"|  \"/autobuy missiles on\" enable autobuy for missiles");
-            client.Message(L"|  \"/autobuy all off\" completely disable autobuy");
-            client.Message(L"|  \"/autobuy info\" show autobuy info");
+            (void)userCmdClient.Message(L"Error: Invalid parameters");
+            (void)userCmdClient.Message(L"Usage: /autobuy <param> [<on/off>]");
+            (void)userCmdClient.Message(L"<Param>:");
+            (void)userCmdClient.Message(L"|  info - display current autobuy-settings");
+            (void)userCmdClient.Message(L"|  missiles - enable/disable autobuy for missiles");
+            (void)userCmdClient.Message(L"|  torps - enable/disable autobuy for torpedos");
+            (void)userCmdClient.Message(L"|  mines - enable/disable autobuy for mines");
+            (void)userCmdClient.Message(L"|  cd - enable/disable autobuy for cruise disruptors");
+            (void)userCmdClient.Message(L"|  cm - enable/disable autobuy for countermeasures");
+            (void)userCmdClient.Message(L"|  bb - enable/disable autobuy for nanobots/shield batteries");
+            (void)userCmdClient.Message(L"|  repairs - enable/disable automatic repair of ship and equipment");
+            (void)userCmdClient.Message(L"|  all: enable/disable autobuy for all of the above");
+            (void)userCmdClient.Message(L"Examples:");
+            (void)userCmdClient.Message(L"|  \"/autobuy missiles on\" enable autobuy for missiles");
+            (void)userCmdClient.Message(L"|  \"/autobuy all off\" completely disable autobuy");
+            (void)userCmdClient.Message(L"|  \"/autobuy info\" show autobuy info");
         }
 
+        auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[userCmdClient.GetValue()];
         if (autobuyType == L"info")
         {
-            client.Message(std::format(L"Missiles: {}", autobuyInfo.missiles ? L"On" : L"Off"));
-            client.Message(std::format(L"Mines: {}", autobuyInfo.mines ? L"On" : L"Off"));
-            client.Message(std::format(L"Torpedos: {}", autobuyInfo.torps ? L"On" : L"Off"));
-            client.Message(std::format(L"Cruise Disruptors: {}", autobuyInfo.cd ? L"On" : L"Off"));
-            client.Message(std::format(L"Countermeasures: {}", autobuyInfo.cm ? L"On" : L"Off"));
-            client.Message(std::format(L"Nanobots/Shield Batteries: {}", autobuyInfo.bb ? L"On" : L"Off"));
-            client.Message(std::format(L"Repairs: {}", autobuyInfo.repairs ? L"On" : L"Off"));
+            (void)userCmdClient.Message(std::format(L"Missiles: {}", missiles ? L"On" : L"Off"));
+            (void)userCmdClient.Message(std::format(L"Mines: {}", mines ? L"On" : L"Off"));
+            (void)userCmdClient.Message(std::format(L"Torpedos: {}", torps ? L"On" : L"Off"));
+            (void)userCmdClient.Message(std::format(L"Cruise Disruptors: {}", cd ? L"On" : L"Off"));
+            (void)userCmdClient.Message(std::format(L"Countermeasures: {}", cm ? L"On" : L"Off"));
+            (void)userCmdClient.Message(std::format(L"Nanobots/Shield Batteries: {}", bb ? L"On" : L"Off"));
+            (void)userCmdClient.Message(std::format(L"Repairs: {}", repairs ? L"On" : L"Off"));
             return;
         }
 
         if (newState.empty() || (newState != L"on" && newState != L"off"))
         {
-            client.Message(L"ERR invalid parameters");
+            (void)userCmdClient.Message(L"ERR invalid parameters");
             return;
         }
-
-        const auto fileName = Hk::Client::GetCharFileName(client).Handle();
-        std::string Section = "autobuy_" + StringUtils::wstos(fileName);
 
         const bool enable = newState == L"on";
         if (autobuyType == L"all")
         {
-            autobuyInfo.missiles = enable;
-            autobuyInfo.mines = enable;
-            autobuyInfo.torps = enable;
-            autobuyInfo.cd = enable;
-            autobuyInfo.cm = enable;
-            autobuyInfo.bb = enable;
-            autobuyInfo.repairs = enable;
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.missiles", StringUtils::stows(enable ? "true" : "false"));
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.mines", StringUtils::stows(enable ? "true" : "false"));
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.torps", StringUtils::stows(enable ? "true" : "false"));
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.cd", StringUtils::stows(enable ? "true" : "false"));
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.cm", StringUtils::stows(enable ? "true" : "false"));
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.bb", StringUtils::stows(enable ? "true" : "false"));
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.repairs", StringUtils::stows(enable ? "true" : "false"));
+            updated = true;
+            missiles = enable;
+            mines = enable;
+            torps = enable;
+            cd = enable;
+            cm = enable;
+            bb = enable;
+            repairs = enable;
         }
         else if (autobuyType == L"missiles")
         {
-            autobuyInfo.missiles = enable;
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.missiles", StringUtils::stows(enable ? "true" : "false"));
+            updated = true;
+            missiles = enable;
         }
         else if (autobuyType == L"mines")
         {
-            autobuyInfo.mines = enable;
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.mines", StringUtils::stows(enable ? "true" : "false"));
+            updated = true;
+            mines = enable;
         }
         else if (autobuyType == L"torps")
         {
-            autobuyInfo.torps = enable;
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.torps", StringUtils::stows(enable ? "true" : "false"));
+            updated = true;
+            torps = enable;
         }
         else if (autobuyType == L"cd")
         {
-            autobuyInfo.cd = enable;
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.cd", StringUtils::stows(enable ? "true" : "false"));
+            updated = true;
+            cd = enable;
         }
         else if (autobuyType == L"cm")
         {
-            autobuyInfo.cm = enable;
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.cm", StringUtils::stows(enable ? "true" : "false"));
+            updated = true;
+            cm = enable;
         }
         else if (autobuyType == L"bb")
         {
-            autobuyInfo.bb = enable;
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.bb", StringUtils::stows(enable ? "true" : "false"));
+            updated = true;
+            bb = enable;
         }
         else if (autobuyType == L"repairs")
         {
-            autobuyInfo.repairs = enable;
-            Hk::IniUtils::c()->SetCharacterIni(client, L"autobuy.repairs", StringUtils::stows(enable ? "true" : "false"));
+            updated = true;
+            repairs = enable;
         }
         else
         {
-            client.Message(L"ERR invalid parameters");
+            (void)userCmdClient.Message(L"ERR invalid parameters");
             return;
         }
 
-        Hk::Player::SaveChar(client);
-        client.Message(L"OK");
+        (void)userCmdClient.Message(L"OK");
     }
 
-
-    using namespace Plugins;
-
-    DefaultDllMain();
-
-    const PluginInfo Info(L"Autobuy", L"autobuy", PluginMajorVersion::V04, PluginMinorVersion::V01);
-    void Autobuy::LoadSettings() { config = Serializer::LoadFromJson<Config>(L"config/autobuy.json"); }
-    Autobuy::Autobuy(const PluginInfo info) : Plugin(Info)
+    void Autobuy::OnLoadSettings()
     {
-        EmplaceHook(HookedCall::FLHook__LoadSettings, &Autobuy::LoadSettings, HookStep::After);
-        EmplaceHook(HookedCall::FLHook__ClearClientInfo, &Autobuy::ClearClientInfo, HookStep::After);
-        EmplaceHook(HookedCall::IServerImpl__BaseEnter, &Autobuy::OnBaseEnter, HookStep::After);
+        if (const auto conf = Json::Load<Config>("config/autobuy.json"); !conf.has_value())
+        {
+            Json::Save(config, "config/autobuy.json");
+        }
+        else
+        {
+            config = conf.value();
+        }
     }
-    SetupPlugin(Autobuy, Info);
-
 } // namespace Plugins
+
+using namespace Plugins;
+
+DefaultDllMain();
+
+const PluginInfo Info(L"Autobuy", L"autobuy", PluginMajorVersion::V04, PluginMinorVersion::V01);
+SetupPlugin(Autobuy, Info);

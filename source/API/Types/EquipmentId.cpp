@@ -28,7 +28,7 @@ Action<EquipmentType, Error> EquipmentId::GetType() const
     static const uint vftLight = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableLight);
 
     Archetype::Equipment* eq = Archetype::GetEquipment(value);
-    const uint vft = eq->vtable; // NOLINT
+    const uint vft = *reinterpret_cast<uint*>(std::addressof(eq)); // NOLINT
     if (vft == vftGun)
     {
         const Archetype::Gun* gun = reinterpret_cast<Archetype::Gun*>(eq);

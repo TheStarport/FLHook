@@ -29,6 +29,7 @@ struct Equipment
 	int archId;
 	std::string hardPoint;
 	float health;
+    short amount;
 	bool mounted;
 };
 
@@ -49,6 +50,7 @@ struct Character
 	std::optional<bsoncxx::oid> _id;
 	std::string accountId;
 	std::string characterName;
+	std::wstring wideCharacterName;
 	int money = 0;
 	int rank = 0;
 	int affiliation = 0;
@@ -94,6 +96,8 @@ struct Character
 	std::vector<int> jumpHolesVisited;
 	std::vector<RumorData> rumorsReceived;
 	std::unordered_map<int, std::vector<std::string>> weaponGroups;
+
+	bsoncxx::document::value characterData = bsoncxx::builder::basic::make_document();
 
     void ToBson(bsoncxx::builder::basic::document& document) const;
     explicit Character(bsoncxx::document::view view);

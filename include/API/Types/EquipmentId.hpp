@@ -1,5 +1,6 @@
 #pragma once
 
+//TODO: Allow assigning to uint variables without the need to extract GetValue explicitly
 class DLL EquipmentId
 {
         uint value = 0;

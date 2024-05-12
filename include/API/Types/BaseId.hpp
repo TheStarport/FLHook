@@ -18,6 +18,7 @@ class DLL BaseId
         uint GetValue() const { return value; }
 
         Action<ObjectId, Error> GetSpaceId() const;
+        Action<SystemId, Error> GetSystem() const;
         Action<RepId, Error> GetAffiliation() const;
         Action<std::wstring_view, Error> GetName() const;
         Action<std::pair<float, float>, Error> GetBaseHealth() const;

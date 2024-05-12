@@ -164,7 +164,7 @@ class DLL Plugin
         Aft(void, OnConnect, (ClientId client));
         Aft(void, OnDisconnect, (ClientId client, EFLConnection connection));
         Aft(void, OnCharacterInfoRequest, (ClientId client, bool unk1));
-        Aft(void, OnCharacterSelect, (ClientId client, std::wstring_view id));
+        Aft(void, OnCharacterSelect, (ClientId client));
         Aft(void, OnCharacterCreation, (ClientId client, const SCreateCharacterInfo& info));
         Aft(void, OnCharacterDelete, (ClientId client, std::wstring_view charName));
         virtual void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document){};

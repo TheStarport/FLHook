@@ -63,7 +63,7 @@ class FLHook final
         static void ClearClientInfo(ClientId client);
         static void ProcessPendingCommands();
         static void ProcessPendingAsyncTasks();
-    
+
         // Timers
         static void PublishServerStats();
         static void TimerCheckKick();
@@ -84,7 +84,6 @@ class FLHook final
         void UnloadHookExports();
 
         void LoadUserSettings(ClientId client);
-        bool LoadBaseMarket();
 
         uint damageToClientId;
 
@@ -97,8 +96,6 @@ class FLHook final
         uint serverLoadInMs;
         uint playerCount;
         bool disableNpcs;
-
-        std::list<BaseInfo> allBases;
 
         bool flhookReady;
 
@@ -133,7 +130,6 @@ class FLHook final
         static DWORD __stdcall Offset(BinaryType type, AddressList address);
 
         static bool IsReady() { return instance != nullptr && instance->flhookReady; }
-        static const std::list<BaseInfo>& GetBases() { return instance->allBases; }
         static std::wstring_view GetAccountPath() { return instance->accPath; }
         static bool GetShipInspect(uint& ship, IObjInspectImpl*& inspect, uint& dunno) { return getShipInspect(ship, inspect, dunno); }
 
@@ -146,6 +142,7 @@ class FLHook final
         static Action<pub::AI::Personality, Error> GetPersonality(const std::wstring& pilotNickname);
         static AccountManager& GetAccountManager() { return *instance->accountManager; }
         static FLHookConfig& GetConfig() { return *instance->flhookConfig; }
+        static IClientImpl* GetPacketInterface(){ return hookClientImpl; }
 
         static Action<void, Error> MessageUniverse(std::wstring_view message);
 };

@@ -66,8 +66,7 @@ namespace Plugins
      */
     bool ArenaPlugin::ValidateCargo(const ClientId client)
     {
-        int remainingHoldSize;
-        for (const auto cargo = client.EnumCargo(remainingHoldSize).Handle(); const auto& item : cargo)
+        for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : cargo)
         {
             bool flag = false;
             pub::IsCommodity(item.archId, flag);
@@ -93,19 +92,19 @@ namespace Plugins
             return BaseId{ static_cast<uint>(returnBase->get_int32()) };
         }
 
-        return BaseId();
+        return {};
     }
 
     /** @ingroup Arena
      * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
      */
-    void ArenaPlugin::OnCharacterSelect(const ClientId client, std::wstring_view charFilename)
+    void ArenaPlugin::OnCharacterSelectAfter(const ClientId client, std::wstring_view charFilename)
     {
         auto& [flag, returnBase] = clientData[userCmdClient.GetValue()];
 
         flag = TransferFlag::None;
 
-        auto view = client.GetData().GetCharacterData();
+        const auto view = client.GetData().GetCharacterData();
         if (auto findResult = view.find("arenaReturnBase"); findResult != view.end())
         {
             returnBase = BaseId(findResult->get_int32());

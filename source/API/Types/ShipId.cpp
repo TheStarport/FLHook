@@ -207,11 +207,8 @@ Action<void, Error> ShipId::AddCargo(uint good, uint count, bool mission)
 
         if (goodInfo->multiCount)
         {
-            // it's a good that can have multiple units(commodities missile ammo, etc)
-            int ret;
-
             // we need to do this, else server or client may crash
-            for (const auto cargo = client.EnumCargo(ret).Raw(); auto& item : cargo.value())
+            for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : *cargo)
             {
                 if (item.archId == good && item.mission != mission)
                 {

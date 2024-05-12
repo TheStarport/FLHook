@@ -93,3 +93,14 @@ Action<SystemId, Error> ObjectId::GetSystem() const
 
     return { SystemId(system) };
 }
+
+Action<RepId, Error> ObjectId::GetReputation() const
+{
+    int rep;
+    pub::SpaceObj::GetRep(value, rep);
+    if (!rep)
+    {
+        return { cpp::fail(Error::InvalidReputation) };
+    }
+    return { RepId(rep) };
+}

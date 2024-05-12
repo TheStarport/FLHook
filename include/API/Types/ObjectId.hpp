@@ -1,7 +1,11 @@
 #pragma once
 
+#include "RepId.hpp"
 #include "SystemId.hpp"
 
+/**
+ * @brief This object represents instances of both Stations and Ships in space.
+ */
 class DLL ObjectId
 {
     protected:
@@ -40,6 +44,9 @@ class DLL ObjectId
 
         [[nodiscard]]
         Action<SystemId, Error> GetSystem() const;
+
+        [[nodiscard]]
+        Action<RepId, Error> GetReputation() const;
 };
 
 template <>

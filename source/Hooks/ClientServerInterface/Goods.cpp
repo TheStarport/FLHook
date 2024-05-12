@@ -11,27 +11,28 @@ bool IServerImplHook::GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId clien
     {
         // anti-cheat check
 
-        int _;
-        const auto cargoList = client.EnumCargo(_).Raw();
+        const auto cargoList = client.GetEquipCargo().Raw();
         bool legalSell = false;
-        for (const auto& cargo : cargoList.value())
+        for (const auto& cargo : *cargoList.value())
         {
-            if (cargo.archId == gsi.archId)
+            if (cargo.archId != gsi.archId)
             {
-                legalSell = true;
-                if (abs(gsi.count) > cargo.count)
-                {
-                    auto charName = client.GetCharacterName().Handle();
-                    // AddCheaterLog(charName, std::format(L"Sold more good than possible item={} count={}", gsi.archId, gsi.count));
-
-                    FLHook::MessageUniverse(std::format(L"Possible cheating detected ({})", charName));
-                    client.Kick();
-                    client.GetAccount().Unwrap().Ban();
-                    return false;
-                }
-                break;
+                continue;
             }
+            legalSell = true;
+            if (abs(gsi.count) > cargo.count)
+            {
+                auto charName = client.GetCharacterName().Handle();
+                // AddCheaterLog(charName, std::format(L"Sold more good than possible item={} count={}", gsi.archId, gsi.count));
+
+                FLHook::MessageUniverse(std::format(L"Possible cheating detected ({})", charName));
+                (void)client.Kick();
+                (void)client.GetAccount().Unwrap().Ban();
+                return false;
+            }
+            break;
         }
+
         if (!legalSell)
         {
             // AddCheaterLog(charName, std::format(L"Sold good player does not have (buggy test), item={}", gsi.archId));

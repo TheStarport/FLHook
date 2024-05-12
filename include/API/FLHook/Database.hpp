@@ -34,7 +34,6 @@ class Database
 
         // This searches based on the objectId on the database
         std::optional<Character> GetCharacterById(bsoncxx::oid objId);
-        Account GetOrCreateAccount(std::string accountId, bool deferred = true);
 
     public:
         mongocxx::pool::entry AcquireClient();

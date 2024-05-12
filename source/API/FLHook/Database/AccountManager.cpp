@@ -44,7 +44,6 @@ void ConvertCharacterToVanillaData(CharacterData* data, const Character& charact
         data->repList.push_back(relation);
     }
 
-    SubObjectID::EquipIdMaker eqId;
 #define AddCargo(cargo, list)                               \
     EquipDesc equipDesc;                                    \
     equipDesc.id = data->equipIdEnumerator.CreateEquipID(); \
@@ -60,6 +59,7 @@ void ConvertCharacterToVanillaData(CharacterData* data, const Character& charact
     equipDesc.archId = equip.archId;                                         \
     equipDesc.health = equip.health;                                         \
     equipDesc.mounted = equip.mounted;                                       \
+    equipDesc.count = equip.amount;                                          \
     equipDesc.hardPoint.value = StringAlloc(equip.hardPoint.c_str(), false); \
     list.push_back(equipDesc);
 
@@ -78,7 +78,7 @@ void ConvertCharacterToVanillaData(CharacterData* data, const Character& charact
         AddEquip(equip, data->baseEquipAndCargo);
     }
 
-    eqId.Reset();
+    data->equipIdEnumerator.Reset();
 
     for (const auto& cargo : character.cargo)
     {
@@ -227,6 +227,7 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
 {
     std::wstring charName = reinterpret_cast<const wchar_t*>(data->name.c_str());
     character.characterName = StringUtils::wstos(charName);
+    character.wideCharacterName = charName;
     character.shipHash = data->shipHash;
     character.money = data->money;
     character.killCount = data->numOfKills;
@@ -508,7 +509,7 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
             EquipDesc e = *equip;
             // For some reason some loadouts contain invalid entries
             // Since all hashes have the first two bit set, we can filter those out
-            if ((e.archId & 0x3FFFFFFF) == 0 || !e.id)
+            if ((e.archId & 0x80000000) == 0 || !e.id)
             {
                 continue;
             }
@@ -575,7 +576,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     {
         character.jumpHolesVisited.emplace_back(visitedJH);
     }
-    for (auto visitedNPC : mdata->visitedNPCs)
+    for (auto& visitedNPC : mdata->visitedNPCs)
     {
         character.npcVisits.push_back({ static_cast<int>(visitedNPC.baseHash),
                                         static_cast<int>(visitedNPC.npcHash),
@@ -715,9 +716,10 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         if (!isCommodity)
         {
             equipment.archId = equip.archId;
-            equipment.health = equip.health;
-            equipment.mounted = equip.mounted;
             equipment.hardPoint = equip.hardPoint.value;
+            equipment.health = equip.health;
+            equipment.amount = equip.count;
+            equipment.mounted = equip.mounted;
             character.equipment.emplace_back(equipment);
         }
         else
@@ -770,9 +772,10 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
             if (!isCommodity)
             {
                 equipment.archId = equip.archId;
-                equipment.health = equip.health;
-                equipment.mounted = equip.mounted;
                 equipment.hardPoint = equip.hardPoint.value;
+                equipment.health = equip.health;
+                equipment.amount = equip.count;
+                equipment.mounted = equip.mounted;
                 character.baseEquipment.emplace_back(equipment);
             }
             else

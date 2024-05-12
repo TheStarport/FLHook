@@ -90,15 +90,6 @@ struct DataMarketItem
         float rep;
 };
 
-struct BaseInfo
-{
-        uint baseId;
-        std::wstring baseName;
-        uint objectId;
-        bool destroyed;
-        std::list<DataMarketItem> MarketMisc;
-};
-
 struct Light
 {
         std::wstring nickname;

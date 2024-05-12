@@ -1,10 +1,13 @@
 #pragma once
 
+/**
+ * @brief Interface used for processing user commands. Include if your plugin contains user commands.
+ */
 class AbstractUserCommandProcessor
 {
     protected:
         ClientId userCmdClient;
-        void PrintOk() const { userCmdClient.Message(L"OK"); }
+        void PrintOk() const { (void)userCmdClient.Message(L"OK"); }
 
     public:
         virtual ~AbstractUserCommandProcessor() = default;

@@ -164,6 +164,7 @@ Character::Character(bsoncxx::document::view view)
             case Hash("characterName"):
                 {
                     characterName = element.get_string().value;
+                    wideCharacterName = StringUtils::stows(characterName);
                     break;
                 }
             case Hash("money"):
@@ -353,40 +354,40 @@ Character::Character(bsoncxx::document::view view)
                     break;
                 }
             case Hash("commCostume"):
-            {
-                for (auto& el : element.get_document().value)
                 {
-                    if (std::string_view key = el.key(); key == "head")
+                    for (auto& el : element.get_document().value)
                     {
-                        commCostume.head = static_cast<uint>(el.get_int32().value);
-                    }
-                    else if (key == "body")
-                    {
-                        commCostume.body = static_cast<uint>(el.get_int32().value);
-                    }
-                    else if (key == "leftHand")
-                    {
-                        commCostume.leftHand = static_cast<uint>(el.get_int32().value);
-                    }
-                    else if (key == "rightHand")
-                    {
-                        commCostume.rightHand = static_cast<uint>(el.get_int32().value);
-                    }
-                    else if (key == "accessory")
-                    {
-                        int counter = 0;
-                        for (auto acc : el.get_array().value)
+                        if (std::string_view key = el.key(); key == "head")
                         {
-                            commCostume.accessory[counter++] = static_cast<uint>(acc.get_int32().value);
+                            commCostume.head = static_cast<uint>(el.get_int32().value);
+                        }
+                        else if (key == "body")
+                        {
+                            commCostume.body = static_cast<uint>(el.get_int32().value);
+                        }
+                        else if (key == "leftHand")
+                        {
+                            commCostume.leftHand = static_cast<uint>(el.get_int32().value);
+                        }
+                        else if (key == "rightHand")
+                        {
+                            commCostume.rightHand = static_cast<uint>(el.get_int32().value);
+                        }
+                        else if (key == "accessory")
+                        {
+                            int counter = 0;
+                            for (auto acc : el.get_array().value)
+                            {
+                                commCostume.accessory[counter++] = static_cast<uint>(acc.get_int32().value);
+                            }
+                        }
+                        else if (key == "accessories")
+                        {
+                            commCostume.accessories = el.get_int32().value;
                         }
                     }
-                    else if (key == "accessories")
-                    {
-                        commCostume.accessories = el.get_int32().value;
-                    }
+                    break;
                 }
-                break;
-            }
             case Hash("cargo"):
                 {
                     cargo = std::vector<FLCargo>{};
@@ -420,101 +421,101 @@ Character::Character(bsoncxx::document::view view)
                     break;
                 }
             case Hash("baseCargo"):
-            {
-                baseCargo = std::vector<FLCargo>{};
-                for (auto& item : element.get_array().value)
                 {
-                    auto doc = item.get_document().value;
-                    FLCargo cargoItem{};
-
-                    for (auto el : doc)
+                    baseCargo = std::vector<FLCargo>{};
+                    for (auto& item : element.get_array().value)
                     {
-                        if (std::string_view key = el.key(); key == "archId")
-                        {
-                            cargoItem.archId = el.get_int32().value;
-                        }
-                        else if (key == "amount")
-                        {
-                            cargoItem.amount = static_cast<ushort>(el.get_int32().value);
-                        }
-                        else if (key == "health")
-                        {
-                            cargoItem.health = static_cast<float>(el.get_double().value);
-                        }
-                        else if (key == "isMissionCargo")
-                        {
-                            cargoItem.isMissionCargo = el.get_bool().value;
-                        }
-                    }
+                        auto doc = item.get_document().value;
+                        FLCargo cargoItem{};
 
-                    baseCargo.emplace_back(cargoItem);
+                        for (auto el : doc)
+                        {
+                            if (std::string_view key = el.key(); key == "archId")
+                            {
+                                cargoItem.archId = el.get_int32().value;
+                            }
+                            else if (key == "amount")
+                            {
+                                cargoItem.amount = static_cast<ushort>(el.get_int32().value);
+                            }
+                            else if (key == "health")
+                            {
+                                cargoItem.health = static_cast<float>(el.get_double().value);
+                            }
+                            else if (key == "isMissionCargo")
+                            {
+                                cargoItem.isMissionCargo = el.get_bool().value;
+                            }
+                        }
+
+                        baseCargo.emplace_back(cargoItem);
+                    }
+                    break;
                 }
-                break;
-            }
             case Hash("equipment"):
-            {
-                equipment = std::vector<Equipment>{};
-                for (auto& item : element.get_array().value)
                 {
-                    auto doc = item.get_document().value;
-                    Equipment eq;
-
-                    for (auto el : doc)
+                    equipment = std::vector<Equipment>{};
+                    for (auto& item : element.get_array().value)
                     {
-                        if (std::string_view key = el.key(); key == "archId")
-                        {
-                            eq.archId = el.get_int32().value;
-                        }
-                        else if (key == "hardpoint")
-                        {
-                            eq.hardPoint = el.get_string().value;
-                        }
-                        else if (key == "health")
-                        {
-                            eq.health = static_cast<float>(el.get_double().value);
-                        }
-                        else if (key == "mounted")
-                        {
-                            eq.mounted = el.get_bool().value;
-                        }
-                    }
+                        auto doc = item.get_document().value;
+                        Equipment eq;
 
-                    equipment.emplace_back(eq);
+                        for (auto el : doc)
+                        {
+                            if (std::string_view key = el.key(); key == "archId")
+                            {
+                                eq.archId = el.get_int32().value;
+                            }
+                            else if (key == "hardPoint")
+                            {
+                                eq.hardPoint = el.get_string().value;
+                            }
+                            else if (key == "health")
+                            {
+                                eq.health = static_cast<float>(el.get_double().value);
+                            }
+                            else if (key == "mounted")
+                            {
+                                eq.mounted = el.get_bool().value;
+                            }
+                        }
+
+                        equipment.emplace_back(eq);
+                    }
+                    break;
                 }
-                break;
-            }
             case Hash("baseEquipment"):
-            {
-                baseEquipment = std::vector<Equipment>{};
-                for (auto& item : element.get_array().value)
                 {
-                    auto doc = item.get_document().value;
-                    Equipment eq;
-
-                    for (auto el : doc)
+                    baseEquipment = std::vector<Equipment>{};
+                    for (auto& item : element.get_array().value)
                     {
-                        if (std::string_view key = el.key(); key == "archId")
-                        {
-                            eq.archId = el.get_int32().value;
-                        }
-                        else if (key == "hardpoint")
-                        {
-                            eq.hardPoint = el.get_string().value;
-                        }
-                        else if (key == "health")
-                        {
-                            eq.health = static_cast<float>(el.get_double().value);
-                        }
-                        else if (key == "mounted")
-                        {
-                            eq.mounted = el.get_bool().value;
-                        }
-                    }
+                        auto doc = item.get_document().value;
+                        Equipment eq;
 
-                    baseEquipment.emplace_back(eq);
+                        for (auto el : doc)
+                        {
+                            if (std::string_view key = el.key(); key == "archId")
+                            {
+                                eq.archId = el.get_int32().value;
+                            }
+                            else if (key == "hardpoint")
+                            {
+                                eq.hardPoint = el.get_string().value;
+                            }
+                            else if (key == "health")
+                            {
+                                eq.health = static_cast<float>(el.get_double().value);
+                            }
+                            else if (key == "mounted")
+                            {
+                                eq.mounted = el.get_bool().value;
+                            }
+                        }
+
+                        baseEquipment.emplace_back(eq);
+                    }
+                    break;
                 }
-                break;
-            }
             case Hash("collisionGroups"):
                 {
                     for (auto& el : element.get_document().value)
@@ -806,7 +807,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
         for (auto& equip : equipment)
         {
             arr.append(
-                make_document(kvp("archId", equip.archId), kvp("hardPoint", equip.hardPoint), kvp("health", equip.health), kvp("mounted", equip.mounted)));
+                make_document(kvp("archId", equip.archId), kvp("hardPoint", equip.hardPoint), kvp("health", equip.health), kvp("mounted", equip.mounted), kvp("amount", equip.amount)));
         }
         document.append(kvp("equipment", arr));
     }
@@ -816,7 +817,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
         for (auto& equip : baseEquipment)
         {
             arr.append(
-                make_document(kvp("archId", equip.archId), kvp("hardPoint", equip.hardPoint), kvp("health", equip.health), kvp("mounted", equip.mounted)));
+                make_document(kvp("archId", equip.archId), kvp("hardPoint", equip.hardPoint), kvp("health", equip.health), kvp("mounted", equip.mounted), kvp("amount", equip.amount)));
         }
         document.append(kvp("baseEquipment", arr));
     }

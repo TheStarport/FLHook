@@ -172,13 +172,12 @@ std::wstring AdminCommandProcessor::SendUniverseMessage(std::wstring_view text)
     return std::format(L"Message Sent to Server.");
 }
 
-std::wstring AdminCommandProcessor::ListCargo(std::wstring_view characterName)
+std::wstring AdminCommandProcessor::ListCargo(const std::wstring_view characterName)
 {
-    int holdSize = 0;
-    auto cargo = ClientId(characterName).EnumCargo(holdSize).Handle();
+    const auto cargo = ClientId(characterName).GetEquipCargo().Handle();
     std::wstring res;
 
-    for (auto& item : cargo)
+    for (auto& item : *cargo)
     {
         if (item.mounted)
         {

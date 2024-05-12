@@ -34,7 +34,6 @@ void FLHook::ClearClientInfo(ClientId client)
     info.kickTime = 0;
     info.lastExitedBaseId = 0;
     info.disconnected = false;
-    info.characterName = L"";
     info.f1Time = 0;
     info.timeDisconnect = 0;
     info.baseId = BaseId();
@@ -246,69 +245,6 @@ void FLHook::InitHookExports()
     // Enable undocking announcer regardless of distance
     std::array<byte, 1> undockAnnouncerBytes = { 0xEB };
     MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::FixNpcAnnouncer), undockAnnouncerBytes.data(), 1);
-}
-
-bool FLHook::LoadBaseMarket()
-{
-    INI_Reader ini;
-
-    if (!ini.open(R"(..\data\equipment\market_misc.ini)", false))
-    {
-        return false;
-    }
-
-    while (ini.read_header())
-    {
-        if (!ini.is_header("BaseGood"))
-        {
-            continue;
-        }
-        if (!ini.read_value())
-        {
-            continue;
-        }
-        if (!ini.is_value("base"))
-        {
-            continue;
-        }
-
-        const std::wstring baseName = StringUtils::stows(ini.get_value_string());
-        BaseInfo* biBase = nullptr;
-        for (auto& base : allBases)
-        {
-            if (StringUtils::ToLower(base.baseName) != StringUtils::ToLower(baseName))
-            {
-                biBase = &base;
-                break;
-            }
-        }
-
-        if (!biBase)
-        {
-            continue; // base not found
-        }
-
-        ini.read_value();
-
-        biBase->MarketMisc.clear();
-        if (!ini.is_value("MarketGood"))
-        {
-            continue;
-        }
-
-        do
-        {
-            DataMarketItem mi;
-            const char* EquipName = ini.get_value_string(0);
-            mi.archId = CreateID(EquipName);
-            mi.rep = ini.get_value_float(2);
-            biBase->MarketMisc.push_back(mi);
-        }
-        while (ini.read_value());
-    }
-
-    ini.close();
-    return true;
 }
 
 void FLHook::PatchClientImpl()

@@ -113,7 +113,7 @@ Action<const Archetype::Ship*, Error> ClientId::GetShipArch() const
     ClientCheck;
     CharSelectCheck;
 
-    const uint ship = Players[value].shipId;
+    const uint ship = Players[value].shipArchetype;
 
     if (!ship)
     {
@@ -227,6 +227,19 @@ Action<float, Error> ClientId::GetRelativeHealth() const
     return { Players[value].relativeHealth};
 }
 
+Action<void, Error> ClientId::SetRelativeHealth(const float setHealth) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    if(IsDocked())
+    {
+        return {cpp::fail(Error::PlayerNotDocked)};
+    }
+
+    Players[value].relativeHealth = std::clamp(setHealth, 0.f, 1.f);
+    return {{}};
+}
 
 Action<std::wstring_view, Error> ClientId::GetCharacterName() const
 {
@@ -248,7 +261,7 @@ bool ClientId::IsDocked() const
 
 bool ClientId::InCharacterSelect() const
 {
-    return Players[value].systemId;
+    return !Players[value].systemId;
 }
 
 bool ClientId::IsAlive() const
@@ -256,33 +269,30 @@ bool ClientId::IsAlive() const
     return Players[value].systemId && Players[value].shipId;
 }
 
-Action<std::list<CargoInfo>, Error> ClientId::EnumCargo(int& remainingHoldSize) const
+Action<st6::list<EquipDesc>* const, Error> ClientId::GetEquipCargo() const
 {
-    //TODO: Remember why we're doing it this way.
     ClientCheck;
     CharSelectCheck;
 
-    std::list<CargoInfo> cargo;
+    return { &Players[value].equipAndCargo.equip };
+}
 
-    char* classPtr;
-    memcpy(&classPtr, &Players, 4);
-    classPtr += 0x418 * (value - 1);
-
-    pub::SpaceObj::EquipItem* eqList;
-    memcpy(&eqList, classPtr + 0x27C, 4);
-    const pub::SpaceObj::EquipItem* eq = eqList->next;
-    while (eq != eqList)
-    {
-        CargoInfo ci = { eq->id, static_cast<int>(eq->count), eq->goodId, eq->status, eq->mission, eq->mounted, eq->hardpoint };
-        cargo.push_back(ci);
-
-        eq = eq->next;
-    }
+Action<float, Error> ClientId::GetRemainingCargo() const
+{
+    ClientCheck;
+    CharSelectCheck;
 
     float remainingHold;
     pub::Player::GetRemainingHoldSize(value, remainingHold);
-    remainingHoldSize = static_cast<int>(remainingHold);
-    return { cargo };
+    return { remainingHold };
+}
+
+Action<st6::list<CollisionGroupDesc>* const, Error> ClientId::GetCollisionGroups() const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    return { &Players[value].collisionGroupDesc };
 }
 
 ClientData& ClientId::GetData() const { return FLHook::Clients()[value]; }
@@ -654,4 +664,10 @@ Action<void, Error> ClientId::AddEquip(const uint goodId, const std::wstring& ha
     ed.archId = goodId;
 
     return { {} };
+}
+
+Action<void, Error> ClientId::AddCargo(const uint goodId, const uint count, const bool isMission) const
+{
+    pub::Player::AddCargo(value, goodId, count, 1.0, isMission);
+    return {{}};
 }

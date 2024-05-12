@@ -50,7 +50,7 @@ namespace Plugins
 
             void OnClearClientInfo(ClientId client) override;
             void OnLoadSettings() override;
-            void OnCharacterSelect(ClientId client, std::wstring_view charFilename) override;
+            void OnCharacterSelectAfter(ClientId client, std::wstring_view charFilename) override;
             void OnPlayerLaunchAfter(ClientId client, [[maybe_unused]] ShipId ship) override;
             void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
 

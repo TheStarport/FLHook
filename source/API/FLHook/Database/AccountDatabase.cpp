@@ -67,7 +67,12 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
         }
         session.commit_transaction();
 
-        client.GetData().characterData = document.extract();
+        char buf[50];
+        getFlName(buf, newCharacter.wideCharacterName.c_str());
+
+        auto& character = AccountManager::accounts[client.GetValue()].characters.at(buf);
+        character.characterData = document.extract();
+        client.GetData().characterData = character.characterData;
 
         return true;
     }
@@ -202,7 +207,7 @@ void AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
         // Get all documents that are in the provided array
         const auto filter = make_document(kvp("_id", make_document(kvp("$in", idArr))));
 
-        for (auto cursor = accountsCollection.find(filter.view()); const auto doc : cursor)
+        for (auto cursor = accountsCollection.find(filter.view()); const auto& doc : cursor)
         {
             auto character = Character{doc};
             if (character.characterName.empty())
@@ -213,7 +218,10 @@ void AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
             char charNameBuf[50];
             getFlName(charNameBuf, StringUtils::stows(character.characterName).c_str());
             std::string charFileName = charNameBuf;
-            accounts[client.GetValue()].characters[charFileName] = character;
+            auto& charRef = accounts[client.GetValue()].characters[charFileName] = character;
+
+            charRef.characterData = doc;
+            client.GetData().characterData = charRef.characterData;
         }
         session.commit_transaction();
         accounts[client.GetValue()].loginSuccess = true;

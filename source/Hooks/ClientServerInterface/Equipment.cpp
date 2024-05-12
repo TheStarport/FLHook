@@ -9,23 +9,23 @@ void IServerImplHook::ActivateEquipInner(ClientId client, const XActivateEquip& 
 {
     TryHook
     {
-        int _;
         auto& data = client.GetData();
 
-        for (const auto cargoList = client.EnumCargo(_).Raw(); auto& cargo : cargoList.value())
+        for (const auto cargoList = client.GetEquipCargo().Raw(); const auto& cargo : *cargoList.value())
         {
-            if (cargo.id == aq.id)
+            if (cargo.id != aq.id)
             {
-                auto eq = EquipmentId(cargo.archId);
-                const EquipmentType eqType = eq.GetType().Unwrap();
+                continue;
+            }
+            auto eq = EquipmentId(cargo.archId);
+            const EquipmentType eqType = eq.GetType().Unwrap();
 
-                if (eqType == EquipmentType::Engine)
+            if (eqType == EquipmentType::Engine)
+            {
+                data.engineKilled = !aq.activate;
+                if (!aq.activate)
                 {
-                    data.engineKilled = !aq.activate;
-                    if (!aq.activate)
-                    {
-                        data.cruiseActivated = false; // enginekill enabled
-                    }
+                    data.cruiseActivated = false; // enginekill enabled
                 }
             }
         }

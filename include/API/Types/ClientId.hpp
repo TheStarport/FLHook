@@ -167,12 +167,36 @@ class DLL ClientId
         Action<float, Error> GetRelativeHealth() const;
 
         /**
-         * @brief Gets the cargo items in the ship of the player.
-         * @returns On success : List of CargoInfo of the cargo the player has.
+         * @brief Sets the percentage of the ship health. To be used only when docked.
+         * @returns On success : Sets health percentage as a float between 0 and 1.
+         * @returns On fail : InCharacterSelect, NotDocked
+         */
+        [[nodiscard]]
+        Action<void, Error> SetRelativeHealth(float setHealth) const;
+
+        /**
+         * @brief Gets the equipment and cargo items in the ship of the player.
+         * @returns On success : Reference to st6::list of EquipDesc of all cargo and equipment the player has.
          * @returns On fail : InCharacterSelect
          */
         [[nodiscard]]
-        Action<std::list<CargoInfo>, Error> EnumCargo(int &remainingHoldSize) const;
+        Action<st6::list<EquipDesc> *const, Error> GetEquipCargo() const;
+
+        /**
+         * @brief Gets the remaining cargo hold of the player
+         * @returns On success : float value representing the remaining cargo hold capacity
+         * @returns On fail : InCharacterSelect
+         */
+        [[nodiscard]]
+        Action<float, Error> GetRemainingCargo() const;
+
+        /**
+         * @brief Gets the collision groups of the player ship.
+         * @returns On success : Reference to st6::list of CollisionGroupDesc of all collision groups the player ship has.
+         * @returns On fail : InCharacterSelect
+         */
+        [[nodiscard]]
+        Action<st6::list<CollisionGroupDesc> *const, Error> GetCollisionGroups() const;
 
         /**
          * @brief Gets overall data related to the clientID
@@ -342,6 +366,8 @@ class DLL ClientId
         Action<void, Error> SetEquip(const st6::list<EquipDesc> &equip) const;
 
         Action<void, Error> AddEquip(uint goodId, const std::wstring &hardpoint) const;
+
+        Action<void, Error> AddCargo(const uint goodId, const uint count, const bool isMission) const;
 };
 
 template <>

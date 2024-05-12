@@ -2,6 +2,8 @@
 
 #include "RepGroupId.hpp"
 
+class ObjectId;
+
 class DLL RepId final
 {
         int value = 0;

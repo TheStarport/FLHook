@@ -17,7 +17,6 @@ bool IServerImplHook::CharacterSelectInner(const CHARACTER_ID& cid, const Client
         charBefore = !charName.empty() ? charName : L"";
         info.lastExitedBaseId = 0;
         info.tradePartner = ClientId();
-        info.characterName = charName;
         info.groupId = Players.GetGroupID(client.GetValue());
     }
     catch (...)
@@ -45,23 +44,22 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
                 (void)client.Message(L"To get a list of available commands, type \"/help\" in chat.");
             }
 
-            int hold;
-            auto cargoList = client.EnumCargo(hold).Raw();
+            auto cargoList = client.GetEquipCargo().Raw();
             if (cargoList.has_error())
             {
                 (void)client.Kick();
                 return;
             }
 
-            for (const auto& cargo : cargoList.value())
+            for (const auto& cargo : *cargoList.value())
             {
                 if (cargo.count < 0)
                 {
                     // AddCheaterLog(charName, "Negative good-count, likely to have cheated in the past");
 
                     FLHook::MessageUniverse(std::format(L"Possible cheating detected: {}", charName));
-                    client.Kick();
-                    client.GetAccount().Unwrap().Ban();
+                    (void)client.Kick();
+                    (void)client.GetAccount().Unwrap().Ban();
                     return;
                 }
             }
@@ -74,8 +72,6 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
             {
                 info.groupId = 0;
             }
-
-            info.characterName = charName;
 
             // Assign their random formation id.
             // Numbers are between 0-20 (inclusive)
@@ -106,8 +102,11 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
 {
     Logger::Trace(std::format(L"CharacterSelect(\n\tClientId client = {}\n)", client));
 
+    auto& data = AccountManager::accounts[client.GetValue()].characters.at(cid.charFilename);
+    FLHook::GetClient(client).characterName = data.wideCharacterName;
+
     std::wstring charName = StringUtils::stows(static_cast<const char*>(cid.charFilename));
-    const auto skip = CallPlugins(&Plugin::OnCharacterSelect, client, std::wstring_view(charName));
+    const auto skip = CallPlugins(&Plugin::OnCharacterSelect, client);
 
     CheckForDisconnect;
 
@@ -122,7 +121,7 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
     }
     CharacterSelectInnerAfter(cid, client);
 
-    CallPlugins(&Plugin::OnCharacterSelectAfter, client, std::wstring_view(charName));
+    CallPlugins(&Plugin::OnCharacterSelectAfter, client);
 }
 
 void __stdcall IServerImplHook::CreateNewCharacter(const SCreateCharacterInfo& createCharacterInfo, ClientId client)
@@ -187,11 +186,7 @@ bool IServerImplHook::CharacterInfoReqInner(ClientId client, bool unk1)
     TryHook
     {
         auto& info = client.GetData();
-        if (!info.charMenuEnterTime)
-        {
-            info.characterName = client.GetCharacterName().Unwrap();
-        }
-        else
+        if (info.charMenuEnterTime)
         {
             // pushed f1
             uint shipId = 0;

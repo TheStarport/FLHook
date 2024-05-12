@@ -78,9 +78,6 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
     const auto address = FLHook::Offset(FLHook::BinaryType::Server, AddressList::PlayerDbMaxPlayers);
     MemUtils::WriteProcMem(address, &si.maxPlayers, sizeof maxPlayers);
 
-    // read base market data from ini
-    FLHook::instance->LoadBaseMarket();
-
     // Clean up any mail to chars that no longer exist
     // TODO: Mail Rework MailManager::i()->CleanUpOldMail();
 

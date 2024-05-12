@@ -64,8 +64,16 @@ Action<ObjectId, Error> BaseId::GetSpaceId() const
     return { ObjectId(base->spaceObjId) };
 }
 
+Action<SystemId, Error> BaseId::GetSystem() const
+{
+    Universe::IBase* ibase = Universe::get_base(value);
+    return { SystemId(ibase->systemId) };
+}
+
 Action<RepId, Error> BaseId::GetAffiliation() const
 {
+    //Technically the base rep is defined in mbases, but we don't have access to it at the moment
+    //this method matches every base in vanilla, so we go with this instead.
     const auto objectId = GetSpaceId().Unwrap();
     if (!objectId)
     {

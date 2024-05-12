@@ -1,9 +1,13 @@
 ﻿#pragma once
+#include "Core/Commands/AbstractUserCommandProcessor.hpp"
+
+#include "API/FLHook/ClientList.hpp"
 
 namespace Plugins
 {
     struct AutobuyInfo
     {
+            bool updated;
             bool missiles;
             bool mines;
             bool torps;
@@ -29,35 +33,37 @@ namespace Plugins
             {
                     // Reflectable fields
                     //! Nickname of the nanobot item being used when performing the automatic purchase
-                    std::string nanobotNickname = "ge_s_repair_01";
+                    EquipmentId nanobot;
                     //! Nickname of the shield battery item being used when performing the automatic purchase
-                    std::string shieldBatteryNickname = "ge_s_battery_01";
-
-                Serialize(Config, nanobotNickname, shieldBatteryNickname);
+                    EquipmentId shieldBattery;
             };
 
             void UserCmdAutobuy(std::wstring_view autobuyType, std::wstring_view newState);
 
-            constexpr inline static std::array<CommandInfo<Autobuy>, 1> commands = {
+            // clang-format off
+            constexpr inline static std::array<CommandInfo<Autobuy>, 1> commands =
+            {
                 {
-                 AddCommand(Autobuy, L"/autobuy", UserCmdAutobuy, L"/autobuy <consumable type/info> <on/off>",
-                 L"Sets up automatic purchases for consumables."),
-                 }
+                    AddCommand(Autobuy, L"/autobuy", UserCmdAutobuy, L"/autobuy <consumable type/info> <on/off>",
+                        L"Sets up automatic purchases for consumables."),
+                }
             };
+            // clang-format on
 
-            SetupUserCommandHandler(Autobuy, commands)
+            SetupUserCommandHandler(Autobuy, commands);
 
-                std::unique_ptr<Config> config;
-            std::map<uint, AutobuyInfo> autobuyInfo;
-            void LoadSettings();
-            void OnBaseEnter(BaseId& baseId, ClientId& client);
-            void ClearClientInfo(ClientId& client);
+            Config config;
+            std::array<AutobuyInfo, MaxClientId + 1> autobuyInfo;
+            void OnLoadSettings() override;
+            void OnBaseEnterAfter(BaseId baseId, ClientId client) override;
+            void OnCharacterSelectAfter(ClientId client) override;
+            void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
+            void OnClearClientInfo(ClientId client) override;
             void LoadPlayerAutobuy(ClientId client);
-            void AddEquipToCart(const Archetype::Launcher* launcher, const std::list<CargoInfo>& cargo, std::list<AutobuyCartItem>& cart, AutobuyCartItem& item,
+            void AddEquipToCart(const Archetype::Launcher* launcher, const st6::list<EquipDesc>* cargo, std::map<uint, AutobuyCartItem>& cart, AutobuyCartItem& item,
                                 const std::wstring_view& desc);
-            AutobuyInfo& LoadAutobuyInfo(ClientId& client);
 
         public:
-            explicit Autobuy(const PluginInfo info);
+            explicit Autobuy(const PluginInfo& info);
     };
 } // namespace Plugins
