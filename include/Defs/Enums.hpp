@@ -69,6 +69,7 @@ enum class PluginMajorVersion
     Undefined = -1,
     // We started doing this from 4 onwards
     V04 = 4,
+    V05 = 5,
 };
 
 // Define most ahead of time
