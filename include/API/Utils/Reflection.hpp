@@ -25,25 +25,25 @@ namespace rfl::parsing
             }
     };
 
-    template <class ReaderType, class WriterType>
-    struct Parser<ReaderType, WriterType, Vector> : CustomParser<ReaderType, WriterType, Vector, VectorImpl>
+    template <class ReaderType, class WriterType, class ProcessorsType>
+    struct Parser<ReaderType, WriterType, Vector, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, Vector, VectorImpl>
     {};
 
-#define HashConvert(hashType, example)                                                                                    \
-    struct hashType##_Impl                                                                                                \
-    {                                                                                                                     \
-            using ReflectionType = std::string;                                                                           \
-            std::string data;                                                                                             \
-            static hashType##_Impl from_class(const hashType##& hash) noexcept { return {##example }; }                   \
-                                                                                                                          \
-            [[nodiscard]]                                                                                                 \
-            ##hashType to_class() const                                                                                   \
-            {                                                                                                             \
-                return hashType##{ CreateID(data.c_str()) };                                                              \
-            }                                                                                                             \
-    };                                                                                                                    \
-    template <class ReaderType, class WriterType>                                                                         \
-    struct Parser<ReaderType, WriterType, hashType##> : CustomParser<ReaderType, WriterType, hashType##, hashType##_Impl> \
+#define HashConvert(hashType, example)                                                                                                                    \
+    struct hashType##_Impl                                                                                                                                \
+    {                                                                                                                                                     \
+            using ReflectionType = std::string;                                                                                                           \
+            std::string data;                                                                                                                             \
+            static hashType##_Impl from_class(const hashType##& hash) noexcept { return {##example }; }                                                   \
+                                                                                                                                                          \
+            [[nodiscard]]                                                                                                                                 \
+            ##hashType to_class() const                                                                                                                   \
+            {                                                                                                                                             \
+                return hashType##{ CreateID(data.c_str()) };                                                                                              \
+            }                                                                                                                                             \
+    };                                                                                                                                                    \
+    template <class ReaderType, class WriterType, class ProcessorsType>                                                                                   \
+    struct Parser<ReaderType, WriterType, hashType##, ProcessorsType> : CustomParser<ReaderType, WriterType, hashType##, hashType##_Impl, ProcessorsType> \
     {};
 
     HashConvert(EquipmentId, "commodity_cardamine");
