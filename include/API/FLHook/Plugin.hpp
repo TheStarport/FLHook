@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Defs/Structs.hpp"
+
 #include <bsoncxx/builder/basic/document.hpp>
 
 constexpr PluginMajorVersion CurrentMajorVersion = PluginMajorVersion::V04;

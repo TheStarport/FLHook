@@ -60,16 +60,8 @@
 
 #include "Core/Templates/Macros.hpp"
 
-#include "FLCore/Common.hpp"
-#include "FLCore/FLCoreDALib.h"
-#include "FLCore/FLCoreServer.h"
-
-#include "FLCore/FLCoreRemoteClient.h"
-
-#include "FlPtr.hpp"
 
 #include "Defs/Enums.hpp"
-#include "Defs/Structs.hpp"
 
 #include "Utils/Utils.hpp"
 
@@ -81,6 +73,14 @@
 #include "API/Types/RepGroupId.hpp"
 #include "API/Types/RepId.hpp"
 #include "API/Types/ShipId.hpp"
+
+#include "FLCore/Common.hpp"
+#include "FLCore/FLCoreDALib.h"
+#include "FLCore/FLCoreServer.h"
+
+#include "FLCore/FLCoreRemoteClient.h"
+
+#include "FlPtr.hpp"
 
 #include "API/Utils/TransformArgs.hpp"
 

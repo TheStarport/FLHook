@@ -4,7 +4,7 @@
 
 #include <glm/gtc/quaternion.hpp>
 
-Action<CShipPtr, Error> ShipId::GetCShip(bool increment)
+Action<CShipPtr, Error> ShipId::GetCShip(bool increment) const
 {
     auto ship = CShipPtr(value);
     if (!ship)
@@ -15,7 +15,7 @@ Action<CShipPtr, Error> ShipId::GetCShip(bool increment)
     return { CShipPtr(ship.get(), increment) };
 }
 
-Action<Archetype::Ship*, Error> ShipId::GetShipArchetype()
+Action<Archetype::Ship*, Error> ShipId::GetShipArchetype() const
 {
     uint archId;
     if (pub::SpaceObj::GetArchetypeID(value, archId) != static_cast<int>(ResponseCode::Success))
@@ -28,7 +28,7 @@ Action<Archetype::Ship*, Error> ShipId::GetShipArchetype()
 
 // If provided a value of true in the argument it will provide a percentage value of the ship's health, with 0.0f being no hp and 1.0f being full health.
 // Otherwise simply gives the health as an exact value.
-Action<float, Error> ShipId::GetHealth(bool percentage)
+Action<float, Error> ShipId::GetHealth(bool percentage) const
 {
     auto ship = GetCShip(false);
     if (ship.Raw().has_error())
@@ -47,7 +47,7 @@ Action<float, Error> ShipId::GetHealth(bool percentage)
     return { shipVal->hitPoints / shipVal->shiparch()->hitPoints };
 }
 
-Action<float, Error> ShipId::GetShields(bool percentage)
+Action<float, Error> ShipId::GetShields(bool percentage) const
 {
     float currentShield, maxShield;
     bool shieldUp;
@@ -69,7 +69,7 @@ Action<float, Error> ShipId::GetShields(bool percentage)
     return { currentShield / maxShield };
 }
 
-std::optional<ClientId> ShipId::GetPlayer()
+std::optional<ClientId> ShipId::GetPlayer() const
 {
     auto ship = GetCShip(false);
     if (ship.Raw().has_error())
@@ -85,7 +85,7 @@ std::optional<ClientId> ShipId::GetPlayer()
     return {};
 }
 
-std::optional<ShipId> ShipId::GetTarget()
+std::optional<ShipId> ShipId::GetTarget() const
 {
     auto ship = GetCShip(false);
     if (ship.Raw().has_error())
@@ -100,7 +100,7 @@ std::optional<ShipId> ShipId::GetTarget()
     return std::optional(ShipId(target->get_id()));
 }
 
-Action<RepId, Error> ShipId::GetReputation()
+Action<RepId, Error> ShipId::GetReputation() const
 {
     auto repId = RepId(*this, false);
     if (!repId)
@@ -110,7 +110,7 @@ Action<RepId, Error> ShipId::GetReputation()
     return { repId };
 }
 
-Action<float, Error> ShipId::GetSpeed()
+Action<float, Error> ShipId::GetSpeed() const
 {
     auto ship = GetCShip(false);
     if (ship.Raw().has_error())
@@ -123,16 +123,16 @@ Action<float, Error> ShipId::GetSpeed()
     return { glm::length<3, float, glm::highp>(shipVal->get_velocity()) };
 }
 
-bool ShipId::IsPlayer()
+bool ShipId::IsPlayer() const
 {
     auto ship = GetCShip(false);
     auto& shipVal = ship.Raw().value();
     return shipVal->is_player();
 }
 
-bool ShipId::IsNpc() { return !IsPlayer(); }
+bool ShipId::IsNpc() const { return !IsPlayer(); }
 
-bool ShipId::IsInTradeLane()
+bool ShipId::IsInTradeLane() const
 {
     auto ship = GetCShip(false);
     auto& shipVal = ship.Raw().value();

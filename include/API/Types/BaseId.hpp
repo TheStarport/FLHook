@@ -12,7 +12,7 @@ class DLL BaseId
         explicit BaseId(std::wstring_view name, bool isWildCard = false);
         explicit operator uint() const noexcept { return value; }
         BaseId() : value(0) {}
-        bool operator==(const BaseId next) const { return value == next.value; }
+        bool operator==(const BaseId& next) const { return value == next.value; }
         explicit operator bool() const;
 
         uint GetValue() const { return value; }
@@ -34,4 +34,10 @@ struct std::formatter<BaseId, wchar_t>
 {
         constexpr auto parse(std::wformat_parse_context &ctx) const { return ctx.begin(); }
         auto format(const BaseId &value, std::wformat_context &ctx) const { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
+};
+
+template <>
+struct std::hash<BaseId>
+{
+    std::size_t operator()(const BaseId &id) const noexcept { return std::hash<uint>()(id.GetValue()); }
 };

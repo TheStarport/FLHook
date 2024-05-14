@@ -1,4 +1,7 @@
 #pragma once
+#include "FLCore/Common/Universe/IZone.hpp"
+
+class CSolar;
 
 class ClientId;
 class BaseId;
@@ -14,7 +17,7 @@ class DLL SystemId
         explicit SystemId(std::wstring_view nickName, bool isInfoCardName = false);
 
         SystemId() : value(0) {}
-        bool operator==(const SystemId next) const { return value == next.value; }
+        bool operator==(const SystemId& next) const { return value == next.value; }
         explicit operator bool() const;
 
         uint GetValue() const { return value; }
@@ -38,4 +41,10 @@ struct std::formatter<SystemId, wchar_t>
 {
         constexpr auto parse(std::wformat_parse_context &ctx) const { return ctx.begin(); }
         auto format(const SystemId &value, std::wformat_context &ctx) const { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
+};
+
+template <>
+struct std::hash<SystemId>
+{
+    std::size_t operator()(const SystemId &id) const noexcept { return std::hash<uint>()(id.GetValue()); }
 };

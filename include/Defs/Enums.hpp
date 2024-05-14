@@ -96,9 +96,9 @@ enum class ReturnCode
     SkipAll = SkipPlugins | SkipFunctionCall,
 };
 
-inline ReturnCode operator&(ReturnCode a, ReturnCode b) { return static_cast<ReturnCode>(static_cast<uint>(a) & static_cast<uint>(b)); }
+inline ReturnCode operator&(ReturnCode a, ReturnCode b) { return static_cast<ReturnCode>(static_cast<unsigned int>(a) & static_cast<unsigned int>(b)); }
 
-enum class SpecialChatIds : uint
+enum class SpecialChatIds : unsigned int
 {
     Console = 0,
 

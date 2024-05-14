@@ -1,6 +1,6 @@
 #pragma once
 
-#include <API/API.hpp>
+#include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 namespace Plugins
 {
@@ -8,20 +8,13 @@ namespace Plugins
     {
             void ProcessFFA(ClientId client);
             void ProcessDuel(ClientId client);
-            int DockCall(const unsigned int& ship, [[maybe_unused]] const unsigned int& dock, [[maybe_unused]] const int& cancel,
-                         [[maybe_unused]] const DOCK_HOST_RESPONSE& response);
-            void DisConnect(ClientId& client, [[maybe_unused]] const EFLConnection& state);
-            void CharacterInfoReq(ClientId& client, [[maybe_unused]] const bool& param2);
-            void SendDeathMessage([[maybe_unused]] const std::wstring& message, [[maybe_unused]] const uint& system, ClientId& clientVictim,
-                                  [[maybe_unused]] const ClientId& clientKiller);
-
 
             //! A struct to hold a duel between two players. This holds the amount of cash they're betting on, and whether it's been accepted or not
             struct Duel
             {
-                    uint client;
-                    uint client2;
-                    uint amount;
+                    ClientId client;
+                    ClientId client2;
+                    uint betAmount;
                     bool accepted;
             };
 
@@ -36,7 +29,7 @@ namespace Plugins
             //! winner
             struct FreeForAll
             {
-                    std::map<uint, Contestant> contestants;
+                    std::unordered_map<ClientId, Contestant> contestants;
                     uint entryAmount;
                     uint pot;
             };
@@ -45,8 +38,7 @@ namespace Plugins
 
             ReturnCode returnCode = ReturnCode::Default;
             std::list<Duel> duels;
-            std::map<uint, FreeForAll> freeForAlls; // uint is systemId
-      
+            std::unordered_map<SystemId, FreeForAll> freeForAlls;
 
             // User Commands.
             void UserCmdStartFreeForAll(uint amount);
@@ -55,16 +47,23 @@ namespace Plugins
             void UserCmdAcceptDuel();
             void UserCmdCancel();
 
-            constexpr inline static std::array<CommandInfo<Betting>, 5> commands = {
-                {AddCommand(Betting, L"/ffa", UserCmdStartFreeForAll, L"Create an ffa and send an invite to everyone in the system. Winner gets the pot."),
-                 AddCommand(Betting, L"/acceptffa", UserCmdAcceptFFA, L"Accept the current ffa request."),
-                 AddCommand(Betting, L"/duel", UserCmdDuel, L"Create a duel request to the targeted player. Winner gets the pot."),
-                 AddCommand(Betting, L"/acceptduel", UserCmdAcceptDuel, L"Accepts the current duel request."),
-                 AddCommand(Betting, L"/cancel", UserCmdCancel, L"Cancel the current duel/ffa request.")}
+            constexpr static std::array<CommandInfo<Betting>, 5> commands = {
+                { AddCommand(Betting, L"/ffa", UserCmdStartFreeForAll, L"/ffa",
+                 L"Create an ffa and send an invite to everyone in the system. Winner gets the pot."),
+                 AddCommand(Betting, L"/acceptffa", UserCmdAcceptFFA, L"/acceptffa", L"Accept the current ffa request."),
+                 AddCommand(Betting, L"/duel", UserCmdDuel, L"/duel", L"Create a duel request to the targeted player. Winner gets the pot."),
+                 AddCommand(Betting, L"/acceptduel", UserCmdAcceptDuel, L"/acceptduel", L"Accepts the current duel request."),
+                 AddCommand(Betting, L"/cancel", UserCmdCancel, L"/cancel", L"Cancel the current duel/ffa request.") }
             };
 
-    public:
-            explicit Betting(const PluginInfo& info);
+            SetupUserCommandHandler(Betting, commands);
 
+            void OnDisconnect(ClientId client, EFLConnection connection) override;
+            void OnDockCallAfter(ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response) override;
+            void OnCharacterInfoRequestAfter(ClientId client, bool unk1) override;
+            void OnSendDeathMessageAfter(ClientId killer, ClientId victim, SystemId system, std::wstring_view msg) override;
+
+        public:
+            explicit Betting(const PluginInfo& info);
     };
 } // namespace Plugins

@@ -31,7 +31,7 @@ class DLL ClientId
         ClientId(const ClientId &client) : value(client.value){};
 
         explicit operator uint() const noexcept { return value; }
-        bool operator==(const ClientId next) const { return value == next.value; }
+        bool operator==(const ClientId &next) const { return value == next.value; }
         explicit operator bool() const;
 
         [[nodiscard]]
@@ -313,6 +313,7 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect.
          */
+        // TODO: Implement Rename
         Action<void, Error> Rename(std::wstring_view name) const;
 
         /**
@@ -367,7 +368,7 @@ class DLL ClientId
 
         Action<void, Error> AddEquip(uint goodId, const std::wstring &hardpoint) const;
 
-        Action<void, Error> AddCargo(const uint goodId, const uint count, const bool isMission) const;
+        Action<void, Error> AddCargo(uint goodId, uint count, bool isMission) const;
 };
 
 template <>
@@ -375,4 +376,10 @@ struct std::formatter<ClientId, wchar_t>
 {
         constexpr auto parse(std::wformat_parse_context &ctx) const { return ctx.begin(); }
         auto format(const ClientId &client, std::wformat_context &ctx) const { return std::format_to(ctx.out(), L"{}", client.GetValue()); }
+};
+
+template <>
+struct std::hash<ClientId>
+{
+        std::size_t operator()(const ClientId &id) const noexcept { return std::hash<uint>()(id.GetValue()); }
 };

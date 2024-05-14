@@ -1,5 +1,7 @@
 #pragma once
 
+#include "FLCore/Common/CObjects/CObject.hpp"
+#include "FlPtr.hpp"
 #include "RepId.hpp"
 #include "SystemId.hpp"
 

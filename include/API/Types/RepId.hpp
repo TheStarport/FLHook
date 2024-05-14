@@ -2,6 +2,8 @@
 
 #include "RepGroupId.hpp"
 
+#include <FLCore/Common/FmtStr.hpp>
+
 class ObjectId;
 
 class DLL RepId final

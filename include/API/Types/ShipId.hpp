@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FLCore/FLCoreServer.h"
 #include "ObjectId.hpp"
 #include "RepId.hpp"
 
@@ -8,24 +9,25 @@ class DLL ShipId final : public ObjectId
     public:
         explicit ShipId(const uint val) : ObjectId(val) {}
         ShipId() = default;
+        bool operator==(const ShipId& next) const { return value == next.value; }
 
         ~ShipId() = default;
 
         [[nodiscard]]
-        Action<CShipPtr, Error> GetCShip(bool increment);
-        Action<Archetype::Ship*, Error> GetShipArchetype();
-        Action<float, Error> GetHealth(bool percentage = false);
-        Action<float, Error> GetShields(bool percentage = false);
-        void* GetNpcPersonality();
-        std::optional<ClientId> GetPlayer();
-        std::optional<ShipId> GetTarget();
-        Action<RepId, Error> GetReputation();
+        Action<CShipPtr, Error> GetCShip(bool increment) const;
+        Action<Archetype::Ship*, Error> GetShipArchetype() const;
+        Action<float, Error> GetHealth(bool percentage = false) const;
+        Action<float, Error> GetShields(bool percentage = false) const;
+        void* GetNpcPersonality() const;
+        std::optional<ClientId> GetPlayer() const;
+        std::optional<ShipId> GetTarget() const;
+        Action<RepId, Error> GetReputation() const;
         // TODO: AI states such as formation, go to, dock etc.
-        Action<float, Error> GetSpeed();
+        Action<float, Error> GetSpeed() const;
 
-        bool IsPlayer();
-        bool IsNpc();
-        bool IsInTradeLane();
+        bool IsPlayer() const;
+        bool IsNpc() const;
+        bool IsInTradeLane() const;
 
         void Destroy(DestroyType type = DestroyType::Fuse);
         Action<void, Error> SetHealth(float amount, bool percentage = false);
@@ -42,7 +44,7 @@ class DLL ShipId final : public ObjectId
                 return { cpp::fail(Error::InvalidShip) };
             }
 
-            CEquipTraverser traverser(equipmentType);
+            CEquipTraverser traverser(static_cast<int>(equipmentType));
             CEquipManager& manager = ship.get()->equip_manager;
             CEquip* equip = manager.Traverse(traverser);
 
@@ -66,4 +68,10 @@ struct std::formatter<ShipId, wchar_t>
 {
         constexpr auto parse(std::wformat_parse_context& ctx) const { return ctx.begin(); }
         auto format(const ShipId& value, std::wformat_context& ctx) const { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
+};
+
+template <>
+struct std::hash<ShipId>
+{
+    std::size_t operator()(const ShipId &id) const noexcept { return std::hash<uint>()(id.GetValue()); }
 };
