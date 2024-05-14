@@ -66,7 +66,7 @@ namespace Plugins
      */
     bool ArenaPlugin::ValidateCargo(const ClientId client)
     {
-        for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : cargo)
+        for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : *cargo)
         {
             bool flag = false;
             pub::IsCommodity(item.archId, flag);
@@ -86,7 +86,7 @@ namespace Plugins
      */
     BaseId ArenaPlugin::ReadReturnPointForClient(const ClientId client)
     {
-        const auto view = client.GetData().GetCharacterData();
+        const auto view = client.GetData().characterData;
         if (auto returnBase = view.find("arenaReturnBase"); returnBase != view.end())
         {
             return BaseId{ static_cast<uint>(returnBase->get_int32()) };
@@ -98,13 +98,13 @@ namespace Plugins
     /** @ingroup Arena
      * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
      */
-    void ArenaPlugin::OnCharacterSelectAfter(const ClientId client, std::wstring_view charFilename)
+    void ArenaPlugin::OnCharacterSelectAfter(const ClientId client)
     {
         auto& [flag, returnBase] = clientData[userCmdClient.GetValue()];
 
         flag = TransferFlag::None;
 
-        const auto view = client.GetData().GetCharacterData();
+        const auto view = client.GetData().characterData;
         if (auto findResult = view.find("arenaReturnBase"); findResult != view.end())
         {
             returnBase = BaseId(findResult->get_int32());
@@ -233,5 +233,5 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Arena", L"arena", PluginMajorVersion::V04, PluginMinorVersion::V01);
+const PluginInfo Info(L"Arena", L"arena", PluginMajorVersion::V05, PluginMinorVersion::V01);
 SetupPlugin(ArenaPlugin, Info);

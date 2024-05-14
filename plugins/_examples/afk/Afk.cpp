@@ -66,26 +66,26 @@ namespace Plugins
     // Clean up when a client disconnects
 
     // Hook on chat being sent (This gets called twice with the client and to swapped
-    void AfkPlugin::OnSendChat(ClientId client, ClientId targetClient, [[maybe_unused]] const uint size, [[maybe_unused]] void* rdl)
+    void AfkPlugin::OnSendChat(const ClientId fromClient, const ClientId targetClient, [[maybe_unused]] const uint size, [[maybe_unused]] void* rdl)
     {
         if (std::ranges::find(awayClients, targetClient) != awayClients.end())
         {
-            (void)client.Message(L"This user is away from keyboard.");
+            (void)fromClient.Message(L"This user is away from keyboard.");
         }
     }
 
     // Hooks on chat being submitted
-    void AfkPlugin::OnSubmitChat(ClientId triggeringClient, [[maybe_unused]] const unsigned long lP1, [[maybe_unused]] const void* rdlReader,
+    void AfkPlugin::OnSubmitChat(const ClientId fromClient, [[maybe_unused]] const unsigned long lP1, [[maybe_unused]] const void* rdlReader,
                                  [[maybe_unused]] ClientId to, [[maybe_unused]] const int dunno)
     {
-        if (const auto it = awayClients.begin(); triggeringClient && std::find(it, awayClients.end(), triggeringClient) != awayClients.end())
+        if (const auto it = awayClients.begin(); fromClient && std::find(it, awayClients.end(), fromClient) != awayClients.end())
         {
-            userCmdClient = triggeringClient;
+            userCmdClient = fromClient;
             UserCmdBack();
         }
     }
 
-    void AfkPlugin::OnClearClientInfo(ClientId client)
+    void AfkPlugin::OnClearClientInfo(const ClientId client)
     {
         auto [first, last] = std::ranges::remove(awayClients, client);
         awayClients.erase(first, last);
@@ -96,5 +96,5 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"AFK", L"afk", PluginMajorVersion::V04, PluginMinorVersion::V01);
+const PluginInfo Info(L"AFK", L"afk", PluginMajorVersion::V05, PluginMinorVersion::V01);
 SetupPlugin(AfkPlugin, Info);

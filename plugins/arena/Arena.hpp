@@ -50,13 +50,12 @@ namespace Plugins
 
             void OnClearClientInfo(ClientId client) override;
             void OnLoadSettings() override;
-            void OnCharacterSelectAfter(ClientId client, std::wstring_view charFilename) override;
+            void OnCharacterSelectAfter(ClientId client) override;
             void OnPlayerLaunchAfter(ClientId client, [[maybe_unused]] ShipId ship) override;
             void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
 
             static BaseId ReadReturnPointForClient(ClientId client);
             static bool ValidateCargo(ClientId client);
-            static void StoreReturnPointForClient(ClientId client);
 
         public:
             explicit ArenaPlugin(const PluginInfo& info);
