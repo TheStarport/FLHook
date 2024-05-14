@@ -66,29 +66,31 @@ namespace Plugins
             }
 
             // Has the FreeForAll been won?
-            if (count <= 1)
+            if (count > 1)
             {
-                if (contestantId.IsValidClientId())
+                continue;
+            }
+
+            if (contestantId.IsValidClientId())
+            {
+                // Announce and pay winner
+                (void)contestantId.AddCash(pot);
+                contestantId.MessageLocal(std::format(L"{} has won the FFA and receives {} credits", contestantId.GetCharacterName().Handle(), pot), 100000);
+            }
+            else
+            {
+                PlayerData* playerData = nullptr;
+                while ((playerData = Players.traverse_active(playerData)))
                 {
-                    // Announce and pay winner
-                    (void)contestantId.AddCash(pot);
-                    contestantId.MessageLocal(std::format(L"{} has won the FFA and receives {} credits", contestantId.GetCharacterName().Handle(), pot), 100000);
-                }
-                else
-                {
-                    PlayerData* playerData = nullptr;
-                    while ((playerData = Players.traverse_active(playerData)))
+                    if (const auto localClient = ClientId(playerData->clientId); key == localClient.GetSystemId().Handle())
                     {
-                        if (const auto localClient = ClientId(playerData->clientId); key == localClient.GetSystemId().Handle())
-                        {
-                            (void)localClient.Message(L"No one has won the FFA.");
-                        }
+                        (void)localClient.Message(L"No one has won the FFA.");
                     }
                 }
-                // Delete event
-                freeForAlls.erase(key);
-                return;
             }
+            // Delete event
+            freeForAlls.erase(key);
+            return;
         }
     }
 
@@ -196,10 +198,10 @@ namespace Plugins
         }
 
         // Accept
-        if (contestants[userCmdClient].accepted == false)
+        if (auto& [accepted, loser] = contestants[userCmdClient]; accepted == false)
         {
-            contestants[userCmdClient].accepted = true;
-            contestants[userCmdClient].loser = false;
+            accepted = true;
+            loser = false;
             pot = pot + entryAmount;
             userCmdClient.Message(std::format(L"{} credits have been deducted from your Neural Net account.", entryAmount));
             userCmdClient.MessageLocal(std::format(L"{} has joined the FFA. Pot is now at {}", userCmdClient.GetCharacterName().Handle(), pot), 100000);
@@ -241,7 +243,8 @@ namespace Plugins
             if (duel->accepted)
             {
                 // Prepare and send message
-                clientKiller.MessageLocal(std::format(L"{} has won a duel against {}", clientKiller.GetCharacterName().Handle(), client.GetCharacterName().Handle()), 10000);
+                clientKiller.MessageLocal(
+                    std::format(L"{} has won a duel against {}", clientKiller.GetCharacterName().Handle(), client.GetCharacterName().Handle()), 10000);
 
                 // Change cash
                 clientKiller.AddCash(duel->betAmount);
@@ -325,7 +328,9 @@ namespace Plugins
 
         // Message players
         (void)userCmdClient.MessageLocal(
-            std::format(L"{} has challenged {} to a duel for {} credits", userCmdClient.GetCharacterName().Handle(), clientTarget->GetCharacterName().Handle(), amount), 10000);
+            std::format(
+                L"{} has challenged {} to a duel for {} credits", userCmdClient.GetCharacterName().Handle(), clientTarget->GetCharacterName().Handle(), amount),
+            10000);
         (void)clientTarget->Message(L"Type \"/acceptduel\" to accept.");
     }
 
@@ -364,9 +369,11 @@ namespace Plugins
             }
 
             accepted = true;
-            (void)userCmdClient.MessageLocal(
-                std::format(L"{} has accepted the duel with {} for {} credits.", userCmdClient.GetCharacterName().Handle(), client.GetCharacterName().Handle(), betAmount),
-                10000);
+            (void)userCmdClient.MessageLocal(std::format(L"{} has accepted the duel with {} for {} credits.",
+                                                         userCmdClient.GetCharacterName().Handle(),
+                                                         client.GetCharacterName().Handle(),
+                                                         betAmount),
+                                             10000);
             return;
         }
         (void)userCmdClient.Message(L"You have no duel requests. To challenge "
