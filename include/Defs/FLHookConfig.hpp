@@ -186,6 +186,7 @@ struct DLL FLHookConfig final
                 std::string uri = "mongodb://localhost:27017";
                 std::string dbName = "FLHook";
                 std::string accountsCollection = "accounts";
+                std::string mailCollection = "mail";
         };
 
         Logging logging;

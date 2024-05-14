@@ -39,69 +39,13 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
 
 mongocxx::pool::entry Database::AcquireClient() { return pool.acquire(); }
 
-void Database::RemoveValueFromCharacter(std::string character, std::string value)
-{
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_document;
-
-    const auto db = pool.acquire();
-    auto session = db->start_session();
-    session.start_transaction();
-
-    try
-    {
-        auto accounts = db->database("FLHook")["accounts"];
-
-        const auto searchDoc = make_document(kvp("character_name", character));
-        const auto updateDoc = make_document(kvp("$unset", make_array(value)));
-        accounts.update_one(searchDoc.view(), updateDoc.view());
-
-        session.commit_transaction();
-    }
-    catch (bsoncxx::exception& ex)
-    {
-        session.abort_transaction();
-    }
-    catch (mongocxx::exception& ex)
-    {
-        session.abort_transaction();
-    }
-}
-
-void Database::RemoveValueFromAccount(AccountId account, std::string value)
-{
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_document;
-
-    const auto db = AcquireClient();
-    auto session = db->start_session();
-    session.start_transaction();
-
-    try
-    {
-        auto accounts = db->database("FLHook")["accounts"];
-
-        auto searchDoc = make_document(kvp("_id", account.GetValue()));
-        auto updateDoc = make_document(kvp("$unset", make_array(value)));
-
-        session.commit_transaction();
-    }
-    catch (bsoncxx::exception& ex)
-    {
-        session.abort_transaction();
-    }
-    catch (mongocxx::exception& ex)
-    {
-        session.abort_transaction();
-    }
-}
-
 std::optional<Character> Database::GetCharacterById(bsoncxx::oid objId)
 {
+    auto& config = FLHook::GetConfig();
     const auto db = AcquireClient();
 
     // TODO: Configure DB and accounts key
-    auto accounts = db->database("FLHook").collection("accounts");
+    auto accounts = db->database(config.databaseConfig.dbName).collection("accounts");
     const auto charDocOpt = accounts.find_one(make_document(kvp("_id", objId)));
     if (!charDocOpt.has_value())
     {
