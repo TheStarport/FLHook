@@ -1,7 +1,6 @@
 #pragma once
 
-// Included
-#include <API/API.hpp>
+#include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 namespace Plugins
 {
@@ -11,7 +10,8 @@ namespace Plugins
             //! Structs
             struct Bounty
             {
-                    std::wstring issuer;
+                    ClientId issuer;
+                    ClientId target;
                     uint cash;
                     mstime end;
             };
@@ -26,49 +26,45 @@ namespace Plugins
                     uint maximumHuntTime = 240;
                     //! Hunt time in minutes, if not explicitly specified.
                     uint defaultHuntTime = 30;
-
-                    Serialize(Config, levelProtect, minimalHuntTime, maximumHuntTime, defaultHuntTime);
             };
 
             std::unique_ptr<Config> config = nullptr;
             ReturnCode returnCode = ReturnCode::Default;
 
-            std::map<ClientId, std::vector<Bounty>> bountiesOnPlayers;
+            std::array<std::vector<Bounty>, MaxClientId + 1> bountiesOnPlayers;
 
-            std::vector<std::pair<std::wstring, uint>> ClearPlayerOfBounties(ClientId client);
+            std::vector<std::pair<ClientId, uint>> ClearPlayerOfBounties(ClientId client);
             void PrintBountyHunts(ClientId client);
             void TimeOutCheck();
-            void BillCheck(ClientId& client, ClientId& killer);
-            void CheckIfPlayerFled(ClientId& client);
-            void LoadSettings();
-
-            // Hook Functions
-            void SendDeathMsg([[maybe_unused]] const std::wstring& msg, [[maybe_unused]] const SystemId& system, ClientId& clientVictim,
-                              ClientId& clientKiller);
-            void DisConnect(ClientId& client, [[maybe_unused]] const EFLConnection& state);
-            void CharacterSelect([[maybe_unused]] const std::string& charFilename, ClientId& client);
+            void BillCheck(ClientId client, ClientId killer);
+            void CheckIfPlayerFled(ClientId client);
 
             // User Commands
-            void UserCmdBountyHunt( std::wstring_view target, uint prize, uint time);
-            void UserCmdBountyHuntByClientID( ClientId target, uint credits, uint time);
+            void UserCmdBountyHunt(std::wstring_view target, uint prize, uint time);
+            void UserCmdBountyHuntByClientID(ClientId target, uint credits, uint time);
 
-            constexpr inline static std::array<CommandInfo<BountyHunt>, 4> commands = {
+            constexpr static std::array<CommandInfo<BountyHunt>, 4> commands = {
                 {
 
-                 AddCommand(BountyHunt, L"/bountyhunt", UserCmdBountyHunt,
+                 AddCommand(BountyHunt, L"/bountyhunt", UserCmdBountyHunt, L"/bountyhunt <targetName> <prize> <time>",
                  L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
-                 AddCommand(BountyHunt, L"/bh", UserCmdBountyHunt,
+                 AddCommand(BountyHunt, L"/bh", UserCmdBountyHunt, L"/bh <targetName> <prize> <time>",
                  L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
-                 AddCommand(BountyHunt, L"/bountyhunt$", UserCmdBountyHuntByClientID,
+                 AddCommand(BountyHunt, L"/bountyhunt$", UserCmdBountyHuntByClientID, L"/bountyhunt$ <targetId> <prize> <time>",
                  L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
-                 AddCommand(BountyHunt, L"/bh$", UserCmdBountyHuntByClientID,
+                 AddCommand(BountyHunt, L"/bh$", UserCmdBountyHuntByClientID, L"/bh$ <targetId> <prize> <time>",
                  L"Places a bounty on the specified clientId. When another player kills them, they gain <credits>."),
                  }
             };
 
             SetupUserCommandHandler(BountyHunt, commands);
 
+            // Hook Functions
+            void OnSendDeathMessageAfter(ClientId killer, ClientId victim, SystemId system, std::wstring_view msg) override;
+            void OnDisconnect(ClientId client, EFLConnection connection) override;
+            void OnCharacterSelectAfter(ClientId client) override;
+
         public:
-            explicit BountyHunt(PluginInfo& info);
+            explicit BountyHunt(const PluginInfo& info);
     };
 } // namespace Plugins
