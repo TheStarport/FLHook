@@ -15,18 +15,18 @@ class DLL BaseId
         bool operator==(const BaseId& next) const { return value == next.value; }
         explicit operator bool() const;
 
-        uint GetValue() const { return value; }
+        [[nodiscard]] uint GetValue() const { return value; }
 
-        Action<ObjectId, Error> GetSpaceId() const;
-        Action<SystemId, Error> GetSystem() const;
-        Action<RepId, Error> GetAffiliation() const;
-        Action<std::wstring_view, Error> GetName() const;
-        Action<std::pair<float, float>, Error> GetBaseHealth() const;
-        Action<std::pair<std::wstring_view, std::wstring_view>, Error> GetDescription() const;
-        Action<std::vector<uint>, Error> GetItemsForSale() const;
-        Action<float, Error> GetCommodityPrice(GoodId goodId) const;
+        [[nodiscard]] Action<ObjectId, Error> GetSpaceId() const;
+        [[nodiscard]] Action<SystemId, Error> GetSystem() const;
+        [[nodiscard]] Action<RepId, Error> GetAffiliation() const;
+        [[nodiscard]] Action<std::wstring_view, Error> GetName() const;
+        [[nodiscard]] Action<std::pair<float, float>, Error> GetBaseHealth() const;
+        [[nodiscard]] Action<std::pair<std::wstring_view, std::wstring_view>, Error> GetDescription() const;
+        [[nodiscard]] Action<std::vector<uint>, Error> GetItemsForSale() const;
+        [[nodiscard]] Action<float, Error> GetCommodityPrice(GoodId goodId) const;
 
-        Action<std::vector<ClientId>, Error> GetDockedPlayers();
+        [[nodiscard]] Action<std::vector<ClientId>, Error> GetDockedPlayers();
 };
 
 template <>

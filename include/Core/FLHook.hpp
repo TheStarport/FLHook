@@ -18,7 +18,7 @@ class PersonalityHelper;
 class Database;
 class AccountManager;
 
-class FLHook final
+class DLL FLHook final
 {
         friend IEngineHook;
         friend IServerImplHook;

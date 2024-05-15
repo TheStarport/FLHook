@@ -22,18 +22,18 @@ class DLL SystemId
 
         uint GetValue() const { return value; }
 
-        Action<std::wstring_view, Error> GetName() const;
-        Action<std::wstring, Error> GetNickName() const;
-        Action<std::vector<Universe::IZone *>, Error> GetZones() const;
-        Action<std::wstring, Error> PositionToSectorCoord(const Vector &pos) const;
-        Action<std::vector<SystemId>, Error> GetNeighboringSystems() const; // TODO: Look into Freelancer System Enumerator.
-        Action<std::vector<CSolar *>, Error> GetSolars(bool onlyDockables = false);
-        Action<std::vector<ClientId>, Error> GetPlayersInSystem(bool includeDocked = false) const;
+        [[nodiscard]] Action<std::wstring_view, Error> GetName() const;
+        [[nodiscard]] Action<std::wstring, Error> GetNickName() const;
+        [[nodiscard]] Action<std::vector<Universe::IZone *>, Error> GetZones() const;
+        [[nodiscard]] Action<std::wstring, Error> PositionToSectorCoord(const Vector &pos) const;
+        [[nodiscard]] Action<std::vector<SystemId>, Error> GetNeighboringSystems() const; // TODO: Look into Freelancer System Enumerator.
+        [[nodiscard]] Action<std::vector<CSolar *>, Error> GetSolars(bool onlyDockables = false);
+        [[nodiscard]] Action<std::vector<ClientId>, Error> GetPlayersInSystem(bool includeDocked = false) const;
 
-        Action<void, Error> Message(std::wstring_view msg, MessageColor color = MessageColor::Default, MessageFormat format = MessageFormat::Normal) const;
-        Action<void, Error> PlaySoundOrMusic(const std::wstring &trackNickNameSound, bool isMusic = false,
+        [[nodiscard]] Action<void, Error> Message(std::wstring_view msg, MessageColor color = MessageColor::Default, MessageFormat format = MessageFormat::Normal) const;
+        [[nodiscard]] Action<void, Error> PlaySoundOrMusic(const std::wstring &trackNickNameSound, bool isMusic = false,
                                              const std::optional<std::pair<Vector, float>> &sphere = {}) const;
-        Action<uint, Error> KillAllPlayers() const;
+        [[nodiscard]] Action<uint, Error> KillAllPlayers() const;
 };
 
 template <>
