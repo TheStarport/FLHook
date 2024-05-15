@@ -4,19 +4,37 @@
 
 namespace Plugins
 {
+    /**
+     * @date August, 2022
+     * @author Raikkonen
+     * @brief 
+     * The AFK plugin allows you to set yourself as Away from Keyboard.
+     * This will notify other players if they try and speak to you, that you are not at your desk.
+     *
+     * @par configuration Configuration
+     * No configuration file is needed.
+     *
+     * @par Player Commands
+     * - afk - Sets your status to Away from Keyboard. Other players will notified if they try to speak to you.
+     * - back - Removes the AFK status.
+     * 
+     * @par Admin Commands
+     * There are no admin commands in this plugin.
+     *
+     * @note All player commands are prefixed with '/'.
+     * All admin commands are prefixed with a '.'.
+    */
     class AfkPlugin final : public Plugin, public AbstractUserCommandProcessor
     {
             std::vector<ClientId> awayClients;
 
             /**
-             * @ingroup AwayFromKeyboard
              * @brief This command is called when a player types /afk. It prints a message in red text to nearby players saying they are afk. It will also let
              * anyone who messages them know too.
              */
             void UserCmdAfk();
 
             /**
-             * @ingroup AwayFromKeyboard
              * @brief This command is called when a player types /back. It removes the afk status and welcomes the player back.
              * who messages them know too.
              */

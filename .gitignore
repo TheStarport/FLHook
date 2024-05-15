@@ -54,3 +54,6 @@
 *.user
 **/.vs/
 .idea/
+
+# Docs
+docs/_build/

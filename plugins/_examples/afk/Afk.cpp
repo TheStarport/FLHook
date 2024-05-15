@@ -1,27 +1,4 @@
-﻿/**
- * @date August, 2022
- * @author Raikkonen
- * @defgroup AwayFromKeyboard Away from Keyboard
- * @brief
- * The AFK plugin allows you to set yourself as Away from Keyboard.
- * This will notify other players if they try and speak to you, that you are not at your desk.
- *
- * @paragraph cmds Player Commands
- * All commands are prefixed with '/' unless explicitly specified.
- * - afk - Sets your status to Away from Keyboard. Other players will notified if they try to speak to you.
- * - back - Removes the AFK status.
- *
- * @paragraph adminCmds Admin Commands
- * There are no admin commands in this plugin.
- *
- * @paragraph configuration Configuration
- * No configuration file is needed.
- *
- * @paragraph ipc IPC Interfaces Exposed
- * This plugin does not expose any functionality.
- */
-
-#include "PCH.hpp"
+﻿#include "PCH.hpp"
 
 #include "Afk.hpp"
 
@@ -30,10 +7,6 @@ namespace Plugins
 
     AfkPlugin::AfkPlugin(const PluginInfo& info) : Plugin(info) {}
 
-    /** @ingroup AwayFromKeyboard
-     * @brief This command is called when a player types /afk. It prints a message in red text to nearby players saying they are afk. It will also let anyone
-     * who messages them know too.
-     */
     void AfkPlugin::UserCmdAfk()
     {
         awayClients.emplace_back(userCmdClient);
@@ -45,10 +18,6 @@ namespace Plugins
         (void)userCmdClient.Message(L"Use the /back command to stop sending automatic replies to PMs.");
     }
 
-    /** @ingroup AwayFromKeyboard
-     * @brief This command is called when a player types /back. It removes the afk status and welcomes the player back.
-     * who messages them know too.
-     */
     void AfkPlugin::UserCmdBack()
     {
         if (const auto it = awayClients.begin(); std::find(it, awayClients.end(), userCmdClient) != awayClients.end())

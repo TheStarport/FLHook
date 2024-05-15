@@ -3,3 +3,4 @@ guidelines = 160
 guidelines_style = 1px solid white
 
 resharper_cpp_expression_without_side_effects_highlighting=none
+cpp_generate_documentation_comments = doxygen_double_slash_exclamation
