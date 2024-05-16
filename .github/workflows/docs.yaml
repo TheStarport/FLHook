@@ -3,28 +3,44 @@ name: docs
 on:
   push:
     branches: [ master ]
+  workflow_dispatch:
     
 jobs:
-  deploy:
-    runs-on: ubuntu-20.04
+  build:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
-          submodules: true
-      - name: install Doxygen 1.9.6
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y graphviz libclang-cpp1-9 libclang1-9
-          wget https://github.com/doxygen/doxygen/releases/download/Release_1_9_6/doxygen-1.9.6.linux.bin.tar.gz
-          tar -xvzf doxygen-1.9.6.linux.bin.tar.gz
-          ln -s doxygen-1.9.6/bin/doxygen doxygen
-      - name: set version
-        run: echo "PROJECT_NUMBER = `git describe --tags`" >> Doxyfile
-      - name: Generate Documentation
-        run: ./doxygen Doxyfile
-      - name: Publish generated content to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.3.3
+          fetch-depth: 0
+          submodules: 'recursive'
+        
+      - name: "Build Doxygen/Sphinx Documentation"
+        id: "build"
+        uses: "./.github/actions/build-docs"
+
+      - name: "Upload docs artifact"
+        id: "upload"
+        uses: actions/upload-artifact@v4
         with:
-          folder: docs_output/html
-          branch: gh-pages
+          name: 'github-pages'
+          path: ./docs/_build/html
+          overwrite: true
+      
+  docs: 
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: 'github-pages'
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    runs-on: ubunutu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+          
+          
+          
