@@ -19,6 +19,7 @@ release = '5.0.0'
 
 extensions = [
     'myst_parser',
+    'sphinx_design',
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.autosectionlabel',

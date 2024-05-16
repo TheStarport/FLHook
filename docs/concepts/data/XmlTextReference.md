@@ -6,7 +6,7 @@ title: XML Text Reference
 
 # XML Text Reference
 
-### Context
+## Context
 
 Freelancer uses XML nodes in order to structure text within the game, and this extends to chat messages sent to/fro the server to clients.
 Functions like `ClientId::Message()` automatically handle the XML wrapping for you and offer a number of different format options for customisation.
@@ -14,7 +14,7 @@ Functions like `ClientId::Message()` automatically handle the XML wrapping for y
 If the options provided are not enough for your use case, there is an additional function on the ClientId that allows you to send manually created XML.
 `ClientId::MessageCustomXml()` allows you to send in a custom buffer of XML to send to the client, but it must conform to the FL's XML standard, or it will not be parsed and sent.
 
-### Valid Nodes
+## Valid Nodes
 
 Text is enclosed in `<TEXT></TEXT>` tags while the format can be changed with `<TRA .../>`. Nodes names must be written in all caps! Be sure to replace the following characters within a text node:
 ```
@@ -33,7 +33,7 @@ Valid XML Nodes:
 
 JUST and TRA will apply their effect on all TEXT blocks until a new effect is defined.
 
-### TRA node syntax
+## TRA node syntax
 
 The data field of a `TRA` node consists of an RGB value along with format specifications:
 ```xml

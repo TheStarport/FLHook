@@ -1,0 +1,10 @@
+{% extends "!layout.html" %}
+
+{%- block extrahead %}
+<meta name="sourcename" content="{{ sourcename }}" />
+{% if "contributors" in sourcename %}
+  <script type="module" src="./_static/github.js"></script>
+{% elif "download" in sourcename %}
+  <script type="module" src="./_static/github.js"></script>
+{% endif %}
+{% endblock %}
