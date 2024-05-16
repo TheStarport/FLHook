@@ -1,35 +1,4 @@
-﻿/**
- * @date August, 2022
- * @author MadHunter (Ported by Raikkonen 2022)
- * @defgroup Arena Arena
- * @brief
- * This plugin is used to beam players to/from an arena system for the purpose of pvp.
- *
- * @paragraph cmds Player Commands
- * All commands are prefixed with '/' unless explicitly specified.
- * - arena (configurable) - This beams the player to the pvp system.
- * - return - This returns the player to their last docked base.
- *
- * @paragraph adminCmds Admin Commands
- * There are no admin commands in this plugin.
- *
- * @paragraph configuration Configuration
- * @code
- * {
- *     "command": "arena",
- *     "restrictedSystem": "Li01",
- *     "targetBase": "Li02_01_Base",
- *     "targetSystem": "Li02"
- * }
- * @endcode
- *
- * @paragraph ipc IPC Interfaces Exposed
- * This plugin does not expose any functionality.
- *
- * @paragraph optional Optional Plugin Dependencies
- * This plugin uses the "Base" plugin.
- */
-#include "PCH.hpp"
+﻿#include "PCH.hpp"
 
 #include "Arena.hpp"
 
@@ -60,10 +29,7 @@ namespace Plugins
         }
     }
 
-    /** @ingroup Arena
-     * @brief Returns true if the client doesn't hold any commodities, returns false otherwise. This is to prevent people using the arena system as a trade
-     * shortcut.
-     */
+    
     bool ArenaPlugin::ValidateCargo(const ClientId client)
     {
         for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : *cargo)
@@ -81,9 +47,6 @@ namespace Plugins
         return true;
     }
 
-    /** @ingroup Arena
-     * @brief This returns the return base id that is stored in the client's save file.
-     */
     BaseId ArenaPlugin::ReadReturnPointForClient(const ClientId client)
     {
         const auto view = client.GetData().characterData;
@@ -95,9 +58,7 @@ namespace Plugins
         return {};
     }
 
-    /** @ingroup Arena
-     * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
-     */
+
     void ArenaPlugin::OnCharacterSelectAfter(const ClientId client)
     {
         auto& [flag, returnBase] = clientData[userCmdClient.GetValue()];
@@ -115,9 +76,6 @@ namespace Plugins
         }
     }
 
-    /** @ingroup Arena
-     * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, redirect the undock to either the arena base or the return point
-     */
     void ArenaPlugin::OnPlayerLaunchAfter(const ClientId client, ShipId ship)
     {
         const auto state = clientData[client.GetValue()].flag;
@@ -153,6 +111,7 @@ namespace Plugins
             (void)client.Beam(returnPoint);
         }
     }
+
     void ArenaPlugin::OnCharacterSave(const ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
     {
         int value = 0;
@@ -163,9 +122,6 @@ namespace Plugins
         document.append(bsoncxx::builder::basic::kvp("arenaReturnBase", value));
     }
 
-    /** @ingroup Arena
-     * @brief Used to switch to the arena system
-     */
     void ArenaPlugin::UserCmdArena()
     {
         // Prohibit jump if in a restricted system or in the target system
@@ -195,9 +151,6 @@ namespace Plugins
         returnBase = currBase;
     }
 
-    /** @ingroup Arena
-     * @brief Used to return from the arena system.
-     */
     void ArenaPlugin::UserCmdReturn()
     {
         if (!ReadReturnPointForClient(userCmdClient))

@@ -358,6 +358,8 @@ class DLL ClientId
          */
         Action<void, Error> MessageFrom(ClientId destinationClient, std::wstring_view message) const;
 
+        // TODO: Implement MessageCustomXml(std::wstring_view rawXml) which handles sending manual xml messages if needed
+
         /**
          * Force the ships equipment list to match the one provided. May cause undefined behaviour if the target is in space.
          * @param equip the client you wish to send the message to.

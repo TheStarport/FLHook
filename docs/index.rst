@@ -15,4 +15,5 @@ Table of Contents
    :maxdepth: 4
 
    self
+   concepts/index
    api/index

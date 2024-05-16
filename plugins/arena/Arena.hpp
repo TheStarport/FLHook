@@ -4,9 +4,35 @@
 
 namespace Plugins
 {
+    /**
+     * @date August, 2022
+     * @author MadHunter (Ported by Raikkonen 2022)
+     * @brief
+     * This plugin is used to teleport players to/from an arena system for the purpose of pvp.
+     *
+     * @par Configuration
+     * The configuration file is generated at config/arena.json. An example configuration is as follows:
+     * @code
+     * {
+     *     "restrictedSystems": [ "Li01" ],
+     *     "targetBase": "Li02_01_Base",
+     *     "targetSystem": "Li02"
+     * }
+     * @endcode
+     *
+     * @par Player Commands
+     * All commands are prefixed with '/' unless explicitly specified.
+     * - arena (configurable) - This beams the player to the pvp system.
+     * - return - This returns the player to their last docked base.
+     *
+     * @par Admin Commands
+     * There are no admin commands in this plugin.
+     * 
+     * @note All player commands are prefixed with '/'.
+     * All admin commands are prefixed with a '.'.
+     */
     class ArenaPlugin final : public Plugin, public AbstractUserCommandProcessor
     {
-            //! This plugin can communicate with the base plugin if loaded.
             enum class TransferFlag
             {
                 None,
@@ -17,7 +43,6 @@ namespace Plugins
             const std::wstring dockErrorText = L"Please dock at nearest base";
             const std::wstring cargoErrorText = L"Cargo hold is not empty";
 
-            //! Config data for this plugin
             struct Config final
             {
                     BaseId targetBase;
@@ -35,7 +60,14 @@ namespace Plugins
 
             std::unordered_map<uint, ArenaClientData> clientData;
 
+            /**
+             * @brief Used to switch to the arena system
+             */
             void UserCmdArena();
+
+            /** @ingroup Arena
+             * @brief Used to return from the arena system.
+             */
             void UserCmdReturn();
 
             // clang-format off
@@ -50,11 +82,32 @@ namespace Plugins
 
             void OnClearClientInfo(ClientId client) override;
             void OnLoadSettings() override;
+
+            /**
+             * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
+             */
             void OnCharacterSelectAfter(ClientId client) override;
+
+            /**
+             * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, 
+             * redirect the undock to either the arena base or the return point
+             */
             void OnPlayerLaunchAfter(ClientId client, [[maybe_unused]] ShipId ship) override;
+
+            /**
+             * @brief Hook on OnCharacterSave. Adds the return base to the character's database document.
+             */
             void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
 
+            /**
+             * @brief This returns the return base id that is stored in the client's save file.
+             */
             static BaseId ReadReturnPointForClient(ClientId client);
+
+            /**
+             * @brief Returns true if the client doesn't hold any commodities, returns false otherwise. This is to prevent people using the arena system as a trade
+             * shortcut.
+             */
             static bool ValidateCargo(ClientId client);
 
         public:

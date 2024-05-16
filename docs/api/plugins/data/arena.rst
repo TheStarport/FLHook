@@ -3,4 +3,4 @@
 Arena
 ==================================
 
-.. doxygenclass:: ArenaPlugin
+.. doxygenclass:: Plugins::ArenaPlugin
