@@ -33,7 +33,7 @@ const getLatestRelease = async () => {
 document.addEventListener("DOMContentLoaded", async function() {
     if (window.location.href.includes("contributors")) {
 
-        let topEl = document.getElementById("github-contributors");
+        const topEl = document.getElementById("github-contributors");
         if (!topEl) {
             return;
         }
@@ -70,7 +70,22 @@ document.addEventListener("DOMContentLoaded", async function() {
         container.innerHTML = elements.join('\n');
         topEl.appendChild(container);
     }
-    else if (window.location.href.includes("download")) {
+    else if (window.location.href.includes("downloads")) {
+        const topEl = document.getElementById("latest-release");
+        if (!topEl) {
+            return;
+        }
 
+        const latestRelease = await getLatestRelease();
+        topEl.innerHTML = `
+            <h2>Latest Release</h2>
+            <p>
+                ${latestRelease.body}<br/><br/>
+                Click <a href="${latestRelease.assets[0].browser_download_url}" target="_blank">here</a> to download.
+            </p>
+            <p>
+                This was created on ${new Date(latestRelease.created_at).toUTCString()}.<br/>
+            </p>
+        `;
     }
 });

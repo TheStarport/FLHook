@@ -16,5 +16,6 @@ Table of Contents
 
    self
    contributors
+   downloads
    concepts/index
    api/index
