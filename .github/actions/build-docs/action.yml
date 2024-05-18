@@ -1,0 +1,30 @@
+name: "Build Doxygen/Sphinx Docs"
+author: laz
+description: "Composite action for building documention independent of the proejct"
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install Doxygen 1.10.0
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y graphviz libclang-cpp1-9 libclang1-9
+        wget https://github.com/doxygen/doxygen/releases/download/Release_1_10_0/doxygen-1.10.0.linux.bin.tar.gz
+        tar -xvzf doxygen-1.10.0.linux.bin.tar.gz
+        ln -s doxygen-1.10.0/bin/doxygen doxygen
+
+    - name: Install python packages
+      run: pip install -U sphinx sphinx-sitemap sphinxwesome-theme myst-parser breathe linkify-it-py
+
+    - name: set version
+      run: echo "PROJECT_NUMBER = `git describe --tags`" >> Doxyfile
+
+    - name: Generate Doxygen XML
+      run: ./doxygen Doxyfile
+
+    - name: Build Sphinx Docs
+      run: sphinx-build -M html ${{ github.workspace }}/docs ${{ github.workspace }}/docs/_build
