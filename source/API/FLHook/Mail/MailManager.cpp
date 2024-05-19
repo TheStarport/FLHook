@@ -8,6 +8,7 @@
 
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
+using bsoncxx::builder::basic::make_array;
 
 void MailManager::SendMailCallback(const int id)
 {
@@ -36,8 +37,229 @@ void MailManager::SendMailCallback(const int id)
     inflightMail.erase(inflight);
 }
 
-void MailManager::GetAccountMail(const AccountId& id, std::function<void(std::vector<Mail>)> callback, int count, int page, bool newestFirst) {}
-void MailManager::GetCharacterMail(bsoncxx::oid characterId, std::function<void(std::optional<Mail>)> callback, int count, int page, bool newestFirst) {}
+void MailManager::GetMailCallback(std::shared_ptr<std::vector<Mail>> data, std::function<void(std::vector<Mail>)> callback)
+{
+    callback(*data);
+}
+
+void MailManager::ParseMail(Mail& mail, const bsoncxx::document::view doc)
+{
+    for (const auto& m : doc)
+    {
+        switch (Hash(m.key().data()))
+        {
+            case Hash("_id"):
+            {
+                mail._id = m.get_oid().value;
+                break;
+            }
+            case Hash("author"):
+            {
+                mail.author = m.get_oid().value;
+                break;
+            }
+            case Hash("origin"):
+            {
+                mail.origin = m.get_string().value;
+                break;
+            }
+            case Hash("sentDate"):
+            {
+                mail.sentDate = m.get_date();
+                break;
+            }
+            case Hash("message"):
+            {
+                mail.message = m.get_string().value;
+                break;
+            }
+            case Hash("recipients"):
+            {
+                for (const auto& recipients = m.get_array(); auto doc : recipients.value)
+                {
+                    MailRecipient recipient;
+                    for (const auto& el : doc.get_document().view())
+                    {
+                        switch (Hash(el.key().data()))
+                        {
+                            case Hash("target"):
+                            {
+                                recipient.target = el.get_oid().value;
+                                break;
+                            }
+                            case Hash("readDate"):
+                                {
+                                    recipient.readDate = el.get_date();
+                                    break;
+                                }
+                            default:
+                                break;
+                        }
+                    }
+
+                    mail.recipients.emplace_back(recipient);
+                }
+
+                break;
+            }
+            default:
+                break;
+        }
+    }
+}
+
+void MailManager::GetAccountMail(const AccountId& id, std::function<void(std::vector<Mail>)> callback, int count, int page, bool newestFirst)
+{
+    auto data = std::make_shared<std::vector<Mail>>();
+
+    if (page < 1)
+    {
+        page = 0;
+    }
+    else
+    {
+        page--;
+    }
+
+    if (count < 1)
+    {
+        count = 1;
+    }
+    else if (count > 50)
+    {
+        count = 50;
+    }
+
+    TaskScheduler::ScheduleWithCallback([data, id, count, page, newestFirst]
+    {
+        const auto client = FLHook::GetDatabase().AcquireClient();
+        const auto& config = FLHook::GetConfig();
+
+        auto mailCollection = client->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+
+        mongocxx::pipeline pipeline;
+
+        // clang-format off
+        pipeline
+            .lookup(make_document(
+                kvp("from", config.databaseConfig.accountsCollection),
+                kvp("let", make_document(kvp("recipients", "$recipients"))),
+                kvp("pipeline", make_array(
+                    make_document("$match", make_document(kvp("$expr",
+                        // Check that the mail we are looking for has a matching account id and the same character id
+                        make_document(kvp("$and", make_array(
+                            make_document(kvp("$eq", make_array("$accountId", id.GetValue()))),
+                            make_document("$in", make_array("$_id", "$$recipients.target"))
+                        )))
+                    )))
+                )),
+                kvp("as", "mail")
+            ))
+            // Remove results that didn't match
+            .match(make_document(kvp("mail.0", make_document(kvp("$exists", true)))))
+            // Paginate
+            .sort(make_document(kvp("sentDate", newestFirst ? -1 : 1)))
+            .skip(count * page)
+            .limit(count);
+        // clang-format on
+
+        for (auto result : mailCollection.aggregate(pipeline))
+        {
+            auto mailDoc = result.find("mail");
+            if (mailDoc == result.end())
+            {
+                continue;
+            }
+
+            Mail mail{};
+            ParseMail(mail, mailDoc->get_document().view());
+
+            if (!mail.message.empty() && !mail.recipients.empty())
+            {
+                data->emplace_back(mail);
+            }
+        }
+
+    }, std::bind(GetMailCallback, data, callback));
+}
+
+void MailManager::GetCharacterMail(bsoncxx::oid characterId, std::function<void(std::vector<Mail>)> callback, int count, int page, bool newestFirst)
+{
+    auto data = std::make_shared<std::vector<Mail>>();
+
+    if (page < 1)
+    {
+        page = 0;
+    }
+    else
+    {
+        page--;
+    }
+
+    if (count < 1)
+    {
+        count = 1;
+    }
+    else if (count > 50)
+    {
+        count = 50;
+    }
+
+    TaskScheduler::ScheduleWithCallback(
+        [data, characterId, count, page, newestFirst]
+        {
+            const auto client = FLHook::GetDatabase().AcquireClient();
+            const auto& config = FLHook::GetConfig();
+
+            auto mailCollection = client->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+
+            mongocxx::pipeline pipeline;
+
+            // clang-format off
+        pipeline
+            .match(make_document(kvp("$expr", make_document(kvp("$in", make_array(characterId, "$recipients.target"))))))
+            // Paginate
+            .sort(make_document(kvp("sentDate", newestFirst ? -1 : 1)))
+            .skip(count * page)
+            .limit(count);
+            // clang-format on
+
+            for (const auto result : mailCollection.aggregate(pipeline))
+            {
+                Mail mail{};
+                ParseMail(mail, result);
+
+                if (!mail.message.empty() && !mail.recipients.empty())
+                {
+                    data->emplace_back(mail);
+                }
+            }
+        },
+        std::bind(GetMailCallback, data, callback));
+}
+
+void MailManager::MarkMailAsRead(const Mail& mail, bsoncxx::oid character)
+{
+    auto mailId = mail._id;
+    TaskScheduler::Schedule([mailId, character]
+    {
+        const auto config = FLHook::GetConfig();
+
+        const auto dbClient = FLHook::GetDatabase().AcquireClient();
+        auto mailCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+
+        mailCollection.update_one(
+            make_document(kvp("$and", make_array(
+                make_document("_id", make_document("$eq", mailId)),
+                make_document("recipients.target", make_document("$eq", character))
+            ))),
+            make_document("$set",
+                make_document("recipients.$.readDate",
+                    bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }
+                ))
+        );
+    });
+}
 
 Action<void, Error> MailManager::SendMail(const Mail& mail)
 {
