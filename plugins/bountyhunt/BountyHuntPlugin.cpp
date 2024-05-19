@@ -1,48 +1,15 @@
-/**
- * @date unknown
- * @author ||KOS||Acid (Ported by Raikkonen 2022)
- * @defgroup BountyHunt Bounty Hunt
- * @brief
- * The "Bounty Hunt" plugin allows players to put bounties on each other that can be collected by destroying that player.
- *
- * @paragraph cmds Player Commands
- * All commands are prefixed with '/' unless explicitly specified.
- * - bountyhunt <player> <amount> [timelimit] - Places a bounty on the specified player. When another player kills them, they gain <credits>.
- * - bountyhuntid <id> <amount> [timelimit] - Same as above but with an id instead of a player name. Use /ids
- *
- * @paragraph adminCmds Admin Commands
- * There are no admin commands in this plugin.
- *
- * @paragraph configuration Configuration
- * @code
- * {
- *     "enableBountyHunt": true,
- *     "levelProtect": 0,
- *     "minimalHuntTime": 1,
- *     "maximumHuntTime": 240,
- *     "defaultHuntTime": 30
- * }
- * @endcode
- *
- * @paragraph ipc IPC Interfaces Exposed
- * This plugin does not expose any functionality.
- *
- * @paragraph optional Optional Plugin Dependencies
- * None
- */
-
 #include "PCH.hpp"
 
-#include "BountyHunt.hpp"
+#include "BountyHuntPlugin.hpp"
 
 namespace Plugins
 {
-    BountyHunt::BountyHunt(const PluginInfo& info) : Plugin(info) {}
+    BountyHuntPlugin::BountyHuntPlugin(const PluginInfo& info) : Plugin(info) {}
 
     /** @ingroup BountyHunt
      * @brief Removed an active bounty hunt
      */
-    std::vector<std::pair<ClientId, uint>> BountyHunt::ClearPlayerOfBounties(const ClientId client)
+    std::vector<std::pair<ClientId, uint>> BountyHuntPlugin::ClearPlayerOfBounties(const ClientId client)
     {
         std::vector<std::pair<ClientId, uint>> rewards;
 
@@ -58,7 +25,7 @@ namespace Plugins
     /** @ingroup BountyHunt
      * @brief Print all the active bounty hunts to the player
      */
-    void BountyHunt::PrintBountyHunts(const ClientId client)
+    void BountyHuntPlugin::PrintBountyHunts(const ClientId client)
     {
         for (const auto& bounties : bountiesOnPlayers)
         {
@@ -75,7 +42,7 @@ namespace Plugins
     /** @ingroup BountyHunt
      * @brief User Command for /bountyhunt. Creates a bounty against a specified player.
      */
-    void BountyHunt::UserCmdBountyHunt(std::wstring_view target, const uint prize, uint time)
+    void BountyHuntPlugin::UserCmdBountyHunt(std::wstring_view target, const uint prize, uint time)
     {
         if (target.empty() || prize == 0)
         {
@@ -136,7 +103,7 @@ namespace Plugins
     /** @ingroup BountyHunt
      * @brief User Command for /bountyhuntid. Creates a bounty against a specified player.
      */
-    void BountyHunt::UserCmdBountyHuntByClientID(const ClientId target, const uint credits, const uint time)
+    void BountyHuntPlugin::UserCmdBountyHuntByClientID(const ClientId target, const uint credits, const uint time)
     {
         UserCmdBountyHunt(target.GetCharacterName().Handle(), credits, time);
     }
@@ -144,7 +111,7 @@ namespace Plugins
     /** @ingroup BountyHunt
      * @brief Checks for expired bounties.
      */
-    void BountyHunt::TimeOutCheck()
+    void BountyHuntPlugin::TimeOutCheck()
     {
         const auto time = TimeUtils::UnixTime<std::chrono::milliseconds>();
 
@@ -171,7 +138,7 @@ namespace Plugins
     /** @ingroup BountyHunt
      * @brief Processes a ship death to see if it was part of a bounty.
      */
-    void BountyHunt::BillCheck(const ClientId client, const ClientId killer)
+    void BountyHuntPlugin::BillCheck(const ClientId client, const ClientId killer)
     {
         auto victimName = client.GetCharacterName().Unwrap();
         if (!killer || client == killer)
@@ -197,12 +164,12 @@ namespace Plugins
     /** @ingroup BountyHunt
      * @brief Hook for SendDeathMsg to call BillCheck
      */
-    void BountyHunt::OnSendDeathMessageAfter(const ClientId killer, const ClientId victim, const SystemId system, std::wstring_view msg)
+    void BountyHuntPlugin::OnSendDeathMessageAfter(const ClientId killer, const ClientId victim, const SystemId system, std::wstring_view msg)
     {
         BillCheck(victim, killer);
     }
 
-    void BountyHunt::CheckIfPlayerFled(const ClientId client)
+    void BountyHuntPlugin::CheckIfPlayerFled(const ClientId client)
     {
         if (bountiesOnPlayers[client.GetValue()].empty())
         {
@@ -222,12 +189,12 @@ namespace Plugins
     /** @ingroup BountyHunt
      * @brief Hook for Disconnect to see if the player had a bounty on them
      */
-    void BountyHunt::OnDisconnect(const ClientId client, EFLConnection connection) { CheckIfPlayerFled(client); }
+    void BountyHuntPlugin::OnDisconnect(const ClientId client, EFLConnection connection) { CheckIfPlayerFled(client); }
 
     /** @ingroup BountyHunt
      * @brief Hook for CharacterSelect to see if the player had a bounty on them
      */
-    void BountyHunt::OnCharacterSelectAfter(const ClientId client) { CheckIfPlayerFled(client); }
+    void BountyHuntPlugin::OnCharacterSelectAfter(const ClientId client) { CheckIfPlayerFled(client); }
 
 } // namespace Plugins
 
@@ -237,4 +204,4 @@ DefaultDllMain();
 
 const PluginInfo Info(L"bounty hunt", L"bountyhunt", PluginMajorVersion::V05, PluginMinorVersion::V01);
 
-SetupPlugin(BountyHunt, Info);
+SetupPlugin(BountyHuntPlugin, Info);

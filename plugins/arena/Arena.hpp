@@ -27,7 +27,7 @@ namespace Plugins
      *
      * @par Admin Commands
      * There are no admin commands in this plugin.
-     * 
+     *
      * @note All player commands are prefixed with '/'.
      * All admin commands are prefixed with a '.'.
      */
@@ -65,7 +65,7 @@ namespace Plugins
              */
             void UserCmdArena();
 
-            /** @ingroup Arena
+            /**
              * @brief Used to return from the arena system.
              */
             void UserCmdReturn();
@@ -89,7 +89,7 @@ namespace Plugins
             void OnCharacterSelectAfter(ClientId client) override;
 
             /**
-             * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately, 
+             * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately,
              * redirect the undock to either the arena base or the return point
              */
             void OnPlayerLaunchAfter(ClientId client, [[maybe_unused]] ShipId ship) override;

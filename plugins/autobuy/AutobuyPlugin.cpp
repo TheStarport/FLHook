@@ -1,43 +1,13 @@
-﻿/**
- * @date unknown
- * @author unknown (Ported by Aingar 2023)
- * @defgroup Autobuy Autobuy
- * @brief
- * The "Autobuy" plugin allows players to set up automatic purchases of various munition/consumable type items.
- *
- * @paragraph cmds Player Commands
- * All commands are prefixed with '/' unless explicitly specified.
- * - autobuy info - Lists status of autobuy features for this character.
- * - autobuy <all/munition type> <on/off> - enables or disables autobuy feature for selected munition types on this character.
- *
- * @paragraph adminCmds Admin Commands
- * There are no admin commands in this plugin.
- *
- * @paragraph configuration Configuration
- * @code
- * {
- *     "nanobot_nickname": "ge_s_repair_01";
- *     "shield_battery_nickname": "ge_s_battery_01";
- * }
- * @endcode
- *
- * @paragraph ipc IPC Interfaces Exposed
- * This plugin does not expose any functionality.
- *
- * @paragraph optional Optional Plugin Dependencies
- * None
- */
-
-// Includes
+﻿// Includes
 #include "PCH.hpp"
 
-#include "Autobuy.hpp"
+#include "AutobuyPlugin.hpp"
 
 namespace Plugins
 {
-    Autobuy::Autobuy(const PluginInfo& info) : Plugin(info), autobuyInfo() {}
+    AutobuyPlugin::AutobuyPlugin(const PluginInfo& info) : Plugin(info), autobuyInfo() {}
 
-    void Autobuy::LoadPlayerAutobuy(const ClientId client)
+    void AutobuyPlugin::LoadPlayerAutobuy(const ClientId client)
     {
         auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[client.GetValue()];
 
@@ -61,7 +31,7 @@ namespace Plugins
         }
     }
 
-    void Autobuy::OnClearClientInfo(const ClientId client) { autobuyInfo[client.GetValue()] = {}; }
+    void AutobuyPlugin::OnClearClientInfo(const ClientId client) { autobuyInfo[client.GetValue()] = {}; }
 
     int PlayerGetAmmoCount(const st6::list<EquipDesc>* cargoList, const uint itemArchId)
     {
@@ -160,7 +130,7 @@ namespace Plugins
         }
     }
 
-    void Autobuy::AddEquipToCart(const Archetype::Launcher* launcher, const st6::list<EquipDesc>* cargo, std::map<uint, AutobuyCartItem>& cart,
+    void AutobuyPlugin::AddEquipToCart(const Archetype::Launcher* launcher, const st6::list<EquipDesc>* cargo, std::map<uint, AutobuyCartItem>& cart,
                                  AutobuyCartItem& item, const std::wstring_view& desc)
     {
         // TODO: Update to per-weapon ammo limits once implemented
@@ -170,9 +140,9 @@ namespace Plugins
         cart[item.archId] = item;
     }
 
-    void Autobuy::OnCharacterSelectAfter(const ClientId client) { LoadPlayerAutobuy(client); }
+    void AutobuyPlugin::OnCharacterSelectAfter(const ClientId client) { LoadPlayerAutobuy(client); }
 
-    void Autobuy::OnCharacterSave(const ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
+    void AutobuyPlugin::OnCharacterSave(const ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
     {
         using bsoncxx::builder::basic::kvp;
         const auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[client.GetValue()];
@@ -188,7 +158,7 @@ namespace Plugins
                 kvp("cd", cd), kvp("cm", cm), kvp("bb", bb), kvp("repairs", repairs), kvp("mines", mines), kvp("torps", torps), kvp("missiles", missiles))));
     }
 
-    void Autobuy::OnBaseEnterAfter(const BaseId baseId, const ClientId client)
+    void AutobuyPlugin::OnBaseEnterAfter(const BaseId baseId, const ClientId client)
     {
         const Archetype::Ship* ship = client.GetShipArch().Unwrap();
 
@@ -390,7 +360,7 @@ namespace Plugins
     // USER COMMANDS
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    void Autobuy::UserCmdAutobuy(const std::wstring_view autobuyType, const std::wstring_view newState)
+    void AutobuyPlugin::UserCmdAutobuy(const std::wstring_view autobuyType, const std::wstring_view newState)
     {
         if (autobuyType.empty())
         {
@@ -487,7 +457,7 @@ namespace Plugins
         (void)userCmdClient.Message(L"OK");
     }
 
-    void Autobuy::OnLoadSettings()
+    void AutobuyPlugin::OnLoadSettings()
     {
         if (const auto conf = Json::Load<Config>("config/autobuy.json"); !conf.has_value())
         {
@@ -505,4 +475,4 @@ using namespace Plugins;
 DefaultDllMain();
 
 const PluginInfo Info(L"Autobuy", L"autobuy", PluginMajorVersion::V05, PluginMinorVersion::V01);
-SetupPlugin(Autobuy, Info);
+SetupPlugin(AutobuyPlugin, Info);

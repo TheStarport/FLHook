@@ -4,7 +4,29 @@
 
 namespace Plugins
 {
-    class Betting final : public Plugin, public AbstractUserCommandProcessor
+    /**
+     * @date Jan, 2023
+     * @author Raikkonen
+     * @brief
+     * A plugin that allows players to place bets and then duel, the winner getting the pot.
+     * @par Configuration
+     * This plugin has no configuration file.
+     *
+     * @par cmds Player Commands
+     * All commands are prefixed with '/' unless explicitly specified.
+     * - acceptduel - Accepts the current duel request.
+     * - acceptffa - Accept the current ffa request.
+     * - cancel - Cancel the current duel/ffa request.
+     * - duel <amount> - Create a duel request to the targeted player. Winner gets the pot.
+     * - ffa <amount> - Create an ffa and send an invite to everyone in the system. Winner gets the pot.
+     *
+     * @par adminCmds Admin Commands
+     * There are no admin commands in this plugin.
+     *
+     * @note All player commands are prefixed with '/'.
+     * All admin commands are prefixed with a '.'.
+     */
+    class BettingPlugin final : public Plugin, public AbstractUserCommandProcessor
     {
             void ProcessFFA(ClientId client);
             void ProcessDuel(ClientId client);
@@ -47,16 +69,16 @@ namespace Plugins
             void UserCmdAcceptDuel();
             void UserCmdCancel();
 
-            constexpr static std::array<CommandInfo<Betting>, 5> commands = {
-                { AddCommand(Betting, L"/ffa", UserCmdStartFreeForAll, L"/ffa",
+            constexpr static std::array<CommandInfo<BettingPlugin>, 5> commands = {
+                { AddCommand(BettingPlugin, L"/ffa", UserCmdStartFreeForAll, L"/ffa",
                  L"Create an ffa and send an invite to everyone in the system. Winner gets the pot."),
-                 AddCommand(Betting, L"/acceptffa", UserCmdAcceptFFA, L"/acceptffa", L"Accept the current ffa request."),
-                 AddCommand(Betting, L"/duel", UserCmdDuel, L"/duel", L"Create a duel request to the targeted player. Winner gets the pot."),
-                 AddCommand(Betting, L"/acceptduel", UserCmdAcceptDuel, L"/acceptduel", L"Accepts the current duel request."),
-                 AddCommand(Betting, L"/cancel", UserCmdCancel, L"/cancel", L"Cancel the current duel/ffa request.") }
+                 AddCommand(BettingPlugin, L"/acceptffa", UserCmdAcceptFFA, L"/acceptffa", L"Accept the current ffa request."),
+                 AddCommand(BettingPlugin, L"/duel", UserCmdDuel, L"/duel", L"Create a duel request to the targeted player. Winner gets the pot."),
+                 AddCommand(BettingPlugin, L"/acceptduel", UserCmdAcceptDuel, L"/acceptduel", L"Accepts the current duel request."),
+                 AddCommand(BettingPlugin, L"/cancel", UserCmdCancel, L"/cancel", L"Cancel the current duel/ffa request.") }
             };
 
-            SetupUserCommandHandler(Betting, commands);
+            SetupUserCommandHandler(BettingPlugin, commands);
 
             void OnDisconnect(ClientId client, EFLConnection connection) override;
             void OnDockCallAfter(ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response) override;
@@ -64,6 +86,6 @@ namespace Plugins
             void OnSendDeathMessageAfter(ClientId killer, ClientId victim, SystemId system, std::wstring_view msg) override;
 
         public:
-            explicit Betting(const PluginInfo& info);
+            explicit BettingPlugin(const PluginInfo& info);
     };
 } // namespace Plugins

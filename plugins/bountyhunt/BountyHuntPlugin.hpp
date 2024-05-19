@@ -4,8 +4,36 @@
 
 namespace Plugins
 {
-
-    class BountyHunt final : public Plugin, public AbstractUserCommandProcessor
+    /**
+     * @date unknown
+     * @author ||KOS||Acid (Ported by Raikkonen 2022)
+     * @defgroup BountyHunt Bounty Hunt
+     * @brief
+     * The "Bounty Hunt" plugin allows players to put bounties on each other that can be collected by destroying that player.
+     *
+     * @par configuration Configuration
+     * @code
+     * {
+     *     "enableBountyHunt": true,
+     *     "levelProtect": 0,
+     *     "minimalHuntTime": 1,
+     *     "maximumHuntTime": 240,
+     *     "defaultHuntTime": 30
+     * }
+     * @endcode
+     *
+     * @par cmds Player Commands
+     * All commands are prefixed with '/' unless explicitly specified.
+     * - bountyhunt <player> <amount> [timelimit] - Places a bounty on the specified player. When another player kills them, they gain <credits>.
+     * - bountyhuntid <id> <amount> [timelimit] - Same as above but with an id instead of a player name. Use /ids
+     *
+     * @par adminCmds Admin Commands
+     * There are no admin commands in this plugin.
+     *
+     * @note All player commands are prefixed with '/'.
+     * All admin commands are prefixed with a '.'.
+     */
+    class BountyHuntPlugin final : public Plugin, public AbstractUserCommandProcessor
     {
             //! Structs
             struct Bounty
@@ -43,21 +71,21 @@ namespace Plugins
             void UserCmdBountyHunt(std::wstring_view target, uint prize, uint time);
             void UserCmdBountyHuntByClientID(ClientId target, uint credits, uint time);
 
-            constexpr static std::array<CommandInfo<BountyHunt>, 4> commands = {
+            constexpr static std::array<CommandInfo<BountyHuntPlugin>, 4> commands = {
                 {
 
-                 AddCommand(BountyHunt, L"/bountyhunt", UserCmdBountyHunt, L"/bountyhunt <targetName> <prize> <time>",
+                 AddCommand(BountyHuntPlugin, L"/bountyhunt", UserCmdBountyHunt, L"/bountyhunt <targetName> <prize> <time>",
                  L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
-                 AddCommand(BountyHunt, L"/bh", UserCmdBountyHunt, L"/bh <targetName> <prize> <time>",
+                 AddCommand(BountyHuntPlugin, L"/bh", UserCmdBountyHunt, L"/bh <targetName> <prize> <time>",
                  L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
-                 AddCommand(BountyHunt, L"/bountyhunt$", UserCmdBountyHuntByClientID, L"/bountyhunt$ <targetId> <prize> <time>",
+                 AddCommand(BountyHuntPlugin, L"/bountyhunt$", UserCmdBountyHuntByClientID, L"/bountyhunt$ <targetId> <prize> <time>",
                  L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
-                 AddCommand(BountyHunt, L"/bh$", UserCmdBountyHuntByClientID, L"/bh$ <targetId> <prize> <time>",
+                 AddCommand(BountyHuntPlugin, L"/bh$", UserCmdBountyHuntByClientID, L"/bh$ <targetId> <prize> <time>",
                  L"Places a bounty on the specified clientId. When another player kills them, they gain <credits>."),
                  }
             };
 
-            SetupUserCommandHandler(BountyHunt, commands);
+            SetupUserCommandHandler(BountyHuntPlugin, commands);
 
             // Hook Functions
             void OnSendDeathMessageAfter(ClientId killer, ClientId victim, SystemId system, std::wstring_view msg) override;
@@ -65,6 +93,6 @@ namespace Plugins
             void OnCharacterSelectAfter(ClientId client) override;
 
         public:
-            explicit BountyHunt(const PluginInfo& info);
+            explicit BountyHuntPlugin(const PluginInfo& info);
     };
 } // namespace Plugins

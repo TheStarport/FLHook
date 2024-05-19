@@ -1,44 +1,16 @@
-﻿/**
- * @date Jan, 2023
- * @author Raikkonen
- * @defgroup Betting Betting
- * @brief
- * A plugin that allows players to place bets and then duel, the winner getting the pot.
- *
- * @paragraph cmds Player Commands
- * All commands are prefixed with '/' unless explicitly specified.
- * - acceptduel - Accepts the current duel request.
- * - acceptffa - Accept the current ffa request.
- * - cancel - Cancel the current duel/ffa request.
- * - duel <amount> - Create a duel request to the targeted player. Winner gets the pot.
- * - ffa <amount> - Create an ffa and send an invite to everyone in the system. Winner gets the pot.
- *
- * @paragraph adminCmds Admin Commands
- * There are no admin commands in this plugin.
- *
- * @paragraph configuration Configuration
- * This plugin has no configuration file.
- *
- * @paragraph ipc IPC Interfaces Exposed
- * This plugin does not expose any functionality.
- *
- * @paragraph optional Optional Plugin Dependencies
- * This plugin has no dependencies.
- */
+﻿#include "PCH.hpp"
 
-#include "PCH.hpp"
-
-#include "Betting.hpp"
+#include "BettingPlugin.hpp"
 
 namespace Plugins
 {
 
-    Betting::Betting(const PluginInfo& info) : Plugin(info) {}
+    BettingPlugin::BettingPlugin(const PluginInfo& info) : Plugin(info) {}
 
     /** @ingroup Betting
      * @brief If the player who died is in an FreeForAll, mark them as a loser. Also handles payouts to winner.
      */
-    void Betting::ProcessFFA(const ClientId client)
+    void BettingPlugin::ProcessFFA(const ClientId client)
     {
         for (auto& [key, val] : freeForAlls)
         {
@@ -97,7 +69,7 @@ namespace Plugins
     /** @ingroup Betting
      * @brief This method is called when a player types /ffa in an attempt to start a pvp event
      */
-    void Betting::UserCmdStartFreeForAll(const uint amount)
+    void BettingPlugin::UserCmdStartFreeForAll(const uint amount)
     {
         // Check its a valid amount of cash
         if (amount == 0)
@@ -172,7 +144,7 @@ namespace Plugins
     /** @ingroup Betting
      * @brief This method is called when a player types /acceptffa
      */
-    void Betting::UserCmdAcceptFFA()
+    void BettingPlugin::UserCmdAcceptFFA()
     {
         // Is player in space?
         if (!userCmdClient.InSpace())
@@ -218,7 +190,7 @@ namespace Plugins
     /** @ingroup Betting
      * @brief Removes any duels with this client and handles payouts.
      */
-    void Betting::ProcessDuel(const ClientId client)
+    void BettingPlugin::ProcessDuel(const ClientId client)
     {
         auto duel = duels.begin();
         while (duel != duels.end())
@@ -263,7 +235,7 @@ namespace Plugins
     /** @ingroup Betting
      * @brief This method is called when a player types /duel in an attempt to start a duel
      */
-    void Betting::UserCmdDuel(uint amount)
+    void BettingPlugin::UserCmdDuel(uint amount)
     {
         // Get the object the player is targetting
         if (!userCmdClient.InSpace())
@@ -337,7 +309,7 @@ namespace Plugins
     /** @ingroup Betting
      * @brief This method is called when a player types /acceptduel to accept a duel request.
      */
-    void Betting::UserCmdAcceptDuel()
+    void BettingPlugin::UserCmdAcceptDuel()
     {
         // Is player in space?
         if (!userCmdClient.InSpace())
@@ -383,7 +355,7 @@ namespace Plugins
     /** @ingroup Betting
      * @brief This method is called when a player types /cancel to cancel a duel/ffa request.
      */
-    void Betting::UserCmdCancel()
+    void BettingPlugin::UserCmdCancel()
     {
         ProcessFFA(userCmdClient);
         ProcessDuel(userCmdClient);
@@ -396,7 +368,7 @@ namespace Plugins
     /** @ingroup Betting
      * @brief Hook for dock call. Treats a player as if they died if they were part of a duel
      */
-    void Betting::OnDockCallAfter(const ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response)
+    void BettingPlugin::OnDockCallAfter(const ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response)
     {
         if (const auto client = shipId.GetPlayer(); client.has_value())
         {
@@ -408,7 +380,7 @@ namespace Plugins
     /** @ingroup Betting
      * @brief Hook for disconnect. Treats a player as if they died if they were part of a duel
      */
-    void Betting::OnDisconnect(const ClientId client, EFLConnection connection)
+    void BettingPlugin::OnDisconnect(const ClientId client, EFLConnection connection)
     {
         ProcessFFA(client);
         ProcessDuel(client);
@@ -417,7 +389,7 @@ namespace Plugins
     /** @ingroup Betting
      * @brief Hook for char info request (F1). Treats a player as if they died if they were part of a duel
      */
-    void Betting::OnCharacterInfoRequestAfter(const ClientId client, [[maybe_unused]] bool unk1)
+    void BettingPlugin::OnCharacterInfoRequestAfter(const ClientId client, [[maybe_unused]] bool unk1)
     {
         ProcessFFA(client);
         ProcessDuel(client);
@@ -426,7 +398,7 @@ namespace Plugins
     /** @ingroup Betting
      * @brief Hook for death to kick player out of duel
      */
-    void Betting::OnSendDeathMessageAfter(const ClientId killer, const ClientId victim, SystemId system, std::wstring_view msg)
+    void BettingPlugin::OnSendDeathMessageAfter(const ClientId killer, const ClientId victim, SystemId system, std::wstring_view msg)
     {
         ProcessDuel(victim);
         ProcessFFA(victim);
@@ -439,4 +411,4 @@ DefaultDllMain();
 
 const PluginInfo Info(L"Betting", L"betting", PluginMajorVersion::V05, PluginMinorVersion::V01);
 
-SetupPlugin(Betting, Info);
+SetupPlugin(BettingPlugin, Info);
