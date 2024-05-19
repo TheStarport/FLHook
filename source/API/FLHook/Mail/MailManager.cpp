@@ -145,13 +145,13 @@ void MailManager::GetAccountMail(const AccountId& id, std::function<void(std::ve
                 kvp("from", config.databaseConfig.accountsCollection),
                 kvp("let", make_document(kvp("recipients", "$recipients"))),
                 kvp("pipeline", make_array(
-                    make_document("$match", make_document(kvp("$expr",
+                    make_document(kvp("$match", make_document(kvp("$expr",
                         // Check that the mail we are looking for has a matching account id and the same character id
                         make_document(kvp("$and", make_array(
                             make_document(kvp("$eq", make_array("$accountId", id.GetValue()))),
-                            make_document("$in", make_array("$_id", "$$recipients.target"))
+                            make_document(kvp("$in", make_array("$_id", "$$recipients.target")))
                         )))
-                    )))
+                    ))))
                 )),
                 kvp("as", "mail")
             ))
@@ -171,7 +171,7 @@ void MailManager::GetAccountMail(const AccountId& id, std::function<void(std::ve
                 continue;
             }
 
-            Mail mail{};
+            Mail mail;
             ParseMail(mail, mailDoc->get_document().view());
 
             if (!mail.message.empty() && !mail.recipients.empty())
@@ -250,13 +250,13 @@ void MailManager::MarkMailAsRead(const Mail& mail, bsoncxx::oid character)
 
         mailCollection.update_one(
             make_document(kvp("$and", make_array(
-                make_document("_id", make_document("$eq", mailId)),
-                make_document("recipients.target", make_document("$eq", character))
+                make_document(kvp("_id", make_document(kvp("$eq", mailId)))),
+                make_document(kvp("recipients.target", make_document(kvp("$eq", character))))
             ))),
-            make_document("$set",
-                make_document("recipients.$.readDate",
+            make_document(kvp("$set",
+                make_document(kvp("recipients.$.readDate",
                     bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }
-                ))
+                ))))
         );
     });
 }
