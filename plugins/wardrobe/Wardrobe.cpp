@@ -1,216 +1,115 @@
-/**
- * @date Jan, 2023
- * @author Raikkonen, ported by Nen
- * @defgroup Wardrobe Wardrobe
- * @brief
- * The Wardrobe plugin allows players to change their body and head models from a defined list of allowed models.
- *
- * @paragraph cmds Player Commands
- * -wardrobe show <head/body> - lists available heads or bodies
- * -wardrobe change <head/body> - changes your character model to selected head or body
- *
- * @paragraph adminCmds Admin Commands
- * None
- *
- * @paragraph configuration Configuration
- * @code
- * {
- *     "bodies": {
- *         "ExampleBody": "ku_edo_body"
- *     },
- *     "heads": {
- *         "ExampleHead": "ku_edo_head"
- *     }
- * }
- * @endcode
- *
- * @paragraph ipc IPC Interfaces Exposed
- * This plugin does not expose any functionality.
- */
 
-#include "Wardrobe.h"
+#include "Wardrobe.hpp"
+#include "PCH.hpp"
 
-namespace Plugins::Wardrobe
+#include "API/FLHook/ClientList.hpp"
+
+namespace Plugins
 {
-	const std::unique_ptr<Global> global = std::make_unique<Global>();
+    WardrobePlugin::WardrobePlugin(const PluginInfo& info) : Plugin(info) {}
 
-	void UserCmdShowWardrobe(ClientId& client, const std::wstring& param)
+	void WardrobePlugin::UserCmdShowWardrobe(const std::wstring_view param)
 	{
-		const std::wstring type = GetParam(param, ' ', 0);
-
-		if (StringUtils::ToLower(type) == L"head")
+		if (StringUtils::ToLower(param) == L"head")
 		{
-			client.Message(L"Heads:");
+			(void)userCmdClient.Message(L"Heads:");
 			std::wstring heads;
-			for (const auto& [name, id] : global->config->heads)
+			for (const auto& [name, id] : config.heads)
 				heads += (StringUtils::stows(name) + L" | ");
-			client.Message(heads);
+			(void)userCmdClient.Message(heads);
 		}
-		else if (StringUtils::ToLower(type) == L"body")
+		else if (StringUtils::ToLower(param) == L"body")
 		{
-			client.Message(L"Bodies:");
+			(void)userCmdClient.Message(L"Bodies:");
 			std::wstring bodies;
-			for (const auto& [name, id] : global->config->bodies)
+			for (const auto& [name, id] : config.bodies)
 				bodies += (StringUtils::stows(name) + L" | ");
-			client.Message(bodies);
+			(void)userCmdClient.Message(bodies);
 		}
 	}
 
-	void UserCmdChangeCostume(ClientId& client, const std::wstring& param)
+	void WardrobePlugin::UserCmdChangeCostume(const std::wstring_view type, const std::wstring_view costume)
 	{
-		const std::wstring type = GetParam(param, ' ', 0);
-		const std::wstring costume = GetParam(param, ' ', 1);
-
 		if (type.empty() || costume.empty())
 		{
-			client.Message(L"ERR Invalid parameters");
+			(void)userCmdClient.Message(L"ERR Invalid parameters");
 			return;
 		}
 
-		Wardrobe restart;
-
 		if (StringUtils::ToLower(type) == L"head")
 		{
-			if (!global->config->heads.contains(StringUtils::wstos(costume)))
+			if (!config.heads.contains(StringUtils::wstos(costume)))
 			{
-				client.Message(L"ERR Head not found. Use \"/warehouse show head\" to get available heads.");
+				(void)userCmdClient.Message(L"ERR Head not found. Use \"/warehouse show head\" to get available heads.");
 				return;
 			}
-			restart.head = true;
-			restart.costume = global->config->heads[StringUtils::wstos(costume)];
+			userCmdClient.GetData().playerData->baseCostume.head = CreateID(config.heads[StringUtils::wstos(costume)].c_str());
 		}
 		else if (StringUtils::ToLower(type) == L"body")
 		{
-			if (!global->config->bodies.contains(StringUtils::wstos(costume)))
+			if (!config.bodies.contains(StringUtils::wstos(costume)))
 			{
-				client.Message(L"ERR Body not found. Use \"/warehouse show body\" to get available bodies.");
+				(void)userCmdClient.Message(L"ERR Body not found. Use \"/warehouse show body\" to get available bodies.");
 				return;
 			}
-			restart.head = false;
-			restart.costume = global->config->bodies[StringUtils::wstos(costume)];
+			userCmdClient.GetData().playerData->baseCostume.body = CreateID(config.bodies[StringUtils::wstos(costume)].c_str());
 		}
 		else
 		{
-			client.Message(L"ERR Invalid parameters");
+			(void)userCmdClient.Message(L"ERR Invalid parameters");
 			return;
 		}
 
 		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
-		Hk::Player::SaveChar(client);
-		if (!Hk::Client::IsValidClientID(client))
-			return;
+        (void)userCmdClient.SaveChar();
 
-		restart.characterName = reinterpret_cast<const wchar_t*>(Players.GetActiveCharacterName(client));
-
-		if (const CAccount* account = Players.FindAccountFromClientID(client))
-		{
-			restart.directory = Hk::Client::GetAccountDirName(account);
-			restart.characterFile = Hk::Client::GetCharFileName(restart.characterName).value();
-			global->pendingRestarts.push_back(restart);
-			Hk::Player::KickReason(restart.characterName, L"Updating character, please wait 10 seconds before reconnecting");
-		}
+        (void)userCmdClient.Kick(L"Updating character, please wait 10 seconds before reconnecting");
 	}
 
-	void ProcessWardrobeRestarts()
-	{
-		while (!global->pendingRestarts.empty())
-		{
-			Wardrobe restart = global->pendingRestarts.back();
-			if (Hk::Client::GetClientIdFromCharName(restart.characterName).has_value())
-				return;
 
-			global->pendingRestarts.pop_back();
-
-			try
-			{
-				// Overwrite the existing character file
-				std::string charFile = CoreGlobals::c()->accPath + StringUtils::wstos(restart.directory) + "\\" + StringUtils::wstos(restart.characterFile) + ".fl";
-				FlcDecodeFile(charFile.c_str(), charFile.c_str());
-				if (restart.head)
-				{
-					IniWrite(charFile, "Player", "head", " " + restart.costume);
-				}
-				else
-					IniWrite(charFile, "Player", "body", " " + restart.costume);
-
-				if (!FLHook::GetConfig()->general.disableCharfileEncryption)
-					FlcEncodeFile(charFile.c_str(), charFile.c_str());
-
-				Logger::i()->Log(LogLevel::Info, std::format("User {} costume change to {}", StringUtils::wstos(restart.characterFile).c_str(), restart.costume));
-			}
-			catch (char* err)
-			{
-				Logger::i()->Log(LogLevel::Err, std::format("User {} costume change to {} ({})", StringUtils::wstos(restart.characterName).c_str(), restart.costume, err));
-			}
-			catch (...)
-			{
-				Logger::i()->Log(LogLevel::Err, std::format("User {} costume change to {}", StringUtils::wstos(restart.characterName).c_str(), restart.costume));
-			}
-		}
-	}
-
-	void UserCmdHandle(ClientId& client, const std::wstring& param)
+	void WardrobePlugin::UserCmdHandle(const std::wstring_view command, const std::wstring_view param, const std::wstring_view param2)
 	{
 		// Check character is in base
-		if (const auto base = Hk::Player::GetCurrentBase(client); base.has_error())
+		if (!userCmdClient.IsDocked())
 		{
-			client.Message(L"ERR Not in base");
+			(void)userCmdClient.Message(L"ERR Not in base");
 			return;
 		}
 
-		const std::wstring command = GetParam(param, ' ', 0);
 		if (command == L"list")
 		{
-			UserCmdShowWardrobe(client, GetParamToEnd(param, ' ', 1));
+			UserCmdShowWardrobe(param);
 		}
 		else if (command == L"change")
 		{
-			UserCmdChangeCostume(client, GetParamToEnd(param, ' ', 1));
+			UserCmdChangeCostume(param, param2);
 		}
 		else
 		{
-			client.Message(L"Command usage:");
-			client.Message(L"/wardrobe list <head/body> - lists available bodies/heads");
-			client.Message(L"/wardrobe change <head/body> <name> - changes your head/body to the chosen model");
+			(void)userCmdClient.Message(L"Command usage:");
+			(void)userCmdClient.Message(L"/wardrobe list <head/body> - lists available bodies/heads");
+			(void)userCmdClient.Message(L"/wardrobe change <head/body> <name> - changes your head/body to the chosen model");
 		}
 	}
 
-	const std::vector<Timer> timers = {{ProcessWardrobeRestarts, 1}};
-
-	void LoadSettings()
+	void WardrobePlugin::OnLoadSettings()
 	{
-		auto config = Serializer::JsonToObject<Config>();
-		global->config = std::make_unique<Config>(config);
+	    if (const auto conf = Json::Load<Config>("config/wardrobe.json"); !conf.has_value())
+	    {
+	        Json::Save(config, "config/wardrobe.json");
+	    }
+	    else
+	    {
+	        config = conf.value();
+	    }
 	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// USER COMMAND PROCESSING
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// Define usable chat commands here
-	const std::vector commands = {{
-	    CreateUserCommand(L"/wardrobe", L"<show/change> <head/body> [name]", UserCmdHandle, L"Shows the available heads or bodies."),
-	}};
 
 } // namespace Plugins::Wardrobe
 
-using namespace Plugins::Wardrobe;
+using namespace Plugins;
 
-REFL_AUTO(type(Config), field(heads), field(bodies))
+DefaultDllMain();
 
-DefaultDllMainSettings(LoadSettings);
-
-// Functions to hook
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
-{
-	pi->name("Wardrobe Plugin");
-	pi->shortName("wardrobe");
-	pi->mayUnload(true);
-	pi->commands(&commands);
-	pi->timers(&timers);
-	pi->returnCode(&global->returncode);
-	pi->versionMajor(PluginMajorVersion::V04);
-	pi->versionMinor(PluginMinorVersion::V00);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-}
+const PluginInfo Info(L"Wardrobe", L"wardrobe", PluginMajorVersion::V05, PluginMinorVersion::V01);
+SetupPlugin(WardrobePlugin, Info);
