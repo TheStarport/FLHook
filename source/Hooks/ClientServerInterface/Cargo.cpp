@@ -1,3 +1,4 @@
+#include "API/FLHook/TaskScheduler.hpp"
 #include "PCH.hpp"
 
 #include "API/Utils/Logger.hpp"
@@ -82,6 +83,15 @@ void __stdcall IServerImplHook::JettisonCargo(ClientId client, const XJettisonCa
         CallServerPostamble(true, );
     }
 
+    // Queue save to prevent item duplication
+    Timer::AddOneShot([client]
+    {
+        if (client.IsValidClientId() && !client.InCharacterSelect())
+        {
+            pub::Save(client.GetValue(), 1);
+        }
+    }, 3000);
+
     CallPlugins(&Plugin::OnCargoJettisonAfter, client, jc);
 }
 
@@ -94,6 +104,17 @@ void __stdcall IServerImplHook::TractorObjects(ClientId client, const XTractorOb
         CallServerPreamble { Server.TractorObjects(client.GetValue(), to); }
         CallServerPostamble(true, );
     }
+
+    // Queue save to prevent duplication.
+    // Technically we do not need to wait here, but we do so to ensure that there is no
+    // timespan where the a tractoring player is saved before a jettisoning player has been saved.
+    Timer::AddOneShot([client]
+    {
+        if (client.IsValidClientId() && !client.InCharacterSelect())
+        {
+            pub::Save(client.GetValue(), 1);
+        }
+    }, 3000);
 
     CallPlugins(&Plugin::OnTractorObjectsAfter, client, to);
 }

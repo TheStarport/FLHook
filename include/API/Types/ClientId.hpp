@@ -37,7 +37,11 @@ class DLL ClientId
         [[nodiscard]]
         bool IsValidClientId() const;
 
-        // Returns the underlying value of the ClientId, it is generally recommended to not use this.
+        /**
+         * @brief Returns the underlying value of the ClientId
+         * @note It is generally recommended to not use this, but is sometimes required for casting purposes.
+         * @returns An unsigned integer representing the client id of the user. There is no check for validity.
+         */
         [[nodiscard]]
         uint GetValue() const
         {
