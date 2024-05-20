@@ -8,7 +8,6 @@ enum class AddressList : uint
     Update = 0x1BAB4,
     Startup = 0x1BABC,
     Shutdown = 0x1BAB8,
-    AntiDieMessage = 0x39124,
     CharFileEncryption = 0x6E10D,
     CharFileEncryption2 = 0x6BFA6,
     CrcAntiCheat = 0x6FAF0,

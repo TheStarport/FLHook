@@ -190,15 +190,6 @@ void FLHook::InitHookExports()
     address = Offset(BinaryType::DaLib, AddressList::CdpServer);
     MemUtils::ReadProcMem(address, &cdpServer, 4);
 
-    // anti-deathmsg
-    if (FLHook::GetConfig().chatConfig.dieMsg)
-    {
-        // disables the "old" "A Player has died: ..." chatConfig
-        std::array<byte, 1> jmp = { 0xEB };
-        address = Offset(BinaryType::Server, AddressList::AntiDieMessage);
-        MemUtils::WriteProcMem(address, jmp.data(), 1);
-    }
-
     // charfile encyption(doesn't get disabled when unloading FLHook)
     if (FLHook::GetConfig().general.disableCharfileEncryption)
     {
@@ -292,11 +283,6 @@ void FLHook::UnloadHookExports()
     address = Offset(BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoad);
     std::array<byte, 1> divertJump = { 0x76 };
     MemUtils::WriteProcMem(address, divertJump.data(), 1);
-
-    // anti-death-msg
-    std::array<byte, 1> old = { 0x74 };
-    address = Offset(BinaryType::Server, AddressList::AntiDieMessage);
-    MemUtils::WriteProcMem(address, old.data(), 1);
 
     // Undo refire bug
     std::array<byte, 22> refireBytes = {

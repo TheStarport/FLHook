@@ -28,7 +28,7 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             const std::wstring text = buffer.substr(spaceAfterColonOffset, buffer.length() - spaceAfterColonOffset);
 
             auto& data = client.GetData();
-            if (FLHook::GetConfig().userCommands.userCmdIgnore && (clientTo.GetValue() & 0xFFFF) != 0)
+            if ((clientTo.GetValue() & 0xFFFF) != 0)
             {
                 // check ignores
                 for (const auto& ci : data.ignoreInfoList)
@@ -49,25 +49,22 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             }
 
             uchar format = 0x00;
-            if (FLHook::GetConfig().userCommands.userCmdSetChatFont)
+
+            // adjust chat size
+            switch (data.chatSize)
             {
+                case ChatSize::Small: format = 0x90; break;
+                case ChatSize::Big: format = 0x10; break;
+                default: format = 0x00; break;
+            }
 
-                // adjust chat size
-                switch (data.chatSize)
-                {
-                    case ChatSize::Small: format = 0x90; break;
-                    case ChatSize::Big: format = 0x10; break;
-                    default: format = 0x00; break;
-                }
-
-                // adjust chat style
-                switch (data.chatStyle)
-                {
-                    case ChatStyle::Bold: format += 0x01; break;
-                    case ChatStyle::Italic: format += 0x02; break;
-                    case ChatStyle::Underline: format += 0x04; break;
-                    default: format += 0x00; break;
-                }
+            // adjust chat style
+            switch (data.chatStyle)
+            {
+                case ChatStyle::Bold: format += 0x01; break;
+                case ChatStyle::Italic: format += 0x02; break;
+                case ChatStyle::Underline: format += 0x04; break;
+                default: format += 0x00; break;
             }
 
             wchar_t formatBuf[8];

@@ -2,13 +2,91 @@
 
 struct DLL FLHookConfig final
 {
-        struct Logging final
+        struct AutoKicks final
         {
-                //! If true, enables FLHook debug mode, also enabled debug level logs
-                int minLogLevel = 2;
+                //! Amount of time spent idly on a base resulting in a server kick, in seconds.
+                uint antiBaseIdle = 600;
+                //! Amount of time spent idly on character select screen resulting in a server kick, in seconds.
+                uint antiCharMenuIdle = 600;
 
-                //! If true, it logs performance of functions if they take too long to execute.
-                bool logPerformanceTimers = false;
+                //! Number of milliseconds the player character remains in space after disconnecting.
+                uint antiF1 = 0;
+        };
+
+        struct Bans final
+        {
+                //! If true, apply a vanilla FLServer ban in case of a wildcard/IP match on top of kicking them.
+                bool banAccountOnMatch = false;
+                //! Instantly kicks any player with a matching IP or matching IP range.
+                std::vector<std::wstring> banWildcardsAndIPs;
+        };
+
+        struct Callsign final
+        {
+                //! The mapping of numbers to formations. 1, min = Alpha. 29, max = Yanagi
+                std::vector<AllowedFormation> allowedFormations = {
+                    AllowedFormation::Alpha,   AllowedFormation::Beta,   AllowedFormation::Gamma,  AllowedFormation::Delta, AllowedFormation::Epsilon,
+                    AllowedFormation::Zeta,    AllowedFormation::Theta,  AllowedFormation::Iota,   AllowedFormation::Kappa, AllowedFormation::Lambda,
+                    AllowedFormation::Omicron, AllowedFormation::Sigma,  AllowedFormation::Omega,  AllowedFormation::Red,   AllowedFormation::Blue,
+                    AllowedFormation::Gold,    AllowedFormation::Green,  AllowedFormation::Silver, AllowedFormation::Black, AllowedFormation::White,
+                    AllowedFormation::Yellow,  AllowedFormation::Matsu,  AllowedFormation::Sakura, AllowedFormation::Fuji,  AllowedFormation::Botan,
+                    AllowedFormation::Hagi,    AllowedFormation::Susuki, AllowedFormation::Kiku,   AllowedFormation::Yanagi
+                };
+
+                //! If true, formations and numbers will not be assigned to ships. All ships will be alpha 1-1.
+                bool disableRandomisedFormations = false;
+
+                //! If true, NPCs will refer to all players as freelancer
+                bool disableUsingAffiliationForCallsign = false;
+        };
+
+        struct ChatConfig final
+        {
+                struct MsgStyle final
+                {
+                    std::wstring msgEchoStyle = L"0x00AA0090";
+                    std::wstring deathMsgStyle = L"0x19198C01";
+                    std::wstring deathMsgStyleSys = L"0x1919BD01";
+                    //! Time in ms between kick message rendering and actual server kick occurring.
+                    uint kickMsgPeriod = 5000;
+                    //! Kick message content.
+                    std::wstring kickMsg = LR"(<TRA data=" 0x0000FF10 " mask=" - 1 "/><TEXT>You will be kicked. Reason: %reason</TEXT>)";
+                    std::wstring userCmdStyle = L"0x00FF0090";
+                    std::wstring adminCmdStyle = L"0x00FF0090";
+                    //! Death message for admin kills.
+                    std::wstring deathMsgTextAdminKill = L"Death: %victim was killed by an admin";
+                    //! Default player to player kill message.
+                    std::wstring deathMsgTextPlayerKill = L"Death: %victim was killed by %killer (%type)";
+                    //! Death message for weapon self-kills.
+                    std::wstring deathMsgTextSelfKill = L"Death: %victim killed himself (%type)";
+                    //! Death message for player deaths to NPCs.
+                    std::wstring deathMsgTextNPC = L"Death: %victim was killed by an NPC";
+                    //! Death message for environmental deaths.
+                    std::wstring deathMsgTextSuicide = L"Death: %victim committed suicide";
+                };
+
+                MsgStyle msgStyle;
+
+                //! If true, chatConfig will sent only to local ships
+                bool defaultLocalChat = false;
+
+                //! If true, sends a copy of submitted commands to the player's chatlog.
+                bool echoCommands = true;
+
+                //! If true, invalid commands are not sent to the chat
+                bool suppressInvalidCommands = true;
+
+                //! Broadcasts a message that the player is attempting docking to all players in range
+                //! currently hardcoded to 15K
+                bool dockingMessages = true;
+        };
+
+        struct DatabaseConfig final
+        {
+                std::string uri = "mongodb://localhost:27017";
+                std::string dbName = "FLHook";
+                std::string accountsCollection = "accounts";
+                std::string mailCollection = "mail";
         };
 
         struct General final
@@ -46,47 +124,26 @@ struct DLL FLHookConfig final
                 std::vector<uint> noPVPSystemsHashed;
         };
 
-        struct AutoKicks final
+        struct Logging final
         {
-                //! Amount of time spent idly on a base resulting in a server kick, in seconds.
-                uint antiBaseIdle = 600;
-                //! Amount of time spent idly on character select screen resulting in a server kick, in seconds.
-                uint antiCharMenuIdle = 600;
+                //! If true, enables FLHook debug mode, also enabled debug level logs
+                int minLogLevel = 2;
 
-                //! Number of milliseconds the player character remains in space after disconnecting.
-                uint antiF1 = 0;
+                //! If true, it logs performance of functions if they take too long to execute.
+                bool logPerformanceTimers = false;
         };
 
-        struct Plugins final
+        struct Npc
         {
-                //! If true, loads all plugins on FLHook startup.
-                bool loadAllPlugins = true;
-                //! Contains a list of plugins to be enabled on startup if loadAllPlugins is false,
-                //! or plugins to be excluded from being loaded on startup if loadAllPlugins is true.
-                std::vector<std::wstring> plugins = {};
-        };
+                //! If above zero, disables NPC spawns if "server load in ms" goes above the specified value.
+                uint disableNPCSpawns = 0;
 
-        struct MsgStyle final
-        {
-                std::wstring msgEchoStyle = L"0x00AA0090";
-                std::wstring deathMsgStyle = L"0x19198C01";
-                std::wstring deathMsgStyleSys = L"0x1919BD01";
-                //! Time in ms between kick message rendering and actual server kick occurring.
-                uint kickMsgPeriod = 5000;
-                //! Kick message content.
-                std::wstring kickMsg = LR"(<TRA data=" 0x0000FF10 " mask=" - 1 "/><TEXT>You will be kicked. Reason: %reason</TEXT>)";
-                std::wstring userCmdStyle = L"0x00FF0090";
-                std::wstring adminCmdStyle = L"0x00FF0090";
-                //! Death message for admin kills.
-                std::wstring deathMsgTextAdminKill = L"Death: %victim was killed by an admin";
-                //! Default player to player kill message.
-                std::wstring deathMsgTextPlayerKill = L"Death: %victim was killed by %killer (%type)";
-                //! Death message for weapon self-kills.
-                std::wstring deathMsgTextSelfKill = L"Death: %victim killed himself (%type)";
-                //! Death message for player deaths to NPCs.
-                std::wstring deathMsgTextNPC = L"Death: %victim was killed by an NPC";
-                //! Death message for environmental deaths.
-                std::wstring deathMsgTextSuicide = L"Death: %victim committed suicide";
+                //! The distance at which NPCs can get away from a player before despawning. Does not include NPCs spawned
+                //! through the API or commands. Vanilla default is 2.5k
+                float npcPersistDistance = 6500.f;
+
+                //! The distance at which ALL NPCs will be visible from. Vanilla default is 2.5k
+                float npcVisibilityDistance = 6500.f;
         };
 
         struct MessageQueue final
@@ -106,98 +163,29 @@ struct DLL FLHookConfig final
                 //! The password to connect to RabbitMQ
                 std::wstring password = L"guest";
 
-                //! If true FLHook will communicate with RabbitMQ over AMPQS, using a SSL connection.
-                bool ensureSecureConnection = false;
-
                 //! How frequently should FLHook send out updates to the exchange
                 int timeBetweenServerUpdates = 5000;
         };
 
-        struct ChatConfig final
+        struct Plugins final
         {
-                MsgStyle msgStyle;
-
-                //! If true, chatConfig will sent only to local ships
-                bool defaultLocalChat = false;
-
-                //! If true, sends a copy of submitted commands to the player's chatlog.
-                bool echoCommands = true;
-
-                //! If true, invalid commands are not sent to the chat
-                bool suppressInvalidCommands = true;
-
-                //! If true, player's death renders the default message.
-                bool dieMsg = true;
-
-                //! Broadcasts a message that the player is attempting docking to all players in range
-                //! currently hardcoded to 15K
-                bool dockingMessages = true;
+                //! If true, loads all plugins on FLHook startup.
+                bool loadAllPlugins = true;
+                //! Contains a list of plugins to be enabled on startup if loadAllPlugins is false,
+                //! or plugins to be excluded from being loaded on startup if loadAllPlugins is true.
+                std::vector<std::wstring> plugins = {};
         };
 
         struct UserCommands final
         {
-                //! Can users use SetDieMsgSize command
-                bool userCmdSetDieMsgSize = true;
-                //! Can users use SetDieMsg command
-                bool userCmdSetDieMsg = true;
-                //! Can users use SetChatFont command
-                bool userCmdSetChatFont = true;
-                //! Can users use Ignore command
-                bool userCmdIgnore = true;
-                //! Can users use Help command
-                bool userCmdHelp = true;
+                //! A list of all commands that users cannot use. The prefix should not be included.
+                std::vector<std::wstring> disabledCommands;
+
                 //! Maximum size of users added via /ignore command
                 uint userCmdMaxIgnoreList = 0;
+
                 //! If true, the default player chat will be local, not system.
                 bool defaultLocalChat = false;
-        };
-
-        struct Bans final
-        {
-                //! If true, apply a vanilla FLServer ban in case of a wildcard/IP match on top of kicking them.
-                bool banAccountOnMatch = false;
-                //! Instantly kicks any player with a matching IP or matching IP range.
-                std::vector<std::wstring> banWildcardsAndIPs;
-        };
-
-        struct Callsign final
-        {
-                //! The mapping of numbers to formations. 1, min = Alpha. 29, max = Yanagi
-                std::vector<AllowedFormation> allowedFormations = {
-                    AllowedFormation::Alpha,   AllowedFormation::Beta,   AllowedFormation::Gamma,  AllowedFormation::Delta, AllowedFormation::Epsilon,
-                    AllowedFormation::Zeta,    AllowedFormation::Theta,  AllowedFormation::Iota,   AllowedFormation::Kappa, AllowedFormation::Lambda,
-                    AllowedFormation::Omicron, AllowedFormation::Sigma,  AllowedFormation::Omega,  AllowedFormation::Red,   AllowedFormation::Blue,
-                    AllowedFormation::Gold,    AllowedFormation::Green,  AllowedFormation::Silver, AllowedFormation::Black, AllowedFormation::White,
-                    AllowedFormation::Yellow,  AllowedFormation::Matsu,  AllowedFormation::Sakura, AllowedFormation::Fuji,  AllowedFormation::Botan,
-                    AllowedFormation::Hagi,    AllowedFormation::Susuki, AllowedFormation::Kiku,   AllowedFormation::Yanagi
-                };
-
-                //! If true, formations and numbers will not be assigned to ships. All ships will be alpha 1-1.
-                bool disableRandomisedFormations = false;
-
-                //! If true, NPCs will refer to all players as freelancer
-                bool disableUsingAffiliationForCallsign = false;
-        };
-
-        struct DatabaseConfig final
-        {
-                std::string uri = "mongodb://localhost:27017";
-                std::string dbName = "FLHook";
-                std::string accountsCollection = "accounts";
-                std::string mailCollection = "mail";
-        };
-
-        struct Npc
-        {
-            //! If above zero, disables NPC spawns if "server load in ms" goes above the specified value.
-            uint disableNPCSpawns = 0;
-
-            //! The distance at which NPCs can get away from a player before despawning. Does not include NPCs spawned
-            //! through the API or commands. Vanilla default is 2.5k
-            float npcPersistDistance = 6500.f;
-
-            //! The distance at which ALL NPCs will be visible from. Vanilla default is 2.5k
-            float npcVisibilityDistance = 6500.f;
         };
 
         Logging logging;

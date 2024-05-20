@@ -27,7 +27,7 @@ void InternalApi::FMsgSendChat(ClientId client, char* buffer, uint size)
 
 Action<void, Error> InternalApi::SendMessage(const ClientId to, const std::wstring_view message, const ClientId from, std::wstring_view fromXml)
 {
-    if (from && FLHook::GetConfig().userCommands.userCmdIgnore)
+    if (from)
     {
         const auto fromName = StringUtils::ToLower(from.GetCharacterName().Unwrap());
         for (const auto& ignore : from.GetData().ignoreInfoList)

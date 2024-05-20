@@ -39,7 +39,9 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
         {
             CallPlugins(&Plugin::OnLoadCharacterSettings, client, std::wstring_view(charName));
 
-            if (FLHook::GetConfig().userCommands.userCmdHelp)
+            // If help command is not disabled, alert people they can use it
+            if (const auto& cmds = FLHook::GetConfig().userCommands.disabledCommands;
+                std::ranges::find(cmds, L"help") == cmds.end())
             {
                 (void)client.Message(L"To get a list of available commands, type \"/help\" in chat.");
             }

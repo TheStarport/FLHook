@@ -86,7 +86,7 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, C
         int sendXmlRet;
         char* sendXmlBufSys;
         int sendXmlSysRet;
-        if (FLHook::GetConfig().userCommands.userCmdSetDieMsgSize && data.dieMsgSize == ChatSize::Small)
+        if (data.dieMsgSize == ChatSize::Small)
         {
             sendXmlBuf = bufSmall.data();
             sendXmlRet = retSmall;
@@ -99,20 +99,6 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, C
             sendXmlRet = ret;
             sendXmlBufSys = bufSys.data();
             sendXmlSysRet = retSys;
-        }
-
-        if (!FLHook::GetConfig().userCommands.userCmdSetDieMsg)
-        {
-            // /set diemsg disabled, thus send to all
-            if (systemId == system)
-            {
-                InternalApi::FMsgSendChat(client.id, sendXmlBufSys, sendXmlSysRet);
-            }
-            else
-            {
-                InternalApi::FMsgSendChat(client.id, sendXmlBuf, sendXmlRet);
-            }
-            continue;
         }
 
         if (data.dieMsg == DieMsgType::None)

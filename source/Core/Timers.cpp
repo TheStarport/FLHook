@@ -7,8 +7,6 @@
 #include "Core/MessageHandler.hpp"
 #include "Defs/ServerStats.hpp"
 
-std::vector<std::shared_ptr<Timer>> Timer::timers;
-
 std::shared_ptr<Timer> Timer::Add(std::function<void()> function, void* funcAddrRaw, uint interval)
 {
     auto funcAddr = reinterpret_cast<DWORD>(funcAddrRaw);

@@ -15,7 +15,19 @@ bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstrin
 
     auto params = StringUtils::GetParams(commandStr, ' ');
 
-    auto command = params.front();
+    const auto& config = FLHook::GetConfig();
+    const auto command = params.front();
+    if (command.length() < 2)
+    {
+        return false;
+    }
+
+    if (std::ranges::find(config.userCommands.disabledCommands, std::wstring_view(command.begin() + 1, command.end())) !=
+        config.userCommands.disabledCommands.end())
+    {
+        (void)this->userCmdClient.Message(L"This command is currently disabled.");
+        return false;
+    }
 
     std::vector<std::wstring> paramsFiltered(params.begin(), params.end());
     paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
@@ -48,12 +60,6 @@ bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstrin
 
 void UserCommandProcessor::SetDieMessage(std::wstring_view param)
 {
-    if (!FLHook::GetConfig().chatConfig.dieMsg)
-    {
-        userCmdClient.Message(L"Command disabled");
-        return;
-    }
-
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /set diemsg <param>\n"
                                          L"<param>: all,system,self or none";
@@ -95,12 +101,6 @@ void UserCommandProcessor::SetDieMessage(std::wstring_view param)
 
 void UserCommandProcessor::SetDieMessageFontSize(std::wstring_view param)
 {
-    if (!FLHook::GetConfig().userCommands.userCmdSetDieMsgSize)
-    {
-        userCmdClient.Message(L"command disabled");
-        return;
-    }
-
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /set diemsgsize <size>\n"
                                          L"<size>: small, default";
@@ -134,12 +134,6 @@ void UserCommandProcessor::SetDieMessageFontSize(std::wstring_view param)
 
 void UserCommandProcessor::SetChatFont(std::wstring_view fontSize, std::wstring_view fontType)
 {
-    if (!FLHook::GetConfig().userCommands.userCmdSetChatFont)
-    {
-        userCmdClient.Message(L"command disabled");
-        return;
-    }
-
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /set chatfont <size> <style>\n"
                                          L"<size>: small, default or big\n"
@@ -201,11 +195,6 @@ void UserCommandProcessor::SetChatFont(std::wstring_view fontSize, std::wstring_
 
 void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstring_view flags)
 {
-    if (!FLHook::GetConfig().userCommands.userCmdIgnore)
-    {
-        return;
-    }
-
     static const std::wstring errorMsg =
         L"Error: Invalid parameters\n"
         L"Usage: /ignore <charname> [<flags>]\n"
@@ -260,12 +249,6 @@ void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstrin
 
 void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_view flags)
 {
-    if (!FLHook::GetConfig().userCommands.userCmdIgnore)
-    {
-        userCmdClient.Message(L"Command disabled");
-        return;
-    }
-
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /ignoreid <id> [<flags>]\n"
                                          L"<id>: client id of character which should be ignored\n"
@@ -309,12 +292,6 @@ void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_v
 
 void UserCommandProcessor::GetIgnoreList()
 {
-    if (!FLHook::GetConfig().userCommands.userCmdIgnore)
-    {
-        userCmdClient.Message(L"command disabled");
-        return;
-    }
-
     userCmdClient.Message(L"Id | Character Name | flags");
     int i = 1;
     auto& info = userCmdClient.GetData();
@@ -328,12 +305,6 @@ void UserCommandProcessor::GetIgnoreList()
 
 void UserCommandProcessor::RemoveFromIgnored(std::vector<std::wstring_view> charactersToRemove)
 {
-    if (!FLHook::GetConfig().userCommands.userCmdIgnore)
-    {
-        userCmdClient.Message(L"Command disabled");
-        return;
-    }
-
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /delignore <id> [<id2> <id3> ...]\n"
                                          L"<id>: id of ignore-entry(see /ignorelist) or *(delete all)";
@@ -639,12 +610,6 @@ void UserCommandProcessor::GiveCashById(ClientId targetClient, std::wstring_view
 
 void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_view command)
 {
-    if (const auto& config = FLHook::GetConfig(); !config.userCommands.userCmdHelp)
-    {
-        userCmdClient.Message(L"The help command is disabled.");
-        return;
-    }
-
     const auto& pm = PluginManager::i();
     if (module.empty())
     {
