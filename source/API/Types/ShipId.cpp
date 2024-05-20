@@ -308,7 +308,7 @@ Action<void, Error> ShipId::IgniteFuse(uint fuseId, float id) const
     auto tempVal = value;
     IObjInspectImpl* inspect;
 
-    if (uint _; !FLHook::GetShipInspect(tempVal, inspect, _))
+    if (!FLHook::GetObjInspect(tempVal, inspect))
     {
         return { cpp::fail(Error::InvalidShip) };
     }
@@ -345,7 +345,7 @@ Action<void, Error> ShipId::ExtinguishFuse(uint fuseId, float id) const
     auto tempVal = value;
     IObjInspectImpl* inspect;
 
-    if (uint _; !FLHook::GetShipInspect(tempVal, inspect, _))
+    if (!FLHook::GetObjInspect(tempVal, inspect))
     {
         return { cpp::fail(Error::InvalidShip) };
     }

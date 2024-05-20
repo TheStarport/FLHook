@@ -49,6 +49,7 @@ enum class AddressList : uint
     BannedFileCheck = 0x76b3e,
     ReadCharacterName1 = 0x72fe0,
     ReadCharacterName2 = 0x717be,
+    CreateSolar = 0x2A62A,
 
     // Common.dll Offsets
 

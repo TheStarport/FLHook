@@ -134,7 +134,7 @@ class DLL FLHook final
 
         static bool IsReady() { return instance != nullptr && instance->flhookReady; }
         static std::wstring_view GetAccountPath() { return instance->accPath; }
-        static bool GetShipInspect(uint& ship, IObjInspectImpl*& inspect, uint& dunno) { return getShipInspect(ship, inspect, dunno); }
+        static bool GetObjInspect(uint& ship, IObjInspectImpl*& inspect);
 
         static ClientList& Clients() { return *instance->clientList; }
         static ClientData& GetClient(ClientId client);
@@ -142,7 +142,7 @@ class DLL FLHook final
         static mongocxx::pool::entry GetDbClient();
         static InfocardManager& GetInfocardManager() { return *instance->infocardManager; }
         static LastHitInformation GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }
-        static Action<pub::AI::Personality, Error> GetPersonality(const std::wstring& pilotNickname);
+        static Action<pub::AI::Personality*, Error> GetPersonality(const std::wstring& pilotNickname);
         static AccountManager& GetAccountManager() { return *instance->accountManager; }
         static FLHookConfig& GetConfig() { return *instance->flhookConfig; }
         static IClientImpl* GetPacketInterface(){ return hookClientImpl; }

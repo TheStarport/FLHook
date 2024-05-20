@@ -232,6 +232,12 @@ DWORD __stdcall FLHook::Offset(const BinaryType type, AddressList address)
     }
 }
 
+bool FLHook::GetObjInspect(uint& ship, IObjInspectImpl*& inspect)
+{
+    uint dunno; // Something related to watchables
+    return getShipInspect(ship, inspect, dunno);
+}
+
 ClientData& FLHook::GetClient(ClientId client)
 {
     if (!client.IsValidClientId())
@@ -244,7 +250,7 @@ ClientData& FLHook::GetClient(ClientId client)
 
 mongocxx::pool::entry FLHook::GetDbClient() { return instance->database->AcquireClient(); }
 
-Action<pub::AI::Personality, Error> FLHook::GetPersonality(const std::wstring& pilotNickname)
+Action<pub::AI::Personality*, Error> FLHook::GetPersonality(const std::wstring& pilotNickname)
 {
     return instance->personalityHelper->GetPersonality(pilotNickname);
 }

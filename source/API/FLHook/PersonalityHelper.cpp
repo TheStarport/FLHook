@@ -2,7 +2,7 @@
 
 #include "API/FLHook/PersonalityHelper.hpp"
 
-Action<pub::AI::Personality, Error> PersonalityHelper::GetPersonality(const std::wstring& pilotNickname)
+Action<pub::AI::Personality*, Error> PersonalityHelper::GetPersonality(const std::wstring& pilotNickname)
 {
     const auto& pilot = pilots.find(pilotNickname);
     if (pilot == pilots.end())
@@ -10,7 +10,7 @@ Action<pub::AI::Personality, Error> PersonalityHelper::GetPersonality(const std:
         return { cpp::fail(Error::NicknameNotFound) };
     }
 
-    return { pilot->second };
+    return { &pilot->second };
 }
 
 void PersonalityHelper::SetDirection(INI_Reader& ini, float (&direction)[4])
