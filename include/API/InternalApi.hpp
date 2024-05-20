@@ -1,10 +1,5 @@
 #pragma once
 
-class FLHook;
-class IServerImplHook;
-class IEngineHook;
-class UserCommandProcessor;
-
 /**
  * @brief
  * This API is used for manipulating the internal state of FLHook or a shared utility function that
@@ -12,20 +7,8 @@ class UserCommandProcessor;
  */
 class DLL InternalApi
 {
-        friend UserCommandProcessor;
-        friend FLHook;
-        friend IClientImpl;
-        friend IEngineHook;
-        friend IServerImplHook;
-        friend ClientId;
-        friend ShipId;
-        friend BaseId;
-        friend RepId;
-        friend RepGroupId;
-        friend ObjectId;
-        friend SystemId;
-        friend Database;
-        friend AccountManager;
+    public:
+        InternalApi() = delete;
 
         /**
          * @brief Converts the provided wstring view into a byte buffer that can be sent to a client.
