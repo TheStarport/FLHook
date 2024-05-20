@@ -13,7 +13,7 @@
  */
 class Random
 {
-        #define Init if (!init) { engine = std::mt19937(std::random_device{}()); }
+        #define Init if (!init) { engine = std::mt19937(std::random_device{}()); init = true; }
 
         inline static std::mt19937 engine;
         inline static bool init = false;
