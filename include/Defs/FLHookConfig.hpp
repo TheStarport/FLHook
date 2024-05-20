@@ -136,7 +136,8 @@ struct DLL FLHookConfig final
         struct Npc
         {
                 //! If above zero, disables NPC spawns if "server load in ms" goes above the specified value.
-                uint disableNPCSpawns = 0;
+                //! If below zero, NPCs are always disabled
+                int disableNPCSpawns = 0;
 
                 //! The distance at which NPCs can get away from a player before despawning. Does not include NPCs spawned
                 //! through the API or commands. Vanilla default is 2.5k

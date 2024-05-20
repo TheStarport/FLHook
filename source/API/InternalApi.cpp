@@ -55,3 +55,36 @@ Action<void, Error> InternalApi::SendMessage(const ClientId to, const std::wstri
 }
 
 uint InternalApi::CreateID(const std::wstring& nickname) { return ::CreateID(StringUtils::wstos(nickname).c_str()); }
+
+void InternalApi::ToggleNpcSpawns(const bool on)
+{
+    // By default they are on
+    static bool npcsEnabled = true;
+
+    // State already matches, no extra work needed
+    if ((npcsEnabled && on) || (!npcsEnabled && !on))
+    {
+        return;
+    }
+
+    npcsEnabled = on;
+
+    byte jmp;
+    byte cmp;
+    if (on)
+    {
+        jmp = '\x75';
+        cmp = '\xF9';
+    }
+    else
+    {
+        jmp = '\xEB';
+        cmp = '\xFF';
+    }
+
+    auto address = FLHook::Offset(FLHook::BinaryType::Content, AddressList::DisableNpcSpawns1);
+    MemUtils::WriteProcMem(address, &jmp, 1);
+
+    address = FLHook::Offset(FLHook::BinaryType::Content, AddressList::DisableNpcSpawns2);
+    MemUtils::WriteProcMem(address, &cmp, 1);
+}

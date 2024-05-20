@@ -21,6 +21,7 @@ class CrashCatcher;
 
 class DLL FLHook final
 {
+        friend InternalApi;
         friend IEngineHook;
         friend IServerImplHook;
         friend IClientImpl;

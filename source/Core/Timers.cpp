@@ -1,3 +1,4 @@
+#include "API/InternalApi.hpp"
 #include "PCH.hpp"
 
 #include <Psapi.h>
@@ -140,10 +141,13 @@ void FLHook::TimerNpcAndF1Check()
                 Server.CharacterInfoReq(client.id.GetValue(), false);
                 client.f1Time = 0;
             }
+
             else if (client.timeDisconnect && time >= client.timeDisconnect)
             {
                 ulong dataArray[64] = { 0 };
                 dataArray[26] = client.id.GetValue();
+                // ReSharper disable once CppDFAUnusedValue
+                // ReSharper disable once CppDFAUnreadVariable
                 auto rcDisconnect = static_cast<DWORD>(AddressList::RcDisconnect);
                 __asm {
 						pushad
@@ -160,15 +164,15 @@ void FLHook::TimerNpcAndF1Check()
         }
 
 
-        /*if (const auto& config = FLHook::GetConfig(); config.general.disableNPCSpawns && instance->serverLoadInMs >= config.general.disableNPCSpawns)
+        if (const auto& config = GetConfig(); config.npc.disableNPCSpawns < 0 ||
+            (config.npc.disableNPCSpawns && instance->serverLoadInMs >= config.npc.disableNPCSpawns))
         {
-            // TODO: NPC SPAWN TIME!!
-            // Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs
+            InternalApi::ToggleNpcSpawns(false);
         }
         else
         {
-            // Hk::Admin::ChangeNPCSpawn(false);
-        }*/
+            InternalApi::ToggleNpcSpawns(true);
+        }
     }
     CatchHook({})
 }

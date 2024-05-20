@@ -1,3 +1,4 @@
+#include "API/InternalApi.hpp"
 #include "PCH.hpp"
 
 #include "Core/FLHook.hpp"
@@ -170,17 +171,17 @@ void FLHook::InitHookExports()
 
     // divert call to house load/save func
     address = Offset(BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoad);
-    std::array<byte, 1> divertJump = { 0x6F };
+    constexpr std::array<byte, 1> divertJump = { 0x6F };
 
     MemUtils::WriteProcMem(address, divertJump.data(), 1);
 
     // install hook at new address
     address = Offset(BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoadPatch);
 
-    std::array<byte, 1> movEax = { 0xB8 };
-    std::array<byte, 2> jumpEax = { 0xFF, 0xE0 };
+    constexpr std::array<byte, 1> movEax = { 0xB8 };
+    constexpr std::array<byte, 2> jumpEax = { 0xFF, 0xE0 };
 
-    auto loadRepFromCharFile = reinterpret_cast<const void*>(IEngineHook::loadReputationFromCharacterFileAssembly->getCode());
+    const auto loadRepFromCharFile = reinterpret_cast<const void*>(IEngineHook::loadReputationFromCharacterFileAssembly->getCode());
 
     MemUtils::WriteProcMem(address, movEax.data(), 1);
     MemUtils::WriteProcMem(address + 1, &loadRepFromCharFile, 4);
@@ -193,7 +194,7 @@ void FLHook::InitHookExports()
     // charfile encyption(doesn't get disabled when unloading FLHook)
     if (FLHook::GetConfig().general.disableCharfileEncryption)
     {
-        std::array<byte, 2> buffer = { 0x14, 0xB3 };
+        constexpr std::array<byte, 2> buffer = { 0x14, 0xB3 };
         address = Offset(BinaryType::Server, AddressList::CharFileEncryption);
         MemUtils::WriteProcMem(address, buffer.data(), 2);
         address = Offset(BinaryType::Server, AddressList::CharFileEncryption2);
@@ -203,7 +204,7 @@ void FLHook::InitHookExports()
     // maximum group size
     if (FLHook::GetConfig().general.maxGroupSize > 0)
     {
-        auto newGroupSize = static_cast<std::byte>(FLHook::GetConfig().general.maxGroupSize & 0xFF);
+        const auto newGroupSize = static_cast<std::byte>(FLHook::GetConfig().general.maxGroupSize & 0xFF);
         address = Offset(BinaryType::Server, AddressList::MaxGroupSize);
         MemUtils::WriteProcMem(address, &newGroupSize, 1);
         address = Offset(BinaryType::Server, AddressList::MaxGroupSize2);
@@ -230,11 +231,11 @@ void FLHook::InitHookExports()
         ClearClientInfo(client.id);
     }
 
-    std::array<byte, 22> refireBytes = { 0x75, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 00, 00, 00, 00, 00, 00, 00, 0x41, 0x83, 0xC2, 0x04, 0x39, 0xC1, 0x7C, 0xE9, 0xEB };
+    const std::array<byte, 22> refireBytes = { 0x75, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 00, 00, 00, 00, 00, 00, 00, 0x41, 0x83, 0xC2, 0x04, 0x39, 0xC1, 0x7C, 0xE9, 0xEB };
     MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::SolarRefireRateBug), refireBytes.data(), 22);
 
     // Enable undocking announcer regardless of distance
-    std::array<byte, 1> undockAnnouncerBytes = { 0xEB };
+    constexpr std::array<byte, 1> undockAnnouncerBytes = { 0xEB };
     MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::FixNpcAnnouncer), undockAnnouncerBytes.data(), 1);
 }
 
@@ -261,9 +262,7 @@ void FLHook::UnloadHookExports()
         }
     }
 
-    // reset npc spawn setting
-    // TODO: Handle NPC spawns
-    // Hk::Admin::ChangeNPCSpawn(false);
+    InternalApi::ToggleNpcSpawns(true);
 
     for (auto& patch : patches)
     {
@@ -281,17 +280,17 @@ void FLHook::UnloadHookExports()
 
     // undivert call to house load/save func
     address = Offset(BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoad);
-    std::array<byte, 1> divertJump = { 0x76 };
+    constexpr std::array<byte, 1> divertJump = { 0x76 };
     MemUtils::WriteProcMem(address, divertJump.data(), 1);
 
     // Undo refire bug
-    std::array<byte, 22> refireBytes = {
+    const std::array<byte, 22> refireBytes = {
         0x74, 0x0A, 0x41, 0x83, 0xC2, 0x04, 0x3B, 0xC8, 0x7C, 0xF4, 0xEB, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 0, 0, 0, 0, 0, 0,
     };
     MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::SolarRefireRateBug), refireBytes.data(), 22);
 
     // undocking announcer regardless of distance
-    std::array<byte, 1> undockAnnouncerBytes = { 0x74 };
+    constexpr std::array<byte, 1> undockAnnouncerBytes = { 0x74 };
     MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::FixNpcAnnouncer), undockAnnouncerBytes.data(), 1);
 
     // plugins
