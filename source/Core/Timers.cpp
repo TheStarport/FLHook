@@ -34,6 +34,11 @@ void Timer::Remove(const DWORD funcAddr)
     timers.erase(timer);
 }
 
+inline void Timer::AddOneShot(std::function<void()> function, uint interval)
+{
+    oneShotTimers.emplace_back(function, 0, interval, TimeUtils::UnixTime<std::chrono::milliseconds>());
+}
+
 void FLHook::PublishServerStats()
 {
     ServerStats stats;

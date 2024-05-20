@@ -34,6 +34,19 @@ void IServerImplHook::UpdateInner()
         }
     }
 
+    auto oneShot = Timer::oneShotTimers.begin();
+    while (oneShot != Timer::oneShotTimers.end())
+    {
+        if (currentTime - oneShot->lastTime >= oneShot->intervalInSeconds)
+        {
+            oneShot->func();
+            oneShot = Timer::oneShotTimers.erase(oneShot);
+            continue;
+        }
+
+        ++oneShot;
+    }
+
     for (const auto& plugin : *PluginManager::i())
     {
         auto timers = plugin->GetTimers();

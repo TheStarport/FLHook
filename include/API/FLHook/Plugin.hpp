@@ -4,21 +4,28 @@
 
 #include <bsoncxx/builder/basic/document.hpp>
 
-constexpr PluginMajorVersion CurrentMajorVersion = PluginMajorVersion::V04;
-constexpr PluginMinorVersion CurrentMinorVersion = PluginMinorVersion::V01;
+constexpr auto CurrentMajorVersion = PluginMajorVersion::V05;
+constexpr auto CurrentMinorVersion = PluginMinorVersion::V00;
 
 const std::wstring VersionInformation = std::to_wstring(static_cast<int>(CurrentMajorVersion)) + L"." + std::to_wstring(static_cast<int>(CurrentMinorVersion));
 
-struct Timer
+class IServerImplHook;
+struct DLL Timer
 {
+        friend IServerImplHook;
+
         std::function<void()> func;
         DWORD funcAddr;
         mstime intervalInSeconds;
         mstime lastTime = 0;
 
-        static std::vector<std::shared_ptr<Timer>> timers;
         static std::shared_ptr<Timer> Add(std::function<void()> function, void* funcAddr, uint interval);
+        static void AddOneShot(std::function<void()> function, uint interval);
         static void Remove(DWORD funcAddr);
+
+    private:
+        inline static std::vector<std::shared_ptr<Timer>> timers;
+        inline static std::vector<Timer> oneShotTimers;
 };
 
 struct PluginInfo
@@ -127,7 +134,7 @@ class DLL Plugin
         // Define a macro that specifies a hook has an 'after' event
 #define Aft(type, name, params)                 \
     virtual type name params { return type(); } \
-    virtual void name##After params {}
+    virtual void name## After params {}
 
         // Hooks
         virtual void OnCShipInit(CShip* ship) {}
