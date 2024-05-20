@@ -14,17 +14,38 @@ struct DLL Timer
 {
         friend IServerImplHook;
 
-        std::function<void()> func;
-        DWORD funcAddr;
-        mstime intervalInSeconds;
-        mstime lastTime = 0;
+        mstime interval;
+        mstime lastTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
 
-        static std::shared_ptr<Timer> Add(std::function<void()> function, void* funcAddr, uint interval);
+        static std::shared_ptr<Timer> Add(std::function<void()> function, uint interval);
         static void AddOneShot(std::function<void()> function, uint interval);
-        static void Remove(DWORD funcAddr);
+
+        /**
+         *
+         * @param function The function you want to invoke every time the specified interval is up
+         * @param cronExpression A cron expression. See https://github.com/mariusbancila/croncpp for more information.
+         * @code
+         * // Example
+         * Timer::AddCron(Func, L"0 0 0 * * *"); // Execute the function every day at 12AM
+         * @endcode
+         * @throws const cron::bad_cronexpr& - In the event of the expression being invalid it will throw.
+         */
+        static void AddCron(std::function<void()> function, std::wstring_view cronExpression);
+        static void Remove(std::shared_ptr<Timer> timer);
 
     private:
+        std::function<void()> func;
+
+        struct CronTimer
+        {
+                time_t nextInterval;
+                std::string cronExpression;
+        };
+
+        std::optional<CronTimer> cron = std::nullopt;
+
         inline static std::vector<std::shared_ptr<Timer>> timers;
+        inline static std::vector<std::shared_ptr<Timer>> cronTimers;
         inline static std::vector<Timer> oneShotTimers;
 };
 
@@ -37,7 +58,7 @@ struct PluginInfo
         bool mayUnload;
 
         PluginInfo() = delete;
-        PluginInfo(std::wstring_view name, std::wstring_view shortName, const PluginMajorVersion major, const PluginMinorVersion minor,
+        PluginInfo(const std::wstring_view name, const std::wstring_view shortName, const PluginMajorVersion major, const PluginMinorVersion minor,
                    const bool mayUnload = true)
             : name(name), shortName(shortName), versionMajor(major), versionMinor(minor), mayUnload(mayUnload)
         {}
@@ -63,19 +84,10 @@ class DLL Plugin
 
         HMODULE dll = nullptr;
         std::wstring dllName;
-        std::vector<std::shared_ptr<Timer>> timers;
         int callPriority = 0;
 
     protected:
         ReturnCode returnCode = ReturnCode::Default;
-
-        void AddTimer(void (Plugin::*func)(), const int frequencyInSeconds)
-        {
-            if (auto timer = Timer::Add([this, func] { (this->*func)(); }, &func, frequencyInSeconds))
-            {
-                timers.emplace_back(timer);
-            }
-        }
 
         void SetPriority(const int priority) { callPriority = priority; }
 
@@ -104,15 +116,7 @@ class DLL Plugin
             versionMinor = info.versionMinor;
         }
 
-        virtual ~Plugin()
-        {
-            for (int i = static_cast<int>(timers.size()) - 1; i >= 0; --i)
-            {
-                const auto& timer = timers[i];
-                Timer::Remove(timer->funcAddr);
-                timers.erase(timers.begin() + static_cast<uint>(i));
-            }
-        };
+        virtual ~Plugin() = default;
 
         Plugin& operator=(const Plugin&&) = delete;
         Plugin& operator=(const Plugin&) = delete;
@@ -129,12 +133,10 @@ class DLL Plugin
             return shortName;
         }
 
-        const auto& GetTimers() { return timers; }
-
         // Define a macro that specifies a hook has an 'after' event
 #define Aft(type, name, params)                 \
     virtual type name params { return type(); } \
-    virtual void name## After params {}
+    virtual void name##After params {}
 
         // Hooks
         virtual void OnCShipInit(CShip* ship) {}

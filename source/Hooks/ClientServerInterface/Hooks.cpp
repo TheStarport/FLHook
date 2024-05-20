@@ -1,5 +1,7 @@
 #include "PCH.hpp"
 
+#include <croncpp.h>
+
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
@@ -22,12 +24,11 @@ void IServerImplHook::UpdateInner()
         firstTime = false;
     }
 
-    // TODO: ensure flhook timers are also 1 second timers
-    const auto currentTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
+    auto currentTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
     for (const auto& timer : Timer::timers)
     {
         // This one isn't actually in seconds, but the plugins should be
-        if (currentTime - timer->lastTime >= timer->intervalInSeconds)
+        if (currentTime - timer->lastTime >= timer->interval)
         {
             timer->lastTime = currentTime;
             timer->func();
@@ -37,7 +38,7 @@ void IServerImplHook::UpdateInner()
     auto oneShot = Timer::oneShotTimers.begin();
     while (oneShot != Timer::oneShotTimers.end())
     {
-        if (currentTime - oneShot->lastTime >= oneShot->intervalInSeconds)
+        if (currentTime - oneShot->lastTime >= oneShot->interval)
         {
             oneShot->func();
             oneShot = Timer::oneShotTimers.erase(oneShot);
@@ -47,22 +48,22 @@ void IServerImplHook::UpdateInner()
         ++oneShot;
     }
 
-    for (const auto& plugin : *PluginManager::i())
+    currentTime = TimeUtils::UnixTime<std::chrono::seconds>();
+    for (const auto& timer : Timer::cronTimers)
     {
-        auto timers = plugin->GetTimers();
-        if (timers.empty())
+        if (currentTime <= timer->cron->nextInterval)
         {
             continue;
         }
 
-        for (const auto& timer : timers)
-        {
-            if (currentTime - timer->lastTime >= timer->intervalInSeconds * 1000)
-            {
-                timer->lastTime = currentTime;
-                timer->func();
-            }
-        }
+        timer->func();
+        timer->lastTime = currentTime;
+
+        std::tm tm{};
+        const time_t time = timer->lastTime;
+        cron::utils::time_to_tm(&time, &tm);
+        auto nextTm = cron_next(cron::make_cron(timer->cron->cronExpression), tm);
+        timer->cron->nextInterval = cron::utils::tm_to_time(nextTm);
     }
 
     const auto hook = FLHook::instance;

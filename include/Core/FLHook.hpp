@@ -69,7 +69,7 @@ class DLL FLHook final
         // Timers
         static void PublishServerStats();
         static void TimerCheckKick();
-        static void TimerNpcAndF1Check();
+        static void OneSecondTimer();
 
         // Non-Static things
 

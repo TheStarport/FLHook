@@ -97,6 +97,15 @@ FLHook::FLHook()
 
     const auto& config = GetConfig();
 
+    try
+    {
+        Timer::AddCron(PublishServerStats, L"0 0 0 * * *");
+    } catch (std::exception& w)
+    {
+        const std::string_view e = w.what();
+        Logger::Err(StringUtils::stows(e));
+    }
+
     // Init our message service, this is a blocking call and some plugins might want to setup their own queues,
     // so we want to make sure the service is up at startup time
     if (config.messageQueue.enableQueues)
@@ -142,7 +151,7 @@ FLHook::FLHook()
                            }
                        });
 
-        Timer::Add(PublishServerStats, &PublishServerStats, config.messageQueue.timeBetweenServerUpdates);
+        Timer::Add(PublishServerStats, config.messageQueue.timeBetweenServerUpdates);
     }
 
     if (config.plugins.loadAllPlugins)
@@ -168,7 +177,7 @@ FLHook::FLHook()
         }
     }
 
-    Timer::Add(ProcessPendingAsyncTasks, &ProcessPendingAsyncTasks, 1000);
+    Timer::Add(ProcessPendingAsyncTasks, 250);
 
     PatchClientImpl();
 
@@ -288,10 +297,10 @@ bool FLHook::OnServerStart()
         InitHookExports();
 
         // Setup timers
-        Timer::Add(ProcessPendingCommands, &ProcessPendingCommands, 50);
-        Timer::Add(TimerCheckKick, &TimerCheckKick, 50);
-        Timer::Add(TimerNpcAndF1Check, &TimerCheckKick, 1000);
-        Timer::Add(IpResolver::TimerCheckResolveResults, &IpResolver::TimerCheckResolveResults, 0);
+        Timer::Add(ProcessPendingCommands, 50);
+        Timer::Add(TimerCheckKick, 50);
+        Timer::Add(OneSecondTimer, 1000);
+        Timer::Add(IpResolver::TimerCheckResolveResults, 100);
 
         ZoneUtilities::Init();
     }

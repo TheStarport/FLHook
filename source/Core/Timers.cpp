@@ -8,34 +8,59 @@
 #include "Core/MessageHandler.hpp"
 #include "Defs/ServerStats.hpp"
 
-std::shared_ptr<Timer> Timer::Add(std::function<void()> function, void* funcAddrRaw, uint interval)
-{
-    auto funcAddr = reinterpret_cast<DWORD>(funcAddrRaw);
-    if (std::ranges::any_of(timers, [funcAddr](const std::shared_ptr<Timer>& existing) { return funcAddr == existing->funcAddr; }))
-    {
-        return nullptr;
-    }
+#define CRONCPP_IS_CPP17
+#include "croncpp.h"
 
-    auto ptr = std::make_shared<Timer>(function, funcAddr, interval);
+void Timer::AddCron(std::function<void()> function, const std::wstring_view cronExpression)
+{
+    auto ptr = std::make_shared<Timer>();
+    ptr->func = function;
+    ptr->lastTime = TimeUtils::UnixTime<std::chrono::seconds>();
+
+    const auto expression = StringUtils::wstos(cronExpression);
+    const auto cronexpr = ::cron::make_cron(expression);
+
+    std::tm tm{};
+    const time_t time = ptr->lastTime;
+    ::cron::utils::time_to_tm(&time, &tm);
+    auto next = cron_next(cronexpr, tm);
+
+    CronTimer timer = {
+        cron::utils::tm_to_time(next),
+        expression
+    };
+
+    ptr->cron = timer;
+    cronTimers.emplace_back(ptr);
+}
+
+std::shared_ptr<Timer> Timer::Add(std::function<void()> function, const uint interval)
+{
+    auto ptr = std::make_shared<Timer>();
+    ptr->func = function;
+    ptr->interval = interval * 1000;
     timers.emplace_back(ptr);
 
     return ptr;
 }
 
-void Timer::Remove(const DWORD funcAddr)
+void Timer::Remove(std::shared_ptr<Timer> timer)
 {
-    const auto timer = std::ranges::find_if(timers, [funcAddr](const std::shared_ptr<Timer>& existing) { return funcAddr == existing->funcAddr; });
-    if (timer == timers.end())
+    const auto iter = std::ranges::find_if(timers, [timer](const std::shared_ptr<Timer>& existing) { return timer == existing; });
+    if (iter == timers.end())
     {
         return;
     }
 
-    timers.erase(timer);
+    timers.erase(iter);
 }
 
-inline void Timer::AddOneShot(std::function<void()> function, uint interval)
+void Timer::AddOneShot(std::function<void()> function, const uint interval)
 {
-    oneShotTimers.emplace_back(function, 0, interval, TimeUtils::UnixTime<std::chrono::milliseconds>());
+    Timer timer;
+    timer.func = function;
+    timer.interval = interval;
+    oneShotTimers.emplace_back(timer);
 }
 
 void FLHook::PublishServerStats()
@@ -126,10 +151,8 @@ void FLHook::TimerCheckKick()
     CatchHook({})
 }
 
-void FLHook::TimerNpcAndF1Check()
+void FLHook::OneSecondTimer()
 {
-    // ReSharper disable once CppRedundantEmptyStatement
-    ;
     TryHook
     {
         auto time = TimeUtils::UnixTime<std::chrono::milliseconds>();
@@ -162,7 +185,6 @@ void FLHook::TimerNpcAndF1Check()
                 continue;
             }
         }
-
 
         if (const auto& config = GetConfig(); config.npc.disableNPCSpawns < 0 ||
             (config.npc.disableNPCSpawns && instance->serverLoadInMs >= config.npc.disableNPCSpawns))
