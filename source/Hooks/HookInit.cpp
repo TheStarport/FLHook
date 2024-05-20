@@ -259,7 +259,6 @@ void FLHook::PatchClientImpl()
 
 void FLHook::UnloadHookExports()
 {
-
     // uninstall IServerImpl callbacks in remoteclient.dll
     if (auto serverAddr = reinterpret_cast<char*>(&Server))
     {

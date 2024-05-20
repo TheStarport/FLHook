@@ -17,6 +17,7 @@ class FlPacket;
 class PersonalityHelper;
 class Database;
 class AccountManager;
+class CrashCatcher;
 
 class DLL FLHook final
 {
@@ -77,6 +78,7 @@ class DLL FLHook final
         PersonalityHelper* personalityHelper;
         AccountManager* accountManager;
         FLHookConfig* flhookConfig;
+        CrashCatcher* crashCatcher;
 
         bool OnServerStart();
         void InitHookExports();

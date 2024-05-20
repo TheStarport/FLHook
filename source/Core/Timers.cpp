@@ -157,7 +157,7 @@ void FLHook::TimerNpcAndF1Check()
         }
 
 
-        if (const auto& config = FLHook::GetConfig(); config.general.disableNPCSpawns && instance->serverLoadInMs >= config.general.disableNPCSpawns)
+        /*if (const auto& config = FLHook::GetConfig(); config.general.disableNPCSpawns && instance->serverLoadInMs >= config.general.disableNPCSpawns)
         {
             // TODO: NPC SPAWN TIME!!
             // Hk::Admin::ChangeNPCSpawn(true); // serverload too high, disable npcs
@@ -165,7 +165,7 @@ void FLHook::TimerNpcAndF1Check()
         else
         {
             // Hk::Admin::ChangeNPCSpawn(false);
-        }
+        }*/
     }
     CatchHook({})
 }

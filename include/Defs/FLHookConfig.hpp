@@ -27,8 +27,6 @@ struct DLL FLHookConfig final
                 bool disableCharfileEncryption = false;
                 //! If a player disconnects in space, their ship will remain in game world for the time specified, in milliseconds.
                 uint disconnectDelay = 0;
-                //! If above zero, disables NPC spawns if "server load in ms" goes above the specified value.
-                uint disableNPCSpawns = 0;
 
                 //! Maximum amount of players in a group.
                 uint maxGroupSize = 8;
@@ -189,6 +187,19 @@ struct DLL FLHookConfig final
                 std::string mailCollection = "mail";
         };
 
+        struct Npc
+        {
+            //! If above zero, disables NPC spawns if "server load in ms" goes above the specified value.
+            uint disableNPCSpawns = 0;
+
+            //! The distance at which NPCs can get away from a player before despawning. Does not include NPCs spawned
+            //! through the API or commands. Vanilla default is 2.5k
+            float npcPersistDistance = 6500.f;
+
+            //! The distance at which ALL NPCs will be visible from. Vanilla default is 2.5k
+            float npcVisibilityDistance = 6500.f;
+        };
+
         Logging logging;
         General general;
         AutoKicks autoKicks;
@@ -199,4 +210,5 @@ struct DLL FLHookConfig final
         ChatConfig chatConfig;
         Callsign callsign;
         DatabaseConfig databaseConfig;
+        Npc npc;
 };

@@ -28,6 +28,7 @@
 #include "API/Utils/ZoneUtilities.hpp"
 
 #include "API/Exceptions/InvalidClientException.hpp"
+#include "Core/CrashCatcher.hpp"
 #include "Defs/BsonWrapper.hpp"
 
 #include <mongocxx/exception/exception.hpp>
@@ -81,6 +82,7 @@ FLHook::FLHook()
     personalityHelper = new PersonalityHelper();
     database = new Database(flhookConfig->databaseConfig.uri);
     accountManager = new AccountManager();
+    crashCatcher = new CrashCatcher();
 
     flProc = GetModuleHandle(nullptr);
 
@@ -344,6 +346,8 @@ DWORD __stdcall Unload(const LPVOID module)
 
 FLHook::~FLHook()
 {
+    delete crashCatcher;
+
     // Force thread to terminate
     TerminateThread(IpResolver::resolveThread.native_handle(), 0);
 
