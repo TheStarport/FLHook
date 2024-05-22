@@ -38,7 +38,7 @@ std::shared_ptr<Timer> Timer::Add(std::function<void()> function, const uint int
 {
     auto ptr = std::make_shared<Timer>();
     ptr->func = function;
-    ptr->interval = interval * 1000;
+    ptr->interval = interval;
     timers.emplace_back(ptr);
 
     return ptr;
