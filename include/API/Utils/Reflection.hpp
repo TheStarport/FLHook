@@ -43,7 +43,7 @@ namespace rfl::parsing
             }                                                                                                                                             \
     };                                                                                                                                                    \
     template <class ReaderType, class WriterType, class ProcessorsType>                                                                                   \
-    struct Parser<ReaderType, WriterType, hashType##, ProcessorsType> : CustomParser<ReaderType, WriterType, hashType##, hashType##_Impl, ProcessorsType> \
+    struct Parser<ReaderType, WriterType, hashType##, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, hashType##, hashType##_Impl> \
     {};
 
     HashConvert(EquipmentId, "commodity_cardamine");
