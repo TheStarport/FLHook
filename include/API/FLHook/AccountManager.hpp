@@ -3,11 +3,10 @@
 #include "Defs/Database/Account.hpp"
 #include "Utils/Detour.hpp"
 
-// TODO: Reputation list and affiliation needs to be figured.
 struct Rumor
 {
         uint IDS;
-        uint unknown; // number of times read?
+        uint rumorLevel;
 };
 
 struct VNpc
@@ -158,7 +157,7 @@ class AccountManager
         static bool DeleteCharacter(ClientId clientId, std::wstring characterCode);
         static void Login(const std::wstring& wideAccountId, ClientId client);
         static void ClearClientInfo(ClientId clientId);
-        static void __fastcall LoadPlayerMData(MPlayerDataSaveStruct* mdata, void* edx, struct INI_Reader* ini);
+        static void __fastcall LoadPlayerMData(MPlayerDataSaveStruct* mdata, void* edx, INI_Reader* ini);
         static void InitContentDLLDetours();
         inline static FlMapVisitErase flMapVisitErase;
         inline static FlMapVisitInsert flMapVisitInsert;

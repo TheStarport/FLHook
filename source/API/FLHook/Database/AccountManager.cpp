@@ -647,7 +647,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     // for (auto visit = pd->visitEntries.begin(); visit != pd->visitEntries.end(); ++visit)
     for (auto visit : pd->visitEntries)
     {
-        character.visits[visit->key] = visit->data.visitValue;
+        character.visits[visit->key] = visit->data;
     }
     character.equipment.clear();
     character.baseEquipment.clear();
