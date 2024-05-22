@@ -107,7 +107,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
         return false;
     }
 
-    const auto plugin = pluginFactory();
+    auto plugin = pluginFactory();
     plugin->dll = dll;
     plugin->dllName = dllName;
 
@@ -124,6 +124,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
                                             dllName,
                                             static_cast<int>(CurrentMajorVersion),
                                             static_cast<int>(plugin->versionMajor)));
+        plugin = nullptr;
         FreeLibrary(dll);
         return false;
     }
@@ -134,6 +135,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
                                             dllName,
                                             static_cast<int>(CurrentMinorVersion),
                                             static_cast<int>(plugin->versionMinor)));
+        plugin = nullptr;
         FreeLibrary(dll);
         return false;
     }
@@ -150,6 +152,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
     if (plugin->shortName.empty() || plugin->name.empty())
     {
         Logger::Err(std::format(L"ERR missing name/short name for {}", dllName));
+        plugin = nullptr;
         FreeLibrary(dll);
         return false;
     }
@@ -159,6 +162,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
     if (!plugin->mayUnload && !startup)
     {
         Logger::Err(std::format(L"ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", dllName));
+        plugin = nullptr;
         FreeLibrary(dll);
         return false;
     }
