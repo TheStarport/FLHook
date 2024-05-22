@@ -44,25 +44,25 @@ struct DLL FLHookConfig final
         {
                 struct MsgStyle final
                 {
-                    std::wstring msgEchoStyle = L"0x00AA0090";
-                    std::wstring deathMsgStyle = L"0x19198C01";
-                    std::wstring deathMsgStyleSys = L"0x1919BD01";
-                    //! Time in ms between kick message rendering and actual server kick occurring.
-                    uint kickMsgPeriod = 5000;
-                    //! Kick message content.
-                    std::wstring kickMsg = LR"(<TRA data=" 0x0000FF10 " mask=" - 1 "/><TEXT>You will be kicked. Reason: %reason</TEXT>)";
-                    std::wstring userCmdStyle = L"0x00FF0090";
-                    std::wstring adminCmdStyle = L"0x00FF0090";
-                    //! Death message for admin kills.
-                    std::wstring deathMsgTextAdminKill = L"Death: %victim was killed by an admin";
-                    //! Default player to player kill message.
-                    std::wstring deathMsgTextPlayerKill = L"Death: %victim was killed by %killer (%type)";
-                    //! Death message for weapon self-kills.
-                    std::wstring deathMsgTextSelfKill = L"Death: %victim killed himself (%type)";
-                    //! Death message for player deaths to NPCs.
-                    std::wstring deathMsgTextNPC = L"Death: %victim was killed by an NPC";
-                    //! Death message for environmental deaths.
-                    std::wstring deathMsgTextSuicide = L"Death: %victim committed suicide";
+                        std::wstring msgEchoStyle = L"0x00AA0090";
+                        std::wstring deathMsgStyle = L"0x19198C01";
+                        std::wstring deathMsgStyleSys = L"0x1919BD01";
+                        //! Time in ms between kick message rendering and actual server kick occurring.
+                        uint kickMsgPeriod = 5000;
+                        //! Kick message content.
+                        std::wstring kickMsg = LR"(<TRA data=" 0x0000FF10 " mask=" - 1 "/><TEXT>You will be kicked. Reason: %reason</TEXT>)";
+                        std::wstring userCmdStyle = L"0x00FF0090";
+                        std::wstring adminCmdStyle = L"0x00FF0090";
+                        //! Death message for admin kills.
+                        std::wstring deathMsgTextAdminKill = L"Death: %victim was killed by an admin";
+                        //! Default player to player kill message.
+                        std::wstring deathMsgTextPlayerKill = L"Death: %victim was killed by %killer (%type)";
+                        //! Death message for weapon self-kills.
+                        std::wstring deathMsgTextSelfKill = L"Death: %victim killed himself (%type)";
+                        //! Death message for player deaths to NPCs.
+                        std::wstring deathMsgTextNPC = L"Death: %victim was killed by an NPC";
+                        //! Death message for environmental deaths.
+                        std::wstring deathMsgTextSuicide = L"Death: %victim committed suicide";
                 };
 
                 MsgStyle msgStyle;
@@ -145,6 +145,15 @@ struct DLL FLHookConfig final
 
                 //! The distance at which ALL NPCs will be visible from. Vanilla default is 2.5k
                 float npcVisibilityDistance = 6500.f;
+
+                //! Toggles the NPC spin protection
+                bool enableNpcSpinProtection = false;
+
+                //! The minimum amount of mass a ship must have for spin protection to kick in
+                float spinProtectionMass = 180.0f;
+
+                //! The higher this value is the more aggressive the spin protection is
+                float spinImpulseMultiplier = -1.0f;
         };
 
         struct MessageQueue final

@@ -122,6 +122,7 @@ class IServerImplHook
         static void __stdcall SpMunitionCollision(const SSPMunitionCollisionInfo& mci, ClientId client);
 
         // ObjectCollision.cpp
+        static void NpcSpinProtection(const SSPObjCollisionInfo& oci, ClientId client);
         static void __stdcall SpObjCollision(const SSPObjCollisionInfo& oci, ClientId client);
 
         // ObjectSelect.cpp
