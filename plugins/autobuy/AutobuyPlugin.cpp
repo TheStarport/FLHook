@@ -474,5 +474,5 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Autobuy", L"autobuy", PluginMajorVersion::V05, PluginMinorVersion::V01);
+const PluginInfo Info(L"Autobuy", L"autobuy", PluginMajorVersion::V05, PluginMinorVersion::V00);
 SetupPlugin(AutobuyPlugin, Info);

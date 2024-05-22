@@ -409,6 +409,6 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Betting", L"betting", PluginMajorVersion::V05, PluginMinorVersion::V01);
+const PluginInfo Info(L"Betting", L"betting", PluginMajorVersion::V05, PluginMinorVersion::V00);
 
 SetupPlugin(BettingPlugin, Info);
