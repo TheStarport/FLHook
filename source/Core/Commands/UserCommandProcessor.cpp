@@ -42,7 +42,7 @@ template <>
 bool UserCommandProcessor::MatchCommand<0>([[maybe_unused]] UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd,
                                            std::vector<std::wstring>& paramVector)
 {
-    for (auto user : PluginManager::i()->userCommands)
+    for (auto& user : PluginManager::i()->userCommands)
     {
         if (user.lock()->ProcessCommand(triggeringClient, cmd, paramVector))
         {
@@ -86,7 +86,7 @@ void UserCommandProcessor::SetDieMessage(std::wstring_view param)
     }
     else
     {
-        userCmdClient.Message(errorMsg);
+        (void)userCmdClient.Message(errorMsg);
         return;
     }
 
@@ -119,7 +119,7 @@ void UserCommandProcessor::SetDieMessageFontSize(std::wstring_view param)
     }
     else
     {
-        userCmdClient.Message(errorMsg);
+        (void)userCmdClient.Message(errorMsg);
         return;
     }
 
@@ -153,7 +153,7 @@ void UserCommandProcessor::SetChatFont(std::wstring_view fontSize, std::wstring_
     }
     else
     {
-        userCmdClient.Message(errorMsg);
+        (void)userCmdClient.Message(errorMsg);
         return;
     }
 
@@ -176,7 +176,7 @@ void UserCommandProcessor::SetChatFont(std::wstring_view fontSize, std::wstring_
     }
     else
     {
-        userCmdClient.Message(errorMsg);
+        (void)userCmdClient.Message(errorMsg);
         return;
     }
 
@@ -191,6 +191,139 @@ void UserCommandProcessor::SetChatFont(std::wstring_view fontSize, std::wstring_
 
     // send confirmation msg
     PrintOk();
+}
+
+void UserCommandProcessor::SetChatTime(std::wstring_view option)
+{
+    auto& info = userCmdClient.GetData();
+    if (option == L"on")
+    {
+        if (info.showChatTime)
+        {
+            (void)userCmdClient.Message(L"Chat Time already enabled!");
+        }
+        else
+        {
+            (void)userCmdClient.Message(L"Chat Time enabled");
+            info.showChatTime = true;
+        }
+    }
+    else if (option == L"off")
+    {
+        if (!info.showChatTime)
+        {
+            (void)userCmdClient.Message(L"Chat Time already disabled!");
+        }
+        else
+        {
+            (void)userCmdClient.Message(L"Chat Time disabled");
+            info.showChatTime = false;
+        }
+    }
+    else
+    {
+        (void)userCmdClient.Message(L"Invalid parameter");
+    }
+}
+
+void UserCommandProcessor::ShowLastSender()
+{
+    auto& info = userCmdClient.GetData();
+    if (info.lastPMSender.IsValidClientId())
+    {
+        (void)userCmdClient.Message(std::format(L"Last PM sender is {}", info.lastPMSender.GetCharacterName().Handle()));
+    }
+    else
+    {
+        (void)userCmdClient.Message(L"Last PM sender not found!");
+    }
+}
+
+void UserCommandProcessor::ReplyToLastMsg(std::wstring_view response)
+{
+    // TODO: Add tracking of lastPMSender
+    auto& info = userCmdClient.GetData();
+    if (info.lastPMSender.IsValidClientId())
+    {
+        (void)userCmdClient.MessageFrom(userCmdClient, response);
+        (void)info.lastPMSender.MessageFrom(userCmdClient, response);
+    }
+    else
+    {
+        (void)userCmdClient.Message(L"Last PM sender not found!");
+    }
+}
+
+void UserCommandProcessor::MessageTarget(std::wstring_view text)
+{
+    const auto target = userCmdClient.GetShipId().Handle().GetTarget();
+    if (!target.has_value())
+    {
+        (void)userCmdClient.Message(L"No target selected");
+        return;
+    }
+
+    const auto targetPlayer = target.value().GetPlayer();
+    if (!targetPlayer.has_value())
+    {
+        (void)userCmdClient.Message(L"Target is not a player");
+        return;
+    }
+
+    (void)userCmdClient.MessageFrom(userCmdClient, text);
+    (void)targetPlayer.value().MessageFrom(userCmdClient, text);
+}
+
+void UserCommandProcessor::MessageTag(std::wstring_view tag, std::wstring_view msg)
+{
+    PlayerData* pd = nullptr;
+    bool foundTaggedPlayer = false;
+    while (pd = Players.traverse_active(pd))
+    {
+        ClientId client = ClientId(pd->clientId);
+        if (client == userCmdClient)
+        {
+            continue;
+        }
+
+        if (client.GetCharacterName().Handle().find(tag) != std::wstring_view::npos)
+        {
+            foundTaggedPlayer = true;
+            (void)client.MessageFrom(userCmdClient, msg);
+        }
+    }
+
+    if (foundTaggedPlayer)
+    {
+        (void)userCmdClient.MessageFrom(userCmdClient, msg);
+    }
+    else
+    {
+        (void)userCmdClient.Message(L"No players with matching tag found");
+    }
+}
+
+void UserCommandProcessor::SetSavedMsg(uint index, std::wstring_view msg)
+{
+    if (index > 9)
+    {
+        (void)userCmdClient.Message(L"Invalid message index provided");
+        return;
+    }
+
+    auto& info = userCmdClient.GetData().presetMsgs.at(index) = msg;
+    PrintOk();
+}
+
+void UserCommandProcessor::ShowSavedMsgs()
+{
+    auto& info = userCmdClient.GetData();
+    uint counter = 0;
+    (void)userCmdClient.Message(L"Saved messages");
+    for (const auto& msg : info.presetMsgs)
+    {
+        (void)userCmdClient.Message(std::format(L"{}: {}", counter++, msg));
+    }
 }
 
 void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstring_view flags)
@@ -212,7 +345,7 @@ void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstrin
 
     if (ignoredUser.empty())
     {
-        userCmdClient.Message(errorMsg);
+        (void)userCmdClient.Message(errorMsg);
         return;
     }
 
@@ -223,7 +356,7 @@ void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstrin
     {
         if (allowedFlags.find_first_of(flag) == std::wstring::npos)
         {
-            userCmdClient.Message(errorMsg);
+            (void)userCmdClient.Message(errorMsg);
             return;
         }
     }
@@ -231,7 +364,7 @@ void UserCommandProcessor::IgnoreUser(std::wstring_view ignoredUser, std::wstrin
     auto& info = userCmdClient.GetData();
     if (info.ignoreInfoList.size() > FLHook::GetConfig().userCommands.userCmdMaxIgnoreList)
     {
-        userCmdClient.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
+        (void)userCmdClient.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
         return;
     }
 
@@ -256,20 +389,20 @@ void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_v
 
     if (!ignoredClient || (!flags.empty() && flags != L"p"))
     {
-        userCmdClient.Message(errorMsg);
+        (void)userCmdClient.Message(errorMsg);
         return;
     }
 
     auto& data = userCmdClient.GetData();
     if (data.ignoreInfoList.size() > FLHook::GetConfig().userCommands.userCmdMaxIgnoreList)
     {
-        userCmdClient.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
+        (void)userCmdClient.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
         return;
     }
 
     if (ignoredClient.InCharacterSelect())
     {
-        userCmdClient.Message(L"Error: Invalid client id");
+        (void)userCmdClient.Message(L"Error: Invalid client id");
         return;
     }
 
@@ -287,17 +420,17 @@ void UserCommandProcessor::IgnoreClientId(ClientId ignoredClient, std::wstring_v
     ii.flags = flags;
     info.ignoreInfoList.push_back(ii);
 
-    userCmdClient.Message(std::format(L"OK, \"{}\" added to ignore list", character));
+    (void)userCmdClient.Message(std::format(L"OK, \"{}\" added to ignore list", character));
 }
 
 void UserCommandProcessor::GetIgnoreList()
 {
-    userCmdClient.Message(L"Id | Character Name | flags");
+    (void)userCmdClient.Message(L"Id | Character Name | flags");
     int i = 1;
     auto& info = userCmdClient.GetData();
     for (auto& ignore : info.ignoreInfoList)
     {
-        userCmdClient.Message(std::format(L"{} | %s | %s", i, ignore.character, ignore.flags));
+        (void)userCmdClient.Message(std::format(L"{} | %s | %s", i, ignore.character, ignore.flags));
         i++;
     }
     PrintOk();
@@ -310,7 +443,7 @@ void UserCommandProcessor::RemoveFromIgnored(std::vector<std::wstring_view> char
                                          L"<id>: id of ignore-entry(see /ignorelist) or *(delete all)";
     if (charactersToRemove.empty())
     {
-        userCmdClient.Message(errorMsg);
+        (void)userCmdClient.Message(errorMsg);
         return;
     }
 
@@ -329,7 +462,7 @@ void UserCommandProcessor::RemoveFromIgnored(std::vector<std::wstring_view> char
         uint id = StringUtils::Cast<uint>(name);
         if (!id || id > info.ignoreInfoList.size())
         {
-            userCmdClient.Message(L"Error: Invalid Id");
+            (void)userCmdClient.Message(L"Error: Invalid Id");
             return;
         }
 
@@ -374,7 +507,7 @@ void UserCommandProcessor::GetClientIds()
         userCmdClient.Message(std::format(L"| {} = {}", client.characterName, client.id));
     }
 
-    userCmdClient.Message(L"OK");
+    (void)userCmdClient.Message(L"OK");
 }
 
 void UserCommandProcessor::GetSelfClientId() { userCmdClient.Message(std::format(L"Your userCmdClient-id: {}", userCmdClient)); }
@@ -391,13 +524,13 @@ void UserCommandProcessor::InvitePlayer(const std::wstring_view& characterName)
     uint retVal;
     if (InternalApi::FMsgEncodeXml(XML, buf.data(), sizeof buf, retVal).Raw().has_error())
     {
-        userCmdClient.Message(L"Error: Could not encode XML");
+        (void)userCmdClient.Message(L"Error: Could not encode XML");
         return;
     }
     // Mimics Freelancer's ingame invite system by using their chatID and chat commands from pressing the invite target button.
-    CHAT_ID chatId;
+    CHAT_ID chatId{};
     chatId.id = userCmdClient.GetValue();
-    CHAT_ID chatIdTo;
+    CHAT_ID chatIdTo{};
     chatIdTo.id = static_cast<int>(SpecialChatIds::System);
     Server.SubmitChat(chatId, retVal, buf.data(), chatIdTo, -1);
 }
@@ -412,21 +545,21 @@ void UserCommandProcessor::InvitePlayerByName(std::wstring_view invitee)
             return;
         }
 
-        userCmdClient.Message(std::format(L"Failed to invite player: '{}'. They may not be online, or are otherwise unavailable.", invitee));
+        (void)userCmdClient.Message(std::format(L"Failed to invite player: '{}'. They may not be online, or are otherwise unavailable.", invitee));
         return;
     }
 
     auto ship = userCmdClient.GetShipId().Raw();
     if (ship.has_error())
     {
-        userCmdClient.Message(L"No invitee was provided and no target selected.");
+        (void)userCmdClient.Message(L"No invitee was provided and no target selected.");
         return;
     }
 
     auto target = ship.value().GetTarget();
     if (!target.has_value())
     {
-        userCmdClient.Message(L"No invitee was provided and no target selected.");
+        (void)userCmdClient.Message(L"No invitee was provided and no target selected.");
         return;
     }
 
@@ -436,14 +569,14 @@ void UserCommandProcessor::InvitePlayerByName(std::wstring_view invitee)
         return;
     }
 
-    userCmdClient.Message(L"You cannot invite an NPC.");
+    (void)userCmdClient.Message(L"You cannot invite an NPC.");
 }
 
 void UserCommandProcessor::InvitePlayerById(const ClientId inviteeId)
 {
     if (inviteeId.InCharacterSelect())
     {
-        userCmdClient.Message(L"Error: Invalid client id");
+        (void)userCmdClient.Message(L"Error: Invalid client id");
         return;
     }
 
@@ -457,8 +590,8 @@ void UserCommandProcessor::FactionInvite(std::wstring_view factionTag)
 
     if (factionTag.size() < 3)
     {
-        userCmdClient.Message(L"ERR Invalid parameters");
-        userCmdClient.Message(L"Usage: /factioninvite <tag> or /fi ...");
+        (void)userCmdClient.Message(L"ERR Invalid parameters");
+        (void)userCmdClient.Message(L"Usage: /factioninvite <tag> or /fi ...");
         return;
     }
 
@@ -480,7 +613,7 @@ void UserCommandProcessor::FactionInvite(std::wstring_view factionTag)
 
     if (msgSent == false)
     {
-        userCmdClient.Message(L"ERR No chars found");
+        (void)userCmdClient.Message(L"ERR No chars found");
     }
 }
 
@@ -577,19 +710,19 @@ void UserCommandProcessor::GiveCash(std::wstring_view characterName, std::wstrin
 
     if (userCmdClient == targetPlayer)
     {
-        userCmdClient.Message(L"Not sure this really accomplishes much, (Don't give cash to yourself.)");
+        (void)userCmdClient.Message(L"Not sure this really accomplishes much, (Don't give cash to yourself.)");
         return;
     }
 
     if (cash == 0)
     {
-        userCmdClient.Message(std::format(L"Err: Invalid cash amount."));
+        (void)userCmdClient.Message(std::format(L"Err: Invalid cash amount."));
         return;
     }
 
     if (clientCash < cash)
     {
-        userCmdClient.Message(std::format(L"Err: You do not have enough cash, you only have {}, and are trying to give {}.", clientCash, cash));
+        (void)userCmdClient.Message(std::format(L"Err: You do not have enough cash, you only have {}, and are trying to give {}.", clientCash, cash));
         return;
     }
 
@@ -608,13 +741,15 @@ void UserCommandProcessor::GiveCashById(ClientId targetClient, std::wstring_view
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void UserCommandProcessor::Time() { (void)userCmdClient.Message(std::format(L"{:%Y-%m-%d %X}", std::chrono::system_clock::now())); }
+
 void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_view command)
 {
     const auto& pm = PluginManager::i();
     if (module.empty())
     {
-        userCmdClient.Message(L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
-        userCmdClient.Message(L"core");
+        (void)userCmdClient.Message(L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
+        (void)userCmdClient.Message(L"core");
         for (const auto& plugin : pm->plugins)
         {
             if (dynamic_cast<const AbstractUserCommandProcessor*>(plugin.get()) == nullptr)
@@ -622,7 +757,7 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
                 continue;
             }
 
-            userCmdClient.Message(StringUtils::ToLower(plugin->GetShortName()));
+            (void)userCmdClient.Message(StringUtils::ToLower(plugin->GetShortName()));
         }
         return;
     }
@@ -637,19 +772,19 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
         {
             for (const auto& i : commands)
             {
-                userCmdClient.Message(i.cmd);
+                (void)userCmdClient.Message(i.cmd);
             }
         }
         else if (const auto& userCommand =
                      std::ranges::find_if(commands, [&cmd](const auto& userCmd) { return cmd == userCmd.cmd.substr(1, userCmd.cmd.size() - 1); });
                  userCommand != commands.end())
         {
-            userCmdClient.Message(userCommand->usage);
-            userCmdClient.Message(userCommand->description);
+            (void)userCmdClient.Message(userCommand->usage);
+            (void)userCmdClient.Message(userCommand->description);
         }
         else
         {
-            userCmdClient.Message(std::format(L"Command '{}' not found within module 'core'", cmd));
+            (void)userCmdClient.Message(std::format(L"Command '{}' not found within module 'core'", cmd));
         }
         return;
     }
@@ -659,7 +794,7 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
 
     if (pluginIterator == pm->plugins.end())
     {
-        userCmdClient.Message(L"Command module not found.");
+        (void)userCmdClient.Message(L"Command module not found.");
         return;
     }
 
@@ -668,7 +803,7 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
     const auto cmdProcessor = dynamic_cast<AbstractUserCommandProcessor*>(plugin.get());
     if (cmdProcessor == nullptr)
     {
-        userCmdClient.Message(L"Command module not found.");
+        (void)userCmdClient.Message(L"Command module not found.");
         return;
     }
 
@@ -676,18 +811,18 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
     {
         for (const auto& [fullCmd, usage, description] : cmdProcessor->GetCommands())
         {
-            userCmdClient.Message(fullCmd);
+            (void)userCmdClient.Message(fullCmd);
         }
     }
     else if (const auto& userCommand =
                  std::ranges::find_if(commands, [&cmd](const auto& userCmd) { return cmd == userCmd.cmd.substr(1, userCmd.cmd.size() - 1); });
              userCommand != commands.end())
     {
-        userCmdClient.Message(userCommand->usage);
-        userCmdClient.Message(userCommand->description);
+        (void)userCmdClient.Message(userCommand->usage);
+        (void)userCmdClient.Message(userCommand->description);
     }
     else
     {
-        userCmdClient.Message(std::format(L"Command '{}' not found within module '{}'", cmd, std::wstring(plugin->GetShortName())));
+        (void)userCmdClient.Message(std::format(L"Command '{}' not found within module '{}'", cmd, std::wstring(plugin->GetShortName())));
     }
 }

@@ -8,6 +8,13 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         void SetDieMessage(std::wstring_view param);
         void SetDieMessageFontSize(std::wstring_view param);
         void SetChatFont(std::wstring_view fontSize, std::wstring_view fontType);
+        void SetChatTime(std::wstring_view option);
+        void ShowLastSender();
+        void ShowSavedMsgs();
+        void SetSavedMsg(uint index, std::wstring_view msg);
+        void ReplyToLastMsg(std::wstring_view text);
+        void MessageTarget(std::wstring_view text);
+        void MessageTag(std::wstring_view tag, std::wstring_view msg);
         void IgnoreUser(std::wstring_view ignoredUser, std::wstring_view flags);
         void IgnoreClientId(ClientId ignoredClient, std::wstring_view flags);
         void GetIgnoreList();
@@ -22,10 +29,11 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         // void ListMail(int pageNumber, std::wstring_view unread);
         void GiveCash(std::wstring_view characterName, std::wstring_view amount);
         void GiveCashById(ClientId targetClient, std::wstring_view amount);
+        void Time();
         void Help(std::wstring_view module, std::wstring_view command);
 
         // clang-format off
-        constexpr static std::array<CommandInfo<UserCommandProcessor>, 19> commands = {
+        constexpr static std::array<CommandInfo<UserCommandProcessor>, 27> commands = {
             {AddCommand(UserCommandProcessor, L"/ids", GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
              AddCommand(UserCommandProcessor, L"/setdiemsgsize", SetDieMessageFontSize, L"/setdiemsgsize [option]",
              L"Sets the text size of death chatConfig. Use without parameters to see available options."),
@@ -33,6 +41,18 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              L" Change the scope of who's death messages you can see. Use without parameters for available options."),
              AddCommand(UserCommandProcessor, L"/setchatfont", SetChatFont, L"/setchatfont [option]",
              L"Sets the font style and size of the chat. Use without options for examples."),
+             AddCommand(UserCommandProcessor, L"/setchattime", SetChatTime, L"/setchattime [on|off]",
+             L"Adds a timestamp in front of all received chat messages"),
+             AddCommand(UserCommandProcessor, L"/lastpm", ShowLastSender, L"/lastpm",
+             L"Shows the name of the last received private message sender"),
+             AddCommand(UserCommandProcessor, L"/t", MessageTarget, L"/t <message>",
+             L"Sends the message to the player flying the selected ship"),
+             AddCommand(UserCommandProcessor, L"/fm", MessageTag, L"/fm <tag> <message>",
+             L"Sends the message to all players with defined tag"),
+             AddCommand(UserCommandProcessor, L"/reply", ReplyToLastMsg, L"/reply <message>",
+             L"Sends the provided message back to the sender of the last received private message"),
+             AddCommand(UserCommandProcessor, L"/setmsg", SetSavedMsg, L"/setmsg <0-9> <msg>", L"Saves provided message under the defined slot"),
+             AddCommand(UserCommandProcessor, L"/showmsgs", ShowSavedMsgs, L"/showmsgs", L"Lists all currently saved messages"),
              AddCommand(UserCommandProcessor, L"/ignore", IgnoreUser, L"/ignore <name>", L"blocks any message sent by player specified"),
              AddCommand(UserCommandProcessor, L"getignorelist", GetIgnoreList, L"/getignorelist", L"prints the users you currently have ignored"),
              AddCommand(UserCommandProcessor, L"/unignore", RemoveFromIgnored, L"/unignore <name ...>",
@@ -51,6 +71,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              AddCommand(UserCommandProcessor, L"/sc", GiveCash, L"/sc <target> <amount>", L"gives specified amount of cash to named target"),
              AddCommand(UserCommandProcessor, L"/sendcash$", GiveCashById, L"/sendcash <targetId> <amount>", L"gives specified amount of cash to target"),
              AddCommand(UserCommandProcessor, L"/sc$", GiveCashById, L"/sc$ <targetId> <amount>", L"gives specified amount of cash to target"),
+             AddCommand(UserCommandProcessor, L"/time", Time, L"/time", L"Prints current time"),
              AddCommand(UserCommandProcessor, L"/help", Help, L"/help [module] [command]", L"Provides indepth help information")}
         };
         // clang-format on

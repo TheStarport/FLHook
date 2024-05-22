@@ -56,6 +56,13 @@ struct ClientData
         ChatStyle dieMsgStyle = ChatStyle::Default;
         ChatSize chatSize = ChatSize::Default;
         ChatStyle chatStyle = ChatStyle::Default;
+        bool showChatTime = false;
+
+        // Chat info
+        ClientId lastPMSender{};
+
+        // Presaved chat messages
+        std::array<std::wstring, 10> presetMsgs;
 
         // bans
         uint connects = 0; // incremented when player connects

@@ -14,13 +14,10 @@
  * - t{0-9} - Send preset message to last target from slot 0-9.
  * - target <message> - Send a message to previous/current target.
  * - reply <message> - Send a message to the last person to PM you.
- * - privatemsg <charname> <message> - Send private message to the specified player.
  * - factionmsg <tag> <message> - Send a message to the specified faction tag.
  * - factioninvite <tag> - Send a group invite to online members of the specified tag.
  * - lastpm - Shows the send of the last PM received.
  * - set chattime <on/off> - Enable time stamps on chat.
- * - me - Prints your name plus other text to system. Eg, /me thinks would say Bob thinks in system chat.
- * - do - Prints red text to system chat.
  * - time - Prints the current server time.
  *
  * @paragraph adminCmds Admin Commands
@@ -59,15 +56,7 @@
 namespace Plugins::Message
 {
 	const std::unique_ptr<Global> global = std::make_unique<Global>();
-
-	long GetNumberFromCmd(const std::wstring& param)
-	{
-		const auto numStr = param[2];
-		wchar_t* _;
-		return std::wcstol(&numStr, &_, 10);
-	}
-
-	/** @ingroup Message
+Message
 	 * @brief Load the msgs for specified client Id into memory.
 	 */
 	static void LoadMsgs(ClientId client)
@@ -622,31 +611,6 @@ namespace Plugins::Message
 	}
 
 	/** @ingroup Message
-	 * @brief Send an message to the last person that PM'd this client.
-	 */
-	void UserCmd_ReplyToLastPMSender(ClientId& client, const std::wstring& param)
-	{
-		const auto iter = global->info.find(client);
-		if (iter == global->info.end())
-		{
-			// There's no way for this to happen! yeah right.
-			client.Message(L"ERR No message defined");
-			return;
-		}
-
-		const std::wstring msg = GetParamToEnd(param, ' ', 0);
-
-		if (iter->second.lastPmClientId == UINT_MAX)
-		{
-			client.Message(L"ERR PM sender not available");
-			return;
-		}
-
-		global->info[iter->second.lastPmClientId].lastPmClientId = client;
-		Hk::Chat::SendPrivateChat(client, iter->second.lastPmClientId, ViewToWString(msg));
-	}
-
-	/** @ingroup Message
 	 * @brief Shows the sender of the last PM and the last char targeted
 	 */
 	void UserCmd_ShowLastPMSender(ClientId& client, [[maybe_unused]] const std::wstring& param)
@@ -792,94 +756,9 @@ namespace Plugins::Message
 			client.Message(L"ERR No chars found");
 	}
 
-	/** @ingroup Message
-	 * @brief User command for enabling the chat timestamps.
-	 */
-	void UserCmd_SetChatTime(ClientId& client, const std::wstring& param)
-	{
-		const std::wstring param1 = StringUtils::ToLower(GetParam(param, ' ', 0));
-		bool showChatTime = false;
-		if (!param1.compare(L"on"))
-			showChatTime = true;
-		else if (!param1.compare(L"off"))
-			showChatTime = false;
-		else
-		{
-			client.Message(L"ERR Invalid parameters");
-			client.Message(L"Usage: /set chattime [on|off]");
-		}
-
-		std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-
-		Hk::Ini::SetCharacterIni(client, L"msg.chat_time", showChatTime ? L"true" : L"false");
-
-		// Update the client cache.
-		if (const auto iter = global->info.find(client); iter != global->info.end())
-			iter->second.showChatTime = showChatTime;
-
-		// Send confirmation msg
-		client.Message(L"OK");
-	}
-
-	/** @ingroup Message
-	 * @brief Prints the current server time.
-	 */
-	void UserCmd_Time(ClientId& client, [[maybe_unused]] const std::wstring& param)
-	{
-		// Send time with gray color (BEBEBE) in small text (90) above the chat line.
-		client.Message(GetTimeString(FLHook::GetConfig()->general.localTime));
-	}
-
-	/** @ingroup Message
-	 * @brief Me command allow players to type "/me powers his engines" which would print: "Trent powers his engines"
-	 */
-	void UserCmd_Me(ClientId& client, const std::wstring& param)
-	{
-		if (global->config->enableMe)
-		{
-			const std::wstring charname = (const wchar_t*)Players.GetActiveCharacterName(client);
-			SystemId systemId = Hk::Player::GetSystem(client).value();
-
-			// Encode message using the death message style (red text).
-			std::wstring XMLMsg = L"<TRA data=\"" + FLHook::GetConfig()->messages.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
-			XMLMsg += charname + L" ";
-			XMLMsg += StringUtils::XmlText(ViewToWString(GetParamToEnd(param, ' ', 0)));
-			XMLMsg += L"</TEXT>";
-
-			RedText(XMLMsg, systemId);
-		}
-		else
-		{
-			client.Message(L"Command not enabled.");
-		}
-	}
-
-	/** @ingroup Message
-	 * @brief Do command allow players to type "/do Nomad fighters detected" which would print: "Nomad fighters detected" in the standard red text
-	 */
-	void UserCmd_Do(ClientId& client, const std::wstring& param)
-	{
-		if (global->config->enableDo)
-		{
-			SystemId systemId = Hk::Player::GetSystem(client).value();
-
-			// Encode message using the death message style (red text).
-			std::wstring XMLMsg = L"<TRA data=\"" + FLHook::GetConfig()->messages.msgStyle.deathMsgStyle + L"\" mask=\"-1\"/> <TEXT>";
-			XMLMsg += StringUtils::XmlText(ViewToWString(GetParamToEnd(ViewToWString(param), ' ', 0)));
-			XMLMsg += L"</TEXT>";
-
-			RedText(XMLMsg, systemId);
-		}
-		else
-		{
-			client.Message(L"Command not enabled.");
-		}
-	}
 
 	// Client command processing
 	const std::vector commands = {{
-	    CreateUserCommand(L"/setmsg", L"<n> <msg text>", UserCmd_SetMsg, L"Sets a preset message."),
-	    CreateUserCommand(L"/showmsgs", L"", UserCmd_ShowMsgs, L"Show your preset messages."),
 	    CreateUserCommand(CmdArr({L"/0", L"/1", L"/2", L"/3", L"/4", L"/5", L"/6", L"/7", L"/8", L"/9"}), L"/<msgNumber>", UserCmd_Msg,
 	        L"Send preset message from slot [0-9]."),
 	    CreateUserCommand(CmdArr({L"/s0", L"/s1", L"/s2", L"/s3", L"/s4", L"/s5", L"/s6", L"/s7", L"/s8", L"/s9"}), L"/s<msgNumber>", UserCmd_SMsg,
@@ -892,22 +771,7 @@ namespace Plugins::Message
 	        L"Send preset message to group chat from slot [0-9]."),
 	    CreateUserCommand(CmdArr({L"/t0", L"/t1", L"/t2", L"/t3", L"/t4", L"/t5", L"/t6", L"/t7", L"/t8", L"/t9"}), L"/t<msgNumber>", UserCmd_TMsg,
 	        L"Send preset message to target from slot [0-9]."),
-	    CreateUserCommand(L"/target", L"<message>", UserCmd_SendToLastTarget, L"Send a message to previous/current target."),
-	    CreateUserCommand(L"/t", L"<message>", UserCmd_SendToLastTarget, L"Shortcut for /target."),
-	    CreateUserCommand(L"/reply", L"<message>", UserCmd_ReplyToLastPMSender, L"Send a message to the last person to PM you."),
-	    CreateUserCommand(L"/r", L"<message>", UserCmd_ReplyToLastPMSender, L"Shortcut for /reply."),
-	    CreateUserCommand(L"/privatemsg$", L"<clientid> <message>", UserCmd_PrivateMsgID, L"Send private message to the specified client id."),
-	    CreateUserCommand(L"/pm$", L"<clientid> <message>", UserCmd_PrivateMsgID, L"Shortcut for /privatemsg$."),
-	    CreateUserCommand(L"/privatemsg", L"<charname> <message>", UserCmd_PrivateMsg, L"Send private message to the specified character name."),
-	    CreateUserCommand(L"/pm", L"<charname> <message>", UserCmd_PrivateMsg, L"Shortcut for /privatemsg."),
-	    CreateUserCommand(L"/factionmsg", L"<tag> <message>", UserCmd_FactionMsg, L"Send a message to the specified faction tag."),
-	    CreateUserCommand(L"/fm", L"<tag> <message>", UserCmd_FactionMsg, L"Shortcut for /factionmsg."),
-	    CreateUserCommand(L"/lastpm", L"", UserCmd_ShowLastPMSender, L"Shows the send of the last PM received."),
-	    CreateUserCommand(L"/set chattime", L"<on|off>", UserCmd_SetChatTime, L"Enable time stamps on chat."),
-	    CreateUserCommand(L"/me", L"<message>", UserCmd_Me, L"Prints your name plus other text to system. Eg, /me thinks would say Bob thinks in system chat."),
-	    CreateUserCommand(L"/do", L"<message>", UserCmd_Do, L"Prints red text to system chat."),
-	    CreateUserCommand(L"/time", L"", UserCmd_Time, L"Prints the current server time."),
-	}};
+        }};
 
 } // namespace Plugins::Message
 
