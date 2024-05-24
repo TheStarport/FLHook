@@ -186,7 +186,7 @@ FLHook::FLHook()
 
 void FLHook::ProcessPendingAsyncTasks()
 {
-    std::optional<TaskScheduler::Task> task;
+    std::optional<TaskScheduler::CallbackTask> task;
     while ((task = TaskScheduler::GetCompletedTask()).has_value())
     {
         auto& t = task.value();
@@ -195,7 +195,15 @@ void FLHook::ProcessPendingAsyncTasks()
             continue;
         }
 
-        t.callback.value()();
+        if (t.callback.value().index() == 0)
+        {
+            std::get<0>(t.callback.value())(t.taskData);
+            TaskScheduler::allocator.deallocate(t.taskData, t.dataSize);
+        }
+        else
+        {
+            std::get<1>(t.callback.value())();
+        }
     }
 }
 

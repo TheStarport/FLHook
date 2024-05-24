@@ -152,7 +152,7 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
     if (const auto skip = CallPlugins(&Plugin::OnCharacterDelete, client, std::wstring_view(charName)); !skip)
     {
         CHARACTER_ID cidCopy = cid;
-        TaskScheduler::ScheduleWithCallback(std::bind(AccountManager::DeleteCharacter, client, charName),
+        TaskScheduler::ScheduleWithCallback<void>(std::bind(AccountManager::DeleteCharacter, client, charName),
             std::bind(IServerImplHook::DestroyCharacterCallback, client, cidCopy));
     }
 }

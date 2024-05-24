@@ -75,7 +75,7 @@ void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
 
     if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip)
     {
-        TaskScheduler::ScheduleWithCallback(std::bind(AccountManager::Login, li.account, client),
+        TaskScheduler::ScheduleWithCallback<void>(std::bind(AccountManager::Login, li.account, client),
             std::bind(&IServerImplHook::DelayedLogin, li, client));
     }
 }

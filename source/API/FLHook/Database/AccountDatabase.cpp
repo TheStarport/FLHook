@@ -157,10 +157,10 @@ bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring c
     return false;
 }
 
-void AccountManager::Login(const std::wstring& wideAccountId, const ClientId client)
+bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId client)
 {
     accounts[client.GetValue()].loginSuccess = false;
-    auto db = FLHook::GetDbClient();
+    const auto db = FLHook::GetDbClient();
     auto session = db->start_session();
     session.start_transaction();
 
@@ -236,4 +236,6 @@ void AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
         Logger::Err(std::format(L"Error logging in for account ({}): {}", wideAccountId, StringUtils::stows(ex.what())));
         session.abort_transaction();
     }
+
+    return true;
 }
