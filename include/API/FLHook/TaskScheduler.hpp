@@ -33,6 +33,7 @@ class DLL TaskScheduler
             if constexpr (!std::is_same_v<void, T>)
             {
                 const auto data = allocator.allocate(sizeof(T));
+                *reinterpret_cast<T*>(data) = T();
                 incompleteTasks.enqueue({ task, callback, data, sizeof(T) });
             }
             else
