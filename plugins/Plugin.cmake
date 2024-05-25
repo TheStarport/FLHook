@@ -47,6 +47,10 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE
 )
 
 target_dependencies(${PLUGIN_NAME})
+
+# Add FLHook as a dependency to force build order
+add_dependencies(${PLUGIN_NAME} ${ROOT_PROJECT_NAME})
+
 # Link against FLHook
 target_link_libraries(${PLUGIN_NAME} PRIVATE ${PROJECT_OUTPUT_DIR}/${ROOT_PROJECT_NAME}.lib)
 
