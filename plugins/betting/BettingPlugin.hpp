@@ -70,12 +70,12 @@ namespace Plugins
             void UserCmdCancel();
 
             inline static const std::array<CommandInfo<BettingPlugin>, 5> commands = {
-                { AddCommand(BettingPlugin, { L"/ffa"sv }, UserCmdStartFreeForAll, L"/ffa",
+                { AddCommand(BettingPlugin, Cmds(L"/ffa"sv), UserCmdStartFreeForAll, L"/ffa",
                  L"Create an ffa and send an invite to everyone in the system. Winner gets the pot."),
-                 AddCommand(BettingPlugin, { L"/acceptffa"sv }, UserCmdAcceptFFA, L"/acceptffa", L"Accept the current ffa request."),
-                 AddCommand(BettingPlugin, { L"/duel"sv }, UserCmdDuel, L"/duel", L"Create a duel request to the targeted player. Winner gets the pot."),
-                 AddCommand(BettingPlugin, { L"/acceptduel"sv }, UserCmdAcceptDuel, L"/acceptduel", L"Accepts the current duel request."),
-                 AddCommand(BettingPlugin, { L"/cancel"sv }, UserCmdCancel, L"/cancel", L"Cancel the current duel/ffa request.") }
+                 AddCommand(BettingPlugin, Cmds(L"/acceptffa"sv), UserCmdAcceptFFA, L"/acceptffa", L"Accept the current ffa request."),
+                 AddCommand(BettingPlugin, Cmds(L"/duel"sv), UserCmdDuel, L"/duel", L"Create a duel request to the targeted player. Winner gets the pot."),
+                 AddCommand(BettingPlugin, Cmds(L"/acceptduel"sv), UserCmdAcceptDuel, L"/acceptduel", L"Accepts the current duel request."),
+                 AddCommand(BettingPlugin, Cmds(L"/cancel"sv), UserCmdCancel, L"/cancel", L"Cancel the current duel/ffa request.") }
             };
 
             SetupUserCommandHandler(BettingPlugin, commands);

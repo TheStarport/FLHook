@@ -56,7 +56,7 @@ namespace Plugins
             // clang-format off
             inline static const std::array<CommandInfo<WardrobePlugin>, 1> commands = {
             {
-                AddCommand(WardrobePlugin, { L"/wardrobe" }, UserCmdHandle, L"/wardrobe <list/change>", L" Allows you to change the outfit of your character on bases.")}
+                AddCommand(WardrobePlugin, Cmds(L"/wardrobe"), UserCmdHandle, L"/wardrobe <list/change>", L" Allows you to change the outfit of your character on bases.")}
             };
             // clang-format on
 

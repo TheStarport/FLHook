@@ -48,8 +48,8 @@ namespace Plugins
             inline static const std::array<CommandInfo<AfkPlugin>, 2> commands =
             {
                 {
-                    AddCommand(AfkPlugin, { L"/afk" }, UserCmdAfk, L"/afk", L"Sets your status to \"Away from Keyboard\". Other players will notified if they try to speak to you."),
-                    AddCommand(AfkPlugin, { L"/back" }, UserCmdBack, L"/back", L"Removes the AFK status."),
+                    AddCommand(AfkPlugin, Cmds(L"/afk"), UserCmdAfk, L"/afk", L"Sets your status to \"Away from Keyboard\". Other players will notified if they try to speak to you."),
+                    AddCommand(AfkPlugin, Cmds(L"/back"), UserCmdBack, L"/back", L"Removes the AFK status."),
                  }
             };
             // clang-format on

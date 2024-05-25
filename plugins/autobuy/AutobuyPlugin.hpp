@@ -65,7 +65,7 @@ namespace Plugins
             constexpr inline static std::array<CommandInfo<AutobuyPlugin>, 1> commands =
             {
                 {
-                    AddCommand(AutobuyPlugin, { L"/autobuy" }, UserCmdAutobuy, L"/autobuy <consumable type/info> <on/off>",
+                    AddCommand(AutobuyPlugin, Cmds(L"/autobuy"), UserCmdAutobuy, L"/autobuy <consumable type/info> <on/off>",
                         L"Sets up automatic purchases for consumables."),
                 }
             };
