@@ -3,13 +3,13 @@
 class DLL PerfTimer
 {
     public:
-        PerfTimer(std::wstring_view function, uint warning);
+        PerfTimer(std::wstring_view function, int64 warning);
         void Start();
-        ulong Stop();
+        int64 Stop();
 
     private:
-        mstime tmStart = 0;
-        ulong max = 0;
+        int64 tmStart = 0;
+        int64 max = 0;
         std::wstring function;
-        ulong warning;
+        int64 warning;
 };

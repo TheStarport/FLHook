@@ -97,6 +97,8 @@ struct Character
 	std::vector<RumorData> rumorsReceived;
 	std::unordered_map<int, std::vector<std::string>> weaponGroups;
 
+    std::optional<int64> lastRenameTimestamp;
+
 	bsoncxx::document::value characterData = bsoncxx::builder::basic::make_document();
 
     void ToBson(bsoncxx::builder::basic::document& document) const;

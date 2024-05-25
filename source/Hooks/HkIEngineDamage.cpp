@@ -52,7 +52,7 @@ bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
             return false;
         }
 
-        auto time = TimeUtils::UnixTime<std::chrono::milliseconds>();
+        const auto time = TimeUtils::UnixTime<std::chrono::milliseconds>();
 
         // anti-dockkill check
         if (auto& targetData = clientTarget.GetData(); targetData.spawnProtected)

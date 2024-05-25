@@ -55,11 +55,12 @@ void Timer::Remove(std::shared_ptr<Timer> timer)
     timers.erase(iter);
 }
 
-void Timer::AddOneShot(std::function<void()> function, const uint interval)
+void Timer::AddOneShot(std::function<void()> function, const uint intervalInMs)
 {
     Timer timer;
     timer.func = function;
-    timer.interval = interval;
+    timer.interval = intervalInMs;
+    timer.lastTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
     oneShotTimers.emplace_back(timer);
 }
 

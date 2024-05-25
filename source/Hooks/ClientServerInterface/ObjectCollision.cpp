@@ -9,10 +9,10 @@ void IServerImplHook::NpcSpinProtection(const SSPObjCollisionInfo& oci, ClientId
 {
     static uint dummy;
     // static
-    static EqObj* iObj;
+    static EqObj* collidingIObject;
     uint spaceObjId = oci.colliderObjectId;
-    FLHook::getShipInspect(spaceObjId, reinterpret_cast<IObjInspectImpl*&>(iObj), dummy);
-    const float targetMass = iObj->get_mass();
+    FLHook::getShipInspect(spaceObjId, reinterpret_cast<IObjInspectImpl*&>(collidingIObject), dummy);
+    const float targetMass = collidingIObject->get_mass();
     // Don't do spin protect unless the hit ship is big
     const auto& config = FLHook::GetConfig();
     if (targetMass < config.npc.spinProtectionMass)
@@ -28,8 +28,8 @@ void IServerImplHook::NpcSpinProtection(const SSPObjCollisionInfo& oci, ClientId
         return;
     }
 
-    auto linearVelocity = iObj->get_velocity();
-    auto angularVelocity = iObj->get_angular_velocity();
+    auto linearVelocity = collidingIObject->get_velocity();
+    auto angularVelocity = collidingIObject->get_angular_velocity();
 
     // crash prevention in case of null vectors
     if (linearVelocity.x == 0.0f && linearVelocity.y == 0.0f && linearVelocity.z == 0.0f && angularVelocity.x == 0.0f && angularVelocity.y == 0.0f &&
@@ -45,7 +45,7 @@ void IServerImplHook::NpcSpinProtection(const SSPObjCollisionInfo& oci, ClientId
     angularVelocity.y *= config.npc.spinImpulseMultiplier * clientMass;
     angularVelocity.z *= config.npc.spinImpulseMultiplier * clientMass;
 
-    iObj->cobject()->add_impulse(linearVelocity, angularVelocity);
+    collidingIObject->cobject()->add_impulse(linearVelocity, angularVelocity);
 }
 
 void __stdcall IServerImplHook::SpObjCollision(const SSPObjCollisionInfo& oci, ClientId client)

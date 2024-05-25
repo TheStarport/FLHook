@@ -9,32 +9,32 @@
 #include "Core/Commands/UserCommandProcessor.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
 
-bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdlReader, ClientId to, int)
+bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlReader, CHAT_ID& to, int)
 {
     TryHook
     {
         const auto& config = FLHook::GetConfig();
 
         // Group join/leave commands are not parsed
-        if (to.GetValue() == static_cast<uint>(SpecialChatIds::GroupEvent))
+        if (to.id == static_cast<uint>(SpecialChatIds::GroupEvent))
         {
             return true;
         }
 
         // Anything outside normal bounds is aborted to prevent crashes
-        if (to.GetValue() > static_cast<uint>(SpecialChatIds::GroupEvent) ||
-            (to.GetValue() > static_cast<uint>(SpecialChatIds::PlayerMax) && to.GetValue() < static_cast<uint>(SpecialChatIds::SpecialBase)))
+        if (to.id > static_cast<uint>(SpecialChatIds::GroupEvent) ||
+            (to.id > static_cast<uint>(SpecialChatIds::PlayerMax) && to.id < static_cast<uint>(SpecialChatIds::SpecialBase)))
         {
             return false;
         }
 
-        if (from.GetValue() == 0)
+        if (from.id == 0)
         {
             chatData.characterName = L"CONSOLE";
         }
-        else if (from)
+        else if (from.id)
         {
-            chatData.characterName = from.GetCharacterName().Unwrap();
+            chatData.characterName = ClientId(from.id).GetCharacterName().Unwrap();
         }
         else
         {
@@ -51,22 +51,22 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
 
         // if this is a message in system chat then convert it to local unless
         // explicitly overriden by the player using /s.
-        if (config.chatConfig.defaultLocalChat && to == ClientId(SpecialChatIds::System))
+        if (config.chatConfig.defaultLocalChat && to.id == static_cast<uint>(SpecialChatIds::System))
         {
-            to = ClientId(SpecialChatIds::Local);
+            to.id = static_cast<uint>(SpecialChatIds::Local);
         }
 
         // fix flserver commands and change chat to id so that event logging is accurate.
         bool foundCommand = false;
         if (buffer[0] == '/')
         {
-            if (UserCommandProcessor::i()->ProcessCommand(from, std::wstring_view(buffer)))
+            if (UserCommandProcessor::i()->ProcessCommand(ClientId(from.id), std::wstring_view(buffer)))
             {
                 if (FLHook::GetConfig().chatConfig.echoCommands)
                 {
-                    const std::wstring xml = L"<TRA data=\"" + FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
-                                             StringUtils::XmlText(buffer) + L"</TEXT>";
-                    InternalApi::SendMessage(from, xml);
+                    const std::wstring xml = std::format(
+                        LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(buffer));
+                    InternalApi::SendMessage(ClientId(from.id), xml);
                 }
 
                 return false;
@@ -77,17 +77,17 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
                 if (buffer[1] == 'g')
                 {
                     foundCommand = true;
-                    to = ClientId(SpecialChatIds::Group);
+                    to.id = static_cast<uint>(SpecialChatIds::Group);
                 }
                 else if (buffer[1] == 's')
                 {
                     foundCommand = true;
-                    to = ClientId(SpecialChatIds::System);
+                    to.id = static_cast<uint>(SpecialChatIds::System);
                 }
                 else if (buffer[1] == 'l')
                 {
                     foundCommand = true;
-                    to = ClientId(SpecialChatIds::Local);
+                    to.id = static_cast<uint>(SpecialChatIds::Local);
                 }
             }
         }
@@ -95,13 +95,13 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
         {
             if (FLHook::GetConfig().chatConfig.echoCommands)
             {
-                const std::wstring xml = L"<TRA data=\"" + FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
-                                         StringUtils::XmlText(buffer) + L"</TEXT>";
-                InternalApi::SendMessage(from, xml);
+                const std::wstring xml = std::format(
+                    LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(buffer));
+                InternalApi::SendMessage(ClientId(from.id), xml);
             }
 
             const auto processor = AdminCommandProcessor::i();
-            processor->SetCurrentUser(from.GetCharacterName().Handle(), AdminCommandProcessor::AllowedContext::GameOnly);
+            processor->SetCurrentUser(ClientId(from.id).GetCharacterName().Handle(), AdminCommandProcessor::AllowedContext::GameOnly);
             processor->ProcessCommand(std::wstring_view(buffer.begin() + 1, buffer.end()));
             return false;
         }
@@ -111,9 +111,9 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
         {
             if (FLHook::GetConfig().chatConfig.echoCommands)
             {
-                const std::wstring xml = L"<TRA data=\"" + FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle + L"\" mask=\"-1\"/><TEXT>" +
-                                         StringUtils::XmlText(buffer) + L"</TEXT>";
-                InternalApi::SendMessage(from, xml);
+                const std::wstring xml = std::format(
+                    LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(buffer));
+                InternalApi::SendMessage(ClientId(from.id), xml);
             }
 
             if (config.chatConfig.suppressInvalidCommands && !foundCommand)
@@ -146,7 +146,7 @@ bool IServerImplHook::SubmitChatInner(ClientId from, ulong size, const void* rdl
     catch (InvalidParameterException& ex)
     {
         const auto msg = ex.Msg();
-        from.Message(msg);
+        (void)ClientId(from.id).Message(msg);
         return false;
     }
 // TODO: Handle seh exception
@@ -171,7 +171,7 @@ void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, const vo
 
     const auto skip = CallPlugins(&Plugin::OnSubmitChat, ClientId(cidFrom.id), size, rdlReader, ClientId(cidTo.id), genArg1);
 
-    if (const bool innerCheck = SubmitChatInner(ClientId(cidFrom.id), size, rdlReader, ClientId(cidTo.id), genArg1); !innerCheck)
+    if (const bool innerCheck = SubmitChatInner(cidFrom, size, rdlReader, cidTo, genArg1); !innerCheck)
     {
         return;
     }

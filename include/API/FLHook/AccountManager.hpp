@@ -132,10 +132,8 @@ class AccountManager
         using LoadMDataType = void(__fastcall*)(MPlayerDataSaveStruct* mdata, void* edx, struct INI_Reader* ini);
         using OnPlayerSaveType = bool(__fastcall*)(PlayerData* data);
         using OnCreateNewCharacterType = bool(__fastcall*)(PlayerData* data, void* edx, SCreateCharacterInfo* character);
-        using FlMapVisitErase = uint* (__thiscall*)
-            (FlMap<uint, char>&, FlMap<uint, char>::Node*&, FlMap<uint, char>::Node*, FlMap<uint, char>::Node*);
-        using FlMapVisitInsert = FlMap<uint, char>::Node* (__thiscall*)
-            (FlMap<uint, char>& visitMap, FlMap<uint, char>::Node* node, const uint& key);
+        using FlMapVisitErase = uint*(__thiscall*)(FlMap<uint, char>&, FlMap<uint, char>::Node*&, FlMap<uint, char>::Node*, FlMap<uint, char>::Node*);
+        using FlMapVisitInsert = FlMap<uint, char>::Node*(__thiscall*)(FlMap<uint, char>& visitMap, FlMap<uint, char>::Node* node, const uint& key);
 
         inline static std::unique_ptr<FunctionDetour<DbInitType>> dbInitDetour;
         inline static std::unique_ptr<FunctionDetour<LoadMDataType>> loadPlayerMDataDetour;
@@ -156,6 +154,8 @@ class AccountManager
         static void OnCreateNewCharacterCopy(PlayerData* data, SCreateCharacterInfo characterInfo);
         static bool DeleteCharacter(ClientId clientId, std::wstring characterCode);
         static bool Login(const std::wstring& wideAccountId, ClientId client);
+        static bool CheckCharnameTaken(ClientId client, std::wstring newName, byte* taskData);
+        static void Rename(std::wstring currName, std::wstring newName);
         static void ClearClientInfo(ClientId clientId);
         static void __fastcall LoadPlayerMData(MPlayerDataSaveStruct* mdata, void* edx, INI_Reader* ini);
         static void InitContentDLLDetours();

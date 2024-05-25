@@ -101,9 +101,9 @@ Action<AccountId, Error> ClientId::GetAccount() const
 {
     ClientCheck;
 
-    if(auto acc = AccountId::GetAccountFromClient(*this); acc.has_value())
+    if (auto acc = AccountId::GetAccountFromClient(*this); acc.has_value())
     {
-        return {acc.value()};
+        return { acc.value() };
     }
     return { cpp::fail(Error::InvalidClientId) };
 }
@@ -224,7 +224,7 @@ Action<float, Error> ClientId::GetRelativeHealth() const
     ClientCheck;
     CharSelectCheck;
 
-    return { Players[value].relativeHealth};
+    return { Players[value].relativeHealth };
 }
 
 Action<void, Error> ClientId::SetRelativeHealth(const float setHealth) const
@@ -232,13 +232,13 @@ Action<void, Error> ClientId::SetRelativeHealth(const float setHealth) const
     ClientCheck;
     CharSelectCheck;
 
-    if(IsDocked())
+    if (IsDocked())
     {
-        return {cpp::fail(Error::PlayerNotDocked)};
+        return { cpp::fail(Error::PlayerNotDocked) };
     }
 
     Players[value].relativeHealth = std::clamp(setHealth, 0.f, 1.f);
-    return {{}};
+    return { {} };
 }
 
 Action<std::wstring_view, Error> ClientId::GetCharacterName() const
@@ -249,25 +249,13 @@ Action<std::wstring_view, Error> ClientId::GetCharacterName() const
     return { GetData().characterName };
 }
 
-bool ClientId::InSpace() const
-{
-    return Players[value].shipId;
-}
+bool ClientId::InSpace() const { return Players[value].shipId; }
 
-bool ClientId::IsDocked() const
-{
-    return Players[value].systemId && Players[value].baseId;
-}
+bool ClientId::IsDocked() const { return Players[value].systemId && Players[value].baseId; }
 
-bool ClientId::InCharacterSelect() const
-{
-    return !Players[value].systemId;
-}
+bool ClientId::InCharacterSelect() const { return !Players[value].systemId; }
 
-bool ClientId::IsAlive() const
-{
-    return Players[value].systemId && Players[value].shipId;
-}
+bool ClientId::IsAlive() const { return Players[value].systemId && Players[value].shipId; }
 
 Action<st6::list<EquipDesc>* const, Error> ClientId::GetEquipCargo() const
 {
@@ -395,11 +383,11 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
 {
     ClientCheck;
 
+    // TODO: Fix kick message doesn't show for some reason
     if (reason.has_value())
     {
-        const std::wstring msg = StringUtils::ReplaceStr(
-            FLHook::GetConfig().chatConfig.msgStyle.kickMsg, std::wstring_view(L"%reason"), std::wstring_view(StringUtils::XmlText(reason.value())));
-        FLHook::MessageUniverse(msg);
+        const std::wstring msg = StringUtils::ReplaceStr(FLHook::GetConfig().chatConfig.msgStyle.kickMsg, std::wstring_view(L"%reason"), reason.value());
+        (void)Message(msg, MessageFormat::Big, MessageColor::White);
     }
 
     if (!delay.has_value())
@@ -409,7 +397,7 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
         return { {} };
     }
 
-    const mstime kickTime = TimeUtils::UnixTime<std::chrono::seconds>() + delay.value();
+    const int64 kickTime = TimeUtils::UnixTime<std::chrono::seconds>() + delay.value();
     if (auto& client = FLHook::Clients()[value]; !client.kickTime || client.kickTime > kickTime)
     {
         client.kickTime = kickTime;
@@ -548,8 +536,7 @@ Action<void, Error> ClientId::MessageLocal(const std::wstring_view message, cons
         }
 
         auto [otherPos, _] = client.ship.GetPositionAndOrientation().Unwrap();
-        if (const auto distance = glm::abs(glm::distance<3, float, glm::packed_highp>(position, otherPos));
-            distance <= range)
+        if (const auto distance = glm::abs(glm::distance<3, float, glm::packed_highp>(position, otherPos)); distance <= range)
         {
             (void)Message(message, format, color);
         }
@@ -669,5 +656,5 @@ Action<void, Error> ClientId::AddEquip(const uint goodId, const std::wstring& ha
 Action<void, Error> ClientId::AddCargo(const uint goodId, const uint count, const bool isMission) const
 {
     pub::Player::AddCargo(value, goodId, count, 1.0, isMission);
-    return {{}};
+    return { {} };
 }

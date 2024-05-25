@@ -50,7 +50,8 @@ struct DLL FLHookConfig final
                         //! Time in ms between kick message rendering and actual server kick occurring.
                         uint kickMsgPeriod = 5000;
                         //! Kick message content.
-                        std::wstring kickMsg = LR"(<TRA data=" 0x0000FF10 " mask=" - 1 "/><TEXT>You will be kicked. Reason: %reason</TEXT>)";
+                    //TODO: replace %replace syntax with std::format_var
+                        std::wstring kickMsg = LR"(You will be kicked. Reason: %reason)";
                         std::wstring userCmdStyle = L"0x00FF0090";
                         std::wstring adminCmdStyle = L"0x00FF0090";
                         //! Death message for admin kills.
@@ -198,6 +199,21 @@ struct DLL FLHookConfig final
                 bool defaultLocalChat = false;
         };
 
+        struct Rename final
+        {
+                //! If set, will require this amount of cash for every rename
+                int renameCost = 0;
+
+                //! If set, prevents renaming of the same character for specified number of days;
+                int cooldown = 0;
+        };
+
+        struct Reputatation final
+        {
+                //! IF set, causes /droprep command to cost the defined amount of credits to go through.
+                int creditCost;
+        };
+
         Logging logging;
         General general;
         AutoKicks autoKicks;
@@ -209,4 +225,6 @@ struct DLL FLHookConfig final
         Callsign callsign;
         DatabaseConfig databaseConfig;
         Npc npc;
+        Rename rename;
+        Reputatation reputatation;
 };

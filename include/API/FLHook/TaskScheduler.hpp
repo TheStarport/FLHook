@@ -8,8 +8,8 @@ class DLL TaskScheduler
     public:
         struct CallbackTask
         {
-            std::variant<std::function<void()>, std::function<bool(std::any)>> task;
-            std::optional<std::variant<std::function<void(std::any)>, std::function<void()>>> callback;
+            std::variant<std::function<void()>, std::function<bool(byte*)>> task;
+            std::optional<std::variant<std::function<void(byte*)>, std::function<void()>>> callback;
             byte* taskData = nullptr;
             size_t dataSize;
         };
@@ -28,12 +28,13 @@ class DLL TaskScheduler
     public:
         static void Schedule(std::function<void()> task);
         template<typename T>
-        static void ScheduleWithCallback(std::function<bool(std::any)> task, std::function<void(std::any)> callback)
+        static void ScheduleWithCallback(std::function<bool(byte*)> task, std::function<void(byte*)> callback)
         {
             if constexpr (!std::is_same_v<void, T>)
             {
                 const auto data = allocator.allocate(sizeof(T));
-                *reinterpret_cast<T*>(data) = T();
+                T temp{};
+                memcpy_s(data, sizeof(T), &temp, sizeof(T));
                 incompleteTasks.enqueue({ task, callback, data, sizeof(T) });
             }
             else

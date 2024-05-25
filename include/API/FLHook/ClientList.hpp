@@ -15,7 +15,7 @@ struct ClientData
 
         ShipId ship{};
         ShipId shipOld{};
-        mstime spawnTime = 0;
+        int64 spawnTime = 0;
 
         DamageList dmgLast{};
 
@@ -36,15 +36,15 @@ struct ClientData
         uint charMenuEnterTime = 0;
 
         // msg, wait and kick
-        mstime kickTime = 0;
+        int64 kickTime = 0;
 
         // eventmode
         uint lastExitedBaseId = 0;
         bool disconnected = false;
 
         // f1 laming
-        mstime f1Time = 0;
-        mstime timeDisconnect = 0;
+        int64 f1Time = 0;
+        int64 timeDisconnect = 0;
 
         // ignore usercommand
         std::list<IgnoreInfo> ignoreInfoList{};
@@ -84,11 +84,11 @@ struct ClientData
         {
             static uint index = 0;
             id = ClientId(index++);
+            playerData = &Players[id.GetValue()];
         }
 
         ClientData(const ClientData&) = delete;
         ClientData(const ClientData&&) = delete;
-
 };
 
 class IServerImplHook;
@@ -115,7 +115,6 @@ class ClientList
 
         void PlayerDisconnect(uint clientId)
         {
-            clients[clientId].isValid = false;
             if (largestClientId == clientId)
             {
                 for (uint i = largestClientId - 1; i != smallestClientId; i--)

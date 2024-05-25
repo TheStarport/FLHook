@@ -10,9 +10,9 @@ using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
 using bsoncxx::builder::basic::make_document;
 
-void MailManager::SendMailCallback(std::any taskData)
+void MailManager::SendMailCallback(byte* taskData)
 {
-    const auto* mailTargets = std::any_cast<std::vector<std::wstring>*>(taskData);
+    const auto* mailTargets = reinterpret_cast<std::vector<std::wstring>*>(taskData);
 
     auto& clients = FLHook::Clients();
     for (const auto& character : *mailTargets)
@@ -22,16 +22,16 @@ void MailManager::SendMailCallback(std::any taskData)
             if (client.characterName == character)
             {
                 // Character is online, message them now!
-                (void)client.id.Message(L"You have recieved a new mail item.");
+                (void)client.id.Message(L"You have received a new mail item.");
                 break;
             }
         }
     }
 }
 
-bool MailManager::DeferSendMail(std::any taskData, Mail mail)
+bool MailManager::DeferSendMail(byte* taskData, Mail mail)
 {
-    auto* mailTargets = std::any_cast<std::vector<std::wstring>*>(taskData);
+    auto mailTargets = reinterpret_cast<std::vector<std::wstring>*>(taskData);
 
     const auto config = FLHook::GetConfig();
 
@@ -92,9 +92,9 @@ bool MailManager::DeferSendMail(std::any taskData, Mail mail)
     return true;
 }
 
-bool MailManager::GetMailForCharacter(std::any taskData, bsoncxx::oid characterId, const int count, const int page, const bool newestFirst)
+bool MailManager::GetMailForCharacter(byte* taskData, bsoncxx::oid characterId, const int count, const int page, const bool newestFirst)
 {
-    auto* allMail = std::any_cast<std::vector<Mail>*>(taskData);
+    auto* allMail = reinterpret_cast<std::vector<Mail>*>(taskData);
 
     const auto client = FLHook::GetDatabase().AcquireClient();
     const auto& config = FLHook::GetConfig();
@@ -126,9 +126,9 @@ bool MailManager::GetMailForCharacter(std::any taskData, bsoncxx::oid characterI
     return true;
 }
 
-bool MailManager::GetMailForAccount(std::any taskData, AccountId accountId, const int count, const int page, const bool newestFirst)
+bool MailManager::GetMailForAccount(byte* taskData, AccountId accountId, const int count, const int page, const bool newestFirst)
 {
-    auto* allMail = std::any_cast<std::vector<Mail>*>(taskData);
+    auto* allMail = reinterpret_cast<std::vector<Mail>*>(taskData);
 
     const auto client = FLHook::GetDatabase().AcquireClient();
     const auto& config = FLHook::GetConfig();
@@ -268,7 +268,7 @@ void MailManager::GetAccountMail(const AccountId& id, std::function<void(std::ve
     }
 
     TaskScheduler::ScheduleWithCallback<std::vector<Mail>>(std::bind(GetMailForAccount, std::placeholders::_1, id, count, page, newestFirst),
-        [callback](std::any taskData) { callback(std::any_cast<std::vector<Mail>*>(taskData)); });
+        [callback](byte* taskData) { callback(reinterpret_cast<std::vector<Mail>*>(taskData)); });
 }
 
 void MailManager::GetCharacterMail(bsoncxx::oid characterId, std::function<void(std::vector<Mail>*)> callback, int count, int page, bool newestFirst)
@@ -292,7 +292,7 @@ void MailManager::GetCharacterMail(bsoncxx::oid characterId, std::function<void(
     }
 
     TaskScheduler::ScheduleWithCallback<std::vector<Mail>>(std::bind(GetMailForCharacter, std::placeholders::_1, characterId, count, page, newestFirst),
-                                                           [callback](std::any taskData) { callback(std::any_cast<std::vector<Mail>*>(taskData)); });
+                                                           [callback](byte* taskData) { callback(reinterpret_cast<std::vector<Mail>*>(taskData)); });
 }
 
 void MailManager::MarkMailAsRead(const Mail& mail, bsoncxx::oid character)

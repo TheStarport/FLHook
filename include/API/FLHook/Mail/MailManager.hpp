@@ -4,10 +4,10 @@
 
 class MailManager
 {
-        static void SendMailCallback(std::any taskData);
-        static bool DeferSendMail(std::any taskData, Mail mail);
-        static bool GetMailForCharacter(std::any taskData, bsoncxx::oid characterId, int count, int page, bool newestFirst);
-        static bool GetMailForAccount(std::any taskData, AccountId accountId, int count, int page, bool newestFirst);
+        static void SendMailCallback(byte* taskData);
+        static bool DeferSendMail(byte* taskData, Mail mail);
+        static bool GetMailForCharacter(byte* taskData, bsoncxx::oid characterId, int count, int page, bool newestFirst);
+        static bool GetMailForAccount(byte* taskData, AccountId accountId, int count, int page, bool newestFirst);
         static void ParseMail(Mail& mail, bsoncxx::document::view doc);
 
     public:

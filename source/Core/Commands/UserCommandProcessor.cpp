@@ -4,8 +4,11 @@
 
 #include <API/Utils/Logger.hpp>
 
+#include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/TaskScheduler.hpp"
 #include "API/InternalApi.hpp"
+#include "API/Utils/Random.hpp"
 
 #include <Core/Commands/UserCommandProcessor.hpp>
 
@@ -512,6 +515,80 @@ void UserCommandProcessor::GetClientIds()
 
 void UserCommandProcessor::GetSelfClientId() { userCmdClient.Message(std::format(L"Your userCmdClient-id: {}", userCmdClient)); }
 
+void RenameCallback(ClientId client, std::wstring newName, byte* taskData)
+{
+
+    auto* errorMessage = reinterpret_cast<std::wstring*>(taskData);
+    if(!errorMessage->empty())
+    {
+        (void)client.Message(*errorMessage);
+        return;
+    }
+    std::wstring currName = client.GetCharacterName().Handle().data();
+
+    const auto& [renameCost, cooldown] = FLHook::GetConfig().rename;
+    if (renameCost)
+    {
+        if (client.GetCash().Handle() < renameCost)
+        {
+            (void)client.Message(L"Insufficient money!");
+            return;
+        }
+        (void)client.RemoveCash(renameCost);
+    }
+
+    (void)client.Message(L"Renaming, you will be kicked.");
+    Timer::AddOneShot([client, currName, newName]() {
+        (void)client.Kick();
+        TaskScheduler::Schedule(std::bind(AccountManager::Rename, currName, newName));
+        }, 3000);
+}
+
+void UserCommandProcessor::Rename(std::wstring_view newName)
+{
+    const auto& [renameCost, cooldown] = FLHook::GetConfig().rename;
+
+    if (newName.find(L' ') != std::wstring_view::npos)
+    {
+        (void)userCmdClient.Message(L"No whitespaces allowed.");
+        return;
+    }
+
+    if (newName.length() > 23)
+    {
+        (void)userCmdClient.Message(L"Name too long, max 23 characters allowed");
+        return;
+    }
+
+    if (renameCost)
+    {
+        if (userCmdClient.GetCash().Unwrap() < renameCost)
+        {
+            (void)userCmdClient.Message(L"Insufficient money!");
+            return;
+        }
+    }
+
+    if(cooldown)
+    {
+        const auto charData = userCmdClient.GetData().characterData;
+        if(auto lastRename = charData.find("lastRenameTimestamp"); lastRename != charData.end())
+        {
+            auto cooldownAsDays = std::chrono::days(cooldown);
+            std::chrono::milliseconds endOfCooldown = lastRename->get_date().value + std::chrono::duration_cast<std::chrono::milliseconds>(cooldownAsDays);
+            if(endOfCooldown.count() > TimeUtils::UnixTime<std::chrono::milliseconds>())
+            {
+                (void)userCmdClient.Message(std::format(L"Rename cooldown not elapsed yet, end of cooldown: {}", TimeUtils::AsDate(std::chrono::duration_cast<std::chrono::seconds>(endOfCooldown))));
+                return;
+            }
+        }
+    }
+
+    std::wstring newNameStr = newName.data();
+    TaskScheduler::ScheduleWithCallback<std::wstring>(std::bind(AccountManager::CheckCharnameTaken, userCmdClient, newNameStr, std::placeholders::_1),
+                                        std::bind(RenameCallback, userCmdClient, newNameStr, std::placeholders::_1));
+}
+
 // TODO: Move to utils.
 void UserCommandProcessor::InvitePlayer(const std::wstring_view& characterName)
 {
@@ -829,4 +906,51 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
     {
         (void)userCmdClient.Message(std::format(L"Command '{}' not found within module '{}'", cmd, std::wstring(plugin->GetShortName())));
     }
+}
+
+void UserCommandProcessor::DropRep()
+{
+    const auto& config = FLHook::GetConfig().reputatation;
+
+    if(config.creditCost)
+    {
+        if (const uint cash = userCmdClient.GetCash().Handle(); cash < config.creditCost)
+        {
+            (void)userCmdClient.Message(std::format(L"Not enough money, {} credits required", config.creditCost));
+            return;
+        }
+        (void)userCmdClient.RemoveCash(config.creditCost);
+    }
+    const auto playerRep = userCmdClient.GetReputation().Handle();
+    const auto playerAffliation = playerRep.GetAffiliation().Handle();
+    if(playerAffliation.GetValue() == -1)
+    {
+        (void)userCmdClient.Message(L"No affiliation, can't drop one");
+        return;
+    }
+
+    (void)playerRep.SetAttitudeTowardsRepGroupId(playerAffliation, 0.3f);
+}
+
+void UserCommandProcessor::Value() { (void)userCmdClient.Message(std::format(L"Your worth is ${} credits", userCmdClient.GetValue())); }
+
+void UserCommandProcessor::Dice(const uint sidesOfDice)
+{
+    uint result;
+    if (!sidesOfDice)
+    {
+        result = Random::Uniform(1u, 6u);
+        userCmdClient.MessageLocal(std::format(L"{} has rolled {} out of 6", userCmdClient.GetCharacterName().Handle(), result));
+    }
+    else
+    {
+        result = Random::Uniform(1u, sidesOfDice);
+        userCmdClient.MessageLocal(std::format(L"{} has rolled {} out of {}", userCmdClient.GetCharacterName().Handle(), result, sidesOfDice));
+    }
+}
+
+void UserCommandProcessor::Coin()
+{
+    const uint result = Random::Uniform(0u, 1u);
+    userCmdClient.MessageLocal(std::format(L"{} tossed a coin, it landed on {}", userCmdClient.GetCharacterName().Handle(), result ? L"heads" : L"tails"));
 }

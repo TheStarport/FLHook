@@ -41,7 +41,7 @@ namespace Plugins
                     ClientId issuer;
                     ClientId target;
                     uint cash;
-                    mstime end;
+                    int64 end;
             };
 
             //! Configurable fields for this plugin

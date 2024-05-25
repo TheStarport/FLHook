@@ -21,8 +21,7 @@ bool IServerImplHook::CharacterSelectInner(const CHARACTER_ID& cid, const Client
     }
     catch (...)
     {
-        // AddKickLog(client, "Corrupt character file?");
-        client.Kick();
+        (void)client.Kick();
         return false;
     }
 
@@ -104,7 +103,7 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
 {
     Logger::Trace(std::format(L"CharacterSelect(\n\tClientId client = {}\n)", client));
 
-    auto& data = AccountManager::accounts[client.GetValue()].characters.at(cid.charFilename);
+    const auto& data = AccountManager::accounts[client.GetValue()].characters.at(cid.charFilename);
     FLHook::GetClient(client).characterName = data.wideCharacterName;
 
     std::wstring charName = StringUtils::stows(static_cast<const char*>(cid.charFilename));
@@ -208,8 +207,7 @@ bool IServerImplHook::CharacterInfoReqInner(ClientId client, bool unk1)
 
 bool CharacterInfoReqCatch(ClientId client, bool)
 {
-    // AddKickLog(client, "Corrupt charfile?");
-    client.Kick();
+    (void)client.Kick();
     return false;
 }
 

@@ -2,13 +2,13 @@
 
 #include "API/Utils/PerfTimer.hpp"
 
-PerfTimer::PerfTimer(std::wstring_view func, uint warn) : function(func), warning(warn) {}
+PerfTimer::PerfTimer(std::wstring_view func, int64 warn) : function(func), warning(warn) {}
 
 void PerfTimer::Start() { tmStart = TimeUtils::UnixTime<std::chrono::microseconds>(); }
 
-ulong PerfTimer::Stop()
+int64 PerfTimer::Stop()
 {
-    auto timeDelta = static_cast<uint>(TimeUtils::UnixTime<std::chrono::microseconds>() - tmStart);
+    auto timeDelta = TimeUtils::UnixTime<std::chrono::microseconds>() - tmStart;
 
     if (FLHook::GetConfig().logging.logPerformanceTimers)
     {

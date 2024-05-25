@@ -14,8 +14,8 @@ struct DLL Timer
 {
         friend IServerImplHook;
 
-        mstime interval;
-        mstime lastTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
+        int64 interval;
+        int64 lastTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
 
         static std::shared_ptr<Timer> Add(std::function<void()> function, uint interval);
         static void AddOneShot(std::function<void()> function, uint interval);

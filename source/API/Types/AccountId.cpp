@@ -157,7 +157,7 @@ Action<void, Error> AccountId::Ban(const uint tempBanDays) const
     bsoncxx::document::view_or_value banUpdateDoc;
     if (tempBanDays)
     {
-        auto time = static_cast<int64>(TimeUtils::UnixTime<std::chrono::seconds>() + static_cast<int64>(60 * 60 * 24 * tempBanDays));
+        auto time = TimeUtils::UnixTime<std::chrono::seconds>() + static_cast<int64>(60 * 60 * 24 * tempBanDays);
         banUpdateDoc = make_document(kvp("$set", make_document(kvp("banned", true), kvp("scheduledUnbanDate", time))));
     }
     else

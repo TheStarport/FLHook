@@ -684,6 +684,11 @@ Character::Character(bsoncxx::document::view view)
                     }
                     break;
                 }
+            case Hash("lastRenameTimestamp"):
+                {
+                    lastRenameTimestamp = element.get_date().to_int64();
+                    break;
+                }
         }
     }
 }
@@ -745,79 +750,85 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
     document.append(kvp("totalTimePlayed", totalTimePlayed));
     document.append(kvp("totalCashEarned", totalCashEarned));
     // clang-format off
-        document.append(kvp("baseCostume", make_document(
-            kvp("head", static_cast<int>(baseCostume.head)),
-            kvp("body", static_cast<int>(baseCostume.body)),
-            kvp("leftHand", static_cast<int>(baseCostume.leftHand)),
-            kvp("rightHand", static_cast<int>(baseCostume.rightHand)),
-            kvp("accessories", static_cast<int>(baseCostume.accessories)),
-            kvp("accessory", make_array(
-                static_cast<int>(baseCostume.accessory[0]),
-                static_cast<int>(baseCostume.accessory[1]),
-                static_cast<int>(baseCostume.accessory[2]),
-                static_cast<int>(baseCostume.accessory[3]),
-                static_cast<int>(baseCostume.accessory[4]),
-                static_cast<int>(baseCostume.accessory[5]),
-                static_cast<int>(baseCostume.accessory[6]),
-                static_cast<int>(baseCostume.accessory[7])
-                ))
-            )));
+    document.append(kvp("baseCostume", make_document(
+        kvp("head", static_cast<int>(baseCostume.head)),
+        kvp("body", static_cast<int>(baseCostume.body)),
+        kvp("leftHand", static_cast<int>(baseCostume.leftHand)),
+        kvp("rightHand", static_cast<int>(baseCostume.rightHand)),
+        kvp("accessories", static_cast<int>(baseCostume.accessories)),
+        kvp("accessory", make_array(
+            static_cast<int>(baseCostume.accessory[0]),
+            static_cast<int>(baseCostume.accessory[1]),
+            static_cast<int>(baseCostume.accessory[2]),
+            static_cast<int>(baseCostume.accessory[3]),
+            static_cast<int>(baseCostume.accessory[4]),
+            static_cast<int>(baseCostume.accessory[5]),
+            static_cast<int>(baseCostume.accessory[6]),
+            static_cast<int>(baseCostume.accessory[7])
+            ))
+        )));
 
-        document.append(kvp("commCostume", make_document(
-            kvp("head", static_cast<int>(commCostume.head)),
-            kvp("body", static_cast<int>(commCostume.body)),
-            kvp("leftHand", static_cast<int>(commCostume.leftHand)),
-            kvp("rightHand", static_cast<int>(commCostume.rightHand)),
-            kvp("accessories", static_cast<int>(commCostume.accessories)),
-            kvp("accessory", make_array(
-                static_cast<int>(commCostume.accessory[0]),
-                static_cast<int>(commCostume.accessory[1]),
-                static_cast<int>(commCostume.accessory[2]),
-                static_cast<int>(commCostume.accessory[3]),
-                static_cast<int>(commCostume.accessory[4]),
-                static_cast<int>(commCostume.accessory[5]),
-                static_cast<int>(commCostume.accessory[6]),
-                static_cast<int>(commCostume.accessory[7])
-                ))
-            )));
+    document.append(kvp("commCostume", make_document(
+        kvp("head", static_cast<int>(commCostume.head)),
+        kvp("body", static_cast<int>(commCostume.body)),
+        kvp("leftHand", static_cast<int>(commCostume.leftHand)),
+        kvp("rightHand", static_cast<int>(commCostume.rightHand)),
+        kvp("accessories", static_cast<int>(commCostume.accessories)),
+        kvp("accessory", make_array(
+            static_cast<int>(commCostume.accessory[0]),
+            static_cast<int>(commCostume.accessory[1]),
+            static_cast<int>(commCostume.accessory[2]),
+            static_cast<int>(commCostume.accessory[3]),
+            static_cast<int>(commCostume.accessory[4]),
+            static_cast<int>(commCostume.accessory[5]),
+            static_cast<int>(commCostume.accessory[6]),
+            static_cast<int>(commCostume.accessory[7])
+            ))
+        )));
     // clang-format on
 
     {
         bsoncxx::builder::basic::array arr;
-        for (auto& cargo : cargo)
+        for (const auto& [archId, amount, health, isMissionCargo] : cargo)
         {
             arr.append(make_document(
-                kvp("archId", cargo.archId), kvp("amount", cargo.amount), kvp("health", cargo.health), kvp("isMissionCargo", cargo.isMissionCargo)));
+                kvp("archId", archId), kvp("amount", amount), kvp("health", health), kvp("isMissionCargo", isMissionCargo)));
         }
         document.append(kvp("cargo", arr));
     }
 
     {
         bsoncxx::builder::basic::array arr;
-        for (auto& cargo : baseCargo)
+        for (const auto& [archId, amount, health, isMissionCargo] : baseCargo)
         {
             arr.append(make_document(
-                kvp("archId", cargo.archId), kvp("amount", cargo.amount), kvp("health", cargo.health), kvp("isMissionCargo", cargo.isMissionCargo)));
+                kvp("archId", archId), kvp("amount", amount), kvp("health", health), kvp("isMissionCargo", isMissionCargo)));
         }
         document.append(kvp("baseCargo", arr));
     }
 
     {
         bsoncxx::builder::basic::array arr;
-        for (auto& equip : equipment)
+        for (const auto& [archId, hardPoint, health, amount, mounted] : equipment)
         {
-            arr.append(
-                make_document(kvp("archId", equip.archId), kvp("hardPoint", equip.hardPoint), kvp("health", equip.health), kvp("mounted", equip.mounted), kvp("amount", equip.amount)));
+            arr.append(make_document(kvp("archId", archId),
+                                     kvp("hardPoint", hardPoint),
+                                     kvp("health", health),
+                                     kvp("mounted", mounted),
+                                     kvp("amount", amount)));
         }
         document.append(kvp("equipment", arr));
     }
 
     {
         bsoncxx::builder::basic::array arr;
-        for (auto& equip : baseEquipment)
+        for (const auto& [archId, hardPoint, health, amount, mounted] : baseEquipment)
         {
-            arr.append(
-                make_document(kvp("archId", equip.archId), kvp("hardPoint", equip.hardPoint), kvp("health", equip.health), kvp("mounted", equip.mounted), kvp("amount", equip.amount)));
+            arr.append(make_document(kvp("archId", archId),
+                                     kvp("hardPoint", hardPoint),
+                                     kvp("health", health),
+                                     kvp("mounted", mounted),
+                                     kvp("amount", amount)));
         }
         document.append(kvp("baseEquipment", arr));
     }
@@ -914,12 +925,12 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
 
     {
         bsoncxx::builder::basic::array arr;
-        for (auto& npcVisit : npcVisits)
+        for (const auto& [id, baseId, interactionCount, missionStatus] : npcVisits)
         {
-            arr.append(make_document(kvp("id", npcVisit.id),
-                                     kvp("baseId", npcVisit.baseId),
-                                     kvp("interactionCount", npcVisit.interactionCount),
-                                     kvp("missionStatus", npcVisit.missionStatus)));
+            arr.append(make_document(kvp("id", id),
+                                     kvp("baseId", baseId),
+                                     kvp("interactionCount", interactionCount),
+                                     kvp("missionStatus", missionStatus)));
         }
 
         document.append(kvp("npcVisits", arr));
@@ -957,5 +968,10 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
             doc.append(kvp(std::to_string(key), arr));
         }
         document.append(kvp("weaponGroups", doc));
+    }
+
+    if (lastRenameTimestamp.has_value())
+    {
+        document.append(kvp("lastRenameTimestamp", bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(lastRenameTimestamp.value()) }));
     }
 }

@@ -10,7 +10,6 @@
 bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, const bool isNewCharacter)
 {
     using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_array;
     using bsoncxx::builder::basic::make_document;
 
     const auto db = FLHook::GetDbClient();
@@ -181,7 +180,7 @@ bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
         if (!accountBson.has_value())
         {
             // Create a new account with the provided ID
-            account = { };
+            account = {};
             account._id = accId;
 
             bsoncxx::builder::basic::document document;
@@ -209,7 +208,7 @@ bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
 
         for (auto cursor = accountsCollection.find(filter.view()); const auto& doc : cursor)
         {
-            auto character = Character{doc};
+            auto character = Character{ doc };
             if (character.characterName.empty())
             {
                 Logger::Err(std::format(L"Error when reading character name for account: {}", wideAccountId));
@@ -238,4 +237,89 @@ bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
     }
 
     return true;
+}
+
+bool AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newName, byte* taskData)
+{
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
+
+    auto errorMessage = reinterpret_cast<std::wstring*>(taskData);
+    const auto db = FLHook::GetDbClient();
+    try
+    {
+        auto accounts = db->database("FLHook")["accounts"];
+        auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(newName)));
+
+        if (const auto checkCharNameDoc = accounts.find_one(findCharDoc.view()); checkCharNameDoc.has_value())
+        {
+            *errorMessage = L"Name already taken!";
+            return true;
+        }
+
+        // TODO: figure out why this explodes
+        // auto playerData = client.GetData().playerData;
+        const std::string characterCode = Players[client.GetValue()].charFile.charFilename;
+        auto& characterMap = AccountManager::accounts.at(client.GetValue()).characters;
+        auto characterIter = characterMap.find(characterCode);
+        if (characterIter == characterMap.end())
+        {
+            *errorMessage = L"Error fetching the character, contact staff!";
+            return true;
+        }
+        characterIter->second.characterName = StringUtils::wstos(newName);
+    }
+    catch (mongocxx::exception& ex)
+    {
+        Logger::Err(std::format(L"Error checking for taken name ({}): {}", client.GetCharacterName().Handle(), StringUtils::stows(ex.what())));
+    }
+    return true;
+}
+
+void AccountManager::Rename(std::wstring currName, std::wstring newName)
+{
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_array;
+    using bsoncxx::builder::basic::make_document;
+
+    const auto db = FLHook::GetDbClient();
+    auto session = db->start_session();
+    session.start_transaction();
+
+    try
+    {
+        auto accounts = db->database("FLHook")["accounts"];
+        auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(currName)));
+
+        const auto checkCharNameDoc = accounts.find_one(findCharDoc.view());
+
+        if (!checkCharNameDoc.has_value())
+        {
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Character doesn't exist when renaming!");
+        }
+
+        const auto charUpdateDoc = make_document(
+            kvp("$set",
+                make_document(kvp("characterName",
+                                  StringUtils::wstos(newName)),
+                                  kvp("lastRenameTimestamp",
+                                      bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }))));
+        if (const auto updateResult = accounts.update_one(findCharDoc.view(), charUpdateDoc.view());
+            !updateResult.has_value() || updateResult.value().modified_count() == 0)
+        {
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Updating character during rename failed.");
+        }
+
+        session.commit_transaction();
+    }
+    catch (bsoncxx::exception& ex)
+    {
+        Logger::Err(std::format(L"BSON Error renaming ({}): {}", currName, StringUtils::stows(ex.what())));
+        session.abort_transaction();
+    }
+    catch (mongocxx::exception& ex)
+    {
+        Logger::Err(std::format(L"MongoDB Error renaming ({}): {}", currName, StringUtils::stows(ex.what())));
+        session.abort_transaction();
+    }
 }

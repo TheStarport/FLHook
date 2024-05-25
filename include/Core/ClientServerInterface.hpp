@@ -53,7 +53,7 @@ class IServerImplHook
         static bool CharacterInfoReqInner(ClientId client, bool);
 
         // ChatHooks.cpp
-        static bool SubmitChatInner(ClientId from, ulong size, const void* rdlReader, ClientId to, int);
+        static bool SubmitChatInner(CHAT_ID from, ulong size, const void* rdlReader, CHAT_ID& to, int);
         static void __stdcall SubmitChat(CHAT_ID cidFrom, ulong size, const void* rdlReader, CHAT_ID cidTo, int unk1);
         static void __stdcall SendChat(ClientId client, ClientId clientTo, uint size, void* rdl);
 
