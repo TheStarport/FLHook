@@ -33,46 +33,46 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         void Help(std::wstring_view module, std::wstring_view command);
 
         // clang-format off
-        constexpr static std::array<CommandInfo<UserCommandProcessor>, 27> commands = {
-            {AddCommand(UserCommandProcessor, L"/ids", GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
-             AddCommand(UserCommandProcessor, L"/setdiemsgsize", SetDieMessageFontSize, L"/setdiemsgsize [option]",
+        inline static const std::array<CommandInfo<UserCommandProcessor>, 27> commands = {
+            {AddCommand(UserCommandProcessor, { L"/ids"sv }, GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
+             AddCommand(UserCommandProcessor, { L"/setdiemsgsize"sv }, SetDieMessageFontSize, L"/setdiemsgsize [option]",
              L"Sets the text size of death chatConfig. Use without parameters to see available options."),
-             AddCommand(UserCommandProcessor, L"/setdiemsg", SetDieMessage, L"/setdiemsg [option]",
+             AddCommand(UserCommandProcessor, { L"/setdiemsg"sv }, SetDieMessage, L"/setdiemsg [option]",
              L" Change the scope of who's death messages you can see. Use without parameters for available options."),
-             AddCommand(UserCommandProcessor, L"/setchatfont", SetChatFont, L"/setchatfont [option]",
+             AddCommand(UserCommandProcessor, { L"/setchatfont"sv }, SetChatFont, L"/setchatfont [option]",
              L"Sets the font style and size of the chat. Use without options for examples."),
-             AddCommand(UserCommandProcessor, L"/setchattime", SetChatTime, L"/setchattime [on|off]",
+             AddCommand(UserCommandProcessor, { L"/setchattime"sv }, SetChatTime, L"/setchattime [on|off]",
              L"Adds a timestamp in front of all received chat messages"),
-             AddCommand(UserCommandProcessor, L"/lastpm", ShowLastSender, L"/lastpm",
+             AddCommand(UserCommandProcessor, { L"/lastpm"sv }, ShowLastSender, L"/lastpm",
              L"Shows the name of the last received private message sender"),
-             AddCommand(UserCommandProcessor, L"/t", MessageTarget, L"/t <message>",
+             AddCommand(UserCommandProcessor, { L"/t"sv }, MessageTarget, L"/t <message>",
              L"Sends the message to the player flying the selected ship"),
-             AddCommand(UserCommandProcessor, L"/fm", MessageTag, L"/fm <tag> <message>",
+             AddCommand(UserCommandProcessor, { L"/fm"sv }, MessageTag, L"/fm <tag> <message>",
              L"Sends the message to all players with defined tag"),
-             AddCommand(UserCommandProcessor, L"/reply", ReplyToLastMsg, L"/reply <message>",
+             AddCommand(UserCommandProcessor, { L"/reply"sv }, ReplyToLastMsg, L"/reply <message>",
              L"Sends the provided message back to the sender of the last received private message"),
-             AddCommand(UserCommandProcessor, L"/setmsg", SetSavedMsg, L"/setmsg <0-9> <msg>", L"Saves provided message under the defined slot"),
-             AddCommand(UserCommandProcessor, L"/showmsgs", ShowSavedMsgs, L"/showmsgs", L"Lists all currently saved messages"),
-             AddCommand(UserCommandProcessor, L"/ignore", IgnoreUser, L"/ignore <name>", L"blocks any message sent by player specified"),
-             AddCommand(UserCommandProcessor, L"getignorelist", GetIgnoreList, L"/getignorelist", L"prints the users you currently have ignored"),
-             AddCommand(UserCommandProcessor, L"/unignore", RemoveFromIgnored, L"/unignore <name ...>",
+             AddCommand(UserCommandProcessor, { L"/setmsg"sv }, SetSavedMsg, L"/setmsg <0-9> <msg>", L"Saves provided message under the defined slot"),
+             AddCommand(UserCommandProcessor, { L"/showmsgs"sv }, ShowSavedMsgs, L"/showmsgs", L"Lists all currently saved messages"),
+             AddCommand(UserCommandProcessor, { L"/ignore"sv }, IgnoreUser, L"/ignore <name>", L"blocks any message sent by player specified"),
+             AddCommand(UserCommandProcessor, { L"getignorelist"sv }, GetIgnoreList, L"/getignorelist", L"prints the users you currently have ignored"),
+             AddCommand(UserCommandProcessor, { L"/unignore"sv }, RemoveFromIgnored, L"/unignore <name ...>",
              L"removes specified names from ignore list, typing /unignore all removes ignore list entierly."),
-             AddCommand(UserCommandProcessor, L"/invite", InvitePlayerByName, L"/invite <name>", L"invites specified player to group"),
-             AddCommand(UserCommandProcessor, L"/invite$", InvitePlayerById, L"/invite$ <id>", L"invites specified player to group by client id"),
-             AddCommand(UserCommandProcessor, L"/finv", FactionInvite, L"/finv <prefix>", L"invites players that matches the listed prefix in their name"),
+             AddCommand(UserCommandProcessor, { L"/invitesv" }, InvitePlayerByName, L"/invite <name>", L"invites specified player to group"),
+             AddCommand(UserCommandProcessor, { L"/invite$"sv }, InvitePlayerById, L"/invite$ <id>", L"invites specified player to group by client id"),
+             AddCommand(UserCommandProcessor, { L"/finv"sv }, FactionInvite, L"/finv <prefix>", L"invites players that matches the listed prefix in their name"),
              //AddCommand(UserCommandProcessor, L"/delmail", DeleteMail, L"/delmail <id>", L"deletes specified mail"),
              //AddCommand(UserCommandProcessor, L"/readmail", ReadMail, L"/readmail <id>", L"prints specified mail."),
              //AddCommand(UserCommandProcessor, L"/listmail", ListMail, L"/listmail [page]", L"lists the mails of the specified page."),
-             AddCommand(UserCommandProcessor, L"/givecash", GiveCash, L"/givecash <target> <amount>", L"gives specified amount of cash to named target"),
-             AddCommand(UserCommandProcessor, L"/gc", GiveCash, L"/gc <target> <amount>", L"gives specified amount of cash to named target"),
-             AddCommand(UserCommandProcessor, L"/givecash$", GiveCashById, L"/givecash <targetId> <amount>", L"gives specified amount of cash to target"),
-             AddCommand(UserCommandProcessor, L"/gc$", GiveCashById, L"/gc$ <targetId> <amount>", L"gives specified amount of cash to target"),
-             AddCommand(UserCommandProcessor, L"/sendcash", GiveCash, L"/sendcash <target> <amount>", L"gives specified amount of cash to named target"),
-             AddCommand(UserCommandProcessor, L"/sc", GiveCash, L"/sc <target> <amount>", L"gives specified amount of cash to named target"),
-             AddCommand(UserCommandProcessor, L"/sendcash$", GiveCashById, L"/sendcash <targetId> <amount>", L"gives specified amount of cash to target"),
-             AddCommand(UserCommandProcessor, L"/sc$", GiveCashById, L"/sc$ <targetId> <amount>", L"gives specified amount of cash to target"),
-             AddCommand(UserCommandProcessor, L"/time", Time, L"/time", L"Prints current time"),
-             AddCommand(UserCommandProcessor, L"/help", Help, L"/help [module] [command]", L"Provides indepth help information")}
+             AddCommand(UserCommandProcessor, { L"/givecash"sv }, GiveCash, L"/givecash <target> <amount>", L"gives specified amount of cash to named target"),
+             AddCommand(UserCommandProcessor, { L"/gc"sv }, GiveCash, L"/gc <target> <amount>", L"gives specified amount of cash to named target"),
+             AddCommand(UserCommandProcessor, { L"/givecash$"sv }, GiveCashById, L"/givecash <targetId> <amount>", L"gives specified amount of cash to target"),
+             AddCommand(UserCommandProcessor, { L"/gc$"sv }, GiveCashById, L"/gc$ <targetId> <amount>", L"gives specified amount of cash to target"),
+             AddCommand(UserCommandProcessor, { L"/sendcash"sv }, GiveCash, L"/sendcash <target> <amount>", L"gives specified amount of cash to named target"),
+             AddCommand(UserCommandProcessor, { L"/sc"sv }, GiveCash, L"/sc <target> <amount>", L"gives specified amount of cash to named target"),
+             AddCommand(UserCommandProcessor, { L"/sendcash$"sv }, GiveCashById, L"/sendcash <targetId> <amount>", L"gives specified amount of cash to target"),
+             AddCommand(UserCommandProcessor, { L"/sc$"sv }, GiveCashById, L"/sc$ <targetId> <amount>", L"gives specified amount of cash to target"),
+             AddCommand(UserCommandProcessor, { L"/time"sv }, Time, L"/time", L"Prints current time"),
+             AddCommand(UserCommandProcessor, Cmds(L"/help"sv, L"/h"sv, L"?"sv), Help, L"/help [module] [command]", L"Provides indepth help information")}
         };
         // clang-format on
         GetCommandsFunc(commands);
@@ -80,10 +80,14 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         template <int N>
         bool MatchCommand(UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd, std::vector<std::wstring>& paramVector)
         {
-            if (const CommandInfo<UserCommandProcessor> command = std::get<N - 1>(commands); command.cmd == cmd)
+            const CommandInfo<UserCommandProcessor>& command = std::get<N - 1>(commands);
+            for (const auto str : command.cmd)
             {
-                command.func(processor, paramVector);
-                return true;
+                if (str == cmd)
+                {
+                    command.func(processor, paramVector);
+                    return true;
+                }
             }
 
             return MatchCommand<N - 1>(processor, triggeringClient, cmd, paramVector);

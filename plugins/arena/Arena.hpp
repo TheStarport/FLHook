@@ -71,10 +71,10 @@ namespace Plugins
             void UserCmdReturn();
 
             // clang-format off
-            constexpr static std::array<CommandInfo<ArenaPlugin>, 2> commands = {
+            inline static const std::array<CommandInfo<ArenaPlugin>, 2> commands = {
             {
-                    AddCommand(ArenaPlugin, L"/arena", UserCmdArena, L"/arena", L" Sends you to the designated arena system."),
-                    AddCommand(ArenaPlugin, L"/return", UserCmdReturn, L"/return", L" Returns you from the arena system to where you last docked.")}
+                    AddCommand(ArenaPlugin, Cmds(L"/arena", L"/conn"), UserCmdArena, L"/arena", L" Sends you to the designated arena system."),
+                    AddCommand(ArenaPlugin, { L"/return" }, UserCmdReturn, L"/return", L" Returns you from the arena system to where you last docked.")}
             };
             // clang-format on
 

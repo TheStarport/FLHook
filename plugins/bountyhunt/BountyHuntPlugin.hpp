@@ -71,17 +71,12 @@ namespace Plugins
             void UserCmdBountyHunt(std::wstring_view target, uint prize, uint time);
             void UserCmdBountyHuntByClientID(ClientId target, uint credits, uint time);
 
-            constexpr static std::array<CommandInfo<BountyHuntPlugin>, 4> commands = {
+            inline static const std::array<CommandInfo<BountyHuntPlugin>, 4> commands = {
                 {
-
-                 AddCommand(BountyHuntPlugin, L"/bountyhunt", UserCmdBountyHunt, L"/bountyhunt <targetName> <prize> <time>",
-                 L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
-                 AddCommand(BountyHuntPlugin, L"/bh", UserCmdBountyHunt, L"/bh <targetName> <prize> <time>",
-                 L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
-                 AddCommand(BountyHuntPlugin, L"/bountyhunt$", UserCmdBountyHuntByClientID, L"/bountyhunt$ <targetId> <prize> <time>",
-                 L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
-                 AddCommand(BountyHuntPlugin, L"/bh$", UserCmdBountyHuntByClientID, L"/bh$ <targetId> <prize> <time>",
-                 L"Places a bounty on the specified clientId. When another player kills them, they gain <credits>."),
+                     AddCommand(BountyHuntPlugin, Cmds(L"/bountyhunt", L"/bh"), UserCmdBountyHunt, L"/bountyhunt <targetName> <prize> <time>",
+                     L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
+                     AddCommand(BountyHuntPlugin, Cmds(L"/bountyhunt$", L"/bh$"), UserCmdBountyHuntByClientID, L"/bountyhunt$ <targetId> <prize> <time>",
+                     L"Places a bounty on the specified player. When another player kills them, they gain <credits>.")
                  }
             };
 

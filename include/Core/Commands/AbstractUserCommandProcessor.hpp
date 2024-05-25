@@ -1,5 +1,7 @@
 #pragma once
 
+using namespace std::string_view_literals;
+
 /**
  * @brief Interface used for processing user commands. Include if your plugin contains user commands.
  */
@@ -12,7 +14,7 @@ class AbstractUserCommandProcessor
     public:
         virtual ~AbstractUserCommandProcessor() = default;
         virtual bool ProcessCommand(ClientId client, std::wstring_view cmd, std::vector<std::wstring>& paramVector) = 0;
-        virtual std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> GetCommands() = 0;
+        virtual std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> GetCommands() = 0;
 };
 
 template <class T>

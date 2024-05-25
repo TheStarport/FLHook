@@ -54,9 +54,9 @@ namespace Plugins
             void UserCmdHandle(std::wstring_view command, std::wstring_view param, std::wstring_view param2);
 
             // clang-format off
-            constexpr static std::array<CommandInfo<WardrobePlugin>, 1> commands = {
+            inline static const std::array<CommandInfo<WardrobePlugin>, 1> commands = {
             {
-                AddCommand(WardrobePlugin, L"/wardrobe", UserCmdHandle, L"/wardrobe list/change", L" Sends you to the designated arena system.")}
+                AddCommand(WardrobePlugin, { L"/wardrobe" }, UserCmdHandle, L"/wardrobe <list/change>", L" Allows you to change the outfit of your character on bases.")}
             };
             // clang-format on
 

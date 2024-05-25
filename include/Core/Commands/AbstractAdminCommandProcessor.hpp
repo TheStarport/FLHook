@@ -1,11 +1,13 @@
 #pragma once
 
+using namespace std::string_view_literals;
+
 class AbstractAdminCommandProcessor
 {
     public:
         virtual ~AbstractAdminCommandProcessor() = default;
         virtual std::wstring ProcessCommand(std::wstring_view cmd, std::vector<std::wstring>& paramVector) = 0;
-        virtual std::vector<std::tuple<std::wstring_view, std::wstring_view, std::wstring_view>> GetCommands() = 0;
+        virtual std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> GetCommands() = 0;
 };
 
 template <class T>

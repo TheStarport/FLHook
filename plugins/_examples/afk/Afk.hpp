@@ -45,11 +45,11 @@ namespace Plugins
             void OnSubmitChat(ClientId fromClient, unsigned long lP1, const void* rdlReader, ClientId to, int dunno) override;
 
             // clang-format off
-            constexpr static std::array<CommandInfo<AfkPlugin>, 2> commands =
+            inline static const std::array<CommandInfo<AfkPlugin>, 2> commands =
             {
                 {
-                    AddCommand(AfkPlugin, L"/afk", UserCmdAfk, L"/afk", L"Sets your status to \"Away from Keyboard\". Other players will notified if they try to speak to you."),
-                    AddCommand(AfkPlugin, L"/back", UserCmdBack, L"/back", L"Removes the AFK status."),
+                    AddCommand(AfkPlugin, { L"/afk" }, UserCmdAfk, L"/afk", L"Sets your status to \"Away from Keyboard\". Other players will notified if they try to speak to you."),
+                    AddCommand(AfkPlugin, { L"/back" }, UserCmdBack, L"/back", L"Removes the AFK status."),
                  }
             };
             // clang-format on

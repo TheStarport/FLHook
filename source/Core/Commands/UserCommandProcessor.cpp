@@ -772,11 +772,13 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
         {
             for (const auto& i : commands)
             {
-                (void)userCmdClient.Message(i.cmd);
+                (void)userCmdClient.Message(i.cmd.front());
             }
         }
         else if (const auto& userCommand =
-                     std::ranges::find_if(commands, [&cmd](const auto& userCmd) { return cmd == userCmd.cmd.substr(1, userCmd.cmd.size() - 1); });
+        std::ranges::find_if(commands,
+                         [&cmd](const auto& userCmd)
+                         { return std::ranges::any_of(userCmd.cmd, [&cmd](const auto str) { return cmd == str.substr(1, str.size() - 1); }); });
                  userCommand != commands.end())
         {
             (void)userCmdClient.Message(userCommand->usage);
@@ -811,11 +813,13 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
     {
         for (const auto& [fullCmd, usage, description] : cmdProcessor->GetCommands())
         {
-            (void)userCmdClient.Message(fullCmd);
+            (void)userCmdClient.Message(fullCmd.front());
         }
     }
     else if (const auto& userCommand =
-                 std::ranges::find_if(commands, [&cmd](const auto& userCmd) { return cmd == userCmd.cmd.substr(1, userCmd.cmd.size() - 1); });
+                 std::ranges::find_if(commands,
+                                      [&cmd](const auto& userCmd)
+                                      { return std::ranges::any_of(userCmd.cmd, [&cmd](const auto str) { return cmd == str.substr(1, str.size() - 1); }); });
              userCommand != commands.end())
     {
         (void)userCmdClient.Message(userCommand->usage);
