@@ -57,6 +57,12 @@ bool TransformArg(std::wstring_view s, size_t paramNumber)
 template <>
 std::vector<std::wstring_view> TransformArg(std::wstring_view s, size_t paramNumber)
 {
+    // If we have nothing but whitespace, return an empty list
+    if (std::ranges::all_of(s, [](const wchar_t c) { return c == L' '; }))
+    {
+        return {};
+    }
+
     std::vector<std::wstring_view> views;
     for (auto params = StringUtils::GetParams(s, L' '); auto i : params)
     {

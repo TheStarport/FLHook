@@ -143,9 +143,9 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         cpp::result<void, std::wstring> Validate(AllowedContext context, std::wstring_view requiredRole);
 
         template <int N>
-        std::wstring MatchCommand(AdminCommandProcessor* processor, const std::wstring_view cmd, std::vector<std::wstring>& paramVector)
+        std::wstring MatchCommand(AdminCommandProcessor* processor, std::wstring_view cmd, std::vector<std::wstring>& paramVector)
         {
-            for (const CommandInfo command = std::get<N - 1>(commands); auto& str : command.cmd)
+            for (const CommandInfo& command = std::get<N - 1>(commands); auto& str : command.cmd)
             {
                 if (str == cmd)
                 {
