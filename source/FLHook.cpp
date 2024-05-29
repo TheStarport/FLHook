@@ -198,7 +198,6 @@ void FLHook::ProcessPendingAsyncTasks()
         if (t.callback.value().index() == 0)
         {
             std::get<0>(t.callback.value())(t.taskData);
-            TaskScheduler::allocator.deallocate(t.taskData, t.dataSize);
         }
         else
         {

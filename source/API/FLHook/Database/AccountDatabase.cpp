@@ -239,12 +239,12 @@ bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
     return true;
 }
 
-bool AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newName, byte* taskData)
+bool AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newName, const std::shared_ptr<void>& taskData)
 {
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
 
-    auto errorMessage = reinterpret_cast<std::wstring*>(taskData);
+    auto errorMessage = std::static_pointer_cast<std::wstring>(taskData);
     const auto db = FLHook::GetDbClient();
     try
     {

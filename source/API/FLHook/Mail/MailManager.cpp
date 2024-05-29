@@ -10,9 +10,9 @@ using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
 using bsoncxx::builder::basic::make_document;
 
-void MailManager::SendMailCallback(byte* taskData)
+void MailManager::SendMailCallback(const std::shared_ptr<void>& taskData)
 {
-    const auto* mailTargets = reinterpret_cast<std::vector<std::wstring>*>(taskData);
+    const auto mailTargets = std::static_pointer_cast<std::vector<std::wstring>>(taskData);
 
     auto& clients = FLHook::Clients();
     for (const auto& character : *mailTargets)
@@ -29,9 +29,9 @@ void MailManager::SendMailCallback(byte* taskData)
     }
 }
 
-bool MailManager::DeferSendMail(byte* taskData, Mail mail)
+bool MailManager::DeferSendMail(const std::shared_ptr<void>& taskData, Mail mail)
 {
-    auto mailTargets = reinterpret_cast<std::vector<std::wstring>*>(taskData);
+    auto mailTargets = std::static_pointer_cast<std::vector<std::wstring>>(taskData);
 
     const auto config = FLHook::GetConfig();
 
@@ -92,9 +92,9 @@ bool MailManager::DeferSendMail(byte* taskData, Mail mail)
     return true;
 }
 
-bool MailManager::GetMailForCharacter(byte* taskData, bsoncxx::oid characterId, const int count, const int page, const bool newestFirst)
+bool MailManager::GetMailForCharacter(const std::shared_ptr<void>& taskData, bsoncxx::oid characterId, const int count, const int page, const bool newestFirst)
 {
-    auto* allMail = reinterpret_cast<std::vector<Mail>*>(taskData);
+    const auto allMail = std::static_pointer_cast<std::vector<Mail>>(taskData);
 
     const auto client = FLHook::GetDatabase().AcquireClient();
     const auto& config = FLHook::GetConfig();
@@ -126,9 +126,9 @@ bool MailManager::GetMailForCharacter(byte* taskData, bsoncxx::oid characterId, 
     return true;
 }
 
-bool MailManager::GetMailForAccount(byte* taskData, AccountId accountId, const int count, const int page, const bool newestFirst)
+bool MailManager::GetMailForAccount(const std::shared_ptr<void>& taskData, AccountId accountId, const int count, const int page, const bool newestFirst)
 {
-    auto* allMail = reinterpret_cast<std::vector<Mail>*>(taskData);
+    auto allMail = std::static_pointer_cast<std::vector<Mail>>(taskData);
 
     const auto client = FLHook::GetDatabase().AcquireClient();
     const auto& config = FLHook::GetConfig();
@@ -245,7 +245,7 @@ void MailManager::ParseMail(Mail& mail, const bsoncxx::document::view doc)
     }
 }
 
-void MailManager::GetAccountMail(const AccountId& id, std::function<void(std::vector<Mail>*)> callback, int count, int page, bool newestFirst)
+void MailManager::GetAccountMail(const AccountId& id, std::function<void(const std::shared_ptr<std::vector<Mail>>&)> callback, int count, int page, bool newestFirst)
 {
     auto data = std::make_shared<std::vector<Mail>>();
 
@@ -268,10 +268,10 @@ void MailManager::GetAccountMail(const AccountId& id, std::function<void(std::ve
     }
 
     TaskScheduler::ScheduleWithCallback<std::vector<Mail>>(std::bind(GetMailForAccount, std::placeholders::_1, id, count, page, newestFirst),
-        [callback](byte* taskData) { callback(reinterpret_cast<std::vector<Mail>*>(taskData)); });
+        [callback](const std::shared_ptr<void>& taskData) { callback(std::static_pointer_cast<std::vector<Mail>>(taskData)); });
 }
 
-void MailManager::GetCharacterMail(bsoncxx::oid characterId, std::function<void(std::vector<Mail>*)> callback, int count, int page, bool newestFirst)
+void MailManager::GetCharacterMail(bsoncxx::oid characterId, std::function<void(const std::shared_ptr<std::vector<Mail>>&)> callback, int count, int page, bool newestFirst)
 {
     if (page < 1)
     {
@@ -292,7 +292,7 @@ void MailManager::GetCharacterMail(bsoncxx::oid characterId, std::function<void(
     }
 
     TaskScheduler::ScheduleWithCallback<std::vector<Mail>>(std::bind(GetMailForCharacter, std::placeholders::_1, characterId, count, page, newestFirst),
-                                                           [callback](byte* taskData) { callback(reinterpret_cast<std::vector<Mail>*>(taskData)); });
+                                                           [callback](const std::shared_ptr<void>& taskData) { callback(std::static_pointer_cast<std::vector<Mail>>(taskData)); });
 }
 
 void MailManager::MarkMailAsRead(const Mail& mail, bsoncxx::oid character)

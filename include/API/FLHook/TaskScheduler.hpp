@@ -8,38 +8,33 @@ class DLL TaskScheduler
     public:
         struct CallbackTask
         {
-            std::variant<std::function<void()>, std::function<bool(byte*)>> task;
-            std::optional<std::variant<std::function<void(byte*)>, std::function<void()>>> callback;
-            byte* taskData = nullptr;
-            size_t dataSize;
+            std::variant<std::function<void()>, std::function<bool(std::shared_ptr<void>)>> task;
+            std::optional<std::variant<std::function<void(std::shared_ptr<void>)>, std::function<void()>>> callback;
+            std::shared_ptr<void> taskData = nullptr;
         };
 
     private:
         friend FLHook;
-        inline static std::allocator<byte> allocator;
         static void ProcessTasks(const std::stop_token& st);
         static std::optional<CallbackTask> GetCompletedTask();
 
-        inline static moodycamel::ConcurrentQueue<CallbackTask> incompleteTasks;
-        inline static moodycamel::ConcurrentQueue<CallbackTask> completeTasks;
+        inline static moodycamel::ConcurrentQueue<CallbackTask> incompleteTasks{};
+        inline static moodycamel::ConcurrentQueue<CallbackTask> completeTasks{};
 
         inline static std::jthread taskProcessorThread{ ProcessTasks };
 
     public:
         static void Schedule(std::function<void()> task);
         template<typename T>
-        static void ScheduleWithCallback(std::function<bool(byte*)> task, std::function<void(byte*)> callback)
+        static void ScheduleWithCallback(std::function<bool(const std::shared_ptr<void>&)> task, std::function<void(const std::shared_ptr<void>&)> callback)
         {
             if constexpr (!std::is_same_v<void, T>)
             {
-                const auto data = allocator.allocate(sizeof(T));
-                T temp{};
-                memcpy_s(data, sizeof(T), &temp, sizeof(T));
-                incompleteTasks.enqueue({ task, callback, data, sizeof(T) });
+                incompleteTasks.enqueue({ task, callback, std::make_shared<T>() });
             }
             else
             {
-                incompleteTasks.enqueue({ task, callback, nullptr, 0 });
+                incompleteTasks.enqueue({ task, callback, nullptr });
             }
         }
 

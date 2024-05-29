@@ -515,10 +515,9 @@ void UserCommandProcessor::GetClientIds()
 
 void UserCommandProcessor::GetSelfClientId() { userCmdClient.Message(std::format(L"Your userCmdClient-id: {}", userCmdClient)); }
 
-void RenameCallback(ClientId client, std::wstring newName, byte* taskData)
+void RenameCallback(ClientId client, std::wstring newName, const std::shared_ptr<void>& taskData)
 {
-
-    auto* errorMessage = reinterpret_cast<std::wstring*>(taskData);
+    auto errorMessage = std::static_pointer_cast<std::wstring>(taskData);
     if(!errorMessage->empty())
     {
         (void)client.Message(*errorMessage);
