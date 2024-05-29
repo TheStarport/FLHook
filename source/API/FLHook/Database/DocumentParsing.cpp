@@ -478,6 +478,10 @@ Character::Character(bsoncxx::document::view view)
                             {
                                 eq.mounted = el.get_bool().value;
                             }
+                            else if (key == "amount")
+                            {
+                                eq.amount = static_cast<short>(el.get_int32().value);
+                            }
                         }
 
                         equipment.emplace_back(eq);
@@ -509,6 +513,10 @@ Character::Character(bsoncxx::document::view view)
                             else if (key == "mounted")
                             {
                                 eq.mounted = el.get_bool().value;
+                            }
+                            else if (key == "amount")
+                            {
+                                eq.amount = static_cast<short>(el.get_int32().value);
                             }
                         }
 
