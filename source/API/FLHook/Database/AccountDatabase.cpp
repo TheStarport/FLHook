@@ -249,7 +249,7 @@ bool AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newN
     try
     {
         auto accounts = db->database("FLHook")["accounts"];
-        auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(newName)));
+        const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(newName)));
 
         if (const auto checkCharNameDoc = accounts.find_one(findCharDoc.view()); checkCharNameDoc.has_value())
         {
@@ -257,17 +257,13 @@ bool AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newN
             return true;
         }
 
-        // TODO: figure out why this explodes
-        // auto playerData = client.GetData().playerData;
-        const std::string characterCode = Players[client.GetValue()].charFile.charFilename;
-        auto& characterMap = AccountManager::accounts.at(client.GetValue()).characters;
-        auto characterIter = characterMap.find(characterCode);
-        if (characterIter == characterMap.end())
+        auto character = AccountManager::GetCurrentCharacterData(client);
+        if (!character)
         {
             *errorMessage = L"Error fetching the character, contact staff!";
             return true;
         }
-        characterIter->second.characterName = StringUtils::wstos(newName);
+        character->characterName = StringUtils::wstos(newName);
     }
     catch (mongocxx::exception& ex)
     {
@@ -289,21 +285,18 @@ void AccountManager::Rename(std::wstring currName, std::wstring newName)
     try
     {
         auto accounts = db->database("FLHook")["accounts"];
-        auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(currName)));
+        const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(currName)));
 
-        const auto checkCharNameDoc = accounts.find_one(findCharDoc.view());
-
-        if (!checkCharNameDoc.has_value())
+        if (const auto checkCharNameDoc = accounts.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
         {
             throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Character doesn't exist when renaming!");
         }
 
         const auto charUpdateDoc = make_document(
             kvp("$set",
-                make_document(kvp("characterName",
-                                  StringUtils::wstos(newName)),
-                                  kvp("lastRenameTimestamp",
-                                      bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }))));
+                make_document(kvp("characterName", StringUtils::wstos(newName)),
+                              kvp("lastRenameTimestamp",
+                                  bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }))));
         if (const auto updateResult = accounts.update_one(findCharDoc.view(), charUpdateDoc.view());
             !updateResult.has_value() || updateResult.value().modified_count() == 0)
         {
@@ -322,4 +315,180 @@ void AccountManager::Rename(std::wstring currName, std::wstring newName)
         Logger::Err(std::format(L"MongoDB Error renaming ({}): {}", currName, StringUtils::stows(ex.what())));
         session.abort_transaction();
     }
+}
+
+void AccountManager::ClearCharacterTransferCode(std::wstring charName)
+{
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
+
+    const auto db = FLHook::GetDbClient();
+    auto session = db->start_session();
+    session.start_transaction();
+
+    try
+    {
+        auto accounts = db->database("FLHook")["accounts"];
+        const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(charName)));
+
+        if (const auto checkCharNameDoc = accounts.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
+        {
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
+                                            "Character doesn't exist when clearing character transfer code!");
+        }
+
+        const auto charUpdateDoc = make_document(kvp("$unset", make_document(kvp("characterTransferCode", ""))));
+        if (const auto updateResult = accounts.update_one(findCharDoc.view(), charUpdateDoc.view());
+            !updateResult.has_value() || updateResult.value().modified_count() == 0)
+        {
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
+                                            "Updating character during clearing character transfer code failed.");
+        }
+
+        session.commit_transaction();
+    }
+    catch (bsoncxx::exception& ex)
+    {
+        Logger::Err(std::format(L"BSON Error clearing character transfer code ({}): {}", charName, StringUtils::stows(ex.what())));
+        session.abort_transaction();
+    }
+    catch (mongocxx::exception& ex)
+    {
+        Logger::Err(std::format(L"MongoDB Error clearing character transfer code ({}): {}", charName, StringUtils::stows(ex.what())));
+        session.abort_transaction();
+    }
+}
+
+void AccountManager::SetCharacterTransferCode(std::wstring charName, std::wstring transferCode)
+{
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
+
+    const auto db = FLHook::GetDbClient();
+    auto session = db->start_session();
+    session.start_transaction();
+
+    try
+    {
+        auto accounts = db->database("FLHook")["accounts"];
+        const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(charName)));
+
+        if (const auto checkCharNameDoc = accounts.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
+        {
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
+                                            "Character doesn't exist when setting character transfer code!");
+        }
+
+        const auto charUpdateDoc = make_document(
+            kvp("$set", make_document(kvp("characterName", StringUtils::wstos(charName)), kvp("characterTransferCode", StringUtils::wstos(transferCode)))));
+        if (const auto updateResult = accounts.update_one(findCharDoc.view(), charUpdateDoc.view());
+            !updateResult.has_value() || updateResult.value().modified_count() == 0)
+        {
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
+                                            "Updating character during setting character transfer code failed.");
+        }
+
+        session.commit_transaction();
+    }
+    catch (bsoncxx::exception& ex)
+    {
+        Logger::Err(std::format(L"BSON Error setting character transfer code ({}): {}", charName, StringUtils::stows(ex.what())));
+        session.abort_transaction();
+    }
+    catch (mongocxx::exception& ex)
+    {
+        Logger::Err(std::format(L"MongoDB Error setting character transfer code ({}): {}", charName, StringUtils::stows(ex.what())));
+        session.abort_transaction();
+    }
+}
+
+bool AccountManager::TransferCharacter(const AccountId account, const std::wstring charName, const std::wstring characterCode,
+                                       const std::shared_ptr<void>& taskData)
+{
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_array;
+    using bsoncxx::builder::basic::make_document;
+
+    const auto db = FLHook::GetDbClient();
+    auto session = db->start_session();
+    session.start_transaction();
+
+    auto errorMessage = std::static_pointer_cast<std::wstring>(taskData);
+
+    try
+    {
+        // check if character exists
+        // check if character code matches
+        // check if current account has capacity for another character
+
+        // clang-format off
+        auto accounts = db->database("FLHook")["accounts"];
+        const auto findTransferCharacterDoc = make_document(
+            kvp("$and",
+                make_array(
+                    make_document(kvp("characterName", StringUtils::wstos(charName))),
+                    make_document(kvp("characterTransferCode", StringUtils::wstos(characterCode)))
+                )
+            )
+        );
+
+        const auto transferredCharacterDoc = accounts.find_one(findTransferCharacterDoc.view());
+        if (!transferredCharacterDoc.has_value())
+        {
+            session.abort_transaction();
+            *errorMessage = L"Character or transfer code was incorrect";
+            return true;
+        }
+
+        const auto transferCharacterOid = transferredCharacterDoc->find("_id")->get_oid();
+
+        const auto findNewAccountDoc = make_document(kvp("_id", account.GetValue()));
+
+        const auto updateNewAccountDoc = make_document(kvp("$push",
+            make_document(kvp("characters", transferCharacterOid))));
+
+        const auto updateOldAccountDoc = make_document(kvp("$pull",
+             make_document(kvp("characters", transferCharacterOid))));
+
+        const auto oldAccountId = transferredCharacterDoc->find("accountId")->get_string().value;
+        const auto findOldAccountDoc = make_document(kvp("_id", oldAccountId));
+
+        const auto findTransferredCharacterDoc = make_document(kvp("_id", transferCharacterOid));
+        const auto clearCharacterTransferCodeDoc = make_document(kvp("$unset", make_document(kvp("characterTransferCode", ""))));
+
+        // clang-format on
+        if (auto updatedDocs = accounts.update_one(findNewAccountDoc.view(), updateNewAccountDoc.view()); !updatedDocs->modified_count())
+        {
+            session.abort_transaction();
+            *errorMessage = L"Character transfer failed on updating of target account!";
+            return true;
+        }
+        if (auto updatedDocs = accounts.update_one(findTransferredCharacterDoc.view(), clearCharacterTransferCodeDoc.view()); !updatedDocs->modified_count())
+        {
+            session.abort_transaction();
+            *errorMessage = L"Character transfer failed on updating of the character!";
+            return true;
+        }
+        if (auto updatedDocs = accounts.update_one(findOldAccountDoc.view(), updateOldAccountDoc.view()); !updatedDocs->modified_count())
+        {
+            session.abort_transaction();
+            *errorMessage = L"Character transfer failed on updating of target account!";
+            return true;
+        }
+        session.commit_transaction();
+    }
+    catch (bsoncxx::exception& ex)
+    {
+        Logger::Err(std::format(L"BSON Error setting character transfer code ({}): {}", charName, StringUtils::stows(ex.what())));
+        *errorMessage = L"Database error, report to server staff";
+        session.abort_transaction();
+    }
+    catch (mongocxx::exception& ex)
+    {
+        Logger::Err(std::format(L"MongoDB Error setting character transfer code ({}): {}", charName, StringUtils::stows(ex.what())));
+        *errorMessage = L"Database error, report to server staff";
+        session.abort_transaction();
+    }
+
+    return true;
 }

@@ -25,6 +25,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         void InvitePlayerByName(std::wstring_view invitee);
         void InvitePlayerById(ClientId inviteeId);
         void FactionInvite(std::wstring_view factionTag);
+        void TransferCharacter(std::wstring_view cmd, std::wstring_view param1, std::wstring_view param2);
         // void DeleteMail(std::wstring_view mailID, std::wstring_view readOnlyDel);
         // void ReadMail(uint mailId);
         // void ListMail(int pageNumber, std::wstring_view unread);
@@ -38,7 +39,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         void Help(std::wstring_view module, std::wstring_view command);
 
         // clang-format off
-        inline static const std::array<CommandInfo<UserCommandProcessor>, 32> commands = {
+        inline static const std::array<CommandInfo<UserCommandProcessor>, 33> commands = {
             {AddCommand(UserCommandProcessor, Cmds( L"/ids"sv ), GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
              AddCommand(UserCommandProcessor, Cmds( L"/setdiemsgsize"sv ), SetDieMessageFontSize, L"/setdiemsgsize [option]",
              L"Sets the text size of death chatConfig. Use without parameters to see available options."),
@@ -82,6 +83,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              AddCommand(UserCommandProcessor, Cmds( L"/coin"sv ), Coin, L"/coin", L"Tosses a coin, heads or tails."),
              AddCommand(UserCommandProcessor, Cmds( L"/dice"sv ), Dice, L"/dice [numOfSides]", L"Rolls the dice with specified amount of sides, 6 if undefined"),
              AddCommand(UserCommandProcessor, Cmds( L"/droprep"sv ), DropRep, L"/droprep", L"Removes your affiliation if you have one"),
+             AddCommand(UserCommandProcessor, Cmds( L"/transferchar"sv ), TransferCharacter, L"/transferchar", L"Set the character move code, or use the previously set code to transfer said character into current account"),
              AddCommand(UserCommandProcessor, Cmds( L"/help"sv, L"/h"sv, L"?"sv), Help, L"/help [module] [command]", L"Provides indepth help information")}
         };
         // clang-format on

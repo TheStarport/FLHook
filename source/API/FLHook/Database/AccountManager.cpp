@@ -143,6 +143,17 @@ void AccountManager::InitContentDLLDetours()
     loadPlayerMDataDetour = std::make_unique<FunctionDetour<LoadMDataType>>(reinterpret_cast<LoadMDataType>(contentHandle + 0xA83D0));
     loadPlayerMDataDetour->Detour(LoadPlayerMData);
 }
+Character* AccountManager::GetCurrentCharacterData(const ClientId client)
+{
+    const std::string characterCode = client.GetData().playerData->charFile.charFilename;
+    auto& characterMap = accounts[client.GetValue()].characters;
+    const auto characterIter = characterMap.find(characterCode);
+    if(characterIter == characterMap.end())
+    {
+        return nullptr;
+    }
+    return &characterIter->second;
+}
 
 void __fastcall AccountManager::LoadPlayerMData(MPlayerDataSaveStruct* mdata, void* edx, struct INI_Reader* ini)
 {
@@ -329,11 +340,13 @@ CreateCharacterLoadingData createCharacterLoadingData = reinterpret_cast<CreateC
 
 AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(PlayerData* data, const uint clientId)
 {
-    const auto& account = accounts[clientId];
+    auto& account = accounts[clientId];
     if (!account.loginSuccess)
     {
         return LoginReturnCode::InvalidUsernamePassword;
     }
+
+    ClientId(clientId).GetData().account = &account.account;
 
     for (auto& character : account.characters)
     {

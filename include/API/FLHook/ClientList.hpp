@@ -80,12 +80,7 @@ struct ClientData
         uint formationNumber2 = 0;
         AllowedFormation formationTag = AllowedFormation::Alpha;
 
-        ClientData()
-        {
-            static uint index = 0;
-            id = ClientId(index++);
-            playerData = &Players[id.GetValue()];
-        }
+        ClientData() = default;
 
         ClientData(const ClientData&) = delete;
         ClientData(const ClientData&&) = delete;

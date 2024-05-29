@@ -100,7 +100,8 @@ FLHook::FLHook()
     try
     {
         Timer::AddCron(PublishServerStats, L"0 0 0 * * *");
-    } catch (std::exception& w)
+    }
+    catch (std::exception& w)
     {
         const std::string_view e = w.what();
         Logger::Err(StringUtils::stows(e));
@@ -298,6 +299,13 @@ Action<void, Error> FLHook::MessageUniverse(std::wstring_view message)
 
 bool FLHook::OnServerStart()
 {
+    uint index = 0;
+    for (auto& client : clientList->clients)
+    {
+        client.id = ClientId(index++);
+        client.playerData = &Players[client.id.GetValue()];
+    }
+
     try
     {
         // Init Hooks

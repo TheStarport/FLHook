@@ -98,6 +98,7 @@ struct Character
 	std::unordered_map<int, std::vector<std::string>> weaponGroups;
 
     std::optional<int64> lastRenameTimestamp;
+    std::optional<std::string> characterTransferCode;
 
 	bsoncxx::document::value characterData = bsoncxx::builder::basic::make_document();
 

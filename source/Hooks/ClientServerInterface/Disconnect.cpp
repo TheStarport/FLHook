@@ -42,4 +42,6 @@ void __stdcall IServerImplHook::DisConnect(ClientId client, EFLConnection conn)
     };
 
     CallPlugins(&Plugin::OnDisconnectAfter, client, conn);
+
+    FLHook::GetClient(client).isValid = false;
 }

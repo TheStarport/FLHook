@@ -18,7 +18,6 @@ bool __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
     }
     CatchHook({});
 
-    FLHook::GetClient(client).isValid = false;
     return true; // don't suppress
 }
 

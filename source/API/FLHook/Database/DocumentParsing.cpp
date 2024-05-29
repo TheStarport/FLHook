@@ -689,6 +689,11 @@ Character::Character(bsoncxx::document::view view)
                     lastRenameTimestamp = element.get_date().to_int64();
                     break;
                 }
+            case Hash("characterTransferCode"):
+                {
+                    characterTransferCode = element.get_string().value;
+                    break;
+                }
         }
     }
 }
@@ -791,8 +796,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
         bsoncxx::builder::basic::array arr;
         for (const auto& [archId, amount, health, isMissionCargo] : cargo)
         {
-            arr.append(make_document(
-                kvp("archId", archId), kvp("amount", amount), kvp("health", health), kvp("isMissionCargo", isMissionCargo)));
+            arr.append(make_document(kvp("archId", archId), kvp("amount", amount), kvp("health", health), kvp("isMissionCargo", isMissionCargo)));
         }
         document.append(kvp("cargo", arr));
     }
@@ -801,8 +805,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
         bsoncxx::builder::basic::array arr;
         for (const auto& [archId, amount, health, isMissionCargo] : baseCargo)
         {
-            arr.append(make_document(
-                kvp("archId", archId), kvp("amount", amount), kvp("health", health), kvp("isMissionCargo", isMissionCargo)));
+            arr.append(make_document(kvp("archId", archId), kvp("amount", amount), kvp("health", health), kvp("isMissionCargo", isMissionCargo)));
         }
         document.append(kvp("baseCargo", arr));
     }
@@ -811,11 +814,8 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
         bsoncxx::builder::basic::array arr;
         for (const auto& [archId, hardPoint, health, amount, mounted] : equipment)
         {
-            arr.append(make_document(kvp("archId", archId),
-                                     kvp("hardPoint", hardPoint),
-                                     kvp("health", health),
-                                     kvp("mounted", mounted),
-                                     kvp("amount", amount)));
+            arr.append(
+                make_document(kvp("archId", archId), kvp("hardPoint", hardPoint), kvp("health", health), kvp("mounted", mounted), kvp("amount", amount)));
         }
         document.append(kvp("equipment", arr));
     }
@@ -824,11 +824,8 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
         bsoncxx::builder::basic::array arr;
         for (const auto& [archId, hardPoint, health, amount, mounted] : baseEquipment)
         {
-            arr.append(make_document(kvp("archId", archId),
-                                     kvp("hardPoint", hardPoint),
-                                     kvp("health", health),
-                                     kvp("mounted", mounted),
-                                     kvp("amount", amount)));
+            arr.append(
+                make_document(kvp("archId", archId), kvp("hardPoint", hardPoint), kvp("health", health), kvp("mounted", mounted), kvp("amount", amount)));
         }
         document.append(kvp("baseEquipment", arr));
     }
@@ -927,10 +924,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
         bsoncxx::builder::basic::array arr;
         for (const auto& [id, baseId, interactionCount, missionStatus] : npcVisits)
         {
-            arr.append(make_document(kvp("id", id),
-                                     kvp("baseId", baseId),
-                                     kvp("interactionCount", interactionCount),
-                                     kvp("missionStatus", missionStatus)));
+            arr.append(make_document(kvp("id", id), kvp("baseId", baseId), kvp("interactionCount", interactionCount), kvp("missionStatus", missionStatus)));
         }
 
         document.append(kvp("npcVisits", arr));
@@ -973,5 +967,10 @@ void Character::ToBson(bsoncxx::builder::basic::document& document) const
     if (lastRenameTimestamp.has_value())
     {
         document.append(kvp("lastRenameTimestamp", bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(lastRenameTimestamp.value()) }));
+    }
+
+    if (characterTransferCode.has_value())
+    {
+        document.append(kvp("characterTransferCode", characterTransferCode.value()));
     }
 }

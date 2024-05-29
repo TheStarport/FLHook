@@ -518,7 +518,7 @@ void UserCommandProcessor::GetSelfClientId() { userCmdClient.Message(std::format
 void RenameCallback(ClientId client, std::wstring newName, const std::shared_ptr<void>& taskData)
 {
     auto errorMessage = std::static_pointer_cast<std::wstring>(taskData);
-    if(!errorMessage->empty())
+    if (!errorMessage->empty())
     {
         (void)client.Message(*errorMessage);
         return;
@@ -537,10 +537,13 @@ void RenameCallback(ClientId client, std::wstring newName, const std::shared_ptr
     }
 
     (void)client.Message(L"Renaming, you will be kicked.");
-    Timer::AddOneShot([client, currName, newName]() {
-        (void)client.Kick();
-        TaskScheduler::Schedule(std::bind(AccountManager::Rename, currName, newName));
-        }, 3000);
+    Timer::AddOneShot(
+        [client, currName, newName]()
+        {
+            (void)client.Kick();
+            TaskScheduler::Schedule(std::bind(AccountManager::Rename, currName, newName));
+        },
+        3000);
 }
 
 void UserCommandProcessor::Rename(std::wstring_view newName)
@@ -568,16 +571,18 @@ void UserCommandProcessor::Rename(std::wstring_view newName)
         }
     }
 
-    if(cooldown)
+    if (cooldown)
     {
         const auto charData = userCmdClient.GetData().characterData;
-        if(auto lastRename = charData.find("lastRenameTimestamp"); lastRename != charData.end())
+        if (auto lastRename = charData.find("lastRenameTimestamp"); lastRename != charData.end())
         {
-            auto cooldownAsDays = std::chrono::days(cooldown);
-            std::chrono::milliseconds endOfCooldown = lastRename->get_date().value + std::chrono::duration_cast<std::chrono::milliseconds>(cooldownAsDays);
-            if(endOfCooldown.count() > TimeUtils::UnixTime<std::chrono::milliseconds>())
+            const auto cooldownAsDays = std::chrono::days(cooldown);
+            if (const std::chrono::milliseconds endOfCooldown =
+                    lastRename->get_date().value + std::chrono::duration_cast<std::chrono::milliseconds>(cooldownAsDays);
+                endOfCooldown.count() > TimeUtils::UnixTime<std::chrono::milliseconds>())
             {
-                (void)userCmdClient.Message(std::format(L"Rename cooldown not elapsed yet, end of cooldown: {}", TimeUtils::AsDate(std::chrono::duration_cast<std::chrono::seconds>(endOfCooldown))));
+                (void)userCmdClient.Message(std::format(L"Rename cooldown not elapsed yet, end of cooldown: {}",
+                                                        TimeUtils::AsDate(std::chrono::duration_cast<std::chrono::seconds>(endOfCooldown))));
                 return;
             }
         }
@@ -585,7 +590,7 @@ void UserCommandProcessor::Rename(std::wstring_view newName)
 
     std::wstring newNameStr = newName.data();
     TaskScheduler::ScheduleWithCallback<std::wstring>(std::bind(AccountManager::CheckCharnameTaken, userCmdClient, newNameStr, std::placeholders::_1),
-                                        std::bind(RenameCallback, userCmdClient, newNameStr, std::placeholders::_1));
+                                                      std::bind(RenameCallback, userCmdClient, newNameStr, std::placeholders::_1));
 }
 
 // TODO: Move to utils.
@@ -690,6 +695,49 @@ void UserCommandProcessor::FactionInvite(std::wstring_view factionTag)
     if (msgSent == false)
     {
         (void)userCmdClient.Message(L"ERR No chars found");
+    }
+}
+
+void CharacterTransferCallback(ClientId client, const std::shared_ptr<void>& taskData)
+{
+    auto errorMessage = std::static_pointer_cast<std::wstring>(taskData);
+    if (!errorMessage->empty())
+    {
+        (void)client.Message(*errorMessage);
+        return;
+    }
+
+    (void)client.Kick(L"Transferring the character, you will be kicked.", 3);
+}
+
+void UserCommandProcessor::TransferCharacter(const std::wstring_view cmd, const std::wstring_view param1, const std::wstring_view param2)
+{
+    const auto db = FLHook::GetDbClient();
+    if (cmd == L"clearcode")
+    {
+        std::wstring charName = userCmdClient.GetCharacterName().Handle().data();
+        TaskScheduler::Schedule(std::bind(AccountManager::ClearCharacterTransferCode, charName));
+        (void)userCmdClient.Message(L"Character transfer code cleared");
+    }
+    else if (cmd == L"setcode")
+    {
+        std::wstring charName = userCmdClient.GetCharacterName().Handle().data();
+        std::wstring newCharCode = param1.data();
+        TaskScheduler::Schedule(std::bind(AccountManager::SetCharacterTransferCode, charName, newCharCode));
+        (void)userCmdClient.Message(L"Character transfer code set");
+    }
+    else if (cmd == L"transfer")
+    {
+        if (userCmdClient.GetData().account->characters.size() >= 5)
+        {
+            (void)userCmdClient.Message(L"This account cannot hold more characters");
+            return;
+        }
+        AccountId accountId = userCmdClient.GetAccount().Handle();
+        std::wstring charName = param1.data();
+        std::wstring charCode = param2.data();
+        TaskScheduler::ScheduleWithCallback<std::wstring>(std::bind(AccountManager::TransferCharacter, accountId, charName, charCode, std::placeholders::_1),
+                                                          std::bind(CharacterTransferCallback, userCmdClient, std::placeholders::_1));
     }
 }
 
@@ -852,9 +900,10 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
             }
         }
         else if (const auto& userCommand =
-        std::ranges::find_if(commands,
-                         [&cmd](const auto& userCmd)
-                         { return std::ranges::any_of(userCmd.cmd, [&cmd](const auto str) { return cmd == str.substr(1, str.size() - 1); }); });
+                     std::ranges::find_if(commands,
+                                          [&cmd](const auto& userCmd) {
+                                              return std::ranges::any_of(userCmd.cmd, [&cmd](const auto str) { return cmd == str.substr(1, str.size() - 1); });
+                                          });
                  userCommand != commands.end())
         {
             (void)userCmdClient.Message(userCommand->usage);
@@ -911,7 +960,7 @@ void UserCommandProcessor::DropRep()
 {
     const auto& config = FLHook::GetConfig().reputatation;
 
-    if(config.creditCost)
+    if (config.creditCost)
     {
         if (const uint cash = userCmdClient.GetCash().Handle(); cash < config.creditCost)
         {
@@ -922,7 +971,7 @@ void UserCommandProcessor::DropRep()
     }
     const auto playerRep = userCmdClient.GetReputation().Handle();
     const auto playerAffliation = playerRep.GetAffiliation().Handle();
-    if(playerAffliation.GetValue() == -1)
+    if (playerAffliation.GetValue() == -1)
     {
         (void)userCmdClient.Message(L"No affiliation, can't drop one");
         return;

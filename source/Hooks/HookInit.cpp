@@ -19,8 +19,9 @@ inline static char repFreeFixOld[5];
 
 void FLHook::ClearClientInfo(ClientId client)
 {
+    CallPlugins(&Plugin::OnClearClientInfo, client);
+
     auto& info = client.GetData();
-    info.playerData = nullptr;
 
     info.characterName = L"";
 
@@ -64,7 +65,7 @@ void FLHook::ClearClientInfo(ClientId client)
     }
 
     AccountManager::ClearClientInfo(client);
-    CallPlugins(&Plugin::OnClearClientInfo, client);
+    info.account = nullptr;
 }
 
 void FLHook::LoadUserSettings(ClientId client)

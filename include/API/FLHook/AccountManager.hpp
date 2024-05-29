@@ -154,11 +154,15 @@ class AccountManager
         static void OnCreateNewCharacterCopy(PlayerData* data, SCreateCharacterInfo characterInfo);
         static bool DeleteCharacter(ClientId clientId, std::wstring characterCode);
         static bool Login(const std::wstring& wideAccountId, ClientId client);
+        static void ClearCharacterTransferCode(std::wstring charName);
+        static void SetCharacterTransferCode(std::wstring client, std::wstring transferCode);
+        static bool TransferCharacter(AccountId account, std::wstring charName, std::wstring characterCode, const std::shared_ptr<void>& taskData);
         static bool CheckCharnameTaken(ClientId client, std::wstring newName, const std::shared_ptr<void>& taskData);
         static void Rename(std::wstring currName, std::wstring newName);
         static void ClearClientInfo(ClientId clientId);
         static void __fastcall LoadPlayerMData(MPlayerDataSaveStruct* mdata, void* edx, INI_Reader* ini);
         static void InitContentDLLDetours();
+        static Character* GetCurrentCharacterData(ClientId);
         inline static FlMapVisitErase flMapVisitErase;
         inline static FlMapVisitInsert flMapVisitInsert;
 };
