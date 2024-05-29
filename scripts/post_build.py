@@ -2,10 +2,12 @@ from shutil import copy2
 from pathlib import Path
 import os
 from argparse import ArgumentParser, ArgumentError
+from sys import exit
 
 copy_path = os.environ.get("FLHOOK_COPY_PATH") or ""
 if copy_path == "":
-    raise EnvironmentError("FLHOOK_COPY_PATH environment variable is missing.")
+    print("FLHOOK_COPY_PATH not defined, not running post build")
+    exit()
 
 copied_files = []
 bin_dir = None
