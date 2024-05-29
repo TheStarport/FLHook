@@ -102,6 +102,10 @@ class DLL FLHook final
 
         bool flhookReady;
 
+        std::unordered_map<std::wstring, std::vector<std::wstring_view>> credentialsMap = {
+            { L"console", { L"SuperAdmin" } }
+        };
+
     public:
         FLHook();
         ~FLHook();
@@ -132,20 +136,21 @@ class DLL FLHook final
 
         static DWORD __stdcall Offset(BinaryType type, AddressList address);
 
-        static bool IsReady() { return instance != nullptr && instance->flhookReady; }
-        static std::wstring_view GetAccountPath() { return instance->accPath; }
+        static bool IsReady();
+        static std::wstring_view GetAccountPath();
         static bool GetObjInspect(uint& ship, IObjInspectImpl*& inspect);
 
-        static ClientList& Clients() { return *instance->clientList; }
+        static AccountManager& GetAccountManager();
+        static const std::unordered_map<std::wstring, std::vector<std::wstring_view>>& GetAdmins();
+        static ClientList& Clients();
         static ClientData& GetClient(ClientId client);
-        static Database& GetDatabase() { return *instance->database; }
+        static FLHookConfig& GetConfig();
+        static Database& GetDatabase();
         static mongocxx::pool::entry GetDbClient();
-        static InfocardManager& GetInfocardManager() { return *instance->infocardManager; }
-        static LastHitInformation GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }
+        static InfocardManager& GetInfocardManager();
+        static LastHitInformation GetLastHitInformation();
+        static IClientImpl* GetPacketInterface();
         static Action<pub::AI::Personality*, Error> GetPersonality(const std::wstring& pilotNickname);
-        static AccountManager& GetAccountManager() { return *instance->accountManager; }
-        static FLHookConfig& GetConfig() { return *instance->flhookConfig; }
-        static IClientImpl* GetPacketInterface(){ return hookClientImpl; }
 
         static Action<void, Error> MessageUniverse(std::wstring_view message);
 };

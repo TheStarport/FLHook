@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Commands/AbstractAdminCommandProcessor.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 namespace Plugins
@@ -31,7 +32,7 @@ namespace Plugins
      * @note All player commands are prefixed with '/'.
      * All admin commands are prefixed with a '.'.
      */
-    class ArenaPlugin final : public Plugin, public AbstractUserCommandProcessor
+    class ArenaPlugin final : public Plugin, public AbstractUserCommandProcessor, public AbstractAdminCommandProcessor
     {
             enum class TransferFlag
             {
@@ -54,8 +55,8 @@ namespace Plugins
 
             struct ArenaClientData
             {
-                TransferFlag flag;
-                BaseId returnBase;
+                    TransferFlag flag;
+                    BaseId returnBase;
             };
 
             std::unordered_map<uint, ArenaClientData> clientData;
@@ -73,12 +74,11 @@ namespace Plugins
             // clang-format off
             inline static const std::array<CommandInfo<ArenaPlugin>, 2> commands = {
             {
-                    AddCommand(ArenaPlugin, Cmds(L"/arena", L"/conn"), UserCmdArena, L"/arena", L" Sends you to the designated arena system."),
-                    AddCommand(ArenaPlugin, Cmds(L"/return"), UserCmdReturn, L"/return", L" Returns you from the arena system to where you last docked.")}
+                AddCommand(ArenaPlugin, Cmds(L"/arena", L"/conn"), UserCmdArena, L"/arena", L" Sends you to the designated arena system."),
+                AddCommand(ArenaPlugin, Cmds(L"/return"), UserCmdReturn, L"/return", L" Returns you from the arena system to where you last docked.")}
             };
-            // clang-format on
-
             SetupUserCommandHandler(ArenaPlugin, commands);
+            // clang-format on
 
             void OnClearClientInfo(ClientId client) override;
             void OnLoadSettings() override;
@@ -105,8 +105,8 @@ namespace Plugins
             static BaseId ReadReturnPointForClient(ClientId client);
 
             /**
-             * @brief Returns true if the client doesn't hold any commodities, returns false otherwise. This is to prevent people using the arena system as a trade
-             * shortcut.
+             * @brief Returns true if the client doesn't hold any commodities, returns false otherwise. This is to prevent people using the arena system as a
+             * trade shortcut.
              */
             static bool ValidateCargo(ClientId client);
 

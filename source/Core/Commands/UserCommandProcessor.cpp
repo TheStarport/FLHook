@@ -936,7 +936,7 @@ void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_vie
 
     if (cmd.empty())
     {
-        for (const auto& [fullCmd, usage, description] : cmdProcessor->GetCommands())
+        for (const auto& [fullCmd, usage, description] : cmdProcessor->GetUserCommands())
         {
             (void)userCmdClient.Message(fullCmd.front());
         }

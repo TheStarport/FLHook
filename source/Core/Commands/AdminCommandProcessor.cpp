@@ -7,63 +7,41 @@
 // TODO: General, a lot of these functions are agnostic about whether or not the player is online and thus has a clientId, so along with the player database
 // rework a lot of these functions need to be reworked to account for that.
 
-std::wstring AdminCommandProcessor::ProcessCommand(std::wstring_view commandString)
+std::wstring AdminCommandProcessor::ProcessCommand(const std::wstring_view user, const AllowedContext currentContext, std::wstring_view cmd,
+                                                   std::vector<std::wstring>& paramVector)
+{
+    // If empty, command not found
+    if (const auto result = MatchCommand<commands.size()>(this, user, currentContext, cmd, paramVector); !result.empty())
+    {
+        return result;
+    }
+
+    for (auto& admin : PluginManager::i()->adminCommands)
+    {
+        const auto ptr = admin.lock();
+        if (auto res = ptr->ProcessCommand(user, currentContext, cmd, paramVector); !res.empty())
+        {
+            return res;
+        }
+    }
+
+    return std::format(L"ERR: Command not found. ({})", cmd);
+}
+
+std::wstring AdminCommandProcessor::ProcessCommand(const std::wstring_view user, const AllowedContext currentContext, const std::wstring_view commandString)
 {
     auto params = StringUtils::GetParams(commandString, ' ');
 
-    auto command = params.front();
+    const auto command = params.front();
+    if (command.length() < 2)
+    {
+        return L"";
+    }
 
     std::vector<std::wstring> paramsFiltered(params.begin(), params.end());
     paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
 
-    auto res = ProcessCommand(command, paramsFiltered);
-
-    // After matching reset perms
-    currentContext = AllowedContext::Reset;
-    currentUser = L"";
-
-    return res;
-}
-
-std::wstring AdminCommandProcessor::ProcessCommand(std::wstring_view cmd, std::vector<std::wstring>& paramVector)
-{
-    return MatchCommand<commands.size()>(this, cmd, paramVector);
-}
-
-void AdminCommandProcessor::SetCurrentUser(const std::wstring_view user, const AllowedContext context)
-{
-    currentUser = user;
-    currentContext = context;
-}
-
-cpp::result<void, std::wstring> AdminCommandProcessor::Validate(const AllowedContext context, std::wstring_view requiredRole)
-{
-    using namespace magic_enum::bitwise_operators;
-    const static std::wstring invalidPerms = L"ERR: No permission.";
-    const static std::wstring invalidCommand = L"ERR: Command not found.";
-    const static std::wstring_view superAdminRole = magic_enum::enum_name(DefaultRoles::SuperAdmin);
-
-    // If the current context does not allow command
-    if (static_cast<int>(currentContext & context) == 0)
-    {
-        return cpp::fail(invalidCommand);
-    }
-
-    const auto credentials = credentialsMap.find(currentUser.data());
-    if (credentials == credentialsMap.end())
-    {
-        // Some how got here and not authenticated!
-        return cpp::fail(invalidPerms);
-    }
-
-    if (std::ranges::find(credentials->second, requiredRole) == credentials->second.end() &&
-        std::ranges::find(credentials->second, superAdminRole) == credentials->second.end())
-    {
-        return cpp::fail(invalidPerms);
-    }
-
-    // All good!
-    return {};
+    return ProcessCommand(user, currentContext, command, paramsFiltered);
 }
 
 std::wstring AdminCommandProcessor::SetCash(std::wstring_view characterName,
@@ -121,7 +99,7 @@ std::wstring AdminCommandProcessor::UnBanPlayer(std::wstring_view characterName)
     return std::format(L"{} has been successfully unbanned.", characterName);
 }
 
-std::wstring AdminCommandProcessor::GetClientId(std::wstring_view characterName) { return std::to_wstring(ClientId(characterName).GetValue()); }
+std::wstring AdminCommandProcessor::GetClientId(const std::wstring_view characterName) { return std::to_wstring(ClientId(characterName).GetValue()); }
 
 std::wstring AdminCommandProcessor::KillPlayer(std::wstring_view characterName)
 {
@@ -154,19 +132,19 @@ std::wstring AdminCommandProcessor::GetRep(std::wstring_view characterName, std:
     return std::format(L"{}'reputation to {} is {}", characterName, repGroup, rep);
 }
 
-std::wstring AdminCommandProcessor::MessagePlayer(std::wstring_view characterName, std::wstring_view text)
+std::wstring AdminCommandProcessor::MessagePlayer(std::wstring_view characterName, const std::wstring_view text)
 {
     ClientId(characterName).Message(text).Handle();
     return std::format(L"Message sent to {} successfully sent", characterName);
 }
 
-std::wstring AdminCommandProcessor::SendSystemMessage(std::wstring_view systemName, std::wstring_view text)
+std::wstring AdminCommandProcessor::SendSystemMessage(std::wstring_view systemName, const std::wstring_view text)
 {
     SystemId(systemName).Message(text).Handle();
     return std::format(L"Message successfully sent to {}", systemName);
 }
 
-std::wstring AdminCommandProcessor::SendUniverseMessage(std::wstring_view text)
+std::wstring AdminCommandProcessor::SendUniverseMessage(const std::wstring_view text)
 {
     FLHook::MessageUniverse(text).Handle();
     return std::format(L"Message Sent to Server.");
@@ -190,7 +168,7 @@ std::wstring AdminCommandProcessor::ListCargo(const std::wstring_view characterN
     return res;
 }
 
-std::wstring AdminCommandProcessor::AddCargo(std::wstring_view characterName, std::wstring_view good, uint count, bool mission)
+std::wstring AdminCommandProcessor::AddCargo(std::wstring_view characterName, std::wstring_view good, uint count, const bool mission)
 {
     const auto goodId = CreateID(StringUtils::wstos(std::wstring(good)).c_str());
 
@@ -210,7 +188,7 @@ std::wstring AdminCommandProcessor::DeleteChar(std::wstring_view characterName)
     return std::format(L"{} has been successfully deleted", characterName);
 }
 
-std::wstring AdminCommandProcessor::GetPlayerInfo(std::wstring_view characterName)
+std::wstring AdminCommandProcessor::GetPlayerInfo(const std::wstring_view characterName)
 {
     auto res = ClientId(characterName);
 
@@ -324,7 +302,7 @@ std::wstring AdminCommandProcessor::ListPlugins()
     return plugins;
 }
 
-std::wstring AdminCommandProcessor::Chase(std::wstring_view characterName)
+std::wstring AdminCommandProcessor::Chase(const std::wstring_view characterName)
 {
     const auto admin = ClientId(currentUser);
     const auto target = ClientId(characterName);
@@ -344,7 +322,7 @@ std::wstring AdminCommandProcessor::Chase(std::wstring_view characterName)
     return std::format(L"Jump to system={} x={:.0f} y={:.0f} z={:.0f}", target.GetSystemId().Handle().GetName().Handle(), pos.x, pos.y, pos.z);
 }
 
-std::wstring AdminCommandProcessor::Beam(std::wstring_view characterName, std::wstring_view baseName)
+std::wstring AdminCommandProcessor::Beam(const std::wstring_view characterName, const std::wstring_view baseName)
 {
     std::wstring targetPlayer;
 
@@ -393,7 +371,7 @@ std::wstring AdminCommandProcessor::Pull(std::wstring_view characterName)
     return std::format(L"player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}", characterName, currentUser, pos.x, pos.y, pos.z);
 }
 
-std::wstring AdminCommandProcessor::SetDamageType(std::wstring_view newDamageType)
+std::wstring AdminCommandProcessor::SetDamageType(const std::wstring_view newDamageType)
 {
     static std::wstring usage = L"Sets what can be damaged on the server. Valid values are 'None', 'All', PvP, 'PvE'.";
     if (newDamageType.empty())

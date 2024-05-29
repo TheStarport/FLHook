@@ -59,58 +59,8 @@ private:                                                                   \
     using type = std::invoke_result_t<decltype(DeduceType##variableName)>; \
     type variableName = DeduceType##variableName()
 
-#define AddCommand(class, cmds, func, usage, description)                                                    \
-    {                                                                                                        \
-        cmds, ClassFunctionWrapper<decltype(&class ::func), &class ::func>::ProcessParam, usage, description \
-    }
-
-#define Cmds(...) std::vector<std::wstring_view> {__VA_ARGS__}
-
-#define GetCommandsFunc(commands)                                                                           \
-    std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> GetCommands() override \
-    {                                                                                                       \
-        std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> info;              \
-        for (const auto& cmd : commands)                                                                    \
-        {                                                                                                   \
-            info.emplace_back(cmd.cmd, cmd.usage, cmd.description);                                         \
-        }                                                                                                   \
-                                                                                                            \
-        return info;                                                                                        \
-    };
-
-#define SetupUserCommandHandler(class, commandArray)                                                                                                  \
-    template <int N>                                                                                                                                  \
-    bool MatchCommand(class* processor, ClientId triggeringClient, const std::wstring_view cmd, std::vector<std::wstring>& paramVector) \
-    {                                                                                                                                                 \
-        const CommandInfo<class> command = std::get<N - 1>(class ::commandArray);                                                                     \
-        for (auto& str : command.cmd)                                                                                                                 \
-        {                                                                                                                                             \
-            if (str == cmd)                                                                                                                   \
-            {                                                                                                                                         \
-                command.func(processor, paramVector);                                                                                                 \
-                return true;                                                                                                                          \
-            }                                                                                                                                         \
-        }                                                                                                                                             \
-                                                                                                                                                      \
-        return MatchCommand<N - 1>(processor, triggeringClient, cmd, paramVector);                                                                    \
-    }                                                                                                                                                 \
-                                                                                                                                                      \
-    template <>                                                                                                                                       \
-    bool MatchCommand<0>(class * processor, ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring> & paramVector)                \
-    {                                                                                                                                                 \
-        return false;                                                                                                                                 \
-    }                                                                                                                                                 \
-                                                                                                                                                      \
-    bool ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring>& paramVector) override                            \
-    {                                                                                                                                                 \
-        userCmdClient = triggeringClient;                                                                                                             \
-        return MatchCommand<commandArray.size()>(this, userCmdClient, cmd, paramVector);                                                              \
-    }                                                                                                                                                 \
-                                                                                                                                                      \
-public:                                                                                                                                               \
-    GetCommandsFunc(commandArray);                                                                                                                    \
-                                                                                                                                                      \
-private:
+#define Cmds(...) \
+    std::vector<std::wstring_view> { __VA_ARGS__ }
 
 #define FUNCTION   reinterpret_cast<const char*>(__FUNCTION__)
 #define FUNCTION_W reinterpret_cast<const wchar_t*>(__FUNCTIONW__)

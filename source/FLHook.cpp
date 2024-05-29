@@ -249,11 +249,16 @@ DWORD __stdcall FLHook::Offset(const BinaryType type, AddressList address)
     }
 }
 
+bool FLHook::IsReady() { return instance != nullptr && instance->flhookReady; }
+std::wstring_view FLHook::GetAccountPath() { return instance->accPath; }
+
 bool FLHook::GetObjInspect(uint& ship, IObjInspectImpl*& inspect)
 {
     uint dunno; // Something related to watchables
     return getShipInspect(ship, inspect, dunno);
 }
+const std::unordered_map<std::wstring, std::vector<std::wstring_view>>& FLHook::GetAdmins() { return instance->credentialsMap; }
+ClientList& FLHook::Clients() { return *instance->clientList; }
 
 ClientData& FLHook::GetClient(ClientId client)
 {
@@ -264,13 +269,19 @@ ClientData& FLHook::GetClient(ClientId client)
 
     return Clients()[client];
 }
+Database& FLHook::GetDatabase() { return *instance->database; }
 
 mongocxx::pool::entry FLHook::GetDbClient() { return instance->database->AcquireClient(); }
+InfocardManager& FLHook::GetInfocardManager() { return *instance->infocardManager; }
+FLHook::LastHitInformation FLHook::GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }
 
 Action<pub::AI::Personality*, Error> FLHook::GetPersonality(const std::wstring& pilotNickname)
 {
     return instance->personalityHelper->GetPersonality(pilotNickname);
 }
+AccountManager& FLHook::GetAccountManager() { return *instance->accountManager; }
+FLHookConfig& FLHook::GetConfig() { return *instance->flhookConfig; }
+IClientImpl* FLHook::GetPacketInterface() { return hookClientImpl; }
 
 Action<void, Error> FLHook::MessageUniverse(std::wstring_view message)
 {
@@ -396,12 +407,10 @@ void FLHook::ProcessPendingCommands()
     auto cmd = Logger::GetCommand();
     while (cmd.has_value())
     {
-        const auto processor = AdminCommandProcessor::i();
-        processor->SetCurrentUser(L"console", AdminCommandProcessor::AllowedContext::ConsoleOnly);
-
+        static constexpr std::wstring_view console = L"console";
         try
         {
-            const auto response = AdminCommandProcessor::i()->ProcessCommand(cmd.value());
+            const auto response = AdminCommandProcessor::i()->ProcessCommand(console, AllowedContext::ConsoleOnly, cmd.value());
             Logger::Info(response);
         }
         catch (InvalidParameterException& ex)

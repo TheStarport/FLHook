@@ -110,12 +110,3 @@ struct Light
         float delay;
         float blinkDuration;
 };
-
-template <class Processor>
-struct CommandInfo
-{
-        std::vector<std::wstring_view> cmd;
-        void (*func)(Processor* cl, std::vector<std::wstring>& params);
-        std::wstring_view usage;
-        std::wstring_view description;
-};

@@ -101,8 +101,8 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
             }
 
             const auto processor = AdminCommandProcessor::i();
-            processor->SetCurrentUser(ClientId(from.id).GetCharacterName().Handle(), AdminCommandProcessor::AllowedContext::GameOnly);
-            processor->ProcessCommand(std::wstring_view(buffer.begin() + 1, buffer.end()));
+            processor->ProcessCommand(
+                ClientId(from.id).GetCharacterName().Handle(), AllowedContext::GameOnly, std::wstring_view(buffer.begin() + 1, buffer.end()));
             return false;
         }
 

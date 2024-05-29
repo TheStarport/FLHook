@@ -87,7 +87,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              AddCommand(UserCommandProcessor, Cmds( L"/help"sv, L"/h"sv, L"?"sv), Help, L"/help [module] [command]", L"Provides indepth help information")}
         };
         // clang-format on
-        GetCommandsFunc(commands);
+        GetUserCommandsFunc(commands);
 
         template <int N>
         bool MatchCommand(UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd, std::vector<std::wstring>& paramVector)
