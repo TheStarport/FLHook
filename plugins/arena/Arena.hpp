@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core/Commands/AbstractAdminCommandProcessor.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 namespace Plugins
@@ -32,7 +31,7 @@ namespace Plugins
      * @note All player commands are prefixed with '/'.
      * All admin commands are prefixed with a '.'.
      */
-    class ArenaPlugin final : public Plugin, public AbstractUserCommandProcessor, public AbstractAdminCommandProcessor
+    class ArenaPlugin final : public Plugin, public AbstractUserCommandProcessor
     {
             enum class TransferFlag
             {

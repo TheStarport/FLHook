@@ -4,6 +4,10 @@
 
 #include "Core/Commands/AdminCommandProcessor.hpp"
 
+#include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/Database.hpp"
+#include "API/FLHook/TaskScheduler.hpp"
+
 // TODO: General, a lot of these functions are agnostic about whether or not the player is online and thus has a clientId, so along with the player database
 // rework a lot of these functions need to be reworked to account for that.
 
@@ -30,6 +34,9 @@ std::wstring AdminCommandProcessor::ProcessCommand(const std::wstring_view user,
 
 std::wstring AdminCommandProcessor::ProcessCommand(const std::wstring_view user, const AllowedContext currentContext, const std::wstring_view commandString)
 {
+    currentUser = user;
+    this->currentContext = currentContext;
+
     auto params = StringUtils::GetParams(commandString, ' ');
 
     const auto command = params.front();
@@ -49,7 +56,7 @@ std::wstring AdminCommandProcessor::SetCash(std::wstring_view characterName,
 {
     // Rights check here.
     const auto account = AccountId::GetAccountFromCharacterName(characterName);
-    if(!account.has_value())
+    if (!account.has_value())
     {
         // TODO: fix the error handling
         return L"Error lol";
@@ -61,8 +68,8 @@ std::wstring AdminCommandProcessor::SetCash(std::wstring_view characterName,
 
 std::wstring AdminCommandProcessor::GetCash(std::wstring_view characterName)
 {
-    //const auto res = AccountId(characterName).GetCash(characterName).Handle();
-    //return std::format(L"{} has been set {} credits.", characterName, res);
+    // const auto res = AccountId(characterName).GetCash(characterName).Handle();
+    // return std::format(L"{} has been set {} credits.", characterName, res);
     return L"Not Implemented";
 }
 
@@ -76,7 +83,7 @@ std::wstring AdminCommandProcessor::KickPlayer(std::wstring_view characterName, 
 std::wstring AdminCommandProcessor::BanPlayer(std::wstring_view characterName)
 {
     const auto account = AccountId::GetAccountFromCharacterName(characterName);
-    if(!account.has_value())
+    if (!account.has_value())
     {
         // TODO: fix the error handling
         return L"Error lol";
@@ -90,7 +97,7 @@ std::wstring AdminCommandProcessor::TempbanPlayer(std::wstring_view characterNam
 std::wstring AdminCommandProcessor::UnBanPlayer(std::wstring_view characterName)
 {
     const auto account = AccountId::GetAccountFromCharacterName(characterName);
-    if(!account.has_value())
+    if (!account.has_value())
     {
         // TODO: fix the error handling
         return L"Error lol";
@@ -201,10 +208,94 @@ std::wstring AdminCommandProcessor::GetPlayerInfo(const std::wstring_view charac
                        res.GetSystemId().Handle().GetName().Unwrap());
 }
 
+bool AddRole(std::string characterName, std::vector<std::string> roles, std::shared_ptr<void> taskData)
+{
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
+
+    const auto responseMessage = std::static_pointer_cast<std::wstring>(taskData);
+
+    const auto config = FLHook::GetConfig();
+    const auto dbClient = FLHook::GetDatabase().AcquireClient();
+    auto accountCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.accountsCollection);
+
+    const auto findCharacterDoc = make_document(kvp("characterName", characterName));
+
+    const auto characterResult = accountCollection.find_one(findCharacterDoc.view());
+    if (!characterResult.has_value())
+    {
+        responseMessage->assign(L"ERR: Provided character name not found");
+        return true;
+    }
+
+    bsoncxx::builder::basic::array roleArray;
+    for (auto& role : roles)
+    {
+        roleArray.append(role);
+    }
+
+    const auto findAccountDoc = make_document(kvp("_id", characterResult->find("accountId")->get_string()));
+    const auto updateAccountDoc = make_document(kvp("$addToSet", make_document(kvp("gameRoles", make_document(kvp("$each", roleArray.view()))))));
+    if (const auto updateResponse = accountCollection.update_one(findAccountDoc.view(), updateAccountDoc.view()); updateResponse->modified_count() != 1)
+    {
+        responseMessage->assign(L"ERR: Unable to add any role. Account was either invalid or already contained role(s).");
+        return true;
+    }
+
+    responseMessage->assign(L"Successfully added role(s) to character");
+    return true;
+}
+
+void AddRoleCallback(std::wstring currentUser, std::shared_ptr<void> taskData)
+{
+    const auto responseMessage = std::wstring_view(std::static_pointer_cast<std::wstring>(taskData)->data());
+    const bool isErr = responseMessage.starts_with(L"ERR: ");
+    if (currentUser == L"console")
+    {
+        isErr ? Logger::Err(responseMessage.substr(5)) : Logger::Info(responseMessage);
+        return;
+    }
+
+    for (ClientData& client : FLHook::Clients())
+    {
+        if (currentUser == client.characterName)
+        {
+            (void)client.id.Message(responseMessage);
+            return;
+        }
+    }
+}
+
 std::wstring AdminCommandProcessor::AddRoles(std::wstring_view characterName, std::vector<std::wstring_view> roles)
 {
-    // TODO: pending Character Database rework
-    return std::format(L"Successfully added {} roles", roles.size());
+    if (characterName.empty())
+    {
+        return L"ERR: Character name not provided.";
+    }
+
+    if (roles.empty())
+    {
+        return L"ERR: No roles provided.";
+    }
+
+    for (const ClientData& client : FLHook::Clients())
+    {
+        // They are online
+        if (characterName == client.characterName)
+        {
+            (void)client.id.Kick();
+            break;
+        }
+    }
+
+    auto character = StringUtils::wstos(characterName);
+    std::vector<std::string> stringRoles;
+    std::ranges::transform(roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::wstos(role); });
+
+    TaskScheduler::ScheduleWithCallback<std::wstring>(std::bind(AddRole, character, stringRoles, std::placeholders::_1),
+                                                      std::bind(AddRoleCallback, std::wstring(currentUser), std::placeholders::_1));
+
+    return L"OK";
 }
 
 std::wstring AdminCommandProcessor::SetRoles(std::wstring_view characterName, std::vector<std::wstring_view> roles)
