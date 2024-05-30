@@ -560,6 +560,21 @@ Action<void, Error> ClientId::MessageFrom(const ClientId destinationClient, cons
     return { {} };
 }
 
+Action<void, Error> ClientId::MessageCustomXml(const std::wstring_view rawXml) const
+{
+    static std::array<char, 0xFFFF> buffer;
+    std::fill_n(buffer.begin(), buffer.size(), '\0');
+
+    uint ret;
+    if (const auto err = InternalApi::FMsgEncodeXml(StringUtils::XmlText(rawXml), buffer.data(), buffer.size(), ret).Raw(); err.has_error())
+    {
+        return { cpp::fail(err.error()) };
+    }
+
+    InternalApi::FMsgSendChat(*this, buffer.data(), ret);
+    return { {} };
+}
+
 Action<void, Error> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
 {
     ClientCheck;
