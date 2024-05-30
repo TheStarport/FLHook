@@ -8,7 +8,7 @@ bool __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
 {
     TryHook
     {
-        const ShipId shipId = FLHook::GetClient(client).ship;
+        const ShipId shipId = FLHook::Clients()[client].ship;
         if (FLHook::GetConfig().general.disconnectDelay && shipId.GetValue())
         {
             // in space

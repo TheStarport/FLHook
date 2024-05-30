@@ -704,6 +704,17 @@ Character::Character(bsoncxx::document::view view)
                 }
         }
     }
+
+    // They died, fallback to base data
+    if (hullStatus <= 0.0f)
+    {
+        hullStatus = baseHullStatus;
+        cargo = baseCargo;
+        equipment = baseEquipment;
+        collisionGroups = baseCollisionGroups;
+        currentBase = lastDockedBase;
+        system = Universe::get_base(currentBase)->systemId;
+    }
 }
 
 void Character::ToBson(bsoncxx::builder::basic::document& document) const
