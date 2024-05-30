@@ -29,7 +29,7 @@ InfocardManager::InfocardManager()
             continue;
         }
 
-        // TODO: Log loaded dll file
+        Logger::Debug(std::format(L"Loaded Resource DLL: {}", StringUtils::stows(ini.get_value_string())));
         hDll = LoadLibraryExA(ini.get_value_string(0), nullptr, LOAD_LIBRARY_AS_DATAFILE);
         if (hDll)
         {
@@ -44,7 +44,10 @@ InfocardManager::~InfocardManager()
 {
     for (const auto& dll : loadedDlls)
     {
-        // TODO: Log unloaded dll file
+        std::wstring buffer(MAX_PATH, L'\0');
+        GetModuleFileName(dll, buffer.data(), buffer.size());
+
+        Logger::Debug(std::format(L"Unloaded Resource DLL: {}",  buffer.substr(buffer.find('\\') + 1)));
         FreeLibrary(dll);
     }
 }

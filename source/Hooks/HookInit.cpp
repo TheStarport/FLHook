@@ -78,8 +78,6 @@ void FLHook::InitHookExports()
     FLHook::contentDll = GetModuleHandle(L"content.dll");
     FLHook::remoteClient = GetModuleHandle(L"remoteclient.dll");
 
-    //TODO: move this thing somewhere more fitting
-
     // Patch out actual mPlayerData execution code
     AccountManager::InitContentDLLDetours();
 

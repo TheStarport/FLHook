@@ -163,7 +163,7 @@ void CrashCatcher::CrashProc6F671A0(int arg1)
     }
     catch (...)
     {
-        // TODO: Log
+        Logger::Err(std::format(L"Crash suppression in CrashProc6F671A0(arg1={:#X})", arg1));
     }
 }
 
@@ -236,7 +236,7 @@ char __stdcall CrashCatcher::FixCommon6F8B330Detour(int arg1)
     }
     catch (...)
     {
-        // TODO Log
+        Logger::Err(std::format(L"Crash suppression in CrashProc6F8B330(arg1={:#X})", arg1));
     }
 
     return res;
@@ -259,7 +259,7 @@ void __stdcall CrashCatcher::FixCommon6F78DD0Detour(int arg1, int arg2)
     }
     catch (...)
     {
-        // TODO: Log
+        Logger::Err(std::format(L"Crash suppression in CrashProc6F78DD0(arg1={:#X}, arg2={:#X})", arg1, arg2));
     }
 }
 
