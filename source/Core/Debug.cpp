@@ -15,34 +15,36 @@ uint DebugTools::CreateIdDetour(const char* str)
         return 0;
     }
 
+    const std::string fullStr = str;
+    if (const auto hash = hashMap.find(fullStr); hash != hashMap.end())
+    {
+        return hash->second;
+    }
+
     detour->UnDetour();
     const uint hash = CreateID(str);
     detour->Detour(CreateIdDetour);
 
-    const std::string fullStr = str;
-    if (hashMap.contains(fullStr))
-    {
-        return hash;
-    }
+    std::ofstream file;
+    file.open("logs/hashmap.csv", std::ios::app);
+    file << fullStr << "," << hash << ",0x" << std::hex << hash << "\n";
+    file.close();
 
     hashMap[fullStr] = hash;
-    //TODO: remove spdlog
-    //hashList->log(spdlog::level::debug, std::format("{}  {:#X}  {}", hash, hash, fullStr));
-
     return hash;
 }
 
 void DebugTools::Init()
 {
-    if (FLHook::GetConfig().logging.minLogLevel <= 1)
+    if (FLHook::GetConfig().logging.minLogLevel > 2)
     {
         return;
     }
 
-    //TODO: remove spdlog
-    //hashList = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_hashmap", "logs/flhook_hashmap.log");
-    //spdlog::flush_on(spdlog::level::debug);
-    //hashList->set_level(spdlog::level::debug);
+    if (constexpr std::string_view hashMap = "logs/hashmap.csv"; std::filesystem::exists(hashMap))
+    {
+        std::filesystem::remove(hashMap);
+    }
 
     detour->Detour(CreateIdDetour);
 };
