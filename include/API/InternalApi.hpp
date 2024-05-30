@@ -7,6 +7,8 @@
  */
 class DLL InternalApi
 {
+        inline static bool npcEnabled = true;
+
     public:
         InternalApi() = delete;
 
@@ -33,4 +35,5 @@ class DLL InternalApi
          * @brief Toggles Whether NPCs spawned should be turned on or off. Does not apply to missions, only affects SpacePop
          */
         static void ToggleNpcSpawns(bool on);
+        static bool NpcsEnabled();
 };

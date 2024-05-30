@@ -2,6 +2,7 @@
 
 #include "Core/FLHook.hpp"
 
+#include "API/FLHook/MessageInterface.hpp"
 #include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
@@ -9,9 +10,8 @@
 #include "API/FLHook/PersonalityHelper.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
 #include "API/InternalApi.hpp"
+#include "API/Utils/Logger.hpp"
 #include "Core/MemoryManager.hpp"
-#include <API/Utils/Logger.hpp>
-#include <Core/MessageInterface.hpp>
 
 #include "Core/Commands/AdminCommandProcessor.hpp"
 #include "Defs/FLHookConfig.hpp"
@@ -21,7 +21,6 @@
 
 #include "Core/ClientServerInterface.hpp"
 #include "Core/DebugTools.hpp"
-#include "Core/ExceptionHandler.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
 
 #include "API/FLHook/Plugin.hpp"
@@ -29,9 +28,7 @@
 
 #include "API/Exceptions/InvalidClientException.hpp"
 #include "Core/CrashCatcher.hpp"
-#include "Defs/BsonWrapper.hpp"
-
-#include <mongocxx/exception/exception.hpp>
+#include "Core/MessageHandler.hpp"
 
 // ReSharper disable CppClangTidyClangDiagnosticCastFunctionTypeStrict
 const st6_malloc_t st6_malloc = reinterpret_cast<const st6_malloc_t>(GetProcAddress(GetModuleHandleA("msvcrt.dll"), "malloc"));
@@ -97,62 +94,12 @@ FLHook::FLHook()
 
     const auto& config = GetConfig();
 
-    try
-    {
-        Timer::AddCron(PublishServerStats, L"0 0 0 * * *");
-    }
-    catch (std::exception& w)
-    {
-        const std::string_view e = w.what();
-        Logger::Err(StringUtils::stows(e));
-    }
-
     // Init our message service, this is a blocking call and some plugins might want to setup their own queues,
     // so we want to make sure the service is up at startup time
     if (config.messageQueue.enableQueues)
     {
-        const auto msg = MessageInterface::i();
-
-        // TODO: Move logQueue initialization to separate function
-        msg->DeclareExchange(std::wstring(MessageInterface::QueueToStr(MessageInterface::Queue::ServerStats)), AMQP::fanout, AMQP::durable);
-        msg->DeclareQueue(std::wstring(MessageInterface::QueueToStr(MessageInterface::Queue::ExternalCommands)), AMQP::durable);
-
-        msg->Subscribe(std::wstring(MessageInterface::QueueToStr(MessageInterface::Queue::ExternalCommands)),
-                       [](const AMQP::Message& message, std::shared_ptr<BsonWrapper>& response)
-                       {
-                           // TODO: ensure this runs on the main thread and therefore is safe to manipulate players
-                           const std::string_view body = { message.body(), message.body() + message.bodySize() };
-
-                           try
-                           {
-                               const BsonWrapper bsonWrapper(body);
-                               const auto bson = bsonWrapper.GetValue();
-                               if (!bson.has_value())
-                               {
-                                   return false;
-                               }
-
-                               if (const auto [successful, responseDoc] = ExternalCommandProcessor::i()->ProcessCommand(bson.value());
-                                   successful || responseDoc)
-                               {
-                                   response = responseDoc;
-                                   return true;
-                               }
-
-                               return false;
-                           }
-                           catch (GameException& ex)
-                           {
-                               // TODO: Log but no reply?
-                               return true;
-                           }
-                           catch (std::exception& ex)
-                           {
-                               return true;
-                           }
-                       });
-
-        Timer::Add(PublishServerStats, config.messageQueue.timeBetweenServerUpdates);
+        messageInterface = new MessageInterface();
+        messageHandler = new MessageHandler();
     }
 
     if (config.plugins.loadAllPlugins)
@@ -257,6 +204,7 @@ bool FLHook::GetObjInspect(uint& ship, IObjInspectImpl*& inspect)
     uint dunno; // Something related to watchables
     return getShipInspect(ship, inspect, dunno);
 }
+
 const std::unordered_map<std::wstring, std::vector<std::wstring_view>>& FLHook::GetAdmins() { return instance->credentialsMap; }
 ClientList& FLHook::Clients() { return *instance->clientList; }
 
@@ -269,16 +217,17 @@ ClientData& FLHook::GetClient(ClientId client)
 
     return Clients()[client];
 }
-Database& FLHook::GetDatabase() { return *instance->database; }
 
+Database& FLHook::GetDatabase() { return *instance->database; }
 mongocxx::pool::entry FLHook::GetDbClient() { return instance->database->AcquireClient(); }
 InfocardManager& FLHook::GetInfocardManager() { return *instance->infocardManager; }
 FLHook::LastHitInformation FLHook::GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }
-
+MessageInterface* FLHook::GetMessageInterface() { return instance->messageInterface; }
 Action<pub::AI::Personality*, Error> FLHook::GetPersonality(const std::wstring& pilotNickname)
 {
     return instance->personalityHelper->GetPersonality(pilotNickname);
 }
+uint FLHook::GetServerLoadInMs() { return instance->serverLoadInMs; }
 AccountManager& FLHook::GetAccountManager() { return *instance->accountManager; }
 FLHookConfig& FLHook::GetConfig() { return *instance->flhookConfig; }
 IClientImpl* FLHook::GetPacketInterface() { return hookClientImpl; }

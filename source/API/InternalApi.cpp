@@ -58,16 +58,13 @@ uint InternalApi::CreateID(const std::wstring& nickname) { return ::CreateID(Str
 
 void InternalApi::ToggleNpcSpawns(const bool on)
 {
-    // By default they are on
-    static bool npcsEnabled = true;
-
     // State already matches, no extra work needed
-    if ((npcsEnabled && on) || (!npcsEnabled && !on))
+    if ((npcEnabled && on) || (!npcEnabled && !on))
     {
         return;
     }
 
-    npcsEnabled = on;
+    npcEnabled = on;
 
     byte jmp;
     byte cmp;
@@ -87,4 +84,9 @@ void InternalApi::ToggleNpcSpawns(const bool on)
 
     address = FLHook::Offset(FLHook::BinaryType::Content, AddressList::DisableNpcSpawns2);
     MemUtils::WriteProcMem(address, &cmp, 1);
+}
+
+bool InternalApi::NpcsEnabled()
+{
+    return npcEnabled;
 }

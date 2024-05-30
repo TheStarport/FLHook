@@ -3,9 +3,10 @@
 
 #include <Psapi.h>
 
-#include "API/FLHook/ClientList.hpp"
 #include "Core/FLHook.hpp"
-#include "Core/MessageInterface.hpp"
+
+#include "../../include/API/FLHook/MessageInterface.hpp"
+#include "API/FLHook/ClientList.hpp"
 #include "Defs/ServerStats.hpp"
 
 #define CRONCPP_IS_CPP17
@@ -25,10 +26,7 @@ void Timer::AddCron(std::function<void()> function, const std::wstring_view cron
     ::cron::utils::time_to_tm(&time, &tm);
     auto next = cron_next(cronexpr, tm);
 
-    CronTimer timer = {
-        cron::utils::tm_to_time(next),
-        expression
-    };
+    CronTimer timer = { cron::utils::tm_to_time(next), expression };
 
     ptr->cron = timer;
     cronTimers.emplace_back(ptr);
@@ -62,40 +60,6 @@ void Timer::AddOneShot(std::function<void()> function, const uint intervalInMs)
     timer.interval = intervalInMs;
     timer.lastTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
     oneShotTimers.emplace_back(timer);
-}
-
-void FLHook::PublishServerStats()
-{
-    ServerStats stats;
-
-    stats.npcsEnabled = instance->disableNpcs;
-    stats.serverLoad = instance->serverLoadInMs;
-
-    PROCESS_MEMORY_COUNTERS memCounter;
-    GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof memCounter);
-    stats.memoryUsage = memCounter.WorkingSetSize;
-
-    for (auto& client : Clients())
-    {
-        if (client.characterName.empty())
-        {
-            continue;
-        }
-
-        auto system = client.id.GetSystemId().Unwrap();
-
-        ServerStats::Player player;
-        player.clientId = client.id.GetValue();
-        player.playerName = client.characterName;
-        player.systemName = system.GetValue() ? system.GetName().Unwrap() : L"";
-        player.systemNick = system.GetValue() ? system.GetNickName().Unwrap() : L"";
-        player.ipAddress = client.id.GetPlayerIp().Unwrap();
-
-        stats.players.emplace_back(player);
-    }
-
-    const auto bson = rfl::bson::write(stats);
-    MessageInterface::i()->Publish(std::string_view(bson.data(), bson.size()), std::wstring(MessageInterface::QueueToStr(MessageInterface::Queue::ServerStats)), L"");
 }
 
 void FLHook::TimerCheckKick()
@@ -187,8 +151,8 @@ void FLHook::OneSecondTimer()
             }
         }
 
-        if (const auto& config = GetConfig(); config.npc.disableNPCSpawns < 0 ||
-            (config.npc.disableNPCSpawns && instance->serverLoadInMs >= config.npc.disableNPCSpawns))
+        if (const auto& config = GetConfig();
+            config.npc.disableNPCSpawns < 0 || (config.npc.disableNPCSpawns && instance->serverLoadInMs >= config.npc.disableNPCSpawns))
         {
             InternalApi::ToggleNpcSpawns(false);
         }

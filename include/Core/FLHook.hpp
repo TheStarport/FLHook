@@ -18,6 +18,8 @@ class PersonalityHelper;
 class Database;
 class AccountManager;
 class CrashCatcher;
+class MessageHandler;
+class MessageInterface;
 
 class DLL FLHook final
 {
@@ -67,7 +69,6 @@ class DLL FLHook final
         static void ProcessPendingAsyncTasks();
 
         // Timers
-        static void PublishServerStats();
         static void TimerCheckKick();
         static void OneSecondTimer();
 
@@ -80,6 +81,8 @@ class DLL FLHook final
         AccountManager* accountManager;
         FLHookConfig* flhookConfig;
         CrashCatcher* crashCatcher;
+        MessageHandler* messageHandler;
+        MessageInterface* messageInterface;
 
         bool OnServerStart();
         void InitHookExports();
@@ -149,8 +152,10 @@ class DLL FLHook final
         static mongocxx::pool::entry GetDbClient();
         static InfocardManager& GetInfocardManager();
         static LastHitInformation GetLastHitInformation();
+        static MessageInterface* GetMessageInterface();
         static IClientImpl* GetPacketInterface();
         static Action<pub::AI::Personality*, Error> GetPersonality(const std::wstring& pilotNickname);
+        static uint GetServerLoadInMs();
 
         static Action<void, Error> MessageUniverse(std::wstring_view message);
 };

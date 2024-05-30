@@ -5,13 +5,13 @@
 #include "Defs/BsonWrapper.hpp"
 
 #include <amqpcpp.h>
+#include <uvw.hpp>
 #include <memory>
 #include <thread>
-#include <uvw.hpp>
 #include <vector>
 #pragma warning(pop)
 
-class MessageInterface final : public AMQP::ConnectionHandler, public Singleton<MessageInterface>
+class DLL MessageInterface final : public AMQP::ConnectionHandler
 {
         using QueueOnData = std::function<bool(const AMQP::Message& msg, std::shared_ptr<BsonWrapper>& replyBody)>;
         using QueueOnFail = std::function<void(const char* err)>;

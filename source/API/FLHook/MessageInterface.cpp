@@ -1,8 +1,8 @@
 #include "PCH.hpp"
 
-#include "Core/MessageInterface.hpp"
+#include "API/FLHook/MessageInterface.hpp"
+#include "API/Utils/Logger.hpp"
 #include "Defs/FLHookConfig.hpp"
-#include <API/Utils/Logger.hpp>
 
 MessageInterface::MessageInterface()
 {
@@ -31,7 +31,8 @@ MessageInterface::MessageInterface()
         {
             Logger::Info(L"Connected to RabbitMQ, attempting authentication");
             // Authenticate with the RabbitMQ cluster.
-            connection = std::make_unique<AMQP::Connection>(this, AMQP::Login(StringUtils::wstos(config.messageQueue.username), StringUtils::wstos(config.messageQueue.password)), "/");
+            connection = std::make_unique<AMQP::Connection>(
+                this, AMQP::Login(StringUtils::wstos(config.messageQueue.username), StringUtils::wstos(config.messageQueue.password)), "/");
 
             Logger::Info(L"Authenticated to RabbitMQ");
             // Start reading from the socket.
@@ -185,6 +186,6 @@ void MessageInterface::Publish(const std::string_view bytes, const std::wstring&
 
 void MessageInterface::Publish(const bsoncxx::document::view bsonData, const std::wstring& exchange, const std::wstring& queue) const
 {
-    const std::string_view data = {reinterpret_cast<const char*>(bsonData.data()), reinterpret_cast<const char*>(bsonData.data()) + bsonData.length()};
+    const std::string_view data = { reinterpret_cast<const char*>(bsonData.data()), reinterpret_cast<const char*>(bsonData.data()) + bsonData.length() };
     Publish(data, exchange, queue);
 }
