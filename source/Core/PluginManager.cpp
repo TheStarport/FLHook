@@ -4,17 +4,30 @@
 
 void PluginManager::ClearData(const bool free)
 {
+    std::set<HMODULE> dlls;
     if (free)
     {
         for (const auto& p : plugins)
         {
             if (p->mayUnload)
             {
-                FreeLibrary(p->dll);
+                dlls.insert(p->dll);
             }
         }
     }
-    plugins.clear();
+
+    for (auto plugin = plugins.begin(); plugin != plugins.end(); )
+    {
+        if (auto dll = plugin->get()->dll; dlls.contains(dll))
+        {
+            plugin = plugins.erase(plugin);
+            FreeLibrary(dll);
+        }
+        else
+        {
+            ++plugin;
+        }
+    }
 }
 
 PluginManager::PluginManager() { ClearData(false); }
