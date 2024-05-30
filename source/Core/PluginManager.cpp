@@ -180,7 +180,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
         adminCommands.emplace_back(std::weak_ptr(userCmdPtr));
     }
 
-    std::ranges::sort(plugins, [](const std::shared_ptr<Plugin>& a, const std::shared_ptr<Plugin>& b) { return a->name < b->name; });
+    std::ranges::sort(plugins, [](const std::shared_ptr<Plugin>& a, const std::shared_ptr<Plugin>& b) { return a->callPriority > b->callPriority; });
 
     Logger::Info(std::format(L"Plugin {} loaded ({})", plugin->shortName, plugin->dllName));
     return true;
