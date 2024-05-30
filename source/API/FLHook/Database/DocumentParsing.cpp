@@ -702,6 +702,8 @@ Character::Character(bsoncxx::document::view view)
                     characterTransferCode = element.get_string().value;
                     break;
                 }
+            default:
+                break;
         }
     }
 

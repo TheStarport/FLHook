@@ -161,10 +161,16 @@ void FLHook::InitHookExports()
 
     #undef VtablePtr
 
+    // Patch when ships are destroyed to move the damage list pointer into edx, which we read with a __fastcall
+    DWORD address = Offset(BinaryType::Server, AddressList::ShipDestroyedInvoke);
+    const std::array<byte, 30> shipDestroyedDamageList = { 0x90, 0x90, 0x8A, 0x88, 0x5C, 0x01, 0x00, 0x00, 0x84, 0xC9, 0x75, 0x10, 0x8B, 0x06, 0xFF, 0x73,
+        0x14, 0x89, 0xDA, 0x6A, 0x01, 0x89, 0xF1, 0xFF, 0x90, 0x58, 0x01, 0x00, 0x00, 0x90 };
+    MemUtils::WriteProcMem(address, shipDestroyedDamageList.data(), shipDestroyedDamageList.size());
+
     // DetourSendComm();
 
     // patch rep array free
-    DWORD address = Offset(BinaryType::Server, AddressList::RepArrayFree);
+    address = Offset(BinaryType::Server, AddressList::RepArrayFree);
     MemUtils::ReadProcMem(address, repFreeFixOld, 5);
     MemUtils::NopAddress(address, 5);
 
@@ -238,6 +244,10 @@ void FLHook::InitHookExports()
     // Enable undocking announcer regardless of distance
     constexpr std::array<byte, 1> undockAnnouncerBytes = { 0xEB };
     MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::FixNpcAnnouncer), undockAnnouncerBytes.data(), 1);
+
+    // Remove default death messages
+    constexpr std::array<byte, 1> removeDeathMessages = { 0xEB };
+    MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::RemoveDefaultDeathMessages), removeDeathMessages.data(), 1);
 }
 
 void FLHook::PatchClientImpl()

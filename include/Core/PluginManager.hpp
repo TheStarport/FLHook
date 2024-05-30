@@ -18,7 +18,6 @@ class DLL PluginManager final : public Singleton<PluginManager>
         friend UserCommandProcessor;
         friend ExternalCommandProcessor;
 
-        // TODO: Add a getter function of a const ref so other classes can look at thi list of plugins.
         std::vector<std::shared_ptr<Plugin>> plugins;
         std::vector<std::weak_ptr<AbstractUserCommandProcessor>> userCommands;
         std::vector<std::weak_ptr<AbstractAdminCommandProcessor>> adminCommands;

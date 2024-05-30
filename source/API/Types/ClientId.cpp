@@ -386,7 +386,7 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
     // TODO: Fix kick message doesn't show for some reason
     if (reason.has_value())
     {
-        const std::wstring msg = StringUtils::ReplaceStr(FLHook::GetConfig().chatConfig.msgStyle.kickMsg, std::wstring_view(L"%reason"), reason.value());
+        const std::wstring msg = std::vformat(FLHook::GetConfig().chatConfig.msgStyle.kickMsg, std::make_wformat_args(reason.value()));
         (void)Message(msg, MessageFormat::Big, MessageColor::White);
     }
 

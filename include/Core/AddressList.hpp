@@ -50,6 +50,8 @@ enum class AddressList : uint
     ReadCharacterName1 = 0x72fe0,
     ReadCharacterName2 = 0x717be,
     CreateSolar = 0x2A62A,
+    RemoveDefaultDeathMessages = 0x39124,
+    ShipDestroyedInvoke = 0xB512,
 
     // Common.dll Offsets
 

@@ -50,20 +50,19 @@ struct DLL FLHookConfig final
                         //! Time in ms between kick message rendering and actual server kick occurring.
                         uint kickMsgPeriod = 5000;
                         //! Kick message content.
-                    //TODO: replace %replace syntax with std::format_var
-                        std::wstring kickMsg = LR"(You will be kicked. Reason: %reason)";
+                        std::wstring kickMsg = LR"(You will be kicked. Reason: {0})";
                         std::wstring userCmdStyle = L"0x00FF0090";
                         std::wstring adminCmdStyle = L"0x00FF0090";
                         //! Death message for admin kills.
-                        std::wstring deathMsgTextAdminKill = L"Death: %victim was killed by an admin";
+                        std::wstring deathMsgTextAdminKill = L"Death: {0} was killed by an admin";
                         //! Default player to player kill message.
-                        std::wstring deathMsgTextPlayerKill = L"Death: %victim was killed by %killer (%type)";
+                        std::wstring deathMsgTextPlayerKill = L"Death: {0} was killed by {2} ({1})";
                         //! Death message for weapon self-kills.
-                        std::wstring deathMsgTextSelfKill = L"Death: %victim killed himself (%type)";
+                        std::wstring deathMsgTextSelfKill = L"Death: {0} killed himself ({1})";
                         //! Death message for player deaths to NPCs.
-                        std::wstring deathMsgTextNPC = L"Death: %victim was killed by an NPC";
+                        std::wstring deathMsgTextNPC = L"Death: {0} was killed by an NPC";
                         //! Death message for environmental deaths.
-                        std::wstring deathMsgTextSuicide = L"Death: %victim committed suicide";
+                        std::wstring deathMsgTextSuicide = L"Death: {0} committed suicide";
                 };
 
                 MsgStyle msgStyle;

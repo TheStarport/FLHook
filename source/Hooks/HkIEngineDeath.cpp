@@ -6,13 +6,106 @@
 
 std::wstring SetSizeToSmall(const std::wstring& dataFormat) { return dataFormat.substr(0, 8) + L"90"; }
 
-void __fastcall IEngineHook::ShipDestroy(Ship* ship, void* edx, bool isKill, uint killerId)
+// DmgList will be garbage if isKill is not true
+void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, bool isKill, ShipId killerId)
 {
-    //TODO: Perhaps only run this on isKill == true? I don't see a use case for a plugin caring about a ship naturally despawning
-    CallPlugins(&Plugin::OnShipDestroy, ship, isKill, killerId);
+    if (isKill)
+    {
+        CallPlugins(&Plugin::OnShipDestroy, ship, dmgList, killerId);
+    }
 
     using IShipDestroyType = void(__thiscall*)(Ship*, bool, uint);
-    static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(ship, isKill, killerId);
+
+    // Only proceed if a player was killed
+    ClientId victimClientId;
+    if (!isKill || !(victimClientId = ClientId(ship->cship()->GetOwnerPlayer())).IsValidClientId())
+    {
+        static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(ship, isKill, killerId.GetValue());
+        return;
+    }
+
+    ClientId killerClientId;
+    for (const ClientData& data : FLHook::Clients())
+    {
+        if (data.ship == killerId)
+        {
+            killerClientId = data.id;
+            break;
+        }
+    }
+
+    auto& victimData = victimClientId.GetData();
+    const auto& msgConfig = FLHook::GetConfig().chatConfig.msgStyle;
+    std::wstring deathMessage;
+
+    std::wstring_view victimName = victimClientId.GetCharacterName().Handle();
+    // If killed by another player
+    if (auto cause = dmgList->damageCause; killerClientId)
+    {
+        std::wstring killType;
+        switch (cause)
+        {
+            case DamageCause::Collision: killType = L"Collision"; break;
+            case DamageCause::Gun: killType = L"Gun"; break;
+            case DamageCause::MissileTorpedo: killType = L"Missile/Torpedo"; break;
+            case DamageCause::CruiseDisrupter:
+            case DamageCause::DummyDisrupter:
+            case DamageCause::UnkDisrupter: killType = L"Cruise Disruptor"; break;
+            case DamageCause::Mine: killType = L"Mine"; break;
+            case DamageCause::Suicide: killType = L"Suicide"; break;
+            default: killType = L"Somehow"; ;
+        }
+
+        if (victimClientId == killerClientId || cause == DamageCause::Suicide)
+        {
+            deathMessage = std::vformat(msgConfig.deathMsgTextSelfKill, std::make_wformat_args(victimName));
+        }
+        else if (cause == DamageCause::Admin)
+        {
+            deathMessage = std::vformat(msgConfig.deathMsgTextAdminKill, std::make_wformat_args(victimName));
+        }
+        else
+        {
+            deathMessage = std::vformat(msgConfig.deathMsgTextPlayerKill, std::make_wformat_args(victimName, killType, killerClientId.GetCharacterName().Unwrap()));
+        }
+    }
+    else if (dmgList->inflictorId)
+    {
+        std::wstring killType;
+        switch (cause)
+        {
+            case DamageCause::Collision: killType = L"Collision"; break;
+            case DamageCause::Gun: break;
+            case DamageCause::MissileTorpedo: killType = L"Missile/Torpedo"; break;
+            case DamageCause::CruiseDisrupter:
+            case DamageCause::DummyDisrupter:
+            case DamageCause::UnkDisrupter: killType = L"Cruise Disruptor"; break;
+            case DamageCause::Mine: killType = L"Mine"; break;
+            default: killType = L"Gun";
+        }
+
+        deathMessage = std::vformat(msgConfig.deathMsgTextNPC, std::make_wformat_args(victimName, killType));
+    }
+    else if (cause == DamageCause::Suicide)
+    {
+        deathMessage = std::vformat(msgConfig.deathMsgTextSuicide, std::make_wformat_args(victimName));
+    }
+    else if (cause == DamageCause::Admin)
+    {
+        deathMessage = std::vformat(msgConfig.deathMsgTextAdminKill, std::make_wformat_args(victimName));
+    }
+    // Unknown death cause, they died I guess
+    else
+    {
+        deathMessage = std::format(L"Death: {} has died.", victimName);
+    }
+
+    SendDeathMessage(deathMessage, SystemId(victimData.playerData->systemId), victimClientId, killerClientId);
+
+    victimData.shipOld = {};
+    victimData.ship = {};
+
+    static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(ship, isKill, killerId.GetValue());
 }
 
 void __fastcall IEngineHook::LootDestroy(Loot* loot, void* edx, bool isKill, uint killerId)
@@ -67,7 +160,7 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, C
     }
 
     const auto xmlMsgSmallSys =
-        std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}", FLHook::GetConfig().chatConfig.msgStyle.deathMsgStyleSys, StringUtils::XmlText(msg));
+        std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHook::GetConfig().chatConfig.msgStyle.deathMsgStyleSys, StringUtils::XmlText(msg));
 
     static std::array<char, 0xFFFF> BufSmallSys;
     uint retSmallSys;
@@ -125,12 +218,12 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, C
                 InternalApi::FMsgSendChat(client.id, sendXmlBuf, sendXmlRet);
             }
         }
-
-        std::ranges::fill(xmlBuf, 0);
-        std::ranges::fill(bufSmall, 0);
-        std::ranges::fill(bufSys, 0);
-        std::ranges::fill(BufSmallSys, 0);
     }
+
+    std::ranges::fill(xmlBuf, 0);
+    std::ranges::fill(bufSmall, 0);
+    std::ranges::fill(bufSys, 0);
+    std::ranges::fill(BufSmallSys, 0);
 
     const std::wstring formattedMsg = StringUtils::stows(BufSmallSys.data());
     CallPlugins(&Plugin::OnSendDeathMessageAfter, clientKiller, clientVictim, systemId, std::wstring_view(formattedMsg));

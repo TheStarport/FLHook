@@ -21,19 +21,9 @@ class IEngineHook
                 LoadRepData* end;
         };
 
-        inline static FARPROC oldInitCShip;
-        inline static FARPROC oldDestroyCShip;
-        inline static FARPROC oldDestroyCLoot;
-        inline static FARPROC oldDestroyCSolar;
         inline static FARPROC oldLoadReputationFromCharacterFile = reinterpret_cast<FARPROC>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 7);
         inline static FARPROC oldLaunchPosition;
-        inline static FARPROC oldGuidedHit;
-        inline static FARPROC oldDamageHit;
-        inline static FARPROC oldDamageHit2;
-        inline static FARPROC nonGunWeaponHitsBaseRetAddress;
-        inline static FARPROC oldNonGunWeaponHitsBase;
         inline static FARPROC oldDisconnectPacketSent;
-        inline static FARPROC oldShipDestroyed;
         inline static uint lastTicks;
 
         static int FreeReputationVibe(const int& p1);
@@ -55,7 +45,7 @@ class IEngineHook
 
 #undef VTablePtr
 
-        static void __fastcall ShipDestroy(Ship* ship, void* edx, bool isKill, uint killerId);
+        static void __fastcall ShipDestroy(Ship* ship, DamageList* dmgList, bool isKill, ShipId killerId);
         static void __fastcall LootDestroy(Loot* ship, void* edx, bool isKill, uint killerId);
         static void __fastcall SolarDestroy(Solar* ship, void* edx, bool isKill, uint killerId);
 
