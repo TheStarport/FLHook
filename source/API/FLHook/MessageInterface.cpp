@@ -1,10 +1,10 @@
 #include "PCH.hpp"
 
-#include "Core/MessageHandler.hpp"
+#include "Core/MessageInterface.hpp"
 #include "Defs/FLHookConfig.hpp"
 #include <API/Utils/Logger.hpp>
 
-MessageHandler::MessageHandler()
+MessageInterface::MessageInterface()
 {
     auto& config = FLHook::GetConfig();
     if (!config.messageQueue.enableQueues)
@@ -59,9 +59,9 @@ MessageHandler::MessageHandler()
     }
 }
 
-void MessageHandler::onData(AMQP::Connection* conn, const char* data, const size_t size) { connectHandle->write(const_cast<char*>(data), size); }
+void MessageInterface::onData(AMQP::Connection* conn, const char* data, const size_t size) { connectHandle->write(const_cast<char*>(data), size); }
 
-void MessageHandler::onReady(AMQP::Connection* conn)
+void MessageInterface::onReady(AMQP::Connection* conn)
 {
     Logger::Info(L"Connected to RabbitMQ!");
     isInitalizing = false;
@@ -69,17 +69,17 @@ void MessageHandler::onReady(AMQP::Connection* conn)
     channel = std::make_unique<AMQP::Channel>(conn);
 }
 
-void MessageHandler::onError(AMQP::Connection* conn, const char* message)
+void MessageInterface::onError(AMQP::Connection* conn, const char* message)
 {
     isInitalizing = false;
     Logger::Err(std::format(L"AMQP error: {}", StringUtils::stows(message)));
 }
 
-void MessageHandler::onClosed(AMQP::Connection* conn) { std::cout << "closed" << std::endl; }
+void MessageInterface::onClosed(AMQP::Connection* conn) { std::cout << "closed" << std::endl; }
 
-MessageHandler::~MessageHandler() = default;
+MessageInterface::~MessageInterface() = default;
 
-void MessageHandler::Subscribe(const std::wstring& queue, const QueueOnData& callback, std::optional<QueueOnFail> onFail)
+void MessageInterface::Subscribe(const std::wstring& queue, const QueueOnData& callback, std::optional<QueueOnFail> onFail)
 {
     if (!FLHook::GetConfig().messageQueue.enableQueues || !connectHandle)
     {
@@ -153,7 +153,7 @@ void MessageHandler::Subscribe(const std::wstring& queue, const QueueOnData& cal
     }
 }
 
-void MessageHandler::DeclareQueue(const std::wstring& queue, const int flags) const
+void MessageInterface::DeclareQueue(const std::wstring& queue, const int flags) const
 {
     if (!channel)
     {
@@ -163,7 +163,7 @@ void MessageHandler::DeclareQueue(const std::wstring& queue, const int flags) co
     channel->declareQueue(StringUtils::wstos(queue), flags);
 }
 
-void MessageHandler::DeclareExchange(const std::wstring& exchange, const AMQP::ExchangeType type, const int flags) const
+void MessageInterface::DeclareExchange(const std::wstring& exchange, const AMQP::ExchangeType type, const int flags) const
 {
     if (!channel)
     {
@@ -173,7 +173,7 @@ void MessageHandler::DeclareExchange(const std::wstring& exchange, const AMQP::E
     channel->declareExchange(StringUtils::wstos(exchange), type, flags);
 }
 
-void MessageHandler::Publish(const std::string_view bytes, const std::wstring& exchange, const std::wstring& queue) const
+void MessageInterface::Publish(const std::string_view bytes, const std::wstring& exchange, const std::wstring& queue) const
 {
     if (!channel)
     {
@@ -183,7 +183,7 @@ void MessageHandler::Publish(const std::string_view bytes, const std::wstring& e
     channel->publish(StringUtils::wstos(exchange), StringUtils::wstos(queue), bytes);
 }
 
-void MessageHandler::Publish(const bsoncxx::document::view bsonData, const std::wstring& exchange, const std::wstring& queue) const
+void MessageInterface::Publish(const bsoncxx::document::view bsonData, const std::wstring& exchange, const std::wstring& queue) const
 {
     const std::string_view data = {reinterpret_cast<const char*>(bsonData.data()), reinterpret_cast<const char*>(bsonData.data()) + bsonData.length()};
     Publish(data, exchange, queue);

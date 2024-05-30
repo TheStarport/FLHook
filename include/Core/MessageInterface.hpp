@@ -11,7 +11,7 @@
 #include <vector>
 #pragma warning(pop)
 
-class MessageHandler final : public AMQP::ConnectionHandler, public Singleton<MessageHandler>
+class MessageInterface final : public AMQP::ConnectionHandler, public Singleton<MessageInterface>
 {
         using QueueOnData = std::function<bool(const AMQP::Message& msg, std::shared_ptr<BsonWrapper>& replyBody)>;
         using QueueOnFail = std::function<void(const char* err)>;
@@ -31,8 +31,8 @@ class MessageHandler final : public AMQP::ConnectionHandler, public Singleton<Me
         void onClosed(AMQP::Connection* conn) override;
 
     public:
-        explicit MessageHandler();
-        ~MessageHandler() override;
+        explicit MessageInterface();
+        ~MessageInterface() override;
 
         enum class Queue
         {

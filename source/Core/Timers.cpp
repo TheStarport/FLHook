@@ -5,7 +5,7 @@
 
 #include "API/FLHook/ClientList.hpp"
 #include "Core/FLHook.hpp"
-#include "Core/MessageHandler.hpp"
+#include "Core/MessageInterface.hpp"
 #include "Defs/ServerStats.hpp"
 
 #define CRONCPP_IS_CPP17
@@ -95,7 +95,7 @@ void FLHook::PublishServerStats()
     }
 
     const auto bson = rfl::bson::write(stats);
-    MessageHandler::i()->Publish(std::string_view(bson.data(), bson.size()), std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), L"");
+    MessageInterface::i()->Publish(std::string_view(bson.data(), bson.size()), std::wstring(MessageInterface::QueueToStr(MessageInterface::Queue::ServerStats)), L"");
 }
 
 void FLHook::TimerCheckKick()

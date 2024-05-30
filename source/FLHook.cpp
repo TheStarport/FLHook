@@ -11,7 +11,7 @@
 #include "API/InternalApi.hpp"
 #include "Core/MemoryManager.hpp"
 #include <API/Utils/Logger.hpp>
-#include <Core/MessageHandler.hpp>
+#include <Core/MessageInterface.hpp>
 
 #include "Core/Commands/AdminCommandProcessor.hpp"
 #include "Defs/FLHookConfig.hpp"
@@ -111,13 +111,13 @@ FLHook::FLHook()
     // so we want to make sure the service is up at startup time
     if (config.messageQueue.enableQueues)
     {
-        const auto msg = MessageHandler::i();
+        const auto msg = MessageInterface::i();
 
         // TODO: Move logQueue initialization to separate function
-        msg->DeclareExchange(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ServerStats)), AMQP::fanout, AMQP::durable);
-        msg->DeclareQueue(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)), AMQP::durable);
+        msg->DeclareExchange(std::wstring(MessageInterface::QueueToStr(MessageInterface::Queue::ServerStats)), AMQP::fanout, AMQP::durable);
+        msg->DeclareQueue(std::wstring(MessageInterface::QueueToStr(MessageInterface::Queue::ExternalCommands)), AMQP::durable);
 
-        msg->Subscribe(std::wstring(MessageHandler::QueueToStr(MessageHandler::Queue::ExternalCommands)),
+        msg->Subscribe(std::wstring(MessageInterface::QueueToStr(MessageInterface::Queue::ExternalCommands)),
                        [](const AMQP::Message& message, std::shared_ptr<BsonWrapper>& response)
                        {
                            // TODO: ensure this runs on the main thread and therefore is safe to manipulate players
