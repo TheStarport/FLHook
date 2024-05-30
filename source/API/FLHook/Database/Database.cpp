@@ -14,19 +14,27 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
 {
     try
     {
+        auto& config = FLHook::GetConfig();
         const auto client = pool.acquire();
-        auto db = client->database("FLHook");
+        auto db = client->database(config.databaseConfig.dbName);
 
         const auto ping = make_document(kvp("ping", 1));
         db.run_command(ping.view());
 
         // TODO: Make DB and collection dynamic
-        if (!db.has_collection("accounts"))
+        if (!db.has_collection(config.databaseConfig.accountsCollection))
         {
-            auto accounts = db["accounts"];
-
-            accounts.create_index(make_document(kvp("characterName", 1))); // Mandate character id is unique
+            db.create_collection(config.databaseConfig.accountsCollection);
+            auto accounts = db[config.databaseConfig.accountsCollection];
+            accounts.create_index(make_document(kvp("characterName", 1)));
             accounts.create_index(make_document(kvp("accountId", 1)));
+        }
+
+        if (!db.has_collection(config.databaseConfig.mailCollection))
+        {
+            db.create_collection(config.databaseConfig.mailCollection);
+            auto mail = db[config.databaseConfig.mailCollection];
+            mail.create_index(make_document(kvp("recipients.target", 1), kvp("sentDate", -1)));
         }
     }
     catch (std::exception& err)
