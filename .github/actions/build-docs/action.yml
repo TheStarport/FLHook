@@ -18,7 +18,7 @@ runs:
         ln -s doxygen-1.10.0/bin/doxygen doxygen
 
     - name: Install python packages
-      run: pip install -U sphinx sphinx-sitemap sphinxwesome-theme myst-parser breathe linkify-it-py
+      run: pip install -U sphinx sphinx-sitemap sphinxawesome-theme myst-parser breathe linkify-it-py sphinx-design
 
     - name: set version
       run: echo "PROJECT_NUMBER = `git describe --tags`" >> Doxyfile
