@@ -55,13 +55,14 @@ std::optional<AccountId> AccountId::GetAccountFromCharacterName(const std::wstri
 
     const auto db = FLHook::GetDbClient();
 
-    auto accounts = db->database("FLHook")["accounts"];
+    const auto& config = FLHook::GetConfig();
+    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
     const auto findAccDoc = make_document(kvp("characterName", StringUtils::wstos(characterName)));
 
     mongocxx::options::find options;
     options.projection(make_document(kvp("_id", 1)));
 
-    const auto databaseAccount = accounts.find_one(findAccDoc.view(), options);
+    const auto databaseAccount = accountsCollection.find_one(findAccDoc.view(), options);
     if (!databaseAccount.has_value())
     {
         return std::nullopt;
@@ -87,13 +88,14 @@ std::optional<AccountId> AccountId::GetAccountFromAccountId(const std::wstring_v
 
     const auto db = FLHook::GetDbClient();
 
-    auto accounts = db->database("FLHook")["accounts"];
+    const auto& config = FLHook::GetConfig();
+    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountIdString));
 
     mongocxx::options::find options;
     options.projection(make_document(kvp("_id", 1)));
 
-    const auto databaseAccount = accounts.find_one(findAccDoc.view(), options);
+    const auto databaseAccount = accountsCollection.find_one(findAccDoc.view(), options);
     if (!databaseAccount.has_value())
     {
         return std::nullopt;
@@ -115,15 +117,15 @@ bool AccountId::IsAdmin() const
 
     const auto db = FLHook::GetDbClient();
 
-    auto accounts = db->database("FLHook")["accounts"];
+    const auto& config = FLHook::GetConfig();
+    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
     auto findAccDoc = make_document(kvp("_id", accountId));
 
     mongocxx::pipeline pipeline{};
     pipeline.match(make_document(kvp("_id", accountId)));
     pipeline.count("gameRoles");
 
-
-    for (auto cursor = accounts.aggregate(pipeline, mongocxx::options::aggregate{}); const auto data : cursor)
+    for (auto cursor = accountsCollection.aggregate(pipeline, mongocxx::options::aggregate{}); const auto data : cursor)
     {
         return data["gameRoles"].get_int32() != 0;
     }
@@ -135,11 +137,12 @@ Action<void, Error> AccountId::UnBan() const
 {
     const auto db = FLHook::GetDbClient();
 
-    auto accounts = db->database("FLHook")["accounts"];
+    const auto& config = FLHook::GetConfig();
+    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountId));
     static auto updateDoc = make_document(kvp("$set", make_document(kvp("banned", false))), kvp("$unset", make_document(kvp("scheduledUnbanDate", ""))));
 
-    if(const auto responseDoc = accounts.update_one(findAccDoc.view(), updateDoc.view()); responseDoc->modified_count() == 0)
+    if (const auto responseDoc = accountsCollection.update_one(findAccDoc.view(), updateDoc.view()); responseDoc->modified_count() == 0)
     {
         // TODO: Err
         return { {} };
@@ -151,7 +154,8 @@ Action<void, Error> AccountId::UnBan() const
 Action<void, Error> AccountId::Ban(const uint tempBanDays) const
 {
     const auto db = FLHook::GetDbClient();
-    auto accounts = db->database("FLHook")["accounts"];
+    const auto& config = FLHook::GetConfig();
+    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountId));
 
     bsoncxx::document::view_or_value banUpdateDoc;
@@ -166,12 +170,11 @@ Action<void, Error> AccountId::Ban(const uint tempBanDays) const
         banUpdateDoc = permaBanDoc.view();
     }
 
-    if (const auto responseDoc = accounts.update_one(findAccDoc.view(), banUpdateDoc.view()); responseDoc->modified_count() == 0)
+    if (const auto responseDoc = accountsCollection.update_one(findAccDoc.view(), banUpdateDoc.view()); responseDoc->modified_count() == 0)
     {
         // TODO: Err
         return { {} };
     }
-
 
     if (const auto client = IsOnline(); client)
     {
@@ -189,14 +192,15 @@ Action<void, Error> AccountId::DeleteCharacter(const std::wstring_view name) con
     }
 
     const auto db = FLHook::GetDbClient();
-    auto accounts = db->database("FLHook")["accounts"];
+    const auto& config = FLHook::GetConfig();
+    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
 
     const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(name)));
 
     mongocxx::options::find_one_and_delete deleteOptions;
     deleteOptions.projection(make_document(kvp("_id", 1)));
 
-    const auto foundCharDoc = accounts.find_one_and_delete(findCharDoc.view(), deleteOptions);
+    const auto foundCharDoc = accountsCollection.find_one_and_delete(findCharDoc.view(), deleteOptions);
     if (!foundCharDoc.has_value())
     {
         return { {} };
@@ -205,7 +209,7 @@ Action<void, Error> AccountId::DeleteCharacter(const std::wstring_view name) con
     const auto findAccDoc = make_document(kvp("_id", accountId));
     const auto updateAccDoc = make_document(kvp("$pull", make_document(kvp("characters", foundCharDoc.value()["_id"].get_oid()))));
 
-    if (const auto updateResponse = accounts.update_one(findAccDoc.view(), updateAccDoc.view()); updateResponse->modified_count() == 0)
+    if (const auto updateResponse = accountsCollection.update_one(findAccDoc.view(), updateAccDoc.view()); updateResponse->modified_count() == 0)
     {
         return { {} };
     }
@@ -215,33 +219,34 @@ Action<void, Error> AccountId::DeleteCharacter(const std::wstring_view name) con
 
 Action<void, Error> AccountId::AddRoles(const std::vector<std::wstring_view>& roles)
 {
-    if(roles.empty())
+    if (roles.empty())
     {
-        //TODO: report error
-        return {{}};
+        // TODO: report error
+        return { {} };
     }
 
-    if(const auto account = IsOnline(); account)
+    if (const auto account = IsOnline(); account)
     {
-        if(!account->account->gameRoles.has_value())
+        if (!account->account->gameRoles.has_value())
         {
             account->account->gameRoles = {};
         }
-        for(auto& role : roles)
+        for (auto& role : roles)
         {
             auto strRole = StringUtils::wstos(role);
-            if(std::ranges::find(account->account->gameRoles.value(), strRole) != account->account->gameRoles->end())
+            if (std::ranges::find(account->account->gameRoles.value(), strRole) != account->account->gameRoles->end())
             {
-                //TODO: Role not found
+                // TODO: Role not found
                 continue;
             }
             account->account->gameRoles->emplace_back(strRole);
         }
-        return {{}};
+        return { {} };
     }
 
     const auto db = FLHook::GetDbClient();
-    auto accounts = db->database("FLHook")["accounts"];
+    const auto& config = FLHook::GetConfig();
+    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountId));
 
     bsoncxx::builder::basic::array arrayBuilder;
@@ -252,7 +257,7 @@ Action<void, Error> AccountId::AddRoles(const std::vector<std::wstring_view>& ro
 
     const auto roleUpdateDoc = make_document(kvp("$push", make_document(kvp("gameRoles", arrayBuilder.view()))));
 
-    if (const auto updateResponse = accounts.update_one(findAccDoc.view(), roleUpdateDoc.view()); updateResponse->modified_count() == 0)
+    if (const auto updateResponse = accountsCollection.update_one(findAccDoc.view(), roleUpdateDoc.view()); updateResponse->modified_count() == 0)
     {
         return { {} };
     }
@@ -262,21 +267,21 @@ Action<void, Error> AccountId::AddRoles(const std::vector<std::wstring_view>& ro
 
 Action<void, Error> AccountId::RemoveRoles(const std::vector<std::wstring_view>& roles, bool clear)
 {
-    if(roles.empty())
+    if (roles.empty())
     {
-        //TODO: report error
-        return {{}};
+        // TODO: report error
+        return { {} };
     }
 
-    if(const auto account = IsOnline(); account)
+    if (const auto account = IsOnline(); account)
     {
-        if(!account->account->gameRoles.has_value())
+        if (!account->account->gameRoles.has_value())
         {
-            return {{}};
+            return { {} };
         }
-        for(auto roleIter = account->account->gameRoles.value().begin(); roleIter != account->account->gameRoles.value().end(); )
+        for (auto roleIter = account->account->gameRoles.value().begin(); roleIter != account->account->gameRoles.value().end();)
         {
-            if(const auto strRole = StringUtils::stows(*roleIter); std::ranges::find(roles, strRole) == roles.end())
+            if (const auto strRole = StringUtils::stows(*roleIter); std::ranges::find(roles, strRole) == roles.end())
             {
                 roleIter = account->account->gameRoles.value().erase(roleIter);
             }
@@ -285,10 +290,11 @@ Action<void, Error> AccountId::RemoveRoles(const std::vector<std::wstring_view>&
                 ++roleIter;
             }
         }
-        return {{}};
+        return { {} };
     }
     const auto db = FLHook::GetDbClient();
-    auto accounts = db->database("FLHook")["accounts"];
+    const auto& config = FLHook::GetConfig();
+    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountId));
 
     bsoncxx::builder::basic::array arrayBuilder;
@@ -299,7 +305,7 @@ Action<void, Error> AccountId::RemoveRoles(const std::vector<std::wstring_view>&
 
     const auto roleUpdateDoc = make_document(kvp("$pull", make_document(kvp("gameRoles", arrayBuilder.view()))));
 
-    if (const auto updateResponse = accounts.update_one(findAccDoc.view(), roleUpdateDoc.view()); updateResponse->modified_count() == 0)
+    if (const auto updateResponse = accountsCollection.update_one(findAccDoc.view(), roleUpdateDoc.view()); updateResponse->modified_count() == 0)
     {
         return { {} };
     }
@@ -310,7 +316,8 @@ Action<void, Error> AccountId::RemoveRoles(const std::vector<std::wstring_view>&
 Action<void, Error> AccountId::SetRoles(const std::vector<std::wstring_view>& roles)
 {
     const auto db = FLHook::GetDbClient();
-    auto accounts = db->database("FLHook")["accounts"];
+    const auto& config = FLHook::GetConfig();
+    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountId));
 
     bsoncxx::builder::basic::array arrayBuilder;
@@ -321,7 +328,7 @@ Action<void, Error> AccountId::SetRoles(const std::vector<std::wstring_view>& ro
 
     const auto roleUpdateDoc = make_document(kvp("$set", make_document(kvp("gameRoles", arrayBuilder.view()))));
 
-    if (const auto updateResponse = accounts.update_one(findAccDoc.view(), roleUpdateDoc.view()); updateResponse->modified_count() == 0)
+    if (const auto updateResponse = accountsCollection.update_one(findAccDoc.view(), roleUpdateDoc.view()); updateResponse->modified_count() == 0)
     {
         return { {} };
     }
@@ -331,41 +338,42 @@ Action<void, Error> AccountId::SetRoles(const std::vector<std::wstring_view>& ro
 
 Action<bool, Error> AccountId::HasRole(const std::wstring_view role) const
 {
-    if(role.empty())
+    if (role.empty())
     {
-        return {false};
+        return { false };
     }
     const auto account = IsOnline();
-    if( !account)
+    if (!account)
     {
-        return {false};
+        return { false };
     }
 
-    if(!account->account->gameRoles.has_value())
+    if (!account->account->gameRoles.has_value())
     {
-        return {false};
+        return { false };
     }
 
     const auto strRole = StringUtils::wstos(role);
-    for(const auto& gameRole : account->account->gameRoles.value())
+    for (const auto& gameRole : account->account->gameRoles.value())
     {
-        if(gameRole == "superadmin" || gameRole == strRole)
+        if (gameRole == "superadmin" || gameRole == strRole)
         {
-            return {true};
+            return { true };
         }
     }
-    return {false};
+    return { false };
 }
 
 Action<void, Error> AccountId::SetCash(std::wstring_view characterName, int64 amount) const
 {
     const auto db = FLHook::GetDbClient();
-    auto accounts = db->database("FLHook")["accounts"];
+    const auto& config = FLHook::GetConfig();
+    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountId));
 
     const auto roleUpdateDoc = make_document(kvp("$set", make_document(kvp("cash", amount))));
 
-    if (const auto updateResponse = accounts.update_one(findAccDoc.view(), roleUpdateDoc.view()); updateResponse->modified_count() == 0)
+    if (const auto updateResponse = accountsCollection.update_one(findAccDoc.view(), roleUpdateDoc.view()); updateResponse->modified_count() == 0)
     {
         return { {} };
     }

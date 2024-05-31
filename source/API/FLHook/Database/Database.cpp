@@ -49,11 +49,11 @@ mongocxx::pool::entry Database::AcquireClient() { return pool.acquire(); }
 
 std::optional<Character> Database::GetCharacterById(bsoncxx::oid objId)
 {
-    auto& config = FLHook::GetConfig();
+    const auto& config = FLHook::GetConfig();
     const auto db = AcquireClient();
 
     // TODO: Configure DB and accounts key
-    auto accounts = db->database(config.databaseConfig.dbName).collection("accounts");
+    auto accounts = db->database(config.databaseConfig.dbName).collection(config.databaseConfig.accountsCollection);
     const auto charDocOpt = accounts.find_one(make_document(kvp("_id", objId)));
     if (!charDocOpt.has_value())
     {
