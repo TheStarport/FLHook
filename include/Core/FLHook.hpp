@@ -89,8 +89,6 @@ class DLL FLHook final
         static void PatchClientImpl();
         void UnloadHookExports();
 
-        void LoadUserSettings(ClientId client);
-
         uint damageToClientId;
 
         bool messagePrivate;

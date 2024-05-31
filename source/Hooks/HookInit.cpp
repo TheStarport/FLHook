@@ -68,11 +68,6 @@ void FLHook::ClearClientInfo(ClientId client)
     info.account = nullptr;
 }
 
-void FLHook::LoadUserSettings(ClientId client)
-{
-    // TODO: Load from DB
-}
-
 void FLHook::InitHookExports()
 {
     FLHook::contentDll = GetModuleHandle(L"content.dll");

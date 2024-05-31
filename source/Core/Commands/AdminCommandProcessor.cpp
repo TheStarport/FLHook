@@ -215,7 +215,7 @@ bool AddRole(std::string characterName, std::vector<std::string> roles, std::sha
 
     const auto responseMessage = std::static_pointer_cast<std::wstring>(taskData);
 
-    const auto config = FLHook::GetConfig();
+    const auto& config = FLHook::GetConfig();
     const auto dbClient = FLHook::GetDatabase().AcquireClient();
     auto accountCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.accountsCollection);
 

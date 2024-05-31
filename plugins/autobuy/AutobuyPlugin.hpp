@@ -62,7 +62,7 @@ namespace Plugins
             void UserCmdAutobuy(std::wstring_view autobuyType, std::wstring_view newState);
 
             // clang-format off
-            constexpr inline static std::array<CommandInfo<AutobuyPlugin>, 1> commands =
+            const inline static std::array<CommandInfo<AutobuyPlugin>, 1> commands =
             {
                 {
                     AddCommand(AutobuyPlugin, Cmds(L"/autobuy"), UserCmdAutobuy, L"/autobuy <consumable type/info> <on/off>",

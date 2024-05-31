@@ -33,7 +33,7 @@ bool MailManager::DeferSendMail(const std::shared_ptr<void>& taskData, Mail mail
 {
     auto mailTargets = std::static_pointer_cast<std::vector<std::wstring>>(taskData);
 
-    const auto config = FLHook::GetConfig();
+    const auto& config = FLHook::GetConfig();
 
     const auto dbClient = FLHook::GetDatabase().AcquireClient();
     auto mailCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
@@ -301,7 +301,7 @@ void MailManager::MarkMailAsRead(const Mail& mail, bsoncxx::oid character)
     TaskScheduler::Schedule(
         [mailId, character]
         {
-            const auto config = FLHook::GetConfig();
+            const auto& config = FLHook::GetConfig();
 
             const auto dbClient = FLHook::GetDatabase().AcquireClient();
             auto mailCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);

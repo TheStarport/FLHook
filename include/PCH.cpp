@@ -10,6 +10,7 @@
 template <>
 ClientId TransformArg(const std::wstring_view s, const size_t paramNumber)
 {
+    // TODO: Handle name
     const auto number = StringUtils::Cast<size_t>(s);
     if (number == 0 || number > MaxClientId)
     {
