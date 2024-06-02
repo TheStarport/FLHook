@@ -562,6 +562,13 @@ void UserCommandProcessor::Rename(std::wstring_view newName)
         return;
     }
 
+    // Ban any name that is numeric and might interfere with commands
+    if (const auto numeric = StringUtils::Cast<uint>(newName); numeric < 10000)
+    {
+        (void)userCmdClient.Message(L"Names that are strictly numerical must be at least 5 digits.");
+        return;
+    }
+
     if (renameCost)
     {
         if (userCmdClient.GetCash().Unwrap() < renameCost)

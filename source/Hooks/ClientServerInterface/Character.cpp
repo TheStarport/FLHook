@@ -129,6 +129,12 @@ void __stdcall IServerImplHook::CreateNewCharacter(const SCreateCharacterInfo& c
 {
     Logger::Trace(std::format(L"CreateNewCharacter(\n\tClientId client = {}\n)", client));
 
+    // Ban any name that is numeric and might interfere with commands
+    if (const auto numeric = StringUtils::Cast<uint>(std::wstring_view(createCharacterInfo.charname)); numeric < 10000)
+    {
+        return;
+    }
+
     if (const auto skip = CallPlugins(&Plugin::OnCharacterCreation, client, createCharacterInfo); !skip)
     {
         TaskScheduler::Schedule(std::bind(AccountManager::OnCreateNewCharacterCopy, &Players[client.GetValue()], createCharacterInfo));
