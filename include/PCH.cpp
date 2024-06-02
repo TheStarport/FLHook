@@ -1,7 +1,5 @@
 #include "PCH.hpp"
 
-// Dummy file to force build!
-
 #include "API/FLHook/ClientList.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
 
@@ -10,16 +8,33 @@
 template <>
 ClientId TransformArg(const std::wstring_view s, const size_t paramNumber)
 {
-    // TODO: Handle name
-    const auto number = StringUtils::Cast<size_t>(s);
-    if (number == 0 || number > MaxClientId)
+    if (s.empty())
     {
         throw InvalidParameterException(s, paramNumber);
     }
 
-    if (FLHook::Clients()[number].isValid)
+    if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }) && s.size() < 4)
     {
-        return ClientId(number);
+        const auto number = StringUtils::Cast<size_t>(s);
+        if (number == 0 || number > MaxClientId)
+        {
+            throw InvalidParameterException(s, paramNumber);
+        }
+
+        if (FLHook::Clients()[number].isValid)
+        {
+            return ClientId(number);
+        }
+
+        throw InvalidParameterException(s, paramNumber);
+    }
+
+    for (auto& client : FLHook::Clients())
+    {
+        if (client.characterName == s)
+        {
+            return client.id;
+        }
     }
 
     throw InvalidParameterException(s, paramNumber);
@@ -29,10 +44,17 @@ template <>
 Archetype::Ship* TransformArg(const std::wstring_view s, const size_t paramNumber)
 {
     const std::string str = StringUtils::wstos(std::wstring(s));
+    auto ship = Archetype::GetShip(CreateID(str.c_str()));
+
+    if (ship)
+    {
+        return ship;
+    }
+
     // ReSharper disable once CppLocalVariableMayBeConst
     auto ids = ID_String();
     strncpy_s(reinterpret_cast<char*>(ids.data), sizeof(ids.data), str.c_str(), str.size());
-    const auto ship = Archetype::GetShipByName(ids);
+    ship = Archetype::GetShipByName(ids);
 
     if (!ship)
     {
@@ -42,17 +64,42 @@ Archetype::Ship* TransformArg(const std::wstring_view s, const size_t paramNumbe
     return ship;
 }
 
+template<>
+Archetype::Equipment* TransformArg(const std::wstring_view s, const size_t paramNumber)
+{
+    const std::string str = StringUtils::wstos(std::wstring(s));
+    auto equipment = Archetype::GetEquipment(CreateID(str.c_str()));
+
+    if (equipment)
+    {
+        return equipment;
+    }
+
+    // ReSharper disable once CppLocalVariableMayBeConst
+    auto ids = ID_String();
+    strncpy_s(reinterpret_cast<char*>(ids.data), sizeof(ids.data), str.c_str(), str.size());
+    equipment = Archetype::GetEquipmentByName(ids);
+
+    if (!equipment)
+    {
+        throw InvalidParameterException(s, paramNumber);
+    }
+
+    return equipment;
+}
+
 template <>
 std::wstring_view TransformArg(std::wstring_view s, size_t paramNumber)
 {
+    // ReSharper disable once CppDFALocalValueEscapesFunction
     return s;
 }
 
 template <>
-bool TransformArg(std::wstring_view s, size_t paramNumber)
+bool TransformArg(const std::wstring_view s, size_t paramNumber)
 {
     const auto lower = StringUtils::ToLower(s);
-    return lower == L"true" || lower == L"yes" || lower == L"1";
+    return lower == L"true" || lower == L"yes" || lower == L"1" || lower == L"on";
 }
 
 template <>
