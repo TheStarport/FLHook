@@ -60,7 +60,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              AddCommand(UserCommandProcessor, Cmds( L"/setmsg"sv ), SetSavedMsg, L"/setmsg <0-9> <msg>", L"Saves provided message under the defined slot"),
              AddCommand(UserCommandProcessor, Cmds( L"/showmsgs"sv ), ShowSavedMsgs, L"/showmsgs", L"Lists all currently saved messages"),
              AddCommand(UserCommandProcessor, Cmds( L"/ignore"sv ), IgnoreUser, L"/ignore <name>", L"blocks any message sent by player specified"),
-             AddCommand(UserCommandProcessor, Cmds( L"getignorelist"sv ), GetIgnoreList, L"/getignorelist", L"prints the users you currently have ignored"),
+             AddCommand(UserCommandProcessor, Cmds( L"/getignorelist"sv ), GetIgnoreList, L"/getignorelist", L"prints the users you currently have ignored"),
              AddCommand(UserCommandProcessor, Cmds( L"/unignore"sv ), RemoveFromIgnored, L"/unignore <name ...>",
              L"removes specified names from ignore list, typing /unignore all removes ignore list entierly."),
              AddCommand(UserCommandProcessor, Cmds( L"/invite"sv ), InvitePlayerByName, L"/invite <name>", L"invites specified player to group"),
@@ -81,7 +81,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              AddCommand(UserCommandProcessor, Cmds( L"/rename"sv ), Rename, L"/rename <newName>", L"Renames the character. Kicks you upon completion."),
              AddCommand(UserCommandProcessor, Cmds( L"/value"sv ), Value, L"/value", L"Prints the current total worth of the character"),
              AddCommand(UserCommandProcessor, Cmds( L"/coin"sv ), Coin, L"/coin", L"Tosses a coin, heads or tails."),
-             AddCommand(UserCommandProcessor, Cmds( L"/dice"sv ), Dice, L"/dice [numOfSides]", L"Rolls the dice with specified amount of sides, 6 if undefined"),
+             AddCommand(UserCommandProcessor, Cmds( L"/dice"sv ), Dice, L"/dice [numOfSides]", L"Rolls the dice with specified amount of sides, 6 if unspecified"),
              AddCommand(UserCommandProcessor, Cmds( L"/droprep"sv ), DropRep, L"/droprep", L"Removes your affiliation if you have one"),
              AddCommand(UserCommandProcessor, Cmds( L"/transferchar"sv ), TransferCharacter, L"/transferchar", L"Set the character move code, or use the previously set code to transfer said character into current account"),
              AddCommand(UserCommandProcessor, Cmds( L"/help"sv, L"/h"sv, L"?"sv), Help, L"/help [module] [command]", L"Provides indepth help information")}

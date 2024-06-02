@@ -116,7 +116,7 @@ bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring c
     {
         const auto& config = FLHook::GetConfig();
         // TODO: Handle soft deletes
-        auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.mailCollection];
+        auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
 
         using bsoncxx::builder::basic::kvp;
         using bsoncxx::builder::basic::make_document;
@@ -128,7 +128,7 @@ bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring c
         const auto ret = accountsCollection.find_one_and_delete(findDoc.view(), deleteOptions);
         if (!ret.has_value())
         {
-            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Character deletion failed!");
+            throw std::runtime_error("Character deletion failed! Unable to find and delete character.");
         }
         auto oid = ret->view()["_id"].get_oid();
         const auto findAcc = make_document(kvp("_id", ret->view()["accountId"].get_string()));
@@ -136,8 +136,7 @@ bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring c
         if (auto deleteResult = accountsCollection.update_one(findAcc.view(), deleteCharacter.view());
             !deleteResult.has_value() || deleteResult.value().modified_count() == 0)
         {
-            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
-                                            "Removing of character id from account failed.");
+            throw std::runtime_error("Removing of character id from account failed.");
         }
 
         session.commit_transaction();
@@ -146,11 +145,7 @@ bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring c
         Logger::Info(std::format(L"Successfully hard deleted character: {}", wideCharName));
         return true;
     }
-    catch (bsoncxx::exception& ex)
-    {
-        Logger::Err(std::format(L"Error hard deleted character ({}): {}", wideCharName, StringUtils::stows(ex.what())));
-    }
-    catch (mongocxx::exception& ex)
+    catch (std::exception& ex)
     {
         Logger::Err(std::format(L"Error hard deleted character ({}): {}", wideCharName, StringUtils::stows(ex.what())));
     }
@@ -195,8 +190,9 @@ bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
         }
         else
         {
-            auto& accountRaw = accountBson.value();
-            account = Account{ accountRaw.view() };
+            const auto accountData = accountBson.value();
+            account = Account{ accountData.view() };
+            account.accountData = accountData;
         }
 
         // Convert vector to bson array

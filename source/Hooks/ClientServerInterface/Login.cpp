@@ -18,7 +18,16 @@ void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
             return; // DisconnectDelay bug
         }
 
-        // TODO: Verify we have not already logged in (duplicate login error)
+        auto& clientData = client.GetData();
+        for (auto& next : FLHook::Clients())
+        {
+            if (next.id != client && clientData.account == next.account)
+            {
+                // Kick due to duplicate login
+                (void)client.Kick();
+                return;
+            }
+        }
 
         // check for ip ban
         const auto ip = client.GetPlayerIp().Unwrap();
@@ -36,19 +45,24 @@ void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
             }
         }
 
-        // resolve
+        const IpResolver::ResolvedIp resolved = { client.GetValue(), client.GetData().connects, ip };
+        std::scoped_lock lock(IpResolver::mutex);
+        IpResolver::resolveIPs.push_back(resolved);
 
+        for (auto& el : clientData.account->accountData)
         {
-            const IpResolver::ResolvedIp resolved = { client.GetValue(), client.GetData().connects, ip };
-            std::scoped_lock lock(IpResolver::mutex);
-            IpResolver::resolveIPs.push_back(resolved);
+            switch(Hash(el.key().data()))
+            {
+                case Hash("dieMsg"):
+                {
+                    clientData.dieMsg = magic_enum::enum_cast<DieMsgType>(StringUtils::stows(el.get_string().value)).value_or(DieMsgType::All);
+                    break;
+                }
+                default:
+                    break;
+            }
         }
-
-        // TODO: Move almost all loading and character state functions to a global class for proper management,
-        // bonus points for proper threading support / accessors @Nen
-        FLHook::instance->LoadUserSettings(client);
-
-        // AddConnectLog(client, ip));
+        //TODO: AddConnectLog(client, ip));
     }
     CatchHook({
         CAccount* acc = Players.FindAccountFromClientID(client.GetValue());

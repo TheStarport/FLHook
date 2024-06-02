@@ -2,6 +2,7 @@
 
 #include "API/FLHook/Database.hpp"
 
+#include "API/FLHook/TaskScheduler.hpp"
 #include "API/Utils/Reflection.hpp"
 #include <mongocxx/exception/error_code.hpp>
 #include <mongocxx/exception/write_exception.hpp>
@@ -46,6 +47,22 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
 }
 
 mongocxx::pool::entry Database::AcquireClient() { return pool.acquire(); }
+
+void Database::SaveValueOnAccount(const AccountId& accountId, std::string_view key, bsoncxx::types::bson_value::view_or_value value)
+{
+    auto findDoc = make_document(kvp("_id", accountId.GetValue()));
+    auto updateDoc = make_document(kvp("$set", make_document(kvp(key, value))));
+
+    TaskScheduler::Schedule([findDoc, updateDoc]
+    {
+        const auto& config = FLHook::GetConfig().databaseConfig;
+        auto db = FLHook::GetDatabase().AcquireClient();
+
+        auto accountsCollection = db->database(config.dbName)[config.accountsCollection];
+
+        accountsCollection.update_one(findDoc.view(), updateDoc.view());
+    });
+}
 
 std::optional<Character> Database::GetCharacterById(bsoncxx::oid objId)
 {

@@ -12,13 +12,8 @@
 #include <mongocxx/instance.hpp>
 #include <mongocxx/pool.hpp>
 
-template <typename T>
-concept MongoSupportedType = std::is_fundamental_v<T> || std::is_same_v<T, std::string> || std::is_same_v<T, std::wstring> ||
-                             std::is_same_v<T, std::wstring_view> || std::is_same_v<T, std::string_view>;
-
 class ClientList;
 class FLHook;
-class Database;
 
 class Database
 {
@@ -26,7 +21,7 @@ class Database
         friend FLHook;
         friend AccountManager;
 
-        Database(std::string_view uri);
+        explicit Database(std::string_view uri);
         ~Database() = default;
 
         mongocxx::instance instance;
@@ -37,4 +32,5 @@ class Database
 
     public:
         mongocxx::pool::entry AcquireClient();
+        static void SaveValueOnAccount(const AccountId &accountId, std::string_view key, bsoncxx::types::bson_value::view_or_value value);
 };

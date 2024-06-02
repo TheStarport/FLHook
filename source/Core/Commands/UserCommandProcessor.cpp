@@ -6,6 +6,7 @@
 
 #include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/Database.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
 #include "API/InternalApi.hpp"
 #include "API/Utils/Random.hpp"
@@ -63,39 +64,35 @@ bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstrin
 
 void UserCommandProcessor::SetDieMessage(std::wstring_view param)
 {
-    static const std::wstring errorMsg = L"Error: Invalid parameters\n"
-                                         L"Usage: /set diemsg <param>\n"
-                                         L"<param>: all,system,self or none";
-
-    auto params = StringUtils::GetParams(param, ' ');
-    const std::wstring dieMsgParam = StringUtils::ToLower(StringUtils::GetParam(params, 0));
-
     DieMsgType dieMsg;
-    if (dieMsgParam == L"all")
+    if (param == L"all")
     {
         dieMsg = DieMsgType::All;
     }
-    else if (dieMsgParam == L"system")
+    else if (param == L"system")
     {
         dieMsg = DieMsgType::System;
     }
-    else if (dieMsgParam == L"none")
+    else if (param == L"none")
     {
         dieMsg = DieMsgType::None;
     }
-    else if (dieMsgParam == L"self")
+    else if (param == L"self")
     {
         dieMsg = DieMsgType::Self;
     }
     else
     {
-        (void)userCmdClient.Message(errorMsg);
+        (void)userCmdClient.Message(L"Error: Invalid parameters\n"
+                              L"Usage: /setdiemsg <param>\n"
+                              L"<param>: 'all', 'system', 'self' or 'none'");
         return;
     }
 
+    auto dieMsgVal = StringUtils::wstos(magic_enum::enum_name(dieMsg));
+    Database::SaveValueOnAccount(userCmdClient.GetAccount().Handle(), "dieMsg", { dieMsgVal });
+
     auto& info = userCmdClient.GetData();
-    // TODO: Update save to db
-    // info.accountData["settings"]["dieMsg"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(dieMsg)));
     info.dieMsg = dieMsg;
 
     // send confirmation msg
@@ -563,7 +560,7 @@ void UserCommandProcessor::Rename(std::wstring_view newName)
     }
 
     // Ban any name that is numeric and might interfere with commands
-    if (const auto numeric = StringUtils::Cast<uint>(newName); numeric < 10000)
+    if (const auto numeric = StringUtils::Cast<uint>(newName); numeric < 10000 && numeric != 0)
     {
         (void)userCmdClient.Message(L"Names that are strictly numerical must be at least 5 digits.");
         return;

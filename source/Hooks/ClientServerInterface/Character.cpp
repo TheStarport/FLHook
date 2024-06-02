@@ -130,8 +130,10 @@ void __stdcall IServerImplHook::CreateNewCharacter(const SCreateCharacterInfo& c
     Logger::Trace(std::format(L"CreateNewCharacter(\n\tClientId client = {}\n)", client));
 
     // Ban any name that is numeric and might interfere with commands
-    if (const auto numeric = StringUtils::Cast<uint>(std::wstring_view(createCharacterInfo.charname)); numeric < 10000)
+    if (const auto numeric = StringUtils::Cast<uint>(std::wstring_view(createCharacterInfo.charname, wcslen(createCharacterInfo.charname)));
+        numeric < 10000 && numeric != 0)
     {
+        Logger::Debug(L"Character name with only numerical values provided. Suppressing character creation.");
         return;
     }
 
