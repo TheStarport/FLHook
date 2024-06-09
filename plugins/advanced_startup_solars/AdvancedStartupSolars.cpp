@@ -101,7 +101,7 @@ namespace Plugins::AdvancedStartupSolars
 		return solarFormation;
 	}
 
-	Position SelectSpawnLocation(SolarFamily family)
+	Position SelectSpawnLocation(SolarFamily& family)
 	{
 		auto locationIndex = RandomNumber(0, family.spawnLocations.size() - 1);
 
@@ -178,7 +178,7 @@ namespace Plugins::AdvancedStartupSolars
 			return;
 		}
 
-		for (const auto& family : global->config->solarFamilies)
+		for (auto& family : global->config->solarFamilies)
 		{
 			auto dist = RandomNumber(0, 100);
 
