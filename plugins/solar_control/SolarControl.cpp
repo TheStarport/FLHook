@@ -359,18 +359,40 @@ namespace Plugins::SolarControl
 	/** @ingroup SolarControl
 	 * @brief Creates a premade group of solars defined in the solar json file
 	 */
-	void CreateUserDefinedSolarFormation(const std::wstring& formation, const Vector& position, uint system)
+	std::vector<uint> CreateUserDefinedSolarFormation(const std::wstring& formation, const Vector& position, uint system)
 	{
-		for (auto component : global->config->solarArchFormations[formation].components)
+		std::vector<uint> formationSpaceIds;
+
+		// TODO: Use find
+		// auto group = solararchformation.find(formation)
+		// returns an iterator
+
+		auto group = global->config->solarArchFormations.find(formation);
+
+		if (group == global->config->solarArchFormations.end())
 		{
-			CreateUserDefinedSolar(stows(component.solarArchName),
+			Console::ConErr(std::format("Unable to find {} while attempting to spawn user defined formation", wstos(formation)));
+			return {};
+		}
+
+		for (auto& component : group->second.components)
+		{
+			if (component.relativePosition.size() != 3 || component.rotation.size() != 3)
+			{
+				Console::ConErr(std::format("Invalid rotation or coordinate values provided for '{}', failed to create", component.solarArchName));
+				return {};
+			}
+
+			auto solar = CreateUserDefinedSolar(stows(component.solarArchName),
 			    Vector {
 			        {position.x + component.relativePosition[0]}, {position.y + component.relativePosition[1]}, {position.z + component.relativePosition[2]}},
 			    EulerMatrix(Vector {component.rotation[0], component.rotation[1], component.rotation[2]}),
 			    system,
 			    false,
 			    false);
+			formationSpaceIds.emplace_back(solar);
 		}
+		return formationSpaceIds;
 	}
 
 	/** @ingroup SolarControl
