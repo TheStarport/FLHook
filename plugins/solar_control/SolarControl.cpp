@@ -363,10 +363,6 @@ namespace Plugins::SolarControl
 	{
 		std::vector<uint> formationSpaceIds;
 
-		// TODO: Use find
-		// auto group = solararchformation.find(formation)
-		// returns an iterator
-
 		auto group = global->config->solarArchFormations.find(formation);
 
 		if (group == global->config->solarArchFormations.end())
