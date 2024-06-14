@@ -8,7 +8,7 @@ var searchData=
   ['savetaskstatusonbaseenter_5',['SaveTaskStatusOnBaseEnter',['../group___daily_tasks.html#ga799618e0b2964fae53278de61178de67',1,'Plugins::DailyTasks']]],
   ['savetaskstatustojson_6',['SaveTaskStatusToJson',['../group___daily_tasks.html#gaa9e7f8332fbd678dd0e5040b43b19319',1,'Plugins::DailyTasks']]],
   ['selectsolarformation_7',['SelectSolarFormation',['../namespace_plugins_1_1_advanced_startup_solars.html#a3d803857e78225c4e58b38e8b032b2ad',1,'Plugins::AdvancedStartupSolars']]],
-  ['selectspawnlocation_8',['SelectSpawnLocation',['../namespace_plugins_1_1_advanced_startup_solars.html#ac22f93dcac24e0cb5b4dd071b8a79901',1,'Plugins::AdvancedStartupSolars']]],
+  ['selectspawnlocation_8',['SelectSpawnLocation',['../namespace_plugins_1_1_advanced_startup_solars.html#a7e15246c82839efb5adb7b4087f67744',1,'Plugins::AdvancedStartupSolars']]],
   ['sendbestpath_9',['SendBestPath',['../namespace_hk_1_1_player.html#a5f5700f6733ed38bd4fb909ee6c9b7ca',1,'Hk::Player']]],
   ['sendchat_10',['SendChat',['../group___message.html#gabbe6a02e9ba1289b576734b1373d3535',1,'Plugins::Message::SendChat()'],['../_hk_init_8cpp.html#ab068913e073c4f9c359eaed700d0fccb',1,'SendChat(ClientId client, ClientId clientTo, uint size, void *rdl):&#160;HkIChatServer.cpp'],['../_hk_i_chat_server_8cpp.html#ab068913e073c4f9c359eaed700d0fccb',1,'SendChat(ClientId client, ClientId clientTo, uint size, void *rdl):&#160;HkIChatServer.cpp']]],
   ['sendcomm_11',['SendComm',['../_send_comm_8cpp.html#a65bbda7d20b356540a18740ee209a48e',1,'SendComm.cpp']]],

@@ -10,6 +10,6 @@ var _advanced_startup_solars_8cpp =
     [ "REFL_AUTO", "_advanced_startup_solars_8cpp.html#a7067347dae9d574fdd0382835f44bf95", null ],
     [ "REFL_AUTO", "_advanced_startup_solars_8cpp.html#a4da54a4d42d8618e0a0796aec4b8f497", null ],
     [ "SelectSolarFormation", "_advanced_startup_solars_8cpp.html#a3d803857e78225c4e58b38e8b032b2ad", null ],
-    [ "SelectSpawnLocation", "_advanced_startup_solars_8cpp.html#ac22f93dcac24e0cb5b4dd071b8a79901", null ],
+    [ "SelectSpawnLocation", "_advanced_startup_solars_8cpp.html#a7e15246c82839efb5adb7b4087f67744", null ],
     [ "global", "_advanced_startup_solars_8cpp.html#a08309cf970a09cc194479718874c1596", null ]
 ];
