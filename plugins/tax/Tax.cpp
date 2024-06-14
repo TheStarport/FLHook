@@ -110,7 +110,7 @@ namespace Plugins::Tax
 		if (taxValue == 0)
 			msg = Hk::Message::FormatMsg(global->config->customColor,
 			    global->config->customFormat,
-			    std::vformat(global->config->huntingMessage, std::make_wformat_args(characterName.value().c_str())));
+			    std::vformat(global->config->huntingMessage, std::make_wformat_args(characterName.value())));
 		else
 			msg = Hk::Message::FormatMsg(global->config->customColor,
 			    global->config->customFormat,
