@@ -90,7 +90,7 @@ namespace Plugins::KillTracker
 	 * @brief Keeps track of the kills of the player during their current session
 	 */
 	void TrackKillStreaks(ClientId& clientVictim, ClientId& clientKiller = NULL)
-	{	
+	{
 		if (clientKiller != NULL)
 		{
 			if (auto killerKillStreak = global->killStreaks.find(clientKiller); killerKillStreak != global->killStreaks.end())
@@ -102,7 +102,7 @@ namespace Plugins::KillTracker
 				global->killStreaks[clientKiller] = 1;
 			};
 		}
-		
+
 		if (auto victimKillStreak = global->killStreaks.find(clientVictim); victimKillStreak != global->killStreaks.end())
 		{
 			global->killStreaks[clientVictim] = 0;
@@ -198,8 +198,9 @@ namespace Plugins::KillTracker
 				return;
 			std::wstring victimName = Hk::Client::GetCharacterNameByID(clientVictim).value();
 			std::wstring greatestInflictorName = Hk::Client::GetCharacterNameByID(greatestInflictorId).value();
-			std::wstring greatestDamageMessage = std::vformat(global->config->deathDamageTemplate,
-			    std::make_wformat_args(victimName, greatestInflictorName, static_cast<uint>(ceil((greatestDamageDealt / totalDamageTaken) * 100))));
+			auto damage = static_cast<uint>(ceil((greatestDamageDealt / totalDamageTaken) * 100));
+			std::wstring greatestDamageMessage =
+			    std::vformat(global->config->deathDamageTemplate, std::make_wformat_args(victimName, greatestInflictorName, damage));
 
 			greatestDamageMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, greatestDamageMessage);
 			Hk::Message::FMsgS(system, greatestDamageMessage);
@@ -220,8 +221,7 @@ namespace Plugins::KillTracker
 			const auto templateMessage = global->killStreakTemplates.find(numKills);
 			if (templateMessage != global->killStreakTemplates.end())
 			{
-				std::wstring killStreakMessage =
-				    std::vformat(templateMessage->second, std::make_wformat_args(killerName, victimName, numKills));
+				std::wstring killStreakMessage = std::vformat(templateMessage->second, std::make_wformat_args(killerName, victimName, numKills));
 				killStreakMessage = Hk::Message::FormatMsg(MessageColor::Orange, MessageFormat::Normal, killStreakMessage);
 				Hk::Message::FMsgS(system, killStreakMessage);
 			}
@@ -305,7 +305,7 @@ namespace Plugins::KillTracker
 		global->config = std::make_unique<Config>(config);
 		for (auto& subArray : global->damageArray)
 			subArray.fill(0.0f);
-		for (auto const& killStreakTemplate : global->config->killStreakTemplates) 
+		for (auto const& killStreakTemplate : global->config->killStreakTemplates)
 		{
 			global->killStreakTemplates[killStreakTemplate.number] = killStreakTemplate.message;
 		}
@@ -319,7 +319,8 @@ namespace Plugins::KillTracker
 using namespace Plugins::KillTracker;
 
 REFL_AUTO(type(KillMessage), field(number), field(message));
-REFL_AUTO(type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking), field(killStreakTemplates), field(milestoneTemplates));
+REFL_AUTO(
+    type(Config), field(enableNPCKillOutput), field(deathDamageTemplate), field(enableDamageTracking), field(killStreakTemplates), field(milestoneTemplates));
 
 DefaultDllMainSettings(LoadSettings);
 
