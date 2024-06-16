@@ -39,7 +39,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         void Help(std::wstring_view module, std::wstring_view command);
 
         // clang-format off
-        inline static const std::array<CommandInfo<UserCommandProcessor>, 33> commands = {
+        inline static const std::array<CommandInfo<UserCommandProcessor>, 26> commands = {
             {AddCommand(UserCommandProcessor, Cmds( L"/ids"sv ), GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
              AddCommand(UserCommandProcessor, Cmds( L"/setdiemsgsize"sv ), SetDieMessageFontSize, L"/setdiemsgsize [option]",
              L"Sets the text size of death chatConfig. Use without parameters to see available options."),
@@ -69,14 +69,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              //AddCommand(UserCommandProcessor, L"/delmail", DeleteMail, L"/delmail <id>", L"deletes specified mail"),
              //AddCommand(UserCommandProcessor, L"/readmail", ReadMail, L"/readmail <id>", L"prints specified mail."),
              //AddCommand(UserCommandProcessor, L"/listmail", ListMail, L"/listmail [page]", L"lists the mails of the specified page."),
-             AddCommand(UserCommandProcessor, Cmds( L"/givecash"sv ), GiveCash, L"/givecash <target> <amount>", L"gives specified amount of cash to named target"),
-             AddCommand(UserCommandProcessor, Cmds( L"/gc"sv ), GiveCash, L"/gc <target> <amount>", L"gives specified amount of cash to named target"),
-             AddCommand(UserCommandProcessor, Cmds( L"/givecash$"sv ), GiveCashById, L"/givecash <targetId> <amount>", L"gives specified amount of cash to target"),
-             AddCommand(UserCommandProcessor, Cmds( L"/gc$"sv ), GiveCashById, L"/gc$ <targetId> <amount>", L"gives specified amount of cash to target"),
-             AddCommand(UserCommandProcessor, Cmds( L"/sendcash"sv ), GiveCash, L"/sendcash <target> <amount>", L"gives specified amount of cash to named target"),
-             AddCommand(UserCommandProcessor, Cmds( L"/sc"sv ), GiveCash, L"/sc <target> <amount>", L"gives specified amount of cash to named target"),
-             AddCommand(UserCommandProcessor, Cmds( L"/sendcash$"sv ), GiveCashById, L"/sendcash <targetId> <amount>", L"gives specified amount of cash to target"),
-             AddCommand(UserCommandProcessor, Cmds( L"/sc$"sv ), GiveCashById, L"/sc$ <targetId> <amount>", L"gives specified amount of cash to target"),
+             AddCommand(UserCommandProcessor, Cmds(L"/givecash", L"/gc", L"/sendcash", L"/sc"), GiveCash, L"/givecash <target> <amount>", L"gives specified amount of cash to target"),
              AddCommand(UserCommandProcessor, Cmds( L"/time"sv ), Time, L"/time", L"Prints current time"),
              AddCommand(UserCommandProcessor, Cmds( L"/rename"sv ), Rename, L"/rename <newName>", L"Renames the character. Kicks you upon completion."),
              AddCommand(UserCommandProcessor, Cmds( L"/value"sv ), Value, L"/value", L"Prints the current total worth of the character"),
@@ -84,7 +77,8 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              AddCommand(UserCommandProcessor, Cmds( L"/dice"sv ), Dice, L"/dice [numOfSides]", L"Rolls the dice with specified amount of sides, 6 if unspecified"),
              AddCommand(UserCommandProcessor, Cmds( L"/droprep"sv ), DropRep, L"/droprep", L"Removes your affiliation if you have one"),
              AddCommand(UserCommandProcessor, Cmds( L"/transferchar"sv ), TransferCharacter, L"/transferchar", L"Set the character move code, or use the previously set code to transfer said character into current account"),
-             AddCommand(UserCommandProcessor, Cmds( L"/help"sv, L"/h"sv, L"?"sv), Help, L"/help [module] [command]", L"Provides indepth help information")}
+             AddCommand(UserCommandProcessor, Cmds( L"/help"sv, L"/h"sv, L"?"sv), Help, L"/help [module] [command]", L"Provides indepth help information")
+            }
         };
         // clang-format on
         GetUserCommandsFunc(commands);

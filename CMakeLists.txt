@@ -19,7 +19,7 @@ set(SOURCE_PATH "${PROJECT_SOURCE_DIR}/source" )
 set(FLHOOK_COPY_PATH "$ENV{FLHOOK_COPY_PATH}" )
 set(INCLUDE_PATH "${PROJECT_SOURCE_DIR}/include")
 set(SDK_PATH "${PROJECT_SOURCE_DIR}/vendor/FLHookSDK")
-set(refl "${PROJECT_SOURCE_DIR}/vendor/reflect-cpp")
+set(VENDOR "${PROJECT_SOURCE_DIR}/vendor")
 
 set(PROJECT_OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin)
 set(PLUGIN_OUTPUT_DIR ${PROJECT_OUTPUT_DIR}/plugins)
@@ -30,7 +30,7 @@ file(GLOB_RECURSE SOURCE_FILES LIST_DIRECTORIES false
         "${INCLUDE_PATH}/*.c*"
         "${INCLUDE_PATH}/*.h*"
         "${SDK_PATH}/*.h*"
-        "${refl}/*.hpp"
+        "${VENDOR}/reflect-cpp/*.hpp"
 )
 
 add_library("${PROJECT_NAME}" SHARED ${SOURCE_FILES} include/PCH.hpp include/PCH.cpp)

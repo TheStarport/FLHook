@@ -4,8 +4,12 @@ function(TARGET_DEPENDENCIES PROJ)
     target_include_directories(${PROJ} PRIVATE ${SDK_PATH}/include)
     target_include_directories(${PROJ} PRIVATE ${SDK_PATH}/vendor)
 
-    # We need the packaged YYJSON
-    target_include_directories(${PROJ} PRIVATE ${refl}/src)
+    # Add Wildcards submodule
+    target_include_directories(${PROJ} PRIVATE ${VENDOR}/wildcards/include)
+
+    # Add ReflectCPP
+    target_include_directories(${PROJ} PRIVATE ${VENDOR}/reflect-cpp/src)
+    target_include_directories(${PROJ} PRIVATE ${VENDOR}/reflect-cpp/include)
 
     target_precompile_headers(${PROJ} PRIVATE ${INCLUDE_PATH}/PCH.hpp)
 

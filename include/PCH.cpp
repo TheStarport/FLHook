@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/InfocardManager.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
 
 // Template specializations for arg transformations
@@ -89,7 +90,7 @@ Archetype::Equipment* TransformArg(const std::wstring_view s, const size_t param
 }
 
 template <>
-std::wstring_view TransformArg(std::wstring_view s, size_t paramNumber)
+std::wstring_view TransformArg(const std::wstring_view s, size_t paramNumber)
 {
     // ReSharper disable once CppDFALocalValueEscapesFunction
     return s;
@@ -102,22 +103,79 @@ bool TransformArg(const std::wstring_view s, size_t paramNumber)
     return lower == L"true" || lower == L"yes" || lower == L"1" || lower == L"on";
 }
 
-template <>
-std::vector<std::wstring_view> TransformArg(std::wstring_view s, size_t paramNumber)
+template<>
+GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber)
 {
-    // If we have nothing but whitespace, return an empty list
-    if (std::ranges::all_of(s, [](const wchar_t c) { return c == L' '; }))
+    if (const auto good = GoodList::find_by_nickname(StringUtils::wstos(std::wstring(s)).c_str()))
     {
-        return {};
+        return const_cast<GoodInfo*>(good);
     }
 
-    std::vector<std::wstring_view> views;
-    for (auto params = StringUtils::GetParams(s, L' '); auto i : params)
+    const auto& im = FLHook::GetInfocardManager();
+    auto* goods = GoodList_get();
+    for (const auto good : *goods->get_list())
     {
-        views.emplace_back(i);
+        if (wildcards::match(im.GetInfocard(good->idsName), s))
+        {
+            return good;
+        }
     }
 
-    return views;
+    // Not Found
+    throw InvalidParameterException(s, paramNumber);
+}
+
+template<>
+BaseId TransformArg(std::wstring_view s, size_t paramNumber)
+{
+    const std::string str = StringUtils::wstos(std::wstring(s));
+    auto base = Universe::get_base(CreateID(str.c_str()));
+
+    if (base)
+    {
+        return BaseId(base->baseId);
+    }
+
+    const auto& im = FLHook::GetInfocardManager();
+    base = Universe::GetFirstBase();
+    do
+    {
+        if (auto name = im.GetInfocard(base->baseIdS); wildcards::match(name, s))
+        {
+            return BaseId(base->baseId);
+        }
+
+        base = Universe::GetNextBase();
+    } while (base);
+
+    throw InvalidParameterException(s, paramNumber);
+}
+
+template<>
+SystemId TransformArg(std::wstring_view s, size_t paramNumber)
+{
+    const std::string str = StringUtils::wstos(std::wstring(s));
+    auto system = Universe::get_system(CreateID(str.c_str()));
+
+    if (system)
+    {
+        return SystemId(system->id);
+    }
+
+    const auto& im = FLHook::GetInfocardManager();
+
+    system = Universe::GetFirstSystem();
+    do
+    {
+        if (auto name = im.GetInfocard(system->idsName); wildcards::match(name, s))
+        {
+            return SystemId(system->id);
+        }
+
+        system = Universe::GetNextSystem();
+    } while (system);
+
+    throw InvalidParameterException(s, paramNumber);
 }
 
 // Include our JSON parser

@@ -861,12 +861,6 @@ void UserCommandProcessor::GiveCash(std::wstring_view characterName, std::wstrin
     targetPlayer.SaveChar().Handle();
 }
 
-void UserCommandProcessor::GiveCashById(ClientId targetClient, std::wstring_view amount)
-{
-    const auto name = targetClient.GetCharacterName().Handle();
-    return GiveCash(name, amount);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UserCommandProcessor::Time() { (void)userCmdClient.Message(std::format(L"{:%Y-%m-%d %X}", std::chrono::system_clock::now())); }

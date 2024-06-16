@@ -34,7 +34,7 @@ void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
 
         for (const auto& ban : FLHook::GetConfig().bans.banWildcardsAndIPs)
         {
-            if (Wildcard::Fit(StringUtils::wstos(ban).c_str(), StringUtils::wstos(ip).c_str()))
+            if (wildcards::match(ip, ban))
             {
                 // AddKickLog(client, std::format(L"IP/hostname ban({} matches {})", ip.c_str(), ban.c_str()));
                 if (FLHook::GetConfig().bans.banAccountOnMatch)

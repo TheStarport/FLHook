@@ -4,3 +4,6 @@
 [submodule "vendor/reflect-cpp"]
 	path = vendor/reflect-cpp
 	url = https://github.com/getml/reflect-cpp.git
+[submodule "vendor/wildcards"]
+	path = vendor/wildcards
+	url = https://github.com/zemasoft/wildcards.git
