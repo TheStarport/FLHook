@@ -34,9 +34,9 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         std::wstring Beam(std::wstring_view characterName, std::wstring_view baseName);
         std::wstring Pull(std::wstring_view characterName);
         std::wstring SetDamageType(std::wstring_view newDamageType);
-        // std::wstring Move(const std::wstring& characterName, Vector position);
+        std::wstring Move(ClientId target, float x, float y, float z);
 
-        const inline static std::array<AdminCommandInfo<AdminCommandProcessor>, 30> commands = {
+        const inline static std::array<AdminCommandInfo<AdminCommandProcessor>, 31> commands = {
             { AddAdminCommand(AdminCommandProcessor, Cmds(L".getcash"), GetCash, GameAndConsole, Cash, L".getcash <charname> <cash>",
              L"Gets the cash of the target cash"),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".setcash"), SetCash, GameAndConsole, Cash, L".setcash <charname> <cash>",
@@ -96,8 +96,9 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
              AddAdminCommand(AdminCommandProcessor, Cmds(L".pull"), Pull, GameOnly, Movement, L".pull <charname>",
              L"Pulls the specified character to your location. Does not traverse systems."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".damagemode"), SetDamageType, GameAndConsole, SuperAdmin, L".damagemode <all/none/pvp/pve>",
-             L"Sets the source of allowed damage on the server.") }
-  // AddAdminCommand(L"move", Move, GameOnly, Movement)
+             L"Sets the source of allowed damage on the server."),
+             AddAdminCommand(AdminCommandProcessor, Cmds(L".move"), Move, GameOnly, Movement, L".move <target> <x> <y> <z>",
+             L"Moves the target to the destination location in space.") }
         };
 
         GetAdminCommandsFunc(commands);

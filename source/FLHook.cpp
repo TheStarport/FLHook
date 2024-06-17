@@ -205,7 +205,7 @@ bool FLHook::GetObjInspect(uint& ship, IObjInspectImpl*& inspect)
     return getShipInspect(ship, inspect, dunno);
 }
 
-const std::unordered_map<std::wstring, std::vector<std::wstring_view>>& FLHook::GetAdmins() { return instance->credentialsMap; }
+const std::unordered_map<std::wstring, std::vector<std::wstring>>& FLHook::GetAdmins() { return instance->credentialsMap; }
 ClientList& FLHook::Clients() { return *instance->clientList; }
 
 ClientData& FLHook::GetClient(ClientId client)

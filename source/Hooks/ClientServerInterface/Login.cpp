@@ -62,6 +62,7 @@ void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
                     break;
             }
         }
+
         //TODO: AddConnectLog(client, ip));
     }
     CatchHook({

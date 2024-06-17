@@ -36,13 +36,25 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
 
         if (const auto charName = client.GetCharacterName().Handle(); charBefore != charName)
         {
-            CallPlugins(&Plugin::OnLoadCharacterSettings, client, std::wstring_view(charName));
+            auto& credentials = FLHook::instance->credentialsMap[std::wstring{charName}] = {};
+
+            if (const auto& roles = info.account->gameRoles; roles.has_value())
+            {
+                for (auto& role : roles.value())
+                {
+                    credentials.emplace_back(StringUtils::stows(role));
+                }
+            }
 
             // If help command is not disabled, alert people they can use it
             if (const auto& cmds = FLHook::GetConfig().userCommands.disabledCommands;
                 std::ranges::find(cmds, L"help") == cmds.end())
             {
-                (void)client.Message(L"To get a list of available commands, type \"/help\" in chat.");
+                (void)client.Message(L"To get a list of available commands, type '/help [page]' in chat.");
+                if (!credentials.empty())
+                {
+                    client.Message(L"To get a list of available admin commands, type '.help [page]' in chat.");
+                }
             }
 
             auto cargoList = client.GetEquipCargo().Raw();

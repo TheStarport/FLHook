@@ -277,28 +277,8 @@ Action<void, Error> ShipId::AddCargo(uint good, uint count, bool mission)
     return { {} };
 }
 
-void ShipId::Relocate(const Vector& pos, const std::optional<Matrix>& orientation, const bool sendPlayerLaunchPacket)
+void ShipId::Relocate(const Vector& pos, const std::optional<Matrix>& orientation) const
 {
-    if (sendPlayerLaunchPacket)
-    {
-        const auto client = GetPlayer().value_or(ClientId(0));
-        const Quaternion rotation = Quaternion(orientation.value_or(Matrix::Identity()));
-
-        FLPACKET_LAUNCH launchPacket;
-        launchPacket.ship = value;
-        launchPacket.base = 0;
-        launchPacket.state = 0xFFFFFFFF;
-        launchPacket.rotate[0] = rotation.w;
-        launchPacket.rotate[1] = rotation.x;
-        launchPacket.rotate[2] = rotation.y;
-        launchPacket.rotate[3] = rotation.z;
-        launchPacket.pos[0] = pos.x;
-        launchPacket.pos[1] = pos.y;
-        launchPacket.pos[2] = pos.z;
-
-        FLHook::hookClientImpl->Send_FLPACKET_SERVER_LAUNCH(client.GetValue(), launchPacket);
-    }
-
     const auto system = GetSystem().Unwrap();
     pub::SpaceObj::Relocate(value, system.GetValue(), pos, orientation.value_or(Matrix::Identity()));
 }

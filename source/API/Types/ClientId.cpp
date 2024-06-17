@@ -669,6 +669,33 @@ Action<void, Error> ClientId::AddEquip(const uint goodId, const std::wstring& ha
 
 Action<void, Error> ClientId::AddCargo(const uint goodId, const uint count, const bool isMission) const
 {
+    ClientCheck;
+    CharSelectCheck;
+
     pub::Player::AddCargo(value, goodId, count, 1.0, isMission);
     return { {} };
+}
+
+Action<void, Error> ClientId::Undock(Vector pos) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    const auto rotation = Quaternion(Matrix::Identity());
+
+    FLPACKET_LAUNCH launchPacket;
+    launchPacket.ship = value;
+    launchPacket.base = 0;
+    launchPacket.state = 0xFFFFFFFF;
+    launchPacket.rotate[0] = rotation.w;
+    launchPacket.rotate[1] = rotation.x;
+    launchPacket.rotate[2] = rotation.y;
+    launchPacket.rotate[3] = rotation.z;
+    launchPacket.pos[0] = pos.x;
+    launchPacket.pos[1] = pos.y;
+    launchPacket.pos[2] = pos.z;
+
+    FLHook::hookClientImpl->Send_FLPACKET_SERVER_LAUNCH(value, launchPacket);
+
+    return {{}};
 }

@@ -266,7 +266,7 @@ void AddRoleCallback(std::wstring currentUser, std::shared_ptr<void> taskData)
     }
 }
 
-std::wstring AdminCommandProcessor::AddRoles(std::wstring_view characterName, std::vector<std::wstring_view> roles)
+std::wstring AdminCommandProcessor::AddRoles(const std::wstring_view characterName, std::vector<std::wstring_view> roles)
 {
     if (characterName.empty())
     {
@@ -503,29 +503,20 @@ std::wstring AdminCommandProcessor::SetDamageType(const std::wstring_view newDam
     return usage;
 }
 
-// std::wstring AdminCommandProcessor::Move(std::wstring_view characterName, Vector position)
-//{
-//	std::wstring targetPlayer;
-//
-//	if (characterName == L"me")
-//	{
-//		targetPlayer = currentUser;
-//	}
-//	else
-//	{
-//		targetPlayer = characterName;
-//	}
-//
-//	const auto target = Hk::Admin::GetPlayerInfo(targetPlayer, false);
-//	if (target.has_error() || target.value().ship == 0)
-//	{
-//		return nlohmann::json {{"err", "Player not found or not in space"}};
-//	}
-//	Vector pos;
-//	Matrix orientation;
-//
-//	pub::SpaceObj::GetLocation(target.value().ship, pos,orientation);
-//	pos = position;
-//	Hk::Player::RelocateClient(target.value().client, pos, orientation);
-//	return nlohmann::json {{"res", std::format(L"player {} moved to {},{},{}", characterName, pos.x, pos.y, pos.z)}};
-// }
+std::wstring AdminCommandProcessor::Move(ClientId target, const float x, const float y, const float z)
+{
+    if (x == 0.0f || z == 0.0f)
+    {
+        return L"X or Z coordinates were 0. Suppressing to prevent accidental sun-teleporting. If this was intentional, try '0.1 0 0.1' instead.";
+    }
+
+    const auto shipId = target.GetShipId().Unwrap();
+    if (!shipId)
+    {
+        target.Undock({ x, y, z });
+        return L"Target is docked. Sending undock request with target position.";
+    }
+
+    shipId.Relocate({ x, y, z });
+    return std::format(L"Moving target to location: {:0f}, {:0f}, {:0f}", x, y, z);
+}

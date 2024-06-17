@@ -23,6 +23,13 @@ void FLHook::ClearClientInfo(ClientId client)
 
     auto& info = client.GetData();
 
+    // Remove any admin roles they may have assosicated.
+    std::erase_if(instance->credentialsMap, [&info](const auto& item)
+    {
+        auto const& [key, value] = item;
+        return key == info.characterName;
+    });
+
     info.characterName = L"";
 
     info.dieMsg = DieMsgType::All;

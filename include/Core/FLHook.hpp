@@ -103,7 +103,7 @@ class DLL FLHook final
 
         bool flhookReady;
 
-        std::unordered_map<std::wstring, std::vector<std::wstring_view>> credentialsMap = {
+        std::unordered_map<std::wstring, std::vector<std::wstring>> credentialsMap = {
             { L"console", { L"SuperAdmin" } }
         };
 
@@ -142,7 +142,7 @@ class DLL FLHook final
         static bool GetObjInspect(uint& ship, IObjInspectImpl*& inspect);
 
         static AccountManager& GetAccountManager();
-        static const std::unordered_map<std::wstring, std::vector<std::wstring_view>>& GetAdmins();
+        static const std::unordered_map<std::wstring, std::vector<std::wstring>>& GetAdmins();
         static ClientList& Clients();
         static ClientData& GetClient(ClientId client);
         static FLHookConfig& GetConfig();

@@ -46,7 +46,7 @@ class AbstractAdminCommandProcessor
         {
             using namespace magic_enum::bitwise_operators;
             const static std::wstring invalidPerms = L"ERR: No permission.";
-            const static std::wstring invalidCommand = L"ERR: Command not found.";
+            const static std::wstring invalidCommand = L"ERR: Command not found or invalid context.";
             static constexpr std::wstring_view superAdminRole = magic_enum::enum_name(DefaultRoles::SuperAdmin);
 
             // If the current context does not allow command

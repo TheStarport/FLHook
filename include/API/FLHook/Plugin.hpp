@@ -158,7 +158,6 @@ class DLL Plugin
         Aft(bool, OnAllowPlayerDamage, (ClientId client, ClientId target));
         Aft(void, OnSendDeathMessage, (ClientId killer, ClientId victim, SystemId system, std::wstring_view msg));
         virtual void OnLoadSettings() {}
-        virtual void OnLoadCharacterSettings(ClientId client, std::wstring_view characterName) {}
         virtual void OnClearClientInfo(ClientId client) {}
         virtual void OnSendChat(ClientId client, ClientId targetClient, const uint size, void* rdl) {}
         Aft(void, OnFireWeapon, (ClientId client, const XFireWeaponInfo& info));
