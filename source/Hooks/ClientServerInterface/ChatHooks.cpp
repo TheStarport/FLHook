@@ -9,6 +9,29 @@
 #include "Core/Commands/UserCommandProcessor.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
 
+std::wstring ReplaceExclamationMarkWithClientId(std::wstring commandString, uint clientId)
+{
+    wchar_t lastChar = L'\0';
+    for (auto w = commandString.begin(); w != commandString.end(); ++w)
+    {
+        if (lastChar == L' ' && *w == L'!' && (w + 1 == commandString.end() || *(w + 1) == L' '))
+        {
+            const size_t offset = std::distance(commandString.begin(), w);
+            commandString.insert(offset + 1, std::to_wstring(clientId));
+            commandString.erase(offset, 1);
+
+            // The insert and erase *can* invalidate our iterator
+            w = commandString.begin();
+            std::advance(w, offset);
+            continue;
+        }
+
+        lastChar = *w;
+    }
+
+    return commandString;
+}
+
 bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlReader, CHAT_ID& to, int)
 {
     TryHook
@@ -60,12 +83,14 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
         bool foundCommand = false;
         if (buffer[0] == '/')
         {
-            if (UserCommandProcessor::i()->ProcessCommand(ClientId(from.id), std::wstring_view(buffer)))
+            const std::wstring cmdString = ReplaceExclamationMarkWithClientId(buffer, from.id);
+
+            if (UserCommandProcessor::i()->ProcessCommand(ClientId(from.id), std::wstring_view(cmdString)))
             {
                 if (FLHook::GetConfig().chatConfig.echoCommands)
                 {
                     const std::wstring xml = std::format(
-                        LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(buffer));
+                        LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(cmdString));
                     InternalApi::SendMessage(ClientId(from.id), xml);
                 }
 
@@ -100,9 +125,13 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
                 InternalApi::SendMessage(ClientId(from.id), xml);
             }
 
+            const std::wstring cmdString = ReplaceExclamationMarkWithClientId(buffer, from.id);
             const auto processor = AdminCommandProcessor::i();
-            processor->ProcessCommand(
-                ClientId(from.id).GetCharacterName().Handle(), AllowedContext::GameOnly, std::wstring_view(buffer.begin() + 1, buffer.end()));
+            if (auto response = processor->ProcessCommand(ClientId(from.id).GetCharacterName().Handle(), AllowedContext::GameOnly, cmdString);
+                !response.empty())
+            {
+                (void)ClientId(from.id).Message(response);
+            }
             return false;
         }
 
