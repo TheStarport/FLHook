@@ -17,7 +17,7 @@ var namespace_plugins_1_1_solar_control =
     [ "ClearDockingRequestsTimer", "group___solar_control.html#ga10c09637960a3c480ca61b33fd6ba974", null ],
     [ "CreateSolar", "group___solar_control.html#gab526d84738d9b982f9728cff00fd4057", null ],
     [ "CreateUserDefinedSolar", "group___solar_control.html#ga6cc94593491aac8ba3477732705d30a1", null ],
-    [ "CreateUserDefinedSolarFormation", "group___solar_control.html#gaaab9b5cdd71be610bc933adf3ac7fa7c", null ],
+    [ "CreateUserDefinedSolarFormation", "group___solar_control.html#ga88253d7c58a086bf53946f3e6e0923f5", null ],
     [ "GetPersonality", "group___solar_control.html#ga5dbcc88a4ba4fd96bcf43713684d7424", null ],
     [ "LoadSettings", "group___solar_control.html#ga11a94a6760dec59a1a42172609fed553", null ],
     [ "Login", "group___solar_control.html#gae85694ba72dae83e76ebc2408130d298", null ],
