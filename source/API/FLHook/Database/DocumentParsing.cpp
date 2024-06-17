@@ -707,6 +707,11 @@ Character::Character(bsoncxx::document::view view)
         }
     }
 
+    HandleDeadCharacter();
+}
+
+void Character::HandleDeadCharacter()
+{
     // They died, fallback to base data
     if (hullStatus <= 0.0f)
     {
@@ -719,8 +724,10 @@ Character::Character(bsoncxx::document::view view)
     }
 }
 
-void Character::ToBson(bsoncxx::builder::basic::document& document) const
+void Character::ToBson(bsoncxx::builder::basic::document& document)
 {
+    HandleDeadCharacter();
+
     if (_id.has_value())
     {
         document.append(kvp("_id", _id.value()));

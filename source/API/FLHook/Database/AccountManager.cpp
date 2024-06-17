@@ -948,6 +948,8 @@ AccountManager::AccountManager()
     //  PlayerDB::load_user_data hacks
     MemUtils::NopAddress(serverOffset + 0x734DE, 0x6D534F1 - 0x6D534DE); // Don't call Access to look for a file
 
+    MemUtils::NopAddress(serverOffset + 0x69A07, 7);
+
     std::array<byte, 2> removeStringCheck = { 0xB0, 0x01 }; // mov al, 1
     MemUtils::WriteProcMem(serverOffset + 0x734FEE, removeStringCheck.data(), removeStringCheck.size());
     MemUtils::NopAddress(serverOffset + 0x7352B, 0x6D53589 - 0x6D5352B);

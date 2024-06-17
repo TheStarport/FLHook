@@ -102,7 +102,8 @@ struct Character
 
 	bsoncxx::document::value characterData = bsoncxx::builder::basic::make_document();
 
-    void ToBson(bsoncxx::builder::basic::document& document) const;
+    void ToBson(bsoncxx::builder::basic::document& document);
+	void HandleDeadCharacter();
     explicit Character(bsoncxx::document::view view);
     Character() = default;
 };
