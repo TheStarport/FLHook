@@ -64,7 +64,7 @@ namespace Plugins::SolarControl
 		explicit SolarCommunicator(const std::string& plug);
 
 		uint PluginCall(CreateSolar, const std::wstring& name, Vector position, const Matrix& rotation, SystemId system, bool varyPosition, bool mission);
-		void PluginCall(CreateSolarFormation, const std::wstring& formation, const Vector& position, uint system);
+		std::vector<uint> PluginCall(CreateSolarFormation, const std::wstring& formation, const Vector& position, uint system);
 	};
 
 	//! Global data for this plugin

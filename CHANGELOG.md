@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.32
+- Properly expose data for CreateUserDefinedSolarFormation() so objects spawned this way can be tracked by other plugins.
+
 ## 4.0.31
 - Fixed a case in Advanced Startup Solars where randomly placed solars could occupy the same position
 
