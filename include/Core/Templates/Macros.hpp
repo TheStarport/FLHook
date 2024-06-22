@@ -62,5 +62,7 @@ private:                                                                   \
 #define Cmds(...) \
     std::vector<std::wstring_view> { __VA_ARGS__ }
 
+#define COMMA ,
+
 #define FUNCTION   reinterpret_cast<const char*>(__FUNCTION__)
 #define FUNCTION_W reinterpret_cast<const wchar_t*>(__FUNCTIONW__)

@@ -4,35 +4,35 @@
 
 class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, public AbstractAdminCommandProcessor
 {
-        std::wstring SetCash(std::wstring_view characterName, uint amount);
-        std::wstring GetCash(std::wstring_view characterName);
-        std::wstring KickPlayer(std::wstring_view characterName, std::wstring_view reason);
+        std::wstring SetCash(ClientId characterName, uint amount);
+        std::wstring GetCash(ClientId target);
+        std::wstring KickPlayer(ClientId client, std::wstring_view reason);
         std::wstring BanPlayer(std::wstring_view characterName);
         std::wstring TempbanPlayer(std::wstring_view characterName, uint durationInDays);
         std::wstring UnBanPlayer(std::wstring_view characterName);
-        std::wstring GetClientId(std::wstring_view characterName);
-        std::wstring KillPlayer(std::wstring_view characterName);
-        std::wstring SetRep(std::wstring_view characterName, std::wstring_view repGroup, float value);
-        std::wstring ResetRep(std::wstring_view characterName, std::wstring_view repGroup);
-        std::wstring GetRep(std::wstring_view characterName, std::wstring_view repGroup);
-        std::wstring MessagePlayer(std::wstring_view characterName, std::wstring_view text);
-        std::wstring SendSystemMessage(std::wstring_view systemName, std::wstring_view text);
+        std::wstring GetClientId(ClientId client);
+        std::wstring KillPlayer(ClientId target);
+        std::wstring SetRep(ClientId target, RepGroupId repGroup, float value);
+        std::wstring ResetRep(ClientId target, RepGroupId repGroup);
+        std::wstring GetRep(ClientId target, RepGroupId repGroup);
+        std::wstring MessagePlayer(ClientId target, const std::wstring_view text);
+        std::wstring SendSystemMessage(SystemId system, const std::wstring_view text);
         std::wstring SendUniverseMessage(std::wstring_view text);
-        std::wstring ListCargo(std::wstring_view characterName);
-        std::wstring AddCargo(std::wstring_view characterName, std::wstring_view good, uint count, bool mission);
-        std::wstring RenameChar(std::wstring_view characterName, std::wstring_view newName);
-        std::wstring DeleteChar(std::wstring_view characterName);
-        std::wstring GetPlayerInfo(std::wstring_view characterName);
-        std::wstring AddRoles(std::wstring_view characterName, std::vector<std::wstring_view> roles);
+        std::wstring ListCargo(const ClientId target);
+        std::wstring AddCargo(ClientId target, GoodInfo* good, uint count, const bool mission);
+        std::wstring RenameChar(ClientId target, std::wstring_view newName);
+        std::wstring DeleteChar(ClientId target);
+        std::wstring GetPlayerInfo(const ClientId target);
+        std::wstring AddRoles(const std::wstring_view target, std::vector<std::wstring_view> roles);
         std::wstring DeleteRoles(std::wstring_view characterName, std::vector<std::wstring_view> roles);
         std::wstring SetRoles(std::wstring_view characterName, std::vector<std::wstring_view> roles);
         std::wstring LoadPlugin(std::vector<std::wstring_view> pluginNames);
         std::wstring UnloadPlugin(std::vector<std::wstring_view> pluginNames);
         std::wstring ReloadPlugin(std::vector<std::wstring_view> pluginNames);
         std::wstring ListPlugins();
-        std::wstring Chase(std::wstring_view characterName);
+        std::wstring Chase(const ClientId target);
         std::wstring Beam(ClientId target, BaseId base);
-        std::wstring Pull(std::wstring_view characterName);
+        std::wstring Pull(ClientId target);
         std::wstring SetDamageType(std::wstring_view newDamageType);
         std::wstring Move(ClientId target, float x, float y, float z);
 

@@ -379,7 +379,7 @@ EngineState ClientId::GetEngineState() const
 }
 
 // Server wide message upon kicking. Delay is defaulted to zero.
-Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reason, const std::optional<uint> delay) const
+Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reason, std::optional<uint> delay) const
 {
     ClientCheck;
 
@@ -387,6 +387,12 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
     {
         const std::wstring msg = std::vformat(FLHook::GetConfig().chatConfig.msgStyle.kickMsg, std::make_wformat_args(reason.value()));
         (void)Message(msg, MessageFormat::Big, MessageColor::Red);
+
+        if (!delay.has_value())
+        {
+            // Give them time to read the reason
+            delay = { 5u };
+        }
     }
 
     if (!delay.has_value())

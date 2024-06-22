@@ -6,6 +6,7 @@
 
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
+#include "API/FLHook/InfocardManager.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
 
 // TODO: General, a lot of these functions are agnostic about whether or not the player is online and thus has a clientId, so along with the player database
@@ -51,33 +52,32 @@ std::wstring AdminCommandProcessor::ProcessCommand(const std::wstring_view user,
     return ProcessCommand(user, currentContext, command, paramsFiltered);
 }
 
-std::wstring AdminCommandProcessor::SetCash(std::wstring_view characterName,
-                                            uint amount) // TODO: Need to implement functionality here for offline chars as well.
+std::wstring AdminCommandProcessor::SetCash(ClientId characterName, uint amount)
 {
-    // Rights check here.
-    const auto account = AccountId::GetAccountFromCharacterName(characterName);
-    if (!account.has_value())
-    {
-        // TODO: fix the error handling
-        return L"Error lol";
-    }
-    account->SetCash(characterName, amount).Handle();
-
+    // TODO: Implement
     return std::format(L"{} cash set to {} credits", characterName, amount);
 }
 
-std::wstring AdminCommandProcessor::GetCash(std::wstring_view characterName)
+std::wstring AdminCommandProcessor::GetCash(ClientId target)
 {
+    // TODO: Implement get cash
     // const auto res = AccountId(characterName).GetCash(characterName).Handle();
     // return std::format(L"{} has been set {} credits.", characterName, res);
     return L"Not Implemented";
 }
 
-std::wstring AdminCommandProcessor::KickPlayer(std::wstring_view characterName, std::wstring_view reason)
+std::wstring AdminCommandProcessor::KickPlayer(ClientId client, std::wstring_view reason)
 {
-    const auto client = ClientId(characterName);
-    client.Kick(reason).Handle();
-    return std::format(L"{} has been successfully kicked. Reason: {}", characterName, reason);
+    if (reason.empty())
+    {
+        client.Kick().Handle();
+    }
+    else
+    {
+        client.Kick(reason).Handle();
+    }
+
+    return std::format(L"{} has been successfully kicked. Reason: {}", client, reason);
 }
 
 std::wstring AdminCommandProcessor::BanPlayer(std::wstring_view characterName)
@@ -106,49 +106,47 @@ std::wstring AdminCommandProcessor::UnBanPlayer(std::wstring_view characterName)
     return std::format(L"{} has been successfully unbanned.", characterName);
 }
 
-std::wstring AdminCommandProcessor::GetClientId(const std::wstring_view characterName) { return std::to_wstring(ClientId(characterName).GetValue()); }
+std::wstring AdminCommandProcessor::GetClientId(ClientId client) { return std::to_wstring(client.GetValue()); }
 
-std::wstring AdminCommandProcessor::KillPlayer(std::wstring_view characterName)
+std::wstring AdminCommandProcessor::KillPlayer(ClientId target)
 {
-    ClientId(characterName).GetShipId().Handle().Destroy();
-    return std::format(L"{} successfully killed", characterName);
+    target.GetShipId().Handle().Destroy();
+    return std::format(L"{} successfully killed", target);
 }
 
-std::wstring AdminCommandProcessor::SetRep(std::wstring_view characterName, std::wstring_view repGroup, float value)
+std::wstring AdminCommandProcessor::SetRep(ClientId target, RepGroupId repGroup, float value)
 {
-    const auto client = ClientId(characterName);
-    const auto repId = client.GetReputation().Handle();
-    repId.SetAttitudeTowardsRepGroupId(RepGroupId(repGroup), value).Handle();
+    const auto repId = target.GetReputation().Handle();
+    repId.SetAttitudeTowardsRepGroupId(repGroup, value).Handle();
 
-    return std::format(L"{}'s reputation with {} set to {}", characterName, repGroup, value);
+    return std::format(L"{}'s reputation with {} set to {}", target, repGroup, value);
 }
 
-std::wstring AdminCommandProcessor::ResetRep(std::wstring_view characterName, std::wstring_view repGroup)
+std::wstring AdminCommandProcessor::ResetRep(ClientId target, RepGroupId repGroup)
 {
-    // TODO: Implement as part of character database rework due to removal of iniUtils.
+    // TODO: finish implementing this. Reset to server default
 
-    return std::format(L"{}'rep to {} reset", characterName, repGroup);
+    return std::format(L"{}'rep to {} reset", target, repGroup);
 }
 
-std::wstring AdminCommandProcessor::GetRep(std::wstring_view characterName, std::wstring_view repGroup)
+std::wstring AdminCommandProcessor::GetRep(ClientId target, RepGroupId repGroup)
 {
-    const auto charRepId = ClientId(characterName).GetReputation().Handle();
-    const auto repGroupId = RepGroupId(repGroup);
-    const auto rep = repGroupId.GetAttitudeTowardsRepId(charRepId).Handle();
+    const auto charRepId = target.GetReputation().Handle();
+    const auto rep = repGroup.GetAttitudeTowardsRepId(charRepId).Handle();
 
-    return std::format(L"{}'reputation to {} is {}", characterName, repGroup, rep);
+    return std::format(L"{}'reputation to {} is {}", target, repGroup, rep);
 }
 
-std::wstring AdminCommandProcessor::MessagePlayer(std::wstring_view characterName, const std::wstring_view text)
+std::wstring AdminCommandProcessor::MessagePlayer(ClientId target, const std::wstring_view text)
 {
-    ClientId(characterName).Message(text).Handle();
-    return std::format(L"Message sent to {} successfully sent", characterName);
+    target.Message(text).Handle();
+    return std::format(L"Message sent to {} successfully sent. Contents: {}", target, text);
 }
 
-std::wstring AdminCommandProcessor::SendSystemMessage(std::wstring_view systemName, const std::wstring_view text)
+std::wstring AdminCommandProcessor::SendSystemMessage(SystemId system, const std::wstring_view text)
 {
-    SystemId(systemName).Message(text).Handle();
-    return std::format(L"Message successfully sent to {}", systemName);
+    system.Message(text).Handle();
+    return std::format(L"Message successfully sent to {}", system);
 }
 
 std::wstring AdminCommandProcessor::SendUniverseMessage(const std::wstring_view text)
@@ -157,9 +155,9 @@ std::wstring AdminCommandProcessor::SendUniverseMessage(const std::wstring_view 
     return std::format(L"Message Sent to Server.");
 }
 
-std::wstring AdminCommandProcessor::ListCargo(const std::wstring_view characterName)
+std::wstring AdminCommandProcessor::ListCargo(const ClientId target)
 {
-    const auto cargo = ClientId(characterName).GetEquipCargo().Handle();
+    const auto cargo = target.GetEquipCargo().Handle();
     std::wstring res;
 
     for (auto& item : *cargo)
@@ -175,37 +173,36 @@ std::wstring AdminCommandProcessor::ListCargo(const std::wstring_view characterN
     return res;
 }
 
-std::wstring AdminCommandProcessor::AddCargo(std::wstring_view characterName, std::wstring_view good, uint count, const bool mission)
+std::wstring AdminCommandProcessor::AddCargo(ClientId target, GoodInfo* good, uint count, const bool mission)
 {
-    const auto goodId = CreateID(StringUtils::wstos(std::wstring(good)).c_str());
+    target.GetShipId().Handle().AddCargo(good->goodId, count, mission).Handle();
 
-    ClientId(characterName).GetShipId().Handle().AddCargo(goodId, count, mission).Handle();
-    return std::format(L"{} units of {} has been added to {}'s cargo", count, good, characterName);
+    const auto& im = FLHook::GetInfocardManager();
+    return std::format(L"{} units of {} has been added to {}'s cargo", count,
+        im.GetInfocard(good->idsName), target.GetCharacterName().Handle());
 }
 
-std::wstring AdminCommandProcessor::RenameChar(std::wstring_view characterName, std::wstring_view newName)
+std::wstring AdminCommandProcessor::RenameChar(ClientId target, std::wstring_view newName)
 {
     // TODO: Rename is to be reimplemented
-    return std::format(L"{} has been renamed to {}", characterName, newName);
+    return std::format(L"{} has been renamed to {}", target.GetCharacterName().Handle(), newName);
 }
 
-std::wstring AdminCommandProcessor::DeleteChar(std::wstring_view characterName)
+std::wstring AdminCommandProcessor::DeleteChar(ClientId target)
 {
     // TODO: pending Character Database rework
-    return std::format(L"{} has been successfully deleted", characterName);
+    return std::format(L"{} has been successfully deleted", target.GetCharacterName().Handle());
 }
 
-std::wstring AdminCommandProcessor::GetPlayerInfo(const std::wstring_view characterName)
+std::wstring AdminCommandProcessor::GetPlayerInfo(const ClientId target)
 {
-    auto res = ClientId(characterName);
-
     return std::format(L"Name: {}, Id: {}, IP: {}, Ping: {}, Base: {}, System: {}\n",
-                       res.GetCharacterName().Unwrap(),
-                       res.GetValue(),
-                       res.GetPlayerIp().Unwrap(),
-                       res.GetLatency().Unwrap(),
-                       res.GetCurrentBase().Handle().GetName().Unwrap(),
-                       res.GetSystemId().Handle().GetName().Unwrap());
+                       target.GetCharacterName().Unwrap(),
+                       target.GetValue(),
+                       target.GetPlayerIp().Unwrap(),
+                       target.GetLatency().Unwrap(),
+                       target.GetCurrentBase().Handle().GetName().Unwrap(),
+                       target.GetSystemId().Handle().GetName().Unwrap());
 }
 
 bool AddRole(std::string characterName, std::vector<std::string> roles, std::shared_ptr<void> taskData)
@@ -266,9 +263,9 @@ void AddRoleCallback(std::wstring currentUser, std::shared_ptr<void> taskData)
     }
 }
 
-std::wstring AdminCommandProcessor::AddRoles(const std::wstring_view characterName, std::vector<std::wstring_view> roles)
+std::wstring AdminCommandProcessor::AddRoles(const std::wstring_view target, std::vector<std::wstring_view> roles)
 {
-    if (characterName.empty())
+    if (target.empty())
     {
         return L"ERR: Character name not provided.";
     }
@@ -281,14 +278,14 @@ std::wstring AdminCommandProcessor::AddRoles(const std::wstring_view characterNa
     for (const ClientData& client : FLHook::Clients())
     {
         // They are online
-        if (characterName == client.characterName)
+        if (target == client.characterName)
         {
             (void)client.id.Kick();
             break;
         }
     }
 
-    auto character = StringUtils::wstos(characterName);
+    auto character = StringUtils::wstos(target);
     std::vector<std::string> stringRoles;
     std::ranges::transform(roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::wstos(role); });
 
@@ -298,13 +295,13 @@ std::wstring AdminCommandProcessor::AddRoles(const std::wstring_view characterNa
     return L"OK";
 }
 
-std::wstring AdminCommandProcessor::SetRoles(std::wstring_view characterName, std::vector<std::wstring_view> roles)
+std::wstring AdminCommandProcessor::SetRoles(std::wstring_view target, std::vector<std::wstring_view> roles)
 {
     // TODO: pending Character Database rework
     return L"Successfully set roles.{} roles";
 }
 
-std::wstring AdminCommandProcessor::DeleteRoles(std::wstring_view characterName, std::vector<std::wstring_view> roles)
+std::wstring AdminCommandProcessor::DeleteRoles(std::wstring_view target, std::vector<std::wstring_view> roles)
 {
     // TODO: pending Character Database rework
     return L"Successfully removed roles.";
@@ -314,7 +311,7 @@ std::wstring AdminCommandProcessor::LoadPlugin(std::vector<std::wstring_view> pl
 {
     if (pluginNames.empty())
     {
-        return L"No plugin names provided";
+        return L"No plugin names provided. Use 'all' to load all plugins.";
     }
 
     std::wstring res;
@@ -344,7 +341,7 @@ std::wstring AdminCommandProcessor::UnloadPlugin(std::vector<std::wstring_view> 
 {
     if (pluginNames.empty())
     {
-        return L"No plugin names provided";
+        return L"No plugin names provided. Use 'all' to unload all plugins.";
     }
 
     std::wstring res;
@@ -393,19 +390,15 @@ std::wstring AdminCommandProcessor::ListPlugins()
     return plugins;
 }
 
-std::wstring AdminCommandProcessor::Chase(const std::wstring_view characterName)
+std::wstring AdminCommandProcessor::Chase(const ClientId target)
 {
     const auto admin = ClientId(currentUser);
-    const auto target = ClientId(characterName);
     if (!target.InSpace())
     {
         return L"Player not found or not in space";
     }
 
-    const auto transform = target.GetShipId().Handle().GetPositionAndOrientation().Handle();
-
-    Vector pos = transform.first;
-    Matrix orientation = transform.second;
+    auto [pos, orientation] = target.GetShipId().Handle().GetPositionAndOrientation().Handle();
 
     pos.y += 100.0f;
     admin.GetShipId().Handle().Relocate(pos, orientation);
@@ -419,15 +412,15 @@ std::wstring AdminCommandProcessor::Beam(ClientId target, BaseId base)
     return std::format(L"{} beamed to {}", target.GetCharacterName().Handle(), base.GetName().Handle());
 }
 
-std::wstring AdminCommandProcessor::Pull(std::wstring_view characterName)
+std::wstring AdminCommandProcessor::Pull(ClientId target)
 {
     const auto admin = ClientId(currentUser);
-    const auto target = ClientId(characterName);
 
     if (!target.InSpace())
     {
         return L"Player not found or not in space ";
     }
+
     if (!admin.InSpace())
     {
         return L"You are currently not in space.";
@@ -440,7 +433,7 @@ std::wstring AdminCommandProcessor::Pull(std::wstring_view characterName)
     pos.y += 400;
     target.GetShipId().Handle().Relocate(pos, orientation);
 
-    return std::format(L"player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}", characterName, currentUser, pos.x, pos.y, pos.z);
+    return std::format(L"player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}", target.GetCharacterName().Handle(), currentUser, pos.x, pos.y, pos.z);
 }
 
 std::wstring AdminCommandProcessor::SetDamageType(const std::wstring_view newDamageType)
