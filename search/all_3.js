@@ -69,7 +69,7 @@ var searchData=
   ['checkidequiprestrictions_66',['CheckIdEquipRestrictions',['../namespace_plugins_1_1_purchase_restrictions.html#ab915ad89fa3f5000c7d9224a1ab7585e',1,'Plugins::PurchaseRestrictions']]],
   ['checkifplayerfled_67',['checkIfPlayerFled',['../namespace_plugins_1_1_bounty_hunt.html#a275ff9af8ce430a85c0e4c7e9c813ebc',1,'Plugins::BountyHunt']]],
   ['checkitemrestrictions_68',['checkItemRestrictions',['../struct_plugins_1_1_purchase_restrictions_1_1_config.html#ade03f33520590430bbdb49bfd3571e81',1,'Plugins::PurchaseRestrictions::Config']]],
-  ['checknpc_69',['CheckNpc',['../group___n_p_c_control.html#ga3c4047ea92bc9ca222d888300e3bbed5',1,'Plugins::Npc']]],
+  ['checknpc_69',['CheckNpc',['../group___n_p_c_control.html#gabe1817774523cc78ae646c99713fc223',1,'Plugins::Npc']]],
   ['checkreturndock_70',['CheckReturnDock',['../group___arena.html#gad4798fbdd4d6c53b88e155ce3e4c2434',1,'Plugins::Arena']]],
   ['checksolar_71',['CheckSolar',['../group___solar_control.html#ga1b140d3a296c7e6740ba0e86fbc63103',1,'Plugins::SolarControl']]],
   ['cingame_2ecpp_72',['CInGame.cpp',['../_c_in_game_8cpp.html',1,'']]],

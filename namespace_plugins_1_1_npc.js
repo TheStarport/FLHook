@@ -16,7 +16,7 @@ var namespace_plugins_1_1_npc =
     [ "AdminCmdListNPCs", "group___n_p_c_control.html#ga4df2898684ad3e60fe8823d6f744ee4c", null ],
     [ "AfterStartup", "group___n_p_c_control.html#ga69a6565717378a41333e31966c16b626", null ],
     [ "AiFollow", "namespace_plugins_1_1_npc.html#a6d8e9e8f29c027a4df47136d8ea19e5b", null ],
-    [ "CheckNpc", "group___n_p_c_control.html#ga3c4047ea92bc9ca222d888300e3bbed5", null ],
+    [ "CheckNpc", "group___n_p_c_control.html#gabe1817774523cc78ae646c99713fc223", null ],
     [ "CreateNPC", "group___n_p_c_control.html#ga63381063e073165987561320f0afd57b", null ],
     [ "ExecuteCommandString", "group___n_p_c_control.html#ga3bba8aeff40ce998e2fbd32d8c6cdabb", null ],
     [ "IsHookNPC", "group___n_p_c_control.html#ga220a554f9ab2b3376c61ecc31dbe43e0", null ],

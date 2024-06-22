@@ -9,7 +9,7 @@ var group___n_p_c_control =
     [ "Plugins::Npc::AdminCmdListNPCFleets", "group___n_p_c_control.html#ga2d5c6a07585badef0438213212a1f0df", null ],
     [ "Plugins::Npc::AdminCmdListNPCs", "group___n_p_c_control.html#ga4df2898684ad3e60fe8823d6f744ee4c", null ],
     [ "Plugins::Npc::AfterStartup", "group___n_p_c_control.html#ga69a6565717378a41333e31966c16b626", null ],
-    [ "Plugins::Npc::CheckNpc", "group___n_p_c_control.html#ga3c4047ea92bc9ca222d888300e3bbed5", null ],
+    [ "Plugins::Npc::CheckNpc", "group___n_p_c_control.html#gabe1817774523cc78ae646c99713fc223", null ],
     [ "Plugins::Npc::CreateNPC", "group___n_p_c_control.html#ga63381063e073165987561320f0afd57b", null ],
     [ "Plugins::Npc::ExecuteCommandString", "group___n_p_c_control.html#ga3bba8aeff40ce998e2fbd32d8c6cdabb", null ],
     [ "Plugins::Npc::IsHookNPC", "group___n_p_c_control.html#ga220a554f9ab2b3376c61ecc31dbe43e0", null ],
