@@ -136,41 +136,49 @@ namespace Plugins::Npc
 	 * @brief Checks to ensure an NPC is valid before attempting to spawn it. loadout, iff and pilot are all optional, but do require valid values to
 	 * avoid a crash if populated
 	 */
-	bool CheckNpc(const std::wstring& npcInfo)
+	bool CheckNpc(const std::wstring& npcName)
 	{
-		auto npc = global->config->npcInfo[npcInfo];
+		auto npc = global->config->npcInfo.find(npcName);
+		if (npc == global->config->npcInfo.end())
+		{
+			Console::ConErr(std::format("The provided NPC name, '{}' was not found.", wstos(npcName)));
+			return false;
+		}
+
 		bool validity = true;
 
 		// Check solar solarArch is valid
-		if (!Archetype::GetShip(CreateID(npc.shipArch.c_str())))
+		if (!Archetype::GetShip(CreateID(npc->second.shipArch.c_str())))
 		{
-			Console::ConErr(std::format("The shipArch '{}' for '{}' is invalid. Spawning this NPC may cause a crash", npc.shipArch, wstos(npcInfo)));
+			Console::ConErr(std::format("The shipArch '{}' for '{}' is invalid. Spawning this NPC may cause a crash", npc->second.shipArch, wstos(npcName)));
 			validity = false;
 		}
 
 		// Check the loadout is valid
 		EquipDescVector loadout;
-		pub::GetLoadout(loadout, npc.loadoutId);
+		pub::GetLoadout(loadout, npc->second.loadoutId);
 
-		if (!npc.loadout.empty() && loadout.equip.empty())
+		if (!npc->second.loadout.empty() && loadout.equip.empty())
 		{
-			Console::ConErr(std::format("The loadout '{}' loaded for '{}' is invalid. Spawning this NPC may cause a crash", npc.loadout, wstos(npcInfo)));
+			Console::ConErr(
+			    std::format("The loadout '{}' loaded for '{}' is invalid. Spawning this NPC may cause a crash", npc->second.loadout, wstos(npcName)));
 			validity = false;
 		}
 
 		// Check if solar iff is valid
 		uint npcIff;
-		pub::Reputation::GetReputationGroup(npcIff, npc.iff.c_str());
-		if (!npc.iff.empty() && npcIff == UINT_MAX)
+		pub::Reputation::GetReputationGroup(npcIff, npc->second.iff.c_str());
+		if (!npc->second.iff.empty() && npcIff == UINT_MAX)
 		{
-			Console::ConErr(std::format("The reputation '{}' loaded for '{}' is invalid. Spawning this NPC may cause a crash", npc.iff, wstos(npcInfo)));
+			Console::ConErr(
+			    std::format("The reputation '{}' loaded for '{}' is invalid. Spawning this NPC may cause a crash", npc->second.iff, wstos(npcName)));
 			validity = false;
 		}
 
 		// Check solar pilot is valid
-		if (!npc.pilot.empty() && !Hk::Personalities::GetPersonality(npc.pilot).has_value())
+		if (!npc->second.pilot.empty() && !Hk::Personalities::GetPersonality(npc->second.pilot).has_value())
 		{
-			Console::ConErr(std::format("The pilot '{}' loaded for '{}' is invalid. Spawning this NPC may cause a crash", npc.pilot, wstos(npcInfo)));
+			Console::ConErr(std::format("The pilot '{}' loaded for '{}' is invalid. Spawning this NPC may cause a crash", npc->second.pilot, wstos(npcName)));
 			validity = false;
 		}
 		return validity;
