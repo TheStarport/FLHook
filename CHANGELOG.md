@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.33
+- Changes to ensure that npc.dll can't cause a crash when attempting to spawn an invalid NPC entry.
+
 ## 4.0.32
 - Properly expose data for CreateUserDefinedSolarFormation() so objects spawned this way can be tracked by other plugins.
 
