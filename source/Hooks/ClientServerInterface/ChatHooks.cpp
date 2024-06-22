@@ -178,15 +178,25 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
         (void)ClientId(from.id).Message(msg);
         return false;
     }
-// TODO: Handle seh exception
-    catch ([[maybe_unused]] SehException& exc) { {}; }
-    catch ([[maybe_unused]] const StopProcessingException&) {}
+    catch ([[maybe_unused]] SehException& exc)
+    {
+        return false;
+    }
+    catch ([[maybe_unused]] const StopProcessingException&)
+    {
+        return false;
+    }
     catch (const GameException& ex)
     {
-        Logger::Info(ex.Msg());
-        {};
+        const auto msg = ex.Msg();
+        if (const auto f = ClientId(from.id))
+        {
+            f.Message(msg);
+        }
+        Logger::Debug(ex.Msg());
+        return false;
     }
-    catch ([[maybe_unused]] std::exception& exc) { {}; }
+    catch ([[maybe_unused]] std::exception& exc) { return false; }
     catch (...) { {}; }
 
     return true;
