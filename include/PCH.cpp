@@ -3,6 +3,7 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/InfocardManager.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
+#include "FLCore/Common/Globals.hpp"
 
 // Template specializations for arg transformations
 
@@ -174,6 +175,34 @@ SystemId TransformArg(std::wstring_view s, size_t paramNumber)
 
         system = Universe::GetNextSystem();
     } while (system);
+
+    throw InvalidParameterException(s, paramNumber);
+}
+
+template<>
+RepGroupId TransformArg(std::wstring_view s, size_t paramNumber)
+{
+    const std::string str = StringUtils::wstos(std::wstring(s));
+
+    uint ids = 0;
+    if (const uint id = MakeId(str.c_str()); pub::Reputation::GetShortGroupName(id, ids) == 0)
+    {
+        return RepGroupId(id);
+    }
+
+    const auto& im = FLHook::GetInfocardManager();
+    for (const auto group : GameData::repGroups)
+    {
+        if (auto name = im.GetInfocard(group->data.nameIds); wildcards::match(name, s))
+        {
+            return RepGroupId(group->key);
+        }
+
+        if (auto name = im.GetInfocard(group->data.shortNameIds); wildcards::match(name, s))
+        {
+            return RepGroupId(group->key);
+        }
+    }
 
     throw InvalidParameterException(s, paramNumber);
 }

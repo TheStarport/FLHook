@@ -41,6 +41,9 @@ BaseId TransformArg(std::wstring_view s, size_t paramNumber);
 template<>
 SystemId TransformArg(std::wstring_view s, size_t paramNumber);
 
+template<>
+RepGroupId TransformArg(std::wstring_view s, size_t paramNumber);
+
 template <typename T>
     requires IsSpecialization<T, std::vector>::value
 T TransformArg(std::wstring_view s, size_t paramNumber)
