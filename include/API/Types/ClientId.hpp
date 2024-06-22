@@ -376,7 +376,7 @@ class DLL ClientId
 
         Action<void, Error> AddCargo(uint goodId, uint count, bool isMission) const;
 
-        Action<void, Error> Undock(Vector pos) const;
+        Action<void, Error> Undock(Vector pos, std::optional<Matrix> orientation = std::nullopt) const;
 };
 
 template <>

@@ -413,29 +413,10 @@ std::wstring AdminCommandProcessor::Chase(const std::wstring_view characterName)
     return std::format(L"Jump to system={} x={:.0f} y={:.0f} z={:.0f}", target.GetSystemId().Handle().GetName().Handle(), pos.x, pos.y, pos.z);
 }
 
-std::wstring AdminCommandProcessor::Beam(const std::wstring_view characterName, const std::wstring_view baseName)
+std::wstring AdminCommandProcessor::Beam(ClientId target, BaseId base)
 {
-    std::wstring targetPlayer;
-
-    if (characterName == L"me")
-    {
-        targetPlayer = currentUser;
-    }
-    else
-    {
-        targetPlayer = characterName;
-    }
-
-    if (StringUtils::Trim(baseName).empty())
-    {
-        return L"Invalid Base Name";
-    }
-
-    const auto player = ClientId(targetPlayer);
-    const auto base = BaseId(baseName, true);
-    player.Beam(base).Handle();
-
-    return std::format(L"{} beamed to {}", targetPlayer, base.GetName().Unwrap());
+    target.Beam(base).Handle();
+    return std::format(L"{} beamed to {}", target.GetCharacterName().Handle(), base.GetName().Handle());
 }
 
 std::wstring AdminCommandProcessor::Pull(std::wstring_view characterName)
@@ -513,8 +494,7 @@ std::wstring AdminCommandProcessor::Move(ClientId target, const float x, const f
     const auto shipId = target.GetShipId().Unwrap();
     if (!shipId)
     {
-        target.Undock({ x, y, z });
-        return L"Target is docked. Sending undock request with target position.";
+        return L"Target is docked. Unable to move.";
     }
 
     shipId.Relocate({ x, y, z });

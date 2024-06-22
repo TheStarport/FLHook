@@ -31,7 +31,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         std::wstring ReloadPlugin(std::vector<std::wstring_view> pluginNames);
         std::wstring ListPlugins();
         std::wstring Chase(std::wstring_view characterName);
-        std::wstring Beam(std::wstring_view characterName, std::wstring_view baseName);
+        std::wstring Beam(ClientId target, BaseId base);
         std::wstring Pull(std::wstring_view characterName);
         std::wstring SetDamageType(std::wstring_view newDamageType);
         std::wstring Move(ClientId target, float x, float y, float z);

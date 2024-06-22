@@ -280,6 +280,13 @@ Action<void, Error> ShipId::AddCargo(uint good, uint count, bool mission)
 void ShipId::Relocate(const Vector& pos, const std::optional<Matrix>& orientation) const
 {
     const auto system = GetSystem().Unwrap();
+
+    if (const auto player = GetPlayer(); player.has_value())
+    {
+        // We tell the client to adjust its position via a launch packet
+        player->Undock(pos, orientation).Handle();
+    }
+
     pub::SpaceObj::Relocate(value, system.GetValue(), pos, orientation.value_or(Matrix::Identity()));
 }
 
