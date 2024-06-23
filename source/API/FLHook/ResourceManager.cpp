@@ -1,14 +1,16 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/PersonalityHelper.hpp"
 #include "API/FLHook/ResourceManager.hpp"
-#include "API/FLHook/ClientList.hpp"
 
 #include "API/InternalApi.hpp"
 #include "API/Utils/Random.hpp"
+#include "FLCore/Common/Globals.hpp"
 
-template<typename T>
-void NoOp(T*) {}
+template <typename T>
+void NoOp(T*)
+{}
 
 void ResourceManager::SendSolarPacket(uint spaceId, pub::SpaceObj::SolarInfo& si)
 {
@@ -295,20 +297,30 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRa
     return *this;
 }
 
-ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRandomReputation()
+ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRandomReputation(const bool excludeStoryFactions)
 {
-    auto* groups = reinterpret_cast<FlMap<uint, Reputation::RepGroup>*>(0x64018EC);
+    auto& repGroups = GameData::repGroups;
 
-    const uint randomGroupIndex = Random::Uniform(0u, groups->size() - 1);
-    uint currentIndex = 0;
-    for (auto listItem = groups->begin(); listItem != groups->end(); ++listItem, ++currentIndex)
+    std::wstring rep;
+    while (rep.empty())
     {
-        if (currentIndex == randomGroupIndex)
+        const uint randomGroupIndex = Random::Uniform(0u, repGroups.size() - 1);
+        uint currentIndex = 0;
+        for (auto listItem = repGroups.begin(); listItem != repGroups.end(); ++listItem, ++currentIndex)
         {
-            reputation = StringUtils::stows(std::string_view(listItem.value()->name));
-            break;
+            if (currentIndex == randomGroupIndex)
+            {
+                if (!excludeStoryFactions || std::ranges::find(GameData::storyFactions, listItem.key()) == GameData::storyFactions.end())
+                {
+                    rep = StringUtils::stows(std::string_view(listItem.value()->name));
+                }
+
+                break;
+            }
         }
     }
+
+    reputation = rep;
 
     return *this;
 }
@@ -417,12 +429,11 @@ std::weak_ptr<CEqObj> ResourceManager::SpaceObjectBuilder::Spawn()
     {
         if (EqObj* inspect = nullptr; FLHook::GetObjInspect(obj->id, reinterpret_cast<IObjInspectImpl*&>(inspect)))
         {
-            inspect->light_fuse(
-                0,
-                ID_String{ fuse->fuse.index() == 0 ? InternalApi::CreateID(std::get<std::wstring>(fuse->fuse)) : std::get<uint>(fuse->fuse) },
-                fuse->equipmentId,
-                fuse->radius,
-                fuse->lifetime);
+            inspect->light_fuse(0,
+                                ID_String{ fuse->fuse.index() == 0 ? InternalApi::CreateID(std::get<std::wstring>(fuse->fuse)) : std::get<uint>(fuse->fuse) },
+                                fuse->equipmentId,
+                                fuse->radius,
+                                fuse->lifetime);
         }
     }
 
@@ -574,8 +585,8 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
         return {};
     }
 
-    std::shared_ptr<CShip> shared{ptr, &NoOp<CShip>};
-    FLHook::GetResourceManager().spawnedShips.emplace_back(shared, protectMemory);
+    std::shared_ptr<CShip> shared{ ptr, &NoOp<CShip> };
+    resourceManager.spawnedShips.emplace_back(shared, protectMemory);
 
     return shared;
 }
@@ -645,7 +656,8 @@ std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
     }
 
     // prevent the game from sending the solar creation packet (we need to do it ourselves)
-    auto address = FLHook::Offset(FLHook::BinaryType::Server,  AddressList::CreateSolar);;
+    auto address = FLHook::Offset(FLHook::BinaryType::Server, AddressList::CreateSolar);
+    ;
     constexpr byte bypassPacketSending = '\xEB';
     MemUtils::WriteProcMem(address, &bypassPacketSending, 1);
 
@@ -703,8 +715,8 @@ std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
         return {};
     }
 
-    std::shared_ptr<CSolar> shared{ptr, &NoOp<CSolar>};
-    FLHook::GetResourceManager().spawnedSolars.emplace_back(shared, protectMemory);
+    std::shared_ptr<CSolar> shared{ ptr, &NoOp<CSolar> };
+    resourceManager.spawnedSolars.emplace_back(shared, protectMemory);
 
     return shared;
 }
@@ -725,8 +737,7 @@ void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly
 
     if (ptr->objectClass == CObject::Class::CSOLAR_OBJECT)
     {
-        if (const auto erased = std::erase_if(spawnedSolars, [&ptr](std::shared_ptr<CSolar> solar) { return ptr->id == solar->id; });
-            !erased)
+        if (const auto erased = std::erase_if(spawnedSolars, [&ptr](std::shared_ptr<CSolar> solar) { return ptr->id == solar->id; }); !erased)
         {
             Logger::Debug(L"Tried to dispose of CSolar that wasn't owned by resource manager");
             return;
@@ -735,8 +746,7 @@ void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly
 
     if (ptr->objectClass == CObject::CSHIP_OBJECT)
     {
-        if (const auto erased = std::erase_if(spawnedShips, [&ptr](std::shared_ptr<CShip> ship) { return ptr->id == ship->id; });
-            !erased)
+        if (const auto erased = std::erase_if(spawnedShips, [&ptr](std::shared_ptr<CShip> ship) { return ptr->id == ship->id; }); !erased)
         {
             Logger::Debug(L"Tried to dispose of CShip that wasn't owned by resource manager");
             return;
@@ -756,10 +766,7 @@ void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly
     ptr->Release();
 }
 
-void ResourceManager::Despawn(std::weak_ptr<CEqObj> object)
-{
-    Destroy(object, true);
-}
+void ResourceManager::Despawn(std::weak_ptr<CEqObj> object) { Destroy(object, true); }
 
 ResourceManager::ResourceManager()
 {
