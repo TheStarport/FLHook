@@ -27,6 +27,7 @@
 #include "API/Utils/ZoneUtilities.hpp"
 
 #include "API/Exceptions/InvalidClientException.hpp"
+#include "API/FLHook/ResourceManager.hpp"
 #include "Core/CrashCatcher.hpp"
 #include "Core/MessageHandler.hpp"
 
@@ -80,6 +81,7 @@ FLHook::FLHook()
     database = new Database(flhookConfig->databaseConfig.uri);
     accountManager = new AccountManager();
     crashCatcher = new CrashCatcher();
+    resourceManager = new ResourceManager();
 
     flProc = GetModuleHandle(nullptr);
 
@@ -231,6 +233,15 @@ uint FLHook::GetServerLoadInMs() { return instance->serverLoadInMs; }
 AccountManager& FLHook::GetAccountManager() { return *instance->accountManager; }
 FLHookConfig& FLHook::GetConfig() { return *instance->flhookConfig; }
 IClientImpl* FLHook::GetPacketInterface() { return hookClientImpl; }
+ResourceManager& FLHook::GetResourceManager()
+{
+    if (!instance || !instance->flhookReady)
+    {
+        throw std::logic_error("Attempting to access resource manager before server has started.");
+    }
+
+    return *instance->resourceManager;
+}
 
 Action<void, Error> FLHook::MessageUniverse(std::wstring_view message)
 {
@@ -346,6 +357,10 @@ FLHook::~FLHook()
 
     // unload hooks
     UnloadHookExports();
+
+    delete resourceManager;
+    delete personalityHelper;
+    delete infocardManager;
 
     // Once FLServer has finished cleanup, let FLHook properly terminate
     CreateThread(nullptr, 0, Unload, moduleFLHook, 0, nullptr);

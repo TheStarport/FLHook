@@ -4,14 +4,8 @@
 
 class DLL ResourceManager final
 {
-    public:
-        struct SpawnedObject
-        {
-                CSimple* obj;
-                uint spaceObj;
-        };
+        friend IEngineHook;
 
-    private:
         struct NpcTemplate
         {
                 std::wstring nickname;
@@ -26,8 +20,11 @@ class DLL ResourceManager final
         };
 
         inline static std::unordered_map<uint, NpcTemplate> npcTemplates;
-        inline static std::vector<std::shared_ptr<SpawnedObject>> spawnedObjects;
+        std::vector<std::pair<std::shared_ptr<CShip>, bool>> spawnedShips;
+        std::vector<std::pair<std::shared_ptr<CSolar>, bool>> spawnedSolars;
 
+        void OnShipDestroyed(Ship* ship);
+        void OnSolarDestroyed(Solar* solar);
         static void SendSolarPacket(uint spaceId, pub::SpaceObj::SolarInfo& si);
 
     public:
@@ -35,10 +32,20 @@ class DLL ResourceManager final
         {
                 struct Fuse
                 {
-                    std::variant<std::wstring, uint> fuse;
-                    float radius = 5.0f;
-                    float lifetime = 5.0f;
-                    short equipmentId = 0;
+                        std::variant<std::wstring, uint> fuse;
+                        float radius = 5.0f;
+                        float lifetime = 5.0f;
+                        short equipmentId = 0;
+                };
+
+                enum class Region
+                {
+                    Random,
+                    Bretonia,
+                    Hispania,
+                    Kusari,
+                    Liberty,
+                    Rheinland
                 };
 
                 SpaceObjectBuilder& WithNpc(const std::wstring& npcNickname);
@@ -66,11 +73,19 @@ class DLL ResourceManager final
                 SpaceObjectBuilder& WithFuse(const Fuse& fuse);
                 SpaceObjectBuilder& WithRandomNpc();
                 SpaceObjectBuilder& WithRandomReputation();
-                SpaceObjectBuilder& WithRandomName();
+                SpaceObjectBuilder& WithRandomName(Region region = Region::Random);
+
+                /**
+                 * @brief Ensures that the ship/solar will remain valid in memory, even after being destroyed.
+                 * The only way it will be cleaned up and disposed of, is if it is explicitly destroyed through the ResourceManager.
+                 * @note This should be considered very dangerous and should you not keep hold of pointers to delete it,
+                 * it will lead to potentially quite large memory leaks and performance degredation.
+                 */
+                SpaceObjectBuilder& WithMemoryProtection();
 
                 SpaceObjectBuilder& AsSolar();
                 SpaceObjectBuilder& AsNpc();
-                ResourcePtr<SpawnedObject> Spawn();
+                std::weak_ptr<CEqObj> Spawn();
 
             private:
                 NpcTemplate npcTemplate{};
@@ -94,10 +109,11 @@ class DLL ResourceManager final
 
                 bool isNpc = true;
                 bool healthRelative = true;
+                bool protectMemory = false;
 
                 friend ResourceManager;
-                std::weak_ptr<SpawnedObject> SpawnNpc();
-                std::weak_ptr<SpawnedObject> SpawnSolar();
+                std::weak_ptr<CShip> SpawnNpc();
+                std::weak_ptr<CSolar> SpawnSolar();
                 bool ValidateSpawn() const;
                 SpaceObjectBuilder() = default;
         };
@@ -105,8 +121,24 @@ class DLL ResourceManager final
         ResourceManager();
         ~ResourceManager();
 
-        static SpaceObjectBuilder NewBuilder() { return {}; }
+        // ReSharper disable once CppMemberFunctionMayBeStatic
+        SpaceObjectBuilder NewBuilder() { return {}; }
 
-        void Destroy(ResourcePtr<SpawnedObject> object);
-        void Despawn(ResourcePtr<SpawnedObject> object);
+        /**
+         * @brief Cause an object to be destroyed, but not despawned.
+         * Calling this will call the death fuse and release control over the object, using the underlying pointer after this
+         * will be valid for the duration of the death fuse, but invalid after. For this reason, using the pointer after calling this function
+         * is undefined behaviour.
+         * @param object The object that should be destroyed.
+         * @param instantly If false, set health to 0 causing any death animations the ship may have.
+         * Otherwise instantly destroy the ship.
+         */
+        void Destroy(std::weak_ptr<CEqObj> object, const bool instantly = false);
+
+        /**
+         * @brief Instantly destroy the object without a fuse and dispose of the underlying object. Using the provided pointer after this is
+         * to be considered invalid.
+         * @param object The object that should be disposed.
+         */
+        void Despawn(std::weak_ptr<CEqObj> object);
 };

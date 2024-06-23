@@ -7,20 +7,23 @@
 #include "API/InternalApi.hpp"
 #include "API/Utils/Random.hpp"
 
+template<typename T>
+void NoOp(T*) {}
+
 void ResourceManager::SendSolarPacket(uint spaceId, pub::SpaceObj::SolarInfo& si)
 {
-    if (IObjInspectImpl* inspect; FLHook::GetObjInspect(spaceId, inspect))
+    if (IObjInspectImpl * inspect; FLHook::GetObjInspect(spaceId, inspect))
     {
-        auto const* solar = reinterpret_cast<CSolar const*>(inspect->cobject());
+        const auto* solar = reinterpret_cast<const CSolar*>(inspect->cobject());
 
         solar->launch_pos(si.pos, si.orientation, 1);
 
         struct SolarStruct
         {
-            std::byte unknown[0x100];
+                std::byte unknown[0x100];
         };
 
-        SolarStruct solarPacket {};
+        SolarStruct solarPacket{};
 
         DWORD server = reinterpret_cast<DWORD>(GetModuleHandleA("server.dll"));
         // ReSharper disable twice CppDFAUnusedValue
@@ -50,10 +53,45 @@ void ResourceManager::SendSolarPacket(uint spaceId, pub::SpaceObj::SolarInfo& si
         {
             if (client.playerData->systemId == si.systemId)
             {
-                GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(
-                    client.playerData->clientId, reinterpret_cast<FLPACKET_CREATESOLAR&>(solarPacket));
+                GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(client.playerData->clientId, reinterpret_cast<FLPACKET_CREATESOLAR&>(solarPacket));
             }
         }
+    }
+}
+
+void ResourceManager::OnSolarDestroyed(Solar* solar)
+{
+    for (auto& [spawnedSolar, protectMemory] : spawnedSolars)
+    {
+        if (spawnedSolar->id != solar->get_id())
+        {
+            continue;
+        }
+
+        if (protectMemory)
+        {
+            return;
+        }
+
+        solar->csolar()->Release();
+    }
+}
+
+void ResourceManager::OnShipDestroyed(Ship* ship)
+{
+    for (auto& [spawnedShip, protectMemory] : spawnedShips)
+    {
+        if (spawnedShip->id != ship->get_id())
+        {
+            continue;
+        }
+
+        if (protectMemory)
+        {
+            return;
+        }
+
+        ship->cship()->Release();
     }
 }
 
@@ -275,7 +313,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRa
     return *this;
 }
 
-ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRandomName()
+ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRandomName(Region region)
 {
     struct NameRange
     {
@@ -286,42 +324,50 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRa
     // clang-format off
     constexpr std::array<NameRange, 5> nameLists = {
         {
-            // Liberty
+            // Bretonia
             {
-                { 226608, 226952 },
-                { 227008, 227307 }
+                { 227308, 227575 },
+                { 227708, 228007 }
+            },
+            // Hispania
+            {
+                { 229208, 229340 },
+                { 229408, 229460 }
             },
             // Kusari
         {
             { 228708, 228890 },
             { 228908, 229207 }
             },
-            // Hispania
+            // Liberty
             {
-            { 229208, 229340 },
-            { 229408, 229460 }
+                    { 226608, 226952 },
+                    { 227008, 227307 }
             },
             // Rheinland
             {
             { 228008, 228407 },
             { 228408, 228663 }
             },
-            // Bretonia
-            {
-            { 227308, 227575 },
-            { 227708, 228007 }
-            },
         }
     };
 
     // clang-format on
-    const auto& [firstName, lastName] = nameLists[Random::Uniform(0u, nameLists.size() - 1)];
+
+    const auto& [firstName, lastName] =
+        region == Region::Random ? nameLists[Random::Uniform(0u, nameLists.size() - 1)] : nameLists[static_cast<size_t>(region) - 1u];
 
     name = {
         Random::Uniform(firstName.first, firstName.second),
         Random::Uniform(lastName.first, lastName.second),
     };
 
+    return *this;
+}
+
+ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithMemoryProtection()
+{
+    protectMemory = true;
     return *this;
 }
 
@@ -337,7 +383,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::AsNpc(
     return *this;
 }
 
-ResourcePtr<ResourceManager::SpawnedObject> ResourceManager::SpaceObjectBuilder::Spawn()
+std::weak_ptr<CEqObj> ResourceManager::SpaceObjectBuilder::Spawn()
 {
     if (!ValidateSpawn())
     {
@@ -345,38 +391,52 @@ ResourcePtr<ResourceManager::SpawnedObject> ResourceManager::SpaceObjectBuilder:
         return {};
     }
 
-    static const auto validateExisting = [](const std::shared_ptr<SpawnedObject>& obj) { return pub::SpaceObj::ExistsAndAlive(obj->spaceObj) != -2; };
-
-    using T = ResourcePtr<SpawnedObject>;
-    auto response = isNpc ? T{ SpawnNpc(), validateExisting } : T{ SpawnSolar(), validateExisting };
-
-    if (fuse.has_value())
+    std::shared_ptr<CEqObj> obj = nullptr;
+    if (isNpc)
     {
-        if (const auto obj = response.Acquire())
+        const auto ship = SpawnNpc().lock();
+        if (!ship)
         {
-            if (EqObj* inspect = nullptr; FLHook::GetObjInspect(obj->spaceObj, reinterpret_cast<IObjInspectImpl*&>(inspect)))
-            {
-                inspect->light_fuse(
-                    0,
-                    ID_String{ fuse->fuse.index() == 0 ? InternalApi::CreateID(std::get<std::wstring>(fuse->fuse)) : std::get<uint>(fuse->fuse) },
-                    fuse->equipmentId,
-                    fuse->radius,
-                    fuse->lifetime);
-            }
+            return {};
+        }
+
+        obj = std::dynamic_pointer_cast<CEqObj>(ship);
+    }
+    else
+    {
+        const auto solar = SpawnSolar().lock();
+        if (!solar)
+        {
+            return {};
+        }
+
+        obj = std::dynamic_pointer_cast<CEqObj>(solar);
+    }
+
+    if (fuse.has_value() && obj)
+    {
+        if (EqObj* inspect = nullptr; FLHook::GetObjInspect(obj->id, reinterpret_cast<IObjInspectImpl*&>(inspect)))
+        {
+            inspect->light_fuse(
+                0,
+                ID_String{ fuse->fuse.index() == 0 ? InternalApi::CreateID(std::get<std::wstring>(fuse->fuse)) : std::get<uint>(fuse->fuse) },
+                fuse->equipmentId,
+                fuse->radius,
+                fuse->lifetime);
         }
     }
 
-    return response;
+    return obj;
 }
 
-std::weak_ptr<ResourceManager::SpawnedObject> ResourceManager::SpaceObjectBuilder::SpawnNpc()
+std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
 {
     const auto shipArch = Archetype::GetShip(npcTemplate.archetypeHash);
 
     pub::SpaceObj::ShipInfo si{};
     std::memset(&si, 0x0, sizeof(pub::SpaceObj::ShipInfo)); // NOLINT
 
-    si.flag = 4;
+    si.flag = 1;
 
     si.system = system.value();
     si.pos = position.value();
@@ -508,17 +568,19 @@ std::weak_ptr<ResourceManager::SpawnedObject> ResourceManager::SpaceObjectBuilde
     // Add the personality to the space obj
     pub::AI::SubmitState(spaceObj, &personalityParams);
 
-    auto spawnedObject = std::make_shared<SpawnedObject>();
-    spawnedObject->obj =
-        static_cast<CSimple*>(CObject::Find(spaceObj, CObject::Class::CSHIP_OBJECT)); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+    auto ptr = static_cast<CShip*>(CObject::Find(spaceObj, CObject::Class::CSHIP_OBJECT)); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+    if (!ptr)
+    {
+        return {};
+    }
 
-    spawnedObject->spaceObj = spaceObj;
+    std::shared_ptr<CShip> shared{ptr, &NoOp<CShip>};
+    FLHook::GetResourceManager().spawnedShips.emplace_back(shared, protectMemory);
 
-    spawnedObjects.emplace_back(spawnedObject);
-    return spawnedObject;
+    return shared;
 }
 
-std::weak_ptr<ResourceManager::SpawnedObject> ResourceManager::SpaceObjectBuilder::SpawnSolar()
+std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
 {
     const auto solarArch = Archetype::GetSolar(npcTemplate.archetypeHash);
 
@@ -633,18 +695,18 @@ std::weak_ptr<ResourceManager::SpawnedObject> ResourceManager::SpaceObjectBuilde
         pub::SpaceObj::SetRelativeHealth(spaceId, 1.0f);
     }
 
-    auto spawnedObject = std::make_shared<SpawnedObject>();
-    spawnedObject->obj = static_cast<CSimple*>(CObject::Find(spaceId, CObject::Class::CSHIP_OBJECT)); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+    // Find increases the ref count by 1
+    auto ptr = static_cast<CSolar*>(CObject::Find(spaceId, CObject::Class::CSOLAR_OBJECT)); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
 
-    if (!spawnedObject->obj)
+    if (!ptr)
     {
         return {};
     }
 
-    spawnedObject->spaceObj = spaceId;
+    std::shared_ptr<CSolar> shared{ptr, &NoOp<CSolar>};
+    FLHook::GetResourceManager().spawnedSolars.emplace_back(shared, protectMemory);
 
-    spawnedObjects.emplace_back(spawnedObject);
-    return spawnedObject;
+    return shared;
 }
 
 bool ResourceManager::SpaceObjectBuilder::ValidateSpawn() const
@@ -653,30 +715,50 @@ bool ResourceManager::SpaceObjectBuilder::ValidateSpawn() const
            Loadout::Get(npcTemplate.loadoutHash);
 }
 
-void ResourceManager::Destroy(ResourcePtr<SpawnedObject> object)
+void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly)
 {
-    auto ptr = object.Acquire();
+    const auto ptr = object.lock();
     if (!ptr)
     {
-        std::erase_if(spawnedObjects, [ptr](auto& spawned) { return ptr->spaceObj == spawned->spaceObj; });
         return;
     }
 
-    pub::SpaceObj::Destroy(ptr->spaceObj, DestroyType::Fuse);
-    std::erase_if(spawnedObjects, [ptr](auto& spawned) { return ptr->spaceObj == spawned->spaceObj; });
+    if (ptr->objectClass == CObject::Class::CSOLAR_OBJECT)
+    {
+        if (const auto erased = std::erase_if(spawnedSolars, [&ptr](std::shared_ptr<CSolar> solar) { return ptr->id == solar->id; });
+            !erased)
+        {
+            Logger::Debug(L"Tried to dispose of CSolar that wasn't owned by resource manager");
+            return;
+        }
+    }
+
+    if (ptr->objectClass == CObject::CSHIP_OBJECT)
+    {
+        if (const auto erased = std::erase_if(spawnedShips, [&ptr](std::shared_ptr<CShip> ship) { return ptr->id == ship->id; });
+            !erased)
+        {
+            Logger::Debug(L"Tried to dispose of CShip that wasn't owned by resource manager");
+            return;
+        }
+    }
+
+    if (instantly)
+    {
+        pub::SpaceObj::Destroy(ptr->id, DestroyType::Vanish);
+    }
+    else
+    {
+        ptr->isDead = true;
+        pub::SpaceObj::SetRelativeHealth(ptr->id, 0.0f);
+    }
+
+    ptr->Release();
 }
 
-void ResourceManager::Despawn(ResourcePtr<SpawnedObject> object)
+void ResourceManager::Despawn(std::weak_ptr<CEqObj> object)
 {
-    auto ptr = object.Acquire();
-    if (!ptr)
-    {
-        std::erase_if(spawnedObjects, [ptr](auto& spawned) { return ptr->spaceObj == spawned->spaceObj; });
-        return;
-    }
-
-    pub::SpaceObj::Destroy(ptr->spaceObj, DestroyType::Vanish);
-    std::erase_if(spawnedObjects, [ptr](auto& spawned) { return ptr->spaceObj == spawned->spaceObj; });
+    Destroy(object, true);
 }
 
 ResourceManager::ResourceManager()
@@ -756,5 +838,15 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager()
 {
-    std::ranges::for_each(spawnedObjects, [](auto& obj) { pub::SpaceObj::Destroy(obj->spaceObj, DestroyType::Vanish); });
+    for (const auto& solar : spawnedSolars | std::views::keys)
+    {
+        pub::SpaceObj::Destroy(solar->id, DestroyType::Vanish);
+        solar->Release();
+    }
+
+    for (const auto& ship : spawnedShips | std::views::keys)
+    {
+        pub::SpaceObj::Destroy(ship->id, DestroyType::Vanish);
+        ship->Release();
+    }
 }

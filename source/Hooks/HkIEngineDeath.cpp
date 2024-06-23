@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/ResourceManager.hpp"
 #include "API/InternalApi.hpp"
 #include "Core/IEngineHook.hpp"
 
@@ -13,6 +14,8 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, bool i
     {
         CallPlugins(&Plugin::OnShipDestroy, ship, dmgList, killerId);
     }
+
+    FLHook::GetResourceManager().OnShipDestroyed(ship);
 
     using IShipDestroyType = void(__thiscall*)(Ship*, bool, uint);
 
@@ -119,6 +122,8 @@ void __fastcall IEngineHook::LootDestroy(Loot* loot, void* edx, bool isKill, uin
 void __fastcall IEngineHook::SolarDestroy(Solar* solar, void* edx, bool isKill, uint killerId)
 {
     CallPlugins(&Plugin::OnSolarDestroy, solar, isKill, killerId);
+
+    FLHook::GetResourceManager().OnSolarDestroyed(solar);
 
     using ISolarDestroyType = void(__thiscall*)(Solar*, bool, uint);
     static_cast<ISolarDestroyType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::ObjectDestroyed)))(solar, isKill, killerId);

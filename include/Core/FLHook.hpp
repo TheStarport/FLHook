@@ -20,6 +20,7 @@ class AccountManager;
 class CrashCatcher;
 class MessageHandler;
 class MessageInterface;
+class ResourceManager;
 
 class DLL FLHook final
 {
@@ -79,6 +80,7 @@ class DLL FLHook final
         InfocardManager* infocardManager;
         PersonalityHelper* personalityHelper;
         AccountManager* accountManager;
+        ResourceManager* resourceManager;
         FLHookConfig* flhookConfig;
         CrashCatcher* crashCatcher;
         MessageHandler* messageHandler;
@@ -152,6 +154,7 @@ class DLL FLHook final
         static LastHitInformation GetLastHitInformation();
         static MessageInterface* GetMessageInterface();
         static IClientImpl* GetPacketInterface();
+        static ResourceManager& GetResourceManager();
         static Action<pub::AI::Personality*, Error> GetPersonality(const std::wstring& pilotNickname);
         static uint GetServerLoadInMs();
 

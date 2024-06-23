@@ -7,6 +7,7 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
 #include "API/FLHook/InfocardManager.hpp"
+#include "API/FLHook/ResourceManager.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
 
 // TODO: General, a lot of these functions are agnostic about whether or not the player is online and thus has a clientId, so along with the player database
@@ -376,6 +377,17 @@ std::wstring AdminCommandProcessor::ReloadPlugin(std::vector<std::wstring_view> 
 
 std::wstring AdminCommandProcessor::ListPlugins()
 {
+    const auto admin = ClientId(currentUser);
+    auto builder = FLHook::GetResourceManager().NewBuilder();
+    builder
+        .WithNpc(L"fc_c_co_fighter_d8")
+        .WithReputation(L"fc_x_grp")
+        .WithLevel(90)
+        .WithRandomName()
+        .WithPosition(admin.GetShipId().Handle().GetPositionAndOrientation().Handle().first)
+        .WithSystem(admin.GetSystemId().Handle().GetValue())
+        .Spawn();
+
     if (PluginManager::i()->plugins.empty())
     {
         return L"No plugins are loaded";
@@ -384,7 +396,7 @@ std::wstring AdminCommandProcessor::ListPlugins()
     std::wstring plugins;
     for (const auto& p : PluginManager::i()->plugins)
     {
-        plugins += std::format(L"{} ({})", p->GetName(), p->GetShortName());
+        plugins += std::format(L"{} ({})\n", p->GetName(), p->GetShortName());
     }
 
     return plugins;
