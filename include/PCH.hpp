@@ -74,12 +74,13 @@
 #include "API/Types/BaseId.hpp"
 #include "API/Types/ClientId.hpp"
 #include "API/Types/EquipmentId.hpp"
+#include "API/Types/GoodId.hpp"
 #include "API/Types/GroupId.hpp"
 #include "API/Types/ObjectId.hpp"
 #include "API/Types/RepGroupId.hpp"
 #include "API/Types/RepId.hpp"
 #include "API/Types/ShipId.hpp"
-#include "API/Types/GoodId.hpp"
+#include "API/Types/UnknownId.hpp"
 #include "API/Utils/Reflection.hpp" // For reflectiong custom types with rfl
 
 #include "FLCore/Common.hpp"
