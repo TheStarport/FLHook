@@ -79,6 +79,8 @@
 #include "API/Types/RepGroupId.hpp"
 #include "API/Types/RepId.hpp"
 #include "API/Types/ShipId.hpp"
+#include "API/Types/GoodId.hpp"
+#include "API/Utils/Reflection.hpp" // For reflectiong custom types with rfl
 
 #include "FLCore/Common.hpp"
 #include "FLCore/FLCoreDALib.h"

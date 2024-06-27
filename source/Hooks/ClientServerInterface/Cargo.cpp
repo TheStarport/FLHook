@@ -32,7 +32,7 @@ void __stdcall IServerImplHook::ReqAddItem(GoodId goodId, const char* hardpoint,
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestAddItem, client, goodId, std::wstring_view(hp), count, status, mounted); !skip)
     {
-        CallServerPreamble { Server.ReqAddItem(goodId, hardpoint, count, status, mounted, client.GetValue()); }
+        CallServerPreamble { Server.ReqAddItem(goodId.GetValue(), hardpoint, count, status, mounted, client.GetValue()); }
         CallServerPostamble(true, );
     }
 

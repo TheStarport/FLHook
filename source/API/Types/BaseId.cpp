@@ -134,17 +134,16 @@ Action<std::vector<uint>, Error> BaseId::GetItemsForSale() const
 
     return { std::vector(arr.begin(), arr.begin() + size) };
 }
-
 Action<float, Error> BaseId::GetCommodityPrice(GoodId goodId) const
 {
     float nomPrice;
-    if (pub::Market::GetNominalPrice(goodId, nomPrice) != static_cast<int>(ResponseCode::Success))
+    if (pub::Market::GetNominalPrice(goodId.GetValue(), nomPrice) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidGood) };
     }
 
     float price;
-    if (pub::Market::GetPrice(value, goodId, price) != static_cast<int>(ResponseCode::Success))
+    if (pub::Market::GetPrice(value, goodId.GetValue(), price) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidBase) };
     }
@@ -152,7 +151,7 @@ Action<float, Error> BaseId::GetCommodityPrice(GoodId goodId) const
     return { price };
 }
 
-Action<std::vector<ClientId>, Error> BaseId::GetDockedPlayers()
+Action<std::vector<ClientId>, Error> BaseId::GetDockedPlayers() const
 {
     ValidBaseCheck;
 

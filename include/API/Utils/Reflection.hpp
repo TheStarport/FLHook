@@ -51,5 +51,6 @@ namespace rfl::parsing
     HashConvert(RepGroupId, "fc_z_grp");
     HashConvert(ShipId, "ge_starflier");
     HashConvert(SystemId, "li01_01");
+    HashConvert(GoodId, "commodity_cardamine");
 
 } // namespace rfl::parsing

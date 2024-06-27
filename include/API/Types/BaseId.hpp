@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GoodId.hpp"
 #include "ObjectId.hpp"
 #include "RepId.hpp"
 
@@ -26,7 +27,7 @@ class DLL BaseId
         [[nodiscard]] Action<std::vector<uint>, Error> GetItemsForSale() const;
         [[nodiscard]] Action<float, Error> GetCommodityPrice(GoodId goodId) const;
 
-        [[nodiscard]] Action<std::vector<ClientId>, Error> GetDockedPlayers();
+        [[nodiscard]] Action<std::vector<ClientId>, Error> GetDockedPlayers() const;
 };
 
 template <>

@@ -737,7 +737,8 @@ void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly
 
     if (ptr->objectClass == CObject::Class::CSOLAR_OBJECT)
     {
-        if (const auto erased = std::erase_if(spawnedSolars, [&ptr](std::shared_ptr<CSolar> solar) { return ptr->id == solar->id; }); !erased)
+        if (const auto erased = std::erase_if(spawnedSolars, [&ptr](std::pair<std::shared_ptr<CSolar>, bool>& solar) { return ptr->id == solar.first->id; });
+            !erased)
         {
             Logger::Debug(L"Tried to dispose of CSolar that wasn't owned by resource manager");
             return;
@@ -746,7 +747,8 @@ void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly
 
     if (ptr->objectClass == CObject::CSHIP_OBJECT)
     {
-        if (const auto erased = std::erase_if(spawnedShips, [&ptr](std::shared_ptr<CShip> ship) { return ptr->id == ship->id; }); !erased)
+        if (const auto erased = std::erase_if(spawnedShips, [&ptr](std::pair<std::shared_ptr<CShip>, bool>& ship) { return ptr->id == ship.first->id; });
+            !erased)
         {
             Logger::Debug(L"Tried to dispose of CShip that wasn't owned by resource manager");
             return;

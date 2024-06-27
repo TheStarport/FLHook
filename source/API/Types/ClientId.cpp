@@ -703,5 +703,14 @@ Action<void, Error> ClientId::Undock(Vector pos, std::optional<Matrix> orientati
 
     FLHook::hookClientImpl->Send_FLPACKET_SERVER_LAUNCH(value, launchPacket);
 
+    return { {} };
+}
+
+Action<void, Error> ClientId::PlaySound(const uint hash) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    pub::Audio::PlaySoundEffect(value, hash);
     return {{}};
 }
