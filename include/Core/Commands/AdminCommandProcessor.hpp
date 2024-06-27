@@ -105,17 +105,18 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
 
         template <int N>
         std::wstring MatchCommand(AdminCommandProcessor* processor, std::wstring_view user, AllowedContext currentContext, std::wstring_view cmd,
-                                  std::vector<std::wstring>& paramVector)
+                                  std::vector<std::wstring_view>& paramVector)
         {
             for (const auto& command = std::get<N - 1>(commands); auto& str : command.cmd)
             {
-                if (str == cmd)
+                if (cmd.starts_with(str))
                 {
                     if (const auto validation = Validate(command.allowedContext, command.requiredRole); validation.has_error())
                     {
                         return validation.error();
                     }
 
+                    paramVector.erase(paramVector.begin(), paramVector.begin() + std::ranges::count(str, L' '));
                     return command.func(processor, paramVector);
                 }
             }
@@ -126,14 +127,14 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         template <>
         // ReSharper disable once CppExplicitSpecializationInNonNamespaceScope
         std::wstring MatchCommand<0>(AdminCommandProcessor* processor, std::wstring_view user, AllowedContext currentContext, std::wstring_view cmd,
-                                     std::vector<std::wstring>& paramVector)
+                                     std::vector<std::wstring_view>& paramVector)
         {
             // No matching command was found
             return L"";
         }
 
-        std::wstring ProcessCommand(std::wstring_view user, AllowedContext currentContext, std::wstring_view cmd,
-                                    std::vector<std::wstring>& paramVector) override;
+        std::wstring ProcessCommand(const std::wstring_view user, const AllowedContext currentContext, std::wstring_view cmd,
+                                    std::vector<std::wstring_view>& paramVector) override;
 
     public:
         std::wstring ProcessCommand(std::wstring_view user, AllowedContext currentContext, std::wstring_view commandString);

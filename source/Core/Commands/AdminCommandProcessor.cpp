@@ -14,7 +14,7 @@
 // rework a lot of these functions need to be reworked to account for that.
 
 std::wstring AdminCommandProcessor::ProcessCommand(const std::wstring_view user, const AllowedContext currentContext, std::wstring_view cmd,
-                                                   std::vector<std::wstring>& paramVector)
+                                                   std::vector<std::wstring_view>& paramVector)
 {
     // If empty, command not found
     if (const auto result = MatchCommand<commands.size()>(this, user, currentContext, cmd, paramVector); !result.empty())
@@ -47,10 +47,10 @@ std::wstring AdminCommandProcessor::ProcessCommand(const std::wstring_view user,
         return L"";
     }
 
-    std::vector<std::wstring> paramsFiltered(params.begin(), params.end());
+    std::vector paramsFiltered(params.begin(), params.end());
     paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
 
-    return ProcessCommand(user, currentContext, command, paramsFiltered);
+    return ProcessCommand(user, currentContext, commandString, paramsFiltered);
 }
 
 std::wstring AdminCommandProcessor::SetCash(ClientId characterName, uint amount)

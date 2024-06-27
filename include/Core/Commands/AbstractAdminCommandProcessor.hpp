@@ -28,7 +28,7 @@ template <class Processor>
 struct AdminCommandInfo
 {
         std::vector<std::wstring_view> cmd;
-        std::wstring (*func)(Processor* cl, std::vector<std::wstring>& params);
+        std::wstring (*func)(Processor* cl, std::vector<std::wstring_view>& params);
         AllowedContext allowedContext;
         std::wstring_view requiredRole;
         std::wstring_view usage;
@@ -75,8 +75,8 @@ class AbstractAdminCommandProcessor
 
     public:
         virtual ~AbstractAdminCommandProcessor() = default;
-        virtual std::wstring ProcessCommand(std::wstring_view user, AllowedContext currentContext, std::wstring_view cmd,
-                                            std::vector<std::wstring>& paramVector) = 0;
+        virtual std::wstring ProcessCommand(const std::wstring_view user, const AllowedContext currentContext, std::wstring_view cmd,
+                                            std::vector<std::wstring_view>& paramVector) = 0;
         virtual std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> GetAdminCommands() = 0;
 };
 
@@ -105,11 +105,12 @@ concept IsAdminCommandProcessor = std::is_base_of_v<AbstractAdminCommandProcesso
     template <int N>                                                                                                                                    \
     std::wstring MatchCommand(class* processor, const std::wstring_view cmd, std::vector<std::wstring>& paramVector)                                    \
     {                                                                                                                                                   \
-        const AdminCommandInfo<class>& command = std::get<N - 1>(class ::commandArray);                                                                       \
+        const AdminCommandInfo<class>& command = std::get<N - 1>(class ::commandArray);                                                                 \
         for (auto& str : command.cmd)                                                                                                                   \
         {                                                                                                                                               \
-            if (str == cmd)                                                                                                                             \
+            if (cmd.starts_with(str))                                                                                                                   \
             {                                                                                                                                           \
+                paramVector.erase(paramVector.begin(), paramVector.begin() + (std::ranges::count(str, L' ')));                                      \
                 return command.func(processor, paramVector);                                                                                            \
             }                                                                                                                                           \
         }                                                                                                                                               \
@@ -120,7 +121,7 @@ concept IsAdminCommandProcessor = std::is_base_of_v<AbstractAdminCommandProcesso
     template <>                                                                                                                                         \
     std::wstring MatchCommand<0>(class * processor, std::wstring_view cmd, std::vector<std::wstring> & paramVector)                                     \
     {                                                                                                                                                   \
-        return L"";                                                                                                                                   \
+        return L"";                                                                                                                                     \
     }                                                                                                                                                   \
                                                                                                                                                         \
     std::wstring ProcessCommand(std::wstring_view user, AllowedContext context, std::wstring_view cmd, std::vector<std::wstring>& paramVector) override \

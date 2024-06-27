@@ -30,7 +30,6 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         // void ReadMail(uint mailId);
         // void ListMail(int pageNumber, std::wstring_view unread);
         void GiveCash(std::wstring_view characterName, std::wstring_view amount);
-        void GiveCashById(ClientId targetClient, std::wstring_view amount);
         void Time();
         void Dice(uint sidesOfDice);
         void Coin();
@@ -84,13 +83,14 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         GetUserCommandsFunc(commands);
 
         template <int N>
-        bool MatchCommand(UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd, std::vector<std::wstring>& paramVector)
+        bool MatchCommand(UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd, std::vector<std::wstring_view>& paramVector)
         {
             const CommandInfo<UserCommandProcessor>& command = std::get<N - 1>(commands);
             for (const auto str : command.cmd)
             {
-                if (str == cmd)
+                if (cmd.starts_with(str))
                 {
+                    paramVector.erase(paramVector.begin(), paramVector.begin() + std::ranges::count(str, L' '));
                     command.func(processor, paramVector);
                     return true;
                 }
@@ -101,9 +101,9 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
 
         template <>
         // ReSharper disable once CppExplicitSpecializationInNonNamespaceScope
-        bool MatchCommand<0>(UserCommandProcessor* processor, ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring>& paramVector);
+        bool MatchCommand<0>(UserCommandProcessor* processor, ClientId triggeringClient, std::wstring_view fullCmdString, std::vector<std::wstring_view>& paramVector);
 
     public:
-        bool ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring>& paramVector) override;
+        bool ProcessCommand(ClientId triggeringClient, const std::wstring_view fullCmdStr, std::vector<std::wstring_view>& paramVector) override;
         bool ProcessCommand(ClientId triggeringClient, std::wstring_view commandStr);
 };

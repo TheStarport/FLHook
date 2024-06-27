@@ -84,7 +84,7 @@ constexpr int ValidateTransformationArgument()
  * @return A transformed tuple where each index has been converted to it's appropriate type as defined from Args...
  */
 template <typename... Args, std::size_t... Is>
-auto CreateTupleImpl(std::index_sequence<Is...>, std::vector<std::wstring>& arguments)
+auto CreateTupleImpl(std::index_sequence<Is...>, std::vector<std::wstring_view>& arguments)
 {
     constexpr size_t size = sizeof...(Is);
     // If not enough params we need to pad the list
@@ -100,22 +100,12 @@ auto CreateTupleImpl(std::index_sequence<Is...>, std::vector<std::wstring>& argu
         using LastType = std::tuple_element_t<size - 1, std::tuple<Args...>>;
         if constexpr (IsSpecialization<LastType, std::vector>::value)
         {
-            std::vector extraArgs = {
-                std::pair{size - 1, arguments.size()}
-            };
-            auto view = extraArgs |
-                        std::views::transform(
-                            [&arguments](auto r)
-                            {
-                                auto [beg, end] = r;
-                                return std::views::counted(arguments.begin() + beg, end - beg);
-                            }) |
-                        std::views::join;
 
-            std::wstring newArg;
-            std::ranges::for_each(view, [&newArg](auto& v) { newArg += std::format(L"{} ", std::wstring(v)); });
 
-            arguments[size - 1] = StringUtils::Trim(newArg);
+            // Given we know all the values come from the same string (same buffer),
+            // We can do some janky pointer logic here to get the wstring_view
+            const auto lastArg = StringUtils::Trim(*(arguments.end() - 1));
+            arguments[size - 1] = std::wstring_view(arguments[size - 1].data(), lastArg.data() + lastArg.size());
         }
     }
 
@@ -123,7 +113,7 @@ auto CreateTupleImpl(std::index_sequence<Is...>, std::vector<std::wstring>& argu
 }
 
 template <typename... Args>
-auto CreateTuple(std::vector<std::wstring>& arguments)
+auto CreateTuple(std::vector<std::wstring_view>& arguments)
 {
     return CreateTupleImpl<Args...>(std::index_sequence_for<Args...>{}, arguments);
 }
@@ -135,7 +125,7 @@ template <class Ret, class Cl, class... Args, Ret (Cl::*func)(Args...)>
 class ClassFunctionWrapper<Ret (Cl::*)(Args...), func>
 {
     public:
-    static Ret ProcessParam(Cl* cl, std::vector<std::wstring>& params)
+    static Ret ProcessParam(Cl* cl, std::vector<std::wstring_view>& params)
     {
         auto arg = CreateTuple<Args...>(params);
         auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cl->*func)(args...); } };

@@ -15,40 +15,40 @@
 
 bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstring_view commandStr)
 {
-    this->userCmdClient = triggeringClient;
+    if (commandStr.length() < 2)
+    {
+        return false;
+    }
 
+    this->userCmdClient = triggeringClient;
     auto params = StringUtils::GetParams(commandStr, ' ');
 
     const auto& config = FLHook::GetConfig();
-    const auto command = params.front();
-    if (command.length() < 2)
-    {
-        return false;
-    }
 
-    if (std::ranges::find(config.userCommands.disabledCommands, std::wstring_view(command.begin() + 1, command.end())) !=
-        config.userCommands.disabledCommands.end())
+    for (const auto trimmedCmdStr = std::wstring_view(commandStr.data() + 1, commandStr.length() - 1);
+         const auto& disabledCommand : config.userCommands.disabledCommands)
     {
-        (void)this->userCmdClient.Message(L"This command is currently disabled.");
-        return false;
+        if (trimmedCmdStr.starts_with(disabledCommand))
+        {
+            userCmdClient.Message(L"This command is currently disabled.");
+            return false;
+        }
     }
-
-    std::vector<std::wstring> paramsFiltered(params.begin(), params.end());
-    paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
 
     const auto character = triggeringClient.GetCharacterName().Unwrap();
-    Logger::Info(std::format(L"{}: {}", character, commandStr));
+    Logger::Trace(std::format(L"{}: {}", character, commandStr));
 
-    return ProcessCommand(triggeringClient, command, paramsFiltered);
+    std::vector paramsFiltered(params.begin(), params.end());
+    return ProcessCommand(triggeringClient, commandStr, paramsFiltered);
 }
 
 template <>
-bool UserCommandProcessor::MatchCommand<0>([[maybe_unused]] UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd,
-                                           std::vector<std::wstring>& paramVector)
+bool UserCommandProcessor::MatchCommand<0>([[maybe_unused]] UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view fullCmdString,
+                                           std::vector<std::wstring_view>& paramVector)
 {
     for (auto& user : PluginManager::i()->userCommands)
     {
-        if (user.lock()->ProcessCommand(triggeringClient, cmd, paramVector))
+        if (user.lock()->ProcessCommand(triggeringClient, fullCmdString, paramVector))
         {
             return true;
         }
@@ -57,9 +57,9 @@ bool UserCommandProcessor::MatchCommand<0>([[maybe_unused]] UserCommandProcessor
     return false;
 }
 
-bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring>& paramVector)
+bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, const std::wstring_view fullCmdStr, std::vector<std::wstring_view>& paramVector)
 {
-    return MatchCommand<commands.size()>(this, triggeringClient, cmd, paramVector);
+    return MatchCommand<commands.size()>(this, triggeringClient, fullCmdStr, paramVector);
 }
 
 void UserCommandProcessor::SetDieMessage(std::wstring_view param)
@@ -84,8 +84,8 @@ void UserCommandProcessor::SetDieMessage(std::wstring_view param)
     else
     {
         (void)userCmdClient.Message(L"Error: Invalid parameters\n"
-                              L"Usage: /setdiemsg <param>\n"
-                              L"<param>: 'all', 'system', 'self' or 'none'");
+                                    L"Usage: /setdiemsg <param>\n"
+                                    L"<param>: 'all', 'system', 'self' or 'none'");
         return;
     }
 
