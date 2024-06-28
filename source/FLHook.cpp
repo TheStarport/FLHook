@@ -325,15 +325,6 @@ void FLHook::LoadSettings()
         }
     }
 
-    // NoPVP
-    (*config)->general.noPVPSystemsHashed.clear();
-    for (const auto& system : (*config)->general.noPVPSystems)
-    {
-        uint systemId;
-        pub::GetSystemID(systemId, StringUtils::wstos(system).c_str());
-        (*config)->general.noPVPSystemsHashed.emplace_back(systemId);
-    }
-
     // Resave to add any missing properties that have been added
     Json::Save(*config, "flhook.json");
 }

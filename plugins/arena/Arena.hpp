@@ -21,15 +21,13 @@ namespace Plugins
      * @endcode
      *
      * @par Player Commands
-     * All commands are prefixed with '/' unless explicitly specified.
      * - arena (configurable) - This beams the player to the pvp system.
      * - return - This returns the player to their last docked base.
      *
      * @par Admin Commands
      * There are no admin commands in this plugin.
      *
-     * @note All player commands are prefixed with '/'.
-     * All admin commands are prefixed with a '.'.
+     * @note All player commands are prefixed with '/', all admin commands are prefixed with a '.'
      */
     class ArenaPlugin final : public Plugin, public AbstractUserCommandProcessor
     {

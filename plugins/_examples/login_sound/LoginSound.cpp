@@ -8,9 +8,9 @@ using namespace Plugins;
 
 void LoginSound::OnLoadSettings()
 {
-    if (const auto conf = Json::Load<Config>("config/arena.json"); !conf.has_value())
+    if (const auto conf = Json::Load<Config>("config/login_sound.json"); !conf.has_value())
     {
-        Json::Save(config, "config/arena.json");
+        Json::Save(config, "config/login_sound.json");
     }
     else
     {

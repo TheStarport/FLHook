@@ -76,9 +76,9 @@ bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
         }
 
         // no-pvp check
-        uint systemId;
-        pub::Player::GetSystem(client.GetValue(), systemId);
-        if (std::ranges::find(config.general.noPVPSystemsHashed, systemId) != config.general.noPVPSystemsHashed.end())
+        SystemId systemId;
+        pub::Player::GetSystem(client.GetValue(), reinterpret_cast<uint&>(systemId));
+        if (std::ranges::find(config.general.noPvPSystems, systemId) != config.general.noPvPSystems.end())
         {
             return false;
         }

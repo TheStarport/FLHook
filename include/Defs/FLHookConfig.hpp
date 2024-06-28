@@ -119,9 +119,7 @@ struct DLL FLHookConfig final
                 //! A vector of forbidden words/phrases, which will not be processed and sent to other players
                 std::vector<std::wstring> chatSuppressList;
                 //! Vector of systems where players can't deal damage to one another.
-                std::vector<std::wstring> noPVPSystems;
-
-                std::vector<uint> noPVPSystemsHashed;
+                std::vector<SystemId> noPvPSystems;
         };
 
         struct Logging final
