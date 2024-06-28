@@ -1000,3 +1000,71 @@ void UserCommandProcessor::Coin()
     const uint result = Random::Uniform(0u, 1u);
     userCmdClient.MessageLocal(std::format(L"{} tossed a coin, it landed on {}", userCmdClient.GetCharacterName().Handle(), result ? L"heads" : L"tails"));
 }
+
+void UserCommandProcessor::MarkTarget()
+{
+    const ClientData& cd = userCmdClient.GetData();
+	const auto cShip = cd.cship;
+	if (!cShip)
+	{
+	    (void)userCmdClient.Message(L"ERR Not in space");
+		return;
+	}
+
+	const auto target = cShip->get_target();
+	if (!target)
+	{
+	    (void)userCmdClient.Message(L"ERR No target selected");
+		return;
+	}
+
+	if (!target->is_player())
+	{
+	    (void)userCmdClient.Message(L"ERR Target not a player");
+		return;
+	}
+
+	uint targetShip = target->get_id();
+	const auto targetClientId = ClientId(((CShip*)target->cobject())->ownerPlayer);
+
+	auto charName = userCmdClient.GetCharacterName().Handle();
+	auto targetName = targetClientId.GetCharacterName().Handle();
+
+    //std::wstring message1 = std::format(L"Target: {}", targetName);
+    std::wstring message2 = std::format(L"{} has set {} as group target.", charName, targetName);
+
+    //std::wstring_view msgView1 = message1;
+    std::wstring_view msgView2 = message2;
+
+    FmtStr caption(0, nullptr);
+    caption.begin_mad_lib(526999);
+    caption.end_mad_lib();
+
+    GroupId group = GroupId(cd.playerData->playerGroup->GetID());
+
+    (void)group.ForEachGroupMember([msgView2, targetShip](const ClientId& groupMemberClientId)
+    {
+        if (const uint groupMemShip = Players[groupMemberClientId.GetValue()].shipId; !groupMemShip || groupMemShip == targetShip)
+        {
+            return std::nullopt;
+        }
+
+        (void)groupMemberClientId.Message(msgView2);
+        //TODO: Reintroduce when IDS override clienthook is made
+        //HkChangeIDSString(gm->iClientID, 526999, message1);
+
+        //pub::Player::DisplayMissionMessage(groupMemberClientId.GetValue(), caption, MissionMessageType::MissionMessageType_Type2, true);
+
+        if (groupMemberClientId.GetData().markedTarget)
+        {
+            pub::Player::MarkObj(groupMemberClientId.GetValue(), groupMemberClientId.GetData().markedTarget, 0);
+        }
+
+        pub::Player::MarkObj(groupMemberClientId.GetValue(), targetShip, 1);
+        groupMemberClientId.GetData().markedTarget = targetShip;
+
+        return std::nullopt;
+    }, false);
+
+    (void)userCmdClient.Message(L"OK");
+}

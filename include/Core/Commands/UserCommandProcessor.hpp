@@ -20,6 +20,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         void GetIgnoreList();
         void RemoveFromIgnored(std::vector<std::wstring_view> charactersToRemove);
         void GetSelfClientId();
+        void MarkTarget();
         void Rename(std::wstring_view newName);
         void InvitePlayer(const std::wstring_view& characterName);
         void InvitePlayerByName(std::wstring_view invitee);
@@ -38,7 +39,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         void Help(std::wstring_view module, std::wstring_view command);
 
         // clang-format off
-        inline static const std::array<CommandInfo<UserCommandProcessor>, 26> commands = {
+        inline static const std::array<CommandInfo<UserCommandProcessor>, 27> commands = {
             {AddCommand(UserCommandProcessor, Cmds( L"/ids"sv ), GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
              AddCommand(UserCommandProcessor, Cmds( L"/setdiemsgsize"sv ), SetDieMessageFontSize, L"/setdiemsgsize [option]",
              L"Sets the text size of death chatConfig. Use without parameters to see available options."),
@@ -68,6 +69,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              //AddCommand(UserCommandProcessor, L"/delmail", DeleteMail, L"/delmail <id>", L"deletes specified mail"),
              //AddCommand(UserCommandProcessor, L"/readmail", ReadMail, L"/readmail <id>", L"prints specified mail."),
              //AddCommand(UserCommandProcessor, L"/listmail", ListMail, L"/listmail [page]", L"lists the mails of the specified page."),
+             AddCommand(UserCommandProcessor, Cmds( L"/mark"sv ), MarkTarget, L"/mark", L"Marks the selected ship for all group members"),
              AddCommand(UserCommandProcessor, Cmds(L"/givecash", L"/gc", L"/sendcash", L"/sc"), GiveCash, L"/givecash <target> <amount>", L"gives specified amount of cash to target"),
              AddCommand(UserCommandProcessor, Cmds( L"/time"sv ), Time, L"/time", L"Prints current time"),
              AddCommand(UserCommandProcessor, Cmds( L"/rename"sv ), Rename, L"/rename <newName>", L"Renames the character. Kicks you upon completion."),

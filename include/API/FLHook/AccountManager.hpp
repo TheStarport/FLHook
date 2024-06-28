@@ -163,6 +163,7 @@ class AccountManager
         static void __fastcall LoadPlayerMData(MPlayerDataSaveStruct* mdata, void* edx, INI_Reader* ini);
         static void InitContentDLLDetours();
         static Character* GetCurrentCharacterData(ClientId);
+        static Character* GetCurrentCharacterData(ClientId, std::wstring_view characterName);
         inline static FlMapVisitErase flMapVisitErase;
         inline static FlMapVisitInsert flMapVisitInsert;
 };

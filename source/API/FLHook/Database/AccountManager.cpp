@@ -148,11 +148,33 @@ Character* AccountManager::GetCurrentCharacterData(const ClientId client)
     const std::string characterCode = client.GetData().playerData->charFile.charFilename;
     auto& characterMap = accounts[client.GetValue()].characters;
     const auto characterIter = characterMap.find(characterCode);
-    if(characterIter == characterMap.end())
+    if (characterIter == characterMap.end())
     {
         return nullptr;
     }
     return &characterIter->second;
+}
+
+Character* AccountManager::GetCurrentCharacterData(ClientId client, std::wstring_view characterName)
+{
+
+    if(!client && characterName.empty())
+    {
+        return nullptr;
+    }
+
+    char charNameBuffer[50];
+
+    getFlName(charNameBuffer, characterName.data());;
+
+    auto& characterMap = accounts[client.GetValue()].characters;
+    const auto charData = characterMap.find(charNameBuffer);
+    if(charData == characterMap.end())
+    {
+        return nullptr;
+    }
+
+    return &charData->second;
 }
 
 void __fastcall AccountManager::LoadPlayerMData(MPlayerDataSaveStruct* mdata, void* edx, struct INI_Reader* ini)
