@@ -11,13 +11,13 @@
 template <class... Args>
 void LogInternal(const wchar_t* templateStr, Args&&... args)
 {
-    Logger::Err(std::vformat(templateStr, std::make_wformat_args(std::forward<Args>(args)...)));
+    Logger::Err(std::vformat(templateStr, std::make_wformat_args(std::forward<Args&>(args)...)));
 }
 
 template <class... Args>
 void LogInternal(const char* templateStr, Args&&... args)
 {
-    Logger::Err(StringUtils::stows(std::vformat(templateStr, std::make_format_args(std::forward<Args>(args)...))));
+    Logger::Err(StringUtils::stows(std::vformat(templateStr, std::make_format_args(std::forward<Args&>(args)...))));
 }
 
 void __stdcall CrashCatcher::LogContent47bc4()
@@ -239,7 +239,7 @@ char __stdcall CrashCatcher::FixCommon6F8B330Detour(int arg1)
         Logger::Err(std::format(L"Crash suppression in CrashProc6F8B330(arg1={:#X})", arg1));
     }
 
-    return res;
+    return static_cast<char>(res);
 }
 
 void __stdcall CrashCatcher::FixCommon6F78DD0Detour(int arg1, int arg2)

@@ -69,7 +69,8 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, bool i
         }
         else
         {
-            deathMessage = std::vformat(msgConfig.deathMsgTextPlayerKill, std::make_wformat_args(victimName, killType, killerClientId.GetCharacterName().Unwrap()));
+            std::wstring_view view = killerClientId.GetCharacterName().Unwrap();
+            deathMessage = std::vformat(msgConfig.deathMsgTextPlayerKill, std::make_wformat_args(victimName, killType, view));
         }
     }
     else if (dmgList->inflictorId)
