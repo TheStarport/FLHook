@@ -97,7 +97,7 @@ Action<std::vector<ClientId>, Error> SystemId::GetPlayersInSystem(bool includeDo
     std::vector<ClientId> clients;
     for (auto& client : FLHook::Clients())
     {
-        if (!client.ship && !includeDocked)
+        if (!client.shipId && !includeDocked)
         {
             continue;
         }
@@ -208,7 +208,7 @@ Action<uint, Error> SystemId::KillAllPlayers() const
     std::ranges::for_each(clients,
                           [&shipsKilled](const ClientId client)
                           {
-                              client.GetData().ship.Destroy();
+                              client.GetData().shipId.Destroy();
                               shipsKilled++;
                           });
 

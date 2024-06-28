@@ -13,8 +13,9 @@ struct ClientData
         PlayerData* playerData = nullptr;
         bool isValid = false;
 
-        ShipId ship{};
-        ShipId shipOld{};
+        ShipId shipId{};
+        ShipId shipOldId{};
+        CShip* cship = nullptr;
         int64 spawnTime = 0;
 
         DamageList dmgLast{};
@@ -79,6 +80,8 @@ struct ClientData
         uint formationNumber1 = 0;
         uint formationNumber2 = 0;
         AllowedFormation formationTag = AllowedFormation::Alpha;
+
+        uint markedTarget = 0;
 
         ClientData() = default;
 

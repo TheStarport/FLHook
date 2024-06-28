@@ -99,7 +99,7 @@ void ResourceManager::OnShipDestroyed(Ship* ship)
 
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithNpc(const std::wstring& npcNickname)
 {
-    const auto found = npcTemplates.find(InternalApi::CreateID(npcNickname.c_str()));
+    const auto found = npcTemplates.find(InternalApi::CreateID(npcNickname));
 
     if (found == npcTemplates.end())
     {
@@ -115,7 +115,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithNp
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithArchetype(const std::wstring& archetype)
 {
     npcTemplate.archetype = archetype;
-    npcTemplate.archetypeHash = InternalApi::CreateID(archetype.c_str());
+    npcTemplate.archetypeHash = InternalApi::CreateID(archetype);
     return *this;
 }
 
@@ -128,7 +128,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithAr
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithLoadout(const std::wstring& loadout)
 {
     npcTemplate.loadout = loadout;
-    npcTemplate.loadoutHash = InternalApi::CreateID(loadout.c_str());
+    npcTemplate.loadoutHash = InternalApi::CreateID(loadout);
     return *this;
 }
 
@@ -237,7 +237,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithLe
 
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithVoice(const std::wstring& voice)
 {
-    voiceOverride = InternalApi::CreateID(voice.c_str());
+    voiceOverride = InternalApi::CreateID(voice);
     return *this;
 }
 

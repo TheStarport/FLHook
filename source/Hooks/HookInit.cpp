@@ -33,8 +33,8 @@ void FLHook::ClearClientInfo(ClientId client)
     info.characterName = L"";
 
     info.dieMsg = DieMsgType::All;
-    info.ship = ShipId();
-    info.shipOld = ShipId();
+    info.shipId = ShipId();
+    info.shipOldId = ShipId();
     info.spawnTime = 0;
     info.moneyFix.clear();
     info.tradePartner = ClientId();

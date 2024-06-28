@@ -30,7 +30,7 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, bool i
     ClientId killerClientId;
     for (const ClientData& data : FLHook::Clients())
     {
-        if (data.ship == killerId)
+        if (data.shipId == killerId)
         {
             killerClientId = data.id;
             break;
@@ -105,8 +105,10 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, bool i
 
     SendDeathMessage(deathMessage, SystemId(victimData.playerData->systemId), victimClientId, killerClientId);
 
-    victimData.shipOld = {};
-    victimData.ship = {};
+    victimData.cship = nullptr;
+
+    victimData.shipOldId = {};
+    victimData.shipId = {};
 
     static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(ship, isKill, killerId.GetValue());
 }
@@ -181,9 +183,9 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, C
         const auto& data = client.id.GetData();
 
         char* sendXmlBuf;
-        int sendXmlRet;
+        uint sendXmlRet;
         char* sendXmlBufSys;
-        int sendXmlSysRet;
+        uint sendXmlSysRet;
         if (data.dieMsgSize == ChatSize::Small)
         {
             sendXmlBuf = bufSmall.data();
@@ -232,27 +234,4 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, C
 
     const std::wstring formattedMsg = StringUtils::stows(BufSmallSys.data());
     CallPlugins(&Plugin::OnSendDeathMessageAfter, clientKiller, clientVictim, systemId, std::wstring_view(formattedMsg));
-}
-
-void IEngineHook::BaseDestroyed(ObjectId objectId, ClientId clientBy)
-{
-    CallPlugins(&Plugin::OnBaseDestroyed, clientBy, objectId);
-
-    uint baseId;
-    pub::SpaceObj::GetDockingTarget(objectId.GetValue(), baseId);
-    Universe::IBase* base = Universe::get_base(baseId);
-
-    auto baseName = "";
-    if (base)
-    {
-        __asm {
-			pushad
-			mov ecx, [base]
-			mov eax, [base]
-			mov eax, [eax]
-			call [eax+4]
-			mov [baseName], eax
-			popad
-        }
-    }
 }

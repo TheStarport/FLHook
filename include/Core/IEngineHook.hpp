@@ -46,8 +46,8 @@ class IEngineHook
 #undef VTablePtr
 
         static void __fastcall ShipDestroy(Ship* ship, DamageList* dmgList, bool isKill, ShipId killerId);
-        static void __fastcall LootDestroy(Loot* ship, void* edx, bool isKill, uint killerId);
-        static void __fastcall SolarDestroy(Solar* ship, void* edx, bool isKill, uint killerId);
+        static void __fastcall LootDestroy(Loot* loot, void* edx, bool isKill, uint killerId);
+        static void __fastcall SolarDestroy(Solar* solar, void* edx, bool isKill, uint killerId);
 
         static void __fastcall ShipHullDamage(Ship* ship, void* edx, float damage, DamageList* dmgList);
         static void __fastcall SolarHullDamage(Solar* ship, void* edx, float damage, DamageList* dmgList);
@@ -78,8 +78,6 @@ class IEngineHook
                 LoadReputationFromCharacterFileAssembly();
         };
 
-        // The pointers are for
-
         inline static DisconnectPacketSentAssembly* disconnectPacketSentAssembly;
         inline static LoadReputationFromCharacterFileAssembly* loadReputationFromCharacterFileAssembly;
         inline static LaunchPositionAssembly launchPositionAssembly;
@@ -87,7 +85,6 @@ class IEngineHook
         static bool AllowPlayerDamage(ClientId client, ClientId clientTarget);
 
         static bool __stdcall LoadReputationFromCharacterFile(const RepDataList* savedReps, const LoadRepData* repToSave);
-        static void BaseDestroyed(ObjectId objectId, ClientId clientBy);
         static bool __stdcall DisconnectPacketSent(ClientId client);
         static void SendDeathMessage(const std::wstring& msg, SystemId systemId, ClientId clientVictim, ClientId clientKiller);
 

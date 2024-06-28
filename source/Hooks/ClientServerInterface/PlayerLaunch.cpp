@@ -11,19 +11,19 @@ void IServerImplHook::PlayerLaunchInner(ShipId shipId, ClientId client)
     TryHook
     {
         auto& data = client.GetData();
-        data.ship = ShipId(shipId);
+        data.shipId = ShipId(shipId);
         data.cruiseActivated = false;
         data.thrusterActivated = false;
         data.engineKilled = false;
         data.inTradelane = false;
 
         // adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
-        std::wstring charName = StringUtils::ToLower(client.GetCharacterName().Handle());
+        const std::wstring charName = StringUtils::ToLower(client.GetCharacterName().Handle());
         for (const auto& i : data.moneyFix)
         {
             if (i.character == charName)
             {
-                client.AddCash(i.amount);
+                (void)client.AddCash(i.amount);
                 data.moneyFix.remove(i);
                 break;
             }
@@ -41,6 +41,8 @@ void IServerImplHook::PlayerLaunchInnerAfter([[maybe_unused]] ShipId shipId, Cli
         {
             data.lastExitedBaseId = 1;
         }
+
+        data.cship = data.shipId.GetCShip(false).Handle().get();
     }
     CatchHook({})
 }

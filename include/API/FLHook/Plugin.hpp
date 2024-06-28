@@ -150,7 +150,6 @@ class DLL Plugin
         virtual void OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList) {}
         Aft(std::optional<DOCK_HOST_RESPONSE>, OnDockCall, (ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response));
         virtual std::optional<LaunchData> OnLaunchPosition(ObjectId spaceId, const LaunchData& data) { return std::nullopt; }
-        virtual void OnBaseDestroyed(ClientId destroyingClient, ObjectId spaceId) {}
         Aft(bool, OnGuidedHit, (ShipId inflictorShip, ClientId hitClient, ObjectId hitObject, DamageList* dmg));
         Aft(void, OnAddDamageEntry, (DamageList * dmg, ushort subObjId, float newHitPts, DamageEntry::SubObjFate fate));
         virtual void OnDamageHit(ClientId hitClient, ObjectId spaceId) {}

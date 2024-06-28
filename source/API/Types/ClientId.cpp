@@ -350,7 +350,7 @@ EngineState ClientId::GetEngineState() const
 {
     const auto& data = GetData();
 
-    if (!data.ship)
+    if (!data.shipId)
     {
         return EngineState::NotInSpace;
     }
@@ -535,12 +535,12 @@ Action<void, Error> ClientId::MessageLocal(const std::wstring_view message, cons
     const auto [position, _] = ship->GetPositionAndOrientation().Unwrap();
     for (auto& client : FLHook::Clients())
     {
-        if (client.id == *this || !client.ship || system != client.ship.GetSystem().Unwrap())
+        if (client.id == *this || !client.shipId || system != client.shipId.GetSystem().Unwrap())
         {
             continue;
         }
 
-        auto [otherPos, _] = client.ship.GetPositionAndOrientation().Unwrap();
+        auto [otherPos, _] = client.shipId.GetPositionAndOrientation().Unwrap();
         if (const auto distance = glm::abs(glm::distance<3, float, glm::packed_highp>(position, otherPos)); distance <= range)
         {
             (void)Message(message, format, color);

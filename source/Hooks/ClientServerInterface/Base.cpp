@@ -10,6 +10,8 @@ void IServerImplHook::BaseEnterInnerAfter([[maybe_unused]] BaseId baseId, Client
     TryHook
     {
         auto& data = client.GetData();
+
+        data.cship = nullptr;
         // adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
         const std::wstring charName = StringUtils::ToLower(client.GetCharacterName().Unwrap());
         for (const auto& i : data.moneyFix)
