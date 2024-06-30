@@ -68,14 +68,11 @@ namespace Plugins
             void CheckIfPlayerFled(ClientId client);
 
             // User Commands
-            void UserCmdBountyHunt(std::wstring_view target, uint prize, uint time);
-            void UserCmdBountyHuntByClientID(ClientId target, uint credits, uint time);
+            void UserCmdBountyHunt(ClientId target, const uint prize, uint time);
 
-            inline static const std::array<CommandInfo<BountyHuntPlugin>, 4> commands = {
+            inline static const std::array<CommandInfo<BountyHuntPlugin>, 1> commands = {
                 {
-                     AddCommand(BountyHuntPlugin, Cmds(L"/bountyhunt", L"/bh"), UserCmdBountyHunt, L"/bountyhunt <targetName> <prize> <time>",
-                     L"Places a bounty on the specified player. When another player kills them, they gain <credits>."),
-                     AddCommand(BountyHuntPlugin, Cmds(L"/bountyhunt$", L"/bh$"), UserCmdBountyHuntByClientID, L"/bountyhunt$ <targetId> <prize> <time>",
+                     AddCommand(BountyHuntPlugin, Cmds(L"/bountyhunt", L"/bh"), UserCmdBountyHunt, L"/bountyhunt <targetId> <prize> [time]",
                      L"Places a bounty on the specified player. When another player kills them, they gain <credits>.")
                  }
             };

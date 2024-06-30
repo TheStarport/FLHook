@@ -5,6 +5,7 @@ using namespace std::string_view_literals;
 enum class DefaultRoles
 {
     SuperAdmin,
+    Any,
     Cash,
     Expel,
     Reputation,
@@ -63,6 +64,12 @@ class AbstractAdminCommandProcessor
                 return cpp::fail(invalidPerms);
             }
 
+            // If they have a role and the required role is 'any' then we are all good
+            if (requiredRole == magic_enum::enum_name(DefaultRoles::Any))
+            {
+                return {};
+            }
+
             if (std::ranges::find(credentials->second, requiredRole) == credentials->second.end() &&
                 std::ranges::find(credentials->second, superAdminRole) == credentials->second.end())
             {
@@ -77,7 +84,7 @@ class AbstractAdminCommandProcessor
         virtual ~AbstractAdminCommandProcessor() = default;
         virtual std::wstring ProcessCommand(const std::wstring_view user, const AllowedContext currentContext, std::wstring_view cmd,
                                             std::vector<std::wstring_view>& paramVector) = 0;
-        virtual std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> GetAdminCommands() = 0;
+        virtual const std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>>& GetAdminCommands() const = 0;
 };
 
 template <class T>
@@ -89,16 +96,19 @@ concept IsAdminCommandProcessor = std::is_base_of_v<AbstractAdminCommandProcesso
             usage, description                                                                                                                                 \
     }
 
-#define GetAdminCommandsFunc(commands)                                                                                        \
-    std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> GetAdminCommands() override \
-    {                                                                                                                         \
-        std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> info;                   \
-        for (const auto& cmd : commands)                                                                                      \
-        {                                                                                                                     \
-            info.emplace_back(cmd.cmd, cmd.usage, cmd.description);                                                           \
-        }                                                                                                                     \
-                                                                                                                              \
-        return info;                                                                                                          \
+#define GetAdminCommandsFunc(commands)                                                                                                     \
+    const std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>>& GetAdminCommands() const override \
+    {                                                                                                                                      \
+        static std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> info;                         \
+        if (info.empty())                                                                                                                  \
+        {                                                                                                                                  \
+            for (const auto& cmd : commands)                                                                                               \
+            {                                                                                                                              \
+                info.emplace_back(cmd.cmd, cmd.usage, cmd.description);                                                                    \
+            }                                                                                                                              \
+        }                                                                                                                                  \
+                                                                                                                                           \
+        return info;                                                                                                                       \
     };
 
 #define SetupAdminCommandHandler(class, commandArray)                                                                                                   \
@@ -110,7 +120,7 @@ concept IsAdminCommandProcessor = std::is_base_of_v<AbstractAdminCommandProcesso
         {                                                                                                                                               \
             if (cmd.starts_with(str))                                                                                                                   \
             {                                                                                                                                           \
-                paramVector.erase(paramVector.begin(), paramVector.begin() + (std::ranges::count(str, L' ')));                                      \
+                paramVector.erase(paramVector.begin(), paramVector.begin() + (std::clamp(std::ranges::count(str, L' '), 1, 5)));                        \
                 return command.func(processor, paramVector);                                                                                            \
             }                                                                                                                                           \
         }                                                                                                                                               \

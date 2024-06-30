@@ -16,12 +16,6 @@
 std::wstring AdminCommandProcessor::ProcessCommand(const std::wstring_view user, const AllowedContext currentContext, std::wstring_view cmd,
                                                    std::vector<std::wstring_view>& paramVector)
 {
-    // If empty, command not found
-    if (const auto result = MatchCommand<commands.size()>(this, user, currentContext, cmd, paramVector); !result.empty())
-    {
-        return result;
-    }
-
     for (auto& admin : PluginManager::i()->adminCommands)
     {
         const auto ptr = admin.lock();
@@ -29,6 +23,12 @@ std::wstring AdminCommandProcessor::ProcessCommand(const std::wstring_view user,
         {
             return res;
         }
+    }
+
+    // If empty, command not found
+    if (const auto result = MatchCommand<commands.size()>(this, user, currentContext, cmd, paramVector); !result.empty())
+    {
+        return result;
     }
 
     return std::format(L"ERR: Command not found. ({})", cmd);
@@ -41,15 +41,12 @@ std::wstring AdminCommandProcessor::ProcessCommand(const std::wstring_view user,
 
     auto params = StringUtils::GetParams(commandString, ' ');
 
-    const auto command = params.front();
-    if (command.length() < 2)
+    if (const auto command = params.front(); command.length() < 2)
     {
         return L"";
     }
 
     std::vector paramsFiltered(params.begin(), params.end());
-    paramsFiltered.erase(paramsFiltered.begin()); // Remove the first item which is the command
-
     return ProcessCommand(user, currentContext, commandString, paramsFiltered);
 }
 
@@ -504,4 +501,76 @@ std::wstring AdminCommandProcessor::Move(ClientId target, const float x, const f
 
     shipId.Relocate({ x, y, z });
     return std::format(L"Moving target to location: {:0f}, {:0f}, {:0f}", x, y, z);
+}
+
+std::wstring AdminCommandProcessor::Help(int page)
+{
+    constexpr int itemsPerPage = 20;
+    const auto& pm = PluginManager::i();
+
+    struct ModuleInfo
+    {
+            const AbstractAdminCommandProcessor* processor;
+            const Plugin* plugin;
+            int startingCommandIndex;
+    };
+
+    // list of pointers and their starting command index
+    std::vector<ModuleInfo> processors;
+    processors.reserve(pm->plugins.size());
+
+    // Add core and set starting indexes
+    processors.emplace_back(this, nullptr, 0);
+    int commandIndex = commands.size();
+    int totalCommands = commands.size();
+
+    for (const auto& plugin : pm->plugins)
+    {
+        if (const auto cmdProcessor = dynamic_cast<const AbstractAdminCommandProcessor*>(plugin.get()); cmdProcessor)
+        {
+            const auto& cmds = cmdProcessor->GetAdminCommands();
+            totalCommands += cmds.size();
+            processors.emplace_back(cmdProcessor, plugin.get(), commandIndex);
+            commandIndex += cmds.size();
+        }
+    }
+
+    const int totalPages = std::clamp(totalCommands / itemsPerPage, 1, 100);
+    if (page > totalPages)
+    {
+        page = totalPages;
+    }
+    else if (page < 1)
+    {
+        page = 1;
+    }
+
+    std::wstring response = std::format(L"Displaying help commands, page {} of {}", page, totalPages);
+    for (const int startingIndex = commandIndex = itemsPerPage * (page - 1); const auto& info : processors)
+    {
+        if (commandIndex > startingIndex + itemsPerPage)
+        {
+            break;
+        }
+
+        if (info.startingCommandIndex < commandIndex)
+        {
+            continue;
+        }
+
+        for (auto& cmds = info.processor->GetAdminCommands(); auto& cmd : cmds)
+        {
+            if (commandIndex++ > startingIndex + itemsPerPage)
+            {
+                break;
+            }
+
+            std::wstring_view description = std::get<2>(cmd);
+            std::wstring_view usage = std::get<1>(cmd);
+
+            response += std::format(L"\n{} - {}", usage, description);
+        }
+    }
+
+    return response;
 }

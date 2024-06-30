@@ -14,7 +14,7 @@ class AbstractUserCommandProcessor
     public:
         virtual ~AbstractUserCommandProcessor() = default;
         virtual bool ProcessCommand(ClientId client, std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) = 0;
-        virtual std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> GetUserCommands() = 0;
+        virtual const std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>>& GetUserCommands() const = 0;
 };
 
 template <class Processor>
@@ -31,16 +31,19 @@ struct CommandInfo
         cmds, ClassFunctionWrapper<decltype(&class ::func), &class ::func>::ProcessParam, usage, description \
     }
 
-#define GetUserCommandsFunc(commands)                                                                                        \
-    std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> GetUserCommands() override \
-    {                                                                                                                        \
-        std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> info;                  \
-        for (const auto& cmd : commands)                                                                                     \
-        {                                                                                                                    \
-            info.emplace_back(cmd.cmd, cmd.usage, cmd.description);                                                          \
-        }                                                                                                                    \
-                                                                                                                             \
-        return info;                                                                                                         \
+#define GetUserCommandsFunc(commands)                                                                                                     \
+    const std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>>& GetUserCommands() const override \
+    {                                                                                                                                     \
+        static std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> info;                        \
+        if (info.empty())                                                                                                                 \
+        {                                                                                                                                 \
+            for (const auto& cmd : commands)                                                                                              \
+            {                                                                                                                             \
+                info.emplace_back(cmd.cmd, cmd.usage, cmd.description);                                                                   \
+            }                                                                                                                             \
+        }                                                                                                                                 \
+                                                                                                                                          \
+        return info;                                                                                                                      \
     };
 
 #define SetupUserCommandHandler(class, commandArray)                                                                                         \
@@ -52,7 +55,7 @@ struct CommandInfo
         {                                                                                                                                    \
             if (cmd.starts_with(str))                                                                                                        \
             {                                                                                                                                \
-                paramVector.erase(paramVector.begin(), paramVector.begin() + (std::ranges::count(str, L' ')));                           \
+                paramVector.erase(paramVector.begin(), paramVector.begin() + (std::clamp(std::ranges::count(str, L' '), 1, 5)));                               \
                 command.func(processor, paramVector);                                                                                        \
                 return true;                                                                                                                 \
             }                                                                                                                                \

@@ -35,8 +35,9 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         std::wstring Pull(ClientId target);
         std::wstring SetDamageType(std::wstring_view newDamageType);
         std::wstring Move(ClientId target, float x, float y, float z);
+        std::wstring Help(int page);
 
-        const inline static std::array<AdminCommandInfo<AdminCommandProcessor>, 31> commands = {
+        const inline static std::array<AdminCommandInfo<AdminCommandProcessor>, 32> commands = {
             { AddAdminCommand(AdminCommandProcessor, Cmds(L".getcash"), GetCash, GameAndConsole, Cash, L".getcash <charname> <cash>",
              L"Gets the cash of the target cash"),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".setcash"), SetCash, GameAndConsole, Cash, L".setcash <charname> <cash>",
@@ -98,7 +99,9 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
              AddAdminCommand(AdminCommandProcessor, Cmds(L".damagemode"), SetDamageType, GameAndConsole, SuperAdmin, L".damagemode <all/none/pvp/pve>",
              L"Sets the source of allowed damage on the server."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".move"), Move, GameOnly, Movement, L".move <target> <x> <y> <z>",
-             L"Moves the target to the destination location in space.") }
+             L"Moves the target to the destination location in space."),
+             AddAdminCommand(AdminCommandProcessor, Cmds(L".help", L".?", L".h"), Help, GameAndConsole, Any, L".help [page]",
+             L"Provides indepth help information") }
         };
 
         GetAdminCommandsFunc(commands);
@@ -116,7 +119,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
                         return validation.error();
                     }
 
-                    paramVector.erase(paramVector.begin(), paramVector.begin() + std::ranges::count(str, L' '));
+                    paramVector.erase(paramVector.begin(), paramVector.begin() + std::clamp(std::ranges::count(str, L' '), 1, 5));
                     return command.func(processor, paramVector);
                 }
             }

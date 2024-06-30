@@ -514,8 +514,11 @@ Action<void, Error> ClientId::Message(const std::wstring_view message, const Mes
     ClientCheck;
     CharSelectCheck;
 
-    const auto formattedMessage = StringUtils::FormatMsg(color, format, std::wstring(message));
-    InternalApi::SendMessage(*this, formattedMessage);
+    for (auto messages = StringUtils::GetParams(message, L'\n'); auto msg : messages)
+    {
+        const auto formattedMessage = StringUtils::FormatMsg(color, format, std::wstring(msg));
+        InternalApi::SendMessage(*this, formattedMessage);
+    }
 
     return { {} };
 }

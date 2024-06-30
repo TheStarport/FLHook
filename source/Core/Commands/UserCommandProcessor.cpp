@@ -46,19 +46,19 @@ template <>
 bool UserCommandProcessor::MatchCommand<0>([[maybe_unused]] UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view fullCmdString,
                                            std::vector<std::wstring_view>& paramVector)
 {
-    for (auto& user : PluginManager::i()->userCommands)
-    {
-        if (user.lock()->ProcessCommand(triggeringClient, fullCmdString, paramVector))
-        {
-            return true;
-        }
-    }
-
     return false;
 }
 
 bool UserCommandProcessor::ProcessCommand(ClientId triggeringClient, const std::wstring_view fullCmdStr, std::vector<std::wstring_view>& paramVector)
 {
+    for (auto& user : PluginManager::i()->userCommands)
+    {
+        if (user.lock()->ProcessCommand(triggeringClient, fullCmdStr, paramVector))
+        {
+            return true;
+        }
+    }
+
     return MatchCommand<commands.size()>(this, triggeringClient, fullCmdStr, paramVector);
 }
 
@@ -865,92 +865,73 @@ void UserCommandProcessor::GiveCash(std::wstring_view characterName, std::wstrin
 
 void UserCommandProcessor::Time() { (void)userCmdClient.Message(std::format(L"{:%Y-%m-%d %X}", std::chrono::system_clock::now())); }
 
-void UserCommandProcessor::Help(const std::wstring_view module, std::wstring_view command)
+void UserCommandProcessor::Help(int page)
 {
+    constexpr int itemsPerPage = 20;
     const auto& pm = PluginManager::i();
-    if (module.empty())
+
+    struct ModuleInfo
     {
-        (void)userCmdClient.Message(L"The following command modules are available to you. Use /help <module> [command] for detailed information.");
-        (void)userCmdClient.Message(L"core");
-        for (const auto& plugin : pm->plugins)
+            const AbstractUserCommandProcessor* processor;
+            const Plugin* plugin;
+            int startingCommandIndex;
+    };
+
+    // list of pointers and their starting command index
+    std::vector<ModuleInfo> processors;
+    processors.reserve(pm->plugins.size());
+
+    // Add core and set starting indexes
+    processors.emplace_back(this, nullptr, 0);
+    int commandIndex = commands.size();
+    int totalCommands = commands.size();
+
+    for (const auto& plugin : pm->plugins)
+    {
+        if (const auto cmdProcessor = dynamic_cast<const AbstractUserCommandProcessor*>(plugin.get()); cmdProcessor)
         {
-            if (dynamic_cast<const AbstractUserCommandProcessor*>(plugin.get()) == nullptr)
+            const auto& cmds = cmdProcessor->GetUserCommands();
+            totalCommands += cmds.size();
+            processors.emplace_back(cmdProcessor, plugin.get(), commandIndex);
+            commandIndex += cmds.size();
+        }
+    }
+
+    const int totalPages = std::clamp(totalCommands / itemsPerPage, 1, 100);
+    if (page > totalPages)
+    {
+        page = totalPages;
+    }
+    else if (page < 1)
+    {
+        page = 1;
+    }
+
+    userCmdClient.Message(std::format(L"Displaying help commands, page {} of {}", page, totalPages));
+    for (const int startingIndex = commandIndex = itemsPerPage * (page - 1); const auto& info : processors)
+    {
+        if (commandIndex > startingIndex + itemsPerPage)
+        {
+            break;
+        }
+
+        if (info.startingCommandIndex < commandIndex)
+        {
+            continue;
+        }
+
+        for (auto& cmds = info.processor->GetUserCommands(); auto& cmd : cmds)
+        {
+            if (commandIndex++ > startingIndex + itemsPerPage)
             {
-                continue;
+                break;
             }
 
-            (void)userCmdClient.Message(StringUtils::ToLower(plugin->GetShortName()));
+            std::wstring_view description = std::get<2>(cmd);
+            std::wstring_view usage = std::get<1>(cmd);
+
+            userCmdClient.Message(std::format(L"{} - {}", usage, description));
         }
-        return;
-    }
-
-    const auto cmd = StringUtils::ToLower(StringUtils::Trim(command));
-
-    const auto moduleLower = StringUtils::ToLower(module);
-
-    if (moduleLower == L"core")
-    {
-        if (cmd.empty())
-        {
-            for (const auto& i : commands)
-            {
-                (void)userCmdClient.Message(i.cmd.front());
-            }
-        }
-        else if (const auto& userCommand =
-                     std::ranges::find_if(commands,
-                                          [&cmd](const auto& userCmd) {
-                                              return std::ranges::any_of(userCmd.cmd, [&cmd](const auto str) { return cmd == str.substr(1, str.size() - 1); });
-                                          });
-                 userCommand != commands.end())
-        {
-            (void)userCmdClient.Message(userCommand->usage);
-            (void)userCmdClient.Message(userCommand->description);
-        }
-        else
-        {
-            (void)userCmdClient.Message(std::format(L"Command '{}' not found within module 'core'", cmd));
-        }
-        return;
-    }
-
-    const auto& pluginIterator = std::ranges::find_if(
-        pm->plugins, [&moduleLower](const std::shared_ptr<Plugin>& plug) { return StringUtils::ToLower(std::wstring(plug->GetShortName())) == moduleLower; });
-
-    if (pluginIterator == pm->plugins.end())
-    {
-        (void)userCmdClient.Message(L"Command module not found.");
-        return;
-    }
-
-    const auto plugin = *pluginIterator;
-
-    const auto cmdProcessor = dynamic_cast<AbstractUserCommandProcessor*>(plugin.get());
-    if (cmdProcessor == nullptr)
-    {
-        (void)userCmdClient.Message(L"Command module not found.");
-        return;
-    }
-
-    if (cmd.empty())
-    {
-        for (const auto& [fullCmd, usage, description] : cmdProcessor->GetUserCommands())
-        {
-            (void)userCmdClient.Message(fullCmd.front());
-        }
-    }
-    else if (const auto& userCommand =
-                 std::ranges::find_if(commands,
-                                      [&cmd](const auto& userCmd)
-                                      { return std::ranges::any_of(userCmd.cmd, [&cmd](const auto str) { return cmd == str.substr(1, str.size() - 1); }); });
-             userCommand != commands.end())
-    {
-        (void)userCmdClient.Message(userCommand->usage);
-        (void)userCmdClient.Message(userCommand->description);
-    }
-    else
-    {
-        (void)userCmdClient.Message(std::format(L"Command '{}' not found within module '{}'", cmd, std::wstring(plugin->GetShortName())));
     }
 }
 
@@ -1004,36 +985,36 @@ void UserCommandProcessor::Coin()
 void UserCommandProcessor::MarkTarget()
 {
     const ClientData& cd = userCmdClient.GetData();
-	const auto cShip = cd.cship;
-	if (!cShip)
-	{
-	    (void)userCmdClient.Message(L"ERR Not in space");
-		return;
-	}
+    const auto cShip = cd.cship;
+    if (!cShip)
+    {
+        (void)userCmdClient.Message(L"ERR Not in space");
+        return;
+    }
 
-	const auto target = cShip->get_target();
-	if (!target)
-	{
-	    (void)userCmdClient.Message(L"ERR No target selected");
-		return;
-	}
+    const auto target = cShip->get_target();
+    if (!target)
+    {
+        (void)userCmdClient.Message(L"ERR No target selected");
+        return;
+    }
 
-	if (!target->is_player())
-	{
-	    (void)userCmdClient.Message(L"ERR Target not a player");
-		return;
-	}
+    if (!target->is_player())
+    {
+        (void)userCmdClient.Message(L"ERR Target not a player");
+        return;
+    }
 
-	uint targetShip = target->get_id();
-	const auto targetClientId = ClientId(((CShip*)target->cobject())->ownerPlayer);
+    uint targetShip = target->get_id();
+    const auto targetClientId = ClientId(((CShip*)target->cobject())->ownerPlayer);
 
-	auto charName = userCmdClient.GetCharacterName().Handle();
-	auto targetName = targetClientId.GetCharacterName().Handle();
+    auto charName = userCmdClient.GetCharacterName().Handle();
+    auto targetName = targetClientId.GetCharacterName().Handle();
 
-    //std::wstring message1 = std::format(L"Target: {}", targetName);
+    // std::wstring message1 = std::format(L"Target: {}", targetName);
     std::wstring message2 = std::format(L"{} has set {} as group target.", charName, targetName);
 
-    //std::wstring_view msgView1 = message1;
+    // std::wstring_view msgView1 = message1;
     std::wstring_view msgView2 = message2;
 
     FmtStr caption(0, nullptr);
@@ -1042,29 +1023,31 @@ void UserCommandProcessor::MarkTarget()
 
     GroupId group = GroupId(cd.playerData->playerGroup->GetID());
 
-    (void)group.ForEachGroupMember([msgView2, targetShip](const ClientId& groupMemberClientId)
-    {
-        if (const uint groupMemShip = Players[groupMemberClientId.GetValue()].shipId; !groupMemShip || groupMemShip == targetShip)
+    (void)group.ForEachGroupMember(
+        [msgView2, targetShip](const ClientId& groupMemberClientId)
         {
+            if (const uint groupMemShip = Players[groupMemberClientId.GetValue()].shipId; !groupMemShip || groupMemShip == targetShip)
+            {
+                return std::nullopt;
+            }
+
+            (void)groupMemberClientId.Message(msgView2);
+            // TODO: Reintroduce when IDS override clienthook is made
+            // HkChangeIDSString(gm->iClientID, 526999, message1);
+
+            // pub::Player::DisplayMissionMessage(groupMemberClientId.GetValue(), caption, MissionMessageType::MissionMessageType_Type2, true);
+
+            if (groupMemberClientId.GetData().markedTarget)
+            {
+                pub::Player::MarkObj(groupMemberClientId.GetValue(), groupMemberClientId.GetData().markedTarget, 0);
+            }
+
+            pub::Player::MarkObj(groupMemberClientId.GetValue(), targetShip, 1);
+            groupMemberClientId.GetData().markedTarget = targetShip;
+
             return std::nullopt;
-        }
-
-        (void)groupMemberClientId.Message(msgView2);
-        //TODO: Reintroduce when IDS override clienthook is made
-        //HkChangeIDSString(gm->iClientID, 526999, message1);
-
-        //pub::Player::DisplayMissionMessage(groupMemberClientId.GetValue(), caption, MissionMessageType::MissionMessageType_Type2, true);
-
-        if (groupMemberClientId.GetData().markedTarget)
-        {
-            pub::Player::MarkObj(groupMemberClientId.GetValue(), groupMemberClientId.GetData().markedTarget, 0);
-        }
-
-        pub::Player::MarkObj(groupMemberClientId.GetValue(), targetShip, 1);
-        groupMemberClientId.GetData().markedTarget = targetShip;
-
-        return std::nullopt;
-    }, false);
+        },
+        false);
 
     (void)userCmdClient.Message(L"OK");
 }

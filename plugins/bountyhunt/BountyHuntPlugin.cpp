@@ -42,23 +42,22 @@ namespace Plugins
     /** @ingroup BountyHunt
      * @brief User Command for /bountyhunt. Creates a bounty against a specified player.
      */
-    void BountyHuntPlugin::UserCmdBountyHunt(std::wstring_view target, const uint prize, uint time)
+    void BountyHuntPlugin::UserCmdBountyHunt(ClientId target, const uint prize, uint time)
     {
-        if (target.empty() || prize == 0)
+        if (!prize)
         {
-            (void)userCmdClient.Message(L"Usage: /bountyhunt <playername> <credits> <time>");
+            (void)userCmdClient.Message(L"Usage: /bountyhunt <playername> <credits> [time]");
             PrintBountyHunts(userCmdClient);
             return;
         }
 
-        const auto targetClient = ClientId(target);
-        if (!targetClient || targetClient.InCharacterSelect())
+        if (!target || target.InCharacterSelect())
         {
             (void)userCmdClient.Message(std::format(L"{} is not online.", target));
             return;
         }
 
-        if (const uint rankTarget = targetClient.GetRank().Handle(); rankTarget < config->levelProtect)
+        if (const uint rankTarget = target.GetRank().Handle(); rankTarget < config->levelProtect)
         {
             (void)userCmdClient.Message(L"Low level players may not be hunted.");
             return;
@@ -80,7 +79,7 @@ namespace Plugins
             return;
         }
 
-        auto vec = bountiesOnPlayers[targetClient.GetValue()];
+        auto vec = bountiesOnPlayers[target.GetValue()];
 
         if (std::ranges::find_if(vec, [this](const Bounty& b) { return b.issuer == userCmdClient; }) != vec.end())
         {
@@ -100,15 +99,7 @@ namespace Plugins
         FLHook::MessageUniverse(std::format(L"{} offers {} credits for killing {} in {} minutes.", bounty.issuer, std::to_wstring(bounty.cash), target, time));
     }
 
-    /** @ingroup BountyHunt
-     * @brief User Command for /bountyhuntid. Creates a bounty against a specified player.
-     */
-    void BountyHuntPlugin::UserCmdBountyHuntByClientID(const ClientId target, const uint credits, const uint time)
-    {
-        UserCmdBountyHunt(target.GetCharacterName().Handle(), credits, time);
-    }
-
-    /** @ingroup BountyHunt
+    /**
      * @brief Checks for expired bounties.
      */
     void BountyHuntPlugin::TimeOutCheck()

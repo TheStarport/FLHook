@@ -36,7 +36,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         void Coin();
         void Value();
         void DropRep();
-        void Help(std::wstring_view module, std::wstring_view command);
+        void Help(int page);
 
         // clang-format off
         inline static const std::array<CommandInfo<UserCommandProcessor>, 27> commands = {
@@ -78,7 +78,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              AddCommand(UserCommandProcessor, Cmds( L"/dice"sv ), Dice, L"/dice [numOfSides]", L"Rolls the dice with specified amount of sides, 6 if unspecified"),
              AddCommand(UserCommandProcessor, Cmds( L"/droprep"sv ), DropRep, L"/droprep", L"Removes your affiliation if you have one"),
              AddCommand(UserCommandProcessor, Cmds( L"/transferchar"sv ), TransferCharacter, L"/transferchar", L"Set the character move code, or use the previously set code to transfer said character into current account"),
-             AddCommand(UserCommandProcessor, Cmds( L"/help"sv, L"/h"sv, L"?"sv), Help, L"/help [module] [command]", L"Provides indepth help information")
+             AddCommand(UserCommandProcessor, Cmds( L"/help"sv, L"/h"sv, L"/?"sv), Help, L"/help [page]", L"Provides indepth help information")
             }
         };
         // clang-format on
@@ -92,7 +92,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
             {
                 if (cmd.starts_with(str))
                 {
-                    paramVector.erase(paramVector.begin(), paramVector.begin() + std::ranges::count(str, L' '));
+                    paramVector.erase(paramVector.begin(), paramVector.begin() + std::clamp(std::ranges::count(str, L' '), 1, 5));
                     command.func(processor, paramVector);
                     return true;
                 }
