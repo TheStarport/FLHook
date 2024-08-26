@@ -153,9 +153,9 @@ void TaxPlugin::FiveSecondTimer()
                 continue;
             }
 
-            if (data.ship && config.killDisconnectingPlayers)
+            if (data.shipId && config.killDisconnectingPlayers)
             {
-                data.ship.Destroy(DestroyType::Fuse);
+                data.shipId.Destroy(DestroyType::Fuse);
             }
 
             const auto characterName = it.targetId.GetCharacterName().Handle();
