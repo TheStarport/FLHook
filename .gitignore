@@ -57,3 +57,6 @@
 
 # Docs
 docs/_build/
+
+#TEMP
+mongo/
