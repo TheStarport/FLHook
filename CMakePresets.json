@@ -10,10 +10,7 @@
         {
             "name": "debug",
             "displayName": "Debug (Core Only)",
-            "inherits": "conan-debug",
-            "environment": {
-                "MSVC_INCLUDE": "/home/laz/msvc/VC/Tools/MSVC/14.41.34120/include:/home/laz/msvc/kits/10/include/10.0.22621.0/um:/home/laz/msvc/kits/10/include/10.0.22621.0/ucrt:/home/laz/msvc/kits/10/include/10.0.22621.0/winrt:/home/laz/msvc/kits/10/include/10.0.22621.0/cppwinrt:/home/laz/msvc/kits/10/include/10.0.22621.0/shared"
-            }
+            "inherits": "conan-debug"
         },
         {
             "name": "debug-examples",
@@ -44,9 +41,6 @@
             "name": "release",
             "displayName": "Release (Core Only)",
             "inherits": "conan-release",
-            "environment": {
-                "MSVC_INCLUDE": "/home/laz/msvc/VC/Tools/MSVC/14.41.34120/include:/home/laz/msvc/kits/10/include/10.0.22621.0/um:/home/laz/msvc/kits/10/include/10.0.22621.0/ucrt:/home/laz/msvc/kits/10/include/10.0.22621.0/winrt:/home/laz/msvc/kits/10/include/10.0.22621.0/cppwinrt:/home/laz/msvc/kits/10/include/10.0.22621.0/shared"
-            },
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
@@ -81,18 +75,12 @@
         {
             "name": "debug",
             "displayName": "Debug",
-            "inherits": "conan-debug",
-            "environment": {
-                "MSVC_INCLUDE": "/home/laz/msvc/VC/Tools/MSVC/14.41.34120/include:/home/laz/msvc/kits/10/include/10.0.22621.0/um:/home/laz/msvc/kits/10/include/10.0.22621.0/ucrt:/home/laz/msvc/kits/10/include/10.0.22621.0/winrt:/home/laz/msvc/kits/10/include/10.0.22621.0/cppwinrt:/home/laz/msvc/kits/10/include/10.0.22621.0/shared"
-            }
+            "inherits": "conan-debug"
         },
         {
             "name": "release",
             "displayName": "Release",
-            "inherits": "conan-release",
-            "environment": {
-                "MSVC_INCLUDE": "/home/laz/msvc/VC/Tools/MSVC/14.41.34120/include:/home/laz/msvc/kits/10/include/10.0.22621.0/um:/home/laz/msvc/kits/10/include/10.0.22621.0/ucrt:/home/laz/msvc/kits/10/include/10.0.22621.0/winrt:/home/laz/msvc/kits/10/include/10.0.22621.0/cppwinrt:/home/laz/msvc/kits/10/include/10.0.22621.0/shared"
-            }
+            "inherits": "conan-release"
         }
     ]
 }
