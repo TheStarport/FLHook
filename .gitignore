@@ -39,6 +39,7 @@
 **/reflect-cpp-tests
 **/build/**
 **/build_clang/**
+CMakePresets.json
 
 # Output files
 *.bson

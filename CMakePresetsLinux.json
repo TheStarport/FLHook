@@ -1,0 +1,86 @@
+{
+    "version": 4,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
+    "include": [ "./ConanPresets.json" ],
+    "configurePresets": [
+        {
+            "name": "debug",
+            "displayName": "Debug (Core Only)",
+            "inherits": "conan-debug"
+        },
+        {
+            "name": "debug-examples",
+            "displayName": "Debug (Examples)",
+            "inherits": "debug",
+            "cacheVariables": {
+                "COMPILE_EXAMPLES": true
+            }
+        },
+        {
+            "name": "debug-plugins",
+            "displayName": "Debug (Plugins)",
+            "inherits": "debug",
+            "cacheVariables": {
+                "COMPILE_PLUGINS": true
+            }
+        },
+        {
+            "name": "debug-all",
+            "displayName": "Debug (All)",
+            "inherits": "debug",
+            "cacheVariables": {
+                "COMPILE_EXAMPLES": true,
+                "COMPILE_PLUGINS": true
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release (Core Only)",
+            "inherits": "conan-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "release-examples",
+            "displayName": "Release (Examples)",
+            "inherits": "release",
+            "cacheVariables": {
+                "COMPILE_EXAMPLES": true
+            }
+        },
+        {
+            "name": "release-plugins",
+            "displayName": "Release (Plugins)",
+            "inherits": "release",
+            "cacheVariables": {
+                "COMPILE_PLUGINS": true
+            }
+        },
+        {
+            "name": "release-all",
+            "displayName": "Release (All)",
+            "inherits": "release",
+            "cacheVariables": {
+                "COMPILE_EXAMPLES": true,
+                "COMPILE_PLUGINS": true
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "debug",
+            "displayName": "Debug",
+            "inherits": "conan-debug"
+        },
+        {
+            "name": "release",
+            "displayName": "Release",
+            "inherits": "conan-release"
+        }
+    ]
+}

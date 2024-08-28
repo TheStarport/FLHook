@@ -31,7 +31,13 @@ class CompressorRecipe(ConanFile):
         self.tool_requires("cmake/3.22.6")
 
     def layout(self):
-        cmake_layout(self)
+        multi = True if self.settings.get_safe("compiler") == "msvc" else False
+        if multi:
+            self.folders.generators = os.path.join("build", "generators")
+            self.folders.build = "build"
+        else:
+            self.folders.generators = os.path.join("build", str(self.settings.build_type), "generators")
+            self.folders.build = os.path.join("build", str(self.settings.build_type))
 
     def build(self):
         cmake = CMake(self)

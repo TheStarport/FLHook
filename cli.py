@@ -1,6 +1,8 @@
 import platform
 import subprocess
 import click
+import shutil
+import os
 
 
 def run(cmd: str) -> int:
@@ -33,7 +35,8 @@ def cli():
 @click.option("-p", "--plugins", is_flag=True, help="Build the plugins")
 @click.option("-a", "--all", is_flag=True, help="Build both the examples and the plugins")
 def build(release: bool, examples: bool, plugins: bool, all: bool):
-    preset = 'release' if release else 'debug'
+    is_windows = platform.system() == "Windows"
+    preset = 'build' if is_windows else ('release' if release else 'debug')
     if (examples and plugins) or all:
         preset += '-all'
     elif examples:
@@ -45,10 +48,19 @@ def build(release: bool, examples: bool, plugins: bool, all: bool):
     if default_profile:
         run("conan profile detect")
 
+    presets = "CMakePresets.json"
+    if (os.path.exists(presets)):
+        os.remove(presets)
+
+    if is_windows:
+        shutil.copy2("CMakePresetsWindows.json", presets)
+    else:
+        shutil.copy2("CMakePresetsLinux.json", presets)
+
     run(f"conan install . --build missing -pr:b=default -pr:h=./profiles/"
-        f"{'windows' if platform.system() == "Windows" else 'linux'}-{('rel' if release else 'dbg')}")
+        f"{'windows' if is_windows else 'linux'}-{('rel' if release else 'dbg')}")
     run(f'cmake --preset="{preset}"')
-    run(f"cmake --build build/{('Release' if release else 'Debug')}")
+    run(f"cmake --build build/{('' if is_windows else ('Release' if release else 'Debug'))}")
 
 
 if __name__ == '__main__':
