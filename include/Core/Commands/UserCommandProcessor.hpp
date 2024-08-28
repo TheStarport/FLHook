@@ -4,39 +4,39 @@
 
 class UserCommandProcessor final : public Singleton<UserCommandProcessor>, public AbstractUserCommandProcessor
 {
-        void GetClientIds();
-        void SetDieMessage(std::wstring_view param);
-        void SetDieMessageFontSize(std::wstring_view param);
-        void SetChatFont(std::wstring_view fontSize, std::wstring_view fontType);
-        void SetChatTime(std::wstring_view option);
-        void ShowLastSender();
-        void ShowSavedMsgs();
-        void SetSavedMsg(uint index, std::wstring_view msg);
-        void ReplyToLastMsg(std::wstring_view text);
-        void MessageTarget(std::wstring_view text);
-        void MessageTag(std::wstring_view tag, std::wstring_view msg);
-        void IgnoreUser(std::wstring_view ignoredUser, std::wstring_view flags);
-        void IgnoreClientId(ClientId ignoredClient, std::wstring_view flags);
-        void GetIgnoreList();
-        void RemoveFromIgnored(std::vector<std::wstring_view> charactersToRemove);
-        void GetSelfClientId();
-        void MarkTarget();
-        void Rename(std::wstring_view newName);
-        void InvitePlayer(const std::wstring_view& characterName);
-        void InvitePlayerByName(std::wstring_view invitee);
-        void InvitePlayerById(ClientId inviteeId);
-        void FactionInvite(std::wstring_view factionTag);
-        void TransferCharacter(std::wstring_view cmd, std::wstring_view param1, std::wstring_view param2);
-        // void DeleteMail(std::wstring_view mailID, std::wstring_view readOnlyDel);
-        // void ReadMail(uint mailId);
-        // void ListMail(int pageNumber, std::wstring_view unread);
-        void GiveCash(std::wstring_view characterName, std::wstring_view amount);
-        void Time();
-        void Dice(uint sidesOfDice);
-        void Coin();
-        void Value();
-        void DropRep();
-        void Help(int page);
+        Task GetClientIds(ClientId client);
+        Task SetDieMessage(ClientId client, std::wstring_view param);
+        Task SetDieMessageFontSize(ClientId client, std::wstring_view param);
+        Task SetChatFont(ClientId client, std::wstring_view fontSize, std::wstring_view fontType);
+        Task SetChatTime(ClientId client, std::wstring_view option);
+        Task ShowLastSender(ClientId client);
+        Task ShowSavedMsgs(ClientId client);
+        Task SetSavedMsg(ClientId client, uint index, std::wstring_view msg);
+        Task ReplyToLastMsg(ClientId client, std::wstring_view text);
+        Task MessageTarget(ClientId client, std::wstring_view text);
+        Task MessageTag(ClientId client, std::wstring_view tag, std::wstring_view msg);
+        Task IgnoreUser(ClientId client, std::wstring_view ignoredUser, std::wstring_view flags);
+        Task IgnoreClientId(ClientId client, ClientId ignoredClient, std::wstring_view flags);
+        Task GetIgnoreList(ClientId client);
+        Task RemoveFromIgnored(ClientId client, std::vector<std::wstring_view> charactersToRemove);
+        Task GetSelfClientId(ClientId client);
+        Task MarkTarget(ClientId client);
+        Task Rename(ClientId client, std::wstring_view newName);
+        Task InvitePlayer(ClientId client, const std::wstring_view& characterName);
+        Task InvitePlayerByName(ClientId client, std::wstring_view invitee);
+        Task InvitePlayerById(ClientId client, ClientId inviteeId);
+        Task FactionInvite(ClientId client, std::wstring_view factionTag);
+        Task TransferCharacter(ClientId client, std::wstring_view cmd, std::wstring_view param1, std::wstring_view param2);
+        // Task DeleteMail(std::wstring_view mailID, std::wstring_view readOnlyDel);
+        // Task ReadMail(uint mailId);
+        // Task ListMail(int pageNumber, std::wstring_view unread);
+        Task GiveCash(ClientId client, std::wstring_view characterName, std::wstring_view amount);
+        Task Time(ClientId client);
+        Task Dice(ClientId client, uint sidesOfDice);
+        Task Coin(ClientId client);
+        Task Value(ClientId client);
+        Task DropRep(ClientId client);
+        Task Help(ClientId client, int page);
 
         // clang-format off
         inline static const std::array<CommandInfo<UserCommandProcessor>, 27> commands = {
@@ -85,7 +85,8 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         GetUserCommandsFunc(commands);
 
         template <int N>
-        bool MatchCommand(UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd, std::vector<std::wstring_view>& paramVector)
+        std::optional<Task> MatchCommand(UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd,
+                                         std::vector<std::wstring_view>& paramVector)
         {
             const CommandInfo<UserCommandProcessor>& command = std::get<N - 1>(commands);
             for (const auto str : command.cmd)
@@ -93,8 +94,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
                 if (cmd.starts_with(str))
                 {
                     paramVector.erase(paramVector.begin(), paramVector.begin() + std::clamp(std::ranges::count(str, L' '), 1, 5));
-                    command.func(processor, paramVector);
-                    return true;
+                    return command.func(processor, paramVector);
                 }
             }
 
@@ -103,9 +103,10 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
 
         template <>
         // ReSharper disable once CppExplicitSpecializationInNonNamespaceScope
-        bool MatchCommand<0>(UserCommandProcessor* processor, ClientId triggeringClient, std::wstring_view fullCmdString, std::vector<std::wstring_view>& paramVector);
+        std::optional<Task> MatchCommand<0>(UserCommandProcessor* processor, ClientId triggeringClient, std::wstring_view fullCmdString,
+                                            std::vector<std::wstring_view>& paramVector);
 
     public:
-        bool ProcessCommand(ClientId triggeringClient, const std::wstring_view fullCmdStr, std::vector<std::wstring_view>& paramVector) override;
-        bool ProcessCommand(ClientId triggeringClient, std::wstring_view commandStr);
+        std::optional<Task> ProcessCommand(ClientId triggeringClient, const std::wstring_view fullCmdStr, std::vector<std::wstring_view>& paramVector) override;
+        std::optional<Task> ProcessCommand(ClientId triggeringClient, std::wstring_view clientStr, std::wstring_view commandStr);
 };

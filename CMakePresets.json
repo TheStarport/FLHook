@@ -1,82 +1,97 @@
 {
-    "version": 3,
+    "version": 4,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 23,
         "patch": 0
     },
+    "include": [ "./ConanPresets.json" ],
     "configurePresets": [
         {
-            "name": "default",
-            "generator": "Visual Studio 17 2022",
-            "binaryDir": "${sourceDir}/build/${presetName}",
+            "name": "debug",
+            "displayName": "Debug (Core Only)",
+            "inherits": "conan-debug",
+            "environment": {
+                "MSVC_INCLUDE": "/home/laz/msvc/VC/Tools/MSVC/14.41.34120/include:/home/laz/msvc/kits/10/include/10.0.22621.0/um:/home/laz/msvc/kits/10/include/10.0.22621.0/ucrt:/home/laz/msvc/kits/10/include/10.0.22621.0/winrt:/home/laz/msvc/kits/10/include/10.0.22621.0/cppwinrt:/home/laz/msvc/kits/10/include/10.0.22621.0/shared"
+            }
+        },
+        {
+            "name": "debug-examples",
+            "displayName": "Debug (Examples)",
+            "inherits": "debug",
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+                "COMPILE_EXAMPLES": true
+            }
+        },
+        {
+            "name": "debug-plugins",
+            "displayName": "Debug (Plugins)",
+            "inherits": "debug",
+            "cacheVariables": {
+                "COMPILE_PLUGINS": true
+            }
+        },
+        {
+            "name": "debug-all",
+            "displayName": "Debug (All)",
+            "inherits": "debug",
+            "cacheVariables": {
+                "COMPILE_EXAMPLES": true,
+                "COMPILE_PLUGINS": true
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release (Core Only)",
+            "inherits": "conan-release",
+            "environment": {
+                "MSVC_INCLUDE": "/home/laz/msvc/VC/Tools/MSVC/14.41.34120/include:/home/laz/msvc/kits/10/include/10.0.22621.0/um:/home/laz/msvc/kits/10/include/10.0.22621.0/ucrt:/home/laz/msvc/kits/10/include/10.0.22621.0/winrt:/home/laz/msvc/kits/10/include/10.0.22621.0/cppwinrt:/home/laz/msvc/kits/10/include/10.0.22621.0/shared"
             },
-            "hidden": true
-        },
-        {
-            "name": "vs2022",
-            "inherits": "default",
-            "displayName": "VS2022",
-            "generator": "Visual Studio 17 2022",
-            "architecture": "Win32",
-            "hidden": true
-        },
-        {
-            "name": "vs2022-debug-core",
-            "inherits": "vs2022",
-            "displayName": "VS2022 Debug (Core Only)",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "VCPKG_TARGET_ARCHITECTURE": "x86",
-                "VCPKG_TARGET_TRIPLET": "x86-windows",
-                "CMAKE_MT": "mt"
+                "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
-            "name": "vs2022-release-core",
-            "inherits": "vs2022",
-            "displayName": "VS2022 Release (Core Only)",
+            "name": "release-examples",
+            "displayName": "Release (Examples)",
+            "inherits": "release",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "VCPKG_TARGET_ARCHITECTURE": "x86",
-                "VCPKG_TARGET_TRIPLET": "x86-windows",
-                "CMAKE_MT": "mt"
+                "COMPILE_EXAMPLES": true
             }
         },
         {
-            "name": "vs2022-debug-plugins",
-            "inherits": "vs2022-debug-core",
-            "displayName": "VS2022 Debug (Plugins)",
+            "name": "release-plugins",
+            "displayName": "Release (Plugins)",
+            "inherits": "release",
             "cacheVariables": {
                 "COMPILE_PLUGINS": true
             }
         },
         {
-            "name": "vs2022-release-plugins",
-            "inherits": "vs2022-release-core",
-            "displayName": "VS2022 Release (Plugins)",
+            "name": "release-all",
+            "displayName": "Release (All)",
+            "inherits": "release",
             "cacheVariables": {
+                "COMPILE_EXAMPLES": true,
                 "COMPILE_PLUGINS": true
             }
-        },
+        }
+    ],
+    "buildPresets": [
         {
-            "name": "vs2022-debug-all",
-            "inherits": "vs2022-debug-core",
-            "displayName": "VS2022 Debug (Plugins)",
-            "cacheVariables": {
-                "COMPILE_PLUGINS": true,
-                "COMPILE_EXAMPLES": true
+            "name": "debug",
+            "displayName": "Debug",
+            "inherits": "conan-debug",
+            "environment": {
+                "MSVC_INCLUDE": "/home/laz/msvc/VC/Tools/MSVC/14.41.34120/include:/home/laz/msvc/kits/10/include/10.0.22621.0/um:/home/laz/msvc/kits/10/include/10.0.22621.0/ucrt:/home/laz/msvc/kits/10/include/10.0.22621.0/winrt:/home/laz/msvc/kits/10/include/10.0.22621.0/cppwinrt:/home/laz/msvc/kits/10/include/10.0.22621.0/shared"
             }
         },
         {
-            "name": "vs2022-release-all",
-            "inherits": "vs2022-release-core",
-            "displayName": "VS2022 Release (Plugins)",
-            "cacheVariables": {
-                "COMPILE_PLUGINS": true,
-                "COMPILE_EXAMPLES": true
+            "name": "release",
+            "displayName": "Release",
+            "inherits": "conan-release",
+            "environment": {
+                "MSVC_INCLUDE": "/home/laz/msvc/VC/Tools/MSVC/14.41.34120/include:/home/laz/msvc/kits/10/include/10.0.22621.0/um:/home/laz/msvc/kits/10/include/10.0.22621.0/ucrt:/home/laz/msvc/kits/10/include/10.0.22621.0/winrt:/home/laz/msvc/kits/10/include/10.0.22621.0/cppwinrt:/home/laz/msvc/kits/10/include/10.0.22621.0/shared"
             }
         }
     ]

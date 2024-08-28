@@ -53,7 +53,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
 
         if (from.id == 0)
         {
-            chatData.characterName = L"CONSOLE";
+            chatData.characterName = ConsoleName;
         }
         else if (from.id)
         {
@@ -85,7 +85,9 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
         {
             const std::wstring cmdString = ReplaceExclamationMarkWithClientId(buffer, from.id);
 
-            if (UserCommandProcessor::i()->ProcessCommand(ClientId(from.id), std::wstring_view(cmdString)))
+            std::wstring clientIdStr = std::to_wstring(from.id);
+            auto processor = UserCommandProcessor::i();
+            if (auto task = processor->ProcessCommand(ClientId(from.id), clientIdStr, std::wstring_view(cmdString)); task.has_value())
             {
                 if (FLHook::GetConfig().chatConfig.echoCommands)
                 {
@@ -93,6 +95,8 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
                         LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(cmdString));
                     InternalApi::SendMessage(ClientId(from.id), xml);
                 }
+
+                FLHook::GetTaskScheduler().AddTask(std::make_shared<Task>(*task));
 
                 return false;
             }
@@ -127,10 +131,9 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
 
             const std::wstring cmdString = ReplaceExclamationMarkWithClientId(buffer, from.id);
             const auto processor = AdminCommandProcessor::i();
-            if (auto response = processor->ProcessCommand(ClientId(from.id).GetCharacterName().Handle(), AllowedContext::GameOnly, cmdString);
-                !response.empty())
+            if (auto response = processor->ProcessCommand(ClientId(from.id), AllowedContext::GameOnly, cmdString); response.has_value())
             {
-                (void)ClientId(from.id).Message(response);
+                FLHook::GetTaskScheduler().AddTask(std::make_shared<Task>(*response));
             }
             return false;
         }

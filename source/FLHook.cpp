@@ -2,11 +2,11 @@
 
 #include "Core/FLHook.hpp"
 
-#include "API/FLHook/MessageInterface.hpp"
 #include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
 #include "API/FLHook/InfocardManager.hpp"
+#include "API/FLHook/MessageInterface.hpp"
 #include "API/FLHook/PersonalityHelper.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
 #include "API/InternalApi.hpp"
@@ -82,6 +82,7 @@ FLHook::FLHook()
     accountManager = new AccountManager();
     crashCatcher = new CrashCatcher();
     resourceManager = new ResourceManager();
+    taskScheduler = new TaskScheduler();
 
     flProc = GetModuleHandle(nullptr);
 
@@ -127,6 +128,7 @@ FLHook::FLHook()
         }
     }
 
+    Timer::Add(std::bind_front(&TaskScheduler::ProcessTasks, taskScheduler, std::ref(taskScheduler->mainTasks)), 25);
     Timer::Add(ProcessPendingAsyncTasks, 250);
 
     PatchClientImpl();
@@ -230,6 +232,7 @@ Action<pub::AI::Personality*, Error> FLHook::GetPersonality(const std::wstring& 
     return instance->personalityHelper->GetPersonality(pilotNickname);
 }
 uint FLHook::GetServerLoadInMs() { return instance->serverLoadInMs; }
+TaskScheduler& FLHook::GetTaskScheduler() { return *instance->taskScheduler; }
 AccountManager& FLHook::GetAccountManager() { return *instance->accountManager; }
 FLHookConfig& FLHook::GetConfig() { return *instance->flhookConfig; }
 IClientImpl* FLHook::GetPacketInterface() { return hookClientImpl; }
@@ -349,6 +352,7 @@ FLHook::~FLHook()
     // unload hooks
     UnloadHookExports();
 
+    delete taskScheduler;
     delete resourceManager;
     delete personalityHelper;
     delete infocardManager;
@@ -362,11 +366,12 @@ void FLHook::ProcessPendingCommands()
     auto cmd = Logger::GetCommand();
     while (cmd.has_value())
     {
-        static constexpr std::wstring_view console = L"console";
         try
         {
-            const auto response = AdminCommandProcessor::i()->ProcessCommand(console, AllowedContext::ConsoleOnly, cmd.value());
-            Logger::Info(response);
+            if (const auto response = AdminCommandProcessor::i()->ProcessCommand(ClientId(), AllowedContext::ConsoleOnly, cmd.value()); response.has_value())
+            {
+                GetTaskScheduler().AddTask(std::make_shared<Task>(*response));
+            }
         }
         catch (InvalidParameterException& ex)
         {

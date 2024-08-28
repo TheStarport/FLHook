@@ -54,6 +54,7 @@
 *.user
 **/.vs/
 .idea/
+.venv/
 
 # Docs
 docs/_build/

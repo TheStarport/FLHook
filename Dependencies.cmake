@@ -1,4 +1,13 @@
 function(TARGET_DEPENDENCIES PROJ)
+    if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
+        if (NOT DEFINED ENV{MSVC_INCLUDE})
+            message(FATAL_ERROR "MSVC_INCLUDE was not found and running on Linux")
+        endif()
+        string(REPLACE ":" " " MSVC_INCLUDES $ENV{MSVC_INCLUDE})
+        separate_arguments(MSVC_INCLUDES)
+        target_include_directories(${PROJ} PRIVATE ${MSVC_INCLUDES})
+    endif()
+
     target_include_directories(${PROJ} PRIVATE ${INCLUDE_PATH})
     target_include_directories(${PROJ} PRIVATE ${refl}/include)
     target_include_directories(${PROJ} PRIVATE ${SDK_PATH}/include)
@@ -15,29 +24,18 @@ function(TARGET_DEPENDENCIES PROJ)
 
     ## vcpkg dependencies
 
-    find_package(re2 CONFIG REQUIRED)
-    target_link_libraries("${PROJ}" PUBLIC re2::re2)
-
-    find_package(magic_enum CONFIG REQUIRED)
-    target_link_libraries("${PROJ}" PUBLIC magic_enum::magic_enum)
-
-    find_package(spdlog CONFIG REQUIRED)
-    target_link_libraries("${PROJ}" PUBLIC spdlog::spdlog)
-
-    find_package(glm CONFIG REQUIRED)
-    target_link_libraries("${PROJ}" PUBLIC glm::glm)
-
     find_package(amqpcpp CONFIG REQUIRED)
-    target_link_libraries("${PROJ}" PUBLIC amqpcpp)
-
-    find_package(uvw CONFIG REQUIRED)
-    target_link_libraries("${PROJ}" PUBLIC uvw::uvw)
-
+    find_package(concurrentqueue CONFIG REQUIRED)
+    find_package(croncpp CONFIG REQUIRED)
+    find_package(glm CONFIG REQUIRED)
+    find_package(magic_enum CONFIG REQUIRED)
+    find_package(re2 CONFIG REQUIRED)
+    find_package(spdlog CONFIG REQUIRED)
     find_package(stduuid CONFIG REQUIRED)
-    target_link_libraries("${PROJ}" PUBLIC stduuid)
-
+    find_package(uvw CONFIG REQUIRED)
     find_package(xbyak CONFIG REQUIRED)
-    target_link_libraries("${PROJ}" PUBLIC xbyak::xbyak)
+    target_link_libraries(${PROJ} PUBLIC amqpcpp concurrentqueue::concurrentqueue croncpp::croncpp glm::glm
+            magic_enum::magic_enum re2::re2 spdlog::spdlog stduuid::stduuid uvw::uvw xbyak::xbyak)
 
     # MongoCXX
     #find_package(mongocxx REQUIRED)
@@ -45,7 +43,7 @@ function(TARGET_DEPENDENCIES PROJ)
     #find_package(mongoc-1.0 CONFIG REQUIRED)
     #include_directories(${LIBMONGOCXX_INCLUDE_DIR})
     #include_directories(${LIBBSONCXX_INCLUDE_DIR})
-	include_directories(${PROJECT_SOURCE_DIR}/mongo)
+	include_directories(${SOURCE_PATH}/../mongo)
 
     target_link_libraries(${PROJ} PUBLIC "${SOURCE_PATH}/../mongo/bson-1.0.lib")
     target_link_libraries(${PROJ} PUBLIC "${SOURCE_PATH}/../mongo/mongoc-1.0.lib")

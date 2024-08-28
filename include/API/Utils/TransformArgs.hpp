@@ -97,11 +97,12 @@ auto CreateTupleImpl(std::index_sequence<Is...>, std::vector<std::wstring_view>&
     {
         std::make_tuple(ValidateTransformationArgument<Args, Is, size>()...);
 
+        using FirstType = std::tuple_element_t<0, std::tuple<Args...>>;
+        static_assert(std::is_same_v<FirstType, ClientId>, "The first parameter of any command must be a client id");
+
         using LastType = std::tuple_element_t<size - 1, std::tuple<Args...>>;
         if constexpr (IsSpecialization<LastType, std::vector>::value)
         {
-
-
             // Given we know all the values come from the same string (same buffer),
             // We can do some janky pointer logic here to get the wstring_view
             const auto lastArg = StringUtils::Trim(*(arguments.end() - 1));
