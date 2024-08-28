@@ -1,4 +1,5 @@
 import os
+import platform
 
 from conan import ConanFile
 from conan.tools.files import copy
@@ -31,7 +32,7 @@ class CompressorRecipe(ConanFile):
         self.tool_requires("cmake/3.22.6")
 
     def layout(self):
-        multi = True if self.settings.get_safe("compiler") == "msvc" else False
+        multi = platform.system() == "Windows"
         if multi:
             self.folders.generators = os.path.join("build", "generators")
             self.folders.build = "build"
