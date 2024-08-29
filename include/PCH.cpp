@@ -101,7 +101,16 @@ template <>
 bool TransformArg(const std::wstring_view s, size_t paramNumber)
 {
     const auto lower = StringUtils::ToLower(s);
-    return lower == L"true" || lower == L"yes" || lower == L"1" || lower == L"on";
+    if(lower == L"true" || lower == L"yes" || lower == L"1" || lower == L"on")
+    {
+        return true;
+    }
+    if(lower == L"false" || lower == L"no" || lower == L"0" || lower == L"off")
+    {
+        return false;
+    }
+
+    throw InvalidParameterException(s, paramNumber);
 }
 
 template<>

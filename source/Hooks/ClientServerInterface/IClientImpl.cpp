@@ -747,6 +747,8 @@ bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(uint client, FLPACKET_S
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(client, systemSwitchOut); }
     CallClientPostamble;
 
+    CallPlugins(&PacketInterface::OnSystemSwitchOutPacket, ClientId(client), systemSwitchOut);
+
     return retVal;
 }
 

@@ -277,6 +277,7 @@ class DLL PacketInterface
         Aft(bool, OnMiscObjectUpdate5Packet, (ClientId client, uint unk1, uint unk2));
         Aft(bool, OnMiscObjectUpdate6Packet, (ClientId client, uint unk1, uint unk2));
         Aft(bool, OnMiscObjectUpdate7Packet, (ClientId client, uint unk1, uint unk2));
+        Aft(bool, OnSystemSwitchOutPacket, (ClientId client, FLPACKET_SYSTEM_SWITCH_OUT& packet));
 };
 
 #undef Aft

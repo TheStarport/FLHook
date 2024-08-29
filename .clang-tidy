@@ -2,3 +2,5 @@
 CheckOptions:
   - key: performance-unnecessary-value-param.AllowedTypes
     value: ClientId;SystemId;ObjectId;BaseId;EquipmentId;GroupId;RepId;RepGroupId;ShipId;AccountId
+  - key: performance-for-range-copy.AllowedTypes
+    value: ClientId;SystemId;ObjectId;BaseId;EquipmentId;GroupId;RepId;RepGroupId;ShipId;AccountId
