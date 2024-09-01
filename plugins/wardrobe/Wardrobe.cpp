@@ -7,89 +7,93 @@ namespace Plugins
 {
     WardrobePlugin::WardrobePlugin(const PluginInfo& info) : Plugin(info) {}
 
-	void WardrobePlugin::UserCmdShowWardrobe(const std::wstring_view param)
+	Task WardrobePlugin::UserCmdShowWardrobe(ClientId client, const std::wstring_view param)
 	{
 		if (StringUtils::ToLower(param) == L"head")
 		{
-			(void)userCmdClient.Message(L"Heads:");
+			(void)client.Message(L"Heads:");
 			std::wstring heads;
 			for (const auto& [name, id] : config.heads)
 				heads += (StringUtils::stows(name) + L" | ");
-			(void)userCmdClient.Message(heads);
+			(void)client.Message(heads);
 		}
 		else if (StringUtils::ToLower(param) == L"body")
 		{
-			(void)userCmdClient.Message(L"Bodies:");
+			(void)client.Message(L"Bodies:");
 			std::wstring bodies;
 			for (const auto& [name, id] : config.bodies)
 				bodies += (StringUtils::stows(name) + L" | ");
-			(void)userCmdClient.Message(bodies);
+			(void)client.Message(bodies);
 		}
+
+        co_return TaskStatus::Finished;
 	}
 
-	void WardrobePlugin::UserCmdChangeCostume(const std::wstring_view type, const std::wstring_view costume)
+	Task WardrobePlugin::UserCmdChangeCostume(ClientId client, const std::wstring_view type, const std::wstring_view costume)
 	{
 		if (type.empty() || costume.empty())
 		{
-			(void)userCmdClient.Message(L"ERR Invalid parameters");
-			return;
+			(void)client.Message(L"ERR Invalid parameters");
+			co_return TaskStatus::Finished;
 		}
 
 		if (StringUtils::ToLower(type) == L"head")
 		{
 			if (!config.heads.contains(StringUtils::wstos(costume)))
 			{
-				(void)userCmdClient.Message(L"ERR Head not found. Use \"/warehouse show head\" to get available heads.");
-				return;
+				(void)client.Message(L"ERR Head not found. Use \"/warehouse show head\" to get available heads.");
+				co_return TaskStatus::Finished;
 			}
-			userCmdClient.GetData().playerData->baseCostume.head = CreateID(config.heads[StringUtils::wstos(costume)].c_str());
+			client.GetData().playerData->baseCostume.head = CreateID(config.heads[StringUtils::wstos(costume)].c_str());
 		}
 		else if (StringUtils::ToLower(type) == L"body")
 		{
 			if (!config.bodies.contains(StringUtils::wstos(costume)))
 			{
-				(void)userCmdClient.Message(L"ERR Body not found. Use \"/warehouse show body\" to get available bodies.");
-				return;
+				(void)client.Message(L"ERR Body not found. Use \"/warehouse show body\" to get available bodies.");
+				co_return TaskStatus::Finished;
 			}
-			userCmdClient.GetData().playerData->baseCostume.body = CreateID(config.bodies[StringUtils::wstos(costume)].c_str());
+			client.GetData().playerData->baseCostume.body = CreateID(config.bodies[StringUtils::wstos(costume)].c_str());
 		}
 		else
 		{
-			(void)userCmdClient.Message(L"ERR Invalid parameters");
-			return;
+			(void)client.Message(L"ERR Invalid parameters");
+			co_return TaskStatus::Finished;
 		}
 
 		// Saving the characters forces an anti-cheat checks and fixes
 		// up a multitude of other problems.
-        (void)userCmdClient.SaveChar();
+        (void)client.SaveChar();
+        (void)client.Kick(L"Updating character, please wait 10 seconds before reconnecting");
 
-        (void)userCmdClient.Kick(L"Updating character, please wait 10 seconds before reconnecting");
+        co_return TaskStatus::Finished;
 	}
 
-
-	void WardrobePlugin::UserCmdHandle(const std::wstring_view command, const std::wstring_view param, const std::wstring_view param2)
+	Task WardrobePlugin::UserCmdHandle(ClientId client, const std::wstring_view command, const std::wstring_view param, const std::wstring_view param2)
 	{
 		// Check character is in base
-		if (!userCmdClient.IsDocked())
+		if (!client.IsDocked())
 		{
-			(void)userCmdClient.Message(L"ERR Not in base");
-			return;
+			(void)client.Message(L"ERR Not in base");
+			co_return TaskStatus::Finished;
 		}
 
 		if (command == L"list")
 		{
-			UserCmdShowWardrobe(param);
+			UserCmdShowWardrobe(client, param);
 		}
 		else if (command == L"change")
 		{
-			UserCmdChangeCostume(param, param2);
+			UserCmdChangeCostume(client, param, param2);
 		}
 		else
 		{
-			(void)userCmdClient.Message(L"Command usage:");
-			(void)userCmdClient.Message(L"/wardrobe list <head/body> - lists available bodies/heads");
-			(void)userCmdClient.Message(L"/wardrobe change <head/body> <name> - changes your head/body to the chosen model");
+			(void)client.Message(L"Command usage:");
+			(void)client.Message(L"/wardrobe list <head/body> - lists available bodies/heads");
+			(void)client.Message(L"/wardrobe change <head/body> <name> - changes your head/body to the chosen model");
 		}
+
+        co_return TaskStatus::Finished;
 	}
 
 	void WardrobePlugin::OnLoadSettings()
