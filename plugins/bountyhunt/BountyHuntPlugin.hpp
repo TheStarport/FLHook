@@ -68,7 +68,7 @@ namespace Plugins
             void CheckIfPlayerFled(ClientId client);
 
             // User Commands
-            void UserCmdBountyHunt(ClientId target, const uint prize, uint time);
+            Task UserCmdBountyHunt(ClientId client, ClientId target, const uint prize, uint time);
 
             inline static const std::array<CommandInfo<BountyHuntPlugin>, 1> commands = {
                 {

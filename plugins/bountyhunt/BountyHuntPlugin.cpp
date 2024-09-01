@@ -42,25 +42,25 @@ namespace Plugins
     /** @ingroup BountyHunt
      * @brief User Command for /bountyhunt. Creates a bounty against a specified player.
      */
-    void BountyHuntPlugin::UserCmdBountyHunt(ClientId target, const uint prize, uint time)
+    Task BountyHuntPlugin::UserCmdBountyHunt(ClientId client, ClientId target, const uint prize, uint time)
     {
         if (!prize)
         {
-            (void)userCmdClient.Message(L"Usage: /bountyhunt <playername> <credits> [time]");
-            PrintBountyHunts(userCmdClient);
-            return;
+            (void)client.Message(L"Usage: /bountyhunt <playername> <credits> [time]");
+            PrintBountyHunts(client);
+            co_return TaskStatus::Finished;
         }
 
         if (!target || target.InCharacterSelect())
         {
-            (void)userCmdClient.Message(std::format(L"{} is not online.", target));
-            return;
+            (void)client.Message(std::format(L"{} is not online.", target));
+            co_return TaskStatus::Finished;
         }
 
         if (const uint rankTarget = target.GetRank().Handle(); rankTarget < config->levelProtect)
         {
-            (void)userCmdClient.Message(L"Low level players may not be hunted.");
-            return;
+            (void)client.Message(L"Low level players may not be hunted.");
+            co_return TaskStatus::Finished;
         }
 
         // clamp the hunting time to configured range, or set default if not specified
@@ -73,30 +73,32 @@ namespace Plugins
             time = config->defaultHuntTime;
         }
 
-        if (const uint clientCash = userCmdClient.GetCash().Unwrap(); clientCash < prize)
+        if (const uint clientCash = client.GetCash().Unwrap(); clientCash < prize)
         {
-            (void)userCmdClient.Message(L"You do not possess enough credits.");
-            return;
+            (void)client.Message(L"You do not possess enough credits.");
+            co_return TaskStatus::Finished;
         }
 
         auto vec = bountiesOnPlayers[target.GetValue()];
 
-        if (std::ranges::find_if(vec, [this](const Bounty& b) { return b.issuer == userCmdClient; }) != vec.end())
+        if (std::ranges::find_if(vec, [client](const Bounty& b) { return b.issuer == client; }) != vec.end())
         {
-            (void)userCmdClient.Message(L"You already have a bounty on this player.");
-            return;
+            (void)client.Message(L"You already have a bounty on this player.");
+            co_return TaskStatus::Finished;
         }
 
-        (void)userCmdClient.RemoveCash(prize);
+        (void)client.RemoveCash(prize);
 
         Bounty bounty;
-        bounty.issuer = userCmdClient;
+        bounty.issuer = client;
         bounty.end = TimeUtils::UnixTime<std::chrono::milliseconds>() + (static_cast<mstime>(time) * 60000);
         bounty.cash = prize;
 
         vec.push_back(bounty);
 
         FLHook::MessageUniverse(std::format(L"{} offers {} credits for killing {} in {} minutes.", bounty.issuer, std::to_wstring(bounty.cash), target, time));
+
+        co_return TaskStatus::Finished;
     }
 
     /**
