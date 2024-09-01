@@ -69,9 +69,9 @@ namespace Plugins
                     bool f1 = false;
             };
 
+            Task UserCmdTax(ClientId client, std::wstring_view taxAmount);
+            Task UserCmdPay(ClientId client);
             void RemoveTax(const Tax& toRemove);
-            void UserCmdTax(std::wstring_view taxAmount);
-            void UserCmdPay();
             void FiveSecondTimer();
 
             void OnDisconnect(ClientId client, EFLConnection connection) override;
