@@ -7,29 +7,33 @@ namespace Plugins
 
     AfkPlugin::AfkPlugin(const PluginInfo& info) : Plugin(info) {}
 
-    void AfkPlugin::UserCmdAfk()
+    Task AfkPlugin::UserCmdAfk(const ClientId client)
     {
-        awayClients.emplace_back(userCmdClient);
-        const auto playerName = userCmdClient.GetCharacterName().Handle();
+        awayClients.emplace_back(client);
+        const auto playerName = client.GetCharacterName().Handle();
         const auto message = std::format(L"{} is now away from keyboard.", playerName);
 
-        const auto system = userCmdClient.GetSystemId().Handle();
+        const auto system = client.GetSystemId().Handle();
         (void)system.Message(message, MessageColor::Red, MessageFormat::Normal);
-        (void)userCmdClient.Message(L"Use the /back command to stop sending automatic replies to PMs.");
+        (void)client.Message(L"Use the /back command to stop sending automatic replies to PMs.");
+
+        co_return TaskStatus::Finished;
     }
 
-    void AfkPlugin::UserCmdBack()
+    Task AfkPlugin::UserCmdBack(const ClientId client)
     {
-        if (const auto it = awayClients.begin(); std::find(it, awayClients.end(), userCmdClient) != awayClients.end())
+        if (const auto it = awayClients.begin(); std::find(it, awayClients.end(), client) != awayClients.end())
         {
-            const auto system = userCmdClient.GetSystemId().Handle();
+            const auto system = client.GetSystemId().Handle();
 
             awayClients.erase(it);
 
-            auto playerName = userCmdClient.GetCharacterName().Handle();
+            auto playerName = client.GetCharacterName().Handle();
 
             system.Message(std::format(L"{} has returned.", playerName), MessageColor::Red);
         }
+
+        co_return TaskStatus::Finished;
     }
 
     // Clean up when a client disconnects
@@ -49,8 +53,7 @@ namespace Plugins
     {
         if (const auto it = awayClients.begin(); fromClient && std::find(it, awayClients.end(), fromClient) != awayClients.end())
         {
-            userCmdClient = fromClient;
-            UserCmdBack();
+            UserCmdBack(fromClient);
         }
     }
 
