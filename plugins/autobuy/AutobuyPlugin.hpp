@@ -59,7 +59,7 @@ namespace Plugins
                     EquipmentId shieldBattery;
             };
 
-            void UserCmdAutobuy(std::wstring_view autobuyType, std::wstring_view newState);
+            Task UserCmdAutobuy(ClientId client, std::wstring_view autobuyType, std::wstring_view newState);
 
             // clang-format off
             const inline static std::array<CommandInfo<AutobuyPlugin>, 1> commands =

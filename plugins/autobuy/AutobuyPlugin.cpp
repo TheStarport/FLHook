@@ -360,45 +360,45 @@ namespace Plugins
     // USER COMMANDS
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    void AutobuyPlugin::UserCmdAutobuy(const std::wstring_view autobuyType, const std::wstring_view newState)
+    Task AutobuyPlugin::UserCmdAutobuy(const ClientId client, const std::wstring_view autobuyType, const std::wstring_view newState)
     {
         if (autobuyType.empty())
         {
-            (void)userCmdClient.Message(L"Error: Invalid parameters");
-            (void)userCmdClient.Message(L"Usage: /autobuy <param> [<on/off>]");
-            (void)userCmdClient.Message(L"<Param>:");
-            (void)userCmdClient.Message(L"|  info - display current autobuy-settings");
-            (void)userCmdClient.Message(L"|  missiles - enable/disable autobuy for missiles");
-            (void)userCmdClient.Message(L"|  torps - enable/disable autobuy for torpedos");
-            (void)userCmdClient.Message(L"|  mines - enable/disable autobuy for mines");
-            (void)userCmdClient.Message(L"|  cd - enable/disable autobuy for cruise disruptors");
-            (void)userCmdClient.Message(L"|  cm - enable/disable autobuy for countermeasures");
-            (void)userCmdClient.Message(L"|  bb - enable/disable autobuy for nanobots/shield batteries");
-            (void)userCmdClient.Message(L"|  repairs - enable/disable automatic repair of ship and equipment");
-            (void)userCmdClient.Message(L"|  all: enable/disable autobuy for all of the above");
-            (void)userCmdClient.Message(L"Examples:");
-            (void)userCmdClient.Message(L"|  \"/autobuy missiles on\" enable autobuy for missiles");
-            (void)userCmdClient.Message(L"|  \"/autobuy all off\" completely disable autobuy");
-            (void)userCmdClient.Message(L"|  \"/autobuy info\" show autobuy info");
+            (void)client.Message(L"Error: Invalid parameters");
+            (void)client.Message(L"Usage: /autobuy <param> [<on/off>]");
+            (void)client.Message(L"<Param>:");
+            (void)client.Message(L"|  info - display current autobuy-settings");
+            (void)client.Message(L"|  missiles - enable/disable autobuy for missiles");
+            (void)client.Message(L"|  torps - enable/disable autobuy for torpedos");
+            (void)client.Message(L"|  mines - enable/disable autobuy for mines");
+            (void)client.Message(L"|  cd - enable/disable autobuy for cruise disruptors");
+            (void)client.Message(L"|  cm - enable/disable autobuy for countermeasures");
+            (void)client.Message(L"|  bb - enable/disable autobuy for nanobots/shield batteries");
+            (void)client.Message(L"|  repairs - enable/disable automatic repair of ship and equipment");
+            (void)client.Message(L"|  all: enable/disable autobuy for all of the above");
+            (void)client.Message(L"Examples:");
+            (void)client.Message(L"|  \"/autobuy missiles on\" enable autobuy for missiles");
+            (void)client.Message(L"|  \"/autobuy all off\" completely disable autobuy");
+            (void)client.Message(L"|  \"/autobuy info\" show autobuy info");
         }
 
-        auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[userCmdClient.GetValue()];
+        auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[client.GetValue()];
         if (autobuyType == L"info")
         {
-            (void)userCmdClient.Message(std::format(L"Missiles: {}", missiles ? L"On" : L"Off"));
-            (void)userCmdClient.Message(std::format(L"Mines: {}", mines ? L"On" : L"Off"));
-            (void)userCmdClient.Message(std::format(L"Torpedos: {}", torps ? L"On" : L"Off"));
-            (void)userCmdClient.Message(std::format(L"Cruise Disruptors: {}", cd ? L"On" : L"Off"));
-            (void)userCmdClient.Message(std::format(L"Countermeasures: {}", cm ? L"On" : L"Off"));
-            (void)userCmdClient.Message(std::format(L"Nanobots/Shield Batteries: {}", bb ? L"On" : L"Off"));
-            (void)userCmdClient.Message(std::format(L"Repairs: {}", repairs ? L"On" : L"Off"));
-            return;
+            (void)client.Message(std::format(L"Missiles: {}", missiles ? L"On" : L"Off"));
+            (void)client.Message(std::format(L"Mines: {}", mines ? L"On" : L"Off"));
+            (void)client.Message(std::format(L"Torpedos: {}", torps ? L"On" : L"Off"));
+            (void)client.Message(std::format(L"Cruise Disruptors: {}", cd ? L"On" : L"Off"));
+            (void)client.Message(std::format(L"Countermeasures: {}", cm ? L"On" : L"Off"));
+            (void)client.Message(std::format(L"Nanobots/Shield Batteries: {}", bb ? L"On" : L"Off"));
+            (void)client.Message(std::format(L"Repairs: {}", repairs ? L"On" : L"Off"));
+            co_return TaskStatus::Finished;
         }
 
         if (newState.empty() || (newState != L"on" && newState != L"off"))
         {
-            (void)userCmdClient.Message(L"ERR invalid parameters");
-            return;
+            (void)client.Message(L"ERR invalid parameters");
+            co_return TaskStatus::Finished;;
         }
 
         const bool enable = newState == L"on";
@@ -450,11 +450,13 @@ namespace Plugins
         }
         else
         {
-            (void)userCmdClient.Message(L"ERR invalid parameters");
-            return;
+            (void)client.Message(L"ERR invalid parameters");
+            co_return TaskStatus::Finished;;
         }
 
-        (void)userCmdClient.Message(L"OK");
+        (void)client.Message(L"OK");
+
+        co_return TaskStatus::Finished;
     }
 
     void AutobuyPlugin::OnLoadSettings()
