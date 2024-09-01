@@ -11,7 +11,7 @@ namespace Plugins
     /// Clear client info when a client connects.
     void ArenaPlugin::OnClearClientInfo(const ClientId client)
     {
-        auto& [flag, returnBase] = clientData[userCmdClient.GetValue()];
+        auto& [flag, returnBase] = clientData[client.GetValue()];
         flag = TransferFlag::None;
         returnBase = BaseId(0);
     }
@@ -61,7 +61,7 @@ namespace Plugins
 
     void ArenaPlugin::OnCharacterSelectAfter(const ClientId client)
     {
-        auto& [flag, returnBase] = clientData[userCmdClient.GetValue()];
+        auto& [flag, returnBase] = clientData[client.GetValue()];
 
         flag = TransferFlag::None;
 
@@ -122,63 +122,67 @@ namespace Plugins
         document.append(bsoncxx::builder::basic::kvp("arenaReturnBase", value));
     }
 
-    void ArenaPlugin::UserCmdArena()
+    Task ArenaPlugin::UserCmdArena(const ClientId client)
     {
         // Prohibit jump if in a restricted system or in the target system
-        if (const SystemId system = userCmdClient.GetSystemId().Unwrap();
+        if (const SystemId system = client.GetSystemId().Unwrap();
             std::ranges::find(config.restrictedSystems, system) != config.restrictedSystems.end() || system == config.targetSystem)
         {
-            (void)userCmdClient.Message(L"ERR Cannot use command in this system or base");
-            return;
+            (void)client.Message(L"ERR Cannot use command in this system or base");
+            co_return TaskStatus::Finished;
         }
 
-        const BaseId currBase = userCmdClient.GetCurrentBase().Unwrap();
+        const BaseId currBase = client.GetCurrentBase().Unwrap();
         if (!currBase)
         {
-            (void)userCmdClient.Message(dockErrorText);
-            return;
+            (void)client.Message(dockErrorText);
+            co_return TaskStatus::Finished;
         }
 
-        if (!ValidateCargo(userCmdClient))
+        if (!ValidateCargo(client))
         {
-            (void)userCmdClient.Message(cargoErrorText);
-            return;
+            (void)client.Message(cargoErrorText);
+            co_return TaskStatus::Finished;
         }
 
-        (void)userCmdClient.Message(L"Redirecting undock to Arena.");
-        auto& [flag, returnBase] = clientData[userCmdClient.GetValue()];
+        (void)client.Message(L"Redirecting undock to Arena.");
+        auto& [flag, returnBase] = clientData[client.GetValue()];
         flag = TransferFlag::Transfer;
         returnBase = currBase;
+
+        co_return TaskStatus::Finished;
     }
 
-    void ArenaPlugin::UserCmdReturn()
+    Task ArenaPlugin::UserCmdReturn(const ClientId client)
     {
-        if (!ReadReturnPointForClient(userCmdClient))
+        if (!ReadReturnPointForClient(client))
         {
-            (void)userCmdClient.Message(L"No return possible");
-            return;
+            (void)client.Message(L"No return possible");
+            co_return TaskStatus::Finished;
         }
 
-        if (!userCmdClient.IsDocked())
+        if (!client.IsDocked())
         {
-            (void)userCmdClient.Message(dockErrorText);
-            return;
+            (void)client.Message(dockErrorText);
+            co_return TaskStatus::Finished;
         }
 
-        if (userCmdClient.GetCurrentBase().Unwrap() != config.targetBase)
+        if (client.GetCurrentBase().Unwrap() != config.targetBase)
         {
-            (void)userCmdClient.Message(L"Not in correct base");
-            return;
+            (void)client.Message(L"Not in correct base");
+            co_return TaskStatus::Finished;
         }
 
-        if (!ValidateCargo(userCmdClient))
+        if (!ValidateCargo(client))
         {
-            (void)userCmdClient.Message(cargoErrorText);
-            return;
+            (void)client.Message(cargoErrorText);
+            co_return TaskStatus::Finished;
         }
 
-        (void)userCmdClient.Message(L"Redirecting undock to previous base");
-        clientData[userCmdClient.GetValue()].flag = TransferFlag::Return;
+        (void)client.Message(L"Redirecting undock to previous base");
+        clientData[client.GetValue()].flag = TransferFlag::Return;
+
+        co_return TaskStatus::Finished;
     }
 } // namespace Plugins
 

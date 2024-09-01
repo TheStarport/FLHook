@@ -61,12 +61,12 @@ namespace Plugins
             /**
              * @brief Used to switch to the arena system
              */
-            void UserCmdArena();
+            Task UserCmdArena(ClientId client);
 
             /**
              * @brief Used to return from the arena system.
              */
-            void UserCmdReturn();
+            Task UserCmdReturn(ClientId client);
 
             // clang-format off
             inline static const std::array<CommandInfo<ArenaPlugin>, 2> commands = {
