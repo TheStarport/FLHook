@@ -69,32 +69,32 @@ namespace Plugins
     /** @ingroup Betting
      * @brief This method is called when a player types /ffa in an attempt to start a pvp event
      */
-    void BettingPlugin::UserCmdStartFreeForAll(const uint amount)
+    Task BettingPlugin::UserCmdStartFreeForAll(const ClientId client, const uint amount)
     {
         // Check its a valid amount of cash
         if (amount == 0)
         {
-            (void)userCmdClient.Message(L"Must specify a cash amount. Usage: /ffa <amount> e.g. /ffa 5000");
-            return;
+            (void)client.Message(L"Must specify a cash amount. Usage: /ffa <amount> e.g. /ffa 5000");
+            co_return TaskStatus::Finished;
         }
 
         // Check the player can afford it
-        if (const auto cash = userCmdClient.GetCash().Handle(); amount > 0 && cash < amount)
+        if (const auto cash = client.GetCash().Handle(); amount > 0 && cash < amount)
         {
-            (void)userCmdClient.Message(L"You don't have enough credits to create this FFA.");
-            return;
+            (void)client.Message(L"You don't have enough credits to create this FFA.");
+            co_return TaskStatus::Finished;
         }
 
         // Get the player's current system and location in the system.
-        const SystemId systemId = userCmdClient.GetSystemId().Handle();
+        const SystemId systemId = client.GetSystemId().Handle();
 
         // Look in FreeForAll map, is an ffa happening in this system already?
         // If system doesn't have an ongoing ffa
         const auto freeForAllIter = freeForAlls.find(systemId);
         if (freeForAllIter == freeForAlls.end())
         {
-            (void)userCmdClient.Message(L"There is an FFA already happening in this system.");
-            return;
+            (void)client.Message(L"There is an FFA already happening in this system.");
+            co_return TaskStatus::Finished;
         }
         auto [contestants, entryAmount, pot] = freeForAllIter->second;
         // Get a list of other players in the system
@@ -113,7 +113,7 @@ namespace Plugins
             // Add them to the contestants freeForAlls
             contestants[client2].loser = false;
 
-            if (userCmdClient == client2)
+            if (client == client2)
             {
                 contestants[client2].accepted = true;
             }
@@ -129,62 +129,66 @@ namespace Plugins
         // Are there any other players in this system?
         if (!contestants.empty())
         {
-            (void)userCmdClient.Message(L"Challenge issued. Waiting for others to accept.");
+            (void)client.Message(L"Challenge issued. Waiting for others to accept.");
             entryAmount = amount;
             pot = amount;
-            (void)userCmdClient.RemoveCash(amount);
+            (void)client.RemoveCash(amount);
         }
         else
         {
             freeForAlls.erase(systemId);
-            (void)userCmdClient.Message(L"There are no other players in this system.");
+            (void)client.Message(L"There are no other players in this system.");
         }
+
+        co_return TaskStatus::Finished;
     }
 
     /** @ingroup Betting
      * @brief This method is called when a player types /acceptffa
      */
-    void BettingPlugin::UserCmdAcceptFFA()
+    Task BettingPlugin::UserCmdAcceptFFA(const ClientId client)
     {
         // Is player in space?
-        if (!userCmdClient.InSpace())
+        if (!client.InSpace())
         {
-            (void)userCmdClient.Message(L"You must be in space to accept this.");
-            return;
+            (void)client.Message(L"You must be in space to accept this.");
+            co_return TaskStatus::Finished;
         }
 
-        const auto freeForAllIter = freeForAlls.find(userCmdClient.GetSystemId().Handle());
+        const auto freeForAllIter = freeForAlls.find(client.GetSystemId().Handle());
         if (freeForAllIter == freeForAlls.end())
         {
-            (void)userCmdClient.Message(L"There isn't an FFA in this system. Use /ffa to create one.");
-            return;
+            (void)client.Message(L"There isn't an FFA in this system. Use /ffa to create one.");
+            co_return TaskStatus::Finished;
         }
 
         auto& [contestants, entryAmount, pot] = freeForAllIter->second;
 
         // Check the player can afford it
-        if (const auto cash = userCmdClient.GetCash().Handle(); entryAmount > 0 && cash < entryAmount)
+        if (const auto cash = client.GetCash().Handle(); entryAmount > 0 && cash < entryAmount)
         {
-            (void)userCmdClient.Message(L"You don't have enough credits to join this FFA.");
-            return;
+            (void)client.Message(L"You don't have enough credits to join this FFA.");
+            co_return TaskStatus::Finished;
         }
 
         // Accept
-        if (auto& [accepted, loser] = contestants[userCmdClient]; accepted == false)
+        if (auto& [accepted, loser] = contestants[client]; accepted == false)
         {
             accepted = true;
             loser = false;
             pot = pot + entryAmount;
-            userCmdClient.Message(std::format(L"{} credits have been deducted from your Neural Net account.", entryAmount));
-            userCmdClient.MessageLocal(std::format(L"{} has joined the FFA. Pot is now at {}", userCmdClient.GetCharacterName().Handle(), pot), 100000);
+            client.Message(std::format(L"{} credits have been deducted from your Neural Net account.", entryAmount));
+            client.MessageLocal(std::format(L"{} has joined the FFA. Pot is now at {}", client.GetCharacterName().Handle(), pot), 100000);
 
             // Deduct cash
-            (void)userCmdClient.RemoveCash(entryAmount);
+            (void)client.RemoveCash(entryAmount);
         }
         else
         {
-            (void)userCmdClient.Message(L"You have already accepted the FFA.");
+            (void)client.Message(L"You have already accepted the FFA.");
         }
+
+        co_return TaskStatus::Finished;
     }
 
     /** @ingroup Betting
@@ -235,73 +239,73 @@ namespace Plugins
     /** @ingroup Betting
      * @brief This method is called when a player types /duel in an attempt to start a duel
      */
-    void BettingPlugin::UserCmdDuel(uint amount)
+    Task BettingPlugin::UserCmdDuel(const ClientId client, uint amount)
     {
         // Get the object the player is targetting
-        if (!userCmdClient.InSpace())
+        if (!client.InSpace())
         {
-            (void)userCmdClient.Message(L"Must be in space");
-            return;
+            (void)client.Message(L"Must be in space");
+            co_return TaskStatus::Finished;
         }
 
-        const auto target = userCmdClient.GetShipId().Unwrap().GetTarget();
+        const auto target = client.GetShipId().Unwrap().GetTarget();
         if (!target.has_value())
         {
-            (void)userCmdClient.Message(L"Must target a player");
-            return;
+            (void)client.Message(L"Must target a player");
+            co_return TaskStatus::Finished;
         }
 
         // Check ship is a player
         const auto clientTarget = target->GetPlayer();
         if (!clientTarget.has_value())
         {
-            (void)userCmdClient.Message(L"Must target a player");
-            return;
+            (void)client.Message(L"Must target a player");
+            co_return TaskStatus::Finished;
         }
 
         // Check its a valid amount of cash
         if (amount == 0)
         {
-            (void)userCmdClient.Message(L"Must specify a cash amount. Usage: /duel <amount> e.g. /duel 5000");
-            return;
+            (void)client.Message(L"Must specify a cash amount. Usage: /duel <amount> e.g. /duel 5000");
+            co_return TaskStatus::Finished;
         }
 
         // Check the player can afford it
-        if (const uint cash = userCmdClient.GetCash().Handle(); amount > 0 && cash < amount)
+        if (const uint cash = client.GetCash().Handle(); amount > 0 && cash < amount)
         {
-            (void)userCmdClient.Message(L"You don't have enough credits to issue this challenge.");
-            return;
+            (void)client.Message(L"You don't have enough credits to issue this challenge.");
+            co_return TaskStatus::Finished;
         }
 
         // Do either players already have a duel?
-        for (const auto& [client, client2, betAmount, accepted] : duels)
+        for (const auto& [client1, client2, betAmount, accepted] : duels)
         {
             // Target already has a bet
-            if (client == clientTarget || client2 == clientTarget)
+            if (client1 == clientTarget || client2 == clientTarget)
             {
-                (void)userCmdClient.Message(L"This player already has an ongoing duel.");
-                return;
+                (void)client.Message(L"This player already has an ongoing duel.");
+                co_return TaskStatus::Finished;
             }
             // Player already has a bet
-            if (client == userCmdClient || client2 == userCmdClient)
+            if (client1 == client || client2 == client)
             {
-                (void)userCmdClient.Message(L"You already have an ongoing duel. Type /cancel");
-                return;
+                (void)client.Message(L"You already have an ongoing duel. Type /cancel");
+                co_return TaskStatus::Finished;
             }
         }
 
         // Create duel
         Duel duel;
-        duel.client = userCmdClient;
+        duel.client = client;
         duel.client2 = clientTarget.value();
         duel.betAmount = amount;
         duel.accepted = false;
         duels.push_back(duel);
 
         // Message players
-        (void)userCmdClient.MessageLocal(
+        (void)client.MessageLocal(
             std::format(
-                L"{} has challenged {} to a duel for {} credits", userCmdClient.GetCharacterName().Handle(), clientTarget->GetCharacterName().Handle(), amount),
+                L"{} has challenged {} to a duel for {} credits", client.GetCharacterName().Handle(), clientTarget->GetCharacterName().Handle(), amount),
             10000);
         (void)clientTarget->Message(L"Type \"/acceptduel\" to accept.");
     }
@@ -309,18 +313,18 @@ namespace Plugins
     /** @ingroup Betting
      * @brief This method is called when a player types /acceptduel to accept a duel request.
      */
-    void BettingPlugin::UserCmdAcceptDuel()
+    Task BettingPlugin::UserCmdAcceptDuel(const ClientId client)
     {
         // Is player in space?
-        if (!userCmdClient.InSpace())
+        if (!client.InSpace())
         {
-            (void)userCmdClient.Message(L"You must be in space to accept this.");
-            return;
+            (void)client.Message(L"You must be in space to accept this.");
+            co_return TaskStatus::Finished;
         }
 
-        for (auto& [client, client2, betAmount, accepted] : duels)
+        for (auto& [client1, client2, betAmount, accepted] : duels)
         {
-            if (client2 != userCmdClient)
+            if (client2 != client)
             {
                 continue;
             }
@@ -328,37 +332,41 @@ namespace Plugins
             // Has player already accepted the bet?
             if (accepted == true)
             {
-                (void)userCmdClient.Message(L"You have already accepted the challenge.");
-                return;
+                (void)client.Message(L"You have already accepted the challenge.");
+                co_return TaskStatus::Finished;
             }
 
             // Check the player can afford it
 
-            if (const uint cash = userCmdClient.GetCash().Handle(); cash < betAmount)
+            if (const uint cash = client.GetCash().Handle(); cash < betAmount)
             {
-                (void)userCmdClient.Message(L"You don't have enough credits to accept this challenge");
-                return;
+                (void)client.Message(L"You don't have enough credits to accept this challenge");
+                co_return TaskStatus::Finished;
             }
 
             accepted = true;
-            (void)userCmdClient.MessageLocal(std::format(L"{} has accepted the duel with {} for {} credits.",
-                                                         userCmdClient.GetCharacterName().Handle(),
+            (void)client.MessageLocal(std::format(L"{} has accepted the duel with {} for {} credits.",
                                                          client.GetCharacterName().Handle(),
+                                                         client1.GetCharacterName().Handle(),
                                                          betAmount),
                                              10000);
-            return;
+            co_return TaskStatus::Finished;
         }
-        (void)userCmdClient.Message(L"You have no duel requests. To challenge "
+        (void)client.Message(L"You have no duel requests. To challenge "
                                     L"someone, target them and type /duel <amount>");
+
+        co_return TaskStatus::Finished;
     }
 
     /** @ingroup Betting
      * @brief This method is called when a player types /cancel to cancel a duel/ffa request.
      */
-    void BettingPlugin::UserCmdCancel()
+    Task BettingPlugin::UserCmdCancel(const ClientId client)
     {
-        ProcessFFA(userCmdClient);
-        ProcessDuel(userCmdClient);
+        ProcessFFA(client);
+        ProcessDuel(client);
+
+        co_return TaskStatus::Finished;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
