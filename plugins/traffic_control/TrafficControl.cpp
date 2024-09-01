@@ -242,13 +242,13 @@ void TrafficControlPlugin::OnLoadSettings()
     }
 }
 
-void TrafficControlPlugin::UserCmdNetSwitch(ClientId client, std::wstring_view networkName)
+Task TrafficControlPlugin::UserCmdNetSwitch(ClientId client, std::wstring_view networkName)
 {
     auto clientData = clientInfo[client.GetValue()];
     if (clientData.availableNetworks.empty())
     {
         client.Message(L"No networks available!");
-        return;
+        co_return TaskStatus::Finished;
     }
 
     for (auto& [permissions, network] : clientData.availableNetworks | std::views::values)
@@ -259,19 +259,21 @@ void TrafficControlPlugin::UserCmdNetSwitch(ClientId client, std::wstring_view n
         }
 
         ActivateNetwork(client, network->networkId, permissions);
-        return;
+        co_return TaskStatus::Finished;
     }
 
     client.Message(L"Provided network doesn't exist or you don't have access");
+
+    co_return TaskStatus::Finished;
 }
 
-void TrafficControlPlugin::UserCmdNetList(ClientId client)
+Task TrafficControlPlugin::UserCmdNetList(ClientId client)
 {
     auto clientData = clientInfo[client.GetValue()];
     if (clientData.availableNetworks.empty())
     {
         client.Message(L"No networks available for connection!");
-        return;
+        co_return TaskStatus::Finished;
     }
 
     for (const auto network : clientData.availableNetworks | std::views::values | std::views::values)
@@ -285,15 +287,17 @@ void TrafficControlPlugin::UserCmdNetList(ClientId client)
             client.Message(std::format(L"{}", network->networkName));
         }
     }
+
+    co_return TaskStatus::Finished;
 }
 
-void TrafficControlPlugin::UserCmdNet(ClientId client, const std::wstring_view setting, const bool newState)
+Task TrafficControlPlugin::UserCmdNet(ClientId client, const std::wstring_view setting, const bool newState)
 {
     auto clientData = clientInfo[client.GetValue()];
     if (!clientData.activeNetwork)
     {
         client.Message(L"No network connection!");
-        return;
+        co_return TaskStatus::Finished;
     }
 
     if (StringUtils::ToLower(setting) == L"lane")
@@ -301,7 +305,7 @@ void TrafficControlPlugin::UserCmdNet(ClientId client, const std::wstring_view s
         if (!magic_enum::enum_flags_test(clientData.basePermissions, Permissions::LaneNet) && newState)
         {
             client.Message(L"No lane monitoring permissions!");
-            return;
+            co_return TaskStatus::Finished;
         }
 
         if (newState)
@@ -318,7 +322,7 @@ void TrafficControlPlugin::UserCmdNet(ClientId client, const std::wstring_view s
         if (!magic_enum::enum_flags_test(clientData.basePermissions, Permissions::GateNet) && newState)
         {
             client.Message(L"No gate monitoring permissions!");
-            return;
+            co_return TaskStatus::Finished;
         }
 
         if (newState)
@@ -334,21 +338,23 @@ void TrafficControlPlugin::UserCmdNet(ClientId client, const std::wstring_view s
     {
         client.Message(L"Incorrect parameters!");
     }
+
+    co_return TaskStatus::Finished;
 }
 
-void TrafficControlPlugin::UserCmdNodockInfo(ClientId client)
+Task TrafficControlPlugin::UserCmdNodockInfo(ClientId client)
 {
     const auto network = clientInfo[client.GetValue()].activeNetwork;
     if (!network)
     {
         client.Message(L"No network connection!");
-        return;
+        co_return TaskStatus::Finished;
     }
 
     if (network->nodockFactions.empty())
     {
         client.Message(L"This network doesn't allow of dock restrictions!");
-        return;
+        co_return TaskStatus::Finished;
     }
 
     client.Message(L"Restrictable station affiliations:");
@@ -356,22 +362,24 @@ void TrafficControlPlugin::UserCmdNodockInfo(ClientId client)
     {
         client.Message(std::format(L"| {}", faction.GetName().Handle()));
     }
+
+    co_return TaskStatus::Finished;
 }
 
-void TrafficControlPlugin::UserCmdNodock(ClientId client)
+Task TrafficControlPlugin::UserCmdNodock(ClientId client)
 {
     const auto data = clientInfo[client.GetValue()];
 
     if (!data.activeNetwork)
     {
         client.Message(L"No active traffic network!");
-        return;
+        co_return TaskStatus::Finished;
     }
 
     if (!magic_enum::enum_flags_test(data.currPermissions, Permissions::NoDock))
     {
         client.Message(L"No permission for this action!");
-        return;
+        co_return TaskStatus::Finished;
     }
 
     const auto ship = client.GetShip().Handle();
@@ -379,25 +387,26 @@ void TrafficControlPlugin::UserCmdNodock(ClientId client)
     if (!ship)
     {
         client.Message(L"Not in space!");
-        return;
+        co_return TaskStatus::Finished;
     }
 
     const auto target = ship->get_target();
     if (!target)
     {
         client.Message(L"No target!");
-        return;
+        co_return TaskStatus::Finished;
     }
 
     auto targetPlayerId = ClientId(reinterpret_cast<CSimple*>(target->cobject())->ownerPlayer);
     if (!targetPlayerId)
     {
         client.Message(L"Target not a player!");
-        return;
+        co_return TaskStatus::Finished;
     }
 
     targetPlayerId.Message(config.nodockMessage);
     clientInfo[targetPlayerId.GetValue()].nodockTimestamp = TimeUtils::UnixTime<std::chrono::seconds>() + config.nodockDuration;
+    co_return TaskStatus::Finished;
 }
 
 TrafficControlPlugin::TrafficControlPlugin(const PluginInfo& info) : Plugin(info) {}

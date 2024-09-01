@@ -87,11 +87,11 @@ namespace Plugins
         std::optional<DOCK_HOST_RESPONSE> OnDockCall(ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response) override;
         void OnLoadSettings() override;
 
-        void UserCmdNetSwitch(ClientId client, std::wstring_view networkName);
-        void UserCmdNetList(ClientId client);
-        void UserCmdNet(ClientId client, std::wstring_view setting, bool newState);
-        void UserCmdNodockInfo(ClientId client);
-        void UserCmdNodock(ClientId client);
+        Task UserCmdNetSwitch(ClientId client, std::wstring_view networkName);
+        Task UserCmdNetList(ClientId client);
+        Task UserCmdNet(ClientId client, std::wstring_view setting, bool newState);
+        Task UserCmdNodockInfo(ClientId client);
+        Task UserCmdNodock(ClientId client);
 
         const inline static std::array<CommandInfo<TrafficControlPlugin>, 5> commands = {
             {
