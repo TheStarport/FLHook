@@ -1,0 +1,17 @@
+[settings]
+os=Windows
+arch=x86
+compiler=msvc
+compiler.version=193
+compiler.runtime=dynamic
+compiler.cppstd=20
+build_type=Debug
+
+[buildenv]
+CC={{ os.path.join(os.getenv("MSVC_PATH"), "bin", "x86", "cl") }}
+CXX={{ os.path.join(os.getenv("MSVC_PATH"), "bin", "x86", "cl") }}
+LD={{ os.path.join(os.getenv("MSVC_PATH"), "bin", "x86", "link") }}
+RC= {{ os.path.join(os.getenv("MSVC_PATH"), "bin", "x86", "rc") }}
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja

@@ -6,6 +6,7 @@
 
 #include <mongocxx/pool.hpp>
 
+class TaskScheduler;
 class InternalApi;
 class IServerImplHook;
 class IEngineHook;
@@ -21,6 +22,8 @@ class CrashCatcher;
 class MessageHandler;
 class MessageInterface;
 class ResourceManager;
+
+static constexpr std::wstring_view ConsoleName = L"CONSOLE";
 
 class DLL FLHook final
 {
@@ -79,6 +82,7 @@ class DLL FLHook final
         Database* database;
         InfocardManager* infocardManager;
         PersonalityHelper* personalityHelper;
+        TaskScheduler* taskScheduler;
         AccountManager* accountManager;
         ResourceManager* resourceManager;
         FLHookConfig* flhookConfig;
@@ -106,7 +110,7 @@ class DLL FLHook final
         bool flhookReady;
 
         std::unordered_map<std::wstring, std::vector<std::wstring>> credentialsMap = {
-            { L"console", { L"SuperAdmin" } }
+            { std::wstring(ConsoleName), { L"SuperAdmin" } }
         };
 
     public:
@@ -157,6 +161,7 @@ class DLL FLHook final
         static ResourceManager& GetResourceManager();
         static Action<pub::AI::Personality*, Error> GetPersonality(const std::wstring& pilotNickname);
         static uint GetServerLoadInMs();
+        static TaskScheduler& GetTaskScheduler();
 
         static Action<void, Error> MessageUniverse(std::wstring_view message);
 };

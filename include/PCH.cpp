@@ -15,6 +15,12 @@ ClientId TransformArg(const std::wstring_view s, const size_t paramNumber)
         throw InvalidParameterException(s, paramNumber);
     }
 
+    // Explicitly allow the the number '0' to mean CONSOLE
+    if (s.size() == 1 && s[0] == L'0')
+    {
+        return ClientId();
+    }
+
     if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }) && s.size() < 4)
     {
         const auto number = StringUtils::Cast<size_t>(s);
@@ -66,7 +72,7 @@ Archetype::Ship* TransformArg(const std::wstring_view s, const size_t paramNumbe
     return ship;
 }
 
-template<>
+template <>
 Archetype::Equipment* TransformArg(const std::wstring_view s, const size_t paramNumber)
 {
     const std::string str = StringUtils::wstos(std::wstring(s));
@@ -113,7 +119,7 @@ bool TransformArg(const std::wstring_view s, size_t paramNumber)
     throw InvalidParameterException(s, paramNumber);
 }
 
-template<>
+template <>
 GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber)
 {
     if (const auto good = GoodList::find_by_nickname(StringUtils::wstos(std::wstring(s)).c_str()))
@@ -135,7 +141,7 @@ GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber)
     throw InvalidParameterException(s, paramNumber);
 }
 
-template<>
+template <>
 BaseId TransformArg(std::wstring_view s, size_t paramNumber)
 {
     const std::string str = StringUtils::wstos(std::wstring(s));
@@ -156,12 +162,13 @@ BaseId TransformArg(std::wstring_view s, size_t paramNumber)
         }
 
         base = Universe::GetNextBase();
-    } while (base);
+    }
+    while (base);
 
     throw InvalidParameterException(s, paramNumber);
 }
 
-template<>
+template <>
 SystemId TransformArg(std::wstring_view s, size_t paramNumber)
 {
     const std::string str = StringUtils::wstos(std::wstring(s));
@@ -183,12 +190,13 @@ SystemId TransformArg(std::wstring_view s, size_t paramNumber)
         }
 
         system = Universe::GetNextSystem();
-    } while (system);
+    }
+    while (system);
 
     throw InvalidParameterException(s, paramNumber);
 }
 
-template<>
+template <>
 RepGroupId TransformArg(std::wstring_view s, size_t paramNumber)
 {
     const std::string str = StringUtils::wstos(std::wstring(s));

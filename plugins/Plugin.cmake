@@ -15,7 +15,7 @@ file(GLOB_RECURSE PLUGIN_SOURCE_FILES LIST_DIRECTORIES false
         "${PLUGIN_PATH}/*.h*"
         "${INCLUDE_PATH}/*.c*"
         "${INCLUDE_PATH}/*.h*"
-        "${SDK_PATH}/*.h*"
+        "${SDK_PATH}/*.h"
 )
 
 add_library("${PLUGIN_NAME}" SHARED ${PLUGIN_SOURCE_FILES}

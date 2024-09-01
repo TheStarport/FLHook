@@ -243,7 +243,11 @@ Action<void, Error> ClientId::SetRelativeHealth(const float setHealth) const
 
 Action<std::wstring_view, Error> ClientId::GetCharacterName() const
 {
-    ClientCheck;
+    if (value == 0)
+    {
+        return { L"CONSOLE"sv };
+    }
+
     CharSelectCheck;
 
     return { GetData().characterName };
@@ -511,6 +515,12 @@ Action<void, Error> ClientId::MarkObject(const uint objId, const int markStatus)
 
 Action<void, Error> ClientId::Message(const std::wstring_view message, const MessageFormat format, const MessageColor color) const
 {
+    if (value == 0)
+    {
+        Logger::Info(message);
+        return {{}};
+    }
+
     ClientCheck;
     CharSelectCheck;
 

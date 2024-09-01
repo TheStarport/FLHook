@@ -1,5 +1,7 @@
 #pragma once
 
+#include "API/FLHook/TaskScheduler.hpp"
+
 using namespace std::string_view_literals;
 
 /**
@@ -7,13 +9,9 @@ using namespace std::string_view_literals;
  */
 class AbstractUserCommandProcessor
 {
-    protected:
-        ClientId userCmdClient;
-        void PrintOk() const { (void)userCmdClient.Message(L"OK"); }
-
     public:
         virtual ~AbstractUserCommandProcessor() = default;
-        virtual bool ProcessCommand(ClientId client, std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) = 0;
+        virtual std::optional<Task> ProcessCommand(ClientId client, std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) = 0;
         virtual const std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>>& GetUserCommands() const = 0;
 };
 
@@ -21,7 +19,7 @@ template <class Processor>
 struct CommandInfo
 {
         std::vector<std::wstring_view> cmd;
-        void (*func)(Processor* cl, std::vector<std::wstring_view>& params);
+        Task (*func)(Processor* cl, std::vector<std::wstring_view>& params);
         std::wstring_view usage;
         std::wstring_view description;
 };
@@ -55,7 +53,7 @@ struct CommandInfo
         {                                                                                                                                    \
             if (cmd.starts_with(str))                                                                                                        \
             {                                                                                                                                \
-                paramVector.erase(paramVector.begin(), paramVector.begin() + (std::clamp(std::ranges::count(str, L' '), 1, 5)));                               \
+                paramVector.erase(paramVector.begin(), paramVector.begin() + (std::clamp(std::ranges::count(str, L' '), 1, 5)));             \
                 command.func(processor, paramVector);                                                                                        \
                 return true;                                                                                                                 \
             }                                                                                                                                \
@@ -72,8 +70,7 @@ struct CommandInfo
                                                                                                                                              \
     bool ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) override              \
     {                                                                                                                                        \
-        userCmdClient = triggeringClient;                                                                                                    \
-        return MatchCommand<commandArray.size()>(this, userCmdClient, cmd, paramVector);                                                     \
+        return MatchCommand<commandArray.size()>(this, triggeringClient, cmd, paramVector);                                                  \
     }                                                                                                                                        \
                                                                                                                                              \
 public:                                                                                                                                      \

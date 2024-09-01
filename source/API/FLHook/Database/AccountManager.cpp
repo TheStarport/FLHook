@@ -6,7 +6,7 @@
 #include "API/FLHook/TaskScheduler.hpp"
 #include "API/Utils/Reflection.hpp"
 
-#include <stduuid/uuid.h>
+#include <uuid.h>
 
 void ConvertCharacterToVanillaData(CharacterData* data, const Character& character, uint clientId)
 {

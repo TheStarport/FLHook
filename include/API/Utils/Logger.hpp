@@ -1,6 +1,6 @@
 #pragma once
 
-#include <concurrentqueue/concurrentqueue.h>
+#include <concurrentqueue.h>
 #include <optional>
 
 class FLHook;
