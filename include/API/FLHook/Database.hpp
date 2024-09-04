@@ -32,5 +32,6 @@ class Database
 
     public:
         mongocxx::pool::entry AcquireClient();
-        static void SaveValueOnAccount(const AccountId &accountId, std::string_view key, bsoncxx::types::bson_value::view_or_value value);
+        static mongocxx::collection GetCollection(const mongocxx::pool::entry& dbClient, std::string_view collectionName);
+        static void SaveValueOnAccount(const AccountId& accountId, std::string_view key, bsoncxx::types::bson_value::view_or_value value);
 };

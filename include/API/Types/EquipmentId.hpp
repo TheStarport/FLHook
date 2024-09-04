@@ -1,24 +1,47 @@
 #pragma once
 
-//TODO: Allow assigning to uint variables without the need to extract GetValue explicitly
+namespace Archetype
+{
+    struct Equipment;
+    struct Gun;
+} // namespace Archetype
+// TODO: Allow assigning to uint variables without the need to extract GetValue explicitly
 class DLL EquipmentId
 {
-        uint value = 0;
+        Archetype::Equipment *value = nullptr;
 
     public:
-        explicit EquipmentId(const uint val) : value(val) {}
+        explicit EquipmentId(const uint val);
         EquipmentId() = default;
         bool operator==(const EquipmentId next) const { return value == next.value; }
         explicit operator bool() const;
 
         // Returns the underlying value of the ClientId, it is generally recommended to not use this.
         [[nodiscard]]
-        uint GetValue() const
+        Archetype::Equipment *GetValue() const
         {
             return value;
         }
 
         Action<EquipmentType, Error> GetType() const;
+        Action<std::wstring_view, Error> GetName() const;
+        Action<float, Error> GetVolume() const;
+
+        template <typename T>
+        Action<T, Error> Cast()
+        {
+            auto type = GetType().Raw();
+
+            if (type.has_error())
+            {
+                return { cpp::fail(type.error()) };
+            }
+
+            if constexpr (std::is_same_v<T, Archetype::Gun> && type.value() == EquipmentType::Gun)
+            {
+                return reinterpret_cast<T *>(value);
+            }
+        }
 };
 
 template <>

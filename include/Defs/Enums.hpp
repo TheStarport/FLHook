@@ -61,7 +61,8 @@ enum class EquipmentType
     Other,
     Scanner,
     Tractor,
-    Light
+    Light,
+    Ship
 };
 
 enum class PluginMajorVersion

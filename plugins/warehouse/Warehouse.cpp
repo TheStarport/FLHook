@@ -1,304 +1,331 @@
-﻿/**
- * @date Jan, 2023
- * @author Lazrius
- * @defgroup Warehouse Warehouse
- * @brief
- * The Warehouse plugin allows players to deposit and withdraw various commodities and equipment on NPC stations, stored on internal SQL database.
- *
- * @paragraph cmds Player Commands
- * -warehouse store <ID> <count> - deposits specified equipment or commodity into the base warehouse
- * -warehouse list - lists unmounted equipment and commodities avalable for deposit
- * -warehouse withdraw <ID> <count> - transfers specified equipment or commodity into your ship cargo hold
- * -warehouse liststored - lists equipment and commodities deposited
- *
- * @paragraph adminCmds Admin Commands
- * None
- *
- * @paragraph configuration Configuration
- * @code
- * {
- *     "costPerStackStore": 100,
- *     "costPerStackWithdraw": 50,
- *     "restrictedBases": ["Li01_01_base", "Li01_02_base"],
- *     "restrictedItems": ["li_gun01_mark01","li_gun01_mark02"]
- * }
- * @endcode
- *
- * @paragraph ipc IPC Interfaces Exposed
- * This plugin does not expose any functionality.
- */
+﻿#include "PCH.hpp"
 
-#include "Warehouse.h"
-#include <Tools/Serialization/Attributes.hpp>
+#include "Warehouse.hpp"
 
-namespace Plugins::Warehouse
+#include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/Database.hpp"
+
+namespace Plugins
 {
-	const std::unique_ptr<Global> global = std::make_unique<Global>();
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_array;
+    using bsoncxx::builder::basic::make_document;
 
-	void LoadSettings()
-	{
-		global->config = Serializer::JsonToObject<Config>();
-		for (const auto& item : global->config.restrictedItems)
-		{
-			global->config.restrictedItemsHashed.emplace_back(CreateID(item.c_str()));
-		}
-		for (const auto& base : global->config.restrictedBases)
-		{
-			global->config.restrictedBasesHashed.emplace_back(CreateID(base.c_str()));
-		}
+#define VALIDATE_ACCOUNT                                                                                   \
+    if (const auto error = account.error(); error.has_value())                                             \
+    {                                                                                                      \
+        Logger::Err(std::format(L"Error when accessing database: {}", StringUtils::stows(error->what()))); \
+        if (client && client.GetData().account->_id == accountId)                                          \
+        {                                                                                                  \
+            (void)client.Message(L"Something went wrong while accessing the data. Please try again.");     \
+        }                                                                                                  \
+        co_return TaskStatus::Finished;                                                                    \
+    }
 
-		CreateSqlTables();
-	}
+    WarehousePlugin::WarehousePlugin(const PluginInfo& info) : Plugin(info) {}
 
-	void UserCmdStoreItem(uint client, const std::wstring& param, uint base)
-	{
-		// This is a generated number to allow players to select the item they want to store.
-		const uint databaseItemId = ToUInt(GetParam(param, ' ', 1));
+    void WarehousePlugin::OnLoadSettings()
+    {
+        // TODO: If config exists and is faulty, prevent loading
+        if (const auto conf = Json::Load<Config>("config/warehouse.json"); !conf.has_value())
+        {
+            Json::Save(config, "config/warehouse.json");
+        }
+        else
+        {
+            config = conf.value();
+        }
+    }
 
-		if (!databaseItemId)
-		{
-			client.Message(L"Error Invalid Item Number");
-			return;
-		}
+    rfl::Result<WarehousePlugin::PlayerWarehouse> WarehousePlugin::GetOrCreateAccount(const std::string& accountId) const
+    {
+        auto collection = Database::GetCollection(FLHook::GetDbClient(), config.collectionName);
+        const auto filter = make_document(kvp("_id", accountId));
 
-		int _;
-		const auto cargo = Hk::Player::EnumCargo(client, _);
-		std::vector<CargoInfo> filteredCargo;
-		for (auto& info : cargo.value())
-		{
-			if (info.mounted || info.status < 1.f)
-				continue;
+        if (const auto document = collection.find_one(filter.view()); document.has_value())
+        {
+            if (const auto& value = document.value(); value.find("_id") != value.end())
+            {
+                return rfl::bson::read<PlayerWarehouse>(document->data(), document->length());
+            }
+        }
 
-			filteredCargo.emplace_back(info);
-		}
+        // not found, must create
+        const auto newDoc = make_document(kvp("_id", accountId), kvp("equipmentMap", make_document()));
+        collection.insert_one(newDoc.view());
 
-		const uint itemCount = std::max(1u, ToUInt(GetParam(param, ' ', 2)));
+        return rfl::bson::read<PlayerWarehouse>(newDoc.view().data(), newDoc.view().length());
+    }
 
-		if (databaseItemId > filteredCargo.size())
-		{
-			client.Message(L"Error Invalid Item Number");
-			return;
-		}
-		const auto& item = filteredCargo[databaseItemId - 1];
-		if (itemCount > static_cast<uint>(item.count))
-		{
-			client.Message(L"Error Invalid Item Quantity");
-			return;
-		}
-		if (std::ranges::find(global->config.restrictedItemsHashed, item.archId) != global->config.restrictedItemsHashed.end())
-		{
-			client.Message(L"Error: This item is restricted from being stored.");
-			return;
-		}
+    Task WarehousePlugin::UserCmdListItems(const ClientId client)
+    {
+        if (!client.IsDocked())
+        {
+            (void)client.Message(L"Not docked on a station!");
+            co_yield TaskStatus::Finished;
+        }
 
-		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackStore)
-		{
-			PrintUserCmdText(
-			    client, std::format(L"Not enough credits. The fee for storing items at this station is {} credits.", global->config.costPerStackStore));
-			return;
-		}
+        int counter = 1;
+        for (const auto& equip : *client.GetEquipCargo().Handle())
+        {
+            auto good = GoodId(equip.archId);
+            if (!config.allowCommoditiesToBeStored && good.GetType().Handle() == GoodType::Commodity)
+            {
+                continue;
+            }
+            (void)client.Message(std::format(L"{}. {} x{}", counter++, good.GetName().Handle(), equip.count));
+        }
 
-		Hk::Player::RemoveCash(client, global->config.costPerStackStore);
-		Hk::Player::RemoveCargo(client, static_cast<ushort>(item.id), itemCount);
+        co_return TaskStatus::Finished;
+    }
 
-		const auto account = Hk::Client::GetAccountByClientID(client);
-		const auto sqlBaseId = GetOrAddBase(base);
-		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
-		const auto wareHouseItem = GetOrAddItem(item.archId, sqlPlayerId, itemCount);
+    Task WarehousePlugin::UserCmdDeposit(const ClientId client, uint itemNr, uint count)
+    {
 
-		client.Message(std::format(L"Successfully stored {} item(s) for a total of {}", itemCount, wareHouseItem.quantity, wareHouseItem.id));
+        if (!client.IsDocked())
+        {
+            (void)client.Message(L"Not docked on a station!");
+            co_yield TaskStatus::Finished;
+        }
 
-		Hk::Player::SaveChar(client);
-	}
+        if (!itemNr)
+        {
+            (void)client.Message(L"Invalid item number!");
+            co_yield TaskStatus::Finished;
+        }
 
-	void UserCmdGetItems(uint client, [[maybe_unused]] const std::wstring& param, [[maybe_unused]] uint base)
-	{
-		int _;
-		const auto cargo = Hk::Player::EnumCargo(client, _);
+        if (!count)
+        {
+            (void)client.Message(L"Invalid item count!");
+            co_yield TaskStatus::Finished;
+        }
 
-		int index = 0;
-		for (const auto& info : cargo.value())
-		{
-			if (info.mounted || info.status < 1.f)
-				continue;
+        if (config.bannedBases.contains(client.GetCurrentBase().Handle()) || config.bannedSystems.contains(client.GetSystemId().Handle()))
+        {
+            (void)client.Message(L"Command unavailable");
+            co_yield TaskStatus::Finished;
+        }
 
-			const auto* equip = Archetype::GetEquipment(info.archId);
-			index++;
-			client.Message(std::format(L"{}) {} x{}", index, Hk::Chat::GetWStringFromIdS(equip->idsName), info.count));
-		}
-	}
-	void UserCmdGetWarehouseItems(uint client, [[maybe_unused]] const std::wstring& param, uint base)
-	{
-		const auto account = Hk::Client::GetAccountByClientID(client);
-		const auto sqlBaseId = GetOrAddBase(base);
-		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
-		const auto itemList = GetAllItemsOnBase(sqlPlayerId);
+        int counter = 0;
+        const auto equipList = client.GetEquipCargo().Handle();
 
-		if (itemList.empty())
-		{
-			client.Message(L"You have no items stored at this warehouse.");
-			return;
-		}
+        if (itemNr > equipList->size())
+        {
+            (void)client.Message(L"You don't have that much of this item!");
+            co_yield TaskStatus::Finished;
+        }
 
-		int index = 0;
-		for (const auto& info : itemList)
-		{
-			const auto* equip = Archetype::GetEquipment(info.equipArchId);
-			if (!equip)
-			{
-				Logger::i()->Log(LogLevel::Warn, std::format("Item archetype {} no loner exists", info.equipArchId));
-				continue;
-			}
-			index++;
-			client.Message(std::format(L"{}) {} x{}", index, Hk::Chat::GetWStringFromIdS(equip->idsName), info.quantity));
-		}
-	}
+        GoodId good;
+        for (const auto& equip : *equipList)
+        {
+            counter++;
+            if (counter != itemNr)
+            {
+                continue;
+            }
 
-	void UserCmdWithdrawItem(uint client, const std::wstring& param, uint base)
-	{
-		// This is a generated number to allow players to select the item they want to store.
-		const uint itemId = StringUtils::Cast<int>(GetParam(param, ' ', 1));
+            good = GoodId(equip.archId);
+            if (!config.allowCommoditiesToBeStored && good.GetType().Handle() == GoodType::Commodity)
+            {
+                continue;
+            }
+            break;
+        }
 
-		if (!itemId)
-		{
-			client.Message(L"Error Invalid Item Number");
-			return;
-		}
+        // TODO: Implement clientId.RemoveCargo
 
-		int remainingCargo;
-		const auto cargo = Hk::Player::EnumCargo(client, remainingCargo);
+        co_yield TaskStatus::DatabaseAwait;
+        // TODO: Call DB to add the item
+        co_yield TaskStatus::FLHookAwait;
 
-		const int itemCount = std::max(1, StringUtils::Cast<int>(GetParam(param, ' ', 2)));
+        (void)client.Message(std::format(L"Deposited {} of {}!", count, good.GetName().Handle()));
+        co_return TaskStatus::Finished;
+    }
 
-		if (const uint cash = Hk::Player::GetCash(client).value(); cash < global->config.costPerStackWithdraw)
-		{
-			PrintUserCmdText(
-			    client, std::format(L"Not enough credits. The fee for storing items at this station is {} credits.", global->config.costPerStackWithdraw));
-			return;
-		}
+    Task WarehousePlugin::UserCmdWithdraw(const ClientId client, const uint itemNr, const uint count)
+    {
 
-		const auto account = Hk::Client::GetAccountByClientID(client);
-		const auto sqlBaseId = GetOrAddBase(base);
-		const auto sqlPlayerId = GetOrAddPlayer(sqlBaseId, account);
-		const auto itemList = GetAllItemsOnBase(sqlPlayerId);
+        if (!client.IsDocked())
+        {
+            (void)client.Message(L"Not docked on a station!");
+            co_yield TaskStatus::Finished;
+        }
 
-		if (itemId > itemList.size())
-		{
-			client.Message(L"Error Invalid Item Number");
-			return;
-		}
+        if (!itemNr)
+        {
+            (void)client.Message(L"Invalid item number!");
+            co_yield TaskStatus::Finished;
+        }
 
-		const WareHouseItem warehouseItem = itemList.at(itemId - 1);
+        if (!count)
+        {
+            (void)client.Message(L"Invalid item count!");
+            co_yield TaskStatus::Finished;
+        }
 
-		const auto itemArch = Archetype::GetEquipment(warehouseItem.equipArchId);
-		if (!itemArch)
-		{
-			Logger::i()->Log(LogLevel::Warn, "User tried to withdraw an item that no longer exists");
-			client.Message(L"Internal server error. Item does not exist.");
-			return;
-		}
+        if (config.bannedBases.contains(client.GetCurrentBase().Handle()) || config.bannedSystems.contains(client.GetSystemId().Handle()))
+        {
+            (void)client.Message(L"Command unavailable");
+            co_yield TaskStatus::Finished;
+        }
 
-		if (itemArch->volume * static_cast<float>(itemCount) >= std::floor(remainingCargo))
-		{
-			client.Message(L"Withdraw request denied. Your ship cannot accomodate cargo of this size");
-			return;
-		}
+        const std::string accountId = client.GetData().account->_id;
 
-		const auto withdrawnQuantity = RemoveItem(warehouseItem.id, sqlPlayerId, itemCount);
+        co_yield TaskStatus::DatabaseAwait;
 
-		if (withdrawnQuantity == 0)
-		{
-			client.Message(L"Invalid item Id");
-			return;
-		}
+        auto account = GetOrCreateAccount(accountId);
 
-		Hk::Player::AddCargo(client, warehouseItem.equipArchId, static_cast<int>(withdrawnQuantity), false);
-		Hk::Player::RemoveCash(client, global->config.costPerStackWithdraw);
+        co_yield TaskStatus::FLHookAwait;
+        VALIDATE_ACCOUNT
 
-		Hk::Player::SaveChar(client);
+        if (config.allowWithdrawAndStoreFromAnywhere)
+        {
+            uint counter = 0;
+            for (const auto& equipMap : account.value().baseEquipmentMap | std::views::values)
+            {
+                for (const auto& [itemId, amount] : equipMap)
+                {
+                    counter++;
+                    if (counter != itemNr)
+                    {
+                        continue;
+                    }
+                    if (const auto itemVolume = EquipmentId(itemId).GetVolume().Handle();
+                        itemVolume * static_cast<float>(amount) > client.GetRemainingCargo().Handle())
+                    {
+                        (void)client.Message(L"Insufficient cargo space!");
+                        co_return TaskStatus::Finished;
+                    }
 
-		PrintUserCmdText(client,
-		    std::format(L"Successfully withdrawn Item: {} x{}", Hk::Chat::GetWStringFromIdS(itemArch->idsName), std::to_wstring(withdrawnQuantity)));
-	}
+                    client.AddCargo(itemId.GetValue()->archId, amount, false);
+                    co_yield TaskStatus::DatabaseAwait;
+                    // TODO: Call DB to remove the item
+                    co_yield TaskStatus::FLHookAwait;
+                    (void)client.Message(std::format(L"Withdrew {} of {]!", amount, itemId.GetName().Handle()));
+                    co_return TaskStatus::Finished;
+                }
+            }
+            (void)client.Message(L"Invalid item number!");
+            co_return TaskStatus::Finished;
+        }
 
-	void UserCmdWarehouse(ClientId& client, const std::wstring& param)
-	{
-		const std::wstring cmd = GetParam(param, ' ', 0);
-		if (cmd.empty())
-		{
-			PrintUserCmdText(client,
-			    L"Usage: /warehouse store <itemId> <count> : Stores the item number from /warehouse list and the count if it is a stackable item such as goods.\n"
-			    L"Usage: /warehouse list :Lists any cargo or unmounted equipment that you may store in this base's warehouse.\n"
-			    L"Usage: /warehouse withdraw <itemId> <count> : Withdraws the item number listed from /warehouse liststored and the amount and places it in your cargo.\n"
-			    L"Usage: /warehouse liststored\n : Lists the stored items you have in this base's warehouse. ");
-			return;
-		}
+        const auto equipMap = account.value().baseEquipmentMap.find(client.GetCurrentBase().Handle());
+        if (equipMap == account.value().baseEquipmentMap.end())
+        {
+            (void)client.Message(L"No items on current base!");
+            co_return TaskStatus::Finished;
+        }
 
-		auto base = Hk::Player::GetCurrentBase(client);
-		if (base.has_error())
-		{
-			client.Message(L"You must be docked in order to use this command.");
-			return;
-		}
-		if (const auto baseVal = base.value(); 
-			std::ranges::find(global->config.restrictedBasesHashed, baseVal) != global->config.restrictedBasesHashed.end())
-		{
-			client.Message(L"Error: The base you're attempting to use warehouse on is restricted.");
-			return;
-		}
+        if (itemNr > equipMap->second.size())
+        {
+            (void)client.Message(L"Invalid item number!");
+            co_return TaskStatus::Finished;
+        }
 
-		if (cmd == L"store")
-		{
-			UserCmdStoreItem(client, param, base.value());
-		}
-		else if (cmd == L"list")
-		{
-			UserCmdGetItems(client, param, base.value());
-		}
-		else if (cmd == L"withdraw")
-		{
-			UserCmdWithdrawItem(client, param, base.value());
-		}
-		else if (cmd == L"liststored")
-		{
-			UserCmdGetWarehouseItems(client, param, base.value());
-		}
-		else
-		{
-			client.Message(L"Invalid Command. Refer to /warehouse to see usage.");
-		}
-	}
+        uint counter = 0;
+        for (const auto& [itemId, amount] : equipMap->second)
+        {
+            counter++;
+            if (counter != itemNr)
+            {
+                continue;
+            }
 
-	const std::vector commands = {{
-	    CreateUserCommand(L"/warehouse", L"", UserCmdWarehouse, L""),
-	}};
+            if (const auto itemVolume = EquipmentId(itemId).GetVolume().Handle(); itemVolume * static_cast<float>(amount) > client.GetRemainingCargo().Handle())
+            {
+                (void)client.Message(L"Insufficient cargo space!");
+                co_return TaskStatus::Finished;
+            }
 
-} // namespace Plugins::Warehouse
+            client.AddCargo(itemId.GetValue()->archId, amount, false);
+            co_yield TaskStatus::DatabaseAwait;
+            // TODO: Call DB to remove the item
+            co_yield TaskStatus::FLHookAwait;
+            (void)client.Message(std::format(L"Withdrew {} of {]!", amount, itemId.GetName().Handle()));
+            co_return TaskStatus::Finished;
+        }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FLHOOK STUFF
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        (void)client.Message(L"Invalid item number!");
+        co_return TaskStatus::Finished;
+    }
 
-using namespace Plugins::Warehouse;
+    Task WarehousePlugin::UserCmdListBasesWithItems(const ClientId client)
+    {
+        if (config.allowWithdrawAndStoreFromAnywhere)
+        {
+            (void)client.Message(L"Items can be withdrawn or deposited regardless of location on this server.");
+            co_return TaskStatus::Finished;
+        }
 
-REFL_AUTO(type(Config), field(restrictedBases), field(restrictedItems), field(costPerStackWithdraw, AttrMin {0u}, AttrMax {100000u}),
-    field(costPerStackStore, AttrMin {0u}, AttrMax {100000u}))
+        const std::string accountId = client.GetData().account->_id;
 
-// Do things when the dll is loaded
-BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]] const DWORD fdwReason, [[maybe_unused]] const LPVOID& lpvReserved)
-{
-	return true;
-}
+        co_yield TaskStatus::DatabaseAwait;
 
-// Functions to hook
-extern "C" EXPORT void ExportPluginInfo(PluginInfo* pi)
-{
-	pi->name("warehouse");
-	pi->shortName("warehouse");
-	pi->mayUnload(true);
-	pi->returnCode(&global->returnCode);
-	pi->commands(&commands);
-	pi->emplaceHook(HookedCall::FLHook__LoadSettings, &LoadSettings, HookStep::After);
-	pi->versionMajor(PluginMajorVersion::V04);
-	pi->versionMinor(PluginMinorVersion::V00);
-}
+        auto account = GetOrCreateAccount(accountId);
+
+        co_yield TaskStatus::FLHookAwait;
+
+        VALIDATE_ACCOUNT
+
+        int counter = 1;
+        for (const auto& [base, items] : account.value().baseEquipmentMap)
+        {
+            client.Message(std::format(L"{}. {} - {} items", counter++, base.GetName().Handle(), items.size()));
+        }
+
+        co_return TaskStatus::Finished;
+    }
+
+    Task WarehousePlugin::UserCmdListStored(const ClientId client, BaseId base)
+    {
+        // TODO: Transform base into an argument
+
+        const std::string accountId = client.GetData().account->_id;
+
+        co_yield TaskStatus::DatabaseAwait;
+
+        auto account = GetOrCreateAccount(accountId);
+
+        co_yield TaskStatus::FLHookAwait;
+
+        VALIDATE_ACCOUNT
+
+        if (config.allowWithdrawAndStoreFromAnywhere)
+        {
+            int counter = 1;
+            for (const auto& equipMap : account.value().baseEquipmentMap | std::views::values)
+            {
+                for (const auto& [itemId, amount] : equipMap)
+                {
+                    client.Message(std::format(L"{}. {} x{}", counter++, EquipmentId(itemId).GetName().Handle(), amount));
+                }
+            }
+            co_yield TaskStatus::Finished;
+        }
+
+        const auto& equipMap = account.value().baseEquipmentMap.find(base);
+        if (equipMap == account.value().baseEquipmentMap.end())
+        {
+            (void)client.Message(L"No items on selected base!");
+            co_return TaskStatus::Finished;
+        }
+
+        int counter = 1;
+        for (const auto& [itemId, amount] : equipMap->second)
+        {
+            client.Message(std::format(L"{}. {} x{}", counter++, EquipmentId(itemId).GetName().Handle(), amount));
+        }
+
+        co_return TaskStatus::Finished;
+    }
+
+    // Clean up when a client disconnects
+
+} // namespace Plugins
+
+using namespace Plugins;
+
+DefaultDllMain();
+
+const PluginInfo Info(L"Warehouse", L"warehouse", PluginMajorVersion::V05, PluginMinorVersion::V00);
+SetupPlugin(WarehousePlugin, Info);

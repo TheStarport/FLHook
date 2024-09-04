@@ -54,49 +54,7 @@ namespace Plugins
             };
             // clang-format on
 
-            template <int N>
-            std::optional<Task> MatchCommand(AfkPlugin* processor, ClientId triggeringClient, const std::wstring_view cmd,
-                                             std::vector<std::wstring_view>& paramVector)
-            {
-                const CommandInfo<AfkPlugin> command = std::get<N - 1>(AfkPlugin ::commands);
-                for (auto& str : command.cmd)
-                {
-                    if (cmd.starts_with(str))
-                    {
-                        paramVector.erase(paramVector.begin(), paramVector.begin() + (std::clamp(std::ranges::count(str, L' '), 1, 5)));
-                        return command.func(processor, paramVector);
-                    }
-                }
-                return MatchCommand<N - 1>(processor, triggeringClient, cmd, paramVector);
-            }
-            template <>
-            std::optional<Task> MatchCommand<0>(AfkPlugin* processor, ClientId triggeringClient, std::wstring_view cmd,
-                                                std::vector<std::wstring_view>& paramVector)
-            {
-                return std::nullopt;
-            }
-            std::optional<Task> ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) override
-            {
-                return MatchCommand<commands.size()>(this, triggeringClient, cmd, paramVector);
-            }
-
-        public:
-            const std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>>& GetUserCommands() const override
-            {
-                static std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>> info;
-                if (info.empty())
-                {
-                    for (const auto& cmd : commands)
-                    {
-                        info.emplace_back(cmd.cmd, cmd.usage, cmd.description);
-                    }
-                }
-                return info;
-            };
-            ;
-
-        private:
-            ;
+            SetupUserCommandHandler(AfkPlugin, commands);
 
         public:
             explicit AfkPlugin(const PluginInfo& info);

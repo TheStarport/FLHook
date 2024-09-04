@@ -1,5 +1,6 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/InfocardManager.hpp"
 #include "API/Types/EquipmentId.hpp"
 
 #define ValidEquipmentCheck                            \
@@ -96,4 +97,8 @@ Action<EquipmentType, Error> EquipmentId::GetType() const
         return { EquipmentType::Tractor };
     }
     return { EquipmentType::Other };
+}
+
+Action<std::wstring_view, Error> EquipmentId::GetName() const { return { FLHook::GetInfocardManager().GetInfocard(value->idsName) }; }
+Action<float, Error> EquipmentId::GetVolume() const { return { value->volume }; }
 }
