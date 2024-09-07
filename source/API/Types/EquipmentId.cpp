@@ -9,7 +9,15 @@
         return { cpp::fail(Error::InvalidEquipment) }; \
     }
 
-EquipmentId::operator bool() const { return Archetype::GetEquipment(value) != nullptr; }
+EquipmentId::EquipmentId(const uint val)
+{
+    value = Archetype::GetEquipment(val);
+}
+
+EquipmentId::operator bool() const
+{
+    return value != nullptr;
+}
 
 Action<EquipmentType, Error> EquipmentId::GetType() const
 {
@@ -28,11 +36,10 @@ Action<EquipmentType, Error> EquipmentId::GetType() const
     static const uint vftTractor = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableTractor);
     static const uint vftLight = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableLight);
 
-    Archetype::Equipment* eq = Archetype::GetEquipment(value);
-    const uint vft = *reinterpret_cast<uint*>(std::addressof(eq)); // NOLINT
+    const uint vft = *reinterpret_cast<const uint*>(std::addressof(value)); // NOLINT
     if (vft == vftGun)
     {
-        const Archetype::Gun* gun = reinterpret_cast<Archetype::Gun*>(eq);
+        const Archetype::Gun* gun = reinterpret_cast<Archetype::Gun*>(value);
         Archetype::Equipment* eqAmmo = Archetype::GetEquipment(gun->projectileArchId);
         int missile;
         memcpy(&missile, reinterpret_cast<char*>(eqAmmo) + 0x90, 4);
@@ -101,4 +108,3 @@ Action<EquipmentType, Error> EquipmentId::GetType() const
 
 Action<std::wstring_view, Error> EquipmentId::GetName() const { return { FLHook::GetInfocardManager().GetInfocard(value->idsName) }; }
 Action<float, Error> EquipmentId::GetVolume() const { return { value->volume }; }
-}

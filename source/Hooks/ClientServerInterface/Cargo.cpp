@@ -18,7 +18,7 @@ void __stdcall IServerImplHook::SpScanCargo(const uint& unk1, const uint& unk2, 
     CallPlugins(&Plugin::OnSpScanCargoAfter, unk1, unk2, unk3);
 }
 
-void __stdcall IServerImplHook::ReqAddItem(GoodId goodId, const char* hardpoint, int count, float status, bool mounted, ClientId client)
+void __stdcall IServerImplHook::ReqAddItem(uint goodId, const char* hardpoint, int count, float status, bool mounted, ClientId client)
 {
     const std::wstring hp = StringUtils::stows(hardpoint);
     Logger::Trace(std::format(L"ReqAddItem(\n\tuint goodId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
@@ -30,13 +30,15 @@ void __stdcall IServerImplHook::ReqAddItem(GoodId goodId, const char* hardpoint,
                             mounted,
                             client));
 
-    if (const auto skip = CallPlugins(&Plugin::OnRequestAddItem, client, goodId, std::wstring_view(hp), count, status, mounted); !skip)
+    auto good = GoodId(goodId);
+
+    if (const auto skip = CallPlugins(&Plugin::OnRequestAddItem, client, good, std::wstring_view(hp), count, status, mounted); !skip)
     {
-        CallServerPreamble { Server.ReqAddItem(goodId.GetValue(), hardpoint, count, status, mounted, client.GetValue()); }
+        CallServerPreamble { Server.ReqAddItem(goodId, hardpoint, count, status, mounted, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
-    CallPlugins(&Plugin::OnRequestAddItemAfter, client, goodId, std::wstring_view(hp), count, status, mounted);
+    CallPlugins(&Plugin::OnRequestAddItemAfter, client, good, std::wstring_view(hp), count, status, mounted);
 }
 
 void __stdcall IServerImplHook::ReqRemoveItem(ushort slotId, int count, ClientId client)

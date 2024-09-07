@@ -30,7 +30,7 @@ class IServerImplHook
 
         // Cargo.cpp
         static void __stdcall SpScanCargo(const uint& unk1, const uint& unk2, uint unk3);
-        static void __stdcall ReqAddItem(GoodId goodId, const char* hardpoint, int count, float status, bool mounted, ClientId client);
+        static void __stdcall ReqAddItem(uint goodId, const char* hardpoint, int count, float status, bool mounted, ClientId client);
         static void __stdcall ReqRemoveItem(ushort slotId, int count, ClientId client);
         static void __stdcall ReqModifyItem(ushort slotId, const char* hardpoint, int count, float status, bool mounted, ClientId client);
         static void __stdcall JettisonCargo(ClientId client, const XJettisonCargo& jc);

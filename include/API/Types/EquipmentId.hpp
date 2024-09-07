@@ -1,4 +1,5 @@
 #pragma once
+#include "FLCore/Common/Archetype/Root/Equipment.hpp"
 
 namespace Archetype
 {
@@ -11,7 +12,7 @@ class DLL EquipmentId
         Archetype::Equipment *value = nullptr;
 
     public:
-        explicit EquipmentId(const uint val);
+        explicit EquipmentId(uint val);
         EquipmentId() = default;
         bool operator==(const EquipmentId next) const { return value == next.value; }
         explicit operator bool() const;
@@ -23,8 +24,24 @@ class DLL EquipmentId
             return value;
         }
 
+        [[nodiscard]]
+        uint GetId() const
+        {
+            if (!value)
+            {
+                return 0;
+            }
+
+            return value->archId;
+        }
+
+        [[nodiscard]]
         Action<EquipmentType, Error> GetType() const;
+
+        [[nodiscard]]
         Action<std::wstring_view, Error> GetName() const;
+
+        [[nodiscard]]
         Action<float, Error> GetVolume() const;
 
         template <typename T>
@@ -48,5 +65,5 @@ template <>
 struct std::formatter<EquipmentId, wchar_t>
 {
         constexpr auto parse(std::wformat_parse_context &ctx) const { return ctx.begin(); }
-        auto format(const EquipmentId &value, std::wformat_context &ctx) const { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
+        auto format(const EquipmentId &value, std::wformat_context &ctx) const { return std::format_to(ctx.out(), L"{}", value.GetId()); }
 };

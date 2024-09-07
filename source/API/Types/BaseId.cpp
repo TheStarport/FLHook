@@ -134,16 +134,17 @@ Action<std::vector<uint>, Error> BaseId::GetItemsForSale() const
 
     return { std::vector(arr.begin(), arr.begin() + size) };
 }
+
 Action<float, Error> BaseId::GetCommodityPrice(GoodId goodId) const
 {
     float nomPrice;
-    if (pub::Market::GetNominalPrice(goodId.GetValue(), nomPrice) != static_cast<int>(ResponseCode::Success))
+    if (pub::Market::GetNominalPrice(goodId.GetHash().Unwrap(), nomPrice) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidGood) };
     }
 
     float price;
-    if (pub::Market::GetPrice(value, goodId.GetValue(), price) != static_cast<int>(ResponseCode::Success))
+    if (pub::Market::GetPrice(value, goodId.GetHash().Unwrap(), price) != static_cast<int>(ResponseCode::Success))
     {
         return { cpp::fail(Error::InvalidBase) };
     }

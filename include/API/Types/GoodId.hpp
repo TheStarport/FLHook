@@ -15,20 +15,31 @@ class DLL GoodId
     public:
         explicit GoodId(uint hash);
         explicit GoodId() = default;
-        GoodId(const GoodId &client) : value(client.value){};
+        GoodId(const GoodId &client) = default;
 
-        explicit operator const GoodInfo *() const noexcept { return value; }
-        bool operator==(const GoodId &next) const { return value == next.value; }
+        explicit operator const GoodInfo *() const noexcept;
+        bool operator==(const GoodId &next) const;
         explicit operator bool() const;
 
         [[nodiscard]]
         const GoodInfo *GetValue() const;
 
+        [[nodiscard]]
         Action<uint, Error> GetHash() const;
+
+        [[nodiscard]]
         Action<EquipmentId, Error> GetEquipment() const;
+
+        [[nodiscard]]
         Action<std::wstring_view, Error> GetName() const;
+
+        [[nodiscard]]
         Action<float, Error> GetPrice() const;
+
+        [[nodiscard]]
         Action<GoodType, Error> GetType() const;
+
+        [[nodiscard]]
         bool IsCommodity() const;
 };
 
@@ -36,7 +47,7 @@ template <>
 struct std::formatter<GoodId, wchar_t>
 {
         constexpr auto parse(std::wformat_parse_context &ctx) const { return ctx.begin(); }
-        auto format(const GoodId &good, std::wformat_context &ctx) const { return std::format_to(ctx.out(), L"{}", good.GetValue()); }
+        auto format(const GoodId &good, std::wformat_context &ctx) const { return std::format_to(ctx.out(), L"{}", good.GetHash().Unwrap()); }
 };
 
 template <>
