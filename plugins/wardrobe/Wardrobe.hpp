@@ -48,7 +48,7 @@ namespace Plugins
 
             Config config;
 
-            void OnLoadSettings() override;
+            bool OnLoadSettings() override;
             Task UserCmdShowWardrobe(ClientId client, std::wstring_view param);
             Task UserCmdChangeCostume(ClientId client, std::wstring_view type, std::wstring_view costume);
             Task UserCmdHandle(ClientId client, std::wstring_view command, std::wstring_view param, std::wstring_view param2);

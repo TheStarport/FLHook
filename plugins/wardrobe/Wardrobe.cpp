@@ -96,7 +96,7 @@ namespace Plugins
         co_return TaskStatus::Finished;
 	}
 
-	void WardrobePlugin::OnLoadSettings()
+	bool WardrobePlugin::OnLoadSettings()
 	{
 	    if (const auto conf = Json::Load<Config>("config/wardrobe.json"); !conf.has_value())
 	    {
@@ -106,6 +106,8 @@ namespace Plugins
 	    {
 	        config = conf.value();
 	    }
+
+        return true;
 	}
 
 } // namespace Plugins::Wardrobe

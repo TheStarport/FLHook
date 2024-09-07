@@ -41,7 +41,7 @@ namespace Plugins
         return false;
     }
 
-    void PurchaseRestrictionsPlugin::OnLoadSettings()
+    bool PurchaseRestrictionsPlugin::OnLoadSettings()
     {
         if (const auto conf = Json::Load<Config>("config/purchase_restrictions.json"); !conf.has_value())
         {
@@ -51,6 +51,8 @@ namespace Plugins
         {
             config = conf.value();
         }
+
+        return true;
     }
 
     void PurchaseRestrictionsPlugin::OnClearClientInfo(const ClientId client) { clientSuppressBuy[client] = false; }

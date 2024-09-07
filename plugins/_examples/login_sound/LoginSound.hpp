@@ -26,7 +26,7 @@ namespace Plugins
      */
     class LoginSound final : Plugin
     {
-        void OnLoadSettings() override;
+        bool OnLoadSettings() override;
         void OnLoginAfter(ClientId client, const SLoginInfo& li) override;
 
         struct Config final

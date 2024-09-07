@@ -75,7 +75,7 @@ namespace Plugins
 
             Config config;
             std::array<AutobuyInfo, MaxClientId + 1> autobuyInfo;
-            void OnLoadSettings() override;
+            bool OnLoadSettings() override;
             /**
              * @brief Hook on BaseEnter. Triggers the autobuy/repair.
              */

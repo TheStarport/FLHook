@@ -24,7 +24,7 @@ namespace Plugins
 
     WarehousePlugin::WarehousePlugin(const PluginInfo& info) : Plugin(info) {}
 
-    void WarehousePlugin::OnLoadSettings()
+    bool WarehousePlugin::OnLoadSettings()
     {
         // TODO: If config exists and is faulty, prevent loading
         if (const auto conf = Json::Load<Config>("config/warehouse.json"); !conf.has_value())
@@ -35,6 +35,8 @@ namespace Plugins
         {
             config = conf.value();
         }
+
+        return true;
     }
 
     rfl::Result<WarehousePlugin::PlayerWarehouse> WarehousePlugin::GetOrCreateAccount(const std::string& accountId) const

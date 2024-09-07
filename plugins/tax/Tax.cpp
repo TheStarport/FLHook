@@ -173,7 +173,7 @@ void TaxPlugin::FiveSecondTimer()
 
 void TaxPlugin::OnDisconnect([[maybe_unused]] ClientId client, [[maybe_unused]] const EFLConnection state) { FiveSecondTimer(); }
 
-void TaxPlugin::OnLoadSettings()
+bool TaxPlugin::OnLoadSettings()
 {
     if (const auto conf = Json::Load<Config>("config/tax.json"); !conf.has_value())
     {
@@ -183,6 +183,8 @@ void TaxPlugin::OnLoadSettings()
     {
         config = conf.value();
     }
+
+    return true;
 }
 
 TaxPlugin::TaxPlugin(const PluginInfo& info) : Plugin(info)

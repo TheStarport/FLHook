@@ -459,7 +459,7 @@ namespace Plugins
         co_return TaskStatus::Finished;
     }
 
-    void AutobuyPlugin::OnLoadSettings()
+    bool AutobuyPlugin::OnLoadSettings()
     {
         if (const auto conf = Json::Load<Config>("config/autobuy.json"); !conf.has_value())
         {
@@ -469,6 +469,8 @@ namespace Plugins
         {
             config = conf.value();
         }
+
+        return true;
     }
 } // namespace Plugins
 

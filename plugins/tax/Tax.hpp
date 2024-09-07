@@ -75,7 +75,7 @@ namespace Plugins
             void FiveSecondTimer();
 
             void OnDisconnect(ClientId client, EFLConnection connection) override;
-            void OnLoadSettings() override;
+            bool OnLoadSettings() override;
 
             Config config;
             std::list<Tax> taxes{};

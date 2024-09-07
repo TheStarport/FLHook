@@ -76,7 +76,7 @@ namespace Plugins
 
             void LogItemsOfInterest(const ClientId& client, GoodId goodId, std::wstring_view details);
             bool CheckIdEquipRestrictions(ClientId client, GoodId goodId, bool isShip) const;
-            void OnLoadSettings() override;
+            bool OnLoadSettings() override;
             void OnClearClientInfo(ClientId client) override;
             void OnPlayerLaunch(ClientId client, ShipId ship) override;
             void OnBaseEnter(BaseId base, ClientId client) override;

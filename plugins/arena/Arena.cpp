@@ -17,7 +17,7 @@ namespace Plugins
     }
 
     /// Load the configuration
-    void ArenaPlugin::OnLoadSettings()
+    bool ArenaPlugin::OnLoadSettings()
     {
         if (const auto conf = Json::Load<Config>("config/arena.json"); !conf.has_value())
         {
@@ -27,6 +27,8 @@ namespace Plugins
         {
             config = conf.value();
         }
+
+        return true;
     }
 
     

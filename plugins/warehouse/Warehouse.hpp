@@ -52,7 +52,7 @@ namespace Plugins
 
             SetupUserCommandHandler(WarehousePlugin, commands);
 
-            void OnLoadSettings() override;
+            bool OnLoadSettings() override;
             Config config;
 
         public:

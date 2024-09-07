@@ -6,7 +6,7 @@
 
 using namespace Plugins;
 
-void LoginSound::OnLoadSettings()
+bool LoginSound::OnLoadSettings()
 {
     if (const auto conf = Json::Load<Config>("config/login_sound.json"); !conf.has_value())
     {
@@ -16,6 +16,8 @@ void LoginSound::OnLoadSettings()
     {
         config = conf.value();
     }
+
+    return true;
 }
 
 void LoginSound::OnLoginAfter(const ClientId client, [[maybe_unused]] const SLoginInfo& li)

@@ -85,7 +85,7 @@ namespace Plugins
         void OnTradelaneStart(ClientId client, const XGoTradelane& tradelane) override;
         void OnClearClientInfo(ClientId client) override;
         std::optional<DOCK_HOST_RESPONSE> OnDockCall(ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response) override;
-        void OnLoadSettings() override;
+        bool OnLoadSettings() override;
 
         Task UserCmdNetSwitch(ClientId client, std::wstring_view networkName);
         Task UserCmdNetList(ClientId client);

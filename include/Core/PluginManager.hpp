@@ -17,6 +17,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
         friend AdminCommandProcessor;
         friend UserCommandProcessor;
         friend ExternalCommandProcessor;
+        friend FLHook;
 
         std::vector<std::shared_ptr<Plugin>> plugins;
         std::vector<std::weak_ptr<AbstractUserCommandProcessor>> userCommands;

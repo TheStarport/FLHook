@@ -199,7 +199,7 @@ std::optional<DOCK_HOST_RESPONSE> TrafficControlPlugin::OnDockCall(ShipId shipId
     return DOCK_HOST_RESPONSE::DockDenied;
 }
 
-void TrafficControlPlugin::OnLoadSettings()
+bool TrafficControlPlugin::OnLoadSettings()
 {
     if (const auto conf = Json::Load<ConfigLoad>("config/traffic_control.json"); !conf.has_value())
     {
@@ -240,6 +240,8 @@ void TrafficControlPlugin::OnLoadSettings()
             }
         }
     }
+
+    return true;
 }
 
 Task TrafficControlPlugin::UserCmdNetSwitch(ClientId client, std::wstring_view networkName)

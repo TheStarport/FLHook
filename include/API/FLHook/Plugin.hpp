@@ -66,12 +66,14 @@ struct PluginInfo
 
 #ifdef FLHOOK
 class PluginManager;
+class FLHook;
 #endif
 
 class DLL Plugin
 {
         static std::optional<std::weak_ptr<Plugin>> GetPluginFromManager(std::wstring_view shortName);
 #ifdef FLHOOK
+        friend FLHook;
         friend PluginManager;
 #endif
 
@@ -164,7 +166,7 @@ class DLL Plugin
         virtual void OnDamageHit(ClientId hitClient, ObjectId spaceId) {}
         Aft(bool, OnAllowPlayerDamage, (ClientId client, ClientId target));
         Aft(void, OnSendDeathMessage, (ClientId killer, ClientId victim, SystemId system, std::wstring_view msg));
-        virtual void OnLoadSettings() {}
+        virtual bool OnLoadSettings() { return true; }
         virtual void OnClearClientInfo(ClientId client) {}
         virtual void OnSendChat(ClientId client, ClientId targetClient, const uint size, void* rdl) {}
         Aft(void, OnFireWeapon, (ClientId client, const XFireWeaponInfo& info));

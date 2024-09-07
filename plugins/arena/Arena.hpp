@@ -78,7 +78,7 @@ namespace Plugins
             // clang-format on
 
             void OnClearClientInfo(ClientId client) override;
-            void OnLoadSettings() override;
+            bool OnLoadSettings() override;
 
             /**
              * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
