@@ -29,10 +29,12 @@ namespace Plugins
              * anyone who messages them know too.
              */
             Task UserCmdListItems(ClientId);
-            Task UserCmdDeposit(ClientId, uint itemNr, uint count);
-            Task UserCmdWithdraw(ClientId, uint itemNr, uint count);
+            Task UserCmdDeposit(ClientId, uint itemNr, int count);
+            Task UserCmdWithdraw(ClientId, uint itemNr, int count);
             Task UserCmdListBasesWithItems(ClientId);
             Task UserCmdListStored(ClientId, BaseId);
+
+            void UpdatePlayerWarehouse(const PlayerWarehouse& warehouse) const;
 
             [[nodiscard]]
             rfl::Result<PlayerWarehouse> GetOrCreateAccount(const std::string&) const;

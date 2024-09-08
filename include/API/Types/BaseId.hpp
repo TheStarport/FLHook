@@ -13,21 +13,35 @@ class DLL BaseId
         explicit BaseId(std::wstring_view name, bool isWildCard = false);
         explicit operator uint() const noexcept { return value; }
         BaseId() : value(0) {}
-        bool operator==(const BaseId& next) const { return value == next.value; }
+        bool operator==(const BaseId &next) const { return value == next.value; }
+        bool operator<(const BaseId &right) const { return value < right.value; }
         explicit operator bool() const;
 
-        [[nodiscard]] uint GetValue() const { return value; }
+        [[nodiscard]]
+        uint GetValue() const
+        {
+            return value;
+        }
 
-        [[nodiscard]] Action<ObjectId, Error> GetSpaceId() const;
-        [[nodiscard]] Action<SystemId, Error> GetSystem() const;
-        [[nodiscard]] Action<RepId, Error> GetAffiliation() const;
-        [[nodiscard]] Action<std::wstring_view, Error> GetName() const;
-        [[nodiscard]] Action<std::pair<float, float>, Error> GetBaseHealth() const;
-        [[nodiscard]] Action<std::pair<std::wstring_view, std::wstring_view>, Error> GetDescription() const;
-        [[nodiscard]] Action<std::vector<uint>, Error> GetItemsForSale() const;
-        [[nodiscard]] Action<float, Error> GetCommodityPrice(GoodId goodId) const;
+        [[nodiscard]]
+        Action<ObjectId, Error> GetSpaceId() const;
+        [[nodiscard]]
+        Action<SystemId, Error> GetSystem() const;
+        [[nodiscard]]
+        Action<RepId, Error> GetAffiliation() const;
+        [[nodiscard]]
+        Action<std::wstring_view, Error> GetName() const;
+        [[nodiscard]]
+        Action<std::pair<float, float>, Error> GetBaseHealth() const;
+        [[nodiscard]]
+        Action<std::pair<std::wstring_view, std::wstring_view>, Error> GetDescription() const;
+        [[nodiscard]]
+        Action<std::vector<uint>, Error> GetItemsForSale() const;
+        [[nodiscard]]
+        Action<float, Error> GetCommodityPrice(GoodId goodId) const;
 
-        [[nodiscard]] Action<std::vector<ClientId>, Error> GetDockedPlayers() const;
+        [[nodiscard]]
+        Action<std::vector<ClientId>, Error> GetDockedPlayers() const;
 };
 
 template <>
@@ -40,5 +54,5 @@ struct std::formatter<BaseId, wchar_t>
 template <>
 struct std::hash<BaseId>
 {
-    std::size_t operator()(const BaseId &id) const noexcept { return std::hash<uint>()(id.GetValue()); }
+        std::size_t operator()(const BaseId &id) const noexcept { return std::hash<uint>()(id.GetValue()); }
 };

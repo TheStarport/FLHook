@@ -15,9 +15,9 @@ class DLL GoodId
     public:
         explicit GoodId(uint hash);
         explicit GoodId() = default;
-        GoodId(const GoodId &client) = default;
+        GoodId(const GoodId &good) : value(good.value){};
+        GoodId operator=(const GoodId &good) const;
 
-        explicit operator const GoodInfo *() const noexcept;
         bool operator==(const GoodId &next) const;
         explicit operator bool() const;
 

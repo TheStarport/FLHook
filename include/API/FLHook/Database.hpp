@@ -15,7 +15,7 @@
 class ClientList;
 class FLHook;
 
-class Database
+class DLL Database
 {
         friend ClientList;
         friend FLHook;

@@ -59,6 +59,23 @@ namespace Plugins
         return rfl::bson::read<PlayerWarehouse>(newDoc.view().data(), newDoc.view().length());
     }
 
+    void WarehousePlugin::UpdatePlayerWarehouse(const PlayerWarehouse& warehouse) const
+    {
+        assert(!warehouse._id.empty());
+
+        auto collection = Database::GetCollection(FLHook::GetDbClient(), config.collectionName);
+
+        auto warehouseRaw = rfl::bson::write(warehouse);
+        const auto warehouseDoc = bsoncxx::document::view{ reinterpret_cast<uint8_t*>(warehouseRaw.data()), warehouseRaw.size() };
+
+        const auto filterDoc = make_document(kvp("_id", warehouse._id));
+
+        mongocxx::options::replace options;
+        options.upsert(true);
+
+        auto result = collection.replace_one(filterDoc.view(), warehouseDoc, options);
+    }
+
     Task WarehousePlugin::UserCmdListItems(const ClientId client)
     {
         if (!client.IsDocked())
@@ -81,9 +98,8 @@ namespace Plugins
         co_return TaskStatus::Finished;
     }
 
-    Task WarehousePlugin::UserCmdDeposit(const ClientId client, uint itemNr, uint count)
+    Task WarehousePlugin::UserCmdDeposit(const ClientId client, uint itemNr, int count)
     {
-
         if (!client.IsDocked())
         {
             (void)client.Message(L"Not docked on a station!");
@@ -118,6 +134,7 @@ namespace Plugins
         }
 
         GoodId good;
+        EquipmentId equipment;
         for (const auto& equip : *equipList)
         {
             counter++;
@@ -126,25 +143,39 @@ namespace Plugins
                 continue;
             }
 
-            good = GoodId(equip.archId);
+            good = GoodId(Arch2Good(equip.archId));
             if (!config.allowCommoditiesToBeStored && good.GetType().Handle() == GoodType::Commodity)
             {
                 continue;
             }
+            equipment = EquipmentId(equip.archId);
             break;
         }
 
-        // TODO: Implement clientId.RemoveCargo
+        if (good.GetValue() == nullptr)
+        {
+            (void)client.Message(L"This item no longer exists!");
+            co_return TaskStatus::Finished;
+        }
+
+        (void)client.RemoveCargo(good, count);
+
+        const std::string accountId = client.GetData().account->_id;
+        const BaseId currBase = client.GetCurrentBase().Handle();
 
         co_yield TaskStatus::DatabaseAwait;
-        // TODO: Call DB to add the item
+
+        auto result = GetOrCreateAccount(accountId).value();
+        result.baseEquipmentMap[currBase][equipment] += count;
+        UpdatePlayerWarehouse(result);
+
         co_yield TaskStatus::FLHookAwait;
 
         (void)client.Message(std::format(L"Deposited {} of {}!", count, good.GetName().Handle()));
         co_return TaskStatus::Finished;
     }
 
-    Task WarehousePlugin::UserCmdWithdraw(const ClientId client, const uint itemNr, const uint count)
+    Task WarehousePlugin::UserCmdWithdraw(const ClientId client, const uint itemNr, const int count)
     {
 
         if (!client.IsDocked())
@@ -172,6 +203,7 @@ namespace Plugins
         }
 
         const std::string accountId = client.GetData().account->_id;
+        const BaseId currBase = client.GetCurrentBase().Handle();
 
         co_yield TaskStatus::DatabaseAwait;
 
@@ -199,11 +231,36 @@ namespace Plugins
                         co_return TaskStatus::Finished;
                     }
 
-                    client.AddCargo(itemId.GetValue()->archId, amount, false);
+                    const auto equipId = EquipmentId(itemId);
+                    bool databaseProblem = false;
+
                     co_yield TaskStatus::DatabaseAwait;
-                    // TODO: Call DB to remove the item
+
+                    if (const int currentCount = account.value().baseEquipmentMap[currBase][equipId]; currentCount < count)
+                    {
+                        databaseProblem = true;
+                    }
+                    else if (currentCount == count)
+                    {
+                        account.value().baseEquipmentMap[currBase].erase(equipId);
+                        UpdatePlayerWarehouse(account.value());
+                    }
+                    else
+                    {
+                        account.value().baseEquipmentMap[currBase][equipId] -= count;
+                        UpdatePlayerWarehouse(account.value());
+                    }
+
                     co_yield TaskStatus::FLHookAwait;
-                    (void)client.Message(std::format(L"Withdrew {} of {]!", amount, itemId.GetName().Handle()));
+                    if (databaseProblem)
+                    {
+                        (void)client.Message(L"Attempted to withdraw more than is stored!");
+                    }
+                    else
+                    {
+                        client.AddCargo(itemId.GetValue()->archId, amount, false);
+                        (void)client.Message(std::format(L"Withdrew {} of {}!", amount, itemId.GetName().Handle()));
+                    }
                     co_return TaskStatus::Finished;
                 }
             }
@@ -239,11 +296,40 @@ namespace Plugins
                 co_return TaskStatus::Finished;
             }
 
-            client.AddCargo(itemId.GetValue()->archId, amount, false);
+            const auto equipId = EquipmentId(itemId);
+            bool databaseProblem = false;
+
             co_yield TaskStatus::DatabaseAwait;
-            // TODO: Call DB to remove the item
+
+            if (const int currentCount = account.value().baseEquipmentMap[currBase][equipId]; currentCount < count)
+            {
+                databaseProblem = true;
+            }
+            else if (currentCount == count)
+            {
+                account.value().baseEquipmentMap[currBase].erase(equipId);
+                UpdatePlayerWarehouse(account.value());
+            }
+            else
+            {
+                account.value().baseEquipmentMap[currBase][equipId] -= count;
+                UpdatePlayerWarehouse(account.value());
+            }
+
             co_yield TaskStatus::FLHookAwait;
-            (void)client.Message(std::format(L"Withdrew {} of {]!", amount, itemId.GetName().Handle()));
+            if (databaseProblem)
+            {
+                (void)client.Message(L"Attempted to withdraw more than is stored!");
+            }
+            else
+            {
+                client.AddCargo(itemId.GetValue()->archId, amount, false);
+                (void)client.Message(std::format(L"Withdrew {} of {}!", amount, itemId.GetName().Handle()));
+            }
+            co_yield TaskStatus::FLHookAwait;
+
+            client.AddCargo(itemId.GetValue()->archId, amount, false);
+            (void)client.Message(std::format(L"Withdrew {} of {}!", amount, itemId.GetName().Handle()));
             co_return TaskStatus::Finished;
         }
 

@@ -17,18 +17,26 @@ class DLL SystemId
         explicit SystemId(std::wstring_view nickName, bool isInfoCardName = false);
 
         SystemId() : value(0) {}
-        bool operator==(const SystemId& next) const { return value == next.value; }
+        bool operator==(const SystemId &next) const { return value == next.value; }
+        bool operator<(const SystemId &right) const { return value < right.value; }
         explicit operator bool() const;
 
         uint GetValue() const { return value; }
 
-        [[nodiscard]] Action<std::wstring_view, Error> GetName() const;
-        [[nodiscard]] Action<std::wstring, Error> GetNickName() const;
-        [[nodiscard]] Action<std::vector<Universe::IZone *>, Error> GetZones() const;
-        [[nodiscard]] Action<std::wstring, Error> PositionToSectorCoord(const Vector &pos) const;
-        [[nodiscard]] Action<std::vector<SystemId>, Error> GetNeighboringSystems() const; // TODO: Look into Freelancer System Enumerator.
-        [[nodiscard]] Action<std::vector<CSolar *>, Error> GetSolars(bool onlyDockables = false);
-        [[nodiscard]] Action<std::vector<ClientId>, Error> GetPlayersInSystem(bool includeDocked = false) const;
+        [[nodiscard]]
+        Action<std::wstring_view, Error> GetName() const;
+        [[nodiscard]]
+        Action<std::wstring, Error> GetNickName() const;
+        [[nodiscard]]
+        Action<std::vector<Universe::IZone *>, Error> GetZones() const;
+        [[nodiscard]]
+        Action<std::wstring, Error> PositionToSectorCoord(const Vector &pos) const;
+        [[nodiscard]]
+        Action<std::vector<SystemId>, Error> GetNeighboringSystems() const; // TODO: Look into Freelancer System Enumerator.
+        [[nodiscard]]
+        Action<std::vector<CSolar *>, Error> GetSolars(bool onlyDockables = false);
+        [[nodiscard]]
+        Action<std::vector<ClientId>, Error> GetPlayersInSystem(bool includeDocked = false) const;
 
         Action<void, Error> Message(std::wstring_view msg, MessageColor color = MessageColor::Default, MessageFormat format = MessageFormat::Normal) const;
         Action<void, Error> PlaySoundOrMusic(const std::wstring &trackNickNameSound, bool isMusic = false,
@@ -46,5 +54,5 @@ struct std::formatter<SystemId, wchar_t>
 template <>
 struct std::hash<SystemId>
 {
-    std::size_t operator()(const SystemId &id) const noexcept { return std::hash<uint>()(id.GetValue()); }
+        std::size_t operator()(const SystemId &id) const noexcept { return std::hash<uint>()(id.GetValue()); }
 };

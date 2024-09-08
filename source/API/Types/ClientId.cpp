@@ -518,7 +518,7 @@ Action<void, Error> ClientId::Message(const std::wstring_view message, const Mes
     if (value == 0)
     {
         Logger::Info(message);
-        return {{}};
+        return { {} };
     }
 
     ClientCheck;
@@ -694,6 +694,44 @@ Action<void, Error> ClientId::AddCargo(const uint goodId, const uint count, cons
     pub::Player::AddCargo(value, goodId, count, 1.0, isMission);
     return { {} };
 }
+Action<void, Error> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const
+{
+    switch (goodId.index())
+    {
+        case 0:
+            {
+                goodId = EquipmentId(Arch2Good(rfl::get<GoodId>(goodId).GetHash().Handle()));
+            }
+        case 1:
+            {
+                const EquipmentId& eqId = rfl::get<EquipmentId>(goodId);
+                bool foundItem = false;
+                for (auto& equip : Players[value].equipAndCargo.equip)
+                {
+                    if (equip.archId == eqId.GetValue()->archId)
+                    {
+                        goodId = equip.id;
+                        foundItem = true;
+                        break;
+                    }
+                }
+                if (!foundItem)
+                {
+                    return { cpp::fail(Error::UnknownError) };
+                }
+            }
+        case 2:
+            {
+                const int result = pub::Player::RemoveCargo(value, rfl::get<ushort>(goodId), count);
+                if (result == -2)
+                {
+                    return { cpp::fail(Error::UnknownError) };
+                }
+            }
+        default: return { cpp::fail(Error::UnknownError) };
+    }
+    return { {} };
+}
 
 Action<void, Error> ClientId::Undock(Vector pos, std::optional<Matrix> orientation) const
 {
@@ -725,5 +763,5 @@ Action<void, Error> ClientId::PlaySound(const uint hash) const
     CharSelectCheck;
 
     pub::Audio::PlaySoundEffect(value, hash);
-    return {{}};
+    return { {} };
 }
