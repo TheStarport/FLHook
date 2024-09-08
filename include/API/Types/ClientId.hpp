@@ -32,6 +32,7 @@ class DLL ClientId
 
         explicit operator uint() const noexcept { return value; }
         bool operator==(const ClientId &next) const { return value == next.value; }
+        bool operator<(const ClientId &right) const { return value < right.value; }
         explicit operator bool() const;
 
         [[nodiscard]]
