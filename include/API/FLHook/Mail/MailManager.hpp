@@ -2,19 +2,18 @@
 
 #include "Mail.hpp"
 
+/**
+ * @brief A class for sending messages and information to characters or accounts regardless of online status.
+ * @note If using this class you should not be in the main FLHook thread. These are database calls and will be blocking.
+ */
 class MailManager
 {
-        static void SendMailCallback(const std::shared_ptr<void>& taskData);
-        static bool DeferSendMail(const std::shared_ptr<void>& taskData, Mail mail);
-        static bool GetMailForCharacter(const std::shared_ptr<void>& taskData, bsoncxx::oid characterId, int count, int page, bool newestFirst);
-        static bool GetMailForAccount(const std::shared_ptr<void>& taskData, AccountId accountId, int count, int page, bool newestFirst);
-        static void ParseMail(Mail& mail, bsoncxx::document::view doc);
-
+        static Task InformOnlineUsersOfNewMail(std::vector<rfl::Variant<std::string, bsoncxx::oid>> accountIdOrCharacterNames);
     public:
-        static void GetAccountMail(const AccountId& id, std::function<void(const std::shared_ptr<std::vector<Mail>>&)> callback, int count = 20, int page = 1,
-                                   bool newestFirst = true);
-        static void GetCharacterMail(bsoncxx::oid characterId, std::function<void(const std::shared_ptr<std::vector<Mail>>&)> callback, int count = 20, int page = 1,
-                                     bool newestFirst = true);
-        static void MarkMailAsRead(const Mail& mail, bsoncxx::oid character);
-        static Action<void, Error> SendMail(const Mail& mail);
+        MailManager() = delete;
+        static Action<std::vector<Mail>, Error> GetAccountMail(std::string accountId, int count = 20, int page = 1, bool newestFirst = true);
+        static Action<std::vector<Mail>, Error> GetCharacterMail(bsoncxx::oid characterId, int count = 20, int page = 1, bool newestFirst = true);
+        static Action<void, Error> DeleteMail(const Mail& mail);
+        static Action<void, Error> MarkMailAsRead(const Mail& mail, rfl::Variant<std::string, bsoncxx::oid> characterOrAccount);
+        static Action<void, Error> SendMail(Mail& mail);
 };

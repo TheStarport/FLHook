@@ -19,6 +19,7 @@ function(TARGET_DEPENDENCIES PROJ)
     # Add ReflectCPP
     target_include_directories(${PROJ} PRIVATE ${VENDOR}/reflect-cpp/src)
     target_include_directories(${PROJ} PRIVATE ${VENDOR}/reflect-cpp/include)
+    target_include_directories(${PROJ} PRIVATE ${VENDOR}/reflect-cpp/include/rfl/thirdparty)
 
     target_precompile_headers(${PROJ} PRIVATE ${INCLUDE_PATH}/PCH.hpp)
 

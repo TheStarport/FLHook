@@ -6,7 +6,7 @@ struct ClientData
 {
         friend AccountManager;
 
-        bsoncxx::document::view characterData;
+        Character* characterData = nullptr;
         ClientId id;
         Account* account = nullptr;
         std::wstring_view characterName{};

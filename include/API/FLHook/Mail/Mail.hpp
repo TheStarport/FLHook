@@ -5,8 +5,8 @@
 
 struct MailRecipient
 {
-    bsoncxx::oid target;
-    std::optional<bsoncxx::types::b_date> readDate;
+    rfl::Variant<bsoncxx::oid, std::string> target;
+    std::optional<rfl::Timestamp<"%F %R">> readDate;
 };
 
 struct Mail
@@ -14,7 +14,7 @@ struct Mail
     bsoncxx::oid _id;
     std::optional<bsoncxx::oid> author;
     std::optional<std::string> origin;
-    bsoncxx::types::b_date sentDate{ static_cast<std::chrono::milliseconds>(0) };
+    rfl::Timestamp<"%F %R"> sentDate;
     std::string message;
     std::vector<MailRecipient> recipients;
 };

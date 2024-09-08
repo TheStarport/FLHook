@@ -611,7 +611,7 @@ Task UserCommandProcessor::Rename(ClientId client, std::wstring_view newName)
     if (cooldown)
     {
         const auto charData = client.GetData().characterData;
-        if (auto lastRename = charData.find("lastRenameTimestamp"); lastRename != charData.end())
+        if (auto lastRename = charData->characterData.find("lastRenameTimestamp"); lastRename != charData->characterData.end())
         {
             const auto cooldownAsDays = std::chrono::days(cooldown);
             if (const std::chrono::milliseconds endOfCooldown =

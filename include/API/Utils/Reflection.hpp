@@ -3,6 +3,8 @@
 #include "FLCore/FLCoreDefs.hpp"
 #include "rfl/parsing/CustomParser.hpp"
 
+#include <bsoncxx/oid.hpp>
+
 // Custom parsers for FL types
 namespace rfl::parsing
 {
@@ -27,6 +29,29 @@ namespace rfl::parsing
 
     template <class ReaderType, class WriterType, class ProcessorsType>
     struct Parser<ReaderType, WriterType, Vector, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, Vector, VectorImpl>
+    {};
+
+    struct BsonOidImpl
+    {
+        using ReflectionType = std::array<uint8_t, 12>;
+        std::array<uint8_t, 12> bytes;
+
+        static BsonOidImpl from_class(const bsoncxx::oid& val) noexcept
+        {
+            BsonOidImpl impl{};
+            memcpy(impl.bytes.data(), val.bytes(), impl.bytes.size());
+            return impl;
+        }
+
+        [[nodiscard]]
+        bsoncxx::oid to_class() const
+        {
+            return bsoncxx::oid{reinterpret_cast<const char*>(bytes.data()), bsoncxx::oid::size()};
+        }
+    };
+
+    template <class ReaderType, class WriterType, class ProcessorsType>
+    struct Parser<ReaderType, WriterType, bsoncxx::oid, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, bsoncxx::oid, BsonOidImpl>
     {};
 
 #define HashConvert(hashType, example)                                                                                                                    \

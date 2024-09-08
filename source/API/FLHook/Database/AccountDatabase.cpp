@@ -72,7 +72,7 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
 
         auto& character = accounts[client.GetValue()].characters.at(buf);
         character.characterData = document.extract();
-        client.GetData().characterData = character.characterData;
+        client.GetData().characterData = &character;
 
         return true;
     }
@@ -219,7 +219,7 @@ bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
             auto& charRef = accounts[client.GetValue()].characters[charFileName] = character;
 
             charRef.characterData = doc;
-            client.GetData().characterData = charRef.characterData;
+            client.GetData().characterData = &charRef;
         }
         session.commit_transaction();
         accounts[client.GetValue()].loginSuccess = true;

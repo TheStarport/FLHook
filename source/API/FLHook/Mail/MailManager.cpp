@@ -2,6 +2,8 @@
 
 #include "API/FLHook/Mail/MailManager.hpp"
 
+#include "API/Utils/Reflection.hpp"
+
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
@@ -10,16 +12,17 @@ using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
 using bsoncxx::builder::basic::make_document;
 
-void MailManager::SendMailCallback(const std::shared_ptr<void>& taskData)
+Task MailManager::InformOnlineUsersOfNewMail(std::vector<rfl::Variant<std::string, bsoncxx::oid>> accountIdOrCharacterNames) // NOLINT(*-unnecessary-value-param)
 {
-    const auto mailTargets = std::static_pointer_cast<std::vector<std::wstring>>(taskData);
+    co_yield TaskStatus::FLHookAwait;
 
     auto& clients = FLHook::Clients();
-    for (const auto& character : *mailTargets)
+    for (const auto& variant : accountIdOrCharacterNames)
     {
         for (const auto& client : clients)
         {
-            if (client.characterName == character)
+            if ((variant.index() && client.characterData->_id.value() == rfl::get<1>(variant)) ||
+                (!variant.index() && client.account->_id == rfl::get<0>(variant)))
             {
                 // Character is online, message them now!
                 (void)client.id.Message(L"You have received a new mail item.");
@@ -27,108 +30,29 @@ void MailManager::SendMailCallback(const std::shared_ptr<void>& taskData)
             }
         }
     }
+
+    co_return TaskStatus::Finished;
 }
 
-bool MailManager::DeferSendMail(const std::shared_ptr<void>& taskData, Mail mail)
+Action<std::vector<Mail>, Error> MailManager::GetAccountMail(std::string accountId, int count, int page, bool newestFirst) // NOLINT(*-unnecessary-value-param)
 {
-    auto mailTargets = std::static_pointer_cast<std::vector<std::wstring>>(taskData);
-
-    const auto& config = FLHook::GetConfig();
-
-    const auto dbClient = FLHook::GetDatabase().AcquireClient();
-    auto mailCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
-
-    auto docBuilder = bsoncxx::builder::basic::document{};
-    docBuilder.append(kvp("message", mail.message));
-    docBuilder.append(kvp("sentDate", bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }));
-
-    auto arrBuilder = bsoncxx::builder::basic::array{};
-    for (const auto& recipient : mail.recipients)
+    if (page < 1)
     {
-        arrBuilder.append(make_document(kvp("target", recipient.target)));
-    }
-
-    docBuilder.append(kvp("recipients", arrBuilder.view()));
-
-    if (mail.origin.has_value())
-    {
-        docBuilder.append(kvp("origin", mail.origin.value()));
+        page = 0;
     }
     else
     {
-        docBuilder.append(kvp("author", mail.author.value()));
+        page--;
     }
 
-    try
+    if (count < 1)
     {
-        const auto response = mailCollection.insert_one(docBuilder.view());
-        assert(response.has_value());
-
-        auto insertedId = response->inserted_id().get_oid();
-
-        mongocxx::pipeline pipeline;
-        pipeline.match(make_document(kvp("_id", insertedId)));
-
-        pipeline.lookup(make_document(
-            kvp("from", config.databaseConfig.accountsCollection), kvp("localField", "recipients.target"), kvp("foreignField", "_id"), kvp("as", "results")));
-
-        pipeline.project(make_document(kvp("_id", 0), kvp("results", 1)));
-
-        auto results = mailCollection.aggregate(pipeline);
-
-        for (const auto result : results)
-        {
-            if (auto name = result.find("characterName"); name != result.end())
-            {
-                mailTargets->emplace_back(StringUtils::stows(name->get_string().value));
-            }
-        }
+        count = 1;
     }
-    catch (const mongocxx::exception& ex)
+    else if (count > 50)
     {
-        Logger::Err(std::format(L"Error while trying to send mail. {}", StringUtils::stows(ex.what())));
+        count = 50;
     }
-
-    return true;
-}
-
-bool MailManager::GetMailForCharacter(const std::shared_ptr<void>& taskData, bsoncxx::oid characterId, const int count, const int page, const bool newestFirst)
-{
-    const auto allMail = std::static_pointer_cast<std::vector<Mail>>(taskData);
-
-    const auto client = FLHook::GetDatabase().AcquireClient();
-    const auto& config = FLHook::GetConfig();
-
-    auto mailCollection = client->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
-
-    mongocxx::pipeline pipeline;
-
-    // clang-format off
-    pipeline
-        .match(make_document(kvp("$expr", make_document(kvp("$in", make_array(characterId, "$recipients.target"))))))
-        // Paginate
-        .sort(make_document(kvp("sentDate", newestFirst ? -1 : 1)))
-        .skip(count * page)
-        .limit(count);
-    // clang-format on
-
-    for (const auto result : mailCollection.aggregate(pipeline))
-    {
-        Mail mail{};
-        ParseMail(mail, result);
-
-        if (!mail.message.empty() && !mail.recipients.empty())
-        {
-            allMail->emplace_back(mail);
-        }
-    }
-
-    return true;
-}
-
-bool MailManager::GetMailForAccount(const std::shared_ptr<void>& taskData, AccountId accountId, const int count, const int page, const bool newestFirst)
-{
-    auto allMail = std::static_pointer_cast<std::vector<Mail>>(taskData);
 
     const auto client = FLHook::GetDatabase().AcquireClient();
     const auto& config = FLHook::GetConfig();
@@ -146,7 +70,7 @@ bool MailManager::GetMailForAccount(const std::shared_ptr<void>& taskData, Accou
                 make_document(kvp("$match", make_document(kvp("$expr",
                     // Check that the mail we are looking for has a matching account id and the same character id
                     make_document(kvp("$and", make_array(
-                        make_document(kvp("$eq", make_array("$accountId", accountId.GetValue()))),
+                        make_document(kvp("$eq", make_array("$accountId", accountId))),
                         make_document(kvp("$in", make_array("$_id", "$$recipients.target")))
                     )))
                 ))))
@@ -161,117 +85,45 @@ bool MailManager::GetMailForAccount(const std::shared_ptr<void>& taskData, Accou
         .limit(count);
     // clang-format on
 
-    for (auto result : mailCollection.aggregate(pipeline))
+    try
     {
-        auto mailDoc = result.find("mail");
-        if (mailDoc == result.end())
+        std::vector<Mail> allMail;
+        for (auto result : mailCollection.aggregate(pipeline))
         {
-            continue;
+            if (auto mailDoc = result.find("mail"); mailDoc == result.end())
+            {
+                continue;
+            }
+
+            auto mailResult = rfl::bson::read<Mail>(result.data(), result.length());
+            if (mailResult.error().has_value())
+            {
+                Logger::Err(std::format(L"Error while trying to read mail for character: {}", StringUtils::stows(accountId)));
+                continue;
+            }
+
+            const Mail& mail = mailResult.value();
+            if (!mail.message.empty() && !mail.recipients.empty())
+            {
+                allMail.emplace_back(mail);
+            }
         }
 
-        Mail mail;
-        ParseMail(mail, mailDoc->get_document().view());
-
-        if (!mail.message.empty() && !mail.recipients.empty())
+        if (allMail.empty())
         {
-            allMail->emplace_back(mail);
+            return { cpp::fail(Error::UnknownError) };
         }
+
+        return { allMail };
     }
-
-    return true;
-}
-
-void MailManager::ParseMail(Mail& mail, const bsoncxx::document::view doc)
-{
-    for (const auto& m : doc)
+    catch (mongocxx::exception& ex)
     {
-        switch (Hash(m.key().data()))
-        {
-            case Hash("_id"):
-                {
-                    mail._id = m.get_oid().value;
-                    break;
-                }
-            case Hash("author"):
-                {
-                    mail.author = m.get_oid().value;
-                    break;
-                }
-            case Hash("origin"):
-                {
-                    mail.origin = m.get_string().value;
-                    break;
-                }
-            case Hash("sentDate"):
-                {
-                    mail.sentDate = m.get_date();
-                    break;
-                }
-            case Hash("message"):
-                {
-                    mail.message = m.get_string().value;
-                    break;
-                }
-            case Hash("recipients"):
-                {
-                    for (const auto& recipients = m.get_array(); auto doc : recipients.value)
-                    {
-                        MailRecipient recipient;
-                        for (const auto& el : doc.get_document().view())
-                        {
-                            switch (Hash(el.key().data()))
-                            {
-                                case Hash("target"):
-                                    {
-                                        recipient.target = el.get_oid().value;
-                                        break;
-                                    }
-                                case Hash("readDate"):
-                                    {
-                                        recipient.readDate = el.get_date();
-                                        break;
-                                    }
-                                default: break;
-                            }
-                        }
-
-                        mail.recipients.emplace_back(recipient);
-                    }
-
-                    break;
-                }
-            default: break;
-        }
+        Logger::Err(std::format(L"Unable to aggregate account mail query: {}", StringUtils::stows(ex.what())));
+        return { cpp::fail(Error::UnknownError) };
     }
 }
 
-void MailManager::GetAccountMail(const AccountId& id, std::function<void(const std::shared_ptr<std::vector<Mail>>&)> callback, int count, int page, bool newestFirst)
-{
-    auto data = std::make_shared<std::vector<Mail>>();
-
-    if (page < 1)
-    {
-        page = 0;
-    }
-    else
-    {
-        page--;
-    }
-
-    if (count < 1)
-    {
-        count = 1;
-    }
-    else if (count > 50)
-    {
-        count = 50;
-    }
-
-    TaskScheduler::ScheduleWithCallback<std::vector<Mail>>(std::bind(GetMailForAccount, std::placeholders::_1, id, count, page, newestFirst),
-        [callback](const std::shared_ptr<void>& taskData) { callback(std::static_pointer_cast<std::vector<Mail>>(taskData)); });
-}
-
-void MailManager::GetCharacterMail(bsoncxx::oid characterId, std::function<void(const std::shared_ptr<std::vector<Mail>>&)> callback, int count, int page, bool newestFirst)
+Action<std::vector<Mail>, Error> MailManager::GetCharacterMail(bsoncxx::oid characterId, int count, int page, bool newestFirst)
 {
     if (page < 1)
     {
@@ -291,33 +143,118 @@ void MailManager::GetCharacterMail(bsoncxx::oid characterId, std::function<void(
         count = 50;
     }
 
-    TaskScheduler::ScheduleWithCallback<std::vector<Mail>>(std::bind(GetMailForCharacter, std::placeholders::_1, characterId, count, page, newestFirst),
-                                                           [callback](const std::shared_ptr<void>& taskData) { callback(std::static_pointer_cast<std::vector<Mail>>(taskData)); });
-}
+    const auto client = FLHook::GetDatabase().AcquireClient();
+    const auto& config = FLHook::GetConfig();
 
-void MailManager::MarkMailAsRead(const Mail& mail, bsoncxx::oid character)
-{
-    auto mailId = mail._id;
-    TaskScheduler::Schedule(
-        [mailId, character]
+    auto mailCollection = client->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+
+    mongocxx::pipeline pipeline;
+
+    // clang-format off
+    pipeline
+        .match(make_document(kvp("$expr", make_document(kvp("$in", make_array(characterId, "$recipients.target"))))))
+        // Paginate
+        .sort(make_document(kvp("sentDate", newestFirst ? -1 : 1)))
+        .skip(count * page)
+        .limit(count);
+    // clang-format on
+
+    try
+    {
+        std::vector<Mail> allMail;
+        for (const auto result : mailCollection.aggregate(pipeline))
         {
-            const auto& config = FLHook::GetConfig();
+            auto mail = rfl::bson::read<Mail>(result.data(), result.length());
+            if (mail.error().has_value())
+            {
+                Logger::Err(std::format(L"Error while trying to read mail for character: {}", StringUtils::stows(characterId.to_string())));
+                continue;
+            }
 
-            const auto dbClient = FLHook::GetDatabase().AcquireClient();
-            auto mailCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+            if (!mail.value().message.empty() && !mail.value().recipients.empty())
+            {
+                allMail.emplace_back(mail.value());
+            }
+        }
 
-            mailCollection.update_one(
-                make_document(kvp("$and",
-                                  make_array(make_document(kvp("_id", make_document(kvp("$eq", mailId)))),
-                                             make_document(kvp("recipients.target", make_document(kvp("$eq", character))))))),
-                make_document(kvp(
-                    "$set",
-                    make_document(kvp("recipients.$.readDate",
-                                      bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) })))));
-        });
+        if (allMail.empty())
+        {
+            return { cpp::fail(Error::UnknownError) };
+        }
+
+        return { allMail };
+    }
+    catch (mongocxx::exception& ex)
+    {
+        Logger::Err(std::format(L"Unable to aggregate account mail query: {}", StringUtils::stows(ex.what())));
+        return { cpp::fail(Error::UnknownError) };
+    }
 }
 
-Action<void, Error> MailManager::SendMail(const Mail& mail)
+Action<void, Error> MailManager::DeleteMail(const Mail& mail)
+{
+    const auto& config = FLHook::GetConfig();
+
+    const auto dbClient = FLHook::GetDatabase().AcquireClient();
+    auto mailCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+
+    try
+    {
+        if (const auto result = mailCollection.delete_one(make_document(kvp("_id", mail._id))); result.has_value() && result.value().deleted_count())
+        {
+            return { {} };
+        }
+    }
+    catch (mongocxx::exception& ex)
+    {
+        Logger::Err(std::format(L"Unable to delete mail: {}", StringUtils::stows(ex.what())));
+    }
+
+    return { cpp::fail(Error::UnknownError) };
+}
+
+Action<void, Error> MailManager::MarkMailAsRead(const Mail& mail, rfl::Variant<std::string, bsoncxx::oid> characterOrAccount)
+{
+    const auto& config = FLHook::GetConfig();
+
+    const auto dbClient = FLHook::GetDatabase().AcquireClient();
+    auto mailCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+
+    auto targetEq = characterOrAccount.index()
+        ? make_document(kvp("$eq", rfl::get<bsoncxx::oid>(characterOrAccount)))
+        : make_document(kvp("$eq", rfl::get<std::string>(characterOrAccount)));
+
+    try
+    {
+        // clang-format off
+        // ReSharper disable once CppTooWideScopeInitStatement
+        const auto result = mailCollection.update_one(
+            make_document(kvp("$and", make_array(
+                      make_document(kvp("_id", make_document(kvp("$eq", mail._id)))),
+                      make_document(kvp("recipients.target", targetEq))))),
+            make_document(kvp("$set", make_document(kvp("recipients.$.readDate",
+                bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) })))));
+        // clang-format on
+
+        if (result.has_value())
+        {
+            if (result->modified_count())
+            {
+                return { {} };
+            }
+
+            // TODO: Already read mail? Return a different error code or nothing I guess?
+        }
+    }
+    catch (mongocxx::exception& ex)
+    {
+        Logger::Err(std::format(L"Unable to mark mail as read: {}", StringUtils::stows(ex.what())));
+    }
+
+    return { cpp::fail(Error::UnknownError) };
+}
+
+Action<void, Error> MailManager::SendMail(Mail& mail)
 {
     if (mail._id.bytes() != nullptr)
     {
@@ -337,7 +274,57 @@ Action<void, Error> MailManager::SendMail(const Mail& mail)
         return { cpp::fail(Error::UnknownError) };
     }
 
-    TaskScheduler::ScheduleWithCallback<std::vector<std::wstring>>(std::bind(DeferSendMail, std::placeholders::_1, mail), SendMailCallback);
+    const auto& config = FLHook::GetConfig();
+
+    const auto dbClient = FLHook::GetDatabase().AcquireClient();
+    auto mailCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+    mail.sentDate = TimeUtils::MakeUtcTm(std::chrono::system_clock::now());
+
+    const auto mailRaw = rfl::bson::write(mail);
+    const auto mailDoc = bsoncxx::document::view(reinterpret_cast<const uint8_t*>(mailRaw.data()), mailRaw.size());
+
+    std::vector<rfl::Variant<std::string, bsoncxx::oid>> mailTargets;
+
+    try
+    {
+        const auto response = mailCollection.insert_one(mailDoc);
+        assert(response.has_value());
+
+        auto insertedId = response->inserted_id().get_oid();
+
+        mongocxx::pipeline pipeline;
+        // clang-format off
+        pipeline
+            .match(make_document(kvp("_id", insertedId)))
+            .lookup(make_document(
+                kvp("from", config.databaseConfig.accountsCollection),
+                kvp("localField", "recipients.target"),
+                kvp("foreignField", "_id"),
+                kvp("as", "results")))
+            .project(make_document(kvp("_id", 0), kvp("results", 1)));
+        // clang-format on
+
+        for (auto results = mailCollection.aggregate(pipeline); const auto result : results)
+        {
+            if (auto iter = result.find("_id"); iter != result.end())
+            {
+                if (iter->type() == bsoncxx::type::k_oid)
+                {
+                    mailTargets.emplace_back(iter->get_oid().value);
+                }
+                else if (iter->type() == bsoncxx::type::k_string)
+                {
+                    mailTargets.emplace_back(std::string(iter->get_string().value));
+                }
+            }
+        }
+    }
+    catch (const mongocxx::exception& ex)
+    {
+        Logger::Err(std::format(L"Error while trying to send mail. {}", StringUtils::stows(ex.what())));
+    }
+
+    FLHook::GetTaskScheduler().AddTask(std::make_shared<Task>(InformOnlineUsersOfNewMail(mailTargets)));
 
     return { {} };
 }
