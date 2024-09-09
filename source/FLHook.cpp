@@ -78,7 +78,7 @@ FLHook::FLHook()
     infocardManager = new InfocardManager();
     clientList = new ClientList();
     personalityHelper = new PersonalityHelper();
-    database = new Database(flhookConfig->databaseConfig.uri);
+    database = new Database(flhookConfig->database.uri);
     accountManager = new AccountManager();
     crashCatcher = new CrashCatcher();
     resourceManager = new ResourceManager();

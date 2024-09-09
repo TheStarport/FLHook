@@ -17,23 +17,23 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
     {
         auto& config = FLHook::GetConfig();
         const auto client = pool.acquire();
-        auto db = client->database(config.databaseConfig.dbName);
+        auto db = client->database(config.database.dbName);
 
         const auto ping = make_document(kvp("ping", 1));
         db.run_command(ping.view());
 
-        if (!db.has_collection(config.databaseConfig.accountsCollection))
+        if (!db.has_collection(config.database.accountsCollection))
         {
-            db.create_collection(config.databaseConfig.accountsCollection);
-            auto accounts = db[config.databaseConfig.accountsCollection];
+            db.create_collection(config.database.accountsCollection);
+            auto accounts = db[config.database.accountsCollection];
             accounts.create_index(make_document(kvp("characterName", 1)));
             accounts.create_index(make_document(kvp("accountId", 1)));
         }
 
-        if (!db.has_collection(config.databaseConfig.mailCollection))
+        if (!db.has_collection(config.database.mailCollection))
         {
-            db.create_collection(config.databaseConfig.mailCollection);
-            auto mail = db[config.databaseConfig.mailCollection];
+            db.create_collection(config.database.mailCollection);
+            auto mail = db[config.database.mailCollection];
             mail.create_index(make_document(kvp("recipients.target", 1), kvp("sentDate", -1)));
         }
     }
@@ -49,7 +49,7 @@ mongocxx::pool::entry Database::AcquireClient() { return pool.acquire(); }
 
 mongocxx::collection Database::GetCollection(const mongocxx::pool::entry& dbClient, const std::string_view collectionName)
 {
-    return dbClient->database(FLHook::GetConfig().databaseConfig.dbName).collection(collectionName);
+    return dbClient->database(FLHook::GetConfig().database.dbName).collection(collectionName);
 }
 
 void Database::SaveValueOnAccount(const AccountId& accountId, std::string_view key, bsoncxx::types::bson_value::view_or_value value)
@@ -60,7 +60,7 @@ void Database::SaveValueOnAccount(const AccountId& accountId, std::string_view k
     TaskScheduler::Schedule(
         [findDoc, updateDoc]
         {
-            const auto& config = FLHook::GetConfig().databaseConfig;
+            const auto& config = FLHook::GetConfig().database;
             auto db = FLHook::GetDatabase().AcquireClient();
 
             auto accountsCollection = db->database(config.dbName)[config.accountsCollection];
@@ -74,7 +74,7 @@ std::optional<Character> Database::GetCharacterById(bsoncxx::oid objId)
     const auto& config = FLHook::GetConfig();
     const auto db = AcquireClient();
 
-    auto accounts = db->database(config.databaseConfig.dbName).collection(config.databaseConfig.accountsCollection);
+    auto accounts = db->database(config.database.dbName).collection(config.database.accountsCollection);
     const auto charDocOpt = accounts.find_one(make_document(kvp("_id", objId)));
     if (!charDocOpt.has_value())
     {

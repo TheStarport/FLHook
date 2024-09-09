@@ -86,6 +86,7 @@ struct DLL FLHookConfig final
                 std::string uri = "mongodb://localhost:27017";
                 std::string dbName = "FLHook";
                 std::string accountsCollection = "accounts";
+                std::string charactersCollection = "characters";
                 std::string mailCollection = "mail";
         };
 
@@ -220,7 +221,7 @@ struct DLL FLHookConfig final
         Bans bans;
         ChatConfig chatConfig;
         Callsign callsign;
-        DatabaseConfig databaseConfig;
+        DatabaseConfig database;
         Npc npc;
         Rename rename;
         Reputatation reputatation;

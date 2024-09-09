@@ -30,7 +30,7 @@ namespace Plugins
 
         const auto& flhookConfig = FLHook::GetConfig();
         const auto dbClient = FLHook::GetDbClient();
-        if (auto db = dbClient->database(flhookConfig.databaseConfig.dbName); !db.has_collection(config.collectionName))
+        if (auto db = dbClient->database(flhookConfig.database.dbName); !db.has_collection(config.collectionName))
         {
             db.create_collection(config.collectionName);
         }

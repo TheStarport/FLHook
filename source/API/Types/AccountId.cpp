@@ -56,20 +56,20 @@ std::optional<AccountId> AccountId::GetAccountFromCharacterName(const std::wstri
     const auto db = FLHook::GetDbClient();
 
     const auto& config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
-    const auto findAccDoc = make_document(kvp("characterName", StringUtils::wstos(characterName)));
+    auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
+    const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(characterName)));
 
     mongocxx::options::find options;
     options.projection(make_document(kvp("_id", 1)));
 
-    const auto databaseAccount = accountsCollection.find_one(findAccDoc.view(), options);
-    if (!databaseAccount.has_value())
+    const auto character = charactersCollection.find_one(findCharDoc.view(), options);
+    if (!character.has_value())
     {
         return std::nullopt;
     }
 
     AccountId acc;
-    acc.accountId = databaseAccount.value()["_id"].get_string();
+    acc.accountId = character.value()["accountId"].get_string();
     return acc;
 }
 
@@ -89,7 +89,7 @@ std::optional<AccountId> AccountId::GetAccountFromAccountId(const std::wstring_v
     const auto db = FLHook::GetDbClient();
 
     const auto& config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+    auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountIdString));
 
     mongocxx::options::find options;
@@ -118,7 +118,7 @@ bool AccountId::IsAdmin() const
     const auto db = FLHook::GetDbClient();
 
     const auto& config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+    auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
     auto findAccDoc = make_document(kvp("_id", accountId));
 
     mongocxx::pipeline pipeline{};
@@ -138,7 +138,7 @@ Action<void, Error> AccountId::UnBan() const
     const auto db = FLHook::GetDbClient();
 
     const auto& config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+    auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountId));
     static auto updateDoc = make_document(kvp("$set", make_document(kvp("banned", false))), kvp("$unset", make_document(kvp("scheduledUnbanDate", ""))));
 
@@ -155,7 +155,7 @@ Action<void, Error> AccountId::Ban(const uint tempBanDays) const
 {
     const auto db = FLHook::GetDbClient();
     const auto& config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+    auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountId));
 
     bsoncxx::document::view_or_value banUpdateDoc;
@@ -193,14 +193,15 @@ Action<void, Error> AccountId::DeleteCharacter(const std::wstring_view name) con
 
     const auto db = FLHook::GetDbClient();
     const auto& config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+    auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
+    auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
 
     const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(name)));
 
     mongocxx::options::find_one_and_delete deleteOptions;
     deleteOptions.projection(make_document(kvp("_id", 1)));
 
-    const auto foundCharDoc = accountsCollection.find_one_and_delete(findCharDoc.view(), deleteOptions);
+    const auto foundCharDoc = charactersCollection.find_one_and_delete(findCharDoc.view(), deleteOptions);
     if (!foundCharDoc.has_value())
     {
         return { {} };
@@ -246,7 +247,7 @@ Action<void, Error> AccountId::AddRoles(const std::vector<std::wstring_view>& ro
 
     const auto db = FLHook::GetDbClient();
     const auto& config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+    auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountId));
 
     bsoncxx::builder::basic::array arrayBuilder;
@@ -294,7 +295,7 @@ Action<void, Error> AccountId::RemoveRoles(const std::vector<std::wstring_view>&
     }
     const auto db = FLHook::GetDbClient();
     const auto& config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+    auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountId));
 
     bsoncxx::builder::basic::array arrayBuilder;
@@ -317,7 +318,7 @@ Action<void, Error> AccountId::SetRoles(const std::vector<std::wstring_view>& ro
 {
     const auto db = FLHook::GetDbClient();
     const auto& config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+    auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountId));
 
     bsoncxx::builder::basic::array arrayBuilder;
@@ -368,7 +369,7 @@ Action<void, Error> AccountId::SetCash(std::wstring_view characterName, int64 am
 {
     const auto db = FLHook::GetDbClient();
     const auto& config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+    auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
     const auto findAccDoc = make_document(kvp("_id", accountId));
 
     const auto roleUpdateDoc = make_document(kvp("$set", make_document(kvp("cash", amount))));

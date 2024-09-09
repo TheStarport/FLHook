@@ -8,7 +8,7 @@
  */
 class MailManager
 {
-        static Task InformOnlineUsersOfNewMail(std::vector<rfl::Variant<std::string, bsoncxx::oid>> accountIdOrCharacterNames);
+        static Task InformOnlineUsersOfNewMail(std::vector<rfl::Variant<bsoncxx::oid, std::string>> accountIdOrCharacterNames);
     public:
         MailManager() = delete;
         static Action<std::vector<Mail>, Error> GetAccountMail(std::string accountId, int count = 20, int page = 1, bool newestFirst = true);

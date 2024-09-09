@@ -19,12 +19,12 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
     try
     {
         const auto& config = FLHook::GetConfig();
-        auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
         auto findCharDoc = make_document(kvp("characterName", newCharacter.characterName));
 
         if (isNewCharacter)
         {
-            if (const auto checkCharNameDoc = accountsCollection.find_one(findCharDoc.view()); checkCharNameDoc.has_value())
+            if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); checkCharNameDoc.has_value())
             {
                 throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
                                                 "Character already exists while trying to create new character");
@@ -40,7 +40,7 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
         // Update account character list if new character
         if (isNewCharacter)
         {
-            auto insertedDoc = accountsCollection.insert_one(document.view());
+            auto insertedDoc = charactersCollection.insert_one(document.view());
 
             if (!insertedDoc.has_value())
             {
@@ -50,7 +50,9 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
             newCharacter._id = insertedDoc->inserted_id().get_oid().value;
             const auto findAccDoc = make_document(kvp("_id", newCharacter.accountId));
             const auto charUpdateDoc = make_document(kvp("$push", make_document(kvp("characters", insertedDoc->inserted_id()))));
-            if (const auto updateResult = accountsCollection.update_one(findAccDoc.view(), charUpdateDoc.view());
+
+            auto accountCollection = db->database(config.database.dbName)[config.database.accountsCollection];
+            if (const auto updateResult = charactersCollection.update_one(findAccDoc.view(), charUpdateDoc.view());
                 !updateResult.has_value() || updateResult.value().modified_count() == 0)
             {
                 throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
@@ -60,7 +62,7 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
         else
         {
             const auto updateDoc = make_document(kvp("$set", document.view()));
-            if (const auto updateResult = accountsCollection.update_one(findCharDoc.view(), updateDoc.view()); !updateResult.has_value())
+            if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), updateDoc.view()); !updateResult.has_value())
             {
                 throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Updating character failed.");
             }
@@ -116,7 +118,8 @@ bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring c
     {
         const auto& config = FLHook::GetConfig();
         // TODO: Handle soft deletes
-        auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+        auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
+        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
 
         using bsoncxx::builder::basic::kvp;
         using bsoncxx::builder::basic::make_document;
@@ -125,11 +128,12 @@ bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring c
         deleteOptions.projection(make_document(kvp("accountId", 1)));
 
         const auto findDoc = make_document(kvp("characterName", charName));
-        const auto ret = accountsCollection.find_one_and_delete(findDoc.view(), deleteOptions);
+        const auto ret = charactersCollection.find_one_and_delete(findDoc.view(), deleteOptions);
         if (!ret.has_value())
         {
             throw std::runtime_error("Character deletion failed! Unable to find and delete character.");
         }
+
         auto oid = ret->view()["_id"].get_oid();
         const auto findAcc = make_document(kvp("_id", ret->view()["accountId"].get_string()));
         const auto deleteCharacter = make_document(kvp("$pull", make_document(kvp("characters", oid))));
@@ -163,7 +167,8 @@ bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
     try
     {
         const auto& config = FLHook::GetConfig();
-        auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+        auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
+        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
 
         std::string accId = StringUtils::wstos(wideAccountId);
 
@@ -205,7 +210,7 @@ bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
         // Get all documents that are in the provided array
         const auto filter = make_document(kvp("_id", make_document(kvp("$in", idArr))));
 
-        for (auto cursor = accountsCollection.find(filter.view()); const auto& doc : cursor)
+        for (auto cursor = charactersCollection.find(filter.view()); const auto& doc : cursor)
         {
             auto character = Character{ doc };
             if (character.characterName.empty())
@@ -248,10 +253,10 @@ bool AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newN
     try
     {
         const auto& config = FLHook::GetConfig();
-        auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
         const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(newName)));
 
-        if (const auto checkCharNameDoc = accountsCollection.find_one(findCharDoc.view()); checkCharNameDoc.has_value())
+        if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); checkCharNameDoc.has_value())
         {
             *errorMessage = L"Name already taken!";
             return true;
@@ -285,10 +290,10 @@ void AccountManager::Rename(std::wstring currName, std::wstring newName)
     try
     {
         const auto& config = FLHook::GetConfig();
-        auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
         const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(currName)));
 
-        if (const auto checkCharNameDoc = accountsCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
+        if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
         {
             throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Character doesn't exist when renaming!");
         }
@@ -298,7 +303,7 @@ void AccountManager::Rename(std::wstring currName, std::wstring newName)
                 make_document(kvp("characterName", StringUtils::wstos(newName)),
                               kvp("lastRenameTimestamp",
                                   bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }))));
-        if (const auto updateResult = accountsCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
+        if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
             !updateResult.has_value() || updateResult.value().modified_count() == 0)
         {
             throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Updating character during rename failed.");
@@ -330,17 +335,17 @@ void AccountManager::ClearCharacterTransferCode(std::wstring charName)
     try
     {
         const auto& config = FLHook::GetConfig();
-        auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
         const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(charName)));
 
-        if (const auto checkCharNameDoc = accountsCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
+        if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
         {
             throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
                                             "Character doesn't exist when clearing character transfer code!");
         }
 
         const auto charUpdateDoc = make_document(kvp("$unset", make_document(kvp("characterTransferCode", ""))));
-        if (const auto updateResult = accountsCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
+        if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
             !updateResult.has_value() || updateResult.value().modified_count() == 0)
         {
             throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
@@ -373,10 +378,10 @@ void AccountManager::SetCharacterTransferCode(std::wstring charName, std::wstrin
     try
     {
         const auto& config = FLHook::GetConfig();
-        auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
         const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(charName)));
 
-        if (const auto checkCharNameDoc = accountsCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
+        if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
         {
             throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
                                             "Character doesn't exist when setting character transfer code!");
@@ -384,7 +389,7 @@ void AccountManager::SetCharacterTransferCode(std::wstring charName, std::wstrin
 
         const auto charUpdateDoc = make_document(
             kvp("$set", make_document(kvp("characterName", StringUtils::wstos(charName)), kvp("characterTransferCode", StringUtils::wstos(transferCode)))));
-        if (const auto updateResult = accountsCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
+        if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
             !updateResult.has_value() || updateResult.value().modified_count() == 0)
         {
             throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
@@ -426,7 +431,8 @@ bool AccountManager::TransferCharacter(const AccountId account, const std::wstri
 
         // clang-format off
     const auto& config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config.databaseConfig.dbName)[config.databaseConfig.accountsCollection];
+    auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
+    auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
         const auto findTransferCharacterDoc = make_document(
             kvp("$and",
                 make_array(
@@ -436,7 +442,7 @@ bool AccountManager::TransferCharacter(const AccountId account, const std::wstri
             )
         );
 
-        const auto transferredCharacterDoc = accountsCollection.find_one(findTransferCharacterDoc.view());
+        const auto transferredCharacterDoc = charactersCollection.find_one(findTransferCharacterDoc.view());
         if (!transferredCharacterDoc.has_value())
         {
             session.abort_transaction();
@@ -467,12 +473,14 @@ bool AccountManager::TransferCharacter(const AccountId account, const std::wstri
             *errorMessage = L"Character transfer failed on updating of target account!";
             return true;
         }
-        if (auto updatedDocs = accountsCollection.update_one(findTransferredCharacterDoc.view(), clearCharacterTransferCodeDoc.view()); !updatedDocs->modified_count())
+
+        if (auto updatedDocs = charactersCollection.update_one(findTransferredCharacterDoc.view(), clearCharacterTransferCodeDoc.view()); !updatedDocs->modified_count())
         {
             session.abort_transaction();
             *errorMessage = L"Character transfer failed on updating of the character!";
             return true;
         }
+
         if (auto updatedDocs = accountsCollection.update_one(findOldAccountDoc.view(), updateOldAccountDoc.view()); !updatedDocs->modified_count())
         {
             session.abort_transaction();

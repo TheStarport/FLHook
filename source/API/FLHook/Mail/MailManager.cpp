@@ -12,7 +12,7 @@ using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
 using bsoncxx::builder::basic::make_document;
 
-Task MailManager::InformOnlineUsersOfNewMail(std::vector<rfl::Variant<std::string, bsoncxx::oid>> accountIdOrCharacterNames) // NOLINT(*-unnecessary-value-param)
+Task MailManager::InformOnlineUsersOfNewMail(std::vector<rfl::Variant<bsoncxx::oid, std::string>> accountIdOrCharacterNames) // NOLINT(*-unnecessary-value-param)
 {
     co_yield TaskStatus::FLHookAwait;
 
@@ -21,8 +21,8 @@ Task MailManager::InformOnlineUsersOfNewMail(std::vector<rfl::Variant<std::strin
     {
         for (const auto& client : clients)
         {
-            if ((variant.index() && client.characterData->_id.value() == rfl::get<1>(variant)) ||
-                (!variant.index() && client.account->_id == rfl::get<0>(variant)))
+            if ((!variant.index() && client.characterData->_id.value() == rfl::get<0>(variant)) ||
+                (variant.index() && client.account->_id == rfl::get<1>(variant)))
             {
                 // Character is online, message them now!
                 (void)client.id.Message(std::format(L"You have received {} mail.", variant.index()
@@ -59,14 +59,14 @@ Action<std::vector<Mail>, Error> MailManager::GetAccountMail(std::string account
     const auto client = FLHook::GetDatabase().AcquireClient();
     const auto& config = FLHook::GetConfig();
 
-    auto mailCollection = client->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+    auto mailCollection = client->database(config.database.dbName).collection(config.database.mailCollection);
 
     mongocxx::pipeline pipeline;
 
     // clang-format off
     pipeline
         .lookup(make_document(
-            kvp("from", config.databaseConfig.accountsCollection),
+            kvp("from", config.database.accountsCollection),
             kvp("let", make_document(kvp("recipients", "$recipients"))),
             kvp("pipeline", make_array(
                 make_document(kvp("$match", make_document(kvp("$expr",
@@ -148,7 +148,7 @@ Action<std::vector<Mail>, Error> MailManager::GetCharacterMail(bsoncxx::oid char
     const auto client = FLHook::GetDatabase().AcquireClient();
     const auto& config = FLHook::GetConfig();
 
-    auto mailCollection = client->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+    auto mailCollection = client->database(config.database.dbName).collection(config.database.mailCollection);
 
     mongocxx::pipeline pipeline;
 
@@ -198,7 +198,7 @@ Action<void, Error> MailManager::DeleteMail(const Mail& mail)
     const auto& config = FLHook::GetConfig();
 
     const auto dbClient = FLHook::GetDatabase().AcquireClient();
-    auto mailCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+    auto mailCollection = dbClient->database(config.database.dbName).collection(config.database.mailCollection);
 
     try
     {
@@ -220,7 +220,7 @@ Action<void, Error> MailManager::MarkMailAsRead(const Mail& mail, rfl::Variant<s
     const auto& config = FLHook::GetConfig();
 
     const auto dbClient = FLHook::GetDatabase().AcquireClient();
-    auto mailCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+    auto mailCollection = dbClient->database(config.database.dbName).collection(config.database.mailCollection);
 
     auto targetEq = characterOrAccount.index()
         ? make_document(kvp("$eq", rfl::get<bsoncxx::oid>(characterOrAccount)))
@@ -279,46 +279,22 @@ Action<void, Error> MailManager::SendMail(Mail& mail)
     const auto& config = FLHook::GetConfig();
 
     const auto dbClient = FLHook::GetDatabase().AcquireClient();
-    auto mailCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.mailCollection);
+    auto mailCollection = dbClient->database(config.database.dbName).collection(config.database.mailCollection);
     mail.sentDate = TimeUtils::MakeUtcTm(std::chrono::system_clock::now());
 
     const auto mailRaw = rfl::bson::write(mail);
     const auto mailDoc = bsoncxx::document::view(reinterpret_cast<const uint8_t*>(mailRaw.data()), mailRaw.size());
 
-    std::vector<rfl::Variant<std::string, bsoncxx::oid>> mailTargets;
+    std::vector<rfl::Variant<bsoncxx::oid, std::string>> mailTargets;
 
     try
     {
         const auto response = mailCollection.insert_one(mailDoc);
         assert(response.has_value());
 
-        auto insertedId = response->inserted_id().get_oid();
-
-        mongocxx::pipeline pipeline;
-        // clang-format off
-        pipeline
-            .match(make_document(kvp("_id", insertedId)))
-            .lookup(make_document(
-                kvp("from", config.databaseConfig.accountsCollection),
-                kvp("localField", "recipients.target"),
-                kvp("foreignField", "_id"),
-                kvp("as", "results")))
-            .project(make_document(kvp("_id", 0), kvp("results", 1)));
-        // clang-format on
-
-        for (auto results = mailCollection.aggregate(pipeline); const auto result : results)
+        for (auto& [target, readDate] : mail.recipients)
         {
-            if (auto iter = result.find("_id"); iter != result.end())
-            {
-                if (iter->type() == bsoncxx::type::k_oid)
-                {
-                    mailTargets.emplace_back(iter->get_oid().value);
-                }
-                else if (iter->type() == bsoncxx::type::k_string)
-                {
-                    mailTargets.emplace_back(std::string(iter->get_string().value));
-                }
-            }
+            mailTargets.emplace_back(target);
         }
     }
     catch (const mongocxx::exception& ex)

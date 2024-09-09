@@ -232,7 +232,8 @@ Task AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring
 
     const auto& config = FLHook::GetConfig();
     auto db = FLHook::GetDbClient();
-    auto accountCollection = Database::GetCollection(db, config.databaseConfig.accountsCollection);
+    auto accountCollection = Database::GetCollection(db, config.database.accountsCollection);
+    auto charactersCollection = Database::GetCollection(db, config.database.charactersCollection);
 
     auto transaction = db->start_session();
     transaction.start_transaction();
@@ -242,7 +243,7 @@ Task AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring
 
     try
     {
-        if (const auto doc = accountCollection.find_one_and_delete(filter.view()); doc.has_value())
+        if (const auto doc = charactersCollection.find_one_and_delete(filter.view()); doc.has_value())
         {
             bsoncxx::oid characterId = doc->find("_id")->get_oid().value;
             auto accountId = doc->find("accountId")->get_string().value;
@@ -302,11 +303,12 @@ bool AddRole(std::string characterName, std::vector<std::string> roles, std::sha
 
     const auto& config = FLHook::GetConfig();
     const auto dbClient = FLHook::GetDatabase().AcquireClient();
-    auto accountCollection = dbClient->database(config.databaseConfig.dbName).collection(config.databaseConfig.accountsCollection);
+    auto accountCollection = dbClient->database(config.database.dbName).collection(config.database.accountsCollection);
+    auto charactersCollection = dbClient->database(config.database.dbName).collection(config.database.charactersCollection);
 
     const auto findCharacterDoc = make_document(kvp("characterName", characterName));
 
-    const auto characterResult = accountCollection.find_one(findCharacterDoc.view());
+    const auto characterResult = charactersCollection.find_one(findCharacterDoc.view());
     if (!characterResult.has_value())
     {
         responseMessage->assign(L"ERR: Provided character name not found");
