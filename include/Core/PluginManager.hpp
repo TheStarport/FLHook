@@ -17,7 +17,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
         friend AdminCommandProcessor;
         friend UserCommandProcessor;
         friend ExternalCommandProcessor;
-        friend FLHook;
+        friend IServerImplHook;
 
         std::vector<std::shared_ptr<Plugin>> plugins;
         std::vector<std::weak_ptr<AbstractUserCommandProcessor>> userCommands;
@@ -60,7 +60,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
             NoVoidReturnType ret{};
             TryHook
             {
-                for (auto plugin : plugins)
+                for (const auto& plugin : plugins)
                 {
                     plugin->returnCode = ReturnCode::Default;
 

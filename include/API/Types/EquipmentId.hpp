@@ -14,8 +14,8 @@ class DLL EquipmentId
         explicit EquipmentId(uint val);
         EquipmentId() = default;
         bool operator==(const EquipmentId next) const { return value == next.value; }
-        bool operator<(const EquipmentId &right) const { return value && value->archId < right.value->archId; }
-        EquipmentId &operator=(const EquipmentId &right)
+        bool operator<(const EquipmentId& right) const { return value && value->archId < right.value->archId; }
+        EquipmentId& operator=(const EquipmentId& right)
         {
             value = right.value;
             return *this;
@@ -76,5 +76,5 @@ struct std::formatter<EquipmentId, wchar_t>
 template <>
 struct std::hash<EquipmentId>
 {
-        std::size_t operator()(const EquipmentId &id) const noexcept { return std::hash<uint>()(id.GetValue()->archId); }
+        std::size_t operator()(const EquipmentId& id) const noexcept { return std::hash<uint>()(id.GetValue()->archId); }
 };

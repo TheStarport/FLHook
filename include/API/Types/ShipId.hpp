@@ -15,18 +15,39 @@ class DLL ShipId final : public ObjectId
 
         [[nodiscard]]
         Action<CShipPtr, Error> GetCShip(bool increment) const;
+
+        [[nodiscard]]
         Action<Archetype::Ship*, Error> GetShipArchetype() const;
+
+        [[nodiscard]]
         Action<float, Error> GetHealth(bool percentage = false) const;
+
+        [[nodiscard]]
         Action<float, Error> GetShields(bool percentage = false) const;
+
+        [[nodiscard]]
         void* GetNpcPersonality() const;
+
+        [[nodiscard]]
         std::optional<ClientId> GetPlayer() const;
+
+        [[nodiscard]]
         std::optional<ShipId> GetTarget() const;
+
+        [[nodiscard]]
         Action<RepId, Error> GetReputation() const;
+
         // TODO: AI states such as formation, go to, dock etc.
+        [[nodiscard]]
         Action<float, Error> GetSpeed() const;
 
+        [[nodiscard]]
         bool IsPlayer() const;
+
+        [[nodiscard]]
         bool IsNpc() const;
+
+        [[nodiscard]]
         bool IsInTradeLane() const;
 
         void Destroy(DestroyType type = DestroyType::Fuse);
@@ -73,5 +94,5 @@ struct std::formatter<ShipId, wchar_t>
 template <>
 struct std::hash<ShipId>
 {
-    std::size_t operator()(const ShipId &id) const noexcept { return std::hash<uint>()(id.GetValue()); }
+        std::size_t operator()(const ShipId& id) const noexcept { return std::hash<uint>()(id.GetValue()); }
 };

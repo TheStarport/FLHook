@@ -98,6 +98,22 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
     Logger::Info(L"FLHook Ready");
 
     FLHook::instance->flhookReady = true;
+
+    // Manually iterate over plugins, if any return false unload plugin
+    auto pluginManager = PluginManager::i();
+    for (auto plugin = pluginManager->begin(); plugin != pluginManager->end();)
+    {
+        if (auto p = plugin->get(); !p->OnLoadSettings())
+        {
+            // TODO: Log
+            plugin = pluginManager->plugins.erase(plugin);
+            FreeLibrary(p->dll);
+        }
+        else
+        {
+            ++plugin;
+        }
+    }
 }
 
 int __stdcall IServerImplHook::Update()

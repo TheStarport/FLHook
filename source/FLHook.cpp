@@ -132,23 +132,6 @@ FLHook::FLHook()
     Timer::Add(ProcessPendingAsyncTasks, 250);
 
     PatchClientImpl();
-
-    // Manually iterate over plugins, if any return false unload plugin
-    auto pluginManager = PluginManager::i();
-    for (auto plugin = pluginManager->begin(); plugin != pluginManager->end();)
-    {
-        auto p = plugin->get();
-        if(!p->OnLoadSettings())
-        {
-            // TODO: Log
-            plugin = pluginManager->plugins.erase(plugin);
-            FreeLibrary(p->dll);
-        }
-        else
-        {
-            ++plugin;
-        }
-    }
 }
 
 void FLHook::ProcessPendingAsyncTasks()

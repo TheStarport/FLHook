@@ -66,14 +66,14 @@ struct PluginInfo
 
 #ifdef FLHOOK
 class PluginManager;
-class FLHook;
+class IServerImplHook;
 #endif
 
 class DLL Plugin
 {
         static std::optional<std::weak_ptr<Plugin>> GetPluginFromManager(std::wstring_view shortName);
 #ifdef FLHOOK
-        friend FLHook;
+        friend IServerImplHook;
         friend PluginManager;
 #endif
 
