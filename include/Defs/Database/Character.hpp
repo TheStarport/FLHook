@@ -100,7 +100,7 @@ struct Character
     std::optional<int64> lastRenameTimestamp;
     std::optional<std::string> characterTransferCode;
 
-	bsoncxx::document::value characterData = bsoncxx::builder::basic::make_document();
+	bsoncxx::document::value characterDocument = bsoncxx::builder::basic::make_document();
 
     void ToBson(bsoncxx::builder::basic::document& document);
 	void HandleDeadCharacter();

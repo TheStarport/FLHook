@@ -31,7 +31,6 @@ namespace Plugins
         return true;
     }
 
-    
     bool ArenaPlugin::ValidateCargo(const ClientId client)
     {
         for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : *cargo)
@@ -51,7 +50,7 @@ namespace Plugins
 
     BaseId ArenaPlugin::ReadReturnPointForClient(const ClientId client)
     {
-        const auto view = client.GetData().characterData;
+        const auto view = client.GetData().characterData->characterDocument;
         if (auto returnBase = view.find("arenaReturnBase"); returnBase != view.end())
         {
             return BaseId{ static_cast<uint>(returnBase->get_int32()) };
@@ -60,14 +59,13 @@ namespace Plugins
         return {};
     }
 
-
     void ArenaPlugin::OnCharacterSelectAfter(const ClientId client)
     {
         auto& [flag, returnBase] = clientData[client.GetValue()];
 
         flag = TransferFlag::None;
 
-        const auto view = client.GetData().characterData;
+        const auto view = client.GetData().characterData->characterDocument;
         if (auto findResult = view.find("arenaReturnBase"); findResult != view.end())
         {
             returnBase = BaseId(findResult->get_int32());
