@@ -161,6 +161,7 @@ class DLL FLHook final
         static ResourceManager& GetResourceManager();
         static Action<pub::AI::Personality*, Error> GetPersonality(const std::wstring& pilotNickname);
         static uint GetServerLoadInMs();
+        static CDPClientProxy** GetClientProxyArray();
         static TaskScheduler& GetTaskScheduler();
 
         static Action<void, Error> MessageUniverse(std::wstring_view message);

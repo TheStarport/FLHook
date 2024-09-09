@@ -4,6 +4,7 @@
 #include "API/Types/BaseId.hpp"
 #include "API/Types/ShipId.hpp"
 #include "API/Types/SystemId.hpp"
+#include "Defs/Structs.hpp"
 
 #include <format>
 #include <string>
@@ -382,6 +383,8 @@ class DLL ClientId
         Action<void, Error> Undock(Vector pos, std::optional<Matrix> orientation = std::nullopt) const;
 
         Action<void, Error> PlaySound(uint hash) const;
+
+        Action<DPN_CONNECTION_INFO, Error> GetConnectionData() const;
 
         /**
          * Invites the target client to this clients group. If this client is not in a group, a new group will be created.

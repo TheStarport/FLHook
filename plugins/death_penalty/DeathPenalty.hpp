@@ -42,7 +42,7 @@ namespace Plugins
             void OnCharacterSelectAfter(ClientId client) override;
             void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
             void OnShipDestroy(Ship* ship, DamageList* dmgList, ShipId killerId) override;
-            void KillIfInJumpTunnel(const ClientId client);
+            void KillIfInJumpTunnel(ClientId client);
             void OnDisconnect(ClientId client, EFLConnection connection) override;
             void OnJumpInComplete(SystemId system, ShipId ship) override;
             void OnCharacterInfoRequest(ClientId client, bool unk1) override;

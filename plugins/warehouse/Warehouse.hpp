@@ -21,7 +21,7 @@ namespace Plugins
             struct PlayerWarehouse final
             {
                     std::string _id;
-                    std::map<BaseId, std::map<EquipmentId, int>> baseEquipmentMap;
+                    std::unordered_map<BaseId, std::unordered_map<EquipmentId, int>> baseEquipmentMap;
             };
 
             /*

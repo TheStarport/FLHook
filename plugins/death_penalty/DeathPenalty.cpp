@@ -169,10 +169,9 @@ namespace Plugins
             }
 
             // If another player has killed the player
-            if (killerId != client && (config.DeathPenaltyFractionKiller > 0.0f))
+            if (killerId != client && config.DeathPenaltyFractionKiller > 0.0f)
             {
-                const auto killerReward = static_cast<uint>(static_cast<float>(cashOwed) * config.DeathPenaltyFractionKiller);
-                if (killerReward)
+                if (const auto killerReward = static_cast<uint>(static_cast<float>(cashOwed) * config.DeathPenaltyFractionKiller))
                 {
                     // Reward the killer, print message to them
                     (void)killerId.AddCash(killerReward);
@@ -232,8 +231,7 @@ namespace Plugins
 
     bool DeathPenaltyPlugin::OnSystemSwitchOutPacket(const ClientId client, FLPACKET_SYSTEM_SWITCH_OUT& packet)
     {
-        auto jumpingClient = ShipId(packet.shipId).GetPlayer();
-        if (jumpingClient.has_value())
+        if (const auto jumpingClient = ShipId(packet.shipId).GetPlayer(); jumpingClient.has_value())
         {
             ClientInfo[jumpingClient.value()].isJumping = true;
         }

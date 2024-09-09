@@ -766,6 +766,21 @@ Action<void, Error> ClientId::PlaySound(const uint hash) const
     return { {} };
 }
 
+Action<DPN_CONNECTION_INFO, Error> ClientId::GetConnectionData() const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    auto cdpClient = FLHook::GetClientProxyArray()[value - 1];
+    DPN_CONNECTION_INFO connectionInfo;
+    if (!cdpClient || !cdpClient->GetConnectionStats(&connectionInfo))
+    {
+        return { cpp::fail(Error::UnknownError) };
+    }
+
+    return { { connectionInfo } };
+}
+
 Action<void, Error> ClientId::InvitePlayer(ClientId otherClient) const
 {
     ClientCheck;

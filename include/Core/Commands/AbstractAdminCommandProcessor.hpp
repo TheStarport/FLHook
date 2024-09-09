@@ -84,7 +84,7 @@ class AbstractAdminCommandProcessor
 
     public:
         virtual ~AbstractAdminCommandProcessor() = default;
-        virtual std::optional<Task> ProcessCommand(ClientId user, const AllowedContext currentContext, std::wstring_view cmd,
+        virtual std::optional<Task> ProcessCommand(ClientId user, AllowedContext currentContext, std::wstring_view cmd,
                                                    std::vector<std::wstring_view>& paramVector) = 0;
         virtual const std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>>& GetAdminCommands() const = 0;
 };
@@ -113,37 +113,36 @@ concept IsAdminCommandProcessor = std::is_base_of_v<AbstractAdminCommandProcesso
         return info;                                                                                                                       \
     };
 
-#define SetupAdminCommandHandler(class, commandArray)                                                                                                   \
-    template <int N>                                                                                                                                    \
-    std::wstring MatchCommand(class* processor, const std::wstring_view cmd, std::vector<std::wstring>& paramVector)                                    \
-    {                                                                                                                                                   \
-        const AdminCommandInfo<class>& command = std::get<N - 1>(class ::commandArray);                                                                 \
-        for (auto& str : command.cmd)                                                                                                                   \
-        {                                                                                                                                               \
-            if (cmd.starts_with(str))                                                                                                                   \
-            {                                                                                                                                           \
-                paramVector.erase(paramVector.begin(), paramVector.begin() + (std::clamp(std::ranges::count(str, L' '), 1, 5)));                        \
-                return command.func(processor, paramVector);                                                                                            \
-            }                                                                                                                                           \
-        }                                                                                                                                               \
-                                                                                                                                                        \
-        return MatchCommand<N - 1>(processor, cmd, paramVector);                                                                                        \
-    }                                                                                                                                                   \
-                                                                                                                                                        \
-    template <>                                                                                                                                         \
-    std::wstring MatchCommand<0>(class * processor, std::wstring_view cmd, std::vector<std::wstring> & paramVector)                                     \
-    {                                                                                                                                                   \
-        return L"";                                                                                                                                     \
-    }                                                                                                                                                   \
-                                                                                                                                                        \
-    std::wstring ProcessCommand(std::wstring_view user, AllowedContext context, std::wstring_view cmd, std::vector<std::wstring>& paramVector) override \
-    {                                                                                                                                                   \
-        currentUser = user;                                                                                                                             \
-        currentContext = context;                                                                                                                       \
-        return MatchCommand<commandArray.size()>(this, cmd, paramVector);                                                                               \
-    }                                                                                                                                                   \
-                                                                                                                                                        \
-public:                                                                                                                                                 \
-    GetAdminCommandsFunc(commandArray);                                                                                                                 \
-                                                                                                                                                        \
+#define SetupAdminCommandHandler(class, commandArray)                                                                                                        \
+    template <int N>                                                                                                                                         \
+    std::optional<Task> MatchCommand(class* processor, const std::wstring_view cmd, std::vector<std::wstring_view>& paramVector)                             \
+    {                                                                                                                                                        \
+        const AdminCommandInfo<class>& command = std::get<N - 1>(class ::commandArray);                                                                      \
+        for (auto& str : command.cmd)                                                                                                                        \
+        {                                                                                                                                                    \
+            if (cmd.starts_with(str))                                                                                                                        \
+            {                                                                                                                                                \
+                paramVector.erase(paramVector.begin(), paramVector.begin() + (std::clamp(std::ranges::count(str, L' '), 1, 5)));                             \
+                return command.func(processor, paramVector);                                                                                                 \
+            }                                                                                                                                                \
+        }                                                                                                                                                    \
+                                                                                                                                                             \
+        return MatchCommand<N - 1>(processor, cmd, paramVector);                                                                                             \
+    }                                                                                                                                                        \
+                                                                                                                                                             \
+    template <>                                                                                                                                              \
+    std::optional<Task> MatchCommand<0>(class * processor, std::wstring_view cmd, std::vector<std::wstring_view> & paramVector)                              \
+    {                                                                                                                                                        \
+        return std::nullopt;                                                                                                                                 \
+    }                                                                                                                                                        \
+                                                                                                                                                             \
+    std::optional<Task> ProcessCommand(ClientId client, AllowedContext context, std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) override \
+    {                                                                                                                                                        \
+        currentContext = context;                                                                                                                            \
+        return MatchCommand<commandArray.size()>(this, cmd, paramVector);                                                                                    \
+    }                                                                                                                                                        \
+                                                                                                                                                             \
+public:                                                                                                                                                      \
+    GetAdminCommandsFunc(commandArray);                                                                                                                      \
+                                                                                                                                                             \
 private:

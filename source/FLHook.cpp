@@ -230,6 +230,7 @@ Action<pub::AI::Personality*, Error> FLHook::GetPersonality(const std::wstring& 
     return instance->personalityHelper->GetPersonality(pilotNickname);
 }
 uint FLHook::GetServerLoadInMs() { return instance->serverLoadInMs; }
+CDPClientProxy** FLHook::GetClientProxyArray() { return instance->clientProxyArray; }
 TaskScheduler& FLHook::GetTaskScheduler() { return *instance->taskScheduler; }
 AccountManager& FLHook::GetAccountManager() { return *instance->accountManager; }
 FLHookConfig& FLHook::GetConfig() { return *instance->flhookConfig; }
