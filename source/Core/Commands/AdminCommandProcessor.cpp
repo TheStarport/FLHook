@@ -65,8 +65,6 @@ Task AdminCommandProcessor::GetCash(ClientId client, ClientId target)
     // const auto res = AccountId(characterName).GetCash(characterName).Handle();
     // client.Message(std::format(L"{} has been set {} credits.", characterName, res));
     co_return TaskStatus::Finished;
-    client.Message(L"Not Implemented");
-    co_return TaskStatus::Finished;
 }
 
 Task AdminCommandProcessor::KickPlayer(ClientId client, ClientId target, std::wstring_view reason)
@@ -89,10 +87,10 @@ Task AdminCommandProcessor::BanPlayer(ClientId client, std::wstring_view charact
     const auto account = AccountId::GetAccountFromCharacterName(characterName);
     if (!account.has_value())
     {
-        // TODO: fix the error handling
-        client.Message(L"Error lol");
+        client.Message(std::format(L"Unable to find account from character: {}", characterName));
         co_return TaskStatus::Finished;
     }
+
     (void)account->Ban(0);
     client.Message(std::format(L"{} has been successfully banned.", characterName));
     co_return TaskStatus::Finished;
@@ -109,8 +107,7 @@ Task AdminCommandProcessor::UnBanPlayer(ClientId client, std::wstring_view chara
     const auto account = AccountId::GetAccountFromCharacterName(characterName);
     if (!account.has_value())
     {
-        // TODO: fix the error handling
-        client.Message(L"Error lol");
+        client.Message(std::format(L"Unable to find account from character: {}", characterName));
         co_return TaskStatus::Finished;
     }
     (void)account->UnBan();
@@ -216,10 +213,70 @@ Task AdminCommandProcessor::RenameChar(ClientId client, ClientId target, std::ws
     co_return TaskStatus::Finished;
 }
 
-Task AdminCommandProcessor::DeleteChar(ClientId client, ClientId target)
+Task AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring_view characterName)
 {
-    // TODO: pending Character Database rework
-    client.Message(std::format(L"{} has been successfully deleted", target.GetCharacterName().Handle()));
+    using bsoncxx::builder::basic::make_document;
+    using bsoncxx::builder::basic::kvp;
+
+    // Kick the player if they are currently online
+    for (auto& player : FLHook::Clients())
+    {
+        if (player.characterName == characterName)
+        {
+            player.id.Kick();
+            break;
+        }
+    }
+
+    co_yield TaskStatus::DatabaseAwait;
+
+    const auto& config = FLHook::GetConfig();
+    auto db = FLHook::GetDbClient();
+    auto accountCollection = Database::GetCollection(db, config.databaseConfig.accountsCollection);
+
+    auto transaction = db->start_session();
+    transaction.start_transaction();
+
+    // TODO: Handle soft delete
+    const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
+
+    try
+    {
+        if (const auto doc = accountCollection.find_one_and_delete(filter.view()); doc.has_value())
+        {
+            bsoncxx::oid characterId = doc->find("_id")->get_oid().value;
+            auto accountId = doc->find("accountId")->get_string().value;
+
+            const auto accountFilter = make_document(kvp("_id", accountId));
+            const auto deleteCharacter = make_document(kvp("$pull", make_document(kvp("characters", characterId))));
+            accountCollection.update_one(accountFilter.view(), deleteCharacter.view());
+
+            transaction.commit_transaction();
+
+            co_yield TaskStatus::FLHookAwait;
+
+            for (const auto& player : FLHook::Clients())
+            {
+                if (auto found = std::ranges::find(player.account->characters, characterId); found != player.account->characters.end())
+                {
+                    player.account->characters.erase(found);
+                }
+            }
+
+            client.Message(L"OK");
+        }
+        else
+        {
+            // Not found
+            co_yield TaskStatus::FLHookAwait;
+            client.Message(L"ERR: Character name not found.");
+        }
+    }
+    catch (const mongocxx::exception& ex)
+    {
+        transaction.abort_transaction();
+    }
+
     co_return TaskStatus::Finished;
 }
 

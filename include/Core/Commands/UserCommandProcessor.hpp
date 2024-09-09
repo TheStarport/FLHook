@@ -22,9 +22,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         Task GetSelfClientId(ClientId client);
         Task MarkTarget(ClientId client);
         Task Rename(ClientId client, std::wstring_view newName);
-        Task InvitePlayer(ClientId client, const std::wstring_view& characterName);
-        Task InvitePlayerByName(ClientId client, std::wstring_view invitee);
-        Task InvitePlayerById(ClientId client, ClientId inviteeId);
+        Task InvitePlayer(ClientId client, ClientId otherClient);
         Task FactionInvite(ClientId client, std::wstring_view factionTag);
         Task TransferCharacter(ClientId client, std::wstring_view cmd, std::wstring_view param1, std::wstring_view param2);
         // Task DeleteMail(std::wstring_view mailID, std::wstring_view readOnlyDel);
@@ -63,9 +61,8 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              AddCommand(UserCommandProcessor, Cmds( L"/getignorelist"sv ), GetIgnoreList, L"/getignorelist", L"prints the users you currently have ignored"),
              AddCommand(UserCommandProcessor, Cmds( L"/unignore"sv ), RemoveFromIgnored, L"/unignore <name ...>",
              L"removes specified names from ignore list, typing /unignore all removes ignore list entierly."),
-             AddCommand(UserCommandProcessor, Cmds( L"/invite"sv ), InvitePlayerByName, L"/invite <name>", L"invites specified player to group"),
-             AddCommand(UserCommandProcessor, Cmds( L"/invite$"sv ), InvitePlayerById, L"/invite$ <id>", L"invites specified player to group by client id"),
-             AddCommand(UserCommandProcessor, Cmds( L"/finv"sv ), FactionInvite, L"/finv <prefix>", L"invites players that matches the listed prefix in their name"),
+             AddCommand(UserCommandProcessor, Cmds( L"/invite"sv ), InvitePlayer, L"/invite <name/client id>", L"invites specified player to group"),
+             AddCommand(UserCommandProcessor, Cmds( L"/fi", L"/finv"sv ), FactionInvite, L"/finv <prefix>", L"invites players that matches the listed prefix in their name"),
              //AddCommand(UserCommandProcessor, L"/delmail", DeleteMail, L"/delmail <id>", L"deletes specified mail"),
              //AddCommand(UserCommandProcessor, L"/readmail", ReadMail, L"/readmail <id>", L"prints specified mail."),
              //AddCommand(UserCommandProcessor, L"/listmail", ListMail, L"/listmail [page]", L"lists the mails of the specified page."),

@@ -21,7 +21,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         Task ListCargo(ClientId client, const ClientId target);
         Task AddCargo(ClientId client, ClientId target, GoodInfo* good, uint count, const bool mission);
         Task RenameChar(ClientId client, ClientId target, std::wstring_view newName);
-        Task DeleteChar(ClientId client, ClientId target);
+        Task DeleteChar(ClientId client, std::wstring_view characterName);
         Task GetPlayerInfo(ClientId client, const ClientId target);
         Task AddRoles(ClientId client, const std::wstring_view target, std::vector<std::wstring_view> roles);
         Task DeleteRoles(ClientId client, std::wstring_view characterName, std::vector<std::wstring_view> roles);

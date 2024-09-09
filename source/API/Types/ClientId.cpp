@@ -765,3 +765,32 @@ Action<void, Error> ClientId::PlaySound(const uint hash) const
     pub::Audio::PlaySoundEffect(value, hash);
     return { {} };
 }
+
+Action<void, Error> ClientId::InvitePlayer(ClientId otherClient) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    if (!otherClient)
+    {
+        return { cpp::fail(Error::InvalidClientId) };
+    }
+
+    const std::wstring XML = L"<TEXT>/i " + StringUtils::XmlText(otherClient.GetCharacterName().Handle()) + L"</TEXT>";
+
+    // Allocates a stack-sized std::array once per run-time and clear every invocation.
+    static std::array<char, USHRT_MAX> buf{};
+    std::ranges::fill(buf, 0);
+
+    uint retVal;
+    InternalApi::FMsgEncodeXml(XML, buf.data(), sizeof buf, retVal).Handle();
+
+    // Mimics Freelancer's ingame invite system by using their chatID and chat commands from pressing the invite target button.
+    CHAT_ID chatId{};
+    chatId.id = value;
+    CHAT_ID chatIdTo{};
+    chatIdTo.id = static_cast<int>(SpecialChatIds::System);
+    Server.SubmitChat(chatId, retVal, buf.data(), chatIdTo, -1);
+
+    return {{}};
+}

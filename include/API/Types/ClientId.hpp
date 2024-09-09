@@ -28,11 +28,11 @@ class DLL ClientId
         explicit ClientId(const SpecialChatIds id) { value = static_cast<const uint>(id); }
         explicit ClientId(const std::wstring_view str) : value(GetClientIdFromCharacterName(str)) {}
         explicit ClientId() = default;
-        ClientId(const ClientId &client) : value(client.value){};
+        ClientId(const ClientId& client) : value(client.value){};
 
         explicit operator uint() const noexcept { return value; }
-        bool operator==(const ClientId &next) const { return value == next.value; }
-        bool operator<(const ClientId &right) const { return value < right.value; }
+        bool operator==(const ClientId& next) const { return value == next.value; }
+        bool operator<(const ClientId& right) const { return value < right.value; }
         explicit operator bool() const;
 
         [[nodiscard]]
@@ -89,7 +89,7 @@ class DLL ClientId
          * @returns On fail : InvalidShip error
          */
         [[nodiscard]]
-        Action<const Archetype::Ship *, Error> GetShipArch() const;
+        Action<const Archetype::Ship*, Error> GetShipArch() const;
 
         /**
          * @brief Gets the ShipId of the ship the client is using
@@ -113,7 +113,7 @@ class DLL ClientId
          * @returns On fail : PlayerNotInGroup error or InCharacterSelect.
          */
         [[nodiscard]]
-        Action<CPlayerGroup *, Error> GetGroup() const;
+        Action<CPlayerGroup*, Error> GetGroup() const;
 
         /**
          * @brief Gets the Reputation of the player
@@ -129,7 +129,7 @@ class DLL ClientId
          * @returns On fail : PlayerNotInSpace or InCharacterSelect.
          */
         [[nodiscard]]
-        Action<CShip *, Error> GetShip() const;
+        Action<CShip*, Error> GetShip() const;
 
         /**
          * @brief Gets the rank of the character the client is logged on as
@@ -185,7 +185,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect
          */
         [[nodiscard]]
-        Action<st6::list<EquipDesc> *const, Error> GetEquipCargo() const;
+        Action<st6::list<EquipDesc>* const, Error> GetEquipCargo() const;
 
         /**
          * @brief Gets the remaining cargo hold of the player
@@ -201,7 +201,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect
          */
         [[nodiscard]]
-        Action<st6::list<CollisionGroupDesc> *const, Error> GetCollisionGroups() const;
+        Action<st6::list<CollisionGroupDesc>* const, Error> GetCollisionGroups() const;
 
         /**
          * @brief Gets overall data related to the clientID
@@ -209,7 +209,7 @@ class DLL ClientId
          * @returns On fail : InvalidClientId
          */
         [[nodiscard]]
-        ClientData &GetData() const;
+        ClientData& GetData() const;
 
         /**
          * @brief Gets the ip of the connected client
@@ -269,7 +269,7 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect
          */
-        Action<void, Error> Kick(const std::optional<std::wstring_view> &reason = {}, std::optional<uint> delay = {}) const;
+        Action<void, Error> Kick(const std::optional<std::wstring_view>& reason = {}, std::optional<uint> delay = {}) const;
 
         /**
          * Saves the account of the player
@@ -371,9 +371,9 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect, UnknownError (when packet sending fails).
          */
-        Action<void, Error> SetEquip(const st6::list<EquipDesc> &equip) const;
+        Action<void, Error> SetEquip(const st6::list<EquipDesc>& equip) const;
 
-        Action<void, Error> AddEquip(uint goodId, const std::wstring &hardpoint) const;
+        Action<void, Error> AddEquip(uint goodId, const std::wstring& hardpoint) const;
 
         Action<void, Error> AddCargo(uint goodId, uint count, bool isMission) const;
 
@@ -382,17 +382,25 @@ class DLL ClientId
         Action<void, Error> Undock(Vector pos, std::optional<Matrix> orientation = std::nullopt) const;
 
         Action<void, Error> PlaySound(uint hash) const;
+
+        /**
+         * Invites the target client to this clients group. If this client is not in a group, a new group will be created.
+         * @param  otherClient the other person to invite to this client's group
+         * @returns On success : void
+         * @returns On fail : InCharacterSelect or InvalidClientId
+         */
+        Action<void, Error> InvitePlayer(ClientId otherClient) const;
 };
 
 template <>
 struct std::formatter<ClientId, wchar_t>
 {
-        constexpr auto parse(std::wformat_parse_context &ctx) const { return ctx.begin(); }
-        auto format(const ClientId &client, std::wformat_context &ctx) const { return std::format_to(ctx.out(), L"{}", client.GetValue()); }
+        constexpr auto parse(std::wformat_parse_context& ctx) const { return ctx.begin(); }
+        auto format(const ClientId& client, std::wformat_context& ctx) const { return std::format_to(ctx.out(), L"{}", client.GetValue()); }
 };
 
 template <>
 struct std::hash<ClientId>
 {
-        std::size_t operator()(const ClientId &id) const noexcept { return std::hash<uint>()(id.GetValue()); }
+        std::size_t operator()(const ClientId& id) const noexcept { return std::hash<uint>()(id.GetValue()); }
 };

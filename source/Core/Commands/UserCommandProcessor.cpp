@@ -1,3 +1,4 @@
+// ReSharper disable CppMemberFunctionMayBeStatic
 #include "PCH.hpp"
 
 #include "Defs/FLHookConfig.hpp"
@@ -96,6 +97,7 @@ Task UserCommandProcessor::SetDieMessage(ClientId client, std::wstring_view para
 
     auto& info = client.GetData();
     info.dieMsg = dieMsg;
+    client.SaveChar();
 
     // send confirmation msg
     client.Message(L"OK");
@@ -127,12 +129,8 @@ Task UserCommandProcessor::SetDieMessageFontSize(ClientId client, std::wstring_v
         co_return TaskStatus::Finished;
     }
 
-    auto& info = FLHook::Clients()[client];
-    // TODO: Update save to db
-    // info.accountData["settings"]["dieMsgSize"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(dieMsgSize)));
-
-    info.dieMsgSize = dieMsgSize;
-
+    client.GetData().dieMsgSize = dieMsgSize;
+    client.SaveChar();
     client.Message(L"OK");
 
     co_return TaskStatus::Finished;
@@ -186,14 +184,11 @@ Task UserCommandProcessor::SetChatFont(ClientId client, std::wstring_view fontSi
         co_return TaskStatus::Finished;
     }
 
-    // save to ini
-    // TODO: Update save to db
     auto& info = client.GetData();
-    /*info.accountData["settings"]["chatStyle"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(chatStyle)));
-    info.accountData["settings"]["chatSize"] = StringUtils::wstos(std::wstring(magic_enum::enum_name(chatSize)));*/
-
     info.chatSize = chatSize;
     info.chatStyle = chatStyle;
+
+    client.SaveChar();
 
     // send confirmation msg
     client.Message(L"OK");
@@ -253,7 +248,6 @@ Task UserCommandProcessor::ShowLastSender(ClientId client)
 
 Task UserCommandProcessor::ReplyToLastMsg(ClientId client, std::wstring_view response)
 {
-    // TODO: Add tracking of lastPMSender
     auto& info = client.GetData();
     if (info.lastPMSender.IsValidClientId())
     {
@@ -390,15 +384,12 @@ Task UserCommandProcessor::IgnoreUser(ClientId client, std::wstring_view ignored
         co_return TaskStatus::Finished;
     }
 
-    // TODO: Update save to db
-    /*auto& list = info.accountData["settings"]["ignoreList"];
-    list[StringUtils::wstos(std::wstring(ignoredLower))] = flags;
-
     IgnoreInfo ii;
     ii.character = ignoredLower;
     ii.flags = flags;
-    info.ignoreInfoList.push_back(ii);*/
+    info.ignoreInfoList.push_back(ii);
 
+    client.SaveChar();
     client.Message(L"Ok");
     co_return TaskStatus::Finished;
 }
@@ -431,17 +422,14 @@ Task UserCommandProcessor::IgnoreClientId(ClientId client, ClientId ignoredClien
 
     auto character = StringUtils::ToLower(ignoredClient.GetCharacterName().Handle());
 
-    // save to ini
-
     auto& info = client.GetData();
-    /*auto& list = info.accountData["settings"]["ignoreList"];
-    list[StringUtils::wstos(std::wstring(character))] = flags;*/
-    // TODO: Update save to db
 
     IgnoreInfo ii;
     ii.character = character;
     ii.flags = flags;
     info.ignoreInfoList.push_back(ii);
+
+    client.SaveChar();
 
     (void)client.Message(std::format(L"OK, \"{}\" added to ignore list", character));
     co_return TaskStatus::Finished;
@@ -476,8 +464,8 @@ Task UserCommandProcessor::RemoveFromIgnored(ClientId client, std::vector<std::w
     auto& info = client.GetData();
     if (charactersToRemove.front() == L"all")
     {
-        // TODO: Update save to db
-        // info.accountData["settings"]["ignoreList"] = nlohmann::json::object();
+        info.ignoreInfoList.clear();
+        client.SaveChar();
         client.Message(L"Ok");
         co_return TaskStatus::Finished;
     }
@@ -512,17 +500,7 @@ Task UserCommandProcessor::RemoveFromIgnored(ClientId client, std::vector<std::w
 
     info.ignoreInfoList.reverse();
 
-    // send confirmation msg
-    // TODO: Update save to db
-    /*auto newList = nlohmann::json::object();
-    int i = 1;
-    for (const auto& ignore : info.ignoreInfoList)
-    {
-        newList[StringUtils::wstos(ignore.character)] = ignore.flags;
-        i++;
-    }*/
-
-    // info.accountData["settings"]["ignoreList"] = newList;
+    client.SaveChar();
     client.Message(L"Ok");
     co_return TaskStatus::Finished;
 }
@@ -632,81 +610,9 @@ Task UserCommandProcessor::Rename(ClientId client, std::wstring_view newName)
     co_return TaskStatus::Finished;
 }
 
-// TODO: Move to utils.
-Task UserCommandProcessor::InvitePlayer(ClientId client, const std::wstring_view& characterName)
+Task UserCommandProcessor::InvitePlayer(ClientId client, ClientId otherClient)
 {
-    const std::wstring XML = L"<TEXT>/i " + StringUtils::XmlText(characterName) + L"</TEXT>";
-
-    // Allocates a stack-sized std::array once per run-time and clear every invocation.
-    static std::array<char, USHRT_MAX> buf{};
-    std::ranges::fill(buf, 0);
-
-    uint retVal;
-    if (InternalApi::FMsgEncodeXml(XML, buf.data(), sizeof buf, retVal).Raw().has_error())
-    {
-        (void)client.Message(L"Error: Could not encode XML");
-        co_return TaskStatus::Finished;
-    }
-
-    // Mimics Freelancer's ingame invite system by using their chatID and chat commands from pressing the invite target button.
-    CHAT_ID chatId{};
-    chatId.id = client.GetValue();
-    CHAT_ID chatIdTo{};
-    chatIdTo.id = static_cast<int>(SpecialChatIds::System);
-    Server.SubmitChat(chatId, retVal, buf.data(), chatIdTo, -1);
-
-    co_return TaskStatus::Finished;
-}
-
-Task UserCommandProcessor::InvitePlayerByName(ClientId client, std::wstring_view invitee)
-{
-    if (!invitee.empty())
-    {
-        if (const auto inviteeId = ClientId(invitee); inviteeId && !inviteeId.InCharacterSelect())
-        {
-            InvitePlayer(client, invitee);
-            co_return TaskStatus::Finished;
-        }
-
-        (void)client.Message(std::format(L"Failed to invite player: '{}'. They may not be online, or are otherwise unavailable.", invitee));
-        co_return TaskStatus::Finished;
-    }
-
-    auto ship = client.GetShipId().Raw();
-    if (ship.has_error())
-    {
-        (void)client.Message(L"No invitee was provided and no target selected.");
-        co_return TaskStatus::Finished;
-    }
-
-    auto target = ship.value().GetTarget();
-    if (!target.has_value())
-    {
-        (void)client.Message(L"No invitee was provided and no target selected.");
-        co_return TaskStatus::Finished;
-    }
-
-    if (const auto targetClient = target->GetPlayer(); targetClient.has_value())
-    {
-        InvitePlayer(client, targetClient.value().GetCharacterName().Unwrap());
-        co_return TaskStatus::Finished;
-    }
-
-    (void)client.Message(L"You cannot invite an NPC.");
-
-    co_return TaskStatus::Finished;
-}
-
-Task UserCommandProcessor::InvitePlayerById(ClientId client, const ClientId inviteeId)
-{
-    if (inviteeId.InCharacterSelect())
-    {
-        (void)client.Message(L"Error: Invalid client id");
-
-        co_return TaskStatus::Finished;
-    }
-
-    InvitePlayer(client, inviteeId.GetCharacterName().Unwrap());
+    client.InvitePlayer(otherClient);
 
     co_return TaskStatus::Finished;
 }
@@ -735,7 +641,7 @@ Task UserCommandProcessor::FactionInvite(ClientId client, std::wstring_view fact
             continue;
         }
 
-        InvitePlayer(client, player.characterName);
+        InvitePlayer(client, player.id);
         msgSent = true;
     }
 
