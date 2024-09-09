@@ -36,6 +36,13 @@ namespace Plugins
             config = conf.value();
         }
 
+        const auto& flhookConfig = FLHook::GetConfig();
+        const auto dbClient = FLHook::GetDbClient();
+        if (auto db = dbClient->database(flhookConfig.databaseConfig.dbName); !db.has_collection(config.collectionName))
+        {
+            db.create_collection(config.collectionName);
+        }
+
         return true;
     }
 

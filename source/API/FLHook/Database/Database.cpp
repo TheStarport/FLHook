@@ -22,7 +22,6 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
         const auto ping = make_document(kvp("ping", 1));
         db.run_command(ping.view());
 
-        // TODO: Make DB and collection dynamic
         if (!db.has_collection(config.databaseConfig.accountsCollection))
         {
             db.create_collection(config.databaseConfig.accountsCollection);
