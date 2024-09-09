@@ -69,7 +69,7 @@ namespace Plugins
      * If there is not override it returns the default value defined as
      * "DeathPenaltyFraction" in the json file
      */
-    float DeathPenaltyPlugin::GetShipFractionOverride(ClientId client)
+    float DeathPenaltyPlugin::GetShipFractionOverride(const ClientId client)
     {
         // Get ShipArchId
         const auto shipArchId = EquipmentId(client.GetShipArch().Handle()->archId);
@@ -89,7 +89,7 @@ namespace Plugins
     /** @ingroup DeathPenalty
      * @brief Hook on Player Launch. Used to work out the death penalty and display a message to the player warning them of such
      */
-    void DeathPenaltyPlugin::OnPlayerLaunchAfter(ClientId client, ShipId ship)
+    void DeathPenaltyPlugin::OnPlayerLaunchAfter(const ClientId client, const ShipId ship)
     {
         // No point in processing anything if there is no death penalty
         if (config.DeathPenaltyFraction > 0.00001f)
@@ -129,7 +129,7 @@ namespace Plugins
     /** @ingroup DeathPenalty
      * @brief Load settings directly from the player's save directory
      */
-    void DeathPenaltyPlugin::OnCharacterSelectAfter(ClientId client)
+    void DeathPenaltyPlugin::OnCharacterSelectAfter(const ClientId client)
     {
         const auto view = client.GetData().characterData->characterDocument;
         if (auto findResult = view.find("deathPenaltyDisplay"); findResult != view.end())
@@ -145,7 +145,7 @@ namespace Plugins
     /** @ingroup DeathPenalty
      * @brief Apply the death penalty on a player death
      */
-    void DeathPenaltyPlugin::PenalizeDeath(ClientId client, ClientId killerId)
+    void DeathPenaltyPlugin::PenalizeDeath(const ClientId client, const ClientId killerId)
     {
         if (config.DeathPenaltyFraction < 0.00001f)
         {
@@ -210,7 +210,7 @@ namespace Plugins
         }
     }
 
-    void DeathPenaltyPlugin::OnJumpInComplete(SystemId system, ShipId ship)
+    void DeathPenaltyPlugin::OnJumpInComplete(const SystemId system, const ShipId ship)
     {
         if (const auto player = ship.GetPlayer(); player.has_value())
         {
@@ -218,7 +218,7 @@ namespace Plugins
         }
     }
 
-    void DeathPenaltyPlugin::KillIfInJumpTunnel(ClientId& client)
+    void DeathPenaltyPlugin::KillIfInJumpTunnel(const ClientId client)
     {
         if (config.KillOnDisconnect && ClientInfo[client].isJumping)
         {
@@ -226,11 +226,11 @@ namespace Plugins
         }
     }
 
-    void DeathPenaltyPlugin::OnDisconnect(ClientId client, EFLConnection connection) { KillIfInJumpTunnel(client); }
+    void DeathPenaltyPlugin::OnDisconnect(const ClientId client, EFLConnection connection) { KillIfInJumpTunnel(client); }
 
-    void DeathPenaltyPlugin::OnCharacterInfoRequest(ClientId client, bool unk1) { KillIfInJumpTunnel(client); }
+    void DeathPenaltyPlugin::OnCharacterInfoRequest(const ClientId client, bool unk1) { KillIfInJumpTunnel(client); }
 
-    bool DeathPenaltyPlugin::OnSystemSwitchOutPacket(ClientId client, FLPACKET_SYSTEM_SWITCH_OUT& packet)
+    bool DeathPenaltyPlugin::OnSystemSwitchOutPacket(const ClientId client, FLPACKET_SYSTEM_SWITCH_OUT& packet)
     {
         auto jumpingClient = ShipId(packet.shipId).GetPlayer();
         if (jumpingClient.has_value())
