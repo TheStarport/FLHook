@@ -8,7 +8,7 @@
 
 #pragma warning(push, 0)
 
-#define _SILENCE_CXX20_CISO646_REMOVED_WARNING            // NOLINT
+#define _SILENCE_CXX20_CISO646_REMOVED_WARNING // NOLINT
 
 #include <WinSock2.h>
 #include <Windows.h>
@@ -66,7 +66,6 @@
 
 #include "Core/Templates/Macros.hpp"
 
-
 #include "Defs/Enums.hpp"
 
 #include "Utils/Utils.hpp"
@@ -101,6 +100,14 @@
 
 namespace Json
 {
+    enum class LoadState
+    {
+        DoesNotExist,
+        FailedToValidate,
+        UnableToRead,
+        Success
+    };
+
     template <typename T>
     bool Save(const T& obj, std::string_view path, const bool useSaveGameFolder = false)
     {
@@ -137,7 +144,7 @@ namespace Json
      */
     template <typename T>
         requires std::is_default_constructible_v<T>
-    std::optional<T> Load(std::string_view path, const bool createIfNotExist = true, const bool useSaveGameFolder = false)
+    std::pair<LoadState, std::optional<T>> Load(std::string_view path, const bool createIfNotExist = true, const bool useSaveGameFolder = false)
     {
         std::string relativePath;
         if (useSaveGameFolder)
@@ -157,28 +164,42 @@ namespace Json
             {
                 std::optional<T> obj{ T{} };
                 Save(obj, path, useSaveGameFolder);
-                return obj;
+                return { LoadState::Success, obj };
             }
 
-            return std::nullopt;
+            return { LoadState::DoesNotExist, std::nullopt };
         }
 
         std::ifstream stream(newPath);
         if (!stream.is_open())
         {
             Logger::Warn(std::format(L"Unable to read JSON file: {}", StringUtils::stows(newPath)));
-            return std::nullopt;
+            return { LoadState::UnableToRead, std::nullopt };
         }
 
         auto result = rfl::json::read<T>(stream);
         if (auto err = result.error(); err.has_value())
         {
             Logger::Err(std::format(L"Error while trying to serialize provided config: {}", StringUtils::stows(err.value().what())));
-            return std::nullopt;
+            return { LoadState::FailedToValidate, std::nullopt };
         }
 
-        return result.value();
+        return { LoadState::Success, result.value() };
     }
 } // namespace Json
+
+#define LoadJsonWithValidation(confgCls, config, path)                                             \
+    if (const auto conf = Json::Load<confgCls>(path); conf.first == Json::LoadState::DoesNotExist) \
+    {                                                                                              \
+        Json::Save(config, path);                                                                  \
+    }                                                                                              \
+    else if (conf.first == Json::LoadState::Success)                                               \
+    {                                                                                              \
+        config = conf.second.value();                                                              \
+    }                                                                                              \
+    else                                                                                           \
+    {                                                                                              \
+        return false;                                                                              \
+    }
 
 #pragma warning(pop)

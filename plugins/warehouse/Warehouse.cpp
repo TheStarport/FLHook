@@ -26,15 +26,7 @@ namespace Plugins
 
     bool WarehousePlugin::OnLoadSettings()
     {
-        // TODO: If config exists and is faulty, prevent loading
-        if (const auto conf = Json::Load<Config>("config/warehouse.json"); !conf.has_value())
-        {
-            Json::Save(config, "config/warehouse.json");
-        }
-        else
-        {
-            config = conf.value();
-        }
+        LoadJsonWithValidation(Config, config, "config/warehouse.json");
 
         const auto& flhookConfig = FLHook::GetConfig();
         const auto dbClient = FLHook::GetDbClient();
