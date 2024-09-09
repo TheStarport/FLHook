@@ -25,7 +25,9 @@ Task MailManager::InformOnlineUsersOfNewMail(std::vector<rfl::Variant<std::strin
                 (!variant.index() && client.account->_id == rfl::get<0>(variant)))
             {
                 // Character is online, message them now!
-                (void)client.id.Message(L"You have received a new mail item.");
+                (void)client.id.Message(std::format(L"You have received {} mail.", variant.index()
+                    ? L"character"
+                    : L"account"));
                 break;
             }
         }

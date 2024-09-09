@@ -12,6 +12,11 @@
 EquipmentId::EquipmentId(const uint val)
 {
     value = Archetype::GetEquipment(val);
+
+    if (!value)
+    {
+        value = Archetype::GetShip(val);
+    }
 }
 
 EquipmentId::operator bool() const
@@ -48,10 +53,12 @@ Action<EquipmentType, Error> EquipmentId::GetType() const
         {
             return { EquipmentType::Torpedo };
         }
+
         if (gunType == 35)
         {
             return { EquipmentType::Cd };
         }
+
         if (missile)
         {
             return { EquipmentType::Missile };
@@ -59,52 +66,80 @@ Action<EquipmentType, Error> EquipmentId::GetType() const
 
         return { EquipmentType::Gun };
     }
+
     if (vft == vftCm)
     {
         return { EquipmentType::Cm };
     }
+
     if (vft == vftShieldGen)
     {
         return { EquipmentType::ShieldGen };
     }
+
     if (vft == vftThruster)
     {
         return { EquipmentType::Thruster };
     }
+
     if (vft == vftShieldBat)
     {
         return { EquipmentType::ShieldBattery };
     }
+
     if (vft == vftNanobot)
     {
         return { EquipmentType::Nanobot };
     }
+
     if (vft == vftMunition)
     {
         return { EquipmentType::Munition };
     }
+
     if (vft == vftMine)
     {
         return { EquipmentType::Mine };
     }
+
     if (vft == vftEngine)
     {
         return { EquipmentType::Engine };
     }
+
     if (vft == vftLight)
     {
         return { EquipmentType::Light };
     }
+
     if (vft == vftScanner)
     {
         return { EquipmentType::Scanner };
     }
+
     if (vft == vftTractor)
     {
         return { EquipmentType::Tractor };
     }
+
     return { EquipmentType::Other };
 }
 
-Action<std::wstring_view, Error> EquipmentId::GetName() const { return { FLHook::GetInfocardManager().GetInfocard(value->idsName) }; }
-Action<float, Error> EquipmentId::GetVolume() const { return { value->volume }; }
+Action<std::wstring_view, Error> EquipmentId::GetName() const
+{
+    ValidEquipmentCheck;
+
+    return { FLHook::GetInfocardManager().GetInfocard(value->idsName) };
+}
+
+Action<float, Error> EquipmentId::GetVolume() const
+{
+    ValidEquipmentCheck;
+
+    if (dynamic_cast<Archetype::Equipment*>(value))
+    {
+        return { reinterpret_cast<const Archetype::Equipment*>(value)->volume };
+    }
+
+    return { reinterpret_cast<const Archetype::Ship*>(value)->holdSize };
+}

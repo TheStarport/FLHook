@@ -3,13 +3,12 @@
 
 namespace Archetype
 {
-    struct Equipment;
     struct Gun;
 } // namespace Archetype
 // TODO: Allow assigning to uint variables without the need to extract GetValue explicitly
 class DLL EquipmentId
 {
-        Archetype::Equipment *value = nullptr;
+        Archetype::Root* value = nullptr;
 
     public:
         explicit EquipmentId(uint val);
@@ -25,7 +24,7 @@ class DLL EquipmentId
 
         // Returns the underlying value of the ClientId, it is generally recommended to not use this.
         [[nodiscard]]
-        Archetype::Equipment *GetValue() const
+        Archetype::Root* GetValue() const
         {
             return value;
         }
@@ -62,7 +61,7 @@ class DLL EquipmentId
 
             if constexpr (std::is_same_v<T, Archetype::Gun> && type.value() == EquipmentType::Gun)
             {
-                return reinterpret_cast<T *>(value);
+                return reinterpret_cast<T*>(value);
             }
         }
 };
@@ -70,8 +69,8 @@ class DLL EquipmentId
 template <>
 struct std::formatter<EquipmentId, wchar_t>
 {
-        constexpr auto parse(std::wformat_parse_context &ctx) const { return ctx.begin(); }
-        auto format(const EquipmentId &value, std::wformat_context &ctx) const { return std::format_to(ctx.out(), L"{}", value.GetId()); }
+        constexpr auto parse(std::wformat_parse_context& ctx) const { return ctx.begin(); }
+        auto format(const EquipmentId& value, std::wformat_context& ctx) const { return std::format_to(ctx.out(), L"{}", value.GetId()); }
 };
 
 template <>
