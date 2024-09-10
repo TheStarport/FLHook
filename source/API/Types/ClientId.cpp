@@ -532,6 +532,7 @@ Action<void, Error> ClientId::Message(const std::wstring_view message, const Mes
 
     return { {} };
 }
+Action<void, Error> ClientId::MessageErr(std::wstring_view message) const { return Message(message, MessageFormat::Normal, MessageColor::Crimson); }
 
 Action<void, Error> ClientId::MessageLocal(const std::wstring_view message, const float range, const MessageFormat format, const MessageColor color) const
 {
@@ -807,5 +808,5 @@ Action<void, Error> ClientId::InvitePlayer(ClientId otherClient) const
     chatIdTo.id = static_cast<int>(SpecialChatIds::System);
     Server.SubmitChat(chatId, retVal, buf.data(), chatIdTo, -1);
 
-    return {{}};
+    return { {} };
 }

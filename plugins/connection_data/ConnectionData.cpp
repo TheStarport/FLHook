@@ -353,7 +353,7 @@ namespace Plugins
     {
         if (!config.allowPing)
         {
-            (void)client.Message(L"Command disabled");
+            (void)client.MessageErr(L"Command disabled");
             co_return TaskStatus::Finished;
         }
 
@@ -366,22 +366,21 @@ namespace Plugins
     {
         if (!config.allowPing)
         {
-            (void)client.Message(L"Command disabled");
-        }
-        if (!client.InSpace())
-        {
-            (void)client.Message(L"Not in space");
+            (void)client.MessageErr(L"Command disabled");
+            co_return TaskStatus::Finished;
         }
         const ShipId ship = client.GetShipId().Handle();
         const auto target = ship.GetTarget();
         if (!target)
         {
-            (void)client.Message(L"No target");
+            (void)client.MessageErr(L"No target");
+            co_return TaskStatus::Finished;
         }
 
         if (!target.value().IsPlayer())
         {
-            (void)client.Message(L"Target not a player");
+            (void)client.MessageErr(L"Target not a player");
+            co_return TaskStatus::Finished;
         }
 
         PrintClientPing(client, target.value().GetPlayer().value());

@@ -52,7 +52,7 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
             const auto charUpdateDoc = make_document(kvp("$push", make_document(kvp("characters", insertedDoc->inserted_id()))));
 
             auto accountCollection = db->database(config.database.dbName)[config.database.accountsCollection];
-            if (const auto updateResult = charactersCollection.update_one(findAccDoc.view(), charUpdateDoc.view());
+            if (const auto updateResult = accountCollection.update_one(findAccDoc.view(), charUpdateDoc.view());
                 !updateResult.has_value() || updateResult.value().modified_count() == 0)
             {
                 throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
@@ -82,22 +82,22 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
     {
         if (isNewCharacter)
         {
-            Logger::Err(std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
+            Logger::Err(std::format(L"Error while creating character: {}", StringUtils::stows(ex.what())));
         }
         else
         {
-            Logger::Err(std::format(L"Error while updating character {}", StringUtils::stows(ex.what())));
+            Logger::Err(std::format(L"Error while updating character: {}", StringUtils::stows(ex.what())));
         }
     }
     catch (mongocxx::exception& ex)
     {
         if (isNewCharacter)
         {
-            Logger::Err(std::format(L"Error while creating character {}", StringUtils::stows(ex.what())));
+            Logger::Err(std::format(L"Error while creating character: {}", StringUtils::stows(ex.what())));
         }
         else
         {
-            Logger::Err(std::format(L"Error while updating character {}", StringUtils::stows(ex.what())));
+            Logger::Err(std::format(L"Error while updating character: {}", StringUtils::stows(ex.what())));
         }
     }
     session.abort_transaction();
@@ -474,7 +474,8 @@ bool AccountManager::TransferCharacter(const AccountId account, const std::wstri
             return true;
         }
 
-        if (auto updatedDocs = charactersCollection.update_one(findTransferredCharacterDoc.view(), clearCharacterTransferCodeDoc.view()); !updatedDocs->modified_count())
+        if (auto updatedDocs = charactersCollection.update_one(findTransferredCharacterDoc.view(), clearCharacterTransferCodeDoc.view());
+            !updatedDocs->modified_count())
         {
             session.abort_transaction();
             *errorMessage = L"Character transfer failed on updating of the character!";

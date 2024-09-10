@@ -344,6 +344,14 @@ class DLL ClientId
         Action<void, Error> Message(std::wstring_view message, MessageFormat format = MessageFormat::Normal, MessageColor color = MessageColor::Default) const;
 
         /**
+         * Messages the player with provided text with default formatting and red text.
+         * @param message the text you wish to send.
+         * @returns On success : void
+         * @returns On fail : InCharacterSelect.
+         */
+        Action<void, Error> MessageErr(std::wstring_view message) const;
+
+        /**
          * sends a local message to the player and other players within a specified radius.
          * @param message the text you wish to send.
          * @param range the range in meters of which other players will receive the message
