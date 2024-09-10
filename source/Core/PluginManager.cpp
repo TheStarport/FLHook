@@ -16,7 +16,7 @@ void PluginManager::ClearData(const bool free)
         }
     }
 
-    for (auto plugin = plugins.begin(); plugin != plugins.end(); )
+    for (auto plugin = plugins.begin(); plugin != plugins.end();)
     {
         if (auto dll = plugin->get()->dll; dlls.contains(dll))
         {
@@ -134,9 +134,9 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
     if (plugin->versionMajor != CurrentMajorVersion)
     {
         Logger::Err(std::format(L"ERR incompatible plugin API (major) version for {}: expected {}, got {}",
-                                            dllName,
-                                            static_cast<int>(CurrentMajorVersion),
-                                            static_cast<int>(plugin->versionMajor)));
+                                dllName,
+                                static_cast<int>(CurrentMajorVersion),
+                                static_cast<int>(plugin->versionMajor)));
         plugin = nullptr;
         FreeLibrary(dll);
         return false;
@@ -145,9 +145,9 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
     if (static_cast<int>(plugin->versionMinor) > static_cast<int>(CurrentMinorVersion))
     {
         Logger::Err(std::format(L"ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
-                                            dllName,
-                                            static_cast<int>(CurrentMinorVersion),
-                                            static_cast<int>(plugin->versionMinor)));
+                                dllName,
+                                static_cast<int>(CurrentMinorVersion),
+                                static_cast<int>(plugin->versionMinor)));
         plugin = nullptr;
         FreeLibrary(dll);
         return false;
@@ -156,9 +156,9 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
     if (static_cast<int>(plugin->versionMinor) != static_cast<int>(CurrentMinorVersion))
     {
         Logger::Warn(std::format(L"Warning, incompatible plugin API version for {}: expected {}, got {}",
-                                            dllName,
-                                            static_cast<int>(CurrentMinorVersion),
-                                            static_cast<int>(plugin->versionMinor)));
+                                 dllName,
+                                 static_cast<int>(CurrentMinorVersion),
+                                 static_cast<int>(plugin->versionMinor)));
         Logger::Info(L"Processing will continue, but plugin should be considered unstable.");
     }
 
@@ -204,6 +204,8 @@ void PluginManager::LoadAll(bool startup)
     WIN32_FIND_DATAW findData;
     const HANDLE findPluginsHandle = FindFirstFileW(L"./plugins/*.dll", &findData);
 
+    const static std::unordered_set<std::wstring> blackList = { L"bson-1.0.dll", L"bsoncxx.dll" };
+
     do
     {
         if (findPluginsHandle == INVALID_HANDLE_VALUE)
@@ -211,7 +213,10 @@ void PluginManager::LoadAll(bool startup)
             break;
         }
 
-        Load(findData.cFileName, startup);
+        if (findData.cFileName && !blackList.contains(findData.cFileName))
+        {
+            Load(findData.cFileName, startup);
+        }
     }
     while (FindNextFileW(findPluginsHandle, &findData));
 }
