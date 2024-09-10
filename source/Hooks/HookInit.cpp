@@ -10,8 +10,9 @@
 #include "Core/IpResolver.hpp"
 #include "Core/VTables.hpp"
 
-#include "Core/FLPatch.hpp"
 #include "API/FLHook/AccountManager.hpp"
+#include "Core/FLPatch.hpp"
+#include "Core/ServerOptimizer.hpp"
 
 std::vector<FLPatch> patches;
 
@@ -24,11 +25,12 @@ void FLHook::ClearClientInfo(ClientId client)
     auto& info = client.GetData();
 
     // Remove any admin roles they may have assosicated.
-    std::erase_if(instance->credentialsMap, [&info](const auto& item)
-    {
-        auto const& [key, value] = item;
-        return key == info.characterName;
-    });
+    std::erase_if(instance->credentialsMap,
+                  [&info](const auto& item)
+                  {
+                      auto const& [key, value] = item;
+                      return key == info.characterName;
+                  });
 
     info.characterName = L"";
 
@@ -85,31 +87,37 @@ void FLHook::InitHookExports()
 
     getShipInspect = reinterpret_cast<GetShipInspectT>(Offset(BinaryType::Server, AddressList::GetInspect));
     crcAntiCheat = reinterpret_cast<CRCAntiCheatT>(Offset(BinaryType::Server, AddressList::CrcAntiCheat));
-    IEngineHook::oldLoadReputationFromCharacterFile = reinterpret_cast<FARPROC>(Offset(BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 7);
+    IEngineHook::oldLoadReputationFromCharacterFile =
+        reinterpret_cast<FARPROC>(Offset(BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 7);
 
     IEngineHook::loadReputationFromCharacterFileAssembly = new IEngineHook::LoadReputationFromCharacterFileAssembly;
     IEngineHook::disconnectPacketSentAssembly = new IEngineHook::DisconnectPacketSentAssembly;
 
-    patches.emplace_back(FLPatch("flserver.exe", {
-        {0x1B094, &IEngineHook::UpdateTime},
-        {0x1BAB0, &IEngineHook::ElapseTime},
+    patches.emplace_back(FLPatch("flserver.exe",
+                                 {
+                                     { 0x1B094, &IEngineHook::UpdateTime },
+                                     { 0x1BAB0, &IEngineHook::ElapseTime },
     }));
 
-    patches.emplace_back(FLPatch("content.dll", {
-        { 0x11358C, &IEngineHook::DockCall }
+    patches.emplace_back(FLPatch("content.dll",
+                                 {
+                                     { 0x11358C, &IEngineHook::DockCall }
     }));
 
-    patches.emplace_back(FLPatch("remoteclient.dll", {
-        { 0x3BB80, &IServerImplHook::SendChat, &rcSendChatMsg }
+    patches.emplace_back(FLPatch("remoteclient.dll",
+                                 {
+                                     { 0x3BB80, &IServerImplHook::SendChat, &rcSendChatMsg }
     }));
 
-    patches.emplace_back(FLPatch("dalib.dll", {
-        { 0x4BEC, PVOID(IEngineHook::disconnectPacketSentAssembly->getCode()), &IEngineHook::oldDisconnectPacketSent }
+    patches.emplace_back(FLPatch("dalib.dll",
+                                 {
+                                     { 0x4BEC, PVOID(IEngineHook::disconnectPacketSentAssembly->getCode()), &IEngineHook::oldDisconnectPacketSent }
     }));
 
-    patches.emplace_back(FLPatch("server.dll", {
-        { 0x8420C, PVOID(IEngineHook::launchPositionAssembly.getCode()), &IEngineHook::oldLaunchPosition },
-        { 0x848E0, &IEngineHook::FreeReputationVibe },
+    patches.emplace_back(FLPatch("server.dll",
+                                 {
+                                     { 0x8420C, PVOID(IEngineHook::launchPositionAssembly.getCode()), &IEngineHook::oldLaunchPosition },
+                                     { 0x848E0, &IEngineHook::FreeReputationVibe },
     }));
 
     for (auto& patch : patches)
@@ -132,7 +140,7 @@ void FLHook::InitHookExports()
         MemUtils::WriteProcMem(address, &proc, 4);
     }
 
-    #define VTablePtr(x) static_cast<unsigned short>(x)
+#define VTablePtr(x) static_cast<unsigned short>(x)
 
     // Common.dll
     const void* ptr = &IEngineHook::CShipInit;
@@ -159,12 +167,12 @@ void FLHook::InitHookExports()
     IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::ProcessExplosionDamage), &ptr);
     // Server.dll
 
-    #undef VtablePtr
+#undef VtablePtr
 
     // Patch when ships are destroyed to move the damage list pointer into edx, which we read with a __fastcall
     DWORD address = Offset(BinaryType::Server, AddressList::ShipDestroyedInvoke);
-    const std::array<byte, 30> shipDestroyedDamageList = { 0x90, 0x90, 0x8A, 0x88, 0x5C, 0x01, 0x00, 0x00, 0x84, 0xC9, 0x75, 0x10, 0x8B, 0x06, 0xFF, 0x73,
-        0x14, 0x89, 0xDA, 0x6A, 0x01, 0x89, 0xF1, 0xFF, 0x90, 0x58, 0x01, 0x00, 0x00, 0x90 };
+    const std::array<byte, 30> shipDestroyedDamageList = { 0x90, 0x90, 0x8A, 0x88, 0x5C, 0x01, 0x00, 0x00, 0x84, 0xC9, 0x75, 0x10, 0x8B, 0x06, 0xFF,
+                                                           0x73, 0x14, 0x89, 0xDA, 0x6A, 0x01, 0x89, 0xF1, 0xFF, 0x90, 0x58, 0x01, 0x00, 0x00, 0x90 };
     MemUtils::WriteProcMem(address, shipDestroyedDamageList.data(), shipDestroyedDamageList.size());
 
     // DetourSendComm();
@@ -238,7 +246,8 @@ void FLHook::InitHookExports()
         ClearClientInfo(client.id);
     }
 
-    const std::array<byte, 22> refireBytes = { 0x75, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 00, 00, 00, 00, 00, 00, 00, 0x41, 0x83, 0xC2, 0x04, 0x39, 0xC1, 0x7C, 0xE9, 0xEB };
+    const std::array<byte, 22> refireBytes = { 0x75, 0x0B, 0xC7, 0x84, 0x8C, 0x9C, 00,   00,   00,   00,   00,
+                                               00,   00,   0x41, 0x83, 0xC2, 0x04, 0x39, 0xC1, 0x7C, 0xE9, 0xEB };
     MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::SolarRefireRateBug), refireBytes.data(), 22);
 
     // Enable undocking announcer regardless of distance
@@ -248,6 +257,33 @@ void FLHook::InitHookExports()
     // Remove default death messages
     constexpr std::array<byte, 1> removeDeathMessages = { 0xEB };
     MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::RemoveDefaultDeathMessages), removeDeathMessages.data(), 1);
+
+    // Install ServerOptimizer
+
+    using DefaultNakedType = void (*)();
+    static FunctionDetour GameObjectDestructorDetour{ reinterpret_cast<DefaultNakedType>(0x6CEE4A0) };
+    GameObjectDestructorDetour.Detour(ServerOptimizer::GameObjectDestructorNaked);
+
+    static FunctionDetour CAsteroidInitDetour{ reinterpret_cast<DefaultNakedType>(0x62A28F0) };
+    CAsteroidInitDetour.Detour(ServerOptimizer::CAsteroidInitNaked);
+
+    static FunctionDetour CObjDestrDetour{ reinterpret_cast<DefaultNakedType>(0x62AF440) };
+    CObjDestrDetour.Detour(ServerOptimizer::CObjDestrOrgNaked);
+
+    BYTE patchCobjDestr[] = { 0xEB, 0x5F };
+    MemUtils::WriteProcMem(reinterpret_cast<DWORD>(serverDll) + 0x4F45D, patchCobjDestr, sizeof(patchCobjDestr));
+
+    FARPROC CObjectFindDetourFunc = FARPROC(&ServerOptimizer::CObjectFindDetour);
+    MemUtils::WriteProcMem(reinterpret_cast<DWORD>(serverDll) + 0x84464, &CObjectFindDetourFunc, 4);
+
+    using CObjAllocatorType = CObject*(__cdecl*)(CObject::Class objClass);
+    static FunctionDetour cobjAllocatorDetour{ reinterpret_cast<CObjAllocatorType>(0x62AEE50) };
+    cobjAllocatorDetour.Detour(ServerOptimizer::CObjAllocDetour);
+
+    FARPROC FindStarListNaked2 = FARPROC(&ServerOptimizer::FindInStarListNaked2);
+    MemUtils::WriteProcMem(reinterpret_cast<DWORD>(serverDll) + 0x87CD4, &FindStarListNaked2, 4);
+    MemUtils::PatchCallAddr(serverDll, 0x2074A, ServerOptimizer::FindInStarListNaked);
+    MemUtils::PatchCallAddr(serverDll, 0x207BF, ServerOptimizer::FindInStarListNaked);
 }
 
 void FLHook::PatchClientImpl()
