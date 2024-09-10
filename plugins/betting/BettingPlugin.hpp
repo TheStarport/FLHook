@@ -58,7 +58,6 @@ namespace Plugins
 
             //! Global data for this plugin
 
-            ReturnCode returnCode = ReturnCode::Default;
             std::list<Duel> duels;
             std::unordered_map<SystemId, FreeForAll> freeForAlls;
 

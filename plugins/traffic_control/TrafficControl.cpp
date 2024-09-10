@@ -155,9 +155,9 @@ void TrafficControlPlugin::OnTradelaneStart(ClientId client, const XGoTradelane&
         {
             SystemId clientSystem = notifiedClient.first.GetSystemId().Handle();
             notifiedClient.first.Message(std::format(L"{} has entered tradelane in {} system, sector {}",
-                                               client.GetCharacterName().Handle(),
-                                               clientSystem.GetName().Handle(),
-                                               clientSystem.PositionToSectorCoord(notifiedClient.first.GetShip().Handle()->position).Handle()));
+                                                     client.GetCharacterName().Handle(),
+                                                     clientSystem.GetName().Handle(),
+                                                     clientSystem.PositionToSectorCoord(notifiedClient.first.GetShip().Handle()->position).Handle()));
         }
 
         if (isFirstNotification && magic_enum::enum_flags_test(clientInfo[notifiedClient.first.GetValue()].currPermissions, Permissions::Scan))
@@ -201,43 +201,36 @@ std::optional<DOCK_HOST_RESPONSE> TrafficControlPlugin::OnDockCall(ShipId shipId
 
 bool TrafficControlPlugin::OnLoadSettings()
 {
-    if (const auto conf = Json::Load<ConfigLoad>("config/traffic_control.json"); !conf.has_value())
+    LoadJsonWithValidation(ConfigLoad, configLoad, "config/traffic_control.json");
+
+    config.nodockDuration = configLoad.nodockDuration;
+    config.nodockMessage = configLoad.nodockMessage;
+    for (auto& network : configLoad.networks)
     {
-        Json::Save(configLoad, "config/traffic_control.json");
+        config.networks[network.networkId] = network;
     }
-    else
+
+    for (auto& [networkId, perms, type, key] : configLoad.accessList)
     {
-        configLoad = conf.value();
-
-        config.nodockDuration = configLoad.nodockDuration;
-        config.nodockMessage = configLoad.nodockMessage;
-        for(auto& network : configLoad.networks)
+        if (type == "equip")
         {
-            config.networks[network.networkId] = network;
+            config.equipAccesses[CreateID(key.c_str())] = { perms, &config.networks.at(networkId) };
         }
-
-        for (auto& [networkId, perms, type, key] : configLoad.accessList)
+        else if (type == "affiliation")
         {
-            if (type == "equip")
-            {
-                config.equipAccesses[CreateID(key.c_str())] = { perms, &config.networks.at(networkId) };
-            }
-            else if (type == "affiliation")
-            {
-                config.IFFAccesses[CreateID(key.c_str())] = { perms, &config.networks.at(networkId) };
-            }
-            else if (type == "tag")
-            {
-                config.tagsAccesses[StringUtils::stows(key)] = { perms, &config.networks.at(networkId) };
-            }
+            config.IFFAccesses[CreateID(key.c_str())] = { perms, &config.networks.at(networkId) };
         }
-
-        for (auto network : config.networks | std::views::values)
+        else if (type == "tag")
         {
-            for (auto system : network.networkSystems)
-            {
-                config.systemToNetworkMap[system].insert(&network);
-            }
+            config.tagsAccesses[StringUtils::stows(key)] = { perms, &config.networks.at(networkId) };
+        }
+    }
+
+    for (auto network : config.networks | std::views::values)
+    {
+        for (auto system : network.networkSystems)
+        {
+            config.systemToNetworkMap[system].insert(&network);
         }
     }
 

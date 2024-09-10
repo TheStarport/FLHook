@@ -56,8 +56,7 @@ namespace Plugins
                     uint defaultHuntTime = 30;
             };
 
-            std::unique_ptr<Config> config = nullptr;
-            ReturnCode returnCode = ReturnCode::Default;
+            Config config;
 
             std::array<std::vector<Bounty>, MaxClientId + 1> bountiesOnPlayers;
 
@@ -68,14 +67,11 @@ namespace Plugins
             void CheckIfPlayerFled(ClientId client);
 
             // User Commands
-            Task UserCmdBountyHunt(ClientId client, ClientId target, const uint prize, uint time);
+            Task UserCmdBountyHunt(ClientId client, ClientId target, uint prize, uint time);
 
-            inline static const std::array<CommandInfo<BountyHuntPlugin>, 1> commands = {
-                {
-                     AddCommand(BountyHuntPlugin, Cmds(L"/bountyhunt", L"/bh"), UserCmdBountyHunt, L"/bountyhunt <targetId> <prize> [time]",
-                     L"Places a bounty on the specified player. When another player kills them, they gain <credits>.")
-                 }
-            };
+            inline static const std::array<CommandInfo<BountyHuntPlugin>, 1> commands = { { AddCommand(
+                BountyHuntPlugin, Cmds(L"/bountyhunt", L"/bh"), UserCmdBountyHunt, L"/bountyhunt <targetId> <prize> [time]",
+                L"Places a bounty on the specified player. When another player kills them, they gain <credits>.") } };
 
             SetupUserCommandHandler(BountyHuntPlugin, commands);
 
@@ -83,6 +79,7 @@ namespace Plugins
             void OnSendDeathMessageAfter(ClientId killer, ClientId victim, SystemId system, std::wstring_view msg) override;
             void OnDisconnect(ClientId client, EFLConnection connection) override;
             void OnCharacterSelectAfter(ClientId client) override;
+            bool OnLoadSettings() override;
 
         public:
             explicit BountyHuntPlugin(const PluginInfo& info);

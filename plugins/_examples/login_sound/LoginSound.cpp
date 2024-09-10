@@ -8,14 +8,7 @@ using namespace Plugins;
 
 bool LoginSound::OnLoadSettings()
 {
-    if (const auto conf = Json::Load<Config>("config/login_sound.json"); !conf.has_value())
-    {
-        Json::Save(config, "config/login_sound.json");
-    }
-    else
-    {
-        config = conf.value();
-    }
+    LoadJsonWithValidation(Config, config, "config/login_sound.json");
 
     return true;
 }

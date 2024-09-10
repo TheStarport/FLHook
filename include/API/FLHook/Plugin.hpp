@@ -151,14 +151,15 @@ class DLL Plugin
         virtual void OnSolarHullDmg(Solar* solar, float& damage, DamageList* dmgList) {}
         virtual void OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList) {}
 
-  /**
-* @brief Hook call for when a player attempts to dock with a station.
-* @param ShipId Ship id of the ship attempting to dock.
-* @param ObjectId the object Id of the station that the ship is attempting to dock with.
-* @param dockPortIndex the docking port number for the station.
-* @param response the dock behavior the game will execute without being overriden. eg DOCK_HOST_RESPONSE::ProceedDock here means the game intends for the ship to proceed to the docking setup.
-* @returns nullopt will not override the base game behavior, sending a DOCK_HOST_RESPONSE will override the base game behavior.
-*/
+        /**
+         * @brief Hook call for when a player attempts to dock with a station.
+         * @param ShipId Ship id of the ship attempting to dock.
+         * @param ObjectId the object Id of the station that the ship is attempting to dock with.
+         * @param dockPortIndex the docking port number for the station.
+         * @param response the dock behavior the game will execute without being overriden. eg DOCK_HOST_RESPONSE::ProceedDock here means the game intends for
+         * the ship to proceed to the docking setup.
+         * @returns nullopt will not override the base game behavior, sending a DOCK_HOST_RESPONSE will override the base game behavior.
+         */
         Aft(std::optional<DOCK_HOST_RESPONSE>, OnDockCall, (ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response));
         virtual std::optional<LaunchData> OnLaunchPosition(ObjectId spaceId, const LaunchData& data) { return std::nullopt; }
         Aft(bool, OnGuidedHit, (ShipId inflictorShip, ClientId hitClient, ObjectId hitObject, DamageList* dmg));
@@ -299,5 +300,3 @@ class DLL PacketInterface
         __pragma(comment(linker, "/EXPORT:" __FUNCTION__ "=" __FUNCDNAME__)); \
         return std::move(std::make_shared<type>(info));                       \
     }
-
-#define AddPluginTimer(func, time) AddTimer(static_cast<void (Plugin::*)()>(func), time)

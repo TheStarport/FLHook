@@ -19,14 +19,7 @@ namespace Plugins
     /// Load the configuration
     bool ArenaPlugin::OnLoadSettings()
     {
-        if (const auto conf = Json::Load<Config>("config/arena.json"); !conf.has_value())
-        {
-            Json::Save(config, "config/arena.json");
-        }
-        else
-        {
-            config = conf.value();
-        }
+        LoadJsonWithValidation(Config, config, "config/arena.json");
 
         return true;
     }

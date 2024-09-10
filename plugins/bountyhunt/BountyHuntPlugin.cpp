@@ -57,7 +57,7 @@ namespace Plugins
             co_return TaskStatus::Finished;
         }
 
-        if (const uint rankTarget = target.GetRank().Handle(); rankTarget < config->levelProtect)
+        if (const uint rankTarget = target.GetRank().Handle(); rankTarget < config.levelProtect)
         {
             (void)client.Message(L"Low level players may not be hunted.");
             co_return TaskStatus::Finished;
@@ -66,11 +66,11 @@ namespace Plugins
         // clamp the hunting time to configured range, or set default if not specified
         if (time)
         {
-            time = std::min(config->maximumHuntTime, std::max(config->minimalHuntTime, time));
+            time = std::min(config.maximumHuntTime, std::max(config.minimalHuntTime, time));
         }
         else
         {
-            time = config->defaultHuntTime;
+            time = config.defaultHuntTime;
         }
 
         if (const uint clientCash = client.GetCash().Unwrap(); clientCash < prize)
@@ -188,6 +188,11 @@ namespace Plugins
      * @brief Hook for CharacterSelect to see if the player had a bounty on them
      */
     void BountyHuntPlugin::OnCharacterSelectAfter(const ClientId client) { CheckIfPlayerFled(client); }
+    bool BountyHuntPlugin::OnLoadSettings()
+    {
+        LoadJsonWithValidation(Config, config, "config/bountyhunt.json");
+        return true;
+    }
 
 } // namespace Plugins
 

@@ -12,7 +12,7 @@ namespace Plugins
         auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[client.GetValue()];
 
         const auto view = client.GetData().characterData;
-        if (auto autobuyDoc = view.find("autobuy"); autobuyDoc != view.end())
+        if (auto autobuyDoc = view->characterDocument.find("autobuy"); autobuyDoc != view->characterDocument.end())
         {
             for (const bsoncxx::document::view subDoc = autobuyDoc->get_document().view(); auto& item : subDoc)
             {
@@ -131,7 +131,7 @@ namespace Plugins
     }
 
     void AutobuyPlugin::AddEquipToCart(const Archetype::Launcher* launcher, const st6::list<EquipDesc>* cargo, std::map<uint, AutobuyCartItem>& cart,
-                                 AutobuyCartItem& item, const std::wstring_view& desc)
+                                       AutobuyCartItem& item, const std::wstring_view& desc)
     {
         // TODO: Update to per-weapon ammo limits once implemented
         item.archId = launcher->projectileArchId;
@@ -178,19 +178,19 @@ namespace Plugins
             bool shieldBattsFound = false;
             for (auto& item : *equipCargo)
             {
-                if (item.archId == config.nanobot.GetValue())
+                if (item.archId == config.nanobot.GetId())
                 {
                     AutobuyCartItem aci;
-                    aci.archId = config.nanobot.GetValue();
+                    aci.archId = config.nanobot.GetId();
                     aci.count = ship->maxNanobots - item.count;
                     aci.description = L"Nanobots";
                     cartMap[aci.archId] = aci;
                     nanobotsFound = true;
                 }
-                else if (item.archId == config.shieldBattery.GetValue())
+                else if (item.archId == config.shieldBattery.GetId())
                 {
                     AutobuyCartItem aci;
-                    aci.archId = config.shieldBattery.GetValue();
+                    aci.archId = config.shieldBattery.GetId();
                     aci.count = ship->maxShieldBats - item.count;
                     aci.description = L"Shield Batteries";
                     cartMap[aci.archId] = aci;
@@ -201,7 +201,7 @@ namespace Plugins
             if (!nanobotsFound)
             { // no nanos found -> add all
                 AutobuyCartItem aci;
-                aci.archId = config.nanobot.GetValue();
+                aci.archId = config.nanobot.GetId();
                 aci.count = ship->maxNanobots;
                 aci.description = L"Nanobots";
                 cartMap[aci.archId] = aci;
@@ -210,7 +210,7 @@ namespace Plugins
             if (!shieldBattsFound)
             { // no batts found -> add all
                 AutobuyCartItem aci;
-                aci.archId = config.shieldBattery.GetValue();
+                aci.archId = config.shieldBattery.GetId();
                 aci.count = ship->maxShieldBats;
                 aci.description = L"Shield Batteries";
                 cartMap[aci.archId] = aci;
@@ -222,7 +222,7 @@ namespace Plugins
             // check mounted equip
             for (const auto& equip : *equipCargo)
             {
-                if(!equip.mounted)
+                if (!equip.mounted)
                 {
                     continue;
                 }
@@ -398,7 +398,8 @@ namespace Plugins
         if (newState.empty() || (newState != L"on" && newState != L"off"))
         {
             (void)client.Message(L"ERR invalid parameters");
-            co_return TaskStatus::Finished;;
+            co_return TaskStatus::Finished;
+            ;
         }
 
         const bool enable = newState == L"on";
@@ -451,7 +452,8 @@ namespace Plugins
         else
         {
             (void)client.Message(L"ERR invalid parameters");
-            co_return TaskStatus::Finished;;
+            co_return TaskStatus::Finished;
+            ;
         }
 
         (void)client.Message(L"OK");
@@ -461,14 +463,7 @@ namespace Plugins
 
     bool AutobuyPlugin::OnLoadSettings()
     {
-        if (const auto conf = Json::Load<Config>("config/autobuy.json"); !conf.has_value())
-        {
-            Json::Save(config, "config/autobuy.json");
-        }
-        else
-        {
-            config = conf.value();
-        }
+        LoadJsonWithValidation(Config, config, "config/autobuy.json");
 
         return true;
     }

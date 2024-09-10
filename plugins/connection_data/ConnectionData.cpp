@@ -446,6 +446,7 @@ namespace Plugins
 
     ConnectionDataPlugin::~ConnectionDataPlugin()
     {
+        // TODO: @Laz
         for (const auto timer : timers)
         {
             Timer::Remove(timer);

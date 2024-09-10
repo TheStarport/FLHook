@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
-#include "Tax.hpp"
 #include "API/FLHook/ClientList.hpp"
+#include "Tax.hpp"
 
 using namespace Plugins;
 
@@ -71,13 +71,11 @@ Task TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
 
     if (taxValue == 0)
     {
-        player->Message(std::vformat(config.huntingMessage, std::make_wformat_args(characterName)),
-            config.customFormat, config.customColor);
+        player->Message(std::vformat(config.huntingMessage, std::make_wformat_args(characterName)), config.customFormat, config.customColor);
     }
     else
     {
-        player->Message(std::vformat(config.taxRequestReceived, std::make_wformat_args(taxValue, characterName)),
-            config.customFormat, config.customColor);
+        player->Message(std::vformat(config.taxRequestReceived, std::make_wformat_args(taxValue, characterName)), config.customFormat, config.customColor);
     }
 
     const auto targetCharacterName = player->GetCharacterName().Handle();
@@ -175,14 +173,7 @@ void TaxPlugin::OnDisconnect([[maybe_unused]] ClientId client, [[maybe_unused]] 
 
 bool TaxPlugin::OnLoadSettings()
 {
-    if (const auto conf = Json::Load<Config>("config/tax.json"); !conf.has_value())
-    {
-        Json::Save(config, "config/tax.json");
-    }
-    else
-    {
-        config = conf.value();
-    }
+    LoadJsonWithValidation(Config, config, "config/tax.json");
 
     return true;
 }

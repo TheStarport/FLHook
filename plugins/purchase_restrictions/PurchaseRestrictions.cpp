@@ -8,12 +8,10 @@ namespace Plugins
     //! Log items of interest so we can see what cargo cheats people are using.
     void PurchaseRestrictionsPlugin::LogItemsOfInterest(const ClientId& client, GoodId goodId, const std::wstring_view details)
     {
-        if (const auto iter = std::ranges::find(config.itemsOfInterest, goodId);
-            iter != config.itemsOfInterest.end())
+        if (const auto iter = std::ranges::find(config.itemsOfInterest, goodId); iter != config.itemsOfInterest.end())
         {
             const auto charName = client.GetCharacterName().Handle();
-            Logger::Info(std::format(L"Item '{}' found in cargo of {} - {}",
-                goodId, charName, details));
+            Logger::Info(std::format(L"Item '{}' found in cargo of {} - {}", goodId, charName, details));
         }
     }
 
@@ -43,14 +41,7 @@ namespace Plugins
 
     bool PurchaseRestrictionsPlugin::OnLoadSettings()
     {
-        if (const auto conf = Json::Load<Config>("config/purchase_restrictions.json"); !conf.has_value())
-        {
-            Json::Save(config, "config/purchase_restrictions.json");
-        }
-        else
-        {
-            config = conf.value();
-        }
+        LoadJsonWithValidation(Config, config, "config/purchase_restrictions.json");
 
         return true;
     }
@@ -104,13 +95,13 @@ namespace Plugins
         {
             // Check Ship
             const GoodInfo* packageInfo = GoodList::find_by_id(info.goodId);
-            if (packageInfo->type != GoodInfo::Type::Ship)
+            if (packageInfo->type != GoodType::Ship)
             {
                 return;
             }
 
             const GoodInfo* hullInfo = GoodList::find_by_id(packageInfo->hullGoodId);
-            if (hullInfo->type != GoodInfo::Type::Hull)
+            if (hullInfo->type != GoodType::Hull)
             {
                 return;
             }
@@ -131,7 +122,8 @@ namespace Plugins
         }
     }
 
-    void PurchaseRestrictionsPlugin::OnRequestAddItem(const ClientId client, const GoodId goodId, std::wstring_view hardpoint, int count, float status, bool mounted)
+    void PurchaseRestrictionsPlugin::OnRequestAddItem(const ClientId client, const GoodId goodId, std::wstring_view hardpoint, int count, float status,
+                                                      bool mounted)
     {
         LogItemsOfInterest(client, goodId, L"add-item");
         if (clientSuppressBuy[client])

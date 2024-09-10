@@ -28,14 +28,7 @@ namespace Plugins
     }
     bool KillTrackerPlugin::OnLoadSettings()
     {
-        if (const auto conf = Json::Load<Config>("config/killtracker.json"); !conf.has_value())
-        {
-            Json::Save(config, "config/killtracker.json");
-        }
-        else
-        {
-            config = conf.value();
-        }
+        LoadJsonWithValidation(Config, config, "config/killtracker.json");
 
         return true;
     }

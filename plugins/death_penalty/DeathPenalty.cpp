@@ -39,14 +39,7 @@ namespace Plugins
     // Load configuration file
     bool DeathPenaltyPlugin::OnLoadSettings()
     {
-        if (const auto conf = Json::Load<Config>("config/deathpenalty.json"); !conf.has_value())
-        {
-            Json::Save(config, "config/deathpenalty.json");
-        }
-        else
-        {
-            config = conf.value();
-        }
+        LoadJsonWithValidation(Config, config, "config/deathpenalty.json");
 
         return true;
     }
