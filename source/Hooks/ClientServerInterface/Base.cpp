@@ -4,6 +4,7 @@
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/ServerOptimizer.hpp"
 
 void IServerImplHook::BaseEnterInnerAfter([[maybe_unused]] BaseId baseId, ClientId client)
 {
@@ -44,6 +45,7 @@ void __stdcall IServerImplHook::BaseEnter(BaseId baseId, ClientId client)
 
     const auto skip = CallPlugins(&Plugin::OnBaseEnter, BaseId(baseId), ClientId(client));
 
+    ServerOptimizer::playerShips.erase(client.GetShipId().Handle().GetValue());
     CheckForDisconnect;
 
     if (!skip)

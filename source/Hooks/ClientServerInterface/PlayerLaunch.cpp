@@ -5,6 +5,7 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
+#include "Core/ServerOptimizer.hpp"
 
 void IServerImplHook::PlayerLaunchInner(ShipId shipId, ClientId client)
 {
@@ -53,6 +54,7 @@ void __stdcall IServerImplHook::PlayerLaunch(ShipId shipId, ClientId client)
 
     const auto skip = CallPlugins(&Plugin::OnPlayerLaunch, client, shipId);
 
+    ServerOptimizer::playerShips.insert(shipId.GetValue());
     CheckForDisconnect;
 
     PlayerLaunchInner(shipId, client);

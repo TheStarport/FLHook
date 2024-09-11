@@ -12,4 +12,6 @@ namespace ServerOptimizer
     CObject* __cdecl CObjectFindDetour(const uint& spaceObjId, CObject::Class objClass);
     CObject* __cdecl CObjAllocDetour(CObject::Class objClass);
 
+    extern std::unordered_set<uint> playerShips;
+
 } // namespace ServerOptimizer

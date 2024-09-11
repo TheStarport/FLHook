@@ -4,6 +4,7 @@
 #include "API/FLHook/ResourceManager.hpp"
 #include "API/InternalApi.hpp"
 #include "Core/IEngineHook.hpp"
+#include "Core/ServerOptimizer.hpp"
 
 std::wstring SetSizeToSmall(const std::wstring& dataFormat) { return dataFormat.substr(0, 8) + L"90"; }
 
@@ -14,6 +15,8 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, bool i
     {
         CallPlugins(&Plugin::OnShipDestroy, ship, dmgList, killerId);
     }
+
+    ServerOptimizer::playerShips.erase(ship->cship()->id);
 
     FLHook::GetResourceManager().OnShipDestroyed(ship);
 
