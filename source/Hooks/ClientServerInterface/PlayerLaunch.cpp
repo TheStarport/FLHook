@@ -54,11 +54,11 @@ void __stdcall IServerImplHook::PlayerLaunch(ShipId shipId, ClientId client)
 
     const auto skip = CallPlugins(&Plugin::OnPlayerLaunch, client, shipId);
 
-    ServerOptimizer::playerShips.insert(shipId.GetValue());
     CheckForDisconnect;
 
     PlayerLaunchInner(shipId, client);
 
+    ServerOptimizer::playerShips.insert(shipId.GetValue());
     if (!skip)
     {
         CallServerPreamble { Server.PlayerLaunch(shipId.GetValue(), client.GetValue()); }

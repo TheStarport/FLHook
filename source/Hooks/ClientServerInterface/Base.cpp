@@ -45,7 +45,11 @@ void __stdcall IServerImplHook::BaseEnter(BaseId baseId, ClientId client)
 
     const auto skip = CallPlugins(&Plugin::OnBaseEnter, BaseId(baseId), ClientId(client));
 
-    ServerOptimizer::playerShips.erase(client.GetShipId().Handle().GetValue());
+    const auto playerShip = client.GetShipId().Raw();
+    if (playerShip.has_value())
+    {
+        ServerOptimizer::playerShips.erase(playerShip.value().GetValue());
+    }
     CheckForDisconnect;
 
     if (!skip)
