@@ -46,19 +46,19 @@ namespace ServerOptimizer
     std::unordered_map<uint, iobjCache> cacheSolarIObjs;
     std::unordered_map<uint, iobjCache> cacheNonsolarIObjs;
 
-    FARPROC FindStarListRet = FARPROC(0x6D0C846);
+    auto FindStarListRet = reinterpret_cast<FARPROC>(0x6D0C846);
 
     PBYTE fpOldStarSystemFind;
 
     typedef MetaListNode*(__thiscall* FindIObjOnList)(MetaList&, uint searchedId);
-    FindIObjOnList FindIObjOnListFunc = FindIObjOnList(0x6CF4F00);
+    auto FindIObjOnListFunc = reinterpret_cast<FindIObjOnList>(0x6CF4F00);
 
     typedef IObjRW*(__thiscall* FindIObjInSystem)(StarSystemMock& starSystem, uint searchedId);
-    FindIObjInSystem FindIObjFunc = FindIObjInSystem(0x6D0C840);
+    auto FindIObjFunc = reinterpret_cast<FindIObjInSystem>(0x6D0C840);
 
-    GameObject* FindNonSolar(StarSystemMock* starSystem, uint searchedId)
+    GameObject* FindNonSolar(StarSystemMock* starSystem, const uint searchedId)
     {
-        MetaListNode* node = FindIObjOnListFunc(starSystem->starSystem.shipList, searchedId);
+        const MetaListNode* node = FindIObjOnListFunc(starSystem->starSystem.shipList, searchedId);
         if (node)
         {
             cacheNonsolarIObjs[searchedId] = { node->value->starSystem, node->value->cobj->objectClass };
@@ -91,9 +91,9 @@ namespace ServerOptimizer
         return nullptr;
     }
 
-    GameObject* FindSolar(StarSystemMock* starSystem, uint searchedId)
+    GameObject* FindSolar(StarSystemMock* starSystem, const uint searchedId)
     {
-        MetaListNode* node = FindIObjOnListFunc(starSystem->starSystem.solarList, searchedId);
+        const MetaListNode* node = FindIObjOnListFunc(starSystem->starSystem.solarList, searchedId);
         if (node)
         {
             cacheSolarIObjs[searchedId] = { node->value->starSystem, node->value->cobj->objectClass };
@@ -108,7 +108,7 @@ namespace ServerOptimizer
         return nullptr;
     }
 
-    GameObject* __stdcall FindInStarList(StarSystemMock* starSystem, uint searchedId)
+    GameObject* __stdcall FindInStarList(StarSystemMock* starSystem, const uint searchedId)
     {
         static StarSystem* lastFoundInSystem = nullptr;
         static uint lastFoundItem = 0;
@@ -126,7 +126,7 @@ namespace ServerOptimizer
 
         if (searchedId & 0x80000000) // check if solar
         {
-            auto iter = cacheSolarIObjs.find(searchedId);
+            const auto iter = cacheSolarIObjs.find(searchedId);
             if (iter == cacheSolarIObjs.end())
             {
                 return FindSolar(starSystem, searchedId);
@@ -156,15 +156,16 @@ namespace ServerOptimizer
                         retVal = node->value;
                     }
                     break;
+                default:;
             }
 
             cacheSolarIObjs.erase(iter);
         }
         else
         {
-            if (!playerShips.count(searchedId)) // player can swap systems, for them search just the system's shiplist
+            if (!playerShips.contains(searchedId)) // player can swap systems, for them search just the system's shiplist
             {
-                auto iter = cacheNonsolarIObjs.find(searchedId);
+                const auto iter = cacheNonsolarIObjs.find(searchedId);
                 if (iter == cacheNonsolarIObjs.end())
                 {
                     return FindNonSolar(starSystem, searchedId);
@@ -215,14 +216,14 @@ namespace ServerOptimizer
                             retVal = node->value;
                         }
                         break;
+                    default:;
                 }
 
                 cacheNonsolarIObjs.erase(iter);
             }
             else
             {
-                MetaListNode* node = FindIObjOnListFunc(starSystem->starSystem.shipList, searchedId);
-                if (node)
+                if (const MetaListNode* node = FindIObjOnListFunc(starSystem->starSystem.shipList, searchedId))
                 {
                     retVal = node->value;
                 }
@@ -263,7 +264,7 @@ namespace ServerOptimizer
         }
     }
 
-    void __stdcall GameObjectDestructor(uint id)
+    void __stdcall GameObjectDestructor(const uint id)
     {
         if (id & 0x8000000)
         {
@@ -322,16 +323,16 @@ namespace ServerOptimizer
     std::unordered_map<CObject*, CObjNode*> CEquipmentMap;
     std::unordered_map<CObject*, CObjNode*> CObjectMap;
 
-    std::unordered_map<uint, CSimple*> CAsteroidMap2;
+    std::unordered_map<uint, CAsteroid*> CAsteroidMap2;
 
     typedef CObjList*(__cdecl* CObjListFunc)(CObject::Class);
-    CObjListFunc CObjListFind = CObjListFunc(0x62AE690);
+    auto CObjListFind = reinterpret_cast<CObjListFunc>(0x62AE690);
 
     typedef void(__thiscall* RemoveCobjFromVector)(CObjList*, void*, CObjNode*);
-    RemoveCobjFromVector removeCObjNode = RemoveCobjFromVector(0x62AF830);
+    auto removeCObjNode = reinterpret_cast<RemoveCobjFromVector>(0x62AF830);
 
     uint CObjAllocJmp = 0x62AEE55;
-    __declspec(naked) CSimple* __cdecl CObjAllocCallOrig(CObject::Class objClass)
+    __declspec(naked) CObject* __cdecl CObjAllocCallOrig(CObject::Class objClass)
     {
         __asm {
             push ecx
@@ -340,10 +341,10 @@ namespace ServerOptimizer
         }
     }
 
-    CObject* __cdecl CObjAllocDetour(CObject::Class objClass)
+    CObject* __cdecl CObjAllocDetour(const CObject::Class objClass)
     {
-        CSimple* retVal = CObjAllocCallOrig(objClass);
-        CObjList* cobjList = CObjListFind(objClass);
+        CObject* retVal = CObjAllocCallOrig(objClass);
+        const CObjList* cobjList = CObjListFind(objClass);
 
         switch (objClass)
         {
@@ -357,12 +358,13 @@ namespace ServerOptimizer
             case CObject::CGUIDED_OBJECT: CGuidedMap[retVal] = cobjList->entry->last; break;
             case CObject::CCOUNTERMEASURE_OBJECT: CCmMap[retVal] = cobjList->entry->last; break;
             case CObject::CMINE_OBJECT: CMineMap[retVal] = cobjList->entry->last; break;
+            default: return nullptr;
         }
 
         return retVal;
     }
 
-    void __fastcall CAsteroidInit(CSimple* csimple, void* edx, CSimple::CreateParms& param) { CAsteroidMap2[param.id] = csimple; }
+    void __fastcall CAsteroidInit(CAsteroid* casteroid, void* edx, const CSimple::CreateParms& param) { CAsteroidMap2[param.id] = casteroid; }
 
     uint CAsteroidInitRetAddr = 0x62A28F6;
     __declspec(naked) void CAsteroidInitNaked()
@@ -397,10 +399,10 @@ namespace ServerOptimizer
             case CObject::CGUIDED_OBJECT: cobjMap = &CGuidedMap; break;
             case CObject::CCOUNTERMEASURE_OBJECT: cobjMap = &CCmMap; break;
             case CObject::CMINE_OBJECT: cobjMap = &CMineMap; break;
+            default: return; // will never be hit, but shuts up the InteliSense
         }
 
-        auto item = cobjMap->find(cobj);
-        if (item != cobjMap->end())
+        if (const auto item = cobjMap->find(cobj); item != cobjMap->end())
         {
             CObjList* cobjList = CObjListFind(cobj->objectClass);
             static uint dummy;
@@ -422,15 +424,14 @@ namespace ServerOptimizer
         }
     }
 
-    CObject* __cdecl CObjectFindDetour(const uint& spaceObjId, CObject::Class objClass)
+    CObject* __cdecl CObjectFindDetour(const uint& spaceObjId, const CObject::Class objClass)
     {
         if (objClass != CObject::CASTEROID_OBJECT)
         {
             return CObject::Find(spaceObjId, objClass);
         }
 
-        auto result = CAsteroidMap2.find(spaceObjId);
-        if (result != CAsteroidMap2.end())
+        if (const auto result = CAsteroidMap2.find(spaceObjId); result != CAsteroidMap2.end())
         {
             ++result->second->referenceCounter;
             return result->second;
