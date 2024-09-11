@@ -131,7 +131,8 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
 
             const std::wstring cmdString = ReplaceExclamationMarkWithClientId(buffer, from.id);
             const auto processor = AdminCommandProcessor::i();
-            if (auto response = processor->ProcessCommand(ClientId(from.id), AllowedContext::GameOnly, cmdString); response.has_value())
+            const auto clientStr = std::to_wstring(from.id);
+            if (auto response = processor->ProcessCommand(ClientId(from.id), AllowedContext::GameOnly, clientStr, cmdString); response.has_value())
             {
                 FLHook::GetTaskScheduler().AddTask(std::make_shared<Task>(*response));
             }

@@ -367,7 +367,8 @@ void FLHook::ProcessPendingCommands()
     {
         try
         {
-            if (const auto response = AdminCommandProcessor::i()->ProcessCommand(ClientId(), AllowedContext::ConsoleOnly, cmd.value()); response.has_value())
+            constexpr std::wstring_view consoleId = L"0"sv;
+            if (const auto response = AdminCommandProcessor::i()->ProcessCommand(ClientId(), AllowedContext::ConsoleOnly, consoleId, cmd.value()); response.has_value())
             {
                 GetTaskScheduler().AddTask(std::make_shared<Task>(*response));
             }

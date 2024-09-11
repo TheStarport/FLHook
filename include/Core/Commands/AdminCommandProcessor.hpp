@@ -141,5 +141,5 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
                                            std::vector<std::wstring_view>& paramVector) override;
 
     public:
-        std::optional<Task> ProcessCommand(ClientId client, const AllowedContext currentContext, const std::wstring_view commandString);
+        std::optional<Task> ProcessCommand(ClientId client, const AllowedContext currentContext, std::wstring_view clientStr, std::wstring_view commandString);
 };

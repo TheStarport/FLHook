@@ -35,7 +35,8 @@ std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId user, const A
     return std::nullopt;
 }
 
-std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId client, const AllowedContext currentContext, const std::wstring_view commandString)
+std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId client, const AllowedContext currentContext,
+    const std::wstring_view clientStr, const std::wstring_view commandString)
 {
     this->currentContext = currentContext;
 
@@ -46,9 +47,8 @@ std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId client, const
         return std::nullopt;
     }
 
-    constexpr auto consoleId = L"0"sv;
     std::vector paramsFiltered(params.begin(), params.end());
-    paramsFiltered.insert(paramsFiltered.begin() + 1, consoleId); // Inject the 'client id'
+    paramsFiltered.insert(paramsFiltered.begin() + 1, clientStr); // Inject the 'client id'
     return ProcessCommand(client, currentContext, commandString, paramsFiltered);
 }
 
