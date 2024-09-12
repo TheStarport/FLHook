@@ -5,8 +5,6 @@
 #include <bsoncxx/oid.hpp>
 #include <bsoncxx/builder/basic/document.hpp>
 
-#include <API/Utils/Reflection.hpp>
-
 // Cargo is a namespace in Freelancer, appended with FL to avoid name conflicts
 struct FLCargo
 {

@@ -33,21 +33,21 @@ namespace rfl::parsing
 
     struct BsonOidImpl
     {
-        using ReflectionType = std::array<uint8_t, 12>;
-        std::array<uint8_t, 12> bytes;
+            using ReflectionType = std::array<uint8_t, 12>;
+            std::array<uint8_t, 12> bytes;
 
-        static BsonOidImpl from_class(const bsoncxx::oid& val) noexcept
-        {
-            BsonOidImpl impl{};
-            memcpy(impl.bytes.data(), val.bytes(), impl.bytes.size());
-            return impl;
-        }
+            static BsonOidImpl from_class(const bsoncxx::oid& val) noexcept
+            {
+                BsonOidImpl impl{};
+                memcpy(impl.bytes.data(), val.bytes(), impl.bytes.size());
+                return impl;
+            }
 
-        [[nodiscard]]
-        bsoncxx::oid to_class() const
-        {
-            return bsoncxx::oid{reinterpret_cast<const char*>(bytes.data()), bsoncxx::oid::size()};
-        }
+            [[nodiscard]]
+            bsoncxx::oid to_class() const
+            {
+                return bsoncxx::oid{ reinterpret_cast<const char*>(bytes.data()), bsoncxx::oid::size() };
+            }
     };
 
     template <class ReaderType, class WriterType, class ProcessorsType>
@@ -74,9 +74,8 @@ namespace rfl::parsing
     HashConvert(EquipmentId, "commodity_cardamine");
     HashConvert(BaseId, "li01_01_base");
     HashConvert(RepGroupId, "fc_z_grp");
-    HashConvert(ShipId, "ge_starflier");
     HashConvert(SystemId, "li01_01");
     HashConvert(GoodId, "commodity_cardamine");
-    HashConvert(UnknownId, "nickname")
+    HashConvert(Id, "nickname")
 
 } // namespace rfl::parsing

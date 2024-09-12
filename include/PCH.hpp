@@ -58,16 +58,13 @@
 
 // Due to a bug in the wildcard library, it falsly assumes clang as a requirement for certain features
 // Without these, it fails to compile when using certain patterns or wstrings. For this reason, we fool it into working.
-#define __clang__
+#define __clang__ // NOLINT(*-reserved-identifier)
 #include <wildcards.hpp.in>
 #undef __clang__
 
-#include <External/inipp.hpp>
-
+#include "API/Utils/Action.hpp"
 #include "Core/Templates/Macros.hpp"
-
 #include "Defs/Enums.hpp"
-
 #include "Utils/Utils.hpp"
 
 #include "API/Types/BaseId.hpp"
@@ -79,16 +76,14 @@
 #include "API/Types/RepGroupId.hpp"
 #include "API/Types/RepId.hpp"
 #include "API/Types/ShipId.hpp"
-#include "API/Types/UnknownId.hpp"
-#include "API/Utils/Reflection.hpp" // For reflectiong custom types with rfl
 
+#include "API/Types/Id.hpp"
+#include "API/Utils/Reflection.hpp" // For reflectiong custom types with rfl
 #include "FLCore/Common.hpp"
 #include "FLCore/FLCoreDALib.h"
 #include "FLCore/FLCoreServer.h"
 
 #include "FLCore/FLCoreRemoteClient.h"
-
-#include "FlPtr.hpp"
 
 #include "API/Utils/TransformArgs.hpp"
 

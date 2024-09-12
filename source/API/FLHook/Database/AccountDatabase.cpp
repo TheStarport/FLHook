@@ -18,8 +18,8 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
 
     try
     {
-        const auto& config = FLHook::GetConfig();
-        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
+        const auto config = FLHook::GetConfig();
+        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
         auto findCharDoc = make_document(kvp("characterName", newCharacter.characterName));
 
         if (isNewCharacter)
@@ -51,7 +51,7 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
             const auto findAccDoc = make_document(kvp("_id", newCharacter.accountId));
             const auto charUpdateDoc = make_document(kvp("$push", make_document(kvp("characters", insertedDoc->inserted_id()))));
 
-            auto accountCollection = db->database(config.database.dbName)[config.database.accountsCollection];
+            auto accountCollection = db->database(config->database.dbName)[config->database.accountsCollection];
             if (const auto updateResult = accountCollection.update_one(findAccDoc.view(), charUpdateDoc.view());
                 !updateResult.has_value() || updateResult.value().modified_count() == 0)
             {
@@ -116,10 +116,10 @@ bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring c
     std::wstring wideCharName = StringUtils::stows(charName);
     try
     {
-        const auto& config = FLHook::GetConfig();
+        const auto config = FLHook::GetConfig();
         // TODO: Handle soft deletes
-        auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
-        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
+        auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
+        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
 
         using bsoncxx::builder::basic::kvp;
         using bsoncxx::builder::basic::make_document;
@@ -166,9 +166,9 @@ bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
 
     try
     {
-        const auto& config = FLHook::GetConfig();
-        auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
-        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
+        const auto config = FLHook::GetConfig();
+        auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
+        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
 
         std::string accId = StringUtils::wstos(wideAccountId);
 
@@ -252,8 +252,8 @@ bool AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newN
     const auto db = FLHook::GetDbClient();
     try
     {
-        const auto& config = FLHook::GetConfig();
-        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
+        const auto config = FLHook::GetConfig();
+        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
         const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(newName)));
 
         if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); checkCharNameDoc.has_value())
@@ -289,8 +289,8 @@ void AccountManager::Rename(std::wstring currName, std::wstring newName)
 
     try
     {
-        const auto& config = FLHook::GetConfig();
-        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
+        const auto config = FLHook::GetConfig();
+        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
         const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(currName)));
 
         if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
@@ -334,8 +334,8 @@ void AccountManager::ClearCharacterTransferCode(std::wstring charName)
 
     try
     {
-        const auto& config = FLHook::GetConfig();
-        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
+        const auto config = FLHook::GetConfig();
+        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
         const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(charName)));
 
         if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
@@ -377,8 +377,8 @@ void AccountManager::SetCharacterTransferCode(std::wstring charName, std::wstrin
 
     try
     {
-        const auto& config = FLHook::GetConfig();
-        auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
+        const auto config = FLHook::GetConfig();
+        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
         const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(charName)));
 
         if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
@@ -430,9 +430,9 @@ bool AccountManager::TransferCharacter(const AccountId account, const std::wstri
         // check if current account has capacity for another character
 
         // clang-format off
-    const auto& config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config.database.dbName)[config.database.accountsCollection];
-    auto charactersCollection = db->database(config.database.dbName)[config.database.charactersCollection];
+    const auto config = FLHook::GetConfig();
+    auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
+    auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
         const auto findTransferCharacterDoc = make_document(
             kvp("$and",
                 make_array(

@@ -48,7 +48,7 @@ namespace Plugins
         ClearDamageTaken(client);
         ClearDamageDone(client, true);
     }
-    void KillTrackerPlugin::OnPlayerLaunchAfter(ClientId client, ShipId ship)
+    void KillTrackerPlugin::OnPlayerLaunchAfter(ClientId client, const ShipId& ship)
     {
         ClearDamageTaken(client);
         ClearDamageDone(client, false);

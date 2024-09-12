@@ -33,8 +33,9 @@
 
 // ReSharper disable CppClangTidyClangDiagnosticCastFunctionTypeStrict
 const st6_malloc_t st6_malloc = reinterpret_cast<const st6_malloc_t>(GetProcAddress(GetModuleHandleA("msvcrt.dll"), "malloc"));
-const st6_free_t st6_free = reinterpret_cast<st6_free_t>(GetProcAddress(GetModuleHandleA("msvcrt.dll"), "free"));
+const st6_free_t st6_free = reinterpret_cast<const st6_free_t>(GetProcAddress(GetModuleHandleA("msvcrt.dll"), "free"));
 
+// ReSharper disable once CppDFAConstantFunctionResult
 BOOL WINAPI DllMain([[maybe_unused]] const HINSTANCE& hinstDLL, [[maybe_unused]] DWORD fdwReason, [[maybe_unused]] const LPVOID& lpvReserved)
 {
     static bool executed = false;
@@ -75,14 +76,14 @@ FLHook::FLHook()
     // Load our settings before anything that might need access to debug mode
     LoadSettings();
 
-    infocardManager = new InfocardManager();
-    clientList = new ClientList();
-    personalityHelper = new PersonalityHelper();
-    database = new Database(flhookConfig->database.uri);
-    accountManager = new AccountManager();
-    crashCatcher = new CrashCatcher();
-    resourceManager = new ResourceManager();
-    taskScheduler = new TaskScheduler();
+    infocardManager = std::make_unique<InfocardManager>();
+    clientList = std::make_unique<ClientList>();
+    personalityHelper = std::make_unique<PersonalityHelper>();
+    database = std::make_unique<Database>(flhookConfig->database.uri);
+    accountManager = std::make_unique<AccountManager>();
+    crashCatcher = std::make_unique<CrashCatcher>();
+    resourceManager = std::make_unique<ResourceManager>();
+    taskScheduler = std::make_unique<TaskScheduler>();
 
     flProc = GetModuleHandle(nullptr);
 
@@ -95,23 +96,23 @@ FLHook::FLHook()
     // Initialize the Database before everything as other systems rely on it
     // database = new Database(FLHook::GetConfig().databaseConfig.uri);
 
-    const auto& config = GetConfig();
+    const auto config = GetConfig();
 
     // Init our message service, this is a blocking call and some plugins might want to setup their own queues,
     // so we want to make sure the service is up at startup time
-    if (config.messageQueue.enableQueues)
+    if (config->messageQueue.enableQueues)
     {
-        messageInterface = new MessageInterface();
-        messageHandler = new MessageHandler();
+        messageInterface = std::make_unique<MessageInterface>();
+        messageHandler = std::make_unique<MessageHandler>();
     }
 
-    if (config.plugins.loadAllPlugins)
+    if (config->plugins.loadAllPlugins)
     {
         PluginManager::i()->LoadAll(true);
     }
     else
     {
-        for (auto& plugin : config.plugins.plugins)
+        for (auto& plugin : config->plugins.plugins)
         {
             PluginManager::i()->Load(plugin, true);
         }
@@ -220,32 +221,29 @@ ClientData& FLHook::GetClient(ClientId client)
     return Clients()[client];
 }
 
-Database& FLHook::GetDatabase() { return *instance->database; }
+std::shared_ptr<Database> FLHook::GetDatabase() { return instance->database; }
 mongocxx::pool::entry FLHook::GetDbClient() { return instance->database->AcquireClient(); }
-InfocardManager& FLHook::GetInfocardManager() { return *instance->infocardManager; }
+std::shared_ptr<InfocardManager> FLHook::GetInfocardManager() { return instance->infocardManager; }
 FLHook::LastHitInformation FLHook::GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }
-MessageInterface* FLHook::GetMessageInterface() { return instance->messageInterface; }
-Action<pub::AI::Personality*, Error> FLHook::GetPersonality(const std::wstring& pilotNickname)
-{
-    return instance->personalityHelper->GetPersonality(pilotNickname);
-}
+std::shared_ptr<MessageInterface> FLHook::GetMessageInterface() { return instance->messageInterface; }
+Action<pub::AI::Personality*> FLHook::GetPersonality(const std::wstring& pilotNickname) { return instance->personalityHelper->GetPersonality(pilotNickname); }
 uint FLHook::GetServerLoadInMs() { return instance->serverLoadInMs; }
 CDPClientProxy** FLHook::GetClientProxyArray() { return instance->clientProxyArray; }
-TaskScheduler& FLHook::GetTaskScheduler() { return *instance->taskScheduler; }
-AccountManager& FLHook::GetAccountManager() { return *instance->accountManager; }
-FLHookConfig& FLHook::GetConfig() { return *instance->flhookConfig; }
+std::shared_ptr<TaskScheduler> FLHook::GetTaskScheduler() { return instance->taskScheduler; }
+std::shared_ptr<AccountManager> FLHook::GetAccountManager() { return instance->accountManager; }
+std::shared_ptr<FLHookConfig> FLHook::GetConfig() { return instance->flhookConfig; }
 IClientImpl* FLHook::GetPacketInterface() { return hookClientImpl; }
-ResourceManager& FLHook::GetResourceManager()
+std::shared_ptr<ResourceManager> FLHook::GetResourceManager()
 {
     if (!instance || !instance->flhookReady)
     {
         throw std::logic_error("Attempting to access resource manager before server has started.");
     }
 
-    return *instance->resourceManager;
+    return instance->resourceManager;
 }
 
-Action<void, Error> FLHook::MessageUniverse(std::wstring_view message)
+Action<void> FLHook::MessageUniverse(std::wstring_view message)
 {
     if (message.empty())
     {
@@ -310,11 +308,11 @@ void FLHook::LoadSettings()
     std::ifstream stream("flhook.json");
     if (!stream.is_open())
     {
-        *config = new FLHookConfig();
+        *config = std::make_shared<FLHookConfig>();
     }
     else
     {
-        *config = new FLHookConfig();
+        *config = std::make_shared<FLHookConfig>();
         auto configResult = rfl::json::read<FLHookConfig>(stream);
         if (auto err = configResult.error(); err.has_value())
         {
@@ -340,8 +338,6 @@ DWORD __stdcall Unload(const LPVOID module)
 
 FLHook::~FLHook()
 {
-    delete crashCatcher;
-
     // Force thread to terminate
     TerminateThread(IpResolver::resolveThread.native_handle(), 0);
 
@@ -350,11 +346,6 @@ FLHook::~FLHook()
 
     // unload hooks
     UnloadHookExports();
-
-    delete taskScheduler;
-    delete resourceManager;
-    delete personalityHelper;
-    delete infocardManager;
 
     // Once FLServer has finished cleanup, let FLHook properly terminate
     CreateThread(nullptr, 0, Unload, moduleFLHook, 0, nullptr);
@@ -367,10 +358,11 @@ void FLHook::ProcessPendingCommands()
     {
         try
         {
-            constexpr std::wstring_view consoleId = L"0"sv;
-            if (const auto response = AdminCommandProcessor::i()->ProcessCommand(ClientId(), AllowedContext::ConsoleOnly, consoleId, cmd.value()); response.has_value())
+            constexpr auto consoleId = L"0"sv;
+            if (const auto response = AdminCommandProcessor::i()->ProcessCommand(ClientId(), AllowedContext::ConsoleOnly, consoleId, cmd.value());
+                response.has_value())
             {
-                GetTaskScheduler().AddTask(std::make_shared<Task>(*response));
+                GetTaskScheduler()->AddTask(std::make_shared<Task>(*response));
             }
         }
         catch (InvalidParameterException& ex)

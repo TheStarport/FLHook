@@ -31,7 +31,7 @@ namespace Plugins
 
         struct Config final
         {
-            std::vector<UnknownId> sounds;
+            std::vector<Id> sounds;
         };
 
         Config config;

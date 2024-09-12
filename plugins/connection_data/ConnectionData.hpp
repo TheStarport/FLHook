@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "Core/Commands/AbstractUserCommandProcessor.hpp"
 #include "Core/Commands/AbstractAdminCommandProcessor.hpp"
+#include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 constexpr int LossInterval = 4;
 
@@ -78,7 +78,7 @@ namespace Plugins
             void PrintClientPing(ClientId clientToInform, ClientId clientToScan);
             void TimerUpdatePingData();
             void TimerUpdateLossData();
-            void OnPlayerLaunchAfter(ClientId client, ShipId ship) override;
+            void OnPlayerLaunchAfter(ClientId client, const ShipId& ship) override;
             void ClearConData(ClientId client);
 
             // clang-format off

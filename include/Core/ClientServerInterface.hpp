@@ -89,11 +89,11 @@ class IServerImplHook
         static bool __stdcall Startup(SStartupInfo& si);
 
         // JumpInComplete.cpp
-        static void __stdcall JumpInComplete(SystemId systemId, ShipId shipId);
+        static void __stdcall JumpInComplete(SystemId systemId, Id shipId);
 
         // LaunchComplete.cpp
-        static void LaunchCompleteInner(BaseId, ShipId shipId);
-        static void __stdcall LaunchComplete(BaseId baseId, ShipId shipId);
+        static void LaunchCompleteInner(BaseId, const ShipId& shipId);
+        static void __stdcall LaunchComplete(BaseId baseId, Id shipId);
 
         // Location.cpp
         static void __stdcall SetVisitedState(ClientId client, uint objHash, int state);
@@ -118,7 +118,6 @@ class IServerImplHook
         static void __stdcall MissionResponse(unsigned int unk1, unsigned long unk2, bool unk3, ClientId client);
 
         // MunitionCollision.cpp
-        static void SpMunitionCollisionInner(const SSPMunitionCollisionInfo& mci, uint);
         static void __stdcall SpMunitionCollision(const SSPMunitionCollisionInfo& mci, ClientId client);
 
         // ObjectCollision.cpp
@@ -131,23 +130,22 @@ class IServerImplHook
         // OnConnect.cpp
         static void __stdcall OnConnect(ClientId client);
 
-        static void PlayerLaunchInner(ShipId shipId, ClientId client);
-        static void PlayerLaunchInnerAfter(ShipId shipId, ClientId client);
+        static void PlayerLaunchInner(const ShipId& shipId, ClientId client);
         // PlayerLaunch.cpp
-        static void __stdcall PlayerLaunch(ShipId shipId, ClientId client);
+        static void __stdcall PlayerLaunch(Id shipId, ClientId client);
 
         // Ship.cpp
         static void __stdcall RequestCreateShip(ClientId client);
         static void __stdcall ReqCollisionGroups(const st6::list<CollisionGroupDesc>& collisionGroups, ClientId client);
         static void __stdcall ReqShipArch(uint archId, ClientId client);
         static void __stdcall ReqHullStatus(float status, ClientId client);
-        static void __stdcall SpRequestInvincibility(ShipId shipId, bool enable, InvincibilityReason reason, ClientId client);
+        static void __stdcall SpRequestInvincibility(Id shipId, bool enable, InvincibilityReason reason, ClientId client);
 
         // SpObjectUpdate.cpp
         static void __stdcall SpObjUpdate(const SSPObjUpdateInfo& ui, ClientId client);
 
         // SystemSwitchOutComplete.cpp
-        static void __stdcall SystemSwitchOutComplete(ShipId shipId, ClientId client);
+        static void __stdcall SystemSwitchOutComplete(Id shipId, ClientId client);
 
         // Trade.cpp
         static void __stdcall InitiateTrade(ClientId client1, ClientId client2);
@@ -163,12 +161,12 @@ class IServerImplHook
 
         // Tradelane.cpp
         static void __stdcall GoTradelane(ClientId client, const XGoTradelane& gt);
-        static void __stdcall StopTradelane(ClientId client, ShipId shipId, ObjectId tradelaneRing1, ObjectId tradelaneRing2);
+        static void __stdcall StopTradelane(ClientId client, Id shipId, Id tradelaneRing1, Id tradelaneRing2);
 
         // UserInterface.cpp
         static void __stdcall Hail(unsigned int unk1, unsigned int unk2, unsigned int unk3);
-        static void __stdcall RequestEvent(int eventType, ShipId shipId, ObjectId dockTarget, uint unk1, ulong unk2, ClientId client);
-        static void __stdcall RequestCancel(int eventType, ShipId shipId, ObjectId dockTarget, ulong unk2, ClientId client);
+        static void __stdcall RequestEvent(int eventType, Id shipId, Id dockTarget, uint unk1, ulong unk2, ClientId client);
+        static void __stdcall RequestCancel(int eventType, Id shipId, Id dockTarget, ulong unk2, ClientId client);
         static void __stdcall InterfaceItemUsed(uint unk1, uint unk2);
         static void __stdcall PopupDialog(ClientId client, PopupDialog buttonClicked);
         static void __stdcall SetInterfaceState(ClientId client, uint unk1, int unk2);
@@ -194,17 +192,17 @@ class IServerImplHook
         timer.Start();                           \
         TryHook                                  \
         {
-#define CallServerPostamble(catchArgs, rval)                                                    \
-    }                                                                                           \
-    CatchHook({                                                                                 \
+#define CallServerPostamble(catchArgs, rval)                                     \
+    }                                                                            \
+    CatchHook({                                                                  \
         Logger::Err(std::format(L"Exception in {} on server call", FUNCTION_W)); \
-        bool ret = catchArgs;                                                                   \
-        if (!ret)                                                                               \
-        {                                                                                       \
-            timer.Stop();                                                                       \
-            return rval;                                                                        \
-        }                                                                                       \
-    }) timer.Stop();                                                                            \
+        bool ret = catchArgs;                                                    \
+        if (!ret)                                                                \
+        {                                                                        \
+            timer.Stop();                                                        \
+            return rval;                                                         \
+        }                                                                        \
+    }) timer.Stop();                                                             \
     }
 
 #define CallClientPreamble        \
@@ -219,11 +217,11 @@ class IServerImplHook
     memcpy(&Client, &tmp, 4); \
     }
 
-#define CheckForDisconnect                                                                                              \
-    {                                                                                                                   \
-        if (client.GetData().disconnected)                                                                              \
-        {                                                                                                               \
+#define CheckForDisconnect                                                                               \
+    {                                                                                                    \
+        if (client.GetData().disconnected)                                                               \
+        {                                                                                                \
             Logger::Debug(std::format(L"Ignoring disconnected client in {} id={}", FUNCTION_W, client)); \
-            return;                                                                                                     \
-        };                                                                                                              \
+            return;                                                                                      \
+        };                                                                                               \
     }

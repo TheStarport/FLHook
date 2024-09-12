@@ -18,11 +18,11 @@ class DLL GroupId final
 
         uint GetValue() const { return value; }
 
-        Action<std::vector<ClientId>, Error> GetGroupMembers() const;
-        Action<uint, Error> GetGroupSize() const;
-        Action<void, Error> ForEachGroupMember(const std::function<std::optional<Error>(ClientId client)>& func, bool stopIfErr = true) const;
-        Action<void, Error> InviteMember(ClientId client);
-        Action<void, Error> AddMember(ClientId client);
+        Action<std::vector<ClientId>> GetGroupMembers() const;
+        Action<uint> GetGroupSize() const;
+        Action<void> ForEachGroupMember(const std::function<std::optional<Error>(ClientId client)>& func, bool stopIfErr = true) const;
+        Action<void> InviteMember(ClientId client);
+        Action<void> AddMember(ClientId client);
 };
 
 template <>

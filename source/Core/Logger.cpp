@@ -176,28 +176,28 @@ ______ _      _   _             _      _____  _____               _ _
 
 void Logger::Trace(const std::wstring_view str)
 {
-    if (FLHook::GetConfig().logging.minLogLevel == 0)
+    if (FLHook::GetConfig()->logging.minLogLevel == 0)
     {
         logQueue.enqueue({ LogLevel::Trace, std::wstring(str), _ReturnAddress() });
     }
 }
 void Logger::Debug(const std::wstring_view str)
 {
-    if (FLHook::GetConfig().logging.minLogLevel <= 1)
+    if (FLHook::GetConfig()->logging.minLogLevel <= 1)
     {
         logQueue.enqueue({ LogLevel::Debug, std::wstring(str), _ReturnAddress() });
     }
 }
 void Logger::Info(const std::wstring_view str)
 {
-    if (FLHook::GetConfig().logging.minLogLevel <= 2)
+    if (FLHook::GetConfig()->logging.minLogLevel <= 2)
     {
         logQueue.enqueue({ LogLevel::Info, std::wstring(str), _ReturnAddress() });
     }
 }
 void Logger::Warn(const std::wstring_view str)
 {
-    if (FLHook::GetConfig().logging.minLogLevel <= 3)
+    if (FLHook::GetConfig()->logging.minLogLevel <= 3)
     {
         logQueue.enqueue({ LogLevel::Warn, std::wstring(str), _ReturnAddress() });
     }

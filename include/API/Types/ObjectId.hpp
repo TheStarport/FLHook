@@ -1,7 +1,6 @@
 #pragma once
 
-#include "FLCore/Common/CObjects/CObject.hpp"
-#include "FlPtr.hpp"
+#include "FLCore/Common/CObjects/CSimple.hpp"
 #include "RepId.hpp"
 #include "SystemId.hpp"
 
@@ -11,49 +10,55 @@
 class DLL ObjectId
 {
     protected:
-        uint value = 0;
+        std::weak_ptr<CSimple> value{};
 
     public:
-        explicit ObjectId(const uint val) : value(val) {}
+        explicit ObjectId(uint val);
         explicit ObjectId() = default;
 
-        explicit operator uint() const noexcept { return value; }
-        bool operator==(const ObjectId& next) const { return value == next.value; }
+        bool operator==(const ObjectId& next) const;
         explicit operator bool() const;
 
-        uint GetValue() const { return value; }
+        [[nodiscard]]
+        std::weak_ptr<CSimple> GetValue() const;
 
         [[nodiscard]]
-        Action<CObject::Class, Error> GetObjectType() const;
+        Action<uint> GetId() const;
 
         [[nodiscard]]
-        Action<std::wstring, Error> GetNickName() const;
+        Action<CObject::Class> GetObjectType() const;
 
         [[nodiscard]]
-        Action<CSimplePtr, Error> GetCObject(bool increment = false) const;
+        Action<std::wstring> GetNickName() const;
 
         [[nodiscard]]
-        Action<Archetype::Root*, Error> GetArchetype() const;
+        Action<Archetype::Root*> GetArchetype() const;
 
         [[nodiscard]]
-        Action<std::pair<Vector, float>, Error> GetVelocityAndSpeed() const;
+        Action<std::pair<Vector, float>> GetVelocityAndSpeed() const;
 
         [[nodiscard]]
-        Action<Vector, Error> GetAngularVelocity() const;
+        Action<Vector> GetAngularVelocity() const;
 
         [[nodiscard]]
-        Action<std::pair<Vector, Matrix>, Error> GetPositionAndOrientation() const;
+        Action<std::pair<Vector, Matrix>> GetPositionAndOrientation() const;
 
         [[nodiscard]]
-        Action<SystemId, Error> GetSystem() const;
+        Action<SystemId> GetSystem() const;
 
         [[nodiscard]]
-        Action<RepId, Error> GetReputation() const;
+        Action<RepId> GetReputation() const;
+
+        [[nodiscard]]
+        Action<float> GetHealth(bool percentage = false) const;
+
+        [[nodiscard]]
+        Action<ClientId> GetPlayer() const;
 };
 
 template <>
 struct std::formatter<ObjectId, wchar_t>
 {
         constexpr auto parse(std::wformat_parse_context& ctx) const { return ctx.begin(); }
-        auto format(const ObjectId& value, std::wformat_context& ctx) const { return std::format_to(ctx.out(), L"{}", value.GetValue()); }
+        auto format(const ObjectId& value, std::wformat_context& ctx) const { return std::format_to(ctx.out(), L"{}", value.GetId().Unwrap()); }
 };

@@ -38,13 +38,13 @@ namespace Plugins
             Config config;
             bool OnLoadSettings() override;
             void OnClearClientInfo(ClientId client) override;
-            void OnPlayerLaunchAfter(ClientId client, ShipId ship) override;
+            void OnPlayerLaunchAfter(ClientId client, const ShipId& ship) override;
             void OnCharacterSelectAfter(ClientId client) override;
             void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
             void OnShipDestroy(Ship* ship, DamageList* dmgList, ShipId killerId) override;
             void KillIfInJumpTunnel(ClientId client);
             void OnDisconnect(ClientId client, EFLConnection connection) override;
-            void OnJumpInComplete(SystemId system, ShipId ship) override;
+            void OnJumpInComplete(SystemId system, const ShipId& ship) override;
             void OnCharacterInfoRequest(ClientId client, bool unk1) override;
             bool OnSystemSwitchOutPacket(ClientId client, FLPACKET_SYSTEM_SWITCH_OUT& packet) override;
 

@@ -41,16 +41,16 @@ class DLL EquipmentId
         }
 
         [[nodiscard]]
-        Action<EquipmentType, Error> GetType() const;
+        Action<EquipmentType> GetType() const;
 
         [[nodiscard]]
-        Action<std::wstring_view, Error> GetName() const;
+        Action<std::wstring_view> GetName() const;
 
         [[nodiscard]]
-        Action<float, Error> GetVolume() const;
+        Action<float> GetVolume() const;
 
         template <typename T>
-        Action<T, Error> Cast()
+        Action<T> Cast()
         {
             auto type = GetType().Raw();
 

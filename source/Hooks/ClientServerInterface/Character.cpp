@@ -15,7 +15,7 @@ bool IServerImplHook::CharacterSelectInner(const CHARACTER_ID& cid, const Client
         auto& info = client.GetData();
         const auto charName = client.GetCharacterName().Unwrap();
         charBefore = !charName.empty() ? charName : L"";
-        info.lastExitedBaseId = 0;
+        info.lastExitedBaseId = {};
         info.tradePartner = ClientId();
         info.groupId = Players.GetGroupID(client.GetValue());
     }
@@ -47,7 +47,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
             }
 
             // If help command is not disabled, alert people they can use it
-            if (const auto& cmds = FLHook::GetConfig().userCommands.disabledCommands;
+            if (const auto& cmds = FLHook::GetConfig()->userCommands.disabledCommands;
                 std::ranges::find(cmds, L"help") == cmds.end())
             {
                 (void)client.Message(L"To get a list of available commands, type '/help [page]' in chat.");
@@ -77,7 +77,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
                 }
             }
 
-            if (FLHook::GetConfig().general.persistGroup && info.groupId)
+            if (FLHook::GetConfig()->general.persistGroup && info.groupId)
             {
                 GroupId(info.groupId).AddMember(client);
             }
@@ -92,16 +92,16 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
             static std::random_device dev;
             static std::mt19937 rng(dev());
             std::uniform_int_distribution<std::mt19937::result_type> distNum(1, 20);
-            const auto& config = FLHook::GetConfig();
-            std::uniform_int_distribution<std::mt19937::result_type> distForm(0, config.callsign.allowedFormations.size() - 1);
+            const auto config = FLHook::GetConfig();
+            std::uniform_int_distribution<std::mt19937::result_type> distForm(0, config->callsign.allowedFormations.size() - 1);
 
-            if (config.callsign.allowedFormations.empty())
+            if (config->callsign.allowedFormations.empty())
             {
                 info.formationTag = AllowedFormation::Alpha;
             }
             else
             {
-                info.formationTag = config.callsign.allowedFormations[distForm(rng)];
+                info.formationTag = config->callsign.allowedFormations[distForm(rng)];
             }
 
             info.formationNumber1 = distNum(rng);
@@ -215,7 +215,7 @@ bool IServerImplHook::CharacterInfoReqInner(ClientId client, bool unk1)
             if (shipId)
             {
                 // in space
-                info.f1Time = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHook::GetConfig().autoKicks.antiF1;
+                info.f1Time = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHook::GetConfig()->autoKicks.antiF1;
                 return false;
             }
         }

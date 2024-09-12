@@ -48,7 +48,7 @@ namespace Plugins
 
     void PurchaseRestrictionsPlugin::OnClearClientInfo(const ClientId client) { clientSuppressBuy[client] = false; }
 
-    void PurchaseRestrictionsPlugin::OnPlayerLaunch(const ClientId client, ShipId ship) { clientSuppressBuy[client] = false; }
+    void PurchaseRestrictionsPlugin::OnPlayerLaunch(const ClientId client, const ShipId& ship) { clientSuppressBuy[client] = false; }
 
     void PurchaseRestrictionsPlugin::OnBaseEnter(BaseId base, const ClientId client) { clientSuppressBuy[client] = false; }
 

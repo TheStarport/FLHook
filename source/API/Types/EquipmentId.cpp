@@ -19,12 +19,9 @@ EquipmentId::EquipmentId(const uint val)
     }
 }
 
-EquipmentId::operator bool() const
-{
-    return value != nullptr;
-}
+EquipmentId::operator bool() const { return value != nullptr; }
 
-Action<EquipmentType, Error> EquipmentId::GetType() const
+Action<EquipmentType> EquipmentId::GetType() const
 {
     ValidEquipmentCheck;
 
@@ -125,14 +122,14 @@ Action<EquipmentType, Error> EquipmentId::GetType() const
     return { EquipmentType::Other };
 }
 
-Action<std::wstring_view, Error> EquipmentId::GetName() const
+Action<std::wstring_view> EquipmentId::GetName() const
 {
     ValidEquipmentCheck;
 
-    return { FLHook::GetInfocardManager().GetInfocard(value->idsName) };
+    return { FLHook::GetInfocardManager()->GetInfocard(value->idsName) };
 }
 
-Action<float, Error> EquipmentId::GetVolume() const
+Action<float> EquipmentId::GetVolume() const
 {
     ValidEquipmentCheck;
 

@@ -52,6 +52,10 @@ enum class AddressList : uint
     CreateSolar = 0x2A62A,
     RemoveDefaultDeathMessages = 0x39124,
     ShipDestroyedInvoke = 0xB512,
+    CObjectFind = 0x84464,
+    GetObjectInspect1 = 0x87CD4,
+    GetObjectInspect2 = 0x2074A,
+    GetObjectInspect3 = 0x207BF,
 
     // Common.dll Offsets
 
@@ -68,4 +72,6 @@ enum class AddressList : uint
     CommonVfTableNanobot = 0x1399D0,
     CommonVfTableMunition = 0x139CE8,
     CommonVfTableEngine = 0x139AAC,
+    CommonCObjDestructor = 0x4F45D,
+CommonCObjectAllocator = 0x4EE50,
 };

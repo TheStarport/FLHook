@@ -89,7 +89,7 @@ namespace Plugins
              * @brief Hook on PlayerLaunch. If their transfer flags are set appropriately,
              * redirect the undock to either the arena base or the return point
              */
-            void OnPlayerLaunchAfter(ClientId client, [[maybe_unused]] ShipId ship) override;
+            void OnPlayerLaunchAfter(ClientId client, [[maybe_unused]] const ShipId& ship) override;
 
             /**
              * @brief Hook on OnCharacterSave. Adds the return base to the character's database document.

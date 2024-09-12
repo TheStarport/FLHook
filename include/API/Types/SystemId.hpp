@@ -24,24 +24,24 @@ class DLL SystemId
         uint GetValue() const { return value; }
 
         [[nodiscard]]
-        Action<std::wstring_view, Error> GetName() const;
+        Action<std::wstring_view> GetName() const;
         [[nodiscard]]
-        Action<std::wstring, Error> GetNickName() const;
+        Action<std::wstring> GetNickName() const;
         [[nodiscard]]
-        Action<std::vector<Universe::IZone *>, Error> GetZones() const;
+        Action<std::vector<Universe::IZone *>> GetZones() const;
         [[nodiscard]]
-        Action<std::wstring, Error> PositionToSectorCoord(const Vector &pos) const;
+        Action<std::wstring> PositionToSectorCoord(const Vector &pos) const;
         [[nodiscard]]
-        Action<std::vector<SystemId>, Error> GetNeighboringSystems() const; // TODO: Look into Freelancer System Enumerator.
+        Action<std::vector<SystemId>> GetNeighboringSystems() const; // TODO: Look into Freelancer System Enumerator.
         [[nodiscard]]
-        Action<std::vector<CSolar *>, Error> GetSolars(bool onlyDockables = false);
+        Action<std::vector<CSolar *>> GetSolars(bool onlyDockables = false);
         [[nodiscard]]
-        Action<std::vector<ClientId>, Error> GetPlayersInSystem(bool includeDocked = false) const;
+        Action<std::vector<ClientId>> GetPlayersInSystem(bool includeDocked = false) const;
 
-        Action<void, Error> Message(std::wstring_view msg, MessageColor color = MessageColor::Default, MessageFormat format = MessageFormat::Normal) const;
-        Action<void, Error> PlaySoundOrMusic(const std::wstring &trackNickNameSound, bool isMusic = false,
+        Action<void> Message(std::wstring_view msg, MessageColor color = MessageColor::Default, MessageFormat format = MessageFormat::Normal) const;
+        Action<void> PlaySoundOrMusic(const std::wstring &trackNickNameSound, bool isMusic = false,
                                              const std::optional<std::pair<Vector, float>> &sphere = {}) const;
-        Action<uint, Error> KillAllPlayers() const;
+        Action<uint> KillAllPlayers() const;
 };
 
 template <>

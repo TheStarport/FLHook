@@ -11,9 +11,9 @@ class MailManager
         static Task InformOnlineUsersOfNewMail(std::vector<rfl::Variant<bsoncxx::oid, std::string>> accountIdOrCharacterNames);
     public:
         MailManager() = delete;
-        static Action<std::vector<Mail>, Error> GetAccountMail(std::string accountId, int count = 20, int page = 1, bool newestFirst = true);
-        static Action<std::vector<Mail>, Error> GetCharacterMail(bsoncxx::oid characterId, int count = 20, int page = 1, bool newestFirst = true);
-        static Action<void, Error> DeleteMail(const Mail& mail);
-        static Action<void, Error> MarkMailAsRead(const Mail& mail, rfl::Variant<std::string, bsoncxx::oid> characterOrAccount);
-        static Action<void, Error> SendMail(Mail& mail);
+        static Action<std::vector<Mail>> GetAccountMail(std::string accountId, int count = 20, int page = 1, bool newestFirst = true);
+        static Action<std::vector<Mail>> GetCharacterMail(bsoncxx::oid characterId, int count = 20, int page = 1, bool newestFirst = true);
+        static Action<void> DeleteMail(const Mail& mail);
+        static Action<void> MarkMailAsRead(const Mail& mail, rfl::Variant<std::string, bsoncxx::oid> characterOrAccount);
+        static Action<void> SendMail(Mail& mail);
 };

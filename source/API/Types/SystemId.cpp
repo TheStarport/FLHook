@@ -23,23 +23,23 @@ SystemId::SystemId(std::wstring_view nickName, bool isInfoCardName)
 }
 SystemId::operator bool() const { return value != 0 && Universe::get_system(value) != nullptr; }
 
-Action<std::wstring_view, Error> SystemId::GetName() const
+Action<std::wstring_view> SystemId::GetName() const
 {
     ValidSystemCheck;
     uint ids;
     pub::System::GetName(value, ids);
 
-    return { FLHook::GetInfocardManager().GetInfocard(ids) };
+    return { FLHook::GetInfocardManager()->GetInfocard(ids) };
 }
 
-Action<std::wstring, Error> SystemId::GetNickName() const
+Action<std::wstring> SystemId::GetNickName() const
 {
     ValidSystemCheck;
     const auto system = Universe::get_system(value);
     return { StringUtils::stows(std::string(system->nickname)) };
 }
 
-Action<std::vector<Universe::IZone*>, Error> SystemId::GetZones() const
+Action<std::vector<Universe::IZone*>> SystemId::GetZones() const
 {
     ValidSystemCheck;
 
@@ -47,7 +47,7 @@ Action<std::vector<Universe::IZone*>, Error> SystemId::GetZones() const
     return { std::vector<Universe::IZone*>(system->zones.begin(), system->zones.end()) };
 }
 
-Action<std::wstring, Error> SystemId::PositionToSectorCoord(const Vector& pos) const
+Action<std::wstring> SystemId::PositionToSectorCoord(const Vector& pos) const
 {
     const Universe::ISystem* system = Universe::get_system(value);
     if (!system)
@@ -70,7 +70,7 @@ Action<std::wstring, Error> SystemId::PositionToSectorCoord(const Vector& pos) c
     return { std::format(L"{}-{}", xPos, zPos) };
 }
 
-Action<std::vector<SystemId>, Error> SystemId::GetNeighboringSystems() const
+Action<std::vector<SystemId>> SystemId::GetNeighboringSystems() const
 {
     ValidSystemCheck;
     const auto system = Universe::get_system(value);
@@ -84,13 +84,13 @@ Action<std::vector<SystemId>, Error> SystemId::GetNeighboringSystems() const
     return { vector };
 }
 
-Action<std::vector<CSolar*>, Error> SystemId::GetSolars(bool onlyDockables)
+Action<std::vector<CSolar*>> SystemId::GetSolars(bool onlyDockables)
 {
     // TODO: Implement
     return { {} };
 }
 
-Action<std::vector<ClientId>, Error> SystemId::GetPlayersInSystem(bool includeDocked) const
+Action<std::vector<ClientId>> SystemId::GetPlayersInSystem(bool includeDocked) const
 {
     ValidSystemCheck;
 
@@ -113,7 +113,7 @@ Action<std::vector<ClientId>, Error> SystemId::GetPlayersInSystem(bool includeDo
     return { clients };
 }
 
-Action<void, Error> SystemId::Message(std::wstring_view msg, MessageColor color, MessageFormat format) const
+Action<void> SystemId::Message(std::wstring_view msg, MessageColor color, MessageFormat format) const
 {
     ValidSystemCheck;
 
@@ -141,8 +141,7 @@ Action<void, Error> SystemId::Message(std::wstring_view msg, MessageColor color,
     return { {} };
 }
 
-Action<void, Error> SystemId::PlaySoundOrMusic(const std::wstring& trackNickNameSound, bool isMusic,
-                                               const std::optional<std::pair<Vector, float>>& sphere) const
+Action<void> SystemId::PlaySoundOrMusic(const std::wstring& trackNickNameSound, bool isMusic, const std::optional<std::pair<Vector, float>>& sphere) const
 {
     ValidSystemCheck;
     auto sound = pub::Audio::Tryptich();
@@ -176,7 +175,7 @@ Action<void, Error> SystemId::PlaySoundOrMusic(const std::wstring& trackNickName
 
     for (const auto& client : clientsInSystem.value())
     {
-        const auto clientPos = client.GetShipId().Handle().GetPositionAndOrientation().Handle().first;
+        const auto clientPos = client.GetShip().Handle().GetPositionAndOrientation().Handle().first;
 
         if (glm::length<3, float, glm::packed_highp>(clientPos - sphere.value().first) < sphere.value().second)
         {
@@ -198,7 +197,7 @@ Action<void, Error> SystemId::PlaySoundOrMusic(const std::wstring& trackNickName
     return { {} };
 }
 
-Action<uint, Error> SystemId::KillAllPlayers() const
+Action<uint> SystemId::KillAllPlayers() const
 {
     ValidSystemCheck;
 
@@ -208,7 +207,7 @@ Action<uint, Error> SystemId::KillAllPlayers() const
     std::ranges::for_each(clients,
                           [&shipsKilled](const ClientId client)
                           {
-                              client.GetData().shipId.Destroy();
+                              client.GetData().ship.Destroy();
                               shipsKilled++;
                           });
 

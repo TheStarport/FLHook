@@ -8,11 +8,11 @@ bool __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
 {
     TryHook
     {
-        const ShipId shipId = FLHook::Clients()[client].shipId;
-        if (FLHook::GetConfig().general.disconnectDelay && shipId.GetValue())
+        auto shipId = FLHook::Clients()[client].shipId;
+        if (FLHook::GetConfig()->general.disconnectDelay && shipId.GetValue())
         {
             // in space
-            client.GetData().timeDisconnect = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHook::GetConfig().general.disconnectDelay;
+            client.GetData().timeDisconnect = TimeUtils::UnixTime<std::chrono::milliseconds>() + FLHook::GetConfig()->general.disconnectDelay;
             return false; // suppress
         }
     }
@@ -24,7 +24,7 @@ bool __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
 IEngineHook::DisconnectPacketSentAssembly::DisconnectPacketSentAssembly()
 {
     pushad();
-    mov(eax, dword[esi+0x68]);
+    mov(eax, dword[esi + 0x68]);
     push(eax);
     call((void*)DisconnectPacketSent);
     test(al, al);

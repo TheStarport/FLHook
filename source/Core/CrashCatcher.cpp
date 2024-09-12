@@ -278,12 +278,12 @@ CrashCatcher::CrashCatcher()
     static FixContent6F8B330 fixContent6F8B330;
     static FixContent6F78DD0 fixContent6F78DD0;
 
-    const auto& config = FLHook::GetConfig();
+    const auto config = FLHook::GetConfig();
 
     const auto flServerModule = reinterpret_cast<DWORD>(GetModuleHandleA(nullptr));
     const auto serverModule = reinterpret_cast<DWORD>(GetModuleHandleA("server.dll"));
 
-    const float npcVisibility = std::powf(config.npc.npcVisibilityDistance, 2);
+    const float npcVisibility = std::powf(config->npc.npcVisibilityDistance, 2);
     MemUtils::WriteProcMem(serverModule + 0x86AEC, &npcVisibility, 4);
 
     auto hook = reinterpret_cast<FARPROC>(CrashCatcher::GetRoot);
@@ -367,7 +367,7 @@ CrashCatcher::CrashCatcher()
     MemUtils::PatchCallAddr(contentModule, 0xC713B, CrashProc6F671A0);
     MemUtils::PatchCallAddr(contentModule, 0xC7180, CrashProc6F671A0);
 
-    const float distance = config.npc.npcPersistDistance;
+    const float distance = config->npc.npcPersistDistance;
     MemUtils::WriteProcMem(contentModule + 0xD3D6E, &distance, 4);
     MemUtils::WriteProcMem(contentModule + 0x58F46, &distance, 4);
 }

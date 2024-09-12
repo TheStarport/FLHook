@@ -241,25 +241,12 @@ namespace Plugins
      */
     Task BettingPlugin::UserCmdDuel(const ClientId client, uint amount)
     {
-        // Get the object the player is targetting
-        if (!client.InSpace())
-        {
-            (void)client.Message(L"Must be in space");
-            co_return TaskStatus::Finished;
-        }
+        const auto target = client.GetShip().Handle().GetTarget().Handle();
+        const auto targetClient = target.GetPlayer().Unwrap();
 
-        const auto target = client.GetShipId().Unwrap().GetTarget();
-        if (!target.has_value())
+        if (!targetClient)
         {
-            (void)client.Message(L"Must target a player");
-            co_return TaskStatus::Finished;
-        }
-
-        // Check ship is a player
-        const auto clientTarget = target->GetPlayer();
-        if (!clientTarget.has_value())
-        {
-            (void)client.Message(L"Must target a player");
+            (void)client.Message(L"ERR: Target must be a player");
             co_return TaskStatus::Finished;
         }
 
@@ -281,11 +268,12 @@ namespace Plugins
         for (const auto& [client1, client2, betAmount, accepted] : duels)
         {
             // Target already has a bet
-            if (client1 == clientTarget || client2 == clientTarget)
+            if (client1 == targetClient || client2 == targetClient)
             {
                 (void)client.Message(L"This player already has an ongoing duel.");
                 co_return TaskStatus::Finished;
             }
+
             // Player already has a bet
             if (client1 == client || client2 == client)
             {
@@ -297,17 +285,16 @@ namespace Plugins
         // Create duel
         Duel duel;
         duel.client = client;
-        duel.client2 = clientTarget.value();
+        duel.client2 = targetClient;
         duel.betAmount = amount;
         duel.accepted = false;
         duels.push_back(duel);
 
         // Message players
-        (void)client.MessageLocal(
-            std::format(
-                L"{} has challenged {} to a duel for {} credits", client.GetCharacterName().Handle(), clientTarget->GetCharacterName().Handle(), amount),
+        client.MessageLocal(
+            std::format(L"{} has challenged {} to a duel for {} credits", client.GetCharacterName().Handle(), targetClient.GetCharacterName().Handle(), amount),
             10000);
-        (void)clientTarget->Message(L"Type \"/acceptduel\" to accept.");
+        targetClient.Message(L"Type \"/acceptduel\" to accept.");
     }
 
     /** @ingroup Betting
@@ -345,15 +332,14 @@ namespace Plugins
             }
 
             accepted = true;
-            (void)client.MessageLocal(std::format(L"{} has accepted the duel with {} for {} credits.",
-                                                         client.GetCharacterName().Handle(),
-                                                         client1.GetCharacterName().Handle(),
-                                                         betAmount),
-                                             10000);
+            (void)client.MessageLocal(
+                std::format(
+                    L"{} has accepted the duel with {} for {} credits.", client.GetCharacterName().Handle(), client1.GetCharacterName().Handle(), betAmount),
+                10000);
             co_return TaskStatus::Finished;
         }
         (void)client.Message(L"You have no duel requests. To challenge "
-                                    L"someone, target them and type /duel <amount>");
+                             L"someone, target them and type /duel <amount>");
 
         co_return TaskStatus::Finished;
     }
@@ -376,12 +362,12 @@ namespace Plugins
     /** @ingroup Betting
      * @brief Hook for dock call. Treats a player as if they died if they were part of a duel
      */
-    void BettingPlugin::OnDockCallAfter(const ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response)
+    void BettingPlugin::OnDockCallAfter(const ShipId& shipId, const ObjectId& spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response)
     {
-        if (const auto client = shipId.GetPlayer(); client.has_value())
+        if (const auto client = shipId.GetPlayer().Unwrap(); client)
         {
-            ProcessFFA(client.value());
-            ProcessDuel(client.value());
+            ProcessFFA(client);
+            ProcessDuel(client);
         }
     }
 

@@ -2,11 +2,11 @@ function(TARGET_DEPENDENCIES PROJ)
     if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
         if (NOT DEFINED ENV{MSVC_INCLUDE})
             message(FATAL_ERROR "MSVC_INCLUDE was not found and running on Linux")
-        endif()
+        endif ()
         string(REPLACE ":" " " MSVC_INCLUDES $ENV{MSVC_INCLUDE})
         separate_arguments(MSVC_INCLUDES)
         target_include_directories(${PROJ} PRIVATE ${MSVC_INCLUDES})
-    endif()
+    endif ()
 
     target_include_directories(${PROJ} PRIVATE ${INCLUDE_PATH})
     target_include_directories(${PROJ} PRIVATE ${refl}/include)
@@ -15,6 +15,9 @@ function(TARGET_DEPENDENCIES PROJ)
 
     # Add Wildcards submodule
     target_include_directories(${PROJ} PRIVATE ${VENDOR}/wildcards/include)
+
+    # Add CPP Result submodule
+    target_include_directories(${PROJ} PRIVATE ${VENDOR}/result/include)
 
     # Add ReflectCPP
     target_include_directories(${PROJ} PRIVATE ${VENDOR}/reflect-cpp/src)
@@ -44,7 +47,7 @@ function(TARGET_DEPENDENCIES PROJ)
     #find_package(mongoc-1.0 CONFIG REQUIRED)
     #include_directories(${LIBMONGOCXX_INCLUDE_DIR})
     #include_directories(${LIBBSONCXX_INCLUDE_DIR})
-	include_directories(${SOURCE_PATH}/../mongo)
+    include_directories(${SOURCE_PATH}/../mongo)
 
     target_link_libraries(${PROJ} PUBLIC "${SOURCE_PATH}/../mongo/bson-1.0.lib")
     target_link_libraries(${PROJ} PUBLIC "${SOURCE_PATH}/../mongo/mongoc-1.0.lib")

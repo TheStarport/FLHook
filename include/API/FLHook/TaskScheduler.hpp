@@ -79,6 +79,7 @@ class DLL TaskScheduler
 
     public:
         TaskScheduler() : databaseThread(std::bind_front(&TaskScheduler::ProcessDatabaseTasks, this)) {}
+        ~TaskScheduler() = default;
 
         static void Schedule(std::function<void()> task);
         template <typename T>

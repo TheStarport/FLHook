@@ -22,7 +22,7 @@ class PersonalityHelper
         std::unordered_map<std::wstring, pub::AI::Personality::FormationUseStruct> formation;
         std::unordered_map<std::wstring, pub::AI::Personality::JobStruct> job;
 
-        Action<pub::AI::Personality*, Error> GetPersonality(const std::wstring& pilotNickname);
+        Action<pub::AI::Personality*> GetPersonality(const std::wstring& pilotNickname);
         static void SetDirection(INI_Reader& ini, float (&direction)[4]);
 
         void LoadEvadeDodge(INI_Reader& ini);
@@ -44,5 +44,9 @@ class PersonalityHelper
         void LoadMissile(INI_Reader& ini);
         void LoadPilot(INI_Reader& ini);
 
+    public:
         PersonalityHelper();
+        PersonalityHelper(const PersonalityHelper&) = delete;
+        PersonalityHelper& operator=(const PersonalityHelper&) = delete;
+        ~PersonalityHelper() = default;
 };

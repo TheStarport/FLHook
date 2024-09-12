@@ -78,7 +78,7 @@ namespace Plugins
             bool CheckIdEquipRestrictions(ClientId client, GoodId goodId, bool isShip) const;
             bool OnLoadSettings() override;
             void OnClearClientInfo(ClientId client) override;
-            void OnPlayerLaunch(ClientId client, ShipId ship) override;
+            void OnPlayerLaunch(ClientId client, const ShipId& ship) override;
             void OnBaseEnter(BaseId base, ClientId client) override;
             void OnGfGoodBuy(ClientId client, const SGFGoodBuyInfo& info) override;
             void OnRequestAddItem(ClientId client, GoodId goodId, std::wstring_view hardpoint, int count, float status, bool mounted) override;

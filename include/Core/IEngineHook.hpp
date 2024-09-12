@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/VTables.hpp"
-#include "Utils/Detour.hpp"
 #include "FLHook.hpp"
+#include "Utils/Detour.hpp"
 
 class FLHook;
 class IEngineHook
@@ -21,7 +21,8 @@ class IEngineHook
                 LoadRepData* end;
         };
 
-        inline static FARPROC oldLoadReputationFromCharacterFile = reinterpret_cast<FARPROC>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 7);
+        inline static FARPROC oldLoadReputationFromCharacterFile =
+            reinterpret_cast<FARPROC>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::SaveFileHouseEntrySaveAndLoadPatch) + 7);
         inline static FARPROC oldLaunchPosition;
         inline static FARPROC oldDisconnectPacketSent;
         inline static uint lastTicks;
@@ -45,7 +46,7 @@ class IEngineHook
 
 #undef VTablePtr
 
-        static void __fastcall ShipDestroy(Ship* ship, DamageList* dmgList, bool isKill, ShipId killerId);
+        static void __fastcall ShipDestroy(Ship* ship, DamageList* dmgList, bool isKill, Id killerId);
         static void __fastcall LootDestroy(Loot* loot, void* edx, bool isKill, uint killerId);
         static void __fastcall SolarDestroy(Solar* solar, void* edx, bool isKill, uint killerId);
 
@@ -88,6 +89,6 @@ class IEngineHook
         static bool __stdcall DisconnectPacketSent(ClientId client);
         static void SendDeathMessage(const std::wstring& msg, SystemId systemId, ClientId clientVictim, ClientId clientKiller);
 
-        using CGunWrapperShutdownFunc = void (__fastcall*)(void*);
+        using CGunWrapperShutdownFunc = void(__fastcall*)(void*);
         inline static std::unique_ptr<FunctionDetour<CGunWrapperShutdownFunc>> disconnectPacketDetour = nullptr;
 };

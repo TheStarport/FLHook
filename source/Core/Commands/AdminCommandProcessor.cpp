@@ -35,8 +35,8 @@ std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId user, const A
     return std::nullopt;
 }
 
-std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId client, const AllowedContext currentContext,
-    const std::wstring_view clientStr, const std::wstring_view commandString)
+std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId client, const AllowedContext currentContext, const std::wstring_view clientStr,
+                                                          const std::wstring_view commandString)
 {
     this->currentContext = currentContext;
 
@@ -124,7 +124,7 @@ Task AdminCommandProcessor::GetClientId(ClientId client, ClientId target)
 
 Task AdminCommandProcessor::KillPlayer(ClientId client, ClientId target)
 {
-    target.GetShipId().Handle().Destroy();
+    target.GetShip().Handle().Destroy();
     client.Message(std::format(L"{} successfully killed", target));
     co_return TaskStatus::Finished;
 }
@@ -198,10 +198,10 @@ Task AdminCommandProcessor::ListCargo(ClientId client, const ClientId target)
 
 Task AdminCommandProcessor::AddCargo(ClientId client, ClientId target, GoodInfo* good, uint count, const bool mission)
 {
-    target.GetShipId().Handle().AddCargo(good->goodId, count, mission).Handle();
+    target.GetShip().Handle().AddCargo(good->goodId, count, mission).Handle();
 
     const auto& im = FLHook::GetInfocardManager();
-    client.Message(std::format(L"{} units of {} has been added to {}'s cargo", count, im.GetInfocard(good->idsName), target.GetCharacterName().Handle()));
+    client.Message(std::format(L"{} units of {} has been added to {}'s cargo", count, im->GetInfocard(good->idsName), target.GetCharacterName().Handle()));
 
     co_return TaskStatus::Finished;
 }
@@ -215,8 +215,8 @@ Task AdminCommandProcessor::RenameChar(ClientId client, ClientId target, std::ws
 
 Task AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring_view characterName)
 {
-    using bsoncxx::builder::basic::make_document;
     using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
 
     // Kick the player if they are currently online
     for (auto& player : FLHook::Clients())
@@ -230,10 +230,10 @@ Task AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring
 
     co_yield TaskStatus::DatabaseAwait;
 
-    const auto& config = FLHook::GetConfig();
+    const auto config = FLHook::GetConfig();
     auto db = FLHook::GetDbClient();
-    auto accountCollection = Database::GetCollection(db, config.database.accountsCollection);
-    auto charactersCollection = Database::GetCollection(db, config.database.charactersCollection);
+    auto accountCollection = Database::GetCollection(db, config->database.accountsCollection);
+    auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
 
     auto transaction = db->start_session();
     transaction.start_transaction();
@@ -301,10 +301,10 @@ bool AddRole(std::string characterName, std::vector<std::string> roles, std::sha
 
     const auto responseMessage = std::static_pointer_cast<std::wstring>(taskData);
 
-    const auto& config = FLHook::GetConfig();
-    const auto dbClient = FLHook::GetDatabase().AcquireClient();
-    auto accountCollection = dbClient->database(config.database.dbName).collection(config.database.accountsCollection);
-    auto charactersCollection = dbClient->database(config.database.dbName).collection(config.database.charactersCollection);
+    const auto config = FLHook::GetConfig();
+    const auto dbClient = FLHook::GetDbClient();
+    auto accountCollection = dbClient->database(config->database.dbName).collection(config->database.accountsCollection);
+    auto charactersCollection = dbClient->database(config->database.dbName).collection(config->database.charactersCollection);
 
     const auto findCharacterDoc = make_document(kvp("characterName", characterName));
 
@@ -478,12 +478,12 @@ Task AdminCommandProcessor::ReloadPlugin(ClientId client, std::vector<std::wstri
 
 Task AdminCommandProcessor::ListPlugins(ClientId client)
 {
-    auto builder = FLHook::GetResourceManager().NewBuilder();
+    auto builder = FLHook::GetResourceManager()->NewBuilder();
     builder.WithNpc(L"fc_c_co_fighter_d8")
         .WithReputation(L"fc_x_grp")
         .WithLevel(90)
         .WithRandomName()
-        .WithPosition(client.GetShipId().Handle().GetPositionAndOrientation().Handle().first)
+        .WithPosition(client.GetShip().Handle().GetPositionAndOrientation().Handle().first)
         .WithSystem(client.GetSystemId().Handle().GetValue())
         .Spawn();
 
@@ -511,10 +511,10 @@ Task AdminCommandProcessor::Chase(ClientId client, const ClientId target)
         co_return TaskStatus::Finished;
     }
 
-    auto [pos, orientation] = target.GetShipId().Handle().GetPositionAndOrientation().Handle();
+    auto [pos, orientation] = target.GetShip().Handle().GetPositionAndOrientation().Handle();
 
     pos.y += 100.0f;
-    client.GetShipId().Handle().Relocate(pos, orientation);
+    client.GetShip().Handle().Relocate(pos, orientation);
 
     client.Message(std::format(L"Jump to system={} x={:.0f} y={:.0f} z={:.0f}", target.GetSystemId().Handle().GetName().Handle(), pos.x, pos.y, pos.z));
     co_return TaskStatus::Finished;
@@ -541,12 +541,12 @@ Task AdminCommandProcessor::Pull(ClientId client, ClientId target)
         co_return TaskStatus::Finished;
     }
 
-    const auto transform = target.GetShipId().Handle().GetPositionAndOrientation().Handle();
+    const auto transform = target.GetShip().Handle().GetPositionAndOrientation().Handle();
     Vector pos = transform.first;
     Matrix orientation = transform.second;
 
     pos.y += 400;
-    target.GetShipId().Handle().Relocate(pos, orientation);
+    target.GetShip().Handle().Relocate(pos, orientation);
 
     client.Message(std::format(L"player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}", target.GetCharacterName().Handle(), client, pos.x, pos.y, pos.z));
     co_return TaskStatus::Finished;
@@ -562,11 +562,11 @@ Task AdminCommandProcessor::SetDamageType(ClientId client, const std::wstring_vi
         co_return TaskStatus::Finished;
     }
 
-    auto& config = FLHook::GetConfig();
+    const auto config = FLHook::GetConfig();
     const auto lower = StringUtils::ToLower(newDamageType);
     if (lower == L"none")
     {
-        config.general.damageMode = DamageMode::None;
+        config->general.damageMode = DamageMode::None;
         Json::Save(config, "flhook.json");
         client.Message(L"Set damage mode to None. No player ship can take damage, but NPCs can still hurt each other.");
         co_return TaskStatus::Finished;
@@ -574,7 +574,7 @@ Task AdminCommandProcessor::SetDamageType(ClientId client, const std::wstring_vi
 
     if (lower == L"all")
     {
-        config.general.damageMode = DamageMode::All;
+        config->general.damageMode = DamageMode::All;
         Json::Save(config, "flhook.json");
         client.Message(L"Set damage mode to All. All ships can take damage.");
         co_return TaskStatus::Finished;
@@ -582,7 +582,7 @@ Task AdminCommandProcessor::SetDamageType(ClientId client, const std::wstring_vi
 
     if (lower == L"pvp")
     {
-        config.general.damageMode = DamageMode::PvP;
+        config->general.damageMode = DamageMode::PvP;
         Json::Save(config, "flhook.json");
         client.Message(L"Set damage mode to PvP. Players can hurt players, and NPCs can hurt NPCs, but they cannot hurt each other.");
         co_return TaskStatus::Finished;
@@ -590,7 +590,7 @@ Task AdminCommandProcessor::SetDamageType(ClientId client, const std::wstring_vi
 
     if (lower == L"pve")
     {
-        config.general.damageMode = DamageMode::PvE;
+        config->general.damageMode = DamageMode::PvE;
         Json::Save(config, "flhook.json");
         client.Message(L"Set damage mode to PvE. Players cannot hurt each other, but can hurt and be hurt by NPCs.");
         co_return TaskStatus::Finished;
@@ -609,7 +609,7 @@ Task AdminCommandProcessor::Move(ClientId client, ClientId target, const float x
         co_return TaskStatus::Finished;
     }
 
-    const auto shipId = target.GetShipId().Unwrap();
+    const auto shipId = target.GetShip().Unwrap();
     if (!shipId)
     {
         client.Message(L"Target is docked. Unable to move.");

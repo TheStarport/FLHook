@@ -160,11 +160,11 @@ class DLL Plugin
          * the ship to proceed to the docking setup.
          * @returns nullopt will not override the base game behavior, sending a DOCK_HOST_RESPONSE will override the base game behavior.
          */
-        Aft(std::optional<DOCK_HOST_RESPONSE>, OnDockCall, (ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response));
-        virtual std::optional<LaunchData> OnLaunchPosition(ObjectId spaceId, const LaunchData& data) { return std::nullopt; }
-        Aft(bool, OnGuidedHit, (ShipId inflictorShip, ClientId hitClient, ObjectId hitObject, DamageList* dmg));
+        Aft(std::optional<DOCK_HOST_RESPONSE>, OnDockCall, (const ShipId& shipId, const ObjectId& spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response));
+        virtual std::optional<LaunchData> OnLaunchPosition(const ObjectId& spaceId, const LaunchData& data) { return std::nullopt; }
+        Aft(bool, OnGuidedHit, (const ShipId& inflictorShip, ClientId hitClient, const ObjectId& hitObject, DamageList* dmg));
         Aft(void, OnAddDamageEntry, (DamageList * dmg, ushort subObjId, float newHitPts, DamageEntry::SubObjFate fate));
-        virtual void OnDamageHit(ClientId hitClient, ObjectId spaceId) {}
+        virtual void OnDamageHit(ClientId hitClient, const ObjectId& spaceId) {}
         Aft(bool, OnAllowPlayerDamage, (ClientId client, ClientId target));
         Aft(void, OnSendDeathMessage, (ClientId killer, ClientId victim, SystemId system, std::wstring_view msg));
         virtual bool OnLoadSettings() { return true; }
@@ -176,7 +176,7 @@ class DLL Plugin
         Aft(void, OnActivateThrusters, (ClientId client, const XActivateThrusters& activate));
         Aft(void, OnSetTarget, (ClientId client, const XSetTarget& target));
         Aft(void, OnTradelaneStart, (ClientId client, const XGoTradelane& tradelane));
-        Aft(void, OnTradelaneStop, (ClientId client, ShipId ship, ObjectId tradelaneRing1, ObjectId tradelaneRing2));
+        Aft(void, OnTradelaneStop, (ClientId client, const ShipId& ship, const ObjectId& tradelaneRing1, const ObjectId& tradelaneRing2));
         Aft(bool, OnServerStartup, (const SStartupInfo& info));
         virtual void OnServerShutdown() {}
         Aft(int, OnServerUpdate, ());
@@ -210,19 +210,19 @@ class DLL Plugin
         Aft(void, OnGfGoodSell, (ClientId client, const SGFGoodSellInfo& info));
         Aft(void, OnGfGoodVaporized, (ClientId client, const SGFGoodVaporizedInfo& info));
         Aft(void, OnMissionResponse, (ClientId client, uint unk1, ulong unk2, bool unk3));
-        Aft(void, OnSystemSwitchOutComplete, (ClientId client, ShipId ship));
-        Aft(void, OnPlayerLaunch, (ClientId client, ShipId ship));
-        Aft(void, OnLaunchComplete, (BaseId baseId, ShipId ship));
-        Aft(void, OnJumpInComplete, (SystemId system, ShipId ship));
+        Aft(void, OnSystemSwitchOutComplete, (ClientId client, const ShipId& ship));
+        Aft(void, OnPlayerLaunch, (ClientId client, const ShipId& ship));
+        Aft(void, OnLaunchComplete, (BaseId baseId, const ShipId& ship));
+        Aft(void, OnJumpInComplete, (SystemId system, const ShipId& ship));
         Aft(void, OnHail, (uint unk1, uint unk2, uint unk3));
         Aft(void, OnSpObjectUpdate, (ClientId client, const SSPObjUpdateInfo& info));
         Aft(void, OnSpMunitionCollision, (ClientId client, const SSPMunitionCollisionInfo& info));
         Aft(void, OnSpObjectCollision, (ClientId client, const SSPObjCollisionInfo& info));
         Aft(void, OnSpScanCargo, (uint unk1, uint unk2, uint unk3));
         Aft(void, OnSpRequestUseItem, (ClientId client, const SSPUseItem& item));
-        Aft(void, OnSpRequestInvincibility, (ClientId client, ShipId shipId, bool enable, InvincibilityReason reason));
-        Aft(void, OnRequestEvent, (ClientId client, int eventType, ShipId ship, ObjectId dockTarget, uint unk1, uint unk2));
-        Aft(void, OnRequestCancel, (ClientId client, int eventType, ShipId ship, ObjectId dockTarget, uint unk1));
+        Aft(void, OnSpRequestInvincibility, (ClientId client, const ShipId& shipId, bool enable, InvincibilityReason reason));
+        Aft(void, OnRequestEvent, (ClientId client, int eventType, const ShipId& ship, const ObjectId& dockTarget, uint unk1, uint unk2));
+        Aft(void, OnRequestCancel, (ClientId client, int eventType, const ShipId& ship, const ObjectId& dockTarget, uint unk1));
         Aft(void, OnMineAsteroid, (ClientId client, SystemId system, const Vector& pos, ArchId crateId, ArchId lootId, uint count));
         Aft(void, OnRequestCreateShip, (ClientId client));
         Aft(void, OnSetManeuver, (ClientId client, const XSetManeuver& maneuver));

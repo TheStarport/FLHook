@@ -18,14 +18,14 @@ GoodId::operator bool() const { return value; }
 
 const GoodInfo* GoodId::GetValue() const { return value; }
 
-Action<uint, Error> GoodId::GetHash() const
+Action<uint> GoodId::GetHash() const
 {
     GoodCheck;
 
     return { value->goodId };
 }
 
-Action<EquipmentId, Error> GoodId::GetEquipment() const
+Action<EquipmentId> GoodId::GetEquipment() const
 {
     GoodCheck;
 
@@ -37,21 +37,21 @@ Action<EquipmentId, Error> GoodId::GetEquipment() const
     return { EquipmentId(value->equipmentId) };
 }
 
-Action<std::wstring_view, Error> GoodId::GetName() const
+Action<std::wstring_view> GoodId::GetName() const
 {
     GoodCheck;
 
-    return { FLHook::GetInfocardManager().GetInfocard(value->idsName) };
+    return { FLHook::GetInfocardManager()->GetInfocard(value->idsName) };
 }
 
-Action<float, Error> GoodId::GetPrice() const
+Action<float> GoodId::GetPrice() const
 {
     GoodCheck;
 
     return { value->price };
 }
 
-Action<GoodType, Error> GoodId::GetType() const
+Action<GoodType> GoodId::GetType() const
 {
     GoodCheck;
 

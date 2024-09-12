@@ -23,14 +23,14 @@ class DLL AccountId final
         [[nodiscard]]
         bool IsAdmin() const;
 
-        Action<void, Error> UnBan() const;
-        Action<void, Error> Ban(uint tempBanDays = 0) const;
-        Action<void, Error> DeleteCharacter(std::wstring_view name) const;
+        Action<void> UnBan() const;
+        Action<void> Ban(uint tempBanDays = 0) const;
+        Action<void> DeleteCharacter(std::wstring_view name) const;
 
-        Action<void, Error> AddRoles(const std::vector<std::wstring_view>& roles);
-        Action<void, Error> RemoveRoles(const std::vector<std::wstring_view>& roles, bool clear);
-        Action<void, Error> SetRoles(const std::vector<std::wstring_view>& roles);
-        Action<bool, Error> HasRole(std::wstring_view role) const;
+        Action<void> AddRoles(const std::vector<std::wstring_view>& roles);
+        Action<void> RemoveRoles(const std::vector<std::wstring_view>& roles, bool clear);
+        Action<void> SetRoles(const std::vector<std::wstring_view>& roles);
+        Action<bool> HasRole(std::wstring_view role) const;
 
-        Action<void, Error> SetCash(std::wstring_view characterName, int64 amount) const;
+        Action<void> SetCash(std::wstring_view characterName, int64 amount) const;
 };

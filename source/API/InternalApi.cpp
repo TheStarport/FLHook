@@ -4,7 +4,7 @@
 
 #include "API/FLHook/ClientList.hpp"
 
-Action<void, Error> InternalApi::FMsgEncodeXml(std::wstring_view xml, char* buffer, const uint size, uint& ret)
+Action<void> InternalApi::FMsgEncodeXml(std::wstring_view xml, char* buffer, const uint size, uint& ret)
 {
     XMLReader rdr;
     RenderDisplayList rdl;
@@ -25,7 +25,7 @@ void InternalApi::FMsgSendChat(ClientId client, char* buffer, uint size)
     FLHook::rcSendChatMsg(static_cast<PVOID>(reinterpret_cast<PCHAR>(&Client) + 4), client.GetValue(), 0x10000, size, buffer);
 }
 
-Action<void, Error> InternalApi::SendMessage(const ClientId to, const std::wstring_view message, const ClientId from, std::wstring_view fromXml)
+Action<void> InternalApi::SendMessage(const ClientId to, const std::wstring_view message, const ClientId from, std::wstring_view fromXml)
 {
     if (from)
     {

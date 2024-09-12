@@ -1,8 +1,8 @@
 #include "PCH.hpp"
 
+#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "API/Utils/Logger.hpp"
 
 void __stdcall IServerImplHook::RequestCreateShip(ClientId client)
 {
@@ -56,19 +56,21 @@ void __stdcall IServerImplHook::ReqHullStatus(float status, ClientId client)
     CallPlugins(&Plugin::OnRequestHullStatusAfter, client, status);
 }
 
-void __stdcall IServerImplHook::SpRequestInvincibility(ShipId shipId, bool enable, InvincibilityReason reason, ClientId client)
+void __stdcall IServerImplHook::SpRequestInvincibility(Id shipId, bool enable, InvincibilityReason reason, ClientId client)
 {
-    Logger::Trace(std::format(L"SPRequestInvincibility(\n\tuint shipId = {}\n\tbool enable = {}\n\tInvincibilityReason reason = {}\n\tClientId client = {}\n)",
-                    shipId,
-                    enable,
-                    static_cast<int>(reason),
-                    client));
+    auto ship = shipId.AsShip();
 
-    if (const auto skip = CallPlugins(&Plugin::OnSpRequestInvincibility, client, shipId, enable, reason); !skip)
+    Logger::Trace(std::format(L"SPRequestInvincibility(\n\tuint shipId = {}\n\tbool enable = {}\n\tInvincibilityReason reason = {}\n\tClientId client = {}\n)",
+                              shipId,
+                              enable,
+                              static_cast<int>(reason),
+                              client));
+
+    if (const auto skip = CallPlugins(&Plugin::OnSpRequestInvincibility, client, ship, enable, reason); !skip)
     {
         CallServerPreamble { Server.SPRequestInvincibility(shipId.GetValue(), enable, reason, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
-    CallPlugins(&Plugin::OnSpRequestInvincibilityAfter, client, shipId, enable, reason);
+    CallPlugins(&Plugin::OnSpRequestInvincibilityAfter, client, ship, enable, reason);
 }

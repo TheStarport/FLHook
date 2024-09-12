@@ -33,7 +33,7 @@ namespace Plugins
             static float GetDamageDone(const DamageDone& damageDone);
             std::wstring SelectRandomDeathMessage(ClientId client);
             void OnSendDeathMessage(ClientId killer, ClientId victim, SystemId system, std::wstring_view msg) override;
-            void OnPlayerLaunchAfter(ClientId client, ShipId ship) override;
+            void OnPlayerLaunchAfter(ClientId client, const ShipId& ship) override;
 
         public:
             explicit KillTrackerPlugin(const PluginInfo& info);

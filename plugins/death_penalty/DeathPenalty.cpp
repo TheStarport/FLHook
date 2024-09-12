@@ -82,7 +82,7 @@ namespace Plugins
     /** @ingroup DeathPenalty
      * @brief Hook on Player Launch. Used to work out the death penalty and display a message to the player warning them of such
      */
-    void DeathPenaltyPlugin::OnPlayerLaunchAfter(const ClientId client, const ShipId ship)
+    void DeathPenaltyPlugin::OnPlayerLaunchAfter(const ClientId client, const ShipId& ship)
     {
         // No point in processing anything if there is no death penalty
         if (config.DeathPenaltyFraction > 0.00001f)
@@ -202,11 +202,11 @@ namespace Plugins
         }
     }
 
-    void DeathPenaltyPlugin::OnJumpInComplete(const SystemId system, const ShipId ship)
+    void DeathPenaltyPlugin::OnJumpInComplete(const SystemId system, const ShipId& ship)
     {
-        if (const auto player = ship.GetPlayer(); player.has_value())
+        if (const auto player = ship.GetPlayer().Unwrap(); player)
         {
-            ClientInfo[player.value()].isJumping = false;
+            ClientInfo[player].isJumping = false;
         }
     }
 
@@ -214,7 +214,7 @@ namespace Plugins
     {
         if (config.KillOnDisconnect && ClientInfo[client].isJumping)
         {
-            client.GetShipId().Handle().Destroy();
+            client.GetShip().Handle().Destroy();
         }
     }
 
@@ -224,9 +224,9 @@ namespace Plugins
 
     bool DeathPenaltyPlugin::OnSystemSwitchOutPacket(const ClientId client, FLPACKET_SYSTEM_SWITCH_OUT& packet)
     {
-        if (const auto jumpingClient = ShipId(packet.shipId).GetPlayer(); jumpingClient.has_value())
+        if (const auto jumpingClient = ShipId(packet.shipId).GetPlayer().Unwrap(); jumpingClient)
         {
-            ClientInfo[jumpingClient.value()].isJumping = true;
+            ClientInfo[jumpingClient].isJumping = true;
         }
         return true;
     }

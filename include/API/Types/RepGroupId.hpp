@@ -20,9 +20,9 @@ class DLL RepGroupId final
 
         uint GetValue() const { return value; }
 
-        Action<std::wstring_view, Error> GetName() const;
-        Action<std::wstring_view, Error> GetShortName() const;
-        Action<float, Error> GetAttitudeTowardsRepId(RepId target) const;
+        Action<std::wstring_view> GetName() const;
+        Action<std::wstring_view> GetShortName() const;
+        Action<float> GetAttitudeTowardsRepId(RepId target) const;
 };
 
 template <>

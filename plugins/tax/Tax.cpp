@@ -14,7 +14,7 @@ void TaxPlugin::RemoveTax(const Tax& toRemove)
 
 Task TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
 {
-    const auto& noPvpSystems = FLHook::GetConfig().general.noPvPSystems;
+    const auto& noPvpSystems = FLHook::GetConfig()->general.noPvPSystems;
     // no-pvp check
     if (const SystemId system = client.GetSystemId().Unwrap(); std::ranges::find(noPvpSystems, system) == noPvpSystems.end())
     {
@@ -37,16 +37,10 @@ Task TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
         co_return TaskStatus::Finished;
     }
 
-    const auto targetShip = client.GetShipId().Handle().GetTarget();
+    const auto targetShip = client.GetShip().Handle().GetTarget().Handle();
 
-    if (!targetShip.has_value())
-    {
-        client.Message(L"Error: You do not have a target selected.");
-        co_return TaskStatus::Finished;
-    }
-
-    const auto player = targetShip->GetPlayer();
-    if (!player.has_value())
+    const auto player = targetShip.GetPlayer().Unwrap();
+    if (!player)
     {
         client.Message(L"Error: Your current target is not a player.");
         co_return TaskStatus::Finished;
@@ -54,7 +48,7 @@ Task TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
 
     for (const auto& [targetId, initiatorId, target, initiator, cash, f1] : taxes)
     {
-        if (targetId == player.value())
+        if (targetId == player)
         {
             client.Message(L"Error: There already is a tax request pending for this player.");
             co_return TaskStatus::Finished;
@@ -63,7 +57,7 @@ Task TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
 
     Tax tax;
     tax.initiatorId = client;
-    tax.targetId = player.value();
+    tax.targetId = player;
     tax.cash = taxValue;
     taxes.push_back(tax);
 
@@ -71,14 +65,14 @@ Task TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
 
     if (taxValue == 0)
     {
-        player->Message(std::vformat(config.huntingMessage, std::make_wformat_args(characterName)), config.customFormat, config.customColor);
+        player.Message(std::vformat(config.huntingMessage, std::make_wformat_args(characterName)), config.customFormat, config.customColor);
     }
     else
     {
-        player->Message(std::vformat(config.taxRequestReceived, std::make_wformat_args(taxValue, characterName)), config.customFormat, config.customColor);
+        player.Message(std::vformat(config.taxRequestReceived, std::make_wformat_args(taxValue, characterName)), config.customFormat, config.customColor);
     }
 
-    const auto targetCharacterName = player->GetCharacterName().Handle();
+    const auto targetCharacterName = player.GetCharacterName().Handle();
 
     // send confirmation msg
     if (taxValue > 0)
@@ -158,7 +152,7 @@ void TaxPlugin::FiveSecondTimer()
 
             if (data.shipId && config.killDisconnectingPlayers)
             {
-                data.shipId.Destroy(DestroyType::Fuse);
+                data.ship.Destroy(DestroyType::Fuse);
             }
 
             const auto characterName = it.targetId.GetCharacterName().Handle();

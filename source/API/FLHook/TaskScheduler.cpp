@@ -37,6 +37,7 @@ std::suspend_always Promise::yield_value(TaskStatus&& newStatus)
 
 void Promise::unhandled_exception() noexcept
 {
+
     constexpr std::wstring_view err = L"Unhandled exception occured while handling Promise";
     Logger::Err(err);
 }

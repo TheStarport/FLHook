@@ -4,7 +4,6 @@
 
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
-#include "API/Utils/Reflection.hpp"
 
 #include <uuid.h>
 
@@ -158,18 +157,19 @@ Character* AccountManager::GetCurrentCharacterData(const ClientId client)
 Character* AccountManager::GetCurrentCharacterData(ClientId client, std::wstring_view characterName)
 {
 
-    if(!client && characterName.empty())
+    if (!client && characterName.empty())
     {
         return nullptr;
     }
 
     char charNameBuffer[50];
 
-    getFlName(charNameBuffer, characterName.data());;
+    getFlName(charNameBuffer, characterName.data());
+    ;
 
     auto& characterMap = accounts[client.GetValue()].characters;
     const auto charData = characterMap.find(charNameBuffer);
-    if(charData == characterMap.end())
+    if (charData == characterMap.end())
     {
         return nullptr;
     }
@@ -480,7 +480,7 @@ void AccountManager::LoadNewPlayerFLInfo()
     if (!newPlayerTemplate.hasPackage)
     {
         Logger::Warn(L"Missing %%PACKAGE%% from mpnewplayer.fl. If the package is missing any data from a valid save file, "
-                    L"new characters can cause server and client crashes.");
+                     L"new characters can cause server and client crashes.");
     }
 }
 
@@ -720,11 +720,13 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 
     if (pd->shipId)
     {
-        // TODO: Release the cship?
-        auto cship = ShipId(pd->shipId).GetCShip(false).Handle();
-        character.pos = cship->position;
-        character.rot = cship->orientation.ToEuler(true);
+        if (auto ship = ShipId(pd->shipId).GetValue().lock(); ship)
+        {
+            character.pos = ship->position;
+            character.rot = ship->orientation.ToEuler(true);
+        }
     }
+
     uint affiliation;
     uint rank;
     unsigned char relationCount;

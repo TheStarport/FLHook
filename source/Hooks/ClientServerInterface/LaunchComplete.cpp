@@ -5,17 +5,17 @@
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 
-void IServerImplHook::LaunchCompleteInner(BaseId, ShipId shipId)
+void IServerImplHook::LaunchCompleteInner(BaseId, const ShipId& shipId)
 {
     TryHook
     {
 
-        if (const auto client = ShipId(shipId).GetPlayer().value_or(ClientId()))
+        if (const auto client = shipId.GetPlayer().Unwrap())
         {
             auto& data = client.GetData();
             data.spawnTime = TimeUtils::UnixTime<std::chrono::milliseconds>(); // save for anti-dockkill
             // is there spawnprotection?
-            if (FLHook::GetConfig().general.antiDockKill > 0)
+            if (FLHook::GetConfig()->general.antiDockKill > 0)
             {
                 data.spawnProtected = true;
             }
@@ -28,13 +28,15 @@ void IServerImplHook::LaunchCompleteInner(BaseId, ShipId shipId)
     CatchHook({});
 }
 
-void __stdcall IServerImplHook::LaunchComplete(BaseId baseId, ShipId shipId)
+void __stdcall IServerImplHook::LaunchComplete(BaseId baseId, Id shipId)
 {
     Logger::Trace(std::format(L"LaunchComplete(\n\tuint baseId = {}\n\tuint shipId = {}\n)", baseId, shipId));
 
-    const auto skip = CallPlugins(&Plugin::OnLaunchComplete, baseId, shipId);
+    auto ship = shipId.AsShip();
 
-    LaunchCompleteInner(baseId, shipId);
+    const auto skip = CallPlugins(&Plugin::OnLaunchComplete, baseId, ship);
+
+    LaunchCompleteInner(baseId, ship);
 
     if (!skip)
     {
@@ -42,5 +44,5 @@ void __stdcall IServerImplHook::LaunchComplete(BaseId baseId, ShipId shipId)
         CallServerPostamble(true, );
     }
 
-    CallPlugins(&Plugin::OnLaunchCompleteAfter, baseId, shipId);
+    CallPlugins(&Plugin::OnLaunchCompleteAfter, baseId, ship);
 }

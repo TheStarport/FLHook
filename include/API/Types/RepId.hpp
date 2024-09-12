@@ -11,7 +11,6 @@ class DLL RepId final
         int value = 0;
 
     public:
-        explicit RepId(const ObjectId& spaceObj, bool isSolar);
         explicit RepId(const int val) : value(val) {}
         explicit RepId() = default;
         ~RepId() = default;
@@ -23,18 +22,28 @@ class DLL RepId final
         bool operator==(const RepId& next) const { return value == next.value; }
         explicit operator bool() const;
 
-        int GetValue() const { return value; }
+        [[nodiscard]]
+        int GetValue() const;
 
-        Action<RepGroupId, Error> GetAffiliation() const;
-        Action<float, Error> GetAttitudeTowardsRepId(const RepId& target) const;
-        Action<float, Error> GetAttitudeTowardsFaction(const RepGroupId& group) const;
-        Action<int, Error> GetRank() const;
-        Action<std::pair<FmtStr, FmtStr>, Error> GetName() const;
+        [[nodiscard]]
+        Action<RepGroupId> GetAffiliation() const;
+        [[nodiscard]]
+        Action<float> GetAttitudeTowardsRepId(const RepId& target) const;
+        [[nodiscard]]
+        Action<float> GetAttitudeTowardsFaction(const RepGroupId& group) const;
+        [[nodiscard]]
+        Action<int> GetRank() const;
+        [[nodiscard]]
+        Action<std::pair<FmtStr, FmtStr>> GetName() const;
 
-        Action<void, Error> SetRank(int rank) const;
-        Action<void, Error> SetAttitudeTowardsRepId(RepId target, float newAttitude) const;
-        Action<void, Error> SetAttitudeTowardsRepGroupId(RepGroupId target, float newAttitude) const;
-        Action<void, Error> SetAffiliation(RepGroupId group) const;
+        [[nodiscard]]
+        Action<void> SetRank(int rank) const;
+        [[nodiscard]]
+        Action<void> SetAttitudeTowardsRepId(RepId target, float newAttitude) const;
+        [[nodiscard]]
+        Action<void> SetAttitudeTowardsRepGroupId(RepGroupId target, float newAttitude) const;
+        [[nodiscard]]
+        Action<void> SetAffiliation(RepGroupId group) const;
 };
 
 template <>

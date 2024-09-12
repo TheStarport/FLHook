@@ -213,7 +213,7 @@ namespace Plugins
     /** @ingroup Condata
      * @brief Hook on PlayerLaunch. Sets lastObjUpdate to 0.
      */
-    void ConnectionDataPlugin::OnPlayerLaunchAfter(ClientId client, ShipId ship) { connectionData[client.GetValue()].lastObjUpdate = 0; }
+    void ConnectionDataPlugin::OnPlayerLaunchAfter(ClientId client, const ShipId& ship) { connectionData[client.GetValue()].lastObjUpdate = 0; }
 
     /** @ingroup Condata
      * @brief Hook on SPObjUpdate. Updates timestamps for lag detection.
@@ -369,21 +369,17 @@ namespace Plugins
             (void)client.MessageErr(L"Command disabled");
             co_return TaskStatus::Finished;
         }
-        const ShipId ship = client.GetShipId().Handle();
-        const auto target = ship.GetTarget();
-        if (!target)
-        {
-            (void)client.MessageErr(L"No target");
-            co_return TaskStatus::Finished;
-        }
+        const ShipId ship = client.GetShip().Handle();
+        const auto target = ship.GetTarget().Handle();
 
-        if (!target.value().IsPlayer())
+        const auto targetClient = target.GetPlayer().Unwrap();
+        if (!targetClient)
         {
             (void)client.MessageErr(L"Target not a player");
             co_return TaskStatus::Finished;
         }
 
-        PrintClientPing(client, target.value().GetPlayer().value());
+        PrintClientPing(client, targetClient);
         co_return TaskStatus::Finished;
     }
 

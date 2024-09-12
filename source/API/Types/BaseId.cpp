@@ -24,7 +24,7 @@ BaseId::BaseId(const std::wstring_view name, const bool isWildCard)
             std::fill_n(baseNickname.begin(), baseNickname.size(), '\0');
             pub::GetBaseNickname(baseNickname.data(), baseNickname.size(), baseInfo->baseId);
 
-            if (const auto basename = FLHook::GetInfocardManager().GetInfocard(baseInfo->baseIdS);
+            if (const auto basename = FLHook::GetInfocardManager()->GetInfocard(baseInfo->baseIdS);
                 StringUtils::ToLower(StringUtils::stows(baseNickname.data())) == StringUtils::ToLower(baseName) ||
                 StringUtils::ToLower(basename).find(StringUtils::ToLower(baseName)) != std::wstring::npos)
             {
@@ -39,7 +39,7 @@ BaseId::BaseId(const std::wstring_view name, const bool isWildCard)
 
     while (baseInfo)
     {
-        if (const auto basename = FLHook::GetInfocardManager().GetInfocard(baseInfo->baseIdS);
+        if (const auto basename = FLHook::GetInfocardManager()->GetInfocard(baseInfo->baseIdS);
             StringUtils::ToLower(basename).find(StringUtils::ToLower(baseName)) != std::wstring::npos)
         {
             value = baseInfo->baseId;
@@ -51,7 +51,7 @@ BaseId::BaseId(const std::wstring_view name, const bool isWildCard)
 
 BaseId::operator bool() const { return Universe::get_base(value) != nullptr; }
 
-Action<ObjectId, Error> BaseId::GetSpaceId() const
+Action<ObjectId> BaseId::GetSpaceId() const
 {
     ValidBaseCheck;
 
@@ -64,26 +64,26 @@ Action<ObjectId, Error> BaseId::GetSpaceId() const
     return { ObjectId(base->spaceObjId) };
 }
 
-Action<SystemId, Error> BaseId::GetSystem() const
+Action<SystemId> BaseId::GetSystem() const
 {
     Universe::IBase* ibase = Universe::get_base(value);
     return { SystemId(ibase->systemId) };
 }
 
-Action<RepId, Error> BaseId::GetAffiliation() const
+Action<RepId> BaseId::GetAffiliation() const
 {
-    //Technically the base rep is defined in mbases, but we don't have access to it at the moment
-    //this method matches every base in vanilla, so we go with this instead.
+    // Technically the base rep is defined in mbases, but we don't have access to it at the moment
+    // this method matches every base in vanilla, so we go with this instead.
     const auto objectId = GetSpaceId().Unwrap();
     if (!objectId)
     {
         return { cpp::fail(Error::InvalidBase) };
     }
 
-    return { RepId(objectId, true) };
+    return objectId.GetReputation();
 }
 
-Action<std::wstring_view, Error> BaseId::GetName() const
+Action<std::wstring_view> BaseId::GetName() const
 {
     const auto base = Universe::get_base(value);
     if (!base)
@@ -91,10 +91,10 @@ Action<std::wstring_view, Error> BaseId::GetName() const
         return { cpp::fail(Error::InvalidBase) };
     }
 
-    return { FLHook::GetInfocardManager().GetInfocard(base->baseIdS) };
+    return { FLHook::GetInfocardManager()->GetInfocard(base->baseIdS) };
 }
 
-Action<std::pair<float, float>, Error> BaseId::GetBaseHealth() const
+Action<std::pair<float, float>> BaseId::GetBaseHealth() const
 {
     float curHealth;
     float maxHealth;
@@ -109,7 +109,7 @@ Action<std::pair<float, float>, Error> BaseId::GetBaseHealth() const
     return { std::make_pair(curHealth, maxHealth) };
 }
 
-Action<std::pair<std::wstring_view, std::wstring_view>, Error> BaseId::GetDescription() const
+Action<std::pair<std::wstring_view, std::wstring_view>> BaseId::GetDescription() const
 {
     ValidBaseCheck;
 
@@ -117,7 +117,7 @@ Action<std::pair<std::wstring_view, std::wstring_view>, Error> BaseId::GetDescri
     return { {} };
 }
 
-Action<std::vector<uint>, Error> BaseId::GetItemsForSale() const
+Action<std::vector<uint>> BaseId::GetItemsForSale() const
 {
     ValidBaseCheck;
 
@@ -135,7 +135,7 @@ Action<std::vector<uint>, Error> BaseId::GetItemsForSale() const
     return { std::vector(arr.begin(), arr.begin() + size) };
 }
 
-Action<float, Error> BaseId::GetCommodityPrice(GoodId goodId) const
+Action<float> BaseId::GetCommodityPrice(GoodId goodId) const
 {
     float nomPrice;
     if (pub::Market::GetNominalPrice(goodId.GetHash().Unwrap(), nomPrice) != static_cast<int>(ResponseCode::Success))
@@ -152,7 +152,7 @@ Action<float, Error> BaseId::GetCommodityPrice(GoodId goodId) const
     return { price };
 }
 
-Action<std::vector<ClientId>, Error> BaseId::GetDockedPlayers() const
+Action<std::vector<ClientId>> BaseId::GetDockedPlayers() const
 {
     ValidBaseCheck;
 

@@ -62,9 +62,9 @@ int IEngineHook::DockCall(const uint& shipId, const uint& spaceId, int dockPortI
     TryHook
     {
         // Print out a message when a player ship docks.
-        if (FLHook::GetConfig().chatConfig.dockingMessages && response == DOCK_HOST_RESPONSE::Dock)
+        if (FLHook::GetConfig()->chatConfig.dockingMessages && response == DOCK_HOST_RESPONSE::Dock)
         {
-            if (const auto client = ShipId(shipId).GetPlayer().value_or(ClientId()))
+            if (const auto client = ShipId(shipId).GetPlayer().Unwrap())
             {
                 std::wstring msg = L"Traffic control alert: %player has docked.";
                 msg = StringUtils::ReplaceStr(msg, std::wstring_view(L"%player"), client.GetCharacterName().Unwrap());
@@ -76,7 +76,7 @@ int IEngineHook::DockCall(const uint& shipId, const uint& spaceId, int dockPortI
     }
     CatchHook({})
 
-    CallPlugins(&Plugin::OnDockCallAfter, ShipId(shipId), ObjectId(spaceId), dockPortIndex, response);
+        CallPlugins(&Plugin::OnDockCallAfter, ShipId(shipId), ObjectId(spaceId), dockPortIndex, response);
 
     return retVal;
 }
@@ -113,7 +113,7 @@ void __fastcall IEngineHook::CLootInit(CLoot* loot, void* edx, CLoot::CreateParm
 void __fastcall IEngineHook::CSolarInit(CSolar* solar, void* edx, CSolar::CreateParms* createParms)
 {
     using CSolarInitType = void(__thiscall*)(CSolar*, CSolar::CreateParms*);
-    static_cast<CSolarInitType>(cSolarVtable.GetOriginal(static_cast<ushort>(CSolarVTable::LinkShields)))(solar,createParms);
+    static_cast<CSolarInitType>(cSolarVtable.GetOriginal(static_cast<ushort>(CSolarVTable::LinkShields)))(solar, createParms);
 
     CallPlugins(&Plugin::OnCSolarInit, solar);
 }
@@ -121,11 +121,11 @@ void __fastcall IEngineHook::CSolarInit(CSolar* solar, void* edx, CSolar::Create
 IEngineHook::LaunchPositionAssembly::LaunchPositionAssembly()
 {
     push(ecx);
-    push(dword[esp+16]);
-    push(dword[esp+16]);
-    push(dword[esp+16]);
+    push(dword[esp + 16]);
+    push(dword[esp + 16]);
+    push(dword[esp + 16]);
     push(ecx);
-    push(dword[ecx+176]);
+    push(dword[ecx + 176]);
     call(LaunchPosition);
     pop(ecx);
     ret(0xC);
@@ -158,7 +158,7 @@ auto __stdcall IEngineHook::LoadReputationFromCharacterFile(const RepDataList* s
 IEngineHook::LoadReputationFromCharacterFileAssembly::LoadReputationFromCharacterFileAssembly()
 {
     push(ecx);
-    push(dword[esp+16]);
+    push(dword[esp + 16]);
     push(ecx);
     call(LoadReputationFromCharacterFile);
     pop(ecx);

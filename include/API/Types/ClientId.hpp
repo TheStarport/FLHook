@@ -19,7 +19,7 @@ class DLL ClientId
         uint value = 0;
 
         [[nodiscard]]
-        Action<void, Error> AdjustCash(int amount) const;
+        Action<void> AdjustCash(int amount) const;
 
         [[nodiscard]]
         static ClientId GetClientIdFromCharacterName(std::wstring_view name);
@@ -28,8 +28,8 @@ class DLL ClientId
         explicit ClientId(const uint val) : value(val) {}
         explicit ClientId(const SpecialChatIds id) { value = static_cast<const uint>(id); }
         explicit ClientId(const std::wstring_view str) : value(GetClientIdFromCharacterName(str)) {}
-        explicit ClientId() = default;
-        ClientId(const ClientId& client) : value(client.value){};
+        ClientId() = default;
+        ClientId(const ClientId& client) = default;
 
         explicit operator uint() const noexcept { return value; }
         bool operator==(const ClientId& next) const { return value == next.value; }
@@ -58,7 +58,7 @@ class DLL ClientId
          * @returns On fail : Will return error code of character not selected if in character select.
          */
         [[nodiscard]]
-        Action<std::wstring_view, Error> GetCharacterName() const;
+        Action<std::wstring_view> GetCharacterName() const;
 
         /**
          * @brief Gets the BaseId of the base the client is docked on if they are.
@@ -66,7 +66,7 @@ class DLL ClientId
          * @returns On fail : Error code of PlayerNotDocked or InCharacterSelect
          */
         [[nodiscard]]
-        Action<BaseId, Error> GetCurrentBase() const;
+        Action<BaseId> GetCurrentBase() const;
 
         /**
          * @brief Gets the SystemId of the system the client currently is in.
@@ -74,7 +74,7 @@ class DLL ClientId
          * @returns On fail : Error code of InvalidSystem or InCharacterSelect.
          */
         [[nodiscard]]
-        Action<SystemId, Error> GetSystemId() const;
+        Action<SystemId> GetSystemId() const;
 
         /**
          * @brief Gets the Account of the clientId
@@ -82,7 +82,7 @@ class DLL ClientId
          * @returns On fail : InvalidClientId if the client check fails.
          */
         [[nodiscard]]
-        Action<AccountId, Error> GetAccount() const;
+        Action<AccountId> GetAccount() const;
 
         /**
          * @brief Gets the Shiparch of the ship the client is using
@@ -90,7 +90,7 @@ class DLL ClientId
          * @returns On fail : InvalidShip error
          */
         [[nodiscard]]
-        Action<const Archetype::Ship*, Error> GetShipArch() const;
+        Action<const Archetype::Ship*> GetShipArch() const;
 
         /**
          * @brief Gets the ShipId of the ship the client is using
@@ -98,7 +98,7 @@ class DLL ClientId
          * @returns On fail : InvalidShip error or InCharacterSelect error
          */
         [[nodiscard]]
-        Action<ShipId, Error> GetShipId() const;
+        Action<ShipId> GetShip() const;
 
         /**
          * @brief Get the average latency of the clients connection to the server
@@ -106,7 +106,7 @@ class DLL ClientId
          * @returns On fail : InvalidClientId error
          */
         [[nodiscard]]
-        Action<uint, Error> GetLatency() const;
+        Action<uint> GetLatency() const;
 
         /**
          * @brief Gets the Group of the player
@@ -114,7 +114,7 @@ class DLL ClientId
          * @returns On fail : PlayerNotInGroup error or InCharacterSelect.
          */
         [[nodiscard]]
-        Action<CPlayerGroup*, Error> GetGroup() const;
+        Action<GroupId> GetGroup() const;
 
         /**
          * @brief Gets the Reputation of the player
@@ -122,15 +122,7 @@ class DLL ClientId
          * @returns On fail : InvalidReputation error  or InCharacterSelect.
          */
         [[nodiscard]]
-        Action<RepId, Error> GetReputation() const;
-
-        /**
-         * @brief Gets the CShip of the ship the player is using
-         * @returns On success : CShip pointer
-         * @returns On fail : PlayerNotInSpace or InCharacterSelect.
-         */
-        [[nodiscard]]
-        Action<CShip*, Error> GetShip() const;
+        Action<RepId> GetReputation() const;
 
         /**
          * @brief Gets the rank of the character the client is logged on as
@@ -138,7 +130,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect
          */
         [[nodiscard]]
-        Action<uint, Error> GetRank() const;
+        Action<uint> GetRank() const;
 
         /**
          * @brief Gets the wealth, a combination of asset value and cash
@@ -146,7 +138,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect
          */
         [[nodiscard]]
-        Action<uint, Error> GetWealth() const;
+        Action<uint> GetWealth() const;
 
         /**
          * @brief Gets PVP kills of the character the player is logged in as
@@ -154,7 +146,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect
          */
         [[nodiscard]]
-        Action<int, Error> GetPvpKills() const;
+        Action<int> GetPvpKills() const;
 
         /**
          * @brief Gets the cash of the character the player is logged in as.
@@ -162,7 +154,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect
          */
         [[nodiscard]]
-        Action<uint, Error> GetCash() const;
+        Action<uint> GetCash() const;
 
         /**
          * @brief Gets the percentage of the ship health. Not guaranteed to be up to date when player is in space.
@@ -170,7 +162,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect
          */
         [[nodiscard]]
-        Action<float, Error> GetRelativeHealth() const;
+        Action<float> GetRelativeHealth() const;
 
         /**
          * @brief Sets the percentage of the ship health. To be used only when docked.
@@ -178,7 +170,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect, NotDocked
          */
         [[nodiscard]]
-        Action<void, Error> SetRelativeHealth(float setHealth) const;
+        Action<void> SetRelativeHealth(float setHealth) const;
 
         /**
          * @brief Gets the equipment and cargo items in the ship of the player.
@@ -186,7 +178,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect
          */
         [[nodiscard]]
-        Action<st6::list<EquipDesc>* const, Error> GetEquipCargo() const;
+        Action<st6::list<EquipDesc>* const> GetEquipCargo() const;
 
         /**
          * @brief Gets the remaining cargo hold of the player
@@ -194,7 +186,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect
          */
         [[nodiscard]]
-        Action<float, Error> GetRemainingCargo() const;
+        Action<float> GetRemainingCargo() const;
 
         /**
          * @brief Gets the collision groups of the player ship.
@@ -202,7 +194,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect
          */
         [[nodiscard]]
-        Action<st6::list<CollisionGroupDesc>* const, Error> GetCollisionGroups() const;
+        Action<st6::list<CollisionGroupDesc>* const> GetCollisionGroups() const;
 
         /**
          * @brief Gets overall data related to the clientID
@@ -218,7 +210,7 @@ class DLL ClientId
          * @returns On fail : InvalidClientId
          */
         [[nodiscard]]
-        Action<std::wstring, Error> GetPlayerIp() const;
+        Action<std::wstring> GetPlayerIp() const;
 
         /**
          * @brief Get's the current engine state of the client
@@ -270,14 +262,14 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect
          */
-        Action<void, Error> Kick(const std::optional<std::wstring_view>& reason = {}, std::optional<uint> delay = {}) const;
+        Action<void> Kick(const std::optional<std::wstring_view>& reason = {}, std::optional<uint> delay = {}) const;
 
         /**
          * Saves the account of the player
          * @returns On success : void
          * @returns On fail : InCharacterSelect
          */
-        Action<void, Error> SaveChar() const;
+        Action<void> SaveChar() const;
 
         /**
          * Sets the pvp kills of the character the client is logged in as.
@@ -285,9 +277,9 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect
          */
-        Action<void, Error> SetPvpKills(uint killAmount) const;
+        Action<void> SetPvpKills(uint killAmount) const;
 
-        Action<void, Error> SetCash(uint amount) const;
+        Action<void> SetCash(uint amount) const;
 
         /**
          * Adds specified amount of cash to the character the client is logged in as.
@@ -295,7 +287,7 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect
          */
-        Action<void, Error> AddCash(uint amount) const;
+        Action<void> AddCash(uint amount) const;
 
         /**
          * Removes specified amount of cash to the character the client is logged in as.
@@ -303,7 +295,7 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect
          */
-        Action<void, Error> RemoveCash(uint amount) const;
+        Action<void> RemoveCash(uint amount) const;
 
         /**
          * Beams the character the client is logged on to a specified base, will fail if they are docked.
@@ -311,7 +303,7 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect or PlayerNotInSpace
          */
-        Action<void, Error> Beam(BaseId base) const;
+        Action<void> Beam(BaseId base) const;
 
         /**
          * Renames and kicks the character the player is logged in as.
@@ -320,7 +312,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect.
          */
         // TODO: Implement Rename
-        Action<void, Error> Rename(std::wstring_view name) const;
+        Action<void> Rename(std::wstring_view name) const;
 
         /**
          * Marks a specific object to make it easier to notice among other targets.
@@ -329,7 +321,7 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect or InvalidInput.
          */
-        Action<void, Error> MarkObject(uint objId, int markStatus) const;
+        Action<void> MarkObject(uint objId, int markStatus) const;
 
         // Chat
 
@@ -341,7 +333,7 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect.
          */
-        Action<void, Error> Message(std::wstring_view message, MessageFormat format = MessageFormat::Normal, MessageColor color = MessageColor::Default) const;
+        Action<void> Message(std::wstring_view message, MessageFormat format = MessageFormat::Normal, MessageColor color = MessageColor::Default) const;
 
         /**
          * Messages the player with provided text with default formatting and red text.
@@ -349,7 +341,7 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect.
          */
-        Action<void, Error> MessageErr(std::wstring_view message) const;
+        Action<void> MessageErr(std::wstring_view message) const;
 
         /**
          * sends a local message to the player and other players within a specified radius.
@@ -360,8 +352,8 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect or PlayerNotInSpace.
          */
-        Action<void, Error> MessageLocal(std::wstring_view message, float range = 10'000.0f, MessageFormat format = MessageFormat::Normal,
-                                         MessageColor color = MessageColor::Default) const;
+        Action<void> MessageLocal(std::wstring_view message, float range = 10'000.0f, MessageFormat format = MessageFormat::Normal,
+                                  MessageColor color = MessageColor::Default) const;
 
         /**
          * sends a private message to a specified client as if this client sent it.
@@ -370,9 +362,9 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect.
          */
-        Action<void, Error> MessageFrom(ClientId destinationClient, std::wstring_view message) const;
+        Action<void> MessageFrom(ClientId destinationClient, std::wstring_view message) const;
 
-        Action<void, Error> MessageCustomXml(std::wstring_view rawXml) const;
+        Action<void> MessageCustomXml(std::wstring_view rawXml) const;
 
         /**
          * Force the ships equipment list to match the one provided. May cause undefined behaviour if the target is in space.
@@ -380,19 +372,19 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect, UnknownError (when packet sending fails).
          */
-        Action<void, Error> SetEquip(const st6::list<EquipDesc>& equip) const;
+        Action<void> SetEquip(const st6::list<EquipDesc>& equip) const;
 
-        Action<void, Error> AddEquip(uint goodId, const std::wstring& hardpoint) const;
+        Action<void> AddEquip(uint goodId, const std::wstring& hardpoint) const;
 
-        Action<void, Error> AddCargo(uint goodId, uint count, bool isMission) const;
+        Action<void> AddCargo(uint goodId, uint count, bool isMission) const;
 
-        Action<void, Error> RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const;
+        Action<void> RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const;
 
-        Action<void, Error> Undock(Vector pos, std::optional<Matrix> orientation = std::nullopt) const;
+        Action<void> Undock(Vector pos, std::optional<Matrix> orientation = std::nullopt) const;
 
-        Action<void, Error> PlaySound(uint hash) const;
+        Action<void> PlaySound(uint hash) const;
 
-        Action<DPN_CONNECTION_INFO, Error> GetConnectionData() const;
+        Action<DPN_CONNECTION_INFO> GetConnectionData() const;
 
         /**
          * Invites the target client to this clients group. If this client is not in a group, a new group will be created.
@@ -400,7 +392,7 @@ class DLL ClientId
          * @returns On success : void
          * @returns On fail : InCharacterSelect or InvalidClientId
          */
-        Action<void, Error> InvitePlayer(ClientId otherClient) const;
+        Action<void> InvitePlayer(ClientId otherClient) const;
 };
 
 template <>

@@ -2,7 +2,7 @@
 
 #include "API/Types/GroupId.hpp"
 
-Action<void, Error> GroupId::ForEachGroupMember(const std::function<std::optional<Error>(ClientId client)> &func, const bool stopIfErr) const
+Action<void> GroupId::ForEachGroupMember(const std::function<std::optional<Error>(ClientId client)> &func, const bool stopIfErr) const
 {
     auto members = GetGroupMembers();
     if (members.Raw().has_error())
@@ -21,7 +21,7 @@ Action<void, Error> GroupId::ForEachGroupMember(const std::function<std::optiona
     return { {} };
 }
 
-Action<std::vector<ClientId>, Error> GroupId::GetGroupMembers() const
+Action<std::vector<ClientId>> GroupId::GetGroupMembers() const
 {
     const auto group = CPlayerGroup::FromGroupID(value);
     if (!group)
@@ -36,7 +36,7 @@ Action<std::vector<ClientId>, Error> GroupId::GetGroupMembers() const
     return { ret };
 }
 
-Action<uint, Error> GroupId::GetGroupSize() const
+Action<uint> GroupId::GetGroupSize() const
 {
     const auto group = CPlayerGroup::FromGroupID(value);
     if (!group)
@@ -47,7 +47,7 @@ Action<uint, Error> GroupId::GetGroupSize() const
     return { group->GetMemberCount() };
 }
 
-Action<void, Error> GroupId::InviteMember(ClientId client)
+Action<void> GroupId::InviteMember(ClientId client)
 {
     const auto group = CPlayerGroup::FromGroupID(value);
     if (!group)
@@ -59,7 +59,7 @@ Action<void, Error> GroupId::InviteMember(ClientId client)
     return { {} };
 }
 
-Action<void, Error> GroupId::AddMember(ClientId client)
+Action<void> GroupId::AddMember(ClientId client)
 {
     const auto group = CPlayerGroup::FromGroupID(value);
     if (!group)

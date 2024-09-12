@@ -140,13 +140,11 @@ std::pair<bool, std::shared_ptr<BsonWrapper>> ExternalCommandProcessor::Beam(bso
         return { false, BsonWrapper::CreateErrorDocument(errors) };
     }
 
-    auto result = client.Beam(BaseId(info.baseHash));
-    result.Handle(
-        [&errors](Error errorCode, const std::wstring_view errString)
-        {
-            errors.emplace_back(std::format("Error while trying to beam: {} ({})", StringUtils::wstos(errString), static_cast<int>(errorCode)));
-            return true;
-        });
+    if (const auto result = client.Beam(BaseId(info.baseHash)).Raw(); result.has_error())
+    {
+        errors.emplace_back(
+            std::format("Error while trying to beam: {} ({})", StringUtils::wstos(ErrorInfo::GetText(result.error())), static_cast<int>(result.error())));
+    }
 
     if (!errors.empty())
     {

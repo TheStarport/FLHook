@@ -1,6 +1,8 @@
 #pragma once
 
 #include "API/FLHook/Plugin.hpp"
+#include "Exceptions/StopProcessingException.hpp"
+
 #include "FLHook.hpp"
 
 #ifdef FLHOOK

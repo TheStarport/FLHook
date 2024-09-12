@@ -132,7 +132,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithLo
     return *this;
 }
 
-ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithLoadout(uint loadout)
+ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithLoadout(const uint loadout)
 {
     npcTemplate.loadoutHash = loadout;
     return *this;
@@ -579,6 +579,7 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
     // Add the personality to the space obj
     pub::AI::SubmitState(spaceObj, &personalityParams);
 
+    // TODO: Remove Find
     auto ptr = static_cast<CShip*>(CObject::Find(spaceObj, CObject::Class::CSHIP_OBJECT)); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
     if (!ptr)
     {
@@ -657,7 +658,6 @@ std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
 
     // prevent the game from sending the solar creation packet (we need to do it ourselves)
     auto address = FLHook::Offset(FLHook::BinaryType::Server, AddressList::CreateSolar);
-    ;
     constexpr byte bypassPacketSending = '\xEB';
     MemUtils::WriteProcMem(address, &bypassPacketSending, 1);
 
@@ -707,6 +707,7 @@ std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
         pub::SpaceObj::SetRelativeHealth(spaceId, 1.0f);
     }
 
+    // TODO: Remove Find
     // Find increases the ref count by 1
     auto ptr = static_cast<CSolar*>(CObject::Find(spaceId, CObject::Class::CSOLAR_OBJECT)); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
 
@@ -770,8 +771,137 @@ void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly
 
 void ResourceManager::Despawn(std::weak_ptr<CEqObj> object) { Destroy(object, true); }
 
+template <>
+std::weak_ptr<CGuided> ResourceManager::Get<CGuided>(const uint id)
+{
+    const auto obj = cGuidedIdMap.find(id);
+    return obj != cGuidedIdMap.end() ? obj->second : nullptr;
+}
+
+template <>
+std::weak_ptr<CAsteroid> ResourceManager::Get<CAsteroid>(const uint id)
+{
+    const auto obj = cAsteroidIdMap.find(id);
+    return obj != cAsteroidIdMap.end() ? obj->second : nullptr;
+}
+
+template <>
+std::weak_ptr<CSolar> ResourceManager::Get<CSolar>(const uint id)
+{
+    const auto obj = cSolarIdMap.find(id);
+    return obj != cSolarIdMap.end() ? obj->second : nullptr;
+}
+
+template <>
+std::weak_ptr<CShip> ResourceManager::Get<CShip>(const uint id)
+{
+    const auto obj = cShipIdMap.find(id);
+    return obj != cShipIdMap.end() ? obj->second : nullptr;
+}
+
+template <>
+std::weak_ptr<CLoot> ResourceManager::Get<CLoot>(const uint id)
+{
+    const auto obj = cLootIdMap.find(id);
+    return obj != cLootIdMap.end() ? obj->second : nullptr;
+}
+
+template <>
+std::weak_ptr<CCounterMeasure> ResourceManager::Get<CCounterMeasure>(const uint id)
+{
+    const auto obj = cCmIdMap.find(id);
+    return obj != cCmIdMap.end() ? obj->second : nullptr;
+}
+
+template <>
+std::weak_ptr<CMine> ResourceManager::Get<CMine>(const uint id)
+{
+    const auto obj = cMineIdMap.find(id);
+    return obj != cMineIdMap.end() ? obj->second : nullptr;
+}
+
+template <>
+std::weak_ptr<CSimple> ResourceManager::Get<CSimple>(const uint id)
+{
+    // Solar or Asteroid
+    if (id & 0x80000000)
+    {
+        if (auto solar = Get<CSolar>(id); solar.expired())
+        {
+            return solar;
+        }
+
+        if (auto asteroid = Get<CAsteroid>(id); asteroid.expired())
+        {
+            return asteroid;
+        }
+
+        return {};
+    }
+
+    if (auto ship = Get<CShip>(id); ship.expired())
+    {
+        return ship;
+    }
+
+    if (auto loot = Get<CLoot>(id); loot.expired())
+    {
+        return loot;
+    }
+
+    if (auto guided = Get<CGuided>(id); guided.expired())
+    {
+        return guided;
+    }
+
+    if (auto mine = Get<CMine>(id); mine.expired())
+    {
+        return mine;
+    }
+
+    if (auto cm = Get<CCounterMeasure>(id); cm.expired())
+    {
+        return cm;
+    }
+
+    return {};
+}
+
 ResourceManager::ResourceManager()
 {
+    if (gameObjectDestructorDetour)
+    {
+        throw GameException(L"Resource manager should not be constructed multiple times.");
+    }
+
+    // Setup detours for aid in resource tracking and server optimization
+    gameObjectDestructorDetour = std::make_unique<FunctionDetour<DefaultNakedType>>(reinterpret_cast<DefaultNakedType>(0x6CEE4A0));
+    gameObjectDestructorDetour->Detour(GameObjectDestructorNaked);
+
+    cSimpleInitDetour = std::make_unique<FunctionDetour<DefaultNakedType>>(reinterpret_cast<DefaultNakedType>(0x62B5B60));
+    cSimpleInitDetour->Detour(CSimpleInitNaked);
+
+    cObjDestrDetour = std::make_unique<FunctionDetour<DefaultNakedType>>(reinterpret_cast<DefaultNakedType>(0x62AF440));
+    cObjDestrDetour->Detour(CObjDestrOrgNaked);
+
+    std::array<byte, 2> patchCobjDestr = { 0xEB, 0x5F };
+    MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonCObjDestructor), patchCobjDestr.data(), patchCobjDestr.size());
+
+    auto cobjectFindDetourFunc = reinterpret_cast<FARPROC>(&CObjectFindDetour);
+    MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Server, AddressList::CObjectFind), &cobjectFindDetourFunc, 4);
+
+    cObjAllocatorDetour = std::make_unique<FunctionDetour<CObjAllocatorType>>(
+        reinterpret_cast<CObjAllocatorType>(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonCObjectAllocator)));
+    cObjAllocatorDetour->Detour(CObjAllocDetour);
+
+    auto findStarListNaked = reinterpret_cast<FARPROC>(&FindInStarListNaked2);
+    MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetObjectInspect1), &findStarListNaked, 4);
+
+    DWORD serverDll = FLHook::Offset(FLHook::BinaryType::Server, static_cast<AddressList>(0));
+    MemUtils::PatchCallAddr(serverDll, static_cast<DWORD>(AddressList::GetObjectInspect2), FindInStarListNaked);
+    MemUtils::PatchCallAddr(serverDll, static_cast<DWORD>(AddressList::GetObjectInspect3), FindInStarListNaked);
+
+    // Now we load all our NPCs for spawning
     npcTemplates.clear();
 
     for (const auto& entry : std::filesystem::recursive_directory_iterator("../DATA/MISSIONS/"))
@@ -858,4 +988,441 @@ ResourceManager::~ResourceManager()
         pub::SpaceObj::Destroy(ship->id, DestroyType::Vanish);
         ship->Release();
     }
+}
+
+GameObject* ResourceManager::FindNonSolar(StarSystemMock* starSystem, const uint searchedId)
+{
+    const MetaListNode* node = findIObjOnListFunc(starSystem->starSystem.shipList, searchedId);
+    if (node)
+    {
+        cacheNonsolarIObjs[searchedId] = { node->value->starSystem, node->value->cobj->objectClass };
+        return node->value;
+    }
+    node = findIObjOnListFunc(starSystem->starSystem.lootList, searchedId);
+    if (node)
+    {
+        cacheNonsolarIObjs[searchedId] = { node->value->starSystem, node->value->cobj->objectClass };
+        return node->value;
+    }
+    node = findIObjOnListFunc(starSystem->starSystem.guidedList, searchedId);
+    if (node)
+    {
+        cacheNonsolarIObjs[searchedId] = { node->value->starSystem, node->value->cobj->objectClass };
+        return node->value;
+    }
+    node = findIObjOnListFunc(starSystem->starSystem.mineList, searchedId);
+    if (node)
+    {
+        cacheNonsolarIObjs[searchedId] = { node->value->starSystem, node->value->cobj->objectClass };
+        return node->value;
+    }
+    node = findIObjOnListFunc(starSystem->starSystem.counterMeasureList, searchedId);
+    if (node)
+    {
+        cacheNonsolarIObjs[searchedId] = { node->value->starSystem, node->value->cobj->objectClass };
+        return node->value;
+    }
+    return nullptr;
+}
+
+GameObject* ResourceManager::FindSolar(StarSystemMock* starSystem, const uint searchedId)
+{
+    const MetaListNode* node = findIObjOnListFunc(starSystem->starSystem.solarList, searchedId);
+    if (node)
+    {
+        cacheSolarIObjs[searchedId] = { node->value->starSystem, node->value->cobj->objectClass };
+        return node->value;
+    }
+    node = findIObjOnListFunc(starSystem->starSystem.asteroidList, searchedId);
+    if (node)
+    {
+        cacheSolarIObjs[searchedId] = { node->value->starSystem, node->value->cobj->objectClass };
+        return node->value;
+    }
+    return nullptr;
+}
+
+GameObject* __stdcall ResourceManager::FindInStarList(StarSystemMock* starSystem, const uint searchedId)
+{
+    static StarSystem* lastFoundInSystem = nullptr;
+    static uint lastFoundItem = 0;
+    GameObject* retVal = nullptr;
+
+    if (searchedId == 0)
+    {
+        return nullptr;
+    }
+
+    if (lastFoundItem == searchedId && lastFoundInSystem != &starSystem->starSystem)
+    {
+        return nullptr;
+    }
+
+    if (searchedId & 0x80000000) // check if solar
+    {
+        const auto iter = cacheSolarIObjs.find(searchedId);
+        if (iter == cacheSolarIObjs.end())
+        {
+            return FindSolar(starSystem, searchedId);
+        }
+
+        if (iter->second.cacheStarSystem != &starSystem->starSystem)
+        {
+            lastFoundItem = searchedId;
+            lastFoundInSystem = iter->second.cacheStarSystem;
+            return nullptr;
+        }
+
+        MetaListNode* node;
+        switch (iter->second.objClass)
+        {
+            case CObject::Class::CSOLAR_OBJECT:
+                node = findIObjOnListFunc(starSystem->starSystem.solarList, searchedId);
+                if (node)
+                {
+                    retVal = node->value;
+                }
+                break;
+            case CObject::Class::CASTEROID_OBJECT:
+                node = findIObjOnListFunc(starSystem->starSystem.asteroidList, searchedId);
+                if (node)
+                {
+                    retVal = node->value;
+                }
+                break;
+            default:;
+        }
+
+        cacheSolarIObjs.erase(iter);
+    }
+    else
+    {
+        if (!playerShips.contains(searchedId)) // player can swap systems, for them search just the system's shiplist
+        {
+            const auto iter = cacheNonsolarIObjs.find(searchedId);
+            if (iter == cacheNonsolarIObjs.end())
+            {
+                return FindNonSolar(starSystem, searchedId);
+            }
+
+            if (iter->second.cacheStarSystem != &starSystem->starSystem)
+            {
+                lastFoundItem = searchedId;
+                lastFoundInSystem = iter->second.cacheStarSystem;
+                return nullptr;
+            }
+
+            MetaListNode* node;
+            switch (iter->second.objClass)
+            {
+                case CObject::Class::CSHIP_OBJECT:
+                    node = findIObjOnListFunc(starSystem->starSystem.shipList, searchedId);
+                    if (node)
+                    {
+                        retVal = node->value;
+                    }
+                    break;
+                case CObject::Class::CLOOT_OBJECT:
+                    node = findIObjOnListFunc(starSystem->starSystem.lootList, searchedId);
+                    if (node)
+                    {
+                        retVal = node->value;
+                    }
+                    break;
+                case CObject::Class::CGUIDED_OBJECT:
+                    node = findIObjOnListFunc(starSystem->starSystem.guidedList, searchedId);
+                    if (node)
+                    {
+                        retVal = node->value;
+                    }
+                    break;
+                case CObject::Class::CMINE_OBJECT:
+                    node = findIObjOnListFunc(starSystem->starSystem.mineList, searchedId);
+                    if (node)
+                    {
+                        retVal = node->value;
+                    }
+                    break;
+                case CObject::Class::CCOUNTERMEASURE_OBJECT:
+                    node = findIObjOnListFunc(starSystem->starSystem.counterMeasureList, searchedId);
+                    if (node)
+                    {
+                        retVal = node->value;
+                    }
+                    break;
+                default:;
+            }
+
+            cacheNonsolarIObjs.erase(iter);
+        }
+        else
+        {
+            if (const MetaListNode* node = findIObjOnListFunc(starSystem->starSystem.shipList, searchedId))
+            {
+                retVal = node->value;
+            }
+        }
+    }
+
+    return retVal;
+}
+
+__declspec(naked) void ResourceManager::FindInStarListNaked()
+{
+    __asm
+    {
+        push ecx
+        push[esp + 0x8]
+        sub ecx, 4
+        push ecx
+        call FindInStarList
+        pop ecx
+        ret 0x4
+    }
+}
+
+__declspec(naked) void ResourceManager::FindInStarListNaked2()
+{
+    __asm
+    {
+        mov eax, [esp+0x4]
+        mov edx, [eax]
+         mov [esp+0x4], edx
+        push ecx
+        push[esp + 0x8]
+        sub ecx, 4
+        push ecx
+        call FindInStarList
+        pop ecx
+        ret 0x4
+    }
+}
+
+void __stdcall ResourceManager::GameObjectDestructor(const uint id)
+{
+    if (id & 0x8000000)
+    {
+        cacheSolarIObjs.erase(id);
+    }
+    else
+    {
+        cacheNonsolarIObjs.erase(id);
+    }
+}
+
+uint GameObjectDestructorRet = 0x6CEE4A7;
+__declspec(naked) void ResourceManager::GameObjectDestructorNaked()
+{
+    __asm {
+        push ecx
+        mov ecx, [ecx+0x4]
+        mov ecx, [ecx+0xB0]
+        push ecx
+        call GameObjectDestructor
+        pop ecx
+        push 0xFFFFFFFF
+        push 0x6d60776
+        jmp GameObjectDestructorRet
+    }
+}
+
+uint CObjAllocJmp = 0x62AEE55;
+__declspec(naked) CObject* __cdecl CObjAllocCallOrig(CObject::Class objClass)
+{
+    __asm {
+        push ecx
+        mov eax, [esp + 8]
+        jmp CObjAllocJmp
+    }
+}
+
+CObject* __cdecl ResourceManager::CObjAllocDetour(const CObject::Class objClass)
+{
+    CObject* retVal = CObjAllocCallOrig(objClass);
+    const CObjList* cobjList = CObjListFind(objClass);
+
+    switch (objClass)
+    {
+        case CObject::CASTEROID_OBJECT: cAsteroidMap[retVal] = cobjList->entry->last; break;
+        case CObject::CEQUIPMENT_OBJECT: cEquipmentMap[retVal] = cobjList->entry->last; break;
+        case CObject::COBJECT_MASK: cObjectMap[retVal] = cobjList->entry->last; break;
+        case CObject::CSOLAR_OBJECT: cSolarMap[retVal] = cobjList->entry->last; break;
+        case CObject::CSHIP_OBJECT: cShipMap[retVal] = cobjList->entry->last; break;
+        case CObject::CLOOT_OBJECT: cLootMap[retVal] = cobjList->entry->last; break;
+        case CObject::CBEAM_OBJECT: cBeamMap[retVal] = cobjList->entry->last; break;
+        case CObject::CGUIDED_OBJECT: cGuidedMap[retVal] = cobjList->entry->last; break;
+        case CObject::CCOUNTERMEASURE_OBJECT: cCmMap[retVal] = cobjList->entry->last; break;
+        case CObject::CMINE_OBJECT: cMineMap[retVal] = cobjList->entry->last; break;
+        default: return nullptr;
+    }
+
+    return retVal;
+}
+
+void __fastcall ResourceManager::CSimpleInit(CSimple* simple, void* edx, const CSimple::CreateParms& param)
+{
+    switch (simple->objectClass)
+    {
+        case CObject::CASTEROID_OBJECT: cAsteroidIdMap[param.id] = std::shared_ptr<CAsteroid>(reinterpret_cast<CAsteroid*>(simple), &NoOp<CAsteroid>); break;
+        case CObject::CSOLAR_OBJECT: cSolarIdMap[param.id] = std::shared_ptr<CSolar>(reinterpret_cast<CSolar*>(simple), &NoOp<CSolar>); break;
+        case CObject::CSHIP_OBJECT: cShipIdMap[param.id] = std::shared_ptr<CShip>(reinterpret_cast<CShip*>(simple), &NoOp<CShip>); break;
+        case CObject::CLOOT_OBJECT: cLootIdMap[param.id] = std::shared_ptr<CLoot>(reinterpret_cast<CLoot*>(simple), &NoOp<CLoot>); break;
+        case CObject::CGUIDED_OBJECT: cGuidedIdMap[param.id] = std::shared_ptr<CGuided>(reinterpret_cast<CGuided*>(simple), &NoOp<CGuided>); break;
+        case CObject::CCOUNTERMEASURE_OBJECT:
+            cCmIdMap[param.id] = std::shared_ptr<CCounterMeasure>(reinterpret_cast<CCounterMeasure*>(simple), &NoOp<CCounterMeasure>);
+            break;
+        case CObject::CMINE_OBJECT: cMineIdMap[param.id] = std::shared_ptr<CMine>(reinterpret_cast<CMine*>(simple), &NoOp<CMine>); break;
+        default: return;
+    }
+}
+
+constexpr uint CSimpleRetAddr = 0x62B5B66;
+__declspec(naked) void ResourceManager::CSimpleInitNaked()
+{
+    __asm {
+        push ecx
+        push [esp+0x8]
+        call CSimpleInit
+        pop ecx
+        push ebx
+        push ebp
+        mov ebp, [esp+0xC]
+        jmp CSimpleRetAddr
+    }
+}
+
+void __fastcall ResourceManager::CObjDestr(CObject* cobj)
+{
+    std::unordered_map<CObject*, CObjNode*>* cobjMap;
+    switch (cobj->objectClass)
+    {
+        case CObject::CASTEROID_OBJECT:
+            cAsteroidIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            cobjMap = &cAsteroidMap;
+            break;
+        case CObject::CEQUIPMENT_OBJECT: cobjMap = &cEquipmentMap; break;
+        case CObject::COBJECT_MASK: cobjMap = &cObjectMap; break;
+        case CObject::CSOLAR_OBJECT:
+            cSolarIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            cobjMap = &cSolarMap;
+            break;
+        case CObject::CSHIP_OBJECT:
+            cShipIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            cobjMap = &cShipMap;
+            break;
+        case CObject::CLOOT_OBJECT:
+            cLootIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            cobjMap = &cLootMap;
+            break;
+        case CObject::CBEAM_OBJECT: cobjMap = &cBeamMap; break;
+        case CObject::CGUIDED_OBJECT:
+            cGuidedIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            cobjMap = &cGuidedMap;
+            break;
+        case CObject::CCOUNTERMEASURE_OBJECT:
+            cCmIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            cobjMap = &cCmMap;
+            break;
+        case CObject::CMINE_OBJECT:
+            cMineIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            cobjMap = &cMineMap;
+            break;
+        default: return; // will never be hit, but shuts up the InteliSense
+    }
+
+    if (const auto item = cobjMap->find(cobj); item != cobjMap->end())
+    {
+        CObjList* cobjList = CObjListFind(cobj->objectClass);
+        static uint dummy;
+        removeCObjNode(cobjList, &dummy, item->second);
+        cobjMap->erase(item);
+    }
+}
+
+constexpr uint CObjDestrRetAddr = 0x62AF447;
+__declspec(naked) void ResourceManager::CObjDestrOrgNaked()
+{
+    __asm {
+        push ecx
+        call CObjDestr
+        pop ecx
+        push 0xFFFFFFFF
+        push 0x06394364
+        jmp CObjDestrRetAddr
+    }
+}
+
+CObject* __cdecl ResourceManager::CObjectFindDetour(const uint& spaceObjId, const CObject::Class objClass)
+{
+    const auto manager = FLHook::GetResourceManager();
+    switch (objClass)
+    {
+        case CObject::CASTEROID_OBJECT:
+            if (const auto obj = manager->Get<CAsteroid>(spaceObjId); !obj.expired())
+            {
+                const auto ptr = obj.lock().get();
+                ptr->AddRef();
+                return ptr;
+            }
+            break;
+        case CObject::CSIMPLE_MASK:
+            if (const auto obj = manager->Get<CSimple>(spaceObjId); !obj.expired())
+            {
+                const auto ptr = obj.lock().get();
+                ptr->AddRef();
+                return ptr;
+            }
+            break;
+        case CObject::CLOOT_OBJECT:
+            if (const auto obj = manager->Get<CLoot>(spaceObjId); !obj.expired())
+            {
+                const auto ptr = obj.lock().get();
+                ptr->AddRef();
+                return ptr;
+            }
+            break;
+        case CObject::CMINE_OBJECT:
+            if (const auto obj = manager->Get<CMine>(spaceObjId); !obj.expired())
+            {
+                const auto ptr = obj.lock().get();
+                ptr->AddRef();
+                return ptr;
+            }
+            break;
+        case CObject::CCOUNTERMEASURE_OBJECT:
+            if (const auto obj = manager->Get<CCounterMeasure>(spaceObjId); !obj.expired())
+            {
+                const auto ptr = obj.lock().get();
+                ptr->AddRef();
+                return ptr;
+            }
+            break;
+        case CObject::CGUIDED_OBJECT:
+            if (const auto obj = manager->Get<CGuided>(spaceObjId); !obj.expired())
+            {
+                const auto ptr = obj.lock().get();
+                ptr->AddRef();
+                return ptr;
+            }
+            break;
+        case CObject::CSOLAR_OBJECT:
+            if (const auto obj = manager->Get<CSolar>(spaceObjId); !obj.expired())
+            {
+                const auto ptr = obj.lock().get();
+                ptr->AddRef();
+                return ptr;
+            }
+            break;
+        case CObject::CSHIP_OBJECT:
+            if (const auto obj = manager->Get<CShip>(spaceObjId); !obj.expired())
+            {
+                const auto ptr = obj.lock().get();
+                ptr->AddRef();
+                return ptr;
+            }
+            break;
+        default: return CObject::Find(spaceObjId, objClass);
+    }
+
+    return nullptr;
 }

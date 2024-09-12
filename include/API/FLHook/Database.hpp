@@ -21,9 +21,6 @@ class DLL Database
         friend FLHook;
         friend AccountManager;
 
-        explicit Database(std::string_view uri);
-        ~Database() = default;
-
         mongocxx::instance instance;
         mongocxx::pool pool;
 
@@ -31,6 +28,11 @@ class DLL Database
         std::optional<Character> GetCharacterById(bsoncxx::oid objId);
 
     public:
+        explicit Database(std::string_view uri);
+        ~Database() = default;
+        Database(const Database&) = delete;
+        Database& operator=(const Database&) = delete;
+
         mongocxx::pool::entry AcquireClient();
         static mongocxx::collection GetCollection(const mongocxx::pool::entry& dbClient, std::string_view collectionName);
         static void SaveValueOnAccount(const AccountId& accountId, std::string_view key, bsoncxx::types::bson_value::view_or_value value);

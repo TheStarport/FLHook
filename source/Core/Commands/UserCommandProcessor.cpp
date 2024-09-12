@@ -23,10 +23,10 @@ std::optional<Task> UserCommandProcessor::ProcessCommand(ClientId triggeringClie
 
     auto params = StringUtils::GetParams(commandStr, ' ');
 
-    const auto& config = FLHook::GetConfig();
+    const auto config = FLHook::GetConfig();
 
     for (const auto trimmedCmdStr = std::wstring_view(commandStr.data() + 1, commandStr.length() - 1);
-         const auto& disabledCommand : config.userCommands.disabledCommands)
+         const auto& disabledCommand : config->userCommands.disabledCommands)
     {
         if (trimmedCmdStr.starts_with(disabledCommand))
         {
@@ -264,22 +264,18 @@ Task UserCommandProcessor::ReplyToLastMsg(ClientId client, std::wstring_view res
 
 Task UserCommandProcessor::MessageTarget(ClientId client, std::wstring_view text)
 {
-    const auto target = client.GetShipId().Handle().GetTarget();
-    if (!target.has_value())
-    {
-        (void)client.Message(L"No target selected");
-        co_return TaskStatus::Finished;
-    }
+    const auto clientShip = client.GetShip().Handle();
+    const auto target = clientShip.GetTarget().Handle();
+    const auto targetPlayer = target.GetPlayer().Unwrap();
 
-    const auto targetPlayer = target.value().GetPlayer();
-    if (!targetPlayer.has_value())
+    if (!targetPlayer)
     {
         (void)client.Message(L"Target is not a player");
         co_return TaskStatus::Finished;
     }
 
-    (void)client.MessageFrom(client, text);
-    (void)targetPlayer.value().MessageFrom(client, text);
+    client.MessageFrom(client, text);
+    targetPlayer.MessageFrom(client, text);
 
     co_return TaskStatus::Finished;
 }
@@ -378,7 +374,7 @@ Task UserCommandProcessor::IgnoreUser(ClientId client, std::wstring_view ignored
     }
 
     auto& info = client.GetData();
-    if (info.ignoreInfoList.size() > FLHook::GetConfig().userCommands.userCmdMaxIgnoreList)
+    if (info.ignoreInfoList.size() > FLHook::GetConfig()->userCommands.userCmdMaxIgnoreList)
     {
         (void)client.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
         co_return TaskStatus::Finished;
@@ -408,7 +404,7 @@ Task UserCommandProcessor::IgnoreClientId(ClientId client, ClientId ignoredClien
     }
 
     auto& data = client.GetData();
-    if (data.ignoreInfoList.size() > FLHook::GetConfig().userCommands.userCmdMaxIgnoreList)
+    if (data.ignoreInfoList.size() > FLHook::GetConfig()->userCommands.userCmdMaxIgnoreList)
     {
         (void)client.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
         co_return TaskStatus::Finished;
@@ -533,7 +529,7 @@ void RenameCallback(ClientId client, std::wstring newName, const std::shared_ptr
     }
     std::wstring currName = client.GetCharacterName().Handle().data();
 
-    const auto& [renameCost, cooldown] = FLHook::GetConfig().rename;
+    const auto& [renameCost, cooldown] = FLHook::GetConfig()->rename;
     if (renameCost)
     {
         if (client.GetCash().Handle() < renameCost)
@@ -556,7 +552,7 @@ void RenameCallback(ClientId client, std::wstring newName, const std::shared_ptr
 
 Task UserCommandProcessor::Rename(ClientId client, std::wstring_view newName)
 {
-    const auto& [renameCost, cooldown] = FLHook::GetConfig().rename;
+    const auto& [renameCost, cooldown] = FLHook::GetConfig()->rename;
 
     if (newName.find(L' ') != std::wstring_view::npos)
     {
@@ -901,7 +897,7 @@ Task UserCommandProcessor::Help(ClientId client, int page)
 
 Task UserCommandProcessor::DropRep(ClientId client)
 {
-    const auto& config = FLHook::GetConfig().reputatation;
+    const auto& config = FLHook::GetConfig()->reputatation;
 
     if (config.creditCost)
     {
@@ -959,32 +955,21 @@ Task UserCommandProcessor::Coin(ClientId client)
 
 Task UserCommandProcessor::MarkTarget(ClientId client)
 {
-    const ClientData& cd = client.GetData();
-    const auto cShip = cd.cship;
-    if (!cShip)
+    const auto ship = client.GetShip().Handle();
+    const auto group = client.GetGroup().Handle();
+    const auto target = ship.GetTarget().Handle();
+    const auto otherPlayer = target.GetPlayer().Unwrap();
+
+    if (!otherPlayer)
     {
-        (void)client.Message(L"ERR Not in space");
+        (void)client.Message(L"ERR: Target not a player");
         co_return TaskStatus::Finished;
     }
 
-    const auto target = cShip->get_target();
-    if (!target)
-    {
-        (void)client.Message(L"ERR No target selected");
-        co_return TaskStatus::Finished;
-    }
-
-    if (!target->is_player())
-    {
-        (void)client.Message(L"ERR Target not a player");
-        co_return TaskStatus::Finished;
-    }
-
-    uint targetShip = target->get_id();
-    const auto targetClientId = ClientId(((CShip*)target->cobject())->ownerPlayer);
+    uint targetShip = target.GetId().Unwrap();
 
     auto charName = client.GetCharacterName().Handle();
-    auto targetName = targetClientId.GetCharacterName().Handle();
+    auto targetName = otherPlayer.GetCharacterName().Handle();
 
     // std::wstring message1 = std::format(L"Target: {}", targetName);
     std::wstring message2 = std::format(L"{} has set {} as group target.", charName, targetName);
@@ -995,10 +980,7 @@ Task UserCommandProcessor::MarkTarget(ClientId client)
     FmtStr caption(0, nullptr);
     caption.begin_mad_lib(526999);
     caption.end_mad_lib();
-
-    auto group = GroupId(cd.playerData->playerGroup->GetID());
-
-    (void)group.ForEachGroupMember(
+    group.ForEachGroupMember(
         [msgView2, targetShip](const ClientId& groupMemberClientId)
         {
             if (const uint groupMemShip = Players[groupMemberClientId.GetValue()].shipId; !groupMemShip || groupMemShip == targetShip)

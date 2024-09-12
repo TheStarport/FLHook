@@ -80,18 +80,18 @@ void FLHook::TimerCheckKick()
                 continue;
             }
 
-            const auto& config = FLHook::GetConfig();
-            if (config.autoKicks.antiBaseIdle)
+            const auto config = FLHook::GetConfig();
+            if (config->autoKicks.antiBaseIdle)
             {
                 // anti base-idle check
-                if (client.baseEnterTime && time - client.baseEnterTime >= config.autoKicks.antiBaseIdle)
+                if (client.baseEnterTime && time - client.baseEnterTime >= config->autoKicks.antiBaseIdle)
                 {
                     (void)client.id.Kick(L"Base idling", 10);
                     client.baseEnterTime = 0;
                 }
             }
 
-            if (config.autoKicks.antiCharMenuIdle)
+            if (config->autoKicks.antiCharMenuIdle)
             {
                 // anti charmenu-idle check
                 if (!client.characterName.empty())
@@ -100,7 +100,7 @@ void FLHook::TimerCheckKick()
                     {
                         client.charMenuEnterTime = static_cast<uint>(time);
                     }
-                    else if (time - client.charMenuEnterTime >= config.autoKicks.antiCharMenuIdle)
+                    else if (time - client.charMenuEnterTime >= config->autoKicks.antiCharMenuIdle)
                     {
                         (void)client.id.Kick();
                         client.charMenuEnterTime = 0;
@@ -151,8 +151,8 @@ void FLHook::OneSecondTimer()
             }
         }
 
-        if (const auto& config = GetConfig();
-            config.npc.disableNPCSpawns < 0 || (config.npc.disableNPCSpawns && instance->serverLoadInMs >= config.npc.disableNPCSpawns))
+        if (const auto config = GetConfig();
+            config->npc.disableNPCSpawns < 0 || (config->npc.disableNPCSpawns && instance->serverLoadInMs >= config->npc.disableNPCSpawns))
         {
             InternalApi::ToggleNpcSpawns(false);
         }

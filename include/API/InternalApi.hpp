@@ -23,11 +23,11 @@ class DLL InternalApi
          * @returns on fail : Error code of InvalidXml or Segfault in the event of invalid buffer sizes.
          * @note The encoding of the XML string is assumed to be UTF-16
          */
-        static Action<void, Error> FMsgEncodeXml(std::wstring_view xml, char* buffer, uint size, uint& ret);
+        static Action<void> FMsgEncodeXml(std::wstring_view xml, char* buffer, uint size, uint& ret);
 
 
         static void FMsgSendChat(ClientId client, char* buffer, uint size);
-        static Action<void, Error> SendMessage(ClientId to, std::wstring_view message, ClientId from = ClientId(), std::wstring_view = L"");
+        static Action<void> SendMessage(ClientId to, std::wstring_view message, ClientId from = ClientId(), std::wstring_view = L"");
 
         static uint CreateID(const std::wstring& nickname);
 

@@ -7,15 +7,15 @@ class DLL InfocardManager
         std::unordered_map<uint, std::wstring> infocardOverride;
         std::vector<HMODULE> loadedDlls;
 
+    public:
         InfocardManager();
         ~InfocardManager();
-
-    public:
         InfocardManager(const InfocardManager&) = delete;
         InfocardManager& operator=(InfocardManager) = delete;
         InfocardManager(InfocardManager&&) = delete;
         InfocardManager& operator=(InfocardManager&&) = delete;
 
+        [[nodiscard]]
         std::wstring_view GetInfocard(uint ids) const;
 
         /**

@@ -36,7 +36,7 @@ uint DebugTools::CreateIdDetour(const char* str)
 
 void DebugTools::Init()
 {
-    if (FLHook::GetConfig().logging.minLogLevel > 2)
+    if (FLHook::GetConfig()->logging.minLogLevel > 2)
     {
         return;
     }

@@ -17,42 +17,48 @@ void __stdcall IServerImplHook::Hail(unsigned int unk1, unsigned int unk2, unsig
     CallPlugins(&Plugin::OnHail, unk1, unk2, unk3);
 }
 
-void __stdcall IServerImplHook::RequestEvent(int eventType, ShipId shipId, ObjectId dockTarget, uint unk1, ulong unk2, ClientId client)
+void __stdcall IServerImplHook::RequestEvent(int eventType, Id shipId, Id dockTarget, uint unk1, ulong unk2, ClientId client)
 {
-    Logger::Trace(std::format(L"RequestEvent(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint dockTarget = {}\n\tuint unk1 = {}\n\tulong unk2 = "
-                                        "{}\n\tClientId client = {}\n)",
-                                        eventType,
-                                        shipId,
-                                        dockTarget,
-                                        unk1,
-                                        unk2,
-                                        client));
+    auto ship = shipId.AsShip();
+    auto dockTargetObj = dockTarget.AsObject();
 
-    if (const auto skip = CallPlugins(&Plugin::OnRequestEvent, client, eventType, shipId, dockTarget, unk1, unk2); !skip)
+    Logger::Trace(std::format(L"RequestEvent(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint dockTarget = {}\n\tuint unk1 = {}\n\tulong unk2 = "
+                              "{}\n\tClientId client = {}\n)",
+                              eventType,
+                              shipId,
+                              dockTarget,
+                              unk1,
+                              unk2,
+                              client));
+
+    if (const auto skip = CallPlugins(&Plugin::OnRequestEvent, client, eventType, ship, dockTargetObj, unk1, unk2); !skip)
     {
         CallServerPreamble { Server.RequestEvent(eventType, shipId.GetValue(), dockTarget.GetValue(), unk1, unk2, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
-    CallPlugins(&Plugin::OnRequestEventAfter, client, eventType, shipId, dockTarget, unk1, unk2);
+    CallPlugins(&Plugin::OnRequestEventAfter, client, eventType, ship, dockTargetObj, unk1, unk2);
 }
 
-void __stdcall IServerImplHook::RequestCancel(int eventType, ShipId shipId, ObjectId dockTarget, ulong unk2, ClientId client)
+void __stdcall IServerImplHook::RequestCancel(int eventType, Id shipId, Id dockTarget, ulong unk2, ClientId client)
 {
-    Logger::Trace(std::format(L"RequestCancel(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint unk1 = {}\n\tulong unk2 = {}\n\tClientId client = {}\n)",
-                    eventType,
-                    shipId,
-                    dockTarget,
-                    unk2,
-                    client));
+    auto ship = shipId.AsShip();
+    auto dockTargetObj = dockTarget.AsObject();
 
-    if (const auto skip = CallPlugins(&Plugin::OnRequestCancel, client, eventType, shipId, dockTarget, unk2); !skip)
+    Logger::Trace(std::format(L"RequestCancel(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint unk1 = {}\n\tulong unk2 = {}\n\tClientId client = {}\n)",
+                              eventType,
+                              shipId,
+                              dockTarget,
+                              unk2,
+                              client));
+
+    if (const auto skip = CallPlugins(&Plugin::OnRequestCancel, client, eventType, ship, dockTargetObj, unk2); !skip)
     {
         CallServerPreamble { Server.RequestCancel(eventType, shipId.GetValue(), dockTarget.GetValue(), unk2, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
-    CallPlugins(&Plugin::OnRequestCancelAfter, client, eventType, shipId, dockTarget, unk2);
+    CallPlugins(&Plugin::OnRequestCancelAfter, client, eventType, ship, dockTargetObj, unk2);
 }
 
 void __stdcall IServerImplHook::InterfaceItemUsed(uint unk1, uint unk2)

@@ -9,12 +9,13 @@ const std::unique_ptr<FunctionDetour<SendCommType>> func = std::make_unique<Func
 
 int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costume, uint infocardId, uint* a5, int a6, uint infocardId2, float a8, bool a9)
 {
+    // TODO: Remove Find
     if (const CShip* ship = dynamic_cast<CShip*>(CObject::Find(toShipId, CObject::Class::CSHIP_OBJECT)); ship && ship->is_player())
     {
         const auto client = ClientId(ship->GetOwnerPlayer());
 
         auto& ci = client.GetData();
-        const auto& config = FLHook::GetConfig();
+        const auto config = FLHook::GetConfig();
 
         static std::array<byte, 8> num1RewriteBytes = { 0xBA, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90 };
 
@@ -29,7 +30,7 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
         const auto playerNumber2 = content + numberOffset2;
         const auto playerFormation = PCHAR(content + formationOffset);
 
-        if (!config.callsign.disableRandomisedFormations)
+        if (!config->callsign.disableRandomisedFormations)
         {
             *reinterpret_cast<int*>(num1RewriteBytes.data() + 1) = ci.formationNumber1;
             MemUtils::WriteProcMem(playerNumber1, num1RewriteBytes.data(), num1RewriteBytes.size());
@@ -39,7 +40,7 @@ int SendComm(uint fromShipId, uint toShipId, uint voiceId, const Costume* costum
             sprintf_s(playerFormation, 2, "%02d", ci.formationTag); // NOLINT
         }
 
-        if (!config.callsign.disableUsingAffiliationForCallsign)
+        if (!config->callsign.disableUsingAffiliationForCallsign)
         {
             // TODO: Extract rep group for callsign
             /*if (auto repGroupNick = Hk::IniUtils::i()->GetFromPlayerFile(client.GetValue(), L"rep_group");

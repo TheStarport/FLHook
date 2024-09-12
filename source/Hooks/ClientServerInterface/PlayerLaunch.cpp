@@ -3,16 +3,17 @@
 #include "Core/ClientServerInterface.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/ResourceManager.hpp"
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
-#include "Core/ServerOptimizer.hpp"
 
-void IServerImplHook::PlayerLaunchInner(ShipId shipId, ClientId client)
+void IServerImplHook::PlayerLaunchInner(const ShipId& shipId, ClientId client)
 {
     TryHook
     {
         auto& data = client.GetData();
-        data.shipId = ShipId(shipId);
+        data.ship = shipId;
+        data.shipId = Id(shipId.GetId().Unwrap());
         data.cruiseActivated = false;
         data.thrusterActivated = false;
         data.engineKilled = false;
@@ -33,38 +34,24 @@ void IServerImplHook::PlayerLaunchInner(ShipId shipId, ClientId client)
     CatchHook({})
 }
 
-void IServerImplHook::PlayerLaunchInnerAfter([[maybe_unused]] ShipId shipId, ClientId client)
+void __stdcall IServerImplHook::PlayerLaunch(Id shipId, ClientId client)
 {
-    TryHook
-    {
-        auto& data = client.GetData();
-        if (!data.lastExitedBaseId)
-        {
-            data.lastExitedBaseId = 1;
-        }
+    auto ship = shipId.AsShip();
 
-        data.cship = data.shipId.GetCShip(false).Handle().get();
-    }
-    CatchHook({})
-}
-
-void __stdcall IServerImplHook::PlayerLaunch(ShipId shipId, ClientId client)
-{
     Logger::Trace(std::format(L"PlayerLaunch(\n\tuint shipId = {}\n\tClientId client = {}\n)", shipId, client));
 
-    const auto skip = CallPlugins(&Plugin::OnPlayerLaunch, client, shipId);
+    const auto skip = CallPlugins(&Plugin::OnPlayerLaunch, client, ship);
 
     CheckForDisconnect;
 
-    PlayerLaunchInner(shipId, client);
+    PlayerLaunchInner(ship, client);
 
-    ServerOptimizer::playerShips.insert(shipId.GetValue());
+    ResourceManager::playerShips.insert(shipId.GetValue());
     if (!skip)
     {
         CallServerPreamble { Server.PlayerLaunch(shipId.GetValue(), client.GetValue()); }
         CallServerPostamble(true, );
     }
-    PlayerLaunchInnerAfter(shipId, client);
 
-    CallPlugins(&Plugin::OnPlayerLaunchAfter, client, shipId);
+    CallPlugins(&Plugin::OnPlayerLaunchAfter, client, ship);
 }

@@ -78,17 +78,17 @@ class DLL FLHook final
 
         // Non-Static things
 
-        ClientList* clientList;
-        Database* database;
-        InfocardManager* infocardManager;
-        PersonalityHelper* personalityHelper;
-        TaskScheduler* taskScheduler;
-        AccountManager* accountManager;
-        ResourceManager* resourceManager;
-        FLHookConfig* flhookConfig;
-        CrashCatcher* crashCatcher;
-        MessageHandler* messageHandler;
-        MessageInterface* messageInterface;
+        std::shared_ptr<ClientList> clientList;
+        std::shared_ptr<Database> database;
+        std::shared_ptr<InfocardManager> infocardManager;
+        std::shared_ptr<PersonalityHelper> personalityHelper;
+        std::shared_ptr<TaskScheduler> taskScheduler;
+        std::shared_ptr<AccountManager> accountManager;
+        std::shared_ptr<ResourceManager> resourceManager;
+        std::shared_ptr<FLHookConfig> flhookConfig;
+        std::shared_ptr<CrashCatcher> crashCatcher;
+        std::shared_ptr<MessageHandler> messageHandler;
+        std::shared_ptr<MessageInterface> messageInterface;
 
         bool OnServerStart();
         void InitHookExports();
@@ -147,22 +147,22 @@ class DLL FLHook final
         static std::wstring_view GetAccountPath();
         static bool GetObjInspect(uint& ship, IObjInspectImpl*& inspect);
 
-        static AccountManager& GetAccountManager();
+        static std::shared_ptr<AccountManager> GetAccountManager();
         static const std::unordered_map<std::wstring, std::vector<std::wstring>>& GetAdmins();
         static ClientList& Clients();
         static ClientData& GetClient(ClientId client);
-        static FLHookConfig& GetConfig();
-        static Database& GetDatabase();
+        static std::shared_ptr<FLHookConfig> GetConfig();
+        static std::shared_ptr<Database> GetDatabase();
         static mongocxx::pool::entry GetDbClient();
-        static InfocardManager& GetInfocardManager();
+        static std::shared_ptr<InfocardManager> GetInfocardManager();
         static LastHitInformation GetLastHitInformation();
-        static MessageInterface* GetMessageInterface();
+        static std::shared_ptr<MessageInterface> GetMessageInterface();
         static IClientImpl* GetPacketInterface();
-        static ResourceManager& GetResourceManager();
-        static Action<pub::AI::Personality*, Error> GetPersonality(const std::wstring& pilotNickname);
+        static std::shared_ptr<ResourceManager> GetResourceManager();
+        static Action<pub::AI::Personality*> GetPersonality(const std::wstring& pilotNickname);
         static uint GetServerLoadInMs();
         static CDPClientProxy** GetClientProxyArray();
-        static TaskScheduler& GetTaskScheduler();
+        static std::shared_ptr<TaskScheduler> GetTaskScheduler();
 
-        static Action<void, Error> MessageUniverse(std::wstring_view message);
+        static Action<void> MessageUniverse(std::wstring_view message);
 };

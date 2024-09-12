@@ -10,7 +10,7 @@ int64 PerfTimer::Stop()
 {
     auto timeDelta = TimeUtils::UnixTime<std::chrono::microseconds>() - tmStart;
 
-    if (FLHook::GetConfig().logging.logPerformanceTimers)
+    if (FLHook::GetConfig()->logging.logPerformanceTimers)
     {
         if (timeDelta > max && timeDelta > warning)
         {

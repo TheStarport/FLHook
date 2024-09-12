@@ -1,10 +1,10 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/ResourceManager.hpp"
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "Core/ServerOptimizer.hpp"
 
 void IServerImplHook::BaseEnterInnerAfter([[maybe_unused]] BaseId baseId, ClientId client)
 {
@@ -12,7 +12,7 @@ void IServerImplHook::BaseEnterInnerAfter([[maybe_unused]] BaseId baseId, Client
     {
         auto& data = client.GetData();
 
-        data.cship = nullptr;
+        data.ship = {};
         // adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
         const std::wstring charName = StringUtils::ToLower(client.GetCharacterName().Unwrap());
         for (const auto& i : data.moneyFix)
@@ -45,11 +45,11 @@ void __stdcall IServerImplHook::BaseEnter(BaseId baseId, ClientId client)
 
     const auto skip = CallPlugins(&Plugin::OnBaseEnter, BaseId(baseId), ClientId(client));
 
-    const auto playerShip = client.GetShipId().Raw();
-    if (playerShip.has_value())
+    if (const auto playerShip = client.GetData().shipId.GetValue(); ResourceManager::playerShips.contains(playerShip))
     {
-        ServerOptimizer::playerShips.erase(playerShip.value().GetValue());
+        ResourceManager::playerShips.erase(playerShip);
     }
+
     CheckForDisconnect;
 
     if (!skip)
@@ -68,7 +68,8 @@ void IServerImplHook::BaseExitInner(BaseId baseId, ClientId client)
     {
         auto& data = client.GetData();
         data.baseEnterTime = 0;
-        data.lastExitedBaseId = baseId.GetValue();
+        data.lastExitedBaseId = baseId;
+        data.baseId = {};
     }
     CatchHook({})
 }

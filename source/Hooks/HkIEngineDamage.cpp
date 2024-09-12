@@ -39,15 +39,15 @@ bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
         return rval;
     }
 
-    const auto& config = FLHook::GetConfig();
-    if (config.general.damageMode == DamageMode::None)
+    const auto config = FLHook::GetConfig();
+    if (config->general.damageMode == DamageMode::None)
     {
         return false;
     }
 
     if (clientTarget)
     {
-        if (!magic_enum::enum_flags_test(config.general.damageMode, DamageMode::PvP))
+        if (!magic_enum::enum_flags_test(config->general.damageMode, DamageMode::PvP))
         {
             return false;
         }
@@ -57,7 +57,7 @@ bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
         // anti-dockkill check
         if (auto& targetData = clientTarget.GetData(); targetData.spawnProtected)
         {
-            if (time - targetData.spawnTime <= config.general.antiDockKill)
+            if (time - targetData.spawnTime <= config->general.antiDockKill)
             {
                 return false; // target is protected
             }
@@ -67,7 +67,7 @@ bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
 
         if (auto& clientData = client.GetData(); clientData.spawnProtected)
         {
-            if (time - clientData.spawnTime <= config.general.antiDockKill)
+            if (time - clientData.spawnTime <= config->general.antiDockKill)
             {
                 return false; // target may not shoot
             }
@@ -78,7 +78,7 @@ bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
         // no-pvp check
         SystemId systemId;
         pub::Player::GetSystem(client.GetValue(), reinterpret_cast<uint&>(systemId));
-        if (std::ranges::find(config.general.noPvPSystems, systemId) != config.general.noPvPSystems.end())
+        if (std::ranges::find(config->general.noPvPSystems, systemId) != config->general.noPvPSystems.end())
         {
             return false;
         }

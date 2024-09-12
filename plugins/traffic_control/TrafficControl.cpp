@@ -64,6 +64,7 @@ bool TrafficControlPlugin::OnSystemSwitchOutPacket(const ClientId client, FLPACK
     if (const auto activeNetwork = clientInfo[client.GetValue()].activeNetwork; activeNetwork)
     {
         // TODO: Fix once optimizer is embedded into core
+        // TODO: Remove Find
         auto* jumpObj = reinterpret_cast<CSolar*>(CObject::Find(packet.jumpObjectId, CObject::CSOLAR_OBJECT));
         jumpObj->Release();
 
@@ -88,7 +89,7 @@ bool TrafficControlPlugin::OnSystemSwitchOutPacket(const ClientId client, FLPACK
     return true;
 }
 
-void TrafficControlPlugin::OnPlayerLaunchAfter(const ClientId client, const ShipId ship)
+void TrafficControlPlugin::OnPlayerLaunchAfter(const ClientId client, const ShipId& ship)
 {
     auto& playerNetworks = clientInfo[client.GetValue()].availableNetworks;
     playerNetworks.clear();
@@ -115,20 +116,21 @@ void TrafficControlPlugin::OnPlayerLaunchAfter(const ClientId client, const Ship
     ActivateNetwork(client, playerNetworks.begin()->first, playerNetworks.begin()->second.first);
 }
 
-void TrafficControlPlugin::AddShipCargoSnapshot(ClientId client) const
+void TrafficControlPlugin::AddShipCargoSnapshot(ClientId client)
 {
-    auto clientData = clientInfo[client.GetValue()];
+    auto& clientData = clientInfo[client.GetValue()];
+    auto ship = client.GetShip().Handle();
 
     clientData.scanCache.clear();
-
     clientData.scanCache.emplace_back(std::format(L"Scan snapshot of {}:", client.GetCharacterName().Handle()));
-    clientData.scanCache.emplace_back(std::format(L"Ship: {}", FLHook::GetInfocardManager().GetInfocard(client.GetShip().Handle()->archetype->idsName)));
-    auto& shipEqManager = client.GetShip().Handle()->equip_manager;
+    clientData.scanCache.emplace_back(std::format(L"Ship: {}", FLHook::GetInfocardManager()->GetInfocard(ship.GetArchetype().Handle()->idsName)));
+
+    auto* shipEqManager = ship.GetEquipmentManager().Handle();
     CEquipTraverser tr(static_cast<int>(EquipmentClass::Cargo));
     CECargo* cargo;
-    while (cargo = reinterpret_cast<CECargo*>(shipEqManager.Traverse(tr)))
+    while (cargo = reinterpret_cast<CECargo*>(shipEqManager->Traverse(tr)))
     {
-        clientData.scanCache.emplace_back(std::format(L"| {}x{}", FLHook::GetInfocardManager().GetInfocard(cargo->archetype->idsInfo), cargo->count));
+        clientData.scanCache.emplace_back(std::format(L"| {}x{}", FLHook::GetInfocardManager()->GetInfocard(cargo->archetype->idsInfo), cargo->count));
     }
 
     clientData.timestamp = TimeUtils::UnixTime<std::chrono::seconds>();
@@ -154,10 +156,11 @@ void TrafficControlPlugin::OnTradelaneStart(ClientId client, const XGoTradelane&
         if (magic_enum::enum_flags_test(clientInfo[notifiedClient.first.GetValue()].currPermissions, Permissions::LaneNet))
         {
             SystemId clientSystem = notifiedClient.first.GetSystemId().Handle();
-            notifiedClient.first.Message(std::format(L"{} has entered tradelane in {} system, sector {}",
-                                                     client.GetCharacterName().Handle(),
-                                                     clientSystem.GetName().Handle(),
-                                                     clientSystem.PositionToSectorCoord(notifiedClient.first.GetShip().Handle()->position).Handle()));
+            notifiedClient.first.Message(
+                std::format(L"{} has entered tradelane in {} system, sector {}",
+                            client.GetCharacterName().Handle(),
+                            clientSystem.GetName().Handle(),
+                            clientSystem.PositionToSectorCoord(notifiedClient.first.GetShip().Handle().GetPositionAndOrientation().Handle().first).Handle()));
         }
 
         if (isFirstNotification && magic_enum::enum_flags_test(clientInfo[notifiedClient.first.GetValue()].currPermissions, Permissions::Scan))
@@ -175,14 +178,15 @@ void TrafficControlPlugin::OnClearClientInfo(const ClientId client)
     clientData.activeNetwork = nullptr;
 }
 
-std::optional<DOCK_HOST_RESPONSE> TrafficControlPlugin::OnDockCall(ShipId shipId, ObjectId spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response)
+std::optional<DOCK_HOST_RESPONSE> TrafficControlPlugin::OnDockCall(const ShipId& shipId, const ObjectId& spaceId, int dockPortIndex,
+                                                                   DOCK_HOST_RESPONSE response)
 {
     if (!shipId.IsPlayer())
     {
         return {};
     }
 
-    const auto client = ClientId(shipId.GetPlayer().value());
+    const auto client = ClientId(shipId.GetPlayer().Unwrap());
 
     const auto& data = clientInfo[client.GetValue()];
     if (!data.nodockTimestamp)
@@ -386,22 +390,11 @@ Task TrafficControlPlugin::UserCmdNodock(ClientId client)
         co_return TaskStatus::Finished;
     }
 
-    const auto target = ship->get_target();
-    if (!target)
-    {
-        client.MessageErr(L"No target!");
-        co_return TaskStatus::Finished;
-    }
+    const auto target = ship.GetTarget().Handle();
+    const auto targetPlayer = target.GetPlayer().Handle();
 
-    auto targetPlayerId = ClientId(reinterpret_cast<CSimple*>(target->cobject())->ownerPlayer);
-    if (!targetPlayerId)
-    {
-        client.MessageErr(L"Target not a player!");
-        co_return TaskStatus::Finished;
-    }
-
-    targetPlayerId.Message(config.nodockMessage);
-    clientInfo[targetPlayerId.GetValue()].nodockTimestamp = TimeUtils::UnixTime<std::chrono::seconds>() + config.nodockDuration;
+    targetPlayer.Message(config.nodockMessage);
+    clientInfo[targetPlayer.GetValue()].nodockTimestamp = TimeUtils::UnixTime<std::chrono::seconds>() + config.nodockDuration;
     co_return TaskStatus::Finished;
 }
 

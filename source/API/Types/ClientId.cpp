@@ -19,7 +19,7 @@
         return { cpp::fail(Error::CharacterNotSelected) }; \
     }
 
-Action<void, Error> ClientId::AdjustCash(const int amount) const
+Action<void> ClientId::AdjustCash(const int amount) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -70,7 +70,7 @@ ClientId::operator bool() const
     return false;
 }
 
-Action<BaseId, Error> ClientId::GetCurrentBase() const
+Action<BaseId> ClientId::GetCurrentBase() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -83,7 +83,7 @@ Action<BaseId, Error> ClientId::GetCurrentBase() const
     return { cpp::fail(Error::PlayerNotDocked) };
 }
 
-Action<SystemId, Error> ClientId::GetSystemId() const
+Action<SystemId> ClientId::GetSystemId() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -97,7 +97,7 @@ Action<SystemId, Error> ClientId::GetSystemId() const
     return { SystemId(sys) };
 }
 
-Action<AccountId, Error> ClientId::GetAccount() const
+Action<AccountId> ClientId::GetAccount() const
 {
     ClientCheck;
 
@@ -108,7 +108,7 @@ Action<AccountId, Error> ClientId::GetAccount() const
     return { cpp::fail(Error::InvalidClientId) };
 }
 
-Action<const Archetype::Ship*, Error> ClientId::GetShipArch() const
+Action<const Archetype::Ship*> ClientId::GetShipArch() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -123,7 +123,7 @@ Action<const Archetype::Ship*, Error> ClientId::GetShipArch() const
     return { Archetype::GetShip(ship) };
 }
 
-Action<ShipId, Error> ClientId::GetShipId() const
+Action<ShipId> ClientId::GetShip() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -138,15 +138,16 @@ Action<ShipId, Error> ClientId::GetShipId() const
     return cpp::result<ShipId, Error>(ShipId(ship));
 }
 
-Action<uint, Error> ClientId::GetLatency() const
+Action<uint> ClientId::GetLatency() const
 {
     // TODO: Implement latency func when ConData is slated.
     return { 0u };
 }
 
-Action<CPlayerGroup*, Error> ClientId::GetGroup() const
+Action<GroupId> ClientId::GetGroup() const
 {
     ClientCheck;
+
     const auto id = Players.GetGroupID(value);
 
     if (!id)
@@ -154,10 +155,10 @@ Action<CPlayerGroup*, Error> ClientId::GetGroup() const
         return { cpp::fail(Error::PlayerNotInGroup) };
     }
 
-    return { CPlayerGroup::FromGroupID(id) };
+    return { GroupId(id) };
 }
 
-Action<RepId, Error> ClientId::GetReputation() const
+Action<RepId> ClientId::GetReputation() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -172,22 +173,7 @@ Action<RepId, Error> ClientId::GetReputation() const
     return { RepId(rep) };
 }
 
-Action<CShip*, Error> ClientId::GetShip() const
-{
-    ClientCheck;
-    CharSelectCheck;
-
-    const uint ship = Players[value].shipId;
-
-    if (!ship)
-    {
-        return { cpp::fail(Error::PlayerNotInSpace) };
-    }
-
-    return { dynamic_cast<CShip*>(CObject::Find(ship, CObject::CSHIP_OBJECT)) };
-}
-
-Action<uint, Error> ClientId::GetRank() const
+Action<uint> ClientId::GetRank() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -195,7 +181,7 @@ Action<uint, Error> ClientId::GetRank() const
     return { Players[value].rank };
 }
 
-Action<uint, Error> ClientId::GetWealth() const
+Action<uint> ClientId::GetWealth() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -203,7 +189,7 @@ Action<uint, Error> ClientId::GetWealth() const
     return { static_cast<uint>(Players[value].worth) };
 }
 
-Action<int, Error> ClientId::GetPvpKills() const
+Action<int> ClientId::GetPvpKills() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -211,7 +197,7 @@ Action<int, Error> ClientId::GetPvpKills() const
     return { Players[value].numKills };
 }
 
-Action<uint, Error> ClientId::GetCash() const
+Action<uint> ClientId::GetCash() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -219,7 +205,7 @@ Action<uint, Error> ClientId::GetCash() const
     return { Players[value].money };
 }
 
-Action<float, Error> ClientId::GetRelativeHealth() const
+Action<float> ClientId::GetRelativeHealth() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -227,7 +213,7 @@ Action<float, Error> ClientId::GetRelativeHealth() const
     return { Players[value].relativeHealth };
 }
 
-Action<void, Error> ClientId::SetRelativeHealth(const float setHealth) const
+Action<void> ClientId::SetRelativeHealth(const float setHealth) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -241,7 +227,7 @@ Action<void, Error> ClientId::SetRelativeHealth(const float setHealth) const
     return { {} };
 }
 
-Action<std::wstring_view, Error> ClientId::GetCharacterName() const
+Action<std::wstring_view> ClientId::GetCharacterName() const
 {
     if (value == 0)
     {
@@ -261,7 +247,7 @@ bool ClientId::InCharacterSelect() const { return !Players[value].systemId; }
 
 bool ClientId::IsAlive() const { return Players[value].systemId && Players[value].shipId; }
 
-Action<st6::list<EquipDesc>* const, Error> ClientId::GetEquipCargo() const
+Action<st6::list<EquipDesc>* const> ClientId::GetEquipCargo() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -269,7 +255,7 @@ Action<st6::list<EquipDesc>* const, Error> ClientId::GetEquipCargo() const
     return { &Players[value].equipAndCargo.equip };
 }
 
-Action<float, Error> ClientId::GetRemainingCargo() const
+Action<float> ClientId::GetRemainingCargo() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -279,7 +265,7 @@ Action<float, Error> ClientId::GetRemainingCargo() const
     return { remainingHold };
 }
 
-Action<st6::list<CollisionGroupDesc>* const, Error> ClientId::GetCollisionGroups() const
+Action<st6::list<CollisionGroupDesc>* const> ClientId::GetCollisionGroups() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -289,7 +275,7 @@ Action<st6::list<CollisionGroupDesc>* const, Error> ClientId::GetCollisionGroups
 
 ClientData& ClientId::GetData() const { return FLHook::Clients()[value]; }
 
-Action<std::wstring, Error> ClientId::GetPlayerIp() const
+Action<std::wstring> ClientId::GetPlayerIp() const
 {
     const CDPClientProxy* cdpClient = FLHook::clientProxyArray[value - 1];
     // clang-format off
@@ -383,13 +369,13 @@ EngineState ClientId::GetEngineState() const
 }
 
 // Server wide message upon kicking. Delay is defaulted to zero.
-Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reason, std::optional<uint> delay) const
+Action<void> ClientId::Kick(const std::optional<std::wstring_view>& reason, std::optional<uint> delay) const
 {
     ClientCheck;
 
     if (reason.has_value())
     {
-        const std::wstring msg = std::vformat(FLHook::GetConfig().chatConfig.msgStyle.kickMsg, std::make_wformat_args(reason.value()));
+        const std::wstring msg = std::vformat(FLHook::GetConfig()->chatConfig.msgStyle.kickMsg, std::make_wformat_args(reason.value()));
         (void)Message(msg, MessageFormat::Big, MessageColor::Red);
 
         if (!delay.has_value())
@@ -414,7 +400,7 @@ Action<void, Error> ClientId::Kick(const std::optional<std::wstring_view>& reaso
     return { {} };
 }
 
-Action<void, Error> ClientId::SaveChar() const
+Action<void> ClientId::SaveChar() const
 {
     // We do not validate the client id here because new/delete characters make use of this method with an invalid, transient, id
     pub::Save(value, 1);
@@ -422,7 +408,7 @@ Action<void, Error> ClientId::SaveChar() const
     return { {} };
 }
 
-Action<void, Error> ClientId::SetPvpKills(const uint killAmount) const
+Action<void> ClientId::SetPvpKills(const uint killAmount) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -432,7 +418,7 @@ Action<void, Error> ClientId::SetPvpKills(const uint killAmount) const
     return { {} };
 }
 
-Action<void, Error> ClientId::SetCash(const uint amount) const
+Action<void> ClientId::SetCash(const uint amount) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -442,8 +428,8 @@ Action<void, Error> ClientId::SetCash(const uint amount) const
     return { {} };
 }
 
-Action<void, Error> ClientId::AddCash(const uint amount) const { return AdjustCash(static_cast<int>(amount)); }
-Action<void, Error> ClientId::RemoveCash(const uint amount) const { return AdjustCash(-static_cast<int>(amount)); }
+Action<void> ClientId::AddCash(const uint amount) const { return AdjustCash(static_cast<int>(amount)); }
+Action<void> ClientId::RemoveCash(const uint amount) const { return AdjustCash(-static_cast<int>(amount)); }
 
 // TODO: This should more accessible throughout the plugin and configurable
 const std::array BannedBases = {
@@ -462,7 +448,7 @@ const std::array BannedBases = {
     CreateID("li01_15_base"),
 };
 
-Action<void, Error> ClientId::Beam(const BaseId base) const
+Action<void> ClientId::Beam(const BaseId base) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -500,7 +486,7 @@ Action<void, Error> ClientId::Beam(const BaseId base) const
     return { {} };
 }
 
-Action<void, Error> ClientId::MarkObject(const uint objId, const int markStatus) const
+Action<void> ClientId::MarkObject(const uint objId, const int markStatus) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -513,7 +499,7 @@ Action<void, Error> ClientId::MarkObject(const uint objId, const int markStatus)
     return { {} };
 }
 
-Action<void, Error> ClientId::Message(const std::wstring_view message, const MessageFormat format, const MessageColor color) const
+Action<void> ClientId::Message(const std::wstring_view message, const MessageFormat format, const MessageColor color) const
 {
     if (value == 0)
     {
@@ -532,14 +518,14 @@ Action<void, Error> ClientId::Message(const std::wstring_view message, const Mes
 
     return { {} };
 }
-Action<void, Error> ClientId::MessageErr(std::wstring_view message) const { return Message(message, MessageFormat::Normal, MessageColor::Crimson); }
+Action<void> ClientId::MessageErr(std::wstring_view message) const { return Message(message, MessageFormat::Normal, MessageColor::Crimson); }
 
-Action<void, Error> ClientId::MessageLocal(const std::wstring_view message, const float range, const MessageFormat format, const MessageColor color) const
+Action<void> ClientId::MessageLocal(const std::wstring_view message, const float range, const MessageFormat format, const MessageColor color) const
 {
     ClientCheck;
     CharSelectCheck;
 
-    auto ship = GetShipId().Raw();
+    auto ship = GetShip().Raw();
     if (ship.has_error())
     {
         return { cpp::fail(ship.error()) };
@@ -549,12 +535,12 @@ Action<void, Error> ClientId::MessageLocal(const std::wstring_view message, cons
     const auto [position, _] = ship->GetPositionAndOrientation().Unwrap();
     for (auto& client : FLHook::Clients())
     {
-        if (client.id == *this || !client.shipId || system != client.shipId.GetSystem().Unwrap())
+        if (client.id == *this || !client.shipId || system != client.ship.GetSystem().Unwrap())
         {
             continue;
         }
 
-        auto [otherPos, _] = client.shipId.GetPositionAndOrientation().Unwrap();
+        auto [otherPos, _] = client.ship.GetPositionAndOrientation().Unwrap();
         if (const auto distance = glm::abs(glm::distance<3, float, glm::packed_highp>(position, otherPos)); distance <= range)
         {
             (void)Message(message, format, color);
@@ -564,7 +550,7 @@ Action<void, Error> ClientId::MessageLocal(const std::wstring_view message, cons
     return { {} };
 }
 
-Action<void, Error> ClientId::MessageFrom(const ClientId destinationClient, const std::wstring_view message) const
+Action<void> ClientId::MessageFrom(const ClientId destinationClient, const std::wstring_view message) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -579,7 +565,7 @@ Action<void, Error> ClientId::MessageFrom(const ClientId destinationClient, cons
     return { {} };
 }
 
-Action<void, Error> ClientId::MessageCustomXml(const std::wstring_view rawXml) const
+Action<void> ClientId::MessageCustomXml(const std::wstring_view rawXml) const
 {
     static std::array<char, 0xFFFF> buffer;
     std::fill_n(buffer.begin(), buffer.size(), '\0');
@@ -594,7 +580,7 @@ Action<void, Error> ClientId::MessageCustomXml(const std::wstring_view rawXml) c
     return { {} };
 }
 
-Action<void, Error> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
+Action<void> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -659,7 +645,7 @@ Action<void, Error> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
     return { cpp::fail(Error::UnknownError) };
 }
 
-Action<void, Error> ClientId::AddEquip(const uint goodId, const std::wstring& hardpoint) const
+Action<void> ClientId::AddEquip(const uint goodId, const std::wstring& hardpoint) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -687,7 +673,7 @@ Action<void, Error> ClientId::AddEquip(const uint goodId, const std::wstring& ha
     return { {} };
 }
 
-Action<void, Error> ClientId::AddCargo(const uint goodId, const uint count, const bool isMission) const
+Action<void> ClientId::AddCargo(const uint goodId, const uint count, const bool isMission) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -695,7 +681,7 @@ Action<void, Error> ClientId::AddCargo(const uint goodId, const uint count, cons
     pub::Player::AddCargo(value, goodId, count, 1.0, isMission);
     return { {} };
 }
-Action<void, Error> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const
+Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const
 {
     switch (goodId.index())
     {
@@ -734,7 +720,7 @@ Action<void, Error> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, usho
     return { {} };
 }
 
-Action<void, Error> ClientId::Undock(Vector pos, std::optional<Matrix> orientation) const
+Action<void> ClientId::Undock(Vector pos, std::optional<Matrix> orientation) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -758,7 +744,7 @@ Action<void, Error> ClientId::Undock(Vector pos, std::optional<Matrix> orientati
     return { {} };
 }
 
-Action<void, Error> ClientId::PlaySound(const uint hash) const
+Action<void> ClientId::PlaySound(const uint hash) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -767,7 +753,7 @@ Action<void, Error> ClientId::PlaySound(const uint hash) const
     return { {} };
 }
 
-Action<DPN_CONNECTION_INFO, Error> ClientId::GetConnectionData() const
+Action<DPN_CONNECTION_INFO> ClientId::GetConnectionData() const
 {
     ClientCheck;
     CharSelectCheck;
@@ -782,7 +768,7 @@ Action<DPN_CONNECTION_INFO, Error> ClientId::GetConnectionData() const
     return { { connectionInfo } };
 }
 
-Action<void, Error> ClientId::InvitePlayer(ClientId otherClient) const
+Action<void> ClientId::InvitePlayer(ClientId otherClient) const
 {
     ClientCheck;
     CharSelectCheck;

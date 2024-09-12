@@ -32,12 +32,12 @@ void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
         // check for ip ban
         const auto ip = client.GetPlayerIp().Unwrap();
 
-        for (const auto& ban : FLHook::GetConfig().bans.banWildcardsAndIPs)
+        for (const auto& ban : FLHook::GetConfig()->bans.banWildcardsAndIPs)
         {
             if (wildcards::match(ip, ban))
             {
                 // AddKickLog(client, std::format(L"IP/hostname ban({} matches {})", ip.c_str(), ban.c_str()));
-                if (FLHook::GetConfig().bans.banAccountOnMatch)
+                if (FLHook::GetConfig()->bans.banAccountOnMatch)
                 {
                     client.GetAccount().Handle().Ban();
                 }

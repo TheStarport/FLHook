@@ -24,24 +24,24 @@ class DLL BaseId
         }
 
         [[nodiscard]]
-        Action<ObjectId, Error> GetSpaceId() const;
+        Action<ObjectId> GetSpaceId() const;
         [[nodiscard]]
-        Action<SystemId, Error> GetSystem() const;
+        Action<SystemId> GetSystem() const;
         [[nodiscard]]
-        Action<RepId, Error> GetAffiliation() const;
+        Action<RepId> GetAffiliation() const;
         [[nodiscard]]
-        Action<std::wstring_view, Error> GetName() const;
+        Action<std::wstring_view> GetName() const;
         [[nodiscard]]
-        Action<std::pair<float, float>, Error> GetBaseHealth() const;
+        Action<std::pair<float, float>> GetBaseHealth() const;
         [[nodiscard]]
-        Action<std::pair<std::wstring_view, std::wstring_view>, Error> GetDescription() const;
+        Action<std::pair<std::wstring_view, std::wstring_view>> GetDescription() const;
         [[nodiscard]]
-        Action<std::vector<uint>, Error> GetItemsForSale() const;
+        Action<std::vector<uint>> GetItemsForSale() const;
         [[nodiscard]]
-        Action<float, Error> GetCommodityPrice(GoodId goodId) const;
+        Action<float> GetCommodityPrice(GoodId goodId) const;
 
         [[nodiscard]]
-        Action<std::vector<ClientId>, Error> GetDockedPlayers() const;
+        Action<std::vector<ClientId>> GetDockedPlayers() const;
 };
 
 template <>

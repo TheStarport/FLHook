@@ -1,9 +1,98 @@
 #pragma once
 
-#include "ResourcePtr.hpp"
+#include "Utils/Detour.hpp"
 
 class DLL ResourceManager final
 {
+        friend IServerImplHook;
+
+        using DefaultNakedType = void (*)();
+        using CObjAllocatorType = CObject*(__cdecl*)(CObject::Class objClass);
+        inline static std::unique_ptr<FunctionDetour<DefaultNakedType>> gameObjectDestructorDetour;
+        inline static std::unique_ptr<FunctionDetour<DefaultNakedType>> cSimpleInitDetour;
+        inline static std::unique_ptr<FunctionDetour<DefaultNakedType>> cObjDestrDetour;
+        inline static std::unique_ptr<FunctionDetour<DefaultNakedType>> cObjectFindDetourFunc;
+        inline static std::unique_ptr<FunctionDetour<CObjAllocatorType>> cObjAllocatorDetour;
+        inline static std::unique_ptr<FunctionDetour<DefaultNakedType>> findStarListNaked2;
+
+        struct StarSystemMock
+        {
+                uint systemId;
+                StarSystem starSystem;
+        };
+
+        struct iobjCache
+        {
+                StarSystem* cacheStarSystem;
+                CObject::Class objClass;
+        };
+
+        struct CObjNode
+        {
+                CObjNode* next;
+                CObjNode* prev;
+                CObject* cobj;
+        };
+
+        struct CObjEntryNode
+        {
+                CObjNode* first;
+                CObjNode* last;
+        };
+
+        struct CObjList
+        {
+                uint dunno;
+                CObjEntryNode* entry;
+                uint size;
+        };
+
+        using CObjListFunc = CObjList*(__cdecl*)(CObject::Class);
+        using FindIObjOnList = MetaListNode*(__thiscall*)(MetaList&, uint searchedId);
+        using FindIObjInSystem = IObjRW*(__thiscall*)(StarSystemMock& starSystem, uint searchedId);
+        using RemoveCobjFromVector = void(__thiscall*)(CObjList*, void*, CObjNode*);
+        const inline static auto findIObjOnListFunc = reinterpret_cast<FindIObjOnList>(0x6CF4F00);
+        const inline static auto findIObjFunc = reinterpret_cast<FindIObjInSystem>(0x6D0C840);
+        const inline static auto CObjListFind = reinterpret_cast<CObjListFunc>(0x62AE690);
+        const inline static auto removeCObjNode = reinterpret_cast<RemoveCobjFromVector>(0x62AF830);
+
+        inline static std::unordered_map<CObject*, CObjNode*> cMineMap;
+        inline static std::unordered_map<CObject*, CObjNode*> cCmMap;
+        inline static std::unordered_map<CObject*, CObjNode*> cBeamMap;
+        inline static std::unordered_map<CObject*, CObjNode*> cGuidedMap;
+        inline static std::unordered_map<CObject*, CObjNode*> cSolarMap;
+        inline static std::unordered_map<CObject*, CObjNode*> cShipMap;
+        inline static std::unordered_map<CObject*, CObjNode*> cAsteroidMap;
+        inline static std::unordered_map<CObject*, CObjNode*> cLootMap;
+        inline static std::unordered_map<CObject*, CObjNode*> cEquipmentMap;
+        inline static std::unordered_map<CObject*, CObjNode*> cObjectMap;
+        inline static std::unordered_set<uint> playerShips;
+
+        inline static std::unordered_map<uint, std::shared_ptr<CAsteroid>> cAsteroidIdMap;
+        inline static std::unordered_map<uint, std::shared_ptr<CSolar>> cSolarIdMap;
+        inline static std::unordered_map<uint, std::shared_ptr<CShip>> cShipIdMap;
+        inline static std::unordered_map<uint, std::shared_ptr<CLoot>> cLootIdMap;
+        inline static std::unordered_map<uint, std::shared_ptr<CCounterMeasure>> cCmIdMap;
+        inline static std::unordered_map<uint, std::shared_ptr<CMine>> cMineIdMap;
+        inline static std::unordered_map<uint, std::shared_ptr<CGuided>> cGuidedIdMap;
+
+        inline static std::unordered_map<uint, iobjCache> cacheSolarIObjs;
+        inline static std::unordered_map<uint, iobjCache> cacheNonsolarIObjs;
+
+        static GameObject* FindNonSolar(StarSystemMock* starSystem, uint searchedId);
+        static GameObject* FindSolar(StarSystemMock* starSystem, uint searchedId);
+        static GameObject* __stdcall FindInStarList(StarSystemMock* starSystem, uint searchedId);
+        static void GameObjectDestructorNaked();
+        static void CSimpleInitNaked();
+        static void CObjDestrOrgNaked();
+        static void FindInStarListNaked();
+        static void FindInStarListNaked2();
+        void __stdcall GameObjectDestructor(uint id);
+        static CObject* CObjectFindDetour(const uint& spaceObjId, CObject::Class objClass);
+        static CObject* CObjAllocDetour(CObject::Class objClass);
+        static void __fastcall CObjDestr(CObject* cobj);
+        static void __fastcall CSimpleInit(CSimple* casteroid, void* edx, const CSimple::CreateParms& param);
+
         friend IEngineHook;
 
         struct NpcTemplate
@@ -276,13 +365,13 @@ class DLL ResourceManager final
                 std::weak_ptr<CShip> SpawnNpc();
                 std::weak_ptr<CSolar> SpawnSolar();
                 bool ValidateSpawn() const;
-                explicit SpaceObjectBuilder(ResourceManager& resourceManager) : resourceManager(resourceManager) {};
+                explicit SpaceObjectBuilder(ResourceManager& resourceManager) : resourceManager(resourceManager){};
         };
 
         ResourceManager();
         ~ResourceManager();
 
-        SpaceObjectBuilder NewBuilder() { return SpaceObjectBuilder{*this}; }
+        SpaceObjectBuilder NewBuilder() { return SpaceObjectBuilder{ *this }; }
 
         /**
          * @brief Cause an object to be destroyed, but not despawned.
@@ -301,4 +390,32 @@ class DLL ResourceManager final
          * @param object The object that should be disposed.
          */
         void Despawn(std::weak_ptr<CEqObj> object);
+
+        template <typename T>
+            requires std::is_base_of_v<CObject, T> && !std::is_same_v<CBeam, T>
+                     std::weak_ptr<T> Get(uint id) = delete;
+
+        template <>
+        std::weak_ptr<CGuided> Get(uint id);
+
+        template <>
+        std::weak_ptr<CAsteroid> Get(uint id);
+
+        template <>
+        std::weak_ptr<CSolar> Get(uint id);
+
+        template <>
+        std::weak_ptr<CShip> Get(uint id);
+
+        template <>
+        std::weak_ptr<CSimple> Get(uint id);
+
+        template <>
+        std::weak_ptr<CLoot> Get(uint id);
+
+        template <>
+        std::weak_ptr<CCounterMeasure> Get(uint id);
+
+        template <>
+        std::weak_ptr<CMine> Get(uint id);
 };

@@ -2,8 +2,6 @@
 
 #include "API/FLHook/Mail/MailManager.hpp"
 
-#include "API/Utils/Reflection.hpp"
-
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
@@ -12,7 +10,8 @@ using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
 using bsoncxx::builder::basic::make_document;
 
-Task MailManager::InformOnlineUsersOfNewMail(std::vector<rfl::Variant<bsoncxx::oid, std::string>> accountIdOrCharacterNames) // NOLINT(*-unnecessary-value-param)
+Task MailManager::InformOnlineUsersOfNewMail(
+    std::vector<rfl::Variant<bsoncxx::oid, std::string>> accountIdOrCharacterNames) // NOLINT(*-unnecessary-value-param)
 {
     co_yield TaskStatus::FLHookAwait;
 
@@ -25,9 +24,7 @@ Task MailManager::InformOnlineUsersOfNewMail(std::vector<rfl::Variant<bsoncxx::o
                 (variant.index() && client.account->_id == rfl::get<1>(variant)))
             {
                 // Character is online, message them now!
-                (void)client.id.Message(std::format(L"You have received {} mail.", variant.index()
-                    ? L"character"
-                    : L"account"));
+                (void)client.id.Message(std::format(L"You have received {} mail.", variant.index() ? L"character" : L"account"));
                 break;
             }
         }
@@ -36,7 +33,7 @@ Task MailManager::InformOnlineUsersOfNewMail(std::vector<rfl::Variant<bsoncxx::o
     co_return TaskStatus::Finished;
 }
 
-Action<std::vector<Mail>, Error> MailManager::GetAccountMail(std::string accountId, int count, int page, bool newestFirst) // NOLINT(*-unnecessary-value-param)
+Action<std::vector<Mail>> MailManager::GetAccountMail(std::string accountId, int count, int page, bool newestFirst) // NOLINT(*-unnecessary-value-param)
 {
     if (page < 1)
     {
@@ -56,17 +53,17 @@ Action<std::vector<Mail>, Error> MailManager::GetAccountMail(std::string account
         count = 50;
     }
 
-    const auto client = FLHook::GetDatabase().AcquireClient();
-    const auto& config = FLHook::GetConfig();
+    const auto client = FLHook::GetDbClient();
+    const auto config = FLHook::GetConfig();
 
-    auto mailCollection = client->database(config.database.dbName).collection(config.database.mailCollection);
+    auto mailCollection = client->database(config->database.dbName).collection(config->database.mailCollection);
 
     mongocxx::pipeline pipeline;
 
     // clang-format off
     pipeline
         .lookup(make_document(
-            kvp("from", config.database.accountsCollection),
+            kvp("from", config->database.accountsCollection),
             kvp("let", make_document(kvp("recipients", "$recipients"))),
             kvp("pipeline", make_array(
                 make_document(kvp("$match", make_document(kvp("$expr",
@@ -125,7 +122,7 @@ Action<std::vector<Mail>, Error> MailManager::GetAccountMail(std::string account
     }
 }
 
-Action<std::vector<Mail>, Error> MailManager::GetCharacterMail(bsoncxx::oid characterId, int count, int page, bool newestFirst)
+Action<std::vector<Mail>> MailManager::GetCharacterMail(bsoncxx::oid characterId, int count, int page, bool newestFirst)
 {
     if (page < 1)
     {
@@ -145,10 +142,10 @@ Action<std::vector<Mail>, Error> MailManager::GetCharacterMail(bsoncxx::oid char
         count = 50;
     }
 
-    const auto client = FLHook::GetDatabase().AcquireClient();
-    const auto& config = FLHook::GetConfig();
+    const auto client = FLHook::GetDbClient();
+    const auto config = FLHook::GetConfig();
 
-    auto mailCollection = client->database(config.database.dbName).collection(config.database.mailCollection);
+    auto mailCollection = client->database(config->database.dbName).collection(config->database.mailCollection);
 
     mongocxx::pipeline pipeline;
 
@@ -193,12 +190,12 @@ Action<std::vector<Mail>, Error> MailManager::GetCharacterMail(bsoncxx::oid char
     }
 }
 
-Action<void, Error> MailManager::DeleteMail(const Mail& mail)
+Action<void> MailManager::DeleteMail(const Mail& mail)
 {
-    const auto& config = FLHook::GetConfig();
+    const auto config = FLHook::GetConfig();
 
-    const auto dbClient = FLHook::GetDatabase().AcquireClient();
-    auto mailCollection = dbClient->database(config.database.dbName).collection(config.database.mailCollection);
+    const auto dbClient = FLHook::GetDbClient();
+    auto mailCollection = dbClient->database(config->database.dbName).collection(config->database.mailCollection);
 
     try
     {
@@ -215,16 +212,15 @@ Action<void, Error> MailManager::DeleteMail(const Mail& mail)
     return { cpp::fail(Error::UnknownError) };
 }
 
-Action<void, Error> MailManager::MarkMailAsRead(const Mail& mail, rfl::Variant<std::string, bsoncxx::oid> characterOrAccount)
+Action<void> MailManager::MarkMailAsRead(const Mail& mail, rfl::Variant<std::string, bsoncxx::oid> characterOrAccount)
 {
-    const auto& config = FLHook::GetConfig();
+    const auto config = FLHook::GetConfig();
 
-    const auto dbClient = FLHook::GetDatabase().AcquireClient();
-    auto mailCollection = dbClient->database(config.database.dbName).collection(config.database.mailCollection);
+    const auto dbClient = FLHook::GetDbClient();
+    auto mailCollection = dbClient->database(config->database.dbName).collection(config->database.mailCollection);
 
-    auto targetEq = characterOrAccount.index()
-        ? make_document(kvp("$eq", rfl::get<bsoncxx::oid>(characterOrAccount)))
-        : make_document(kvp("$eq", rfl::get<std::string>(characterOrAccount)));
+    auto targetEq = characterOrAccount.index() ? make_document(kvp("$eq", rfl::get<bsoncxx::oid>(characterOrAccount)))
+                                               : make_document(kvp("$eq", rfl::get<std::string>(characterOrAccount)));
 
     try
     {
@@ -256,7 +252,7 @@ Action<void, Error> MailManager::MarkMailAsRead(const Mail& mail, rfl::Variant<s
     return { cpp::fail(Error::UnknownError) };
 }
 
-Action<void, Error> MailManager::SendMail(Mail& mail)
+Action<void> MailManager::SendMail(Mail& mail)
 {
     if (mail._id.bytes() != nullptr)
     {
@@ -276,10 +272,10 @@ Action<void, Error> MailManager::SendMail(Mail& mail)
         return { cpp::fail(Error::UnknownError) };
     }
 
-    const auto& config = FLHook::GetConfig();
+    const auto config = FLHook::GetConfig();
 
-    const auto dbClient = FLHook::GetDatabase().AcquireClient();
-    auto mailCollection = dbClient->database(config.database.dbName).collection(config.database.mailCollection);
+    const auto dbClient = FLHook::GetDbClient();
+    auto mailCollection = dbClient->database(config->database.dbName).collection(config->database.mailCollection);
     mail.sentDate = TimeUtils::MakeUtcTm(std::chrono::system_clock::now());
 
     const auto mailRaw = rfl::bson::write(mail);
@@ -302,7 +298,7 @@ Action<void, Error> MailManager::SendMail(Mail& mail)
         Logger::Err(std::format(L"Error while trying to send mail. {}", StringUtils::stows(ex.what())));
     }
 
-    FLHook::GetTaskScheduler().AddTask(std::make_shared<Task>(InformOnlineUsersOfNewMail(mailTargets)));
+    FLHook::GetTaskScheduler()->AddTask(std::make_shared<Task>(InformOnlineUsersOfNewMail(mailTargets)));
 
     return { {} };
 }

@@ -36,7 +36,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
 {
     TryHook
     {
-        const auto& config = FLHook::GetConfig();
+        const auto config = FLHook::GetConfig();
 
         // Group join/leave commands are not parsed
         if (to.id == static_cast<uint>(SpecialChatIds::GroupEvent))
@@ -74,7 +74,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
 
         // if this is a message in system chat then convert it to local unless
         // explicitly overriden by the player using /s.
-        if (config.chatConfig.defaultLocalChat && to.id == static_cast<uint>(SpecialChatIds::System))
+        if (config->chatConfig.defaultLocalChat && to.id == static_cast<uint>(SpecialChatIds::System))
         {
             to.id = static_cast<uint>(SpecialChatIds::Local);
         }
@@ -89,14 +89,15 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
             auto processor = UserCommandProcessor::i();
             if (auto task = processor->ProcessCommand(ClientId(from.id), clientIdStr, std::wstring_view(cmdString)); task.has_value())
             {
-                if (FLHook::GetConfig().chatConfig.echoCommands)
+                if (FLHook::GetConfig()->chatConfig.echoCommands)
                 {
-                    const std::wstring xml = std::format(
-                        LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(cmdString));
+                    const std::wstring xml = std::format(LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)",
+                                                         FLHook::GetConfig()->chatConfig.msgStyle.msgEchoStyle,
+                                                         StringUtils::XmlText(cmdString));
                     InternalApi::SendMessage(ClientId(from.id), xml);
                 }
 
-                FLHook::GetTaskScheduler().AddTask(std::make_shared<Task>(*task));
+                FLHook::GetTaskScheduler()->AddTask(std::make_shared<Task>(*task));
 
                 return false;
             }
@@ -122,10 +123,10 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
         }
         else if (buffer[0] == '.')
         {
-            if (FLHook::GetConfig().chatConfig.echoCommands)
+            if (FLHook::GetConfig()->chatConfig.echoCommands)
             {
                 const std::wstring xml = std::format(
-                    LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(buffer));
+                    LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig()->chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(buffer));
                 InternalApi::SendMessage(ClientId(from.id), xml);
             }
 
@@ -134,7 +135,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
             const auto clientStr = std::to_wstring(from.id);
             if (auto response = processor->ProcessCommand(ClientId(from.id), AllowedContext::GameOnly, clientStr, cmdString); response.has_value())
             {
-                FLHook::GetTaskScheduler().AddTask(std::make_shared<Task>(*response));
+                FLHook::GetTaskScheduler()->AddTask(std::make_shared<Task>(*response));
             }
             return false;
         }
@@ -142,14 +143,14 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
         // check if chat should be suppressed for in-built command prefixes
         if (buffer[0] == L'/')
         {
-            if (FLHook::GetConfig().chatConfig.echoCommands)
+            if (FLHook::GetConfig()->chatConfig.echoCommands)
             {
                 const std::wstring xml = std::format(
-                    LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig().chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(buffer));
+                    LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig()->chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(buffer));
                 InternalApi::SendMessage(ClientId(from.id), xml);
             }
 
-            if (config.chatConfig.suppressInvalidCommands && !foundCommand)
+            if (config->chatConfig.suppressInvalidCommands && !foundCommand)
             {
                 return false;
             }
@@ -162,10 +163,10 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
         }
 
         // Check if any other custom prefixes have been added
-        if (!config.general.chatSuppressList.empty())
+        if (!config->general.chatSuppressList.empty())
         {
             const auto lcBuffer = StringUtils::ToLower(buffer);
-            for (const auto& chat : config.general.chatSuppressList)
+            for (const auto& chat : config->general.chatSuppressList)
             {
                 if (lcBuffer.rfind(chat, 0) == 0)
                 {

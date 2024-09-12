@@ -6,8 +6,8 @@
 
 MessageInterface::MessageInterface()
 {
-    auto& config = FLHook::GetConfig();
-    if (!config.messageQueue.enableQueues)
+    const auto config = FLHook::GetConfig();
+    if (!config->messageQueue.enableQueues)
     {
         return;
     }
@@ -21,7 +21,7 @@ MessageInterface::MessageInterface()
         [this](const uvw::error_event& event, uvw::tcp_handle&)
         {
             Logger::Err(std::format(L"Socket error: {}", StringUtils::stows(event.what())));
-            FLHook::GetConfig().messageQueue.enableQueues = false;
+            FLHook::GetConfig()->messageQueue.enableQueues = false;
             runner.request_stop(); // Terminate thread runner
             isInitalizing = false;
         });
@@ -32,7 +32,7 @@ MessageInterface::MessageInterface()
             Logger::Info(L"Connected to RabbitMQ, attempting authentication");
             // Authenticate with the RabbitMQ cluster.
             connection = std::make_unique<AMQP::Connection>(
-                this, AMQP::Login(StringUtils::wstos(config.messageQueue.username), StringUtils::wstos(config.messageQueue.password)), "/");
+                this, AMQP::Login(StringUtils::wstos(config->messageQueue.username), StringUtils::wstos(config->messageQueue.password)), "/");
 
             Logger::Info(L"Authenticated to RabbitMQ");
             // Start reading from the socket.
@@ -41,7 +41,7 @@ MessageInterface::MessageInterface()
 
     connectHandle->on<uvw::data_event>([this](const uvw::data_event& event, const uvw::tcp_handle&) { connection->parse(event.data.get(), event.length); });
 
-    connectHandle->connect(StringUtils::wstos(config.messageQueue.hostName), config.messageQueue.port);
+    connectHandle->connect(StringUtils::wstos(config->messageQueue.hostName), config->messageQueue.port);
     runner = std::jthread([this] { loop->run(); });
 
     while (isInitalizing)
@@ -82,7 +82,7 @@ MessageInterface::~MessageInterface() = default;
 
 void MessageInterface::Subscribe(const std::wstring& queue, const QueueOnData& callback, std::optional<QueueOnFail> onFail)
 {
-    if (!FLHook::GetConfig().messageQueue.enableQueues || !connectHandle)
+    if (!FLHook::GetConfig()->messageQueue.enableQueues || !connectHandle)
     {
         return;
     }

@@ -2,21 +2,10 @@
 
 #include "API/Types/RepId.hpp"
 
-RepId::RepId(const ObjectId &spaceObj, const bool isSolar)
-{
-    if (isSolar)
-    {
-        pub::SpaceObj::GetSolarRep(spaceObj.GetValue(), value);
-    }
-    else
-    {
-        pub::SpaceObj::GetRep(spaceObj.GetValue(), value);
-    }
-}
-
 RepId::operator bool() const { return value != 0; }
+int RepId::GetValue() const { return value; }
 
-Action<RepGroupId, Error> RepId::GetAffiliation() const
+Action<RepGroupId> RepId::GetAffiliation() const
 {
     uint group;
     if (pub::Reputation::GetAffiliation(value, group) != static_cast<int>(ResponseCode::Success))
@@ -27,7 +16,7 @@ Action<RepGroupId, Error> RepId::GetAffiliation() const
     return { RepGroupId(group) };
 }
 
-Action<float, Error> RepId::GetAttitudeTowardsRepId(const RepId &target) const
+Action<float> RepId::GetAttitudeTowardsRepId(const RepId& target) const
 {
     float ret;
     if (pub::Reputation::GetAttitude(value, target.value, ret) != static_cast<int>(ResponseCode::Success))
@@ -38,7 +27,7 @@ Action<float, Error> RepId::GetAttitudeTowardsRepId(const RepId &target) const
     return { ret };
 }
 
-Action<float, Error> RepId::GetAttitudeTowardsFaction(const RepGroupId &group) const
+Action<float> RepId::GetAttitudeTowardsFaction(const RepGroupId& group) const
 {
     float ret;
     if (pub::Reputation::GetGroupFeelingsTowards(value, group.GetValue(), ret) != static_cast<int>(ResponseCode::Success))
@@ -49,7 +38,7 @@ Action<float, Error> RepId::GetAttitudeTowardsFaction(const RepGroupId &group) c
     return { ret };
 }
 
-Action<int, Error> RepId::GetRank() const
+Action<int> RepId::GetRank() const
 {
     float ret;
     if (pub::Reputation::GetRank(value, ret) != static_cast<int>(ResponseCode::Success))
@@ -60,7 +49,7 @@ Action<int, Error> RepId::GetRank() const
     return { static_cast<int>(ret) };
 }
 
-Action<std::pair<FmtStr, FmtStr>, Error> RepId::GetName() const
+Action<std::pair<FmtStr, FmtStr>> RepId::GetName() const
 {
     FmtStr pilot, scanner;
     if (pub::Reputation::GetName(value, pilot, scanner) != static_cast<int>(ResponseCode::Success))
@@ -71,7 +60,7 @@ Action<std::pair<FmtStr, FmtStr>, Error> RepId::GetName() const
     return { std::make_pair(pilot, scanner) };
 }
 
-Action<void, Error> RepId::SetRank(const int rank) const
+Action<void> RepId::SetRank(const int rank) const
 {
     const auto ret = static_cast<ResponseCode>(pub::Reputation::SetRank(value, static_cast<float>(rank)));
     if (ret == ResponseCode::InvalidInput)
@@ -87,7 +76,7 @@ Action<void, Error> RepId::SetRank(const int rank) const
     return { {} };
 }
 
-Action<void, Error> RepId::SetAttitudeTowardsRepId(RepId target, float newAttitude) const
+Action<void> RepId::SetAttitudeTowardsRepId(RepId target, float newAttitude) const
 {
     const auto ret = static_cast<ResponseCode>(pub::Reputation::SetAttitude(value, target.value, newAttitude));
     if (ret == ResponseCode::InvalidInput)
@@ -103,7 +92,7 @@ Action<void, Error> RepId::SetAttitudeTowardsRepId(RepId target, float newAttitu
     return { {} };
 }
 
-Action<void, Error> RepId::SetAttitudeTowardsRepGroupId(RepGroupId target, float newAttitude) const
+Action<void> RepId::SetAttitudeTowardsRepGroupId(RepGroupId target, float newAttitude) const
 {
     const auto ret = static_cast<ResponseCode>(pub::Reputation::SetReputation(value, target.GetValue(), newAttitude));
     if (ret == ResponseCode::InvalidInput)
@@ -118,7 +107,7 @@ Action<void, Error> RepId::SetAttitudeTowardsRepGroupId(RepGroupId target, float
     return { {} };
 }
 
-Action<void, Error> RepId::SetAffiliation(RepGroupId group) const
+Action<void> RepId::SetAffiliation(RepGroupId group) const
 {
     const auto ret = static_cast<ResponseCode>(pub::Reputation::SetAffiliation(value, group.GetValue()));
     if (ret == ResponseCode::InvalidInput)

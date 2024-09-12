@@ -2,7 +2,7 @@
 
 #include "API/FLHook/PersonalityHelper.hpp"
 
-Action<pub::AI::Personality*, Error> PersonalityHelper::GetPersonality(const std::wstring& pilotNickname)
+Action<pub::AI::Personality*> PersonalityHelper::GetPersonality(const std::wstring& pilotNickname)
 {
     const auto& pilot = pilots.find(pilotNickname);
     if (pilot == pilots.end())

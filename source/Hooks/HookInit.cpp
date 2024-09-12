@@ -12,7 +12,6 @@
 
 #include "API/FLHook/AccountManager.hpp"
 #include "Core/FLPatch.hpp"
-#include "Core/ServerOptimizer.hpp"
 
 std::vector<FLPatch> patches;
 
@@ -35,15 +34,15 @@ void FLHook::ClearClientInfo(ClientId client)
     info.characterName = L"";
 
     info.dieMsg = DieMsgType::All;
-    info.shipId = ShipId();
-    info.shipOldId = ShipId();
+    info.ship = ShipId();
+    info.shipId = {};
     info.spawnTime = 0;
     info.moneyFix.clear();
     info.tradePartner = ClientId();
     info.charMenuEnterTime = 0;
     info.cruiseActivated = false;
     info.kickTime = 0;
-    info.lastExitedBaseId = 0;
+    info.lastExitedBaseId = {};
     info.disconnected = false;
     info.f1Time = 0;
     info.timeDisconnect = 0;
@@ -207,7 +206,7 @@ void FLHook::InitHookExports()
     MemUtils::ReadProcMem(address, &cdpServer, 4);
 
     // charfile encyption(doesn't get disabled when unloading FLHook)
-    if (FLHook::GetConfig().general.disableCharfileEncryption)
+    if (FLHook::GetConfig()->general.disableCharfileEncryption)
     {
         constexpr std::array<byte, 2> buffer = { 0x14, 0xB3 };
         address = Offset(BinaryType::Server, AddressList::CharFileEncryption);
@@ -217,9 +216,9 @@ void FLHook::InitHookExports()
     }
 
     // maximum group size
-    if (FLHook::GetConfig().general.maxGroupSize > 0)
+    if (FLHook::GetConfig()->general.maxGroupSize > 0)
     {
-        const auto newGroupSize = static_cast<std::byte>(FLHook::GetConfig().general.maxGroupSize & 0xFF);
+        const auto newGroupSize = static_cast<std::byte>(FLHook::GetConfig()->general.maxGroupSize & 0xFF);
         address = Offset(BinaryType::Server, AddressList::MaxGroupSize);
         MemUtils::WriteProcMem(address, &newGroupSize, 1);
         address = Offset(BinaryType::Server, AddressList::MaxGroupSize2);
@@ -257,33 +256,6 @@ void FLHook::InitHookExports()
     // Remove default death messages
     constexpr std::array<byte, 1> removeDeathMessages = { 0xEB };
     MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::RemoveDefaultDeathMessages), removeDeathMessages.data(), 1);
-
-    // Install ServerOptimizer
-
-    using DefaultNakedType = void (*)();
-    static FunctionDetour GameObjectDestructorDetour{ reinterpret_cast<DefaultNakedType>(0x6CEE4A0) };
-    GameObjectDestructorDetour.Detour(ServerOptimizer::GameObjectDestructorNaked);
-
-    static FunctionDetour CAsteroidInitDetour{ reinterpret_cast<DefaultNakedType>(0x62A28F0) };
-    CAsteroidInitDetour.Detour(ServerOptimizer::CAsteroidInitNaked);
-
-    static FunctionDetour CObjDestrDetour{ reinterpret_cast<DefaultNakedType>(0x62AF440) };
-    CObjDestrDetour.Detour(ServerOptimizer::CObjDestrOrgNaked);
-
-    BYTE patchCobjDestr[] = { 0xEB, 0x5F };
-    MemUtils::WriteProcMem(reinterpret_cast<DWORD>(serverDll) + 0x4F45D, patchCobjDestr, sizeof(patchCobjDestr));
-
-    FARPROC CObjectFindDetourFunc = FARPROC(&ServerOptimizer::CObjectFindDetour);
-    MemUtils::WriteProcMem(reinterpret_cast<DWORD>(serverDll) + 0x84464, &CObjectFindDetourFunc, 4);
-
-    using CObjAllocatorType = CObject*(__cdecl*)(CObject::Class objClass);
-    static FunctionDetour cobjAllocatorDetour{ reinterpret_cast<CObjAllocatorType>(0x62AEE50) };
-    cobjAllocatorDetour.Detour(ServerOptimizer::CObjAllocDetour);
-
-    FARPROC FindStarListNaked2 = FARPROC(&ServerOptimizer::FindInStarListNaked2);
-    MemUtils::WriteProcMem(reinterpret_cast<DWORD>(serverDll) + 0x87CD4, &FindStarListNaked2, 4);
-    MemUtils::PatchCallAddr(serverDll, 0x2074A, ServerOptimizer::FindInStarListNaked);
-    MemUtils::PatchCallAddr(serverDll, 0x207BF, ServerOptimizer::FindInStarListNaked);
 }
 
 void FLHook::PatchClientImpl()

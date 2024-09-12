@@ -107,11 +107,11 @@ template <>
 bool TransformArg(const std::wstring_view s, size_t paramNumber)
 {
     const auto lower = StringUtils::ToLower(s);
-    if(lower == L"true" || lower == L"yes" || lower == L"1" || lower == L"on")
+    if (lower == L"true" || lower == L"yes" || lower == L"1" || lower == L"on")
     {
         return true;
     }
-    if(lower == L"false" || lower == L"no" || lower == L"0" || lower == L"off")
+    if (lower == L"false" || lower == L"no" || lower == L"0" || lower == L"off")
     {
         return false;
     }
@@ -131,7 +131,7 @@ GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber)
     auto* goods = GoodList_get();
     for (const auto good : *goods->get_list())
     {
-        if (wildcards::match(im.GetInfocard(good->idsName), s))
+        if (wildcards::match(im->GetInfocard(good->idsName), s))
         {
             return good;
         }
@@ -156,7 +156,7 @@ BaseId TransformArg(std::wstring_view s, size_t paramNumber)
     base = Universe::GetFirstBase();
     do
     {
-        if (auto name = im.GetInfocard(base->baseIdS); wildcards::match(name, s))
+        if (auto name = im->GetInfocard(base->baseIdS); wildcards::match(name, s))
         {
             return BaseId(base->baseId);
         }
@@ -184,7 +184,7 @@ SystemId TransformArg(std::wstring_view s, size_t paramNumber)
     system = Universe::GetFirstSystem();
     do
     {
-        if (auto name = im.GetInfocard(system->idsName); wildcards::match(name, s))
+        if (auto name = im->GetInfocard(system->idsName); wildcards::match(name, s))
         {
             return SystemId(system->id);
         }
@@ -210,12 +210,12 @@ RepGroupId TransformArg(std::wstring_view s, size_t paramNumber)
     const auto& im = FLHook::GetInfocardManager();
     for (const auto group : GameData::repGroups)
     {
-        if (auto name = im.GetInfocard(group->data.nameIds); wildcards::match(name, s))
+        if (auto name = im->GetInfocard(group->data.nameIds); wildcards::match(name, s))
         {
             return RepGroupId(group->key);
         }
 
-        if (auto name = im.GetInfocard(group->data.shortNameIds); wildcards::match(name, s))
+        if (auto name = im->GetInfocard(group->data.shortNameIds); wildcards::match(name, s))
         {
             return RepGroupId(group->key);
         }

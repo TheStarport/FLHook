@@ -147,9 +147,12 @@ class AccountManager
 
         PlayerDbLoadUserDataAssembly loadUserDataAssembly;
 
-        AccountManager();
-
     public:
+        AccountManager();
+        AccountManager(const AccountManager&) = delete;
+        AccountManager& operator=(const AccountManager&) = delete;
+        ~AccountManager() = default;
+
         static bool SaveCharacter(ClientId client, Character& newCharacter, bool isNewCharacter);
         static void OnCreateNewCharacterCopy(PlayerData* data, SCreateCharacterInfo characterInfo);
         static bool DeleteCharacter(ClientId clientId, std::wstring characterCode);

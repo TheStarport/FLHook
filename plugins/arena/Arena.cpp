@@ -69,7 +69,7 @@ namespace Plugins
         }
     }
 
-    void ArenaPlugin::OnPlayerLaunchAfter(const ClientId client, ShipId ship)
+    void ArenaPlugin::OnPlayerLaunchAfter(const ClientId client, const ShipId& ship)
     {
         const auto state = clientData[client.GetValue()].flag;
         if (state == TransferFlag::Transfer)

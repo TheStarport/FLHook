@@ -62,12 +62,12 @@ void IpResolver::TimerCheckResolveResults()
             }
 
             // check if banned
-            for (const auto& config = FLHook::GetConfig(); const auto& ban : config.bans.banWildcardsAndIPs)
+            for (const auto config = FLHook::GetConfig(); const auto& ban : config->bans.banWildcardsAndIPs)
             {
                 if (wildcards::match(hostname, ban))
                 {
                     // AddKickLog(ip.client, StringUtils::wstos(std::format(L"IP/hostname ban({} matches {})", ip.hostname.c_str(), ban.c_str())));
-                    if (config.bans.banAccountOnMatch)
+                    if (config->bans.banAccountOnMatch)
                     {
                         cl.GetAccount().Unwrap().Ban(true);
                     }

@@ -2,189 +2,136 @@
 
 #include "API/Types/ShipId.hpp"
 
+#include "API/FLHook/ResourceManager.hpp"
+
 #include <glm/gtc/quaternion.hpp>
 
-Action<CShipPtr, Error> ShipId::GetCShip(bool increment) const
-{
-    auto ship = CShipPtr(value);
-    if (!ship)
-    {
-        return { cpp::fail(Error::InvalidSpaceObjId) };
+#define IsValidShip                                             \
+    auto ship = std::dynamic_pointer_cast<CShip>(value.lock()); \
+    if (!ship)                                                  \
+    {                                                           \
+        return { cpp::fail(Error::UnknownError) };              \
     }
 
-    return { CShipPtr(ship.get(), increment) };
+ShipId::ShipId(const uint val) { value = FLHook::GetResourceManager()->Get<CShip>(val); }
+
+bool ShipId::operator==(const ShipId& next) const { return static_cast<const ObjectId&>(*this) == next; }
+
+Action<const Archetype::Ship*> ShipId::GetShipArchetype() const
+{
+    IsValidShip;
+
+    return { ship->shiparch() };
 }
 
-Action<Archetype::Ship*, Error> ShipId::GetShipArchetype() const
+Action<float> ShipId::GetShields(bool percentage) const
 {
-    uint archId;
-    if (pub::SpaceObj::GetArchetypeID(value, archId) != static_cast<int>(ResponseCode::Success))
-    {
-        return { cpp::fail(Error::InvalidSpaceObjId) };
-    }
+    IsValidShip;
 
-    return { Archetype::GetShip(archId) };
-}
-
-// If provided a value of true in the argument it will provide a percentage value of the ship's health, with 0.0f being no hp and 1.0f being full health.
-// Otherwise simply gives the health as an exact value.
-Action<float, Error> ShipId::GetHealth(bool percentage) const
-{
-    auto ship = GetCShip(false);
-    if (ship.Raw().has_error())
-    {
-        return { cpp::fail(Error::InvalidShip) };
-    }
-
-    auto& shipVal = ship.Raw().value();
-
-    if (!percentage)
-    {
-        return { shipVal->hitPoints };
-    }
-
-    // Health on the ship is the current health on the ship, while the shipArch is the max Health.
-    return { shipVal->hitPoints / shipVal->shiparch()->hitPoints };
-}
-
-Action<float, Error> ShipId::GetShields(bool percentage) const
-{
-    float currentShield, maxShield;
-    bool shieldUp;
-    if (pub::SpaceObj::GetShieldHealth(value, currentShield, maxShield, shieldUp) != static_cast<int>(ResponseCode::Success))
-    {
-        return { cpp::fail(Error::InvalidSpaceObjId) };
-    }
-
-    if (!shieldUp)
+    auto shield = reinterpret_cast<CEShield*>(ship->equipManager.FindFirst(static_cast<unsigned int>(EquipmentClass::Shield)));
+    if (!shield || shield->maxShieldHitPoints < 1.0f)
     {
         return { 0.0f };
     }
 
-    if (!percentage)
+    if (percentage)
     {
-        return { currentShield };
+        return { shield->currentShieldHitPoints / shield->maxShieldHitPoints };
     }
 
-    return { currentShield / maxShield };
+    return { shield->currentShieldHitPoints };
 }
 
-std::optional<ClientId> ShipId::GetPlayer() const
+Action<ClientId> ShipId::GetPlayer() const
 {
-    auto ship = GetCShip(false);
-    if (ship.Raw().has_error())
+    IsValidShip;
+
+    if (!ship->ownerPlayer)
     {
-        return {};
+        return { cpp::fail(Error::UnknownError) };
     }
 
-    if (const auto res = ship.Unwrap(); res->is_player())
-    {
-        return ClientId(res->ownerPlayer);
-    }
-
-    return {};
+    return { ClientId(ship->ownerPlayer) };
 }
 
-std::optional<ShipId> ShipId::GetTarget() const
+Action<ObjectId> ShipId::GetTarget() const
 {
-    auto ship = GetCShip(false);
-    if (ship.Raw().has_error())
-    {
-        return {};
-    }
-
-    auto& shipVal = ship.Raw().value();
+    IsValidShip;
 
     // Returns IObjectRW*, whatever that is.
-    const auto target = shipVal->get_target();
-    return std::optional(ShipId(target->get_id()));
-}
-
-Action<RepId, Error> ShipId::GetReputation() const
-{
-    auto repId = RepId(*this, false);
-    if (!repId)
+    const auto target = ship->get_target();
+    if (target)
     {
-        return { cpp::fail(Error::InvalidShip) };
-    }
-    return { repId };
-}
-
-Action<float, Error> ShipId::GetSpeed() const
-{
-    auto ship = GetCShip(false);
-    if (ship.Raw().has_error())
-    {
-        return { cpp::fail(Error::InvalidShip) };
+        return { ObjectId(target->get_id()) };
     }
 
-    auto& shipVal = ship.Raw().value();
-
-    return { glm::length<3, float, glm::highp>(shipVal->get_velocity()) };
+    return { {} };
 }
 
-bool ShipId::IsPlayer() const
+Action<RepId> ShipId::GetReputation() const
 {
-    auto ship = GetCShip(false);
-    auto& shipVal = ship.Raw().value();
-    return shipVal->is_player();
+    IsValidShip;
+
+    return { RepId(ship->repVibe) };
 }
+
+Action<float> ShipId::GetSpeed() const
+{
+    IsValidShip;
+
+    return { glm::length<3, float, glm::highp>(ship->get_velocity()) };
+}
+
+bool ShipId::IsPlayer() const { return !value.expired() && std::dynamic_pointer_cast<CShip>(value.lock())->is_player(); }
 
 bool ShipId::IsNpc() const { return !IsPlayer(); }
 
-bool ShipId::IsInTradeLane() const
+bool ShipId::IsInTradeLane() const { return !value.expired() && std::dynamic_pointer_cast<CShip>(value.lock())->inTradeLane; }
+
+Action<void> ShipId::Destroy(DestroyType type)
 {
-    auto ship = GetCShip(false);
-    auto& shipVal = ship.Raw().value();
-    return shipVal->is_using_tradelane();
+    IsValidShip;
+
+    // TODO: Check for failure
+    pub::SpaceObj::Destroy(ship->id, type);
+
+    return { {} };
 }
 
-void ShipId::Destroy(DestroyType type) { pub::SpaceObj::Destroy(value, type); }
-
-Action<void, Error> ShipId::SetHealth(float amount, bool percentage)
+Action<void> ShipId::SetHealth(float amount, bool percentage)
 {
+    IsValidShip;
+
     // If provided an invalid percantage along with requesting a percentage scale it will simply fail.
     if ((amount < 0.0f || amount > 1.0f) && percentage == true)
     {
         return { cpp::fail(Error::UnknownError) };
     }
-    auto ship = GetCShip(false);
-    if (ship.Raw().has_error())
-    {
-        return { cpp::fail(Error::InvalidShip) };
-    }
-    auto& shipVal = ship.Raw().value();
 
     if (percentage == false)
     {
-        shipVal->set_hit_pts(amount);
+        ship->set_hit_pts(amount);
         return { {} };
     }
 
-    auto maxHp = shipVal->get_archetype()->hitPoints;
-    shipVal->set_hit_pts(amount * maxHp);
+    auto maxHp = ship->shiparch()->hitPoints;
+    ship->set_hit_pts(amount * maxHp);
     return { {} };
 }
 
-Action<void, Error> ShipId::AddCargo(uint good, uint count, bool mission)
+Action<void> ShipId::AddCargo(uint good, uint count, bool mission)
 {
+    IsValidShip;
+
     const auto goodInfo = GoodList::find_by_id(good);
     if (!goodInfo)
     {
         return { cpp::fail(Error::InvalidGood) };
     }
 
-    auto ship = GetCShip(false);
-    if (ship.Raw().has_error())
+    if (ship->is_player())
     {
-        return { cpp::fail(Error::InvalidShip) };
-    }
-
-    auto shipVal = ship.Raw().value();
-
-    if (shipVal->is_player())
-    {
-        auto client = ClientId(shipVal->ownerPlayer);
+        auto client = ClientId(ship->ownerPlayer);
 
         uint base, location = 0;
         pub::Player::GetBase(client.GetValue(), base);
@@ -245,7 +192,7 @@ Action<void, Error> ShipId::AddCargo(uint good, uint count, bool mission)
     }
 
     EquipDescVector existingEquips;
-    shipVal->get_equip_desc_list(existingEquips);
+    ship->get_equip_desc_list(existingEquips);
 
     ushort highestId = 0;
     for (auto& equip : existingEquips.equip)
@@ -270,32 +217,37 @@ Action<void, Error> ShipId::AddCargo(uint good, uint count, bool mission)
 
     using AddCargoItemT = bool(__thiscall*)(CEqObj * obj, const EquipDesc&);
     static auto addCargoItem = reinterpret_cast<AddCargoItemT>(GetProcAddress(GetModuleHandleA("common.dll"), "?add_cargo_item@CEqObj@@IAE_NABUEquipDesc@@@Z"));
-    addCargoItem(shipVal.get(), desc);
+    addCargoItem(ship.get(), desc);
 
     // TODO: Figure out how to communicate the change with BaseWatcher
 
     return { {} };
 }
 
-void ShipId::Relocate(const Vector& pos, const std::optional<Matrix>& orientation) const
+Action<void> ShipId::Relocate(const Vector& pos, const std::optional<Matrix>& orientation) const
 {
+    IsValidShip;
+
     const auto system = GetSystem().Unwrap();
 
-    if (const auto player = GetPlayer(); player.has_value())
+    if (const auto player = GetPlayer().Raw(); player.has_value())
     {
         // We tell the client to adjust its position via a launch packet
+        // TODO: This currently doesn't work, figure out how to make it work. We have successfully told clients to undock like this before...
         player->Undock(pos, orientation).Handle();
     }
 
-    pub::SpaceObj::Relocate(value, system.GetValue(), pos, orientation.value_or(Matrix::Identity()));
+    pub::SpaceObj::Relocate(ship->id, system.GetValue(), pos, orientation.value_or(Matrix::Identity()));
+    return { {} };
 }
 
-Action<void, Error> ShipId::IgniteFuse(uint fuseId, float id) const
+Action<void> ShipId::IgniteFuse(uint fuseId, float id) const
 {
-    auto tempVal = value;
+    IsValidShip;
+
     IObjInspectImpl* inspect;
 
-    if (!FLHook::GetObjInspect(tempVal, inspect))
+    if (!FLHook::GetObjInspect(ship->id, inspect))
     {
         return { cpp::fail(Error::InvalidShip) };
     }
@@ -319,6 +271,8 @@ Action<void, Error> ShipId::IgniteFuse(uint fuseId, float id) const
     }
 
     // TODO: Validate the above asm left the stack in the correct way
+    // ReSharper disable quadrice CppDFAConstantConditions
+    // ReSharper disable quadrice CppDFAUnreachableCode
     if (!success)
     {
         return { cpp::fail(Error::InvalidInput) };
@@ -327,12 +281,13 @@ Action<void, Error> ShipId::IgniteFuse(uint fuseId, float id) const
     return { {} };
 }
 
-Action<void, Error> ShipId::ExtinguishFuse(uint fuseId, float id) const
+Action<void> ShipId::ExtinguishFuse(uint fuseId, float id) const
 {
-    auto tempVal = value;
+    IsValidShip;
+
     IObjInspectImpl* inspect;
 
-    if (!FLHook::GetObjInspect(tempVal, inspect))
+    if (!FLHook::GetObjInspect(ship->id, inspect))
     {
         return { cpp::fail(Error::InvalidShip) };
     }
@@ -360,4 +315,11 @@ Action<void, Error> ShipId::ExtinguishFuse(uint fuseId, float id) const
     }
 
     return { {} };
+}
+
+Action<CEquipManager*> ShipId::GetEquipmentManager() const
+{
+    IsValidShip;
+
+    return { &ship->equipManager };
 }

@@ -13,9 +13,8 @@ struct ClientData
         PlayerData* playerData = nullptr;
         bool isValid = false;
 
-        ShipId shipId{};
-        ShipId shipOldId{};
-        CShip* cship = nullptr;
+        Id shipId{};
+        ShipId ship;
         int64 spawnTime = 0;
 
         DamageList dmgLast{};
@@ -39,8 +38,7 @@ struct ClientData
         // msg, wait and kick
         int64 kickTime = 0;
 
-        // eventmode
-        uint lastExitedBaseId = 0;
+        BaseId lastExitedBaseId;
         bool disconnected = false;
 
         // f1 laming
@@ -140,9 +138,12 @@ class ClientList
         inline static uint largestClientId = 0;
         inline static uint smallestClientId = 0;
 
-        ClientList() = default; // Private constructor so it can only be constructed by FLHook
-
     public:
+        ClientList() = default;
+        ClientList(const ClientList&) = delete;
+        ClientList& operator=(const ClientList&) = delete;
+        ~ClientList() = default;
+
         class Iterator
         {
                 friend ClientList;

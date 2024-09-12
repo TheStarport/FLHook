@@ -79,7 +79,7 @@ bool MessageHandler::ProcessExternalCommand(const AMQP::Message& message, std::s
 
 MessageHandler::MessageHandler()
 {
-    const auto& config = FLHook::GetConfig();
+    const auto config = FLHook::GetConfig();
     auto msg = FLHook::GetMessageInterface();
 
     // Declared needed queues
@@ -90,7 +90,7 @@ MessageHandler::MessageHandler()
     msg->Subscribe(std::wstring(MessageInterface::QueueToStr(MessageInterface::Queue::ExternalCommands)), ProcessExternalCommand);
 
     // Setup exchanges and timers
-    Timer::Add(PublishServerStats, config.messageQueue.timeBetweenServerUpdates);
+    Timer::Add(PublishServerStats, config->messageQueue.timeBetweenServerUpdates);
 }
 
 MessageHandler::~MessageHandler() {}

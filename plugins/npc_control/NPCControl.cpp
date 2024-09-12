@@ -231,7 +231,7 @@ namespace Plugins::Npc
 		global->Log = spdlog::basic_logger_mt<spdlog::async_factory>("flhook_npcs", "logs/npc.log");
 		auto config = Serializer::JsonToObject<Config>();
 
-		for (auto& [name, npc] : config.npcInfo)
+		for (auto& [name, npc] : config->npcInfo)
 		{
 			npc.shipArchId = CreateID(npc.shipArch.c_str());
 			npc.loadoutId = CreateID(npc.loadout.c_str());

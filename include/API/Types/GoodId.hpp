@@ -25,19 +25,19 @@ class DLL GoodId
         const GoodInfo *GetValue() const;
 
         [[nodiscard]]
-        Action<uint, Error> GetHash() const;
+        Action<uint> GetHash() const;
 
         [[nodiscard]]
-        Action<EquipmentId, Error> GetEquipment() const;
+        Action<EquipmentId> GetEquipment() const;
 
         [[nodiscard]]
-        Action<std::wstring_view, Error> GetName() const;
+        Action<std::wstring_view> GetName() const;
 
         [[nodiscard]]
-        Action<float, Error> GetPrice() const;
+        Action<float> GetPrice() const;
 
         [[nodiscard]]
-        Action<GoodType, Error> GetType() const;
+        Action<GoodType> GetType() const;
 
         [[nodiscard]]
         bool IsCommodity() const;

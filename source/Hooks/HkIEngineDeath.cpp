@@ -4,21 +4,20 @@
 #include "API/FLHook/ResourceManager.hpp"
 #include "API/InternalApi.hpp"
 #include "Core/IEngineHook.hpp"
-#include "Core/ServerOptimizer.hpp"
 
 std::wstring SetSizeToSmall(const std::wstring& dataFormat) { return dataFormat.substr(0, 8) + L"90"; }
 
 // DmgList will be garbage if isKill is not true
-void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, bool isKill, ShipId killerId)
+void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, bool isKill, Id killerId)
 {
     if (isKill)
     {
-        CallPlugins(&Plugin::OnShipDestroy, ship, dmgList, killerId);
+        auto killer = killerId.AsShip();
+        CallPlugins(&Plugin::OnShipDestroy, ship, dmgList, killer);
     }
 
-    ServerOptimizer::playerShips.erase(ship->cship()->id);
-
-    FLHook::GetResourceManager().OnShipDestroyed(ship);
+    ResourceManager::playerShips.erase(ship->cship()->id);
+    FLHook::GetResourceManager()->OnShipDestroyed(ship); // Remove if spawned ship
 
     using IShipDestroyType = void(__thiscall*)(Ship*, bool, uint);
 
@@ -41,7 +40,7 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, bool i
     }
 
     auto& victimData = victimClientId.GetData();
-    const auto& msgConfig = FLHook::GetConfig().chatConfig.msgStyle;
+    const auto& msgConfig = FLHook::GetConfig()->chatConfig.msgStyle;
     std::wstring deathMessage;
 
     std::wstring_view victimName = victimClientId.GetCharacterName().Handle();
@@ -109,9 +108,7 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, bool i
 
     SendDeathMessage(deathMessage, SystemId(victimData.playerData->systemId), victimClientId, killerClientId);
 
-    victimData.cship = nullptr;
-
-    victimData.shipOldId = {};
+    victimData.ship = {};
     victimData.shipId = {};
 
     static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(ship, isKill, killerId.GetValue());
@@ -129,7 +126,7 @@ void __fastcall IEngineHook::SolarDestroy(Solar* solar, void* edx, bool isKill, 
 {
     CallPlugins(&Plugin::OnSolarDestroy, solar, isKill, killerId);
 
-    FLHook::GetResourceManager().OnSolarDestroyed(solar);
+    FLHook::GetResourceManager()->OnSolarDestroyed(solar);
 
     using ISolarDestroyType = void(__thiscall*)(Solar*, bool, uint);
     static_cast<ISolarDestroyType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::ObjectDestroyed)))(solar, isKill, killerId);
@@ -141,7 +138,7 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, C
 
     // encode xml std::wstring(default and small) non-system
     const auto xmlMsg =
-        std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHook::GetConfig().chatConfig.msgStyle.deathMsgStyle, StringUtils::XmlText(msg));
+        std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHook::GetConfig()->chatConfig.msgStyle.deathMsgStyle, StringUtils::XmlText(msg));
 
     static std::array<char, 0xFFFF> xmlBuf;
     uint ret;
@@ -151,7 +148,7 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, C
     }
 
     const auto xmlMsgSmall = std::format(
-        L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", SetSizeToSmall(FLHook::GetConfig().chatConfig.msgStyle.deathMsgStyle), StringUtils::XmlText(msg));
+        L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", SetSizeToSmall(FLHook::GetConfig()->chatConfig.msgStyle.deathMsgStyle), StringUtils::XmlText(msg));
 
     static std::array<char, 0xFFFF> bufSmall;
     uint retSmall;
@@ -161,7 +158,7 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, C
     }
 
     const auto xmlMsgSystem =
-        std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHook::GetConfig().chatConfig.msgStyle.deathMsgStyleSys, StringUtils::XmlText(msg));
+        std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHook::GetConfig()->chatConfig.msgStyle.deathMsgStyleSys, StringUtils::XmlText(msg));
 
     static std::array<char, 0xFFFF> bufSys;
     uint retSys;
@@ -171,7 +168,7 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, C
     }
 
     const auto xmlMsgSmallSys =
-        std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHook::GetConfig().chatConfig.msgStyle.deathMsgStyleSys, StringUtils::XmlText(msg));
+        std::format(L"<TRA data=\"{}\" mask=\"-1\"/> <TEXT>{}</TEXT>", FLHook::GetConfig()->chatConfig.msgStyle.deathMsgStyleSys, StringUtils::XmlText(msg));
 
     static std::array<char, 0xFFFF> BufSmallSys;
     uint retSmallSys;
