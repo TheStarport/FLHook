@@ -4,6 +4,48 @@
 #include "API/FLHook/TaskScheduler.hpp"
 
 Task::Task(const std::coroutine_handle<Promise> h) : handle(h) {}
+void Task::SetClient(ClientId c) { client = c; }
+bool Task::HandleException()
+{
+    UpdateStatus();
+
+    if (status == TaskStatus::Finished)
+    {
+        return true;
+    }
+
+    if (const auto exception = handle.promise().GetException(); exception != nullptr)
+    {
+        try
+        {
+            std::rethrow_exception(exception);
+        }
+        catch (const StopProcessingException&)
+        {}
+        catch (const GameException& ex)
+        {
+            if (client.has_value())
+            {
+                client->Message(ex.Msg());
+            }
+            else
+            {
+                Logger::Warn(ex.Msg());
+            }
+        }
+        catch (const std::exception& ex)
+        {
+            Logger::Err(std::format(L"Uncaught exception thrown during Task processing!\n{}", StringUtils::stows(ex.what())));
+        }
+
+        // Terminate the task early due to the exception
+        exceptioned = true;
+        status = TaskStatus::Finished;
+        return false;
+    }
+
+    return true;
+}
 
 void Task::Run()
 {
@@ -14,16 +56,31 @@ void Task::Run()
     }
 
     handle.resume();
+    if (!HandleException())
+    {
+        return;
+    }
+
     UpdateStatus();
 }
 
 TaskStatus Task::UpdateStatus()
 {
-    status = handle.promise().GetStatus();
+    if (!exceptioned)
+    {
+        status = handle.promise().GetStatus();
+    }
+
     return status;
 }
 
 TaskStatus Promise::GetStatus() const { return status; }
+std::exception_ptr Promise::GetException()
+{
+    auto ex = exception;
+    exception = nullptr;
+    return ex;
+}
 std::suspend_never Promise::initial_suspend() const noexcept { return {}; }
 std::suspend_always Promise::final_suspend() const noexcept { return {}; }
 Task Promise::get_return_object() { return Task(std::coroutine_handle<Promise>::from_promise(*this)); }
@@ -35,12 +92,7 @@ std::suspend_always Promise::yield_value(TaskStatus&& newStatus)
     return {};
 }
 
-void Promise::unhandled_exception() noexcept
-{
-
-    constexpr std::wstring_view err = L"Unhandled exception occured while handling Promise";
-    Logger::Err(err);
-}
+void Promise::unhandled_exception() noexcept { exception = std::current_exception(); }
 
 void TaskScheduler::ProcessTasksOld(const std::stop_token& st)
 {
@@ -127,9 +179,7 @@ void TaskScheduler::ProcessTasks(moodycamel::ConcurrentQueue<std::shared_ptr<Tas
             break;
         }
 
-        Logger::Info(magic_enum::enum_name(t->status));
         t->Run();
-        Logger::Info(magic_enum::enum_name(t->status));
 
         if (t->status == TaskStatus::FLHookAwait)
         {

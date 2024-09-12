@@ -97,7 +97,14 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
                     InternalApi::SendMessage(ClientId(from.id), xml);
                 }
 
-                FLHook::GetTaskScheduler()->AddTask(std::make_shared<Task>(*task));
+                auto t = std::make_shared<Task>(*task);
+                t->SetClient(ClientId(from.id));
+                t->HandleException();
+
+                if (t->UpdateStatus() != TaskStatus::Finished)
+                {
+                    FLHook::GetTaskScheduler()->AddTask(t);
+                }
 
                 return false;
             }
@@ -135,7 +142,14 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
             const auto clientStr = std::to_wstring(from.id);
             if (auto response = processor->ProcessCommand(ClientId(from.id), AllowedContext::GameOnly, clientStr, cmdString); response.has_value())
             {
-                FLHook::GetTaskScheduler()->AddTask(std::make_shared<Task>(*response));
+                auto t = std::make_shared<Task>(*response);
+                t->SetClient(ClientId(from.id));
+                t->HandleException();
+
+                if (t->UpdateStatus() != TaskStatus::Finished)
+                {
+                    FLHook::GetTaskScheduler()->AddTask(t);
+                }
             }
             return false;
         }

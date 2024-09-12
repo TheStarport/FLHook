@@ -9,8 +9,7 @@ enum class TaskStatus
     FLHookAwait,
     DatabaseAwait,
     Finished,
-    Error,
-    Init
+    Error
 };
 
 class TaskScheduler;
@@ -18,24 +17,33 @@ class Promise;
 class DLL Task
 {
         friend TaskScheduler;
-        TaskStatus status = TaskStatus::Init;
+        TaskStatus status = TaskStatus::Error;
         std::coroutine_handle<Promise> handle;
+        std::optional<ClientId> client;
+        bool exceptioned = false;
+
         void Run();
 
     public:
         using promise_type = Promise;
 
         explicit Task(std::coroutine_handle<Promise> h);
+        void SetClient(ClientId);
+        bool HandleException();
         TaskStatus UpdateStatus();
 };
 
 class DLL Promise
 {
-        TaskStatus status = TaskStatus::Init;
+        TaskStatus status = TaskStatus::Error;
+        std::exception_ptr exception;
 
     public:
         [[nodiscard]]
         TaskStatus GetStatus() const;
+
+        [[nodiscard]]
+        std::exception_ptr GetException();
 
         // ReSharper disable twice CppMemberFunctionMayBeStatic
         [[nodiscard]]
@@ -44,8 +52,8 @@ class DLL Promise
         [[nodiscard]]
         std::suspend_always final_suspend() const noexcept;
         Task get_return_object();
-        void return_value(TaskStatus &&newStatus);
-        std::suspend_always yield_value(TaskStatus &&newStatus);
+        void return_value(TaskStatus&& newStatus);
+        std::suspend_always yield_value(TaskStatus&& newStatus);
         void unhandled_exception() noexcept;
 };
 
@@ -62,14 +70,14 @@ class DLL TaskScheduler
 
     private:
         friend FLHook;
-        static void ProcessTasksOld(const std::stop_token &st);
+        static void ProcessTasksOld(const std::stop_token& st);
         static std::optional<CallbackTask> GetCompletedTask();
 
         inline static moodycamel::ConcurrentQueue<CallbackTask> incompleteTasksOld{};
         inline static moodycamel::ConcurrentQueue<CallbackTask> completeTasksOld{};
 
-        void ProcessDatabaseTasks(const std::stop_token &st);
-        void ProcessTasks(moodycamel::ConcurrentQueue<std::shared_ptr<Task>> &tasks);
+        void ProcessDatabaseTasks(const std::stop_token& st);
+        void ProcessTasks(moodycamel::ConcurrentQueue<std::shared_ptr<Task>>& tasks);
         moodycamel::ConcurrentQueue<std::shared_ptr<Task>> mainTasks{};
         moodycamel::ConcurrentQueue<std::shared_ptr<Task>> databaseTasks{};
 
@@ -83,7 +91,7 @@ class DLL TaskScheduler
 
         static void Schedule(std::function<void()> task);
         template <typename T>
-        static void ScheduleWithCallback(std::function<bool(const std::shared_ptr<void> &)> task, std::function<void(const std::shared_ptr<void> &)> callback)
+        static void ScheduleWithCallback(std::function<bool(const std::shared_ptr<void>&)> task, std::function<void(const std::shared_ptr<void>&)> callback)
         {
             if constexpr (!std::is_same_v<void, T>)
             {
@@ -96,5 +104,5 @@ class DLL TaskScheduler
         }
 
         static void ScheduleWithCallback(std::function<bool()> task, std::function<void()> callback);
-        bool AddTask(const std::shared_ptr<Task> &task);
+        bool AddTask(const std::shared_ptr<Task>& task);
 };
