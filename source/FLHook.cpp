@@ -88,7 +88,7 @@ FLHook::FLHook()
     flProc = GetModuleHandle(nullptr);
 
     // Replace the global exception filter with our own so we can write exception dumps
-    // ExceptionHandler::SetupExceptionHandling();
+    ExceptionHandler::SetupExceptionHandling();
 
     // Setup needed debug tools
     DebugTools::Init();

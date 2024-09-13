@@ -10,18 +10,18 @@
 
 #pragma pack(push, ehdata, 4)
 
-struct msvc__PMD
+struct msvc__PMD // NOLINT(*-reserved-identifier)
 {
         int mdisp;
         int pdisp;
         int vdisp;
 };
 
-typedef void (*msvc__PMFN)(void);
+typedef void (*msvc__PMFN)(void); // NOLINT(*-reserved-identifier)
 
 #pragma warning(disable : 4200)
 #pragma pack(push, _TypeDescriptor, 8)
-struct msvc__TypeDescriptor
+struct msvc__TypeDescriptor // NOLINT(*-reserved-identifier)
 {
         const void* pVFTable;
         void* spare;
@@ -30,7 +30,7 @@ struct msvc__TypeDescriptor
 #pragma pack(pop, _TypeDescriptor)
 #pragma warning(default : 4200)
 
-struct msvc__CatchableType
+struct msvc__CatchableType // NOLINT(*-reserved-identifier)
 {
         unsigned int properties;
         msvc__TypeDescriptor* pType;
@@ -40,14 +40,14 @@ struct msvc__CatchableType
 };
 
 #pragma warning(disable : 4200)
-struct msvc__CatchableTypeArray
+struct msvc__CatchableTypeArray // NOLINT(*-reserved-identifier)
 {
         int nCatchableTypes;
         msvc__CatchableType* arrayOfCatchableTypes[];
 };
 #pragma warning(default : 4200)
 
-struct msvc__ThrowInfo
+struct msvc__ThrowInfo // NOLINT(*-reserved-identifier)
 {
         unsigned int attributes;
         msvc__PMFN pmfnUnwind;
@@ -59,70 +59,86 @@ struct msvc__ThrowInfo
 
 void ExceptionHandler::GlobalHandler(EXCEPTION_POINTERS* ex)
 {
-    if (!std::filesystem::exists("dumps"))
+    try
     {
-        std::filesystem::create_directory("dumps");
-    }
-
-    const HMODULE dll = LoadLibraryA("DBGHELP.DLL");
-    if (!dll)
-    {
-        return;
-    }
-
-    using WriteMiniDump = BOOL(WINAPI*)(HANDLE hProcess,
-                                        DWORD dwPid,
-                                        HANDLE hFile,
-                                        MINIDUMP_TYPE dumpType,
-                                        PMINIDUMP_EXCEPTION_INFORMATION exceptionParam,
-                                        PMINIDUMP_USER_STREAM_INFORMATION userStreamParam,
-                                        PMINIDUMP_CALLBACK_INFORMATION callbackParam);
-
-    const auto dump = reinterpret_cast<WriteMiniDump>(GetProcAddress(dll, "MiniDumpWriteDump")); // NOLINT(clang-diagnostic-cast-function-type-strict)
-    if (!dump)
-    {
-        return;
-    }
-
-    const auto now = std::chrono::system_clock::now();
-
-    // create the file
-
-    if (const auto file = CreateFileA(
-            std::format("dumps/{:%d-%m-%Y %H.%M.%OS}", now).c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-        file != INVALID_HANDLE_VALUE)
-    {
-
-        // TODO: allow mini dump levels to be configurable
-        _MINIDUMP_EXCEPTION_INFORMATION exInfo;
-        if (ex)
+        if (!std::filesystem::exists("dumps"))
         {
-            exInfo.ThreadId = GetCurrentThreadId();
-            EXCEPTION_POINTERS ep;
-            ep.ContextRecord = ex->ContextRecord;
-            ep.ExceptionRecord = ex->ExceptionRecord;
-            exInfo.ExceptionPointers = &ep;
-            exInfo.ClientPointers = NULL;
+            std::filesystem::create_directory("dumps");
+        }
 
-            dump(GetCurrentProcess(),
-                 GetCurrentProcessId(),
-                 file,
-                 static_cast<MINIDUMP_TYPE>(MiniDumpWithFullMemory | MiniDumpWithIndirectlyReferencedMemory),
-                 &exInfo,
-                 nullptr,
-                 nullptr);
-        }
-        else
+        const HMODULE dll = LoadLibraryA("DBGHELP.DLL");
+        if (!dll)
         {
-            dump(GetCurrentProcess(),
-                 GetCurrentProcessId(),
-                 file,
-                 static_cast<MINIDUMP_TYPE>(MiniDumpWithFullMemory | MiniDumpWithIndirectlyReferencedMemory),
-                 nullptr,
-                 nullptr,
-                 nullptr);
+            return;
         }
-        CloseHandle(file);
+
+        using WriteMiniDump = BOOL(WINAPI*)(HANDLE hProcess,
+                                            DWORD dwPid,
+                                            HANDLE hFile,
+                                            MINIDUMP_TYPE dumpType,
+                                            PMINIDUMP_EXCEPTION_INFORMATION exceptionParam,
+                                            PMINIDUMP_USER_STREAM_INFORMATION userStreamParam,
+                                            PMINIDUMP_CALLBACK_INFORMATION callbackParam);
+
+        const auto dump = reinterpret_cast<WriteMiniDump>(GetProcAddress(dll, "MiniDumpWriteDump")); // NOLINT(clang-diagnostic-cast-function-type-strict)
+        if (!dump)
+        {
+            return;
+        }
+
+        const auto now = std::chrono::system_clock::now();
+
+        // create the file
+
+        if (const auto file = CreateFileA(std::format("dumps/{:%d-%m-%Y %H.%M.%OS}.dmp", now).c_str(),
+                                          GENERIC_WRITE,
+                                          FILE_SHARE_WRITE,
+                                          nullptr,
+                                          CREATE_ALWAYS,
+                                          FILE_ATTRIBUTE_NORMAL,
+                                          nullptr);
+            file != INVALID_HANDLE_VALUE)
+        {
+
+            // TODO: allow mini dump levels to be configurable
+            _MINIDUMP_EXCEPTION_INFORMATION exInfo;
+            if (ex)
+            {
+                exInfo.ThreadId = GetCurrentThreadId();
+                EXCEPTION_POINTERS ep;
+                ep.ContextRecord = ex->ContextRecord;
+                ep.ExceptionRecord = ex->ExceptionRecord;
+                exInfo.ExceptionPointers = &ep;
+                exInfo.ClientPointers = NULL;
+
+                dump(GetCurrentProcess(),
+                     GetCurrentProcessId(),
+                     file,
+                     static_cast<MINIDUMP_TYPE>(MiniDumpScanMemory | MiniDumpWithIndirectlyReferencedMemory),
+                     &exInfo,
+                     nullptr,
+                     nullptr);
+            }
+            else
+            {
+                dump(GetCurrentProcess(),
+                     GetCurrentProcessId(),
+                     file,
+                     static_cast<MINIDUMP_TYPE>(MiniDumpScanMemory | MiniDumpWithIndirectlyReferencedMemory),
+                     nullptr,
+                     nullptr,
+                     nullptr);
+            }
+            CloseHandle(file);
+        }
+    }
+    catch (...)
+    {
+        MessageBoxA(nullptr,
+                    "Unable to write dump file after an exception. Ensure the 'dumps' directory exists and "
+                    "FLHook has permission to write there.",
+                    "Couldn't write minidump",
+                    MB_OK);
     }
 }
 
