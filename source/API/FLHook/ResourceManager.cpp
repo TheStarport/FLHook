@@ -163,6 +163,11 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithPe
     personalityOverride = &personality;
     return *this;
 }
+ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithStateGraph(StateGraph stateGraph)
+{
+    stateGraphOverride = stateGraph;
+    return *this;
+}
 
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithPosition(const Vector& positionVector, float variance)
 {
@@ -550,7 +555,9 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
         personalityParams.personality = *personalityOverride.value();
     }
 
-    personalityParams.stateGraph = pub::StateGraph::get_state_graph("FIGHTER", pub::StateGraph::TYPE_STANDARD);
+    personalityParams.stateGraph = pub::StateGraph::get_state_graph(
+        StringUtils::wstos(magic_enum::enum_name(stateGraphOverride.value_or(StateGraph::Fighter))).c_str(), pub::StateGraph::TYPE_STANDARD);
+
     personalityParams.stateId = true;
 
     pub::Reputation::Alloc(si.rep, scannerName, pilotName);

@@ -117,7 +117,7 @@ class DLL ResourceManager final
         static void SendSolarPacket(uint spaceId, pub::SpaceObj::SolarInfo& si);
 
     public:
-        struct SpaceObjectBuilder
+        struct DLL SpaceObjectBuilder
         {
                 struct Fuse
                 {
@@ -125,6 +125,16 @@ class DLL ResourceManager final
                         float radius = 5.0f;
                         float lifetime = 5.0f;
                         short equipmentId = 0;
+                };
+
+                enum class StateGraph
+                {
+                    Nothing,
+                    Player,
+                    Fighter,
+                    Transport,
+                    Gunboat,
+                    Cruiser
                 };
 
                 enum class Region
@@ -189,6 +199,11 @@ class DLL ResourceManager final
                  * To not do so would be undefined behaviour, and would likely lead to crashes.
                  */
                 SpaceObjectBuilder& WithPersonality(pub::AI::Personality& personality);
+
+                /**
+                 * @brief Set the state graph parameter for the spawned solar/npc
+                 */
+                SpaceObjectBuilder& WithStateGraph(StateGraph stateGraph);
 
                 /**
                  * @brief Set the spawn position for the solar/npc. Variance in provided value can optionally be provided.
@@ -341,6 +356,7 @@ class DLL ResourceManager final
                 std::optional<Costume> costumeOverride{};
                 std::optional<uint> voiceOverride{};
                 std::optional<const pub::AI::Personality*> personalityOverride{};
+                std::optional<StateGraph> stateGraphOverride{};
                 std::optional<Matrix> rotation{};
                 std::optional<Vector> position{};
                 std::optional<float> positionVariance{};
