@@ -38,9 +38,13 @@ void IServerImplHook::UpdateInner()
     auto oneShot = Timer::oneShotTimers.begin();
     while (oneShot != Timer::oneShotTimers.end())
     {
-        if (currentTime - oneShot->lastTime >= oneShot->interval)
+        if (auto timer = *oneShot; currentTime - timer->lastTime >= timer->interval)
         {
-            oneShot->func();
+            timer->func();
+            if (timer->callback.has_value())
+            {
+                timer->callback.value()(timer);
+            }
             oneShot = Timer::oneShotTimers.erase(oneShot);
             continue;
         }
