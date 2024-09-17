@@ -247,7 +247,7 @@ void ExceptionHandler::LogException(const SehException& ex)
         if (exception)
         {
             DWORD code = exception->ExceptionCode;
-            uint address = (uint)exception->ExceptionAddress;
+            uint address = reinterpret_cast<uint>(exception->ExceptionAddress);
             uint offset = 0;
 
             HMODULE module = NULL;

@@ -16,9 +16,11 @@ struct DLL Timer
 
         int64 interval;
         int64 lastTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
+        std::optional<std::function<void(std::shared_ptr<Timer>)>> callback;
 
-        static std::shared_ptr<Timer> Add(std::function<void()> function, uint interval);
-        static void AddOneShot(std::function<void()> function, uint interval);
+        static std::shared_ptr<Timer> Add(const std::function<void()>& function, uint interval);
+        static std::shared_ptr<Timer> AddOneShot(const std::function<void()>& function, uint intervalInMs,
+                                                 const std::optional<std::function<void(std::shared_ptr<Timer>)>>& callback = std::nullopt);
 
         /**
          *
@@ -30,8 +32,8 @@ struct DLL Timer
          * @endcode
          * @throws const cron::bad_cronexpr& - In the event of the expression being invalid it will throw.
          */
-        static void AddCron(std::function<void()> function, std::wstring_view cronExpression);
-        static void Remove(std::shared_ptr<Timer> timer);
+        static std::shared_ptr<Timer> AddCron(const std::function<void()>& function, std::wstring_view cronExpression);
+        static void Remove(const std::shared_ptr<Timer>& timer);
 
     private:
         std::function<void()> func;
@@ -44,9 +46,9 @@ struct DLL Timer
 
         std::optional<CronTimer> cron = std::nullopt;
 
-        inline static std::vector<std::shared_ptr<Timer>> timers;
-        inline static std::vector<std::shared_ptr<Timer>> cronTimers;
-        inline static std::vector<Timer> oneShotTimers;
+        inline static std::unordered_set<std::shared_ptr<Timer>> timers;
+        inline static std::unordered_set<std::shared_ptr<Timer>> cronTimers;
+        inline static std::unordered_set<std::shared_ptr<Timer>> oneShotTimers;
 };
 
 struct PluginInfo
@@ -87,6 +89,7 @@ class DLL Plugin
         HMODULE dll = nullptr;
         std::wstring dllName;
         int callPriority = 0;
+        std::unordered_set<std::shared_ptr<Timer>> timers;
 
     protected:
         ReturnCode returnCode = ReturnCode::Default;
@@ -108,6 +111,25 @@ class DLL Plugin
             return weakPlugin;
         }
 
+        void AddTimer(const std::function<void()>& function, const uint interval) { timers.emplace(Timer::Add(function, interval)); }
+
+        void AddOneShotTimer(const std::function<void()>& function, const uint interval)
+        {
+            timers.emplace(Timer::AddOneShot(function, interval, [this](const std::shared_ptr<Timer>& timer) { timers.erase(timer); }));
+        }
+
+        /**
+         *
+         * @param function The function you want to invoke every time the specified interval is up
+         * @param cronExpression A cron expression. See https://github.com/mariusbancila/croncpp for more information.
+         * @code
+         * // Example
+         * this->AddCronTimer(Func, L"0 0 0 * * *"); // Execute the function every day at 12AM
+         * @endcode
+         * @throws const cron::bad_cronexpr& - In the event of the expression being invalid it will throw.
+         */
+        void AddCronTimer(const std::function<void()>& function, std::wstring_view cronExpression) { timers.emplace(Timer::AddCron(function, cronExpression)); }
+
     public:
         explicit Plugin(const PluginInfo& info)
         {
@@ -118,7 +140,15 @@ class DLL Plugin
             versionMinor = info.versionMinor;
         }
 
-        virtual ~Plugin() = default;
+        virtual ~Plugin()
+        {
+            auto timer = timers.begin();
+            while (timer != timers.end())
+            {
+                Timer::Remove(*timer);
+                timer = timers.erase(timer);
+            }
+        };
 
         Plugin& operator=(const Plugin&&) = delete;
         Plugin& operator=(const Plugin&) = delete;

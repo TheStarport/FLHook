@@ -12,7 +12,7 @@
 #define CRONCPP_IS_CPP17
 #include "croncpp.h"
 
-void Timer::AddCron(std::function<void()> function, const std::wstring_view cronExpression)
+std::shared_ptr<Timer> Timer::AddCron(const std::function<void()>& function, const std::wstring_view cronExpression)
 {
     auto ptr = std::make_shared<Timer>();
     ptr->func = function;
@@ -29,37 +29,39 @@ void Timer::AddCron(std::function<void()> function, const std::wstring_view cron
     CronTimer timer = { cron::utils::tm_to_time(next), expression };
 
     ptr->cron = timer;
-    cronTimers.emplace_back(ptr);
-}
-
-std::shared_ptr<Timer> Timer::Add(std::function<void()> function, const uint interval)
-{
-    auto ptr = std::make_shared<Timer>();
-    ptr->func = function;
-    ptr->interval = interval;
-    timers.emplace_back(ptr);
+    cronTimers.emplace(ptr);
 
     return ptr;
 }
 
-void Timer::Remove(std::shared_ptr<Timer> timer)
+std::shared_ptr<Timer> Timer::Add(const std::function<void()>& function, const uint interval)
 {
-    const auto iter = std::ranges::find_if(timers, [timer](const std::shared_ptr<Timer>& existing) { return timer == existing; });
-    if (iter == timers.end())
-    {
-        return;
-    }
+    auto ptr = std::make_shared<Timer>();
+    ptr->func = function;
+    ptr->interval = interval;
+    timers.emplace(ptr);
 
-    timers.erase(iter);
+    return ptr;
 }
 
-void Timer::AddOneShot(std::function<void()> function, const uint intervalInMs)
+void Timer::Remove(const std::shared_ptr<Timer>& timer)
 {
-    Timer timer;
-    timer.func = function;
-    timer.interval = intervalInMs;
-    timer.lastTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
-    oneShotTimers.emplace_back(timer);
+    timers.erase(timer);
+    oneShotTimers.erase(timer);
+    cronTimers.erase(timer);
+}
+
+std::shared_ptr<Timer> Timer::AddOneShot(const std::function<void()>& function, const uint intervalInMs,
+                                         const std::optional<std::function<void(std::shared_ptr<Timer>)>>& callback)
+{
+    std::shared_ptr<Timer> timer;
+    timer->func = function;
+    timer->interval = intervalInMs;
+    timer->lastTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
+    timer->callback = callback;
+    oneShotTimers.emplace(timer);
+
+    return timer;
 }
 
 void FLHook::TimerCheckKick()

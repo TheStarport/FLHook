@@ -22,13 +22,13 @@ void __stdcall IServerImplHook::ReqAddItem(uint goodId, const char* hardpoint, i
 {
     const std::wstring hp = StringUtils::stows(hardpoint);
     Logger::Trace(std::format(L"ReqAddItem(\n\tuint goodId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
-                            L"{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
-                            goodId,
-                            StringUtils::stows(std::string(hardpoint)),
-                            count,
-                            status,
-                            mounted,
-                            client));
+                              L"{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
+                              goodId,
+                              StringUtils::stows(std::string(hardpoint)),
+                              count,
+                              status,
+                              mounted,
+                              client));
 
     auto good = GoodId(goodId);
 
@@ -58,13 +58,13 @@ void __stdcall IServerImplHook::ReqModifyItem(ushort slotId, const char* hardpoi
 {
     std::wstring hp = StringUtils::stows(hardpoint);
     Logger::Trace(std::format(L"ReqModifyItem(\n\tushort slotId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
-                            "{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
-                            slotId,
-                            hp,
-                            count,
-                            status,
-                            mounted,
-                            client));
+                              "{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
+                              slotId,
+                              hp,
+                              count,
+                              status,
+                              mounted,
+                              client));
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestModifyItem, client, slotId, std::wstring_view(hp), count, status, mounted); !skip)
     {
@@ -86,13 +86,15 @@ void __stdcall IServerImplHook::JettisonCargo(ClientId client, const XJettisonCa
     }
 
     // Queue save to prevent item duplication
-    Timer::AddOneShot([client]
-    {
-        if (client.IsValidClientId() && !client.InCharacterSelect())
+    Timer::AddOneShot(
+        [client]
         {
-            pub::Save(client.GetValue(), 1);
-        }
-    }, 3000);
+            if (client.IsValidClientId() && !client.InCharacterSelect())
+            {
+                pub::Save(client.GetValue(), 1);
+            }
+        },
+        3000);
 
     CallPlugins(&Plugin::OnCargoJettisonAfter, client, jc);
 }
@@ -106,17 +108,7 @@ void __stdcall IServerImplHook::TractorObjects(ClientId client, const XTractorOb
         CallServerPreamble { Server.TractorObjects(client.GetValue(), to); }
         CallServerPostamble(true, );
     }
+    x
 
-    // Queue save to prevent duplication.
-    // Technically we do not need to wait here, but we do so to ensure that there is no
-    // timespan where the a tractoring player is saved before a jettisoning player has been saved.
-    Timer::AddOneShot([client]
-    {
-        if (client.IsValidClientId() && !client.InCharacterSelect())
-        {
-            pub::Save(client.GetValue(), 1);
-        }
-    }, 3000);
-
-    CallPlugins(&Plugin::OnTractorObjectsAfter, client, to);
+        CallPlugins(&Plugin::OnTractorObjectsAfter, client, to);
 }

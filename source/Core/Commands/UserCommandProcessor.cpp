@@ -547,7 +547,7 @@ void RenameCallback(ClientId client, std::wstring newName, const std::shared_ptr
             (void)client.Kick();
             TaskScheduler::Schedule(std::bind(AccountManager::Rename, currName, newName));
         },
-        3000);
+        5000);
 }
 
 Task UserCommandProcessor::Rename(ClientId client, std::wstring_view newName)
