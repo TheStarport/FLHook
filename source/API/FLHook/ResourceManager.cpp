@@ -472,13 +472,16 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
         auto costume = costumeOverride.value();
         si.look1 = costume.head;
         si.look2 = costume.body;
-        si.comm = costume.accessory[0];
+        if (costume.accessories == 1)
+        {
+            si.comm = costume.accessory[0];
+        }
     }
     else
     {
-        si.look1 = CreateID("li_newscaster_head_gen_hat");
-        si.look2 = CreateID("pl_female1_journeyman_body");
-        si.comm = CreateID("comm_br_darcy_female");
+        si.look1 = CreateID("li_newscaster_head_gen_hat"); // Head
+        si.look2 = CreateID("pl_female1_journeyman_body"); // Body
+        si.comm = CreateID("comm_br_darcy_female");        // Hat
     }
 
     si.pilotVoice = voiceOverride.value_or(CreateID("pilot_f_leg_f01a"));
@@ -526,10 +529,12 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
     {
         const auto [firstName, secondName] = name.value();
         pilotName.append_string(firstName);
+        scannerName.append_string(firstName);
 
         if (secondName != 0)
         {
             pilotName.append_string(secondName);
+            scannerName.append_string(secondName);
         }
     }
     else
