@@ -11,7 +11,7 @@ namespace Plugins
     {
         auto npcResult = Json::Load<std::vector<Npc>>("config/spawner_npcs.json", false);
         auto solarResult = Json::Load<std::vector<Solar>>("config/spawner_solars.json", false);
-        auto formationResult = Json::Load<std::vector<Formation>>("config/spawner_formationss.json", false);
+        auto formationResult = Json::Load<std::vector<Formation>>("config/spawner_formations.json", false);
         auto scheduledSpawnsResult = Json::Load<std::vector<ScheduledSpawns>>("config/spawner_scheduled_spawns.json", false);
 
         if (npcResult.first == Json::LoadState::DoesNotExist || solarResult.first == Json::LoadState::DoesNotExist ||
@@ -71,7 +71,7 @@ namespace Plugins
         {
             for (auto& formation : formations)
             {
-                if (formation.name == scheduledSpawn.name)
+                if (formation.name == scheduledSpawn.spawnTarget)
                 {
                     scheduledSpawn.object = &formation;
                     break;
@@ -79,7 +79,7 @@ namespace Plugins
             }
             for (auto& solar : solars)
             {
-                if (solar.common.value_.name == scheduledSpawn.name)
+                if (solar.common.value_.name == scheduledSpawn.spawnTarget)
                 {
                     scheduledSpawn.object = &solar;
                     break;
@@ -87,7 +87,7 @@ namespace Plugins
             }
             for (auto& npc : npcs)
             {
-                if (npc.common.value_.name == scheduledSpawn.name)
+                if (npc.common.value_.name == scheduledSpawn.spawnTarget)
                 {
                     scheduledSpawn.object = &npc;
                     break;
@@ -110,7 +110,7 @@ namespace Plugins
             }
             if (!obj)
             {
-                Logger::Warn(std::format(L"Could not find specified object '{}' in scheduled spawns list", scheduledSpawn.name));
+                Logger::Warn(std::format(L"Could not find specified object '{}' in scheduled spawns list", scheduledSpawn.spawnTarget));
                 return false;
             }
         }
@@ -165,23 +165,17 @@ namespace Plugins
         }
         // clang-format off
         Costume costume{
-            .head = common.head.GetValue(),
-            .body = common.body.GetValue(),
+            .head = common.head.value_or(Id(CreateID("benchmark_male_head"))).GetValue(),
+            .body = common.body.value_or(Id(CreateID("benchmark_male_body"))).GetValue(),
             .leftHand = 0,
             .rightHand = 0,
         };
-        costume.accessory[0] = common.helmet.GetValue();
+        costume.accessory[0] = common.helmet.value_or(Id()).GetValue();
         costume.accessories = 1;
         // clang-format on
 
-        if (costume.head == 0 || costume.body == 0)
-        {
-            costume.head = CreateID("benchmark_male_head");
-            costume.body = CreateID("benchmark_male_body");
-        }
-
         builder.WithCostume(costume);
-        builder.WithVoice(common.voice.empty() ? L"atc_leg_m01" : common.voice);
+        builder.WithVoice(common.voice.value_or(L"atc_leg_m01"));
 
         if (npc)
         {
@@ -205,6 +199,36 @@ namespace Plugins
         }
     }
 
+    void SpawnerPlugin::OnLoginAfter(ClientId client, const SLoginInfo& li)
+    {
+        if (!firstRun)
+        {
+            return;
+        }
+
+        for (auto& spawn : scheduledSpawns)
+        {
+            if (!spawn.spawnOnStart)
+            {
+                continue;
+            }
+            auto variant = spawn.object.value();
+            if (variant.index() == 2)
+            {
+                // TODO: Formation
+            }
+            else if (variant.index() == 1)
+            {
+                // TODO: Solar
+            }
+            else
+            {
+                SpawnObject(rfl::get<Npc*>(variant), SystemId(L"li01"), { -32977.f, 0.f, -27417.f });
+            }
+
+            firstRun = false;
+        }
+    }
     SpawnerPlugin::SpawnerPlugin(const PluginInfo& info) : Plugin(info) {}
     const std::vector<SpawnerPlugin::Npc>& SpawnerPlugin::GetNpcs() { return npcs; }
     const std::vector<SpawnerPlugin::Solar>& SpawnerPlugin::GetSolars() { return solars; }
