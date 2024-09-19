@@ -108,7 +108,6 @@ void __stdcall IServerImplHook::TractorObjects(ClientId client, const XTractorOb
         CallServerPreamble { Server.TractorObjects(client.GetValue(), to); }
         CallServerPostamble(true, );
     }
-    x
 
-        CallPlugins(&Plugin::OnTractorObjectsAfter, client, to);
+    CallPlugins(&Plugin::OnTractorObjectsAfter, client, to);
 }
