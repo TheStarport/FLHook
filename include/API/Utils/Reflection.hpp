@@ -54,26 +54,41 @@ namespace rfl::parsing
     struct Parser<ReaderType, WriterType, bsoncxx::oid, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, bsoncxx::oid, BsonOidImpl>
     {};
 
+    struct RepGroupImpl
+    {
+            using ReflectionType = std::string;
+            std::string data;
+            static RepGroupImpl from_class(const RepGroupId& hash) noexcept { return { "li_n_grp" }; }
+
+            [[nodiscard]]
+            RepGroupId to_class() const
+            {
+                return RepGroupId{ static_cast<uint>(MakeId(data.c_str())) };
+            }
+    };
+    template <class ReaderType, class WriterType, class ProcessorsType>
+    struct Parser<ReaderType, WriterType, RepGroupId, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, RepGroupId, RepGroupImpl>
+    {};
+
 #define HashConvert(hashType, example)                                                                                                                    \
-    struct hashType##_Impl                                                                                                                                \
+    struct hashType## _Impl                                                                                                                                \
     {                                                                                                                                                     \
             using ReflectionType = std::string;                                                                                                           \
             std::string data;                                                                                                                             \
-            static hashType##_Impl from_class(const hashType##& hash) noexcept { return {##example }; }                                                   \
+            static hashType## _Impl from_class(const hashType## & hash) noexcept { return {## example }; }                                                   \
                                                                                                                                                           \
             [[nodiscard]]                                                                                                                                 \
-            ##hashType to_class() const                                                                                                                   \
+            ## hashType to_class() const                                                                                                                   \
             {                                                                                                                                             \
-                return hashType##{ CreateID(data.c_str()) };                                                                                              \
+                return hashType## { CreateID(data.c_str()) };                                                                                              \
             }                                                                                                                                             \
     };                                                                                                                                                    \
     template <class ReaderType, class WriterType, class ProcessorsType>                                                                                   \
-    struct Parser<ReaderType, WriterType, hashType##, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, hashType##, hashType##_Impl> \
+    struct Parser<ReaderType, WriterType, hashType## , ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, hashType## , hashType## _Impl> \
     {};
 
-    HashConvert(EquipmentId, "commodity_cardamine");
+    HashConvert(EquipmentId, "nickname");
     HashConvert(BaseId, "li01_01_base");
-    HashConvert(RepGroupId, "fc_z_grp");
     HashConvert(SystemId, "li01_01");
     HashConvert(GoodId, "commodity_cardamine");
     HashConvert(Id, "nickname")
