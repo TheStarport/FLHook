@@ -87,7 +87,7 @@ class DLL ResourceManager final
         static void CObjDestrOrgNaked();
         static void FindInStarListNaked();
         static void FindInStarListNaked2();
-        void __stdcall GameObjectDestructor(uint id);
+        static void __stdcall GameObjectDestructor(uint id);
         static CObject* CObjectFindDetour(const uint& spaceObjId, CObject::Class objClass);
         static CObject* CObjAllocDetour(CObject::Class objClass);
         static void __fastcall CObjDestr(CObject* cobj);

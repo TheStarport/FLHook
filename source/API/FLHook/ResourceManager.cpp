@@ -1212,7 +1212,7 @@ __declspec(naked) void ResourceManager::FindInStarListNaked2()
 
 void __stdcall ResourceManager::GameObjectDestructor(const uint id)
 {
-    if (id & 0x8000000)
+    if (id & 0x80000000)
     {
         cacheSolarIObjs.erase(id);
     }
