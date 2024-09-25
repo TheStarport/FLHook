@@ -109,9 +109,11 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
     {
         if (auto p = plugin->get(); !p->OnLoadSettings())
         {
+            auto pCopy = p->dll;
             // TODO: Log
+            plugin->reset();
             plugin = pluginManager->plugins.erase(plugin);
-            FreeLibrary(p->dll);
+            FreeLibrary(pCopy);
         }
         else
         {
