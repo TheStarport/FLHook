@@ -175,7 +175,7 @@ namespace Json
         auto result = rfl::json::read<T>(stream);
         if (auto err = result.error(); err.has_value())
         {
-            Logger::Err(std::format(L"Error while trying to serialize provided config: {}", StringUtils::stows(err.value().what())));
+            Logger::Err(std::format(L"Error while trying to serialize '{}': {}", StringUtils::stows(path), StringUtils::stows(err.value().what())));
             return { LoadState::FailedToValidate, std::nullopt };
         }
 
