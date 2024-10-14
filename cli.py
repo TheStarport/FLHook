@@ -7,7 +7,8 @@ import os
 
 def run(cmd: str) -> int:
     click.echo(">>> Running Command: " + cmd)
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, text=True)
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True,
+                            text=True, encoding='utf-8')
     while proc.poll() is None:
         line = proc.stdout.readline()
 

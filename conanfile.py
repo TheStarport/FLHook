@@ -22,6 +22,13 @@ class CompressorRecipe(ConanFile):
         self.requires("croncpp/cci.20220503")
         self.requires("glm/cci.20230113")
         self.requires("magic_enum/0.9.6")
+        self.requires("mongo-c-driver/1.28.0", options={
+            "shared": True
+        })
+        self.requires("mongo-cxx-driver/3.11.0", options={
+            "shared": True,
+            "polyfill": "std"
+        })
         self.requires("re2/20240702")
         self.requires("spdlog/1.14.1")
         self.requires("stduuid/1.2.3")

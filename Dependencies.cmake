@@ -42,20 +42,10 @@ function(TARGET_DEPENDENCIES PROJ)
             magic_enum::magic_enum re2::re2 spdlog::spdlog stduuid::stduuid uvw::uvw xbyak::xbyak)
 
     # MongoCXX
-    #find_package(mongocxx REQUIRED)
-    #find_package(bsoncxx REQUIRED)
-    #find_package(mongoc-1.0 CONFIG REQUIRED)
-    #include_directories(${LIBMONGOCXX_INCLUDE_DIR})
-    #include_directories(${LIBBSONCXX_INCLUDE_DIR})
-    include_directories(${SOURCE_PATH}/../mongo)
-
-    target_link_libraries(${PROJ} PUBLIC "${SOURCE_PATH}/../mongo/bson-1.0.lib")
-    target_link_libraries(${PROJ} PUBLIC "${SOURCE_PATH}/../mongo/mongoc-1.0.lib")
-    target_link_libraries(${PROJ} PUBLIC "${SOURCE_PATH}/../mongo/bsoncxx.lib")
-    target_link_libraries(${PROJ} PUBLIC "${SOURCE_PATH}/../mongo/mongocxx.lib")
-    #target_link_libraries(${PROJ} PUBLIC mongo::mongoc_shared)
-    #target_link_libraries(${PROJ} PUBLIC mongo::bsoncxx_shared)
-    #target_link_libraries(${PROJ} PUBLIC mongo::mongocxx_shared)
+    find_package(mongocxx CONFIG REQUIRED)
+    find_package(mongoc-1.0 CONFIG REQUIRED)
+    target_link_libraries(${PROJ} PUBLIC mongo::mongoc_shared)
+    target_link_libraries(${PROJ} PUBLIC mongo::mongocxx_shared)
 
     # FLCore
 
