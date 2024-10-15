@@ -74,15 +74,31 @@ FLHook::FLHook()
     instance = this;
 
     // Load our settings before anything that might need access to debug mode
+    Logger::Info(L"Loading config...");
     LoadSettings();
 
+    Logger::Debug(L"Creating InfocardManager");
     infocardManager = std::make_unique<InfocardManager>();
+
+    Logger::Debug(L"Creating ClientList");
     clientList = std::make_unique<ClientList>();
+
+    Logger::Debug(L"Creating PersonalityHelper");
     personalityHelper = std::make_unique<PersonalityHelper>();
+
+    Logger::Debug(std::format(L"Connecting to database @ \"{}\"", StringUtils::stows(flhookConfig->database.uri)));
     database = std::make_unique<Database>(flhookConfig->database.uri);
+
+    Logger::Debug(L"Creating AccountManager");
     accountManager = std::make_unique<AccountManager>();
+
+    Logger::Debug(L"Creating CrashCatcher");
     crashCatcher = std::make_unique<CrashCatcher>();
+
+    Logger::Debug(L"Creating ResourceManager");
     resourceManager = std::make_unique<ResourceManager>();
+
+    Logger::Debug(L"Creating TaskScheduler");
     taskScheduler = std::make_unique<TaskScheduler>();
 
     flProc = GetModuleHandle(nullptr);
