@@ -16,6 +16,13 @@ class CompressorRecipe(ConanFile):
         tc.cache_variables["CMAKE_MSVC_DEBUG_INFORMATION_FORMAT"] = "Embedded"
         tc.generate()
 
+        for dep in self.dependencies.values():
+            if len(dep.cpp_info.bindirs) > 0:
+                print(dep.cpp_info.bindirs)
+                print(f"Copying binaries from {dep.cpp_info.bindirs[0]}")
+                copy(self, "*.dll", src=dep.cpp_info.bindirs[0], dst=os.path.join(self.source_folder, "build/bin"),
+                     keep_path=False)
+
     def requirements(self):
         self.requires("amqp-cpp/4.3.26")
         self.requires("concurrentqueue/1.0.4")
