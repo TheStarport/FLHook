@@ -591,17 +591,16 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
     // Add the personality to the space obj
     pub::AI::SubmitState(spaceObj, &personalityParams);
 
-    // TODO: Remove Find
-    auto ptr = static_cast<CShip*>(CObject::Find(spaceObj, CObject::Class::CSHIP_OBJECT)); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
-    if (!ptr)
+    // Check that the spawn was actually successful, sometimes it can spawn correctly but instantly die
+    auto ptr = FLHook::GetResourceManager()->Get<CShip>(spaceObj);
+    if (ptr.expired())
     {
         return {};
     }
 
-    std::shared_ptr<CShip> shared{ ptr, &NoOp<CShip> };
-    resourceManager.spawnedShips.emplace_back(shared, protectMemory);
+    resourceManager.spawnedShips.emplace_back(ptr.lock(), protectMemory);
 
-    return shared;
+    return ptr;
 }
 
 std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
@@ -719,19 +718,15 @@ std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
         pub::SpaceObj::SetRelativeHealth(spaceId, 1.0f);
     }
 
-    // TODO: Remove Find
-    // Find increases the ref count by 1
-    auto ptr = static_cast<CSolar*>(CObject::Find(spaceId, CObject::Class::CSOLAR_OBJECT)); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
-
-    if (!ptr)
+    auto ptr = FLHook::GetResourceManager()->Get<CSolar>(spaceId);
+    if (ptr.expired())
     {
         return {};
     }
 
-    std::shared_ptr<CSolar> shared{ ptr, &NoOp<CSolar> };
-    resourceManager.spawnedSolars.emplace_back(shared, protectMemory);
+    resourceManager.spawnedSolars.emplace_back(ptr.lock(), protectMemory);
 
-    return shared;
+    return ptr;
 }
 
 bool ResourceManager::SpaceObjectBuilder::ValidateSpawn() const
@@ -777,8 +772,6 @@ void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly
         ptr->isDead = true;
         pub::SpaceObj::SetRelativeHealth(ptr->id, 0.0f);
     }
-
-    ptr->Release();
 }
 
 void ResourceManager::Despawn(std::weak_ptr<CEqObj> object) { Destroy(object, true); }

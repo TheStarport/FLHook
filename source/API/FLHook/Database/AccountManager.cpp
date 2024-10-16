@@ -410,10 +410,11 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
 
 void AccountManager::LoadNewPlayerFLInfo()
 {
+    Logger::Debug(L"Loading new player information");
     INI_Reader ini;
     if (!ini.open("mpnewcharacter.fl", false) || !ini.find_header("Player"))
     {
-        // TODO: Log
+        Logger::Err(L"Unable to load [Player] from mpnewcharacter.fl");
         return;
     }
 
@@ -451,12 +452,18 @@ void AccountManager::LoadNewPlayerFLInfo()
         else if (key == "system")
         {
             newPlayerTemplate.system = ini.get_value_string();
-            // TODO: Validate system
+            if (!Universe::get_system(CreateID(newPlayerTemplate.system.c_str())))
+            {
+                Logger::Err(L"Universe referenced inside of newplayerfl is not valid!");
+            }
         }
         else if (key == "base")
         {
             newPlayerTemplate.base = ini.get_value_string();
-            // TODO: look up and validate base
+            if (!Universe::get_base(CreateID(newPlayerTemplate.base.c_str())))
+            {
+                Logger::Err(L"Base referenced inside of newplayerfl is not valid!");
+            }
         }
         else if (key == "house")
         {
@@ -468,8 +475,11 @@ void AccountManager::LoadNewPlayerFLInfo()
         }
         else if (key == "ship")
         {
-            // TODO: Look up if valid ship
             newPlayerTemplate.ship = CreateID(ini.get_value_string());
+            if (!Archetype::GetShip(newPlayerTemplate.ship))
+            {
+                Logger::Err(L"Base referenced inside of newplayerfl is not valid!");
+            }
         }
         else if (key == "%%PACKAGE%%")
         {
@@ -947,8 +957,6 @@ AccountManager::AccountManager()
 
     const auto serverOffset = reinterpret_cast<DWORD>(GetModuleHandleA("server.dll"));
     getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
-
-    LoadNewPlayerFLInfo();
 
     flMapVisitErase = FlMapVisitErase(serverOffset + 0x77540);
     flMapVisitInsert = FlMapVisitInsert(serverOffset + 0x7C600);

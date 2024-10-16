@@ -4,6 +4,7 @@
 
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
+#include "API/FLHook/AccountManager.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/ExceptionHandler.hpp"
 #include "Core/FLHook.hpp"
@@ -99,6 +100,8 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
     // Clean up any mail to chars that no longer exist
     // TODO: Mail Rework MailManager::i()->CleanUpOldMail();
 
+    FLHook::instance->accountManager->LoadNewPlayerFLInfo();
+
     Logger::Info(L"FLHook Ready");
 
     FLHook::instance->flhookReady = true;
@@ -109,8 +112,8 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
     {
         if (auto p = plugin->get(); !p->OnLoadSettings())
         {
+            Logger::Info(std::format(L"{} LoadSettings failed. Unloading plugin", p->GetName()));
             auto pCopy = p->dll;
-            // TODO: Log
             plugin->reset();
             plugin = pluginManager->plugins.erase(plugin);
             FreeLibrary(pCopy);
