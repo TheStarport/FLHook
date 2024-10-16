@@ -74,7 +74,6 @@ FLHook::FLHook()
     instance = this;
 
     // Load our settings before anything that might need access to debug mode
-    Logger::Info(L"Loading config...");
     LoadSettings();
 
     Logger::Debug(L"Creating InfocardManager");
