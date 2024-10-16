@@ -1,13 +1,8 @@
 from shutil import copy2
 from pathlib import Path
 import os
+import sys
 from argparse import ArgumentParser, ArgumentError
-from sys import exit
-
-copy_path = os.environ.get("FLHOOK_COPY_PATH") or ""
-if copy_path == "":
-    print("FLHOOK_COPY_PATH not defined, not running post build")
-    exit()
 
 copied_files = []
 bin_dir = None
@@ -17,7 +12,12 @@ if __name__ != "__main__":
 
 parser = ArgumentParser()
 parser.add_argument("--bin-dir", "-o", dest="bin", type=str, required=True)
+parser.add_argument("--dest", "-d", dest="dest", type=str, required=True, nargs='?', const='')
 args = parser.parse_args()
+
+if not os.path.isdir(args.dest):
+    print("Destination copy path not set or is not directory, not copying binaries")
+    sys.exit(0)
 
 if not os.path.isdir(args.bin):
     raise ArgumentError(argument=args.bin, message="Provided Bin Directory was not a valid directory")
@@ -43,5 +43,5 @@ def process_folder(files, destination):
             copied_files.append(file_name)
 
 
-print("Copying files from {0} to {1}".format(args.bin, copy_path))
-process_folder([os.path.join(args.bin, d) for d in os.listdir(args.bin)], copy_path)
+print("Copying files from {0} to {1}".format(args.bin, args.dest))
+process_folder([os.path.join(args.bin, d) for d in os.listdir(args.bin)], args.dest)

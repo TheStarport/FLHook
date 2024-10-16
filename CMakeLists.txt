@@ -1,27 +1,27 @@
 cmake_minimum_required(VERSION 3.20)
 
-set(ROOT_PROJECT_NAME "FLHook")
-set(PROJECT_NAME ${ROOT_PROJECT_NAME})
-
 project("${PROJECT_NAME}" LANGUAGES CXX VERSION 5.0.0)
-
 message(STATUS "Detected compiler: ${CMAKE_CXX_COMPILER}")
 
-set(CMAKE_CXX_STANDARD 20)
-
-# Define our dependencies function for after
-include("Dependencies.cmake")
-
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /cgthreads8")
-
+# Starting variables / paths
+set(ROOT_PROJECT_NAME "FLHook")
+set(PROJECT_NAME ${ROOT_PROJECT_NAME})
 set(SOURCE_PATH "${PROJECT_SOURCE_DIR}/source" )
-set(FLHOOK_COPY_PATH "$ENV{FLHOOK_COPY_PATH}" )
 set(INCLUDE_PATH "${PROJECT_SOURCE_DIR}/include")
 set(SDK_PATH "${PROJECT_SOURCE_DIR}/vendor/FLHookSDK")
 set(VENDOR "${PROJECT_SOURCE_DIR}/vendor")
 
 set(PROJECT_OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin)
 set(PLUGIN_OUTPUT_DIR ${PROJECT_OUTPUT_DIR}/plugins)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /cgthreads8")
+
+# Load cache variables from
+include("LoadConf.cmake")
+
+# Define our dependencies function for after
+include("Dependencies.cmake")
 
 file(GLOB_RECURSE SOURCE_FILES LIST_DIRECTORIES false
         "${SOURCE_PATH}/*.c*"
@@ -66,7 +66,8 @@ macro(SET_POST_BUILD CUR_TARGET)
     if (${Python3_FOUND} STREQUAL "TRUE" AND ${Python3_Interpreter_FOUND} STREQUAL "TRUE")
         message(STATUS "Adding post build step")
         add_custom_command(TARGET ${CUR_TARGET} POST_BUILD
-            COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/post_build.py -o ${PROJECT_OUTPUT_DIR}
+            COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/post_build.py
+                -o "${PROJECT_OUTPUT_DIR}" -d "${BINARY_COPY_DESTINATION}"
         )
     else()
         message(STATUS "Python3 interpreter not found. Not adding post build step.")

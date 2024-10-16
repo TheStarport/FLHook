@@ -60,5 +60,4 @@ CMakePresets.json
 # Docs
 docs/_build/
 
-#TEMP
-mongo/
+build.conf
