@@ -831,12 +831,12 @@ std::weak_ptr<CSimple> ResourceManager::Get<CSimple>(const uint id)
     // Solar or Asteroid
     if (id & 0x80000000)
     {
-        if (auto solar = Get<CSolar>(id); solar.expired())
+        if (auto solar = Get<CSolar>(id); !solar.expired())
         {
             return solar;
         }
 
-        if (auto asteroid = Get<CAsteroid>(id); asteroid.expired())
+        if (auto asteroid = Get<CAsteroid>(id); !asteroid.expired())
         {
             return asteroid;
         }
@@ -844,27 +844,27 @@ std::weak_ptr<CSimple> ResourceManager::Get<CSimple>(const uint id)
         return {};
     }
 
-    if (auto ship = Get<CShip>(id); ship.expired())
+    if (auto ship = Get<CShip>(id); !ship.expired())
     {
         return ship;
     }
 
-    if (auto loot = Get<CLoot>(id); loot.expired())
+    if (auto loot = Get<CLoot>(id); !loot.expired())
     {
         return loot;
     }
 
-    if (auto guided = Get<CGuided>(id); guided.expired())
+    if (auto guided = Get<CGuided>(id); !guided.expired())
     {
         return guided;
     }
 
-    if (auto mine = Get<CMine>(id); mine.expired())
+    if (auto mine = Get<CMine>(id); !mine.expired())
     {
         return mine;
     }
 
-    if (auto cm = Get<CCounterMeasure>(id); cm.expired())
+    if (auto cm = Get<CCounterMeasure>(id); !cm.expired())
     {
         return cm;
     }
