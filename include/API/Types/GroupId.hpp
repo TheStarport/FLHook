@@ -21,8 +21,8 @@ class DLL GroupId final
         Action<std::vector<ClientId>> GetGroupMembers() const;
         Action<uint> GetGroupSize() const;
         Action<void> ForEachGroupMember(const std::function<std::optional<Error>(ClientId client)>& func, bool stopIfErr = true) const;
-        Action<void> InviteMember(ClientId client);
-        Action<void> AddMember(ClientId client);
+        Action<void> InviteMember(ClientId client) const;
+        Action<void> AddMember(ClientId client) const;
 };
 
 template <>

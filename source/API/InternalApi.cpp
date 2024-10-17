@@ -12,7 +12,7 @@ Action<void> InternalApi::FMsgEncodeXml(std::wstring_view xml, char* buffer, con
 
     if (!rdr.read_buffer(rdl, reinterpret_cast<const char*>(msg.c_str()), msg.length() * 2))
     {
-        return { cpp::fail(Error::WrongXmlSyntax) };
+        return { cpp::fail(Error::InvalidXmlSyntax) };
     }
 
     BinaryRDLWriter writer;

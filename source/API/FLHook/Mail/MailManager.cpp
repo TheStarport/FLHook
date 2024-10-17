@@ -110,7 +110,7 @@ Action<std::vector<Mail>> MailManager::GetAccountMail(std::string accountId, int
 
         if (allMail.empty())
         {
-            return { cpp::fail(Error::UnknownError) };
+            return { cpp::fail(Error::DatabaseError) };
         }
 
         return { allMail };
@@ -118,7 +118,7 @@ Action<std::vector<Mail>> MailManager::GetAccountMail(std::string accountId, int
     catch (mongocxx::exception& ex)
     {
         Logger::Err(std::format(L"Unable to aggregate account mail query: {}", StringUtils::stows(ex.what())));
-        return { cpp::fail(Error::UnknownError) };
+        return { cpp::fail(Error::DatabaseError) };
     }
 }
 
@@ -178,7 +178,7 @@ Action<std::vector<Mail>> MailManager::GetCharacterMail(bsoncxx::oid characterId
 
         if (allMail.empty())
         {
-            return { cpp::fail(Error::UnknownError) };
+            return { cpp::fail(Error::DatabaseError) };
         }
 
         return { allMail };
@@ -186,7 +186,7 @@ Action<std::vector<Mail>> MailManager::GetCharacterMail(bsoncxx::oid characterId
     catch (mongocxx::exception& ex)
     {
         Logger::Err(std::format(L"Unable to aggregate account mail query: {}", StringUtils::stows(ex.what())));
-        return { cpp::fail(Error::UnknownError) };
+        return { cpp::fail(Error::DatabaseError) };
     }
 }
 
@@ -209,7 +209,7 @@ Action<void> MailManager::DeleteMail(const Mail& mail)
         Logger::Err(std::format(L"Unable to delete mail: {}", StringUtils::stows(ex.what())));
     }
 
-    return { cpp::fail(Error::UnknownError) };
+    return { cpp::fail(Error::DatabaseError) };
 }
 
 Action<void> MailManager::MarkMailAsRead(const Mail& mail, rfl::Variant<std::string, bsoncxx::oid> characterOrAccount)
@@ -249,7 +249,7 @@ Action<void> MailManager::MarkMailAsRead(const Mail& mail, rfl::Variant<std::str
         Logger::Err(std::format(L"Unable to mark mail as read: {}", StringUtils::stows(ex.what())));
     }
 
-    return { cpp::fail(Error::UnknownError) };
+    return { cpp::fail(Error::DatabaseError) };
 }
 
 Action<void> MailManager::SendMail(Mail& mail)
@@ -257,19 +257,19 @@ Action<void> MailManager::SendMail(Mail& mail)
     if (mail._id.bytes() != nullptr)
     {
         Logger::Warn(L"Sending mail that already has an ID is invalid!");
-        return { cpp::fail(Error::UnknownError) };
+        return { cpp::fail(Error::DatabaseError) };
     }
 
     if (!mail.author.has_value() && !mail.origin.has_value())
     {
         Logger::Warn(L"Cannot send mail that has no origin and no author!");
-        return { cpp::fail(Error::UnknownError) };
+        return { cpp::fail(Error::DatabaseError) };
     }
 
     if (mail.recipients.empty())
     {
         Logger::Warn(L"Cannot send mail with no designated recipients!");
-        return { cpp::fail(Error::UnknownError) };
+        return { cpp::fail(Error::DatabaseError) };
     }
 
     const auto config = FLHook::GetConfig();

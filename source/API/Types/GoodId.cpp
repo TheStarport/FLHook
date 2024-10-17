@@ -11,7 +11,7 @@ bool GoodId::operator==(const GoodId& next) const { return value == next.value; 
 #define GoodCheck                                  \
     if (!value)                                    \
     {                                              \
-        return { cpp::fail(Error::UnknownError) }; \
+        return { cpp::fail(Error::InvalidGood) }; \
     }
 
 GoodId::operator bool() const { return value; }

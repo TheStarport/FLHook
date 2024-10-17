@@ -10,7 +10,7 @@
     auto ship = std::dynamic_pointer_cast<CShip>(value.lock()); \
     if (!ship)                                                  \
     {                                                           \
-        return { cpp::fail(Error::UnknownError) };              \
+        return { cpp::fail(Error::InvalidEquipment) };              \
     }
 
 ShipId::ShipId(const uint val) { value = FLHook::GetResourceManager()->Get<CShip>(val); }
@@ -48,7 +48,7 @@ Action<ClientId> ShipId::GetPlayer() const
 
     if (!ship->ownerPlayer)
     {
-        return { cpp::fail(Error::UnknownError) };
+        return { cpp::fail(Error::ObjectIsNotAPlayer) };
     }
 
     return { ClientId(ship->ownerPlayer) };
@@ -102,13 +102,13 @@ Action<void> ShipId::SetHealth(float amount, bool percentage)
 {
     IsValidShip;
 
-    // If provided an invalid percantage along with requesting a percentage scale it will simply fail.
-    if ((amount < 0.0f || amount > 1.0f) && percentage == true)
+    // If provided an invalid percentage along with requesting a percentage scale it will simply fail.
+    if ((amount < 0.0f || amount > 1.0f) && percentage)
     {
         return { cpp::fail(Error::UnknownError) };
     }
 
-    if (percentage == false)
+    if (!percentage)
     {
         ship->set_hit_pts(amount);
         return { {} };
@@ -148,7 +148,7 @@ Action<void> ShipId::AddCargo(uint good, uint count, bool mission)
 
             if (!client)
             {
-                return { cpp::fail(Error::PlayerNotLoggedIn) };
+                return { cpp::fail(Error::PlayerNotOnline) };
             }
         }
 
@@ -249,7 +249,7 @@ Action<void> ShipId::IgniteFuse(uint fuseId, float id) const
 
     if (!FLHook::GetObjInspect(ship->id, inspect))
     {
-        return { cpp::fail(Error::InvalidShip) };
+        return { cpp::fail(Error::InvalidObject) };
     }
 
     // ReSharper disable once CppTooWideScopeInitStatement
@@ -275,7 +275,7 @@ Action<void> ShipId::IgniteFuse(uint fuseId, float id) const
     // ReSharper disable quadrice CppDFAUnreachableCode
     if (!success)
     {
-        return { cpp::fail(Error::InvalidInput) };
+        return { cpp::fail(Error::InvalidFuse) };
     }
 
     return { {} };
@@ -289,7 +289,7 @@ Action<void> ShipId::ExtinguishFuse(uint fuseId, float id) const
 
     if (!FLHook::GetObjInspect(ship->id, inspect))
     {
-        return { cpp::fail(Error::InvalidShip) };
+        return { cpp::fail(Error::InvalidObject) };
     }
 
     // ReSharper disable once CppTooWideScopeInitStatement
@@ -308,10 +308,9 @@ Action<void> ShipId::ExtinguishFuse(uint fuseId, float id) const
         pop ecx
     }
 
-    // TODO: Validate the above asm left the stack in the correct way
     if (!success)
     {
-        return { cpp::fail(Error::InvalidInput) };
+        return { cpp::fail(Error::InvalidFuse) };
     }
 
     return { {} };

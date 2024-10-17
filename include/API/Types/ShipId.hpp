@@ -58,7 +58,7 @@ class DLL ShipId final : public ObjectId
             auto ship = std::dynamic_pointer_cast<CShip>(value.lock());
             if (!ship)
             {
-                return { cpp::fail(Error::UnknownError) };
+                return { cpp::fail(Error::ObjectIsNotAShip) };
             }
 
             CEquipTraverser traverser(static_cast<int>(equipmentType));
@@ -78,7 +78,7 @@ class DLL ShipId final : public ObjectId
 
         Action<void> IgniteFuse(uint fuseId, float id = 0.0f) const;
         Action<void> ExtinguishFuse(uint fuseId, float id = 0.0f) const;
-        Action<CEquipManager*> GetEquipmentManager() const;
+        [[nodiscard]] Action<CEquipManager*> GetEquipmentManager() const;
 };
 
 template <>

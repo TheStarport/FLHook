@@ -7,7 +7,7 @@ Action<pub::AI::Personality*> PersonalityHelper::GetPersonality(const std::wstri
     const auto& pilot = pilots.find(pilotNickname);
     if (pilot == pilots.end())
     {
-        return { cpp::fail(Error::NicknameNotFound) };
+        return { cpp::fail(Error::InvalidPersonality) };
     }
 
     return { &pilot->second };

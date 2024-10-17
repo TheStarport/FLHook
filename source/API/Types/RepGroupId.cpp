@@ -36,12 +36,12 @@ Action<float> RepGroupId::GetAttitudeTowardsRepId(RepId target) const
     const auto ret = static_cast<ResponseCode>(pub::Reputation::GetGroupFeelingsTowards(value, target.GetValue(), attitude));
     if (ret == ResponseCode::InvalidInput)
     {
-        return { cpp::fail(Error::InvalidInput) };
+        return { cpp::fail(Error::InvalidRepGroup) };
     }
 
     if (ret == ResponseCode::Failure)
     {
-        return { cpp::fail(Error::InvalidReputation) };
+        return { cpp::fail(Error::InvalidRepInstance) };
     }
 
     return { attitude };

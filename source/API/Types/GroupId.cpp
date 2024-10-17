@@ -47,7 +47,7 @@ Action<uint> GroupId::GetGroupSize() const
     return { group->GetMemberCount() };
 }
 
-Action<void> GroupId::InviteMember(ClientId client)
+Action<void> GroupId::InviteMember(ClientId client) const
 {
     const auto group = CPlayerGroup::FromGroupID(value);
     if (!group)
@@ -59,7 +59,7 @@ Action<void> GroupId::InviteMember(ClientId client)
     return { {} };
 }
 
-Action<void> GroupId::AddMember(ClientId client)
+Action<void> GroupId::AddMember(ClientId client) const
 {
     const auto group = CPlayerGroup::FromGroupID(value);
     if (!group)

@@ -124,20 +124,22 @@ Action<void> SystemId::Message(std::wstring_view msg, MessageColor color, Messag
         return { cpp::fail(clientsInSystem.error()) };
     }
 
-    Error err = Error::Default;
+    auto err = Error::UnknownError;
 
     for (auto& client : clientsInSystem.value())
     {
         const auto res = client.Message(msg, format, color).Raw();
-        if (res.has_error() && err != Error::Default)
+        if (res.has_error() && err == Error::UnknownError)
         {
             err = res.error();
         }
     }
-    if (err != Error::Default)
+
+    if (err != Error::UnknownError)
     {
         return { cpp::fail(err) };
     }
+
     return { {} };
 }
 
@@ -162,12 +164,12 @@ Action<void> SystemId::PlaySoundOrMusic(const std::wstring& trackNickNameSound, 
             {
                 if (pub::Audio::SetMusic(client.GetValue(), sound) != static_cast<int>(ResponseCode::Success))
                 {
-                    return { cpp::fail(Error::InvalidSoundId) };
+                    return { cpp::fail(Error::InvalidSound) };
                 }
             }
             else if (pub::Audio::PlaySoundEffect(client.GetValue(), id) != static_cast<int>(ResponseCode::Success))
             {
-                return { cpp::fail(Error::InvalidSoundId) };
+                return { cpp::fail(Error::InvalidSound) };
             }
         }
         return { {} };
@@ -183,12 +185,12 @@ Action<void> SystemId::PlaySoundOrMusic(const std::wstring& trackNickNameSound, 
             {
                 if (pub::Audio::SetMusic(client.GetValue(), sound) != static_cast<int>(ResponseCode::Success))
                 {
-                    return { cpp::fail(Error::InvalidSoundId) };
+                    return { cpp::fail(Error::InvalidSound) };
                 }
 
                 if (pub::Audio::PlaySoundEffect(client.GetValue(), id) != static_cast<int>(ResponseCode::Success))
                 {
-                    return { cpp::fail(Error::InvalidSoundId) };
+                    return { cpp::fail(Error::InvalidSound) };
                 }
             }
         }

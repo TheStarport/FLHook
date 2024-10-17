@@ -16,7 +16,7 @@
 #define CharSelectCheck                                    \
     if (InCharacterSelect())                               \
     {                                                      \
-        return { cpp::fail(Error::CharacterNotSelected) }; \
+        return { cpp::fail(Error::PlayerInCharacterSelect) }; \
     }
 
 Action<void> ClientId::AdjustCash(const int amount) const
@@ -108,19 +108,18 @@ Action<AccountId> ClientId::GetAccount() const
     return { cpp::fail(Error::InvalidClientId) };
 }
 
-Action<const Archetype::Ship*> ClientId::GetShipArch() const
+Action<EquipmentId> ClientId::GetShipArch() const
 {
     ClientCheck;
     CharSelectCheck;
 
-    const uint ship = Players[value].shipArchetype;
-
-    if (!ship)
+    auto id = EquipmentId{ Players[value].shipArchetype };
+    if (!id)
     {
-        return { cpp::fail(Error::InvalidShip) };
+        return { cpp::fail(Error::InvalidObject) };
     }
 
-    return { Archetype::GetShip(ship) };
+    return { id };
 }
 
 Action<ShipId> ClientId::GetShip() const
@@ -132,7 +131,7 @@ Action<ShipId> ClientId::GetShip() const
 
     if (!ship)
     {
-        return { cpp::fail(Error::InvalidShip) };
+        return { cpp::fail(Error::PlayerNotInSpace) };
     }
 
     return cpp::result<ShipId, Error>(ShipId(ship));
@@ -167,7 +166,7 @@ Action<RepId> ClientId::GetReputation() const
 
     if (!Reputation::Vibe::Verify(rep))
     {
-        return { cpp::fail(Error::InvalidReputation) };
+        return { cpp::fail(Error::InvalidRepInstance) };
     }
 
     return { RepId(rep) };
@@ -493,7 +492,7 @@ Action<void> ClientId::MarkObject(const uint objId, const int markStatus) const
 
     if (pub::Player::MarkObj(value, objId, markStatus) != static_cast<int>(ResponseCode::Success))
     {
-        return { cpp::fail(Error::InvalidInput) };
+        return { cpp::fail(Error::InvalidObject) };
     }
 
     return { {} };
@@ -642,7 +641,7 @@ Action<void> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
         return { {} };
     }
 
-    return { cpp::fail(Error::UnknownError) };
+    return { cpp::fail(Error::PacketError) };
 }
 
 Action<void> ClientId::AddEquip(const uint goodId, const std::wstring& hardpoint) const
@@ -702,9 +701,10 @@ Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goo
                         break;
                     }
                 }
+
                 if (!foundItem)
                 {
-                    return { cpp::fail(Error::UnknownError) };
+                    return { cpp::fail(Error::InvalidEquipment) };
                 }
             }
         case 2:
@@ -712,12 +712,11 @@ Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goo
                 const int result = pub::Player::RemoveCargo(value, rfl::get<ushort>(goodId), count);
                 if (result == -2)
                 {
-                    return { cpp::fail(Error::UnknownError) };
+                    return { cpp::fail(Error::InvalidGood) };
                 }
             }
         default: return { cpp::fail(Error::UnknownError) };
     }
-    return { {} };
 }
 
 Action<void> ClientId::Undock(Vector pos, std::optional<Matrix> orientation) const
@@ -762,7 +761,7 @@ Action<DPN_CONNECTION_INFO> ClientId::GetConnectionData() const
     DPN_CONNECTION_INFO connectionInfo;
     if (!cdpClient || !cdpClient->GetConnectionStats(&connectionInfo))
     {
-        return { cpp::fail(Error::UnknownError) };
+        return { cpp::fail(Error::PacketError) };
     }
 
     return { { connectionInfo } };

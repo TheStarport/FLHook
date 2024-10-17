@@ -8,7 +8,7 @@
     auto obj = value.lock();                       \
     if (!obj)                                      \
     {                                              \
-        return { cpp::fail(Error::UnknownError) }; \
+        return { cpp::fail(Error::InvalidObject) }; \
     }
 
 ObjectId::ObjectId(const uint val) { value = FLHook::GetResourceManager()->Get<CSimple>(val); }
@@ -90,7 +90,7 @@ Action<RepId> ObjectId::GetReputation() const
         return { RepId(eq->repVibe) };
     }
 
-    return { cpp::fail(Error::InvalidReputation) };
+    return { cpp::fail(Error::InvalidRepInstance) };
 }
 
 // If provided a value of true in the argument it will provide a percentage value of the ship's health, with 0.0f being no hp and 1.0f being full health.
@@ -114,13 +114,13 @@ Action<ClientId> ObjectId::GetPlayer() const
 
     if (auto ship = std::dynamic_pointer_cast<CShip>(obj); obj)
     {
-        if (ship->ownerPlayer != 0)
+        if (!ship->ownerPlayer)
         {
-            return { cpp::fail(Error::UnknownError) };
+            return { cpp::fail(Error::ObjectIsNotAPlayer) };
         }
 
         return { ClientId(ship->ownerPlayer) };
     }
 
-    return { cpp::fail(Error::UnknownError) };
+    return { cpp::fail(Error::ObjectIsNotAShip) };
 }

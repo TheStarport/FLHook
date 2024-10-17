@@ -90,7 +90,7 @@ class DLL ClientId
          * @returns On fail : InvalidShip error
          */
         [[nodiscard]]
-        Action<const Archetype::Ship*> GetShipArch() const;
+        Action<EquipmentId> GetShipArch() const;
 
         /**
          * @brief Gets the ShipId of the ship the client is using
@@ -370,7 +370,7 @@ class DLL ClientId
          * Force the ships equipment list to match the one provided. May cause undefined behaviour if the target is in space.
          * @param equip the client you wish to send the message to.
          * @returns On success : void
-         * @returns On fail : InCharacterSelect, UnknownError (when packet sending fails).
+         * @returns On fail : InCharacterSelect, PacketError.
          */
         Action<void> SetEquip(const st6::list<EquipDesc>& equip) const;
 
