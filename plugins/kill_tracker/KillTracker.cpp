@@ -201,7 +201,7 @@ namespace Plugins
 
     std::wstring KillTrackerPlugin::SelectRandomDeathMessage(const ClientId client)
     {
-        const uint shipClass = client.GetShipArch().Handle()->shipClass;
+        const uint shipClass = client.GetShipArch().Handle().Cast<Archetype::Ship*>().Handle()->shipClass;
         if (const auto& deathMsgList = config.shipClassToDeathMsgMap.find(shipClass); deathMsgList == config.shipClassToDeathMsgMap.end())
         {
             return config.defaultDeathDamageTemplate;
@@ -250,7 +250,7 @@ namespace Plugins
             return;
         }
 
-        const Archetype::Ship* shipArch = victim.GetShipArch().Handle();
+        const Archetype::Ship* shipArch = victim.GetShipArch().Unwrap().Cast<Archetype::Ship*>().Handle();
 
         if (totalDamageTaken < shipArch->hitPoints * 0.02 && (!killer || killer == victim))
         {

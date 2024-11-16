@@ -47,7 +47,7 @@ namespace Plugins
 
     void HandleRepairs(const ClientId client)
     {
-        auto repairCost = static_cast<uint>(client.GetShipArch().Unwrap()->hitPoints * (1 - client.GetRelativeHealth().Unwrap()) / 3);
+        auto repairCost = static_cast<uint>(client.GetShipArch().Unwrap().GetValue()->hitPoints * (1 - client.GetRelativeHealth().Unwrap()) / 3);
 
         std::vector<ushort> eqToFix;
 
@@ -160,7 +160,7 @@ namespace Plugins
 
     void AutobuyPlugin::OnBaseEnterAfter(const BaseId baseId, const ClientId client)
     {
-        const Archetype::Ship* ship = client.GetShipArch().Unwrap();
+        const Archetype::Ship* ship = client.GetShipArch().Unwrap().Cast<Archetype::Ship*>().Handle();
 
         // player cargo
         float remHoldSize = client.GetRemainingCargo().Unwrap();
