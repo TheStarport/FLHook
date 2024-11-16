@@ -63,6 +63,8 @@ class DLL EquipmentId
             {
                 return reinterpret_cast<T*>(value);
             }
+
+            return { cpp::fail(type.error()) };
         }
 };
 

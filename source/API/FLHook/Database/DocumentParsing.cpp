@@ -528,8 +528,7 @@ Character::Character(bsoncxx::document::view view)
                 {
                     for (auto& el : element.get_document().value)
                     {
-                        auto key = StringUtils::Cast<short>(el.key());
-                        collisionGroups[key] = static_cast<float>(el.get_double().value);
+                        collisionGroups[std::string(el.key())] = static_cast<float>(el.get_double().value);
                     }
                     break;
                 }
@@ -537,8 +536,7 @@ Character::Character(bsoncxx::document::view view)
                 {
                     for (auto& el : element.get_document().value)
                     {
-                        auto key = StringUtils::Cast<short>(el.key());
-                        baseCollisionGroups[key] = static_cast<float>(el.get_double().value);
+                        baseCollisionGroups[std::string(el.key())] = static_cast<float>(el.get_double().value);
                     }
                     break;
                 }
@@ -546,8 +544,7 @@ Character::Character(bsoncxx::document::view view)
                 {
                     for (auto& el : element.get_document().value)
                     {
-                        auto key = StringUtils::Cast<int>(el.key());
-                        reputation[key] = static_cast<float>(el.get_double().value);
+                        reputation[std::string(el.key())] = static_cast<float>(el.get_double().value);
                     }
                     break;
                 }
@@ -555,8 +552,7 @@ Character::Character(bsoncxx::document::view view)
                 {
                     for (auto el : element.get_document().value)
                     {
-                        auto key = StringUtils::Cast<int>(el.key());
-                        shipTypesKilled[key] = el.get_int32().value;
+                        shipTypesKilled[std::string(el.key())] = el.get_int32().value;
                     }
                     break;
                 }
@@ -564,8 +560,7 @@ Character::Character(bsoncxx::document::view view)
                 {
                     for (auto& el : element.get_document().value)
                     {
-                        auto key = StringUtils::Cast<int>(el.key());
-                        randomMissionsCompleted[key] = el.get_int32().value;
+                        randomMissionsCompleted[std::string(el.key())] = el.get_int32().value;
                     }
                     break;
                 }
@@ -573,8 +568,7 @@ Character::Character(bsoncxx::document::view view)
                 {
                     for (auto& el : element.get_document().value)
                     {
-                        auto key = StringUtils::Cast<int>(el.key());
-                        randomMissionsAborted[key] = el.get_int32().value;
+                        randomMissionsAborted[std::string(el.key())] = el.get_int32().value;
                     }
                     break;
                 }
@@ -582,17 +576,16 @@ Character::Character(bsoncxx::document::view view)
                 {
                     for (auto& el : element.get_document().value)
                     {
-                        auto key = StringUtils::Cast<int>(el.key());
-                        randomMissionsFailed[key] = el.get_int32().value;
+                        randomMissionsFailed[std::string(el.key())] = el.get_int32().value;
                     }
                     break;
                 }
             case Hash("visits"):
                 {
-                    for (auto& el : element.get_document().value)
+                    for (auto& el : element.get_array().value)
                     {
-                        auto key = StringUtils::Cast<int>(el.key());
-                        visits[key] = static_cast<char>(el.get_int32().value);
+                        auto array = el.get_array().value;
+                        visits.emplace_back( std::array{array[0].get_int32().value, array[1].get_int32().value});
                     }
                     break;
                 }
@@ -683,8 +676,7 @@ Character::Character(bsoncxx::document::view view)
                 {
                     for (auto el : element.get_document().value)
                     {
-                        int key = StringUtils::Cast<int>(el.key());
-                        auto group = weaponGroups[key] = {};
+                        auto group = weaponGroups[std::string(el.key())] = {};
                         for (auto weapon : el.get_array().value)
                         {
                             group.emplace_back(weapon.get_string().value);
@@ -862,7 +854,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document)
         bsoncxx::builder::basic::document doc;
         for (auto& [id, health] : collisionGroups)
         {
-            doc.append(kvp(std::to_string(id), health));
+            doc.append(kvp(id, health));
         }
         document.append(kvp("collisionGroups", doc));
     }
@@ -871,7 +863,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document)
         bsoncxx::builder::basic::document doc;
         for (auto& [id, health] : baseCollisionGroups)
         {
-            doc.append(kvp(std::to_string(id), health));
+            doc.append(kvp(id, health));
         }
         document.append(kvp("baseCollisionGroups", doc));
     }
@@ -880,7 +872,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document)
         bsoncxx::builder::basic::document doc;
         for (auto& [faction, rep] : reputation)
         {
-            doc.append(kvp(std::to_string(faction), rep));
+            doc.append(kvp(faction, rep));
         }
         document.append(kvp("reputation", doc));
     }
@@ -889,7 +881,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document)
         bsoncxx::builder::basic::document doc;
         for (auto& [shipArch, amount] : shipTypesKilled)
         {
-            doc.append(kvp(std::to_string(shipArch), amount));
+            doc.append(kvp(shipArch, amount));
         }
         document.append(kvp("shipTypesKilled", doc));
     }
@@ -898,7 +890,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document)
         bsoncxx::builder::basic::document doc;
         for (auto& [rank, amount] : randomMissionsCompleted)
         {
-            doc.append(kvp(std::to_string(rank), amount));
+            doc.append(kvp(rank, amount));
         }
         document.append(kvp("randomMissionsCompleted", doc));
     }
@@ -907,7 +899,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document)
         bsoncxx::builder::basic::document doc;
         for (auto& [rank, amount] : randomMissionsAborted)
         {
-            doc.append(kvp(std::to_string(rank), amount));
+            doc.append(kvp(rank, amount));
         }
         document.append(kvp("randomMissionsAborted", doc));
     }
@@ -916,18 +908,18 @@ void Character::ToBson(bsoncxx::builder::basic::document& document)
         bsoncxx::builder::basic::document doc;
         for (auto& [rank, amount] : randomMissionsFailed)
         {
-            doc.append(kvp(std::to_string(rank), amount));
+            doc.append(kvp(rank, amount));
         }
         document.append(kvp("randomMissionsFailed", doc));
     }
 
     {
-        bsoncxx::builder::basic::document doc;
+        bsoncxx::builder::basic::array arr;
         for (auto& [spaceObj, visitFlag] : visits)
         {
-            doc.append(kvp(std::to_string(spaceObj), visitFlag));
+            arr.append(make_array(spaceObj, visitFlag));
         }
-        document.append(kvp("visits", doc));
+        document.append(kvp("visits", arr));
     }
 
     {
@@ -987,7 +979,7 @@ void Character::ToBson(bsoncxx::builder::basic::document& document)
             {
                 arr.append(wpnGroup);
             }
-            doc.append(kvp(std::to_string(key), arr));
+            doc.append(kvp(key, arr));
         }
         document.append(kvp("weaponGroups", doc));
     }

@@ -35,10 +35,10 @@ void ConvertCharacterToVanillaData(CharacterData* data, const Character& charact
     data->pos = character.pos;
     data->rot = EulerMatrix(character.rot);
 
-    for (const auto [factionHash, rep] : character.reputation)
+    for (const auto& [factionHash, rep] : character.reputation)
     {
         Reputation::Relation relation{};
-        relation.hash = factionHash;
+        relation.hash = CreateID(factionHash.c_str());
         relation.reputation = rep;
         data->repList.push_back(relation);
     }
@@ -98,12 +98,12 @@ void ConvertCharacterToVanillaData(CharacterData* data, const Character& charact
     // Collision groups
     for (const auto& [sId, health] : character.baseCollisionGroups)
     {
-        data->baseCollisionGroups.push_back({ static_cast<ushort>(sId), health });
+        data->baseCollisionGroups.push_back({ StringUtils::Cast<ushort>(sId), health });
     }
 
     for (const auto& [sId, health] : character.collisionGroups)
     {
-        data->currentCollisionGroups.push_back({ static_cast<ushort>(sId), health });
+        data->currentCollisionGroups.push_back({ StringUtils::Cast<ushort>(sId), health });
     }
 
     // Copy voice
@@ -235,22 +235,22 @@ void __fastcall AccountManager::LoadPlayerMData(MPlayerDataSaveStruct* mdata, vo
     for (auto [shipArch, killCount] : character.shipTypesKilled)
     {
         int var = killCount;
-        FLMapInsertShipFunc(&mdata->killedShips, var, shipArch);
+        FLMapInsertShipFunc(&mdata->killedShips, var, StringUtils::Cast<uint>(shipArch));
     }
     for (auto abortedMission : character.randomMissionsAborted)
     {
         int var = abortedMission.second;
-        FLMapInsertRMFunc(&mdata->rmAborted, var, abortedMission.first);
+        FLMapInsertRMFunc(&mdata->rmAborted, var, StringUtils::Cast<uint>(abortedMission.first));
     }
     for (auto completedMission : character.randomMissionsCompleted)
     {
         int var = completedMission.second;
-        FLMapInsertRMFunc(&mdata->rmCompleted, var, completedMission.first);
+        FLMapInsertRMFunc(&mdata->rmCompleted, var, StringUtils::Cast<uint>(completedMission.first));
     }
     for (auto failedMission : character.randomMissionsFailed)
     {
         int var = failedMission.second;
-        FLMapInsertRMFunc(&mdata->rmFailed, var, failedMission.first);
+        FLMapInsertRMFunc(&mdata->rmFailed, var, StringUtils::Cast<uint>(failedMission.first));
     }
 
     MDataSetterFinishFunc(mdata);
@@ -287,7 +287,7 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
 
     for (const auto& [hash, reputation] : data->repList)
     {
-        character.reputation.insert({ hash, reputation });
+        character.reputation.insert({ std::to_string(hash), reputation });
     }
 
     character.equipment.clear();
@@ -348,12 +348,12 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
 
     for (const auto& col : data->currentCollisionGroups)
     {
-        character.collisionGroups.insert({ col.id, col.health });
+        character.collisionGroups.insert({ std::to_string(col.id), col.health });
     }
 
     for (const auto& col : data->baseCollisionGroups)
     {
-        character.baseCollisionGroups.insert({ col.id, col.health });
+        character.baseCollisionGroups.insert({ std::to_string(col.id), col.health });
     }
 }
 
@@ -452,17 +452,17 @@ void AccountManager::LoadNewPlayerFLInfo()
         else if (key == "system")
         {
             newPlayerTemplate.system = ini.get_value_string();
-            if (!Universe::get_system(CreateID(newPlayerTemplate.system.c_str())))
+            if (newPlayerTemplate.system != "%%HOME_SYSTEM%%" && !Universe::get_system(CreateID(newPlayerTemplate.system.c_str())))
             {
-                Logger::Err(L"Universe referenced inside of newplayerfl is not valid!");
+                Logger::Err(L"System referenced inside of newplayer.fl is not valid!");
             }
         }
         else if (key == "base")
         {
             newPlayerTemplate.base = ini.get_value_string();
-            if (!Universe::get_base(CreateID(newPlayerTemplate.base.c_str())))
+            if (newPlayerTemplate.base != "%%HOME_BASE%%" && !Universe::get_base(CreateID(newPlayerTemplate.base.c_str())))
             {
-                Logger::Err(L"Base referenced inside of newplayerfl is not valid!");
+                Logger::Err(L"Base referenced inside of newplayer.fl is not valid!");
             }
         }
         else if (key == "house")
@@ -670,19 +670,19 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     character.randomMissionsFailed.clear();
     for (auto iterBST : mdata->killedShips)
     {
-        character.shipTypesKilled[iterBST->key] = iterBST->data;
+        character.shipTypesKilled[std::to_string(iterBST->key)] = iterBST->data;
     }
     for (auto iterBST : mdata->rmCompleted)
     {
-        character.randomMissionsCompleted[iterBST->key] = iterBST->data;
+        character.randomMissionsCompleted[std::to_string(iterBST->key)] = iterBST->data;
     }
     for (auto iterBST : mdata->rmAborted)
     {
-        character.randomMissionsAborted[iterBST->key] = iterBST->data;
+        character.randomMissionsAborted[std::to_string(iterBST->key)] = iterBST->data;
     }
     for (auto iterBST : mdata->rmFailed)
     {
-        character.randomMissionsFailed[iterBST->key] = iterBST->data;
+        character.randomMissionsFailed[std::to_string(iterBST->key)] = iterBST->data;
     }
 
     character.totalCashEarned = mdata->totalCashEarned;
@@ -692,7 +692,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     // for (auto visit = pd->visitEntries.begin(); visit != pd->visitEntries.end(); ++visit)
     for (auto visit : pd->visitEntries)
     {
-        character.visits[visit->key] = visit->data;
+        character.visits.emplace_back( std::array{static_cast<int>(visit->key), static_cast<int>(visit->data)});
     }
     character.equipment.clear();
     character.baseEquipment.clear();
@@ -747,7 +747,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     Reputation::Vibe::Get(pd->reputation, affiliation, rank, relationCount, relations.data(), firstName, secondName, name);
     for (const auto& [hash, reputation] : relations)
     {
-        character.reputation.insert({ hash, reputation });
+        character.reputation.insert({ std::to_string(hash), reputation });
     }
 
     character.rank = rank;
@@ -781,7 +781,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 
     for (const auto& col : pd->collisionGroupDesc)
     {
-        character.collisionGroups.insert({ col.id, col.health });
+        character.collisionGroups.insert({ std::to_string(col.id), col.health });
     }
 
     if (character.currentBase)
@@ -807,7 +807,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         character.baseHullStatus = currPlayer.value()->baseHullStatus;
         for (const auto& col : currPlayer.value()->baseCollisionGroups)
         {
-            character.baseCollisionGroups.insert({ col.id, col.health });
+            character.baseCollisionGroups.insert({ std::to_string(col.id), col.health });
         }
         for (const auto& equip : currPlayer.value()->baseEquipAndCargo)
         {

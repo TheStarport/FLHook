@@ -79,21 +79,21 @@ struct Character
 	std::vector<FLCargo> baseCargo;
 	std::vector<Equipment> equipment;
 	std::vector<Equipment> baseEquipment;
-	std::unordered_map<short, float> collisionGroups;
-	std::unordered_map<short, float> baseCollisionGroups;
+	std::unordered_map<std::string, float> collisionGroups;
+	std::unordered_map<std::string, float> baseCollisionGroups;
 	//keys are actually unsigned ints, but this works anyway
-	std::unordered_map<int, float> reputation;
-	std::unordered_map<int, int> shipTypesKilled;
-	std::unordered_map<int, int> randomMissionsCompleted;
-	std::unordered_map<int, int> randomMissionsAborted;
-	std::unordered_map<int, int> randomMissionsFailed;
-	std::unordered_map<int, char> visits;
+	std::unordered_map<std::string, float> reputation;
+	std::unordered_map<std::string, int> shipTypesKilled;
+	std::unordered_map<std::string, int> randomMissionsCompleted;
+	std::unordered_map<std::string, int> randomMissionsAborted;
+	std::unordered_map<std::string, int> randomMissionsFailed;
+	std::vector<std::array<int, 2>> visits;
 	std::vector<int> systemsVisited;
 	std::vector<int> basesVisited;
 	std::vector<NpcVisit> npcVisits;
 	std::vector<int> jumpHolesVisited;
 	std::vector<RumorData> rumorsReceived;
-	std::unordered_map<int, std::vector<std::string>> weaponGroups;
+	std::unordered_map<std::string, std::vector<std::string>> weaponGroups;
 
     std::optional<int64> lastRenameTimestamp;
     std::optional<std::string> characterTransferCode;
