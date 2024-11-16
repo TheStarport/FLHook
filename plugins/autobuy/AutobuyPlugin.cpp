@@ -160,7 +160,7 @@ namespace Plugins
 
     void AutobuyPlugin::OnBaseEnterAfter(const BaseId baseId, const ClientId client)
     {
-        const Archetype::Ship* ship = client.GetShipArch().Unwrap().Cast<Archetype::Ship*>().Handle();
+        const Archetype::Ship* ship = client.GetShipArch().Unwrap().Cast<Archetype::Ship>().Handle();
 
         // player cargo
         float remHoldSize = client.GetRemainingCargo().Unwrap();
@@ -230,7 +230,7 @@ namespace Plugins
 
                 switch (Archetype::Equipment* eq = Archetype::GetEquipment(equip.archId); EquipmentId(eq->archId).GetType().Unwrap())
                 {
-                    case EquipmentType::Mine:
+                    case EquipmentType::MineDropper:
                         {
                             if (mines)
                             {
@@ -239,7 +239,7 @@ namespace Plugins
 
                             break;
                         }
-                    case EquipmentType::Cm:
+                    case EquipmentType::CmDropper:
                         {
                             if (cm)
                             {
@@ -248,7 +248,7 @@ namespace Plugins
 
                             break;
                         }
-                    case EquipmentType::Torpedo:
+                    case EquipmentType::TorpedoLauncher:
                         {
                             if (torps)
                             {
@@ -257,7 +257,7 @@ namespace Plugins
 
                             break;
                         }
-                    case EquipmentType::Cd:
+                    case EquipmentType::CdLauncher:
                         {
                             if (cd)
                             {
@@ -266,7 +266,7 @@ namespace Plugins
 
                             break;
                         }
-                    case EquipmentType::Missile:
+                    case EquipmentType::MissileLauncher:
                         {
                             if (missiles)
                             {

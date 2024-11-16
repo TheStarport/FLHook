@@ -4,6 +4,18 @@
 namespace Archetype
 {
     struct Gun;
+    struct Mine;
+    struct Launcher;
+    struct ShieldGenerator;
+    struct Thruster;
+    struct Engine;
+    struct Scanner;
+    struct Tractor;
+    struct Light;
+    struct Munition;
+    struct CounterMeasureDropper;
+    struct RepairKit;
+    struct ShieldBattery;
 } // namespace Archetype
 // TODO: Allow assigning to uint variables without the need to extract GetValue explicitly
 class DLL EquipmentId
@@ -50,7 +62,7 @@ class DLL EquipmentId
         Action<float> GetVolume() const;
 
         template <typename T>
-        Action<T> Cast()
+        Action<T*> Cast()
         {
             auto type = GetType().Raw();
 
@@ -59,9 +71,82 @@ class DLL EquipmentId
                 return { cpp::fail(type.error()) };
             }
 
-            if constexpr (std::is_same_v<T, Archetype::Gun> && type.value() == EquipmentType::Gun)
+            if constexpr (std::is_same_v<T, Archetype::Gun>)
             {
-                return reinterpret_cast<T*>(value);
+                if(type.value() == EquipmentType::Gun)
+                {
+                    return {reinterpret_cast<T*>(value)};
+                }
+            }
+            if constexpr (std::is_same_v<T, Archetype::Ship>)
+            {
+                if(type.value() == EquipmentType::Ship)
+                {
+                    return {reinterpret_cast<T*>(value)};
+                }
+            }
+            if constexpr (std::is_same_v<T, Archetype::Mine>)
+            {
+                if(type.value() == EquipmentType::Mine)
+                {
+                    return {reinterpret_cast<T*>(value)};
+                }
+            }
+            if constexpr (std::is_same_v<T, Archetype::ShieldGenerator>)
+            {
+                if(type.value() == EquipmentType::ShieldGen)
+                {
+                    return {reinterpret_cast<T*>(value)};
+                }
+            }
+            if constexpr (std::is_same_v<T, Archetype::Thruster>)
+            {
+                if(type.value() == EquipmentType::Thruster)
+                {
+                    return {reinterpret_cast<T*>(value)};
+                }
+            }
+            if constexpr (std::is_same_v<T, Archetype::Light>)
+            {
+                if(type.value() == EquipmentType::Light)
+                {
+                    return {reinterpret_cast<T*>(value)};
+                }
+            }
+            if constexpr (std::is_same_v<T, Archetype::Engine>)
+            {
+                if(type.value() == EquipmentType::Engine)
+                {
+                    return {reinterpret_cast<T*>(value)};
+                }
+            }
+            if constexpr (std::is_same_v<T, Archetype::Munition>)
+            {
+                if(type.value() == EquipmentType::Munition)
+                {
+                    return {reinterpret_cast<T*>(value)};
+                }
+            }
+            if constexpr (std::is_same_v<T, Archetype::CounterMeasureDropper>)
+            {
+                if(type.value() == EquipmentType::CmDropper)
+                {
+                    return {reinterpret_cast<T*>(value)};
+                }
+            }
+            if constexpr (std::is_same_v<T, Archetype::RepairKit>)
+            {
+                if(type.value() == EquipmentType::Nanobot)
+                {
+                    return {reinterpret_cast<T*>(value)};
+                }
+            }
+            if constexpr (std::is_same_v<T, Archetype::ShieldBattery>)
+            {
+                if(type.value() == EquipmentType::ShieldBattery)
+                {
+                    return {reinterpret_cast<T*>(value)};
+                }
             }
 
             return { cpp::fail(type.error()) };

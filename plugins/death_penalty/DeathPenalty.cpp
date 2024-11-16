@@ -65,7 +65,7 @@ namespace Plugins
     float DeathPenaltyPlugin::GetShipFractionOverride(const ClientId client)
     {
         // Get ShipArchId
-        const auto shipArchId = EquipmentId(client.GetShipArch().Unwrap().Cast<Archetype::Ship*>().Handle()->archId);
+        const auto shipArchId = EquipmentId(client.GetShipArch().Unwrap().Cast<Archetype::Ship>().Handle()->archId);
 
         // Default return value is the default death penalty fraction
         float overrideValue = config.DeathPenaltyFraction;

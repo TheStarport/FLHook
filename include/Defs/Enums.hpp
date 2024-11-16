@@ -47,11 +47,13 @@ enum class EngineState
 enum class EquipmentType
 {
     Gun,
-    Torpedo,
-    Cd,
-    Missile,
-    Mine,
+    TorpedoLauncher,
     Cm,
+    CdLauncher,
+    MissileLauncher,
+    Mine,
+    MineDropper,
+    CmDropper,
     ShieldGen,
     Thruster,
     ShieldBattery,

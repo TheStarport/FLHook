@@ -59,12 +59,15 @@ enum class AddressList : uint
 
     // Common.dll Offsets
 
+    CommonVfTableShip = 0x139838,
     CommonVfTablePower = 0x1398F4,
     CommonVfTableScanner = 0x139920,
     CommonVfTableLight = 0x13994C,
     CommonVfTableTractor = 0x139978,
-    CommonVfTableMine = 0x139C64,
-    CommonVfTableCm = 0x139C90,
+    CommonVfTableMine= 0x139D14,
+    CommonVfTableMineDropper = 0x139C64,
+    CommonVfTableCmDropper = 0x139C90,
+    CommonVfTableCm = 0x139D40,
     CommonVfTableGun = 0x139C38,
     CommonVfTableShieldGen = 0x139BB4,
     CommonVfTableThruster = 0x139BE0,

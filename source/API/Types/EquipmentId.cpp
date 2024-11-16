@@ -26,7 +26,9 @@ Action<EquipmentType> EquipmentId::GetType() const
     ValidEquipmentCheck;
 
     static const uint vftMine = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableMine);
+    static const uint vftMineDropper = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableMineDropper);
     static const uint vftCm = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableCm);
+    static const uint vftCmDropper = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableCmDropper);
     static const uint vftGun = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableGun);
     static const uint vftShieldGen = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableShieldGen);
     static const uint vftThruster = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableThruster);
@@ -37,8 +39,9 @@ Action<EquipmentType> EquipmentId::GetType() const
     static const uint vftScanner = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableScanner);
     static const uint vftTractor = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableTractor);
     static const uint vftLight = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableLight);
+    static const uint vftShip = FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonVfTableShip);
 
-    const uint vft = *reinterpret_cast<const uint*>(std::addressof(value)); // NOLINT
+    const uint vft = *reinterpret_cast<const uint*>(value); // NOLINT
     if (vft == vftGun)
     {
         const Archetype::Gun* gun = reinterpret_cast<Archetype::Gun*>(value);
@@ -48,17 +51,17 @@ Action<EquipmentType> EquipmentId::GetType() const
         const uint gunType = gun->get_hp_type_by_index(0);
         if (gunType == 36)
         {
-            return { EquipmentType::Torpedo };
+            return { EquipmentType::TorpedoLauncher };
         }
 
         if (gunType == 35)
         {
-            return { EquipmentType::Cd };
+            return { EquipmentType::CdLauncher };
         }
 
         if (missile)
         {
-            return { EquipmentType::Missile };
+            return { EquipmentType::MissileLauncher };
         }
 
         return { EquipmentType::Gun };
@@ -67,6 +70,11 @@ Action<EquipmentType> EquipmentId::GetType() const
     if (vft == vftCm)
     {
         return { EquipmentType::Cm };
+    }
+
+    if (vft == vftCmDropper)
+    {
+        return { EquipmentType::CmDropper };
     }
 
     if (vft == vftShieldGen)
@@ -99,6 +107,11 @@ Action<EquipmentType> EquipmentId::GetType() const
         return { EquipmentType::Mine };
     }
 
+    if (vft == vftMineDropper)
+    {
+        return { EquipmentType::MineDropper };
+    }
+
     if (vft == vftEngine)
     {
         return { EquipmentType::Engine };
@@ -117,6 +130,11 @@ Action<EquipmentType> EquipmentId::GetType() const
     if (vft == vftTractor)
     {
         return { EquipmentType::Tractor };
+    }
+
+    if (vft == vftShip)
+    {
+        return { EquipmentType::Ship };
     }
 
     return { EquipmentType::Other };
