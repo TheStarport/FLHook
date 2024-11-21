@@ -36,13 +36,13 @@ class IEngineHook
 
 #define VTablePtr(x) static_cast<DWORD>(x)
 
-        inline static VTableHook<CShip, VTablePtr(CShipVTable::Start), VTablePtr(CShipVTable::End)> cShipVTable;
-        inline static VTableHook<CLoot, VTablePtr(CLootVTable::Start), VTablePtr(CLootVTable::End)> cLootVTable;
-        inline static VTableHook<CShip, VTablePtr(CSolarVTable::Start), VTablePtr(CSolarVTable::End)> cSolarVtable;
+        inline static VTableHook<VTablePtr(CShipVTable::Start), VTablePtr(CShipVTable::End)> cShipVTable{ "common" };
+        inline static VTableHook<VTablePtr(CLootVTable::Start), VTablePtr(CLootVTable::End)> cLootVTable{ "common" };
+        inline static VTableHook<VTablePtr(CSolarVTable::Start), VTablePtr(CSolarVTable::End)> cSolarVtable{ "common" };
 
-        inline static VTableHook<Ship, VTablePtr(IShipInspectVTable::Start), VTablePtr(IShipInspectVTable::End)> iShipVTable;
-        inline static VTableHook<Solar, VTablePtr(ISolarInspectVTable::Start), VTablePtr(ISolarInspectVTable::End)> iSolarVTable;
-        inline static VTableHook<Loot, VTablePtr(ILootInspectVTable::Start), VTablePtr(ILootInspectVTable::End)> iLootVTable;
+        inline static VTableHook<VTablePtr(IShipInspectVTable::Start), VTablePtr(IShipInspectVTable::End)> iShipVTable{ "server" };
+        inline static VTableHook<VTablePtr(ISolarInspectVTable::Start), VTablePtr(ISolarInspectVTable::End)> iSolarVTable{ "server" };
+        inline static VTableHook<VTablePtr(ILootInspectVTable::Start), VTablePtr(ILootInspectVTable::End)> iLootVTable{ "server" };
 
 #undef VTablePtr
 

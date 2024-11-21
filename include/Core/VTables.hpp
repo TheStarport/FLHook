@@ -73,8 +73,8 @@ enum class CShipVTable
     LinkShields,
     InitCShip,
     Size = InitCShip,
-    Start = 0x0639C02C,
-    End = 0x0639C138
+    Start = 0x13C02C,
+    End = 0x13C138
 };
 
 //Note CLoot VTable seems to have this after the initCLoot, not sure if its random or actually apart of the VTable
@@ -123,8 +123,8 @@ enum class CLootVTable
     SetHitPoints,
     InitPhysics,
     InitCLoot,
-    Start = 0x0639D81C,
-    End = 0x0639D8BC
+    Start = 0x13D81C,
+    End = 0x13D8C0
 };
 
 enum class CSolarVTable
@@ -196,8 +196,8 @@ enum class CSolarVTable
     EnumerateSubObjects,
     AllocEquip,
     LinkShields,
-    Start = 0x0639D3C4,
-    End = 0x0639D4CC
+    Start = 0x13D3C4,
+    End = 0x13D4CC
 };
 
 enum class IShipInspectVTable
@@ -351,8 +351,8 @@ enum class IShipInspectVTable
     sub_6CEC260,
     ProcessPerishableCargo,
     Size = ProcessPerishableCargo,
-    Start = 0x6D6711C,
-    End = 0x6D67368
+    Start = 0x8711C,
+    End = 0x87368
 };
 
 enum class ISolarInspectVTable
@@ -507,8 +507,8 @@ enum class ISolarInspectVTable
     ProcessPerishableCargo,
     ChooseSystemArrivalLocation,
     Size = ChooseSystemArrivalLocation,
-    Start = 0x6D6746C,
-    End = 0x6D676BC
+    Start = 0x8746C,
+    End = 0x876BC
 };
 
 enum class ILootInspectVTable
@@ -625,6 +625,6 @@ enum class ILootInspectVTable
     ApplyDamageEntry,
     CanDealDamage,
     Size = CanDealDamage,
-    Start = 0x6D67DF4,
-    End = 0x6D67FAC
+    Start = 0x87DF4,
+    End = 0x87FAC
 };
