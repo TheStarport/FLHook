@@ -586,6 +586,55 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
 
 void AccountManager::OnCreateNewCharacterCopy(PlayerData* data, SCreateCharacterInfo characterInfo) { OnCreateNewCharacter(data, nullptr, &characterInfo); }
 
+void UpdateCharacterCache(PlayerData* pd, CharacterData* cd)
+{
+    cd->money = pd->money;
+    cd->numOfKills = pd->numKills;
+    cd->numOfSuccessMissions = pd->numMissionSuccesses;
+    cd->numOfFailedMissions = pd->numMissionFailures;
+    cd->hullStatus = pd->relativeHealth;
+
+    cd->currentEquipAndCargo = pd->equipAndCargo.equip;
+    cd->currentCollisionGroups = pd->collisionGroupDesc;
+
+    cd->equipIdEnumerator.currSID = pd->lastEquipId;
+
+    cd->currentBase = pd->baseId;
+    cd->lastDockedBase = pd->lastBaseId;
+
+    cd->system = pd->systemId;
+    cd->pos = pd->position;
+    cd->rot = pd->orientation;
+
+    cd->voiceLen = pd->voiceLen;
+    strcpy(cd->voice, pd->voice);
+    
+    cd->interfaceState = pd->interfaceState;
+    cd->visits = pd->visitEntries;
+    cd->prefilledWeaponGroupIni = pd->weaponGroups;
+    cd->shipHash = pd->shipArchetype;
+    cd->currentRoom = pd->baseRoomId;
+    cd->logInfo = pd->neuralNetLog;
+    cd->startingRing = pd->unknownLocId;
+    cd->baseCostume = pd->baseCostume;
+    cd->commCostume = pd->commCostume;
+
+    uchar relationCount;
+    Reputation::Relation relation[256];
+    uint rank;
+    FmtStr fmtStr1;
+    FmtStr fmtStr2;
+    const unsigned short* name;
+    Reputation::Vibe::Get(pd->reputation, cd->affiliation, rank, relationCount, relation, fmtStr1, fmtStr2, name);
+    cd->rank = rank;
+
+    cd->repList.clear();
+    for (int i = 0; i < relationCount; i++)
+    {
+        cd->repList.push_back(relation[i]);
+    }
+}
+
 bool AccountManager::OnPlayerSave(PlayerData* pd)
 {
     auto& client = FLHook::GetClient(ClientId(pd->clientId));
@@ -593,6 +642,9 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     {
         return true;
     }
+
+    auto* characterData = *pd->characterMap.find(pd->charFile.charFilename);
+    UpdateCharacterCache(pd, &characterData->data);
 
     static DWORD contentModule = DWORD(GetModuleHandleA("content.dll")) + 0x130BBC;
     static FlMap<uint, MPlayerDataSaveStruct*>* mdataBST = (FlMap<uint, MPlayerDataSaveStruct*>*)contentModule;
@@ -837,7 +889,6 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     }
 
     // Update the character kept in the account cache.
-    auto* characterData = *pd->characterMap.find(pd->charFile.charFilename);
     ConvertCharacterToVanillaData(&characterData->data, character, pd->clientId);
 
     TaskScheduler::Schedule(std::bind(SaveCharacter, client.id, character, false));

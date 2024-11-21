@@ -111,7 +111,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
     CatchHook({})
 }
 
-void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientId client)
+void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientId client)   
 {
     Logger::Trace(std::format(L"CharacterSelect(\n\tClientId client = {}\n)", client));
 
@@ -123,12 +123,14 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
 
     CheckForDisconnect;
 
+    Logger::Trace(std::format(L"CharacterSelectInner(\n\tClientId client = {}\n)", client));
     if (const bool innerCheck = CharacterSelectInner(cid, client); !innerCheck)
     {
         return;
     }
     if (!skip)
     {
+        Logger::Trace(std::format(L"CharacterSelectInner2(\n\tClientId client = {}\n)", client));
         CallServerPreamble { Server.CharacterSelect(cid, client.GetValue()); }
         CallServerPostamble(true, );
     }
@@ -206,6 +208,11 @@ bool IServerImplHook::CharacterInfoReqInner(ClientId client, bool unk1)
 {
     TryHook
     {
+        if (Players[client.GetValue()].systemId)
+        {
+            pub::Save(client.GetValue(), 1);
+        }
+
         auto& info = client.GetData();
         if (info.charMenuEnterTime)
         {
@@ -219,6 +226,7 @@ bool IServerImplHook::CharacterInfoReqInner(ClientId client, bool unk1)
                 return false;
             }
         }
+
     }
     CatchHook({});
 
