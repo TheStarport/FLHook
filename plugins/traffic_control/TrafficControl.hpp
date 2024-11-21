@@ -4,6 +4,7 @@
 
 enum class Permissions
 {
+    None = 0,
     LaneNet = 1 << 0,
     GateNet = 1 << 1,
     NoDock = 1 << 2,
@@ -29,12 +30,12 @@ namespace Plugins
             struct NetworkData
             {
                     std::unordered_map<NetworkId, std::pair<Permissions, Network*>> availableNetworks;
-                    Network* activeNetwork;
-                    Permissions basePermissions;
-                    Permissions currPermissions;
+                    Network* activeNetwork = nullptr;
+                    Permissions basePermissions = Permissions::None;
+                    Permissions currPermissions = Permissions::None;
                     std::vector<std::wstring> scanCache;
-                    uint64 timestamp;
-                    uint64 nodockTimestamp;
+                    uint64 timestamp = 0;
+                    uint64 nodockTimestamp = 0;
             };
 
             struct Config final
