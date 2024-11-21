@@ -387,7 +387,10 @@ Action<void> ClientId::Kick(const std::optional<std::wstring_view>& reason, std:
     if (!delay.has_value())
     {
         CAccount* acc = Players.FindAccountFromClientID(value);
-        acc->ForceLogout();
+        if(acc)
+        {
+            acc->ForceLogout();
+        }
         return { {} };
     }
 

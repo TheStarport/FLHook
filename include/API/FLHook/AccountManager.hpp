@@ -115,6 +115,7 @@ class AccountManager
         inline static NewPlayerTemplate newPlayerTemplate;
 
         inline static std::array<AccountData, 256> accounts;
+        inline static std::unordered_set<std::string, StringHash> loggedInAccounts;
 
         enum class LoginReturnCode
         {

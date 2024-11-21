@@ -368,6 +368,16 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
         return LoginReturnCode::InvalidUsernamePassword;
     }
 
+    if(account.account.banned)
+    {
+        return LoginReturnCode::Banned;
+    }
+
+    if(loggedInAccounts.contains(account.account._id))
+    {
+        return LoginReturnCode::AlreadyLoggedIn;
+    }
+
     ClientId(clientId).GetData().account = &account.account;
 
     for (auto& character : account.characters)
@@ -404,6 +414,8 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
     wcscpy_s(data->accId, internalAccount.internalAccount->accId);
     data->clientId = clientId;
     data->exitedBase = 0;
+
+    loggedInAccounts.insert(account.account._id);
 
     return LoginReturnCode::Success;
 }
@@ -1054,5 +1066,6 @@ AccountManager::AccountManager()
 void AccountManager::ClearClientInfo(ClientId client)
 {
     auto& account = accounts.at(client.GetValue());
+    loggedInAccounts.erase(account.account._id);
     account.characters.clear();
 }

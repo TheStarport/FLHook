@@ -123,14 +123,12 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
 
     CheckForDisconnect;
 
-    Logger::Trace(std::format(L"CharacterSelectInner(\n\tClientId client = {}\n)", client));
     if (const bool innerCheck = CharacterSelectInner(cid, client); !innerCheck)
     {
         return;
     }
     if (!skip)
     {
-        Logger::Trace(std::format(L"CharacterSelectInner2(\n\tClientId client = {}\n)", client));
         CallServerPreamble { Server.CharacterSelect(cid, client.GetValue()); }
         CallServerPostamble(true, );
     }
