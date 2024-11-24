@@ -255,7 +255,7 @@ namespace Plugins
         if (totalDamageTaken < shipArch->hitPoints * 0.02 && (!killer || killer == victim))
         {
             ClearDamageTaken(victim);
-            ProcessDeath(victim, StringUtils::XmlText(msg), nullptr, system, false, involvedGroups, involvedPlayers);
+            ProcessDeath(victim, StringUtils::XmlText(msg), L"", system, false, involvedGroups, involvedPlayers);
             return;
         }
 

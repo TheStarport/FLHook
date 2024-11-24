@@ -4,10 +4,10 @@ struct ServerStats
 {
         struct Player
         {
-                std::wstring playerName;
-                std::wstring systemName;
-                std::wstring systemNick;
-                std::wstring ipAddress;
+                std::string playerName;
+                std::string systemName;
+                std::string systemNick;
+                std::string ipAddress;
                 uint clientId;
         };
 

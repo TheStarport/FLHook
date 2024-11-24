@@ -31,10 +31,10 @@ void MessageHandler::PublishServerStats()
 
         ServerStats::Player player;
         player.clientId = client.id.GetValue();
-        player.playerName = client.characterName;
-        player.systemName = system.GetValue() ? system.GetName().Unwrap() : L"";
-        player.systemNick = system.GetValue() ? system.GetNickName().Unwrap() : L"";
-        player.ipAddress = client.id.GetPlayerIp().Unwrap();
+        player.playerName = StringUtils::wstos(client.characterName);
+        player.systemName = system.GetValue() ? StringUtils::wstos(system.GetName().Unwrap()) : "";
+        player.systemNick = system.GetValue() ? StringUtils::wstos(system.GetNickName().Unwrap()) : "";
+        player.ipAddress = StringUtils::wstos(client.id.GetPlayerIp().Unwrap());
 
         stats.players.emplace_back(player);
     }

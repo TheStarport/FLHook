@@ -658,6 +658,13 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     auto* characterData = *pd->characterMap.find(pd->charFile.charFilename);
     UpdateCharacterCache(pd, &characterData->data);
 
+    auto playerMapCache = pd->characterMap.find(client.playerData->charFile);
+    if (playerMapCache == pd->characterMap.end())
+    {
+        Logger::Err(std::format(L"Fetching Base Status failed for {}", client.characterName));
+        return true;
+    }
+
     static DWORD contentModule = DWORD(GetModuleHandleA("content.dll")) + 0x130BBC;
     static FlMap<uint, MPlayerDataSaveStruct*>* mdataBST = (FlMap<uint, MPlayerDataSaveStruct*>*)contentModule;
 
@@ -843,62 +850,64 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         }
     }
 
+    for (const auto& equip : playerMapCache.value()->baseEquipAndCargo)
+    {
+        Equipment equipment = {};
+        FLCargo cargo = {};
+
+        bool isCommodity = false;
+        pub::IsCommodity(equip.archId, isCommodity);
+        if (!isCommodity)
+        {
+            equipment.archId = equip.archId;
+            equipment.hardPoint = equip.hardPoint.value;
+            equipment.health = equip.health;
+            equipment.amount = equip.count;
+            equipment.mounted = equip.mounted;
+            character.baseEquipment.emplace_back(equipment);
+        }
+        else
+        {
+            cargo.archId = equip.archId;
+            cargo.health = equip.health;
+            cargo.isMissionCargo = equip.mission;
+            cargo.amount = equip.count;
+            character.baseCargo.emplace_back(cargo);
+        }
+    }
+
     for (const auto& col : pd->collisionGroupDesc)
     {
         character.collisionGroups.insert({ std::to_string(col.id), col.health });
     }
+    for(auto& col : playerMapCache.value()->baseCollisionGroups)
+    {
+        character.baseCollisionGroups.insert({std::to_string(col.id), col.health});
+    }
+
+    Logger::Warn(std::format(L"eq1 {}", character.equipment.size()));
+    Logger::Warn(std::format(L"eq11 {}", character.baseEquipment.size()));
 
     if (character.currentBase)
     {
         character.baseCargo = character.cargo;
         character.baseEquipment = character.equipment;
         character.baseHullStatus = character.hullStatus;
+    Logger::Warn(std::format(L"eq2 {}", character.equipment.size()));
+    Logger::Warn(std::format(L"eq22 {}", character.baseEquipment.size()));
     }
-    else
+    else if (character.hullStatus == 0.0f)
     {
-        std::string charName = StringUtils::wstos(client.characterName.data());
-
-        char fileName[50];
-        getFlName(fileName, client.characterName.data());
-
-        auto currPlayer = pd->characterMap.find(CHARACTER_ID(fileName));
-        if (currPlayer == pd->characterMap.end())
-        {
-            Logger::Err(std::format(L"Fetching Base Status failed for {}", client.characterName));
-            return true;
-        }
-
-        character.baseHullStatus = currPlayer.value()->baseHullStatus;
-        for (const auto& col : currPlayer.value()->baseCollisionGroups)
-        {
-            character.baseCollisionGroups.insert({ std::to_string(col.id), col.health });
-        }
-        for (const auto& equip : currPlayer.value()->baseEquipAndCargo)
-        {
-            Equipment equipment = {};
-            FLCargo cargo = {};
-
-            bool isCommodity = false;
-            pub::IsCommodity(equip.archId, isCommodity);
-            if (!isCommodity)
-            {
-                equipment.archId = equip.archId;
-                equipment.hardPoint = equip.hardPoint.value;
-                equipment.health = equip.health;
-                equipment.amount = equip.count;
-                equipment.mounted = equip.mounted;
-                character.baseEquipment.emplace_back(equipment);
-            }
-            else
-            {
-                cargo.archId = equip.archId;
-                cargo.health = equip.health;
-                cargo.isMissionCargo = equip.mission;
-                cargo.amount = equip.count;
-                character.baseCargo.emplace_back(cargo);
-            }
-        }
+        character.currentBase = character.lastDockedBase;
+        //TODO: customizable cargo loss on death
+        character.cargo = character.baseCargo;
+        character.equipment = character.baseEquipment;
+        character.hullStatus = character.baseHullStatus;
+        character.collisionGroups = character.baseCollisionGroups;
+        Logger::Warn(std::format(L"eq3 {}", character.equipment.size()));
+        Logger::Warn(std::format(L"eq33 {}", character.baseEquipment.size()));
     }
+
 
     // Update the character kept in the account cache.
     ConvertCharacterToVanillaData(&characterData->data, character, pd->clientId);
