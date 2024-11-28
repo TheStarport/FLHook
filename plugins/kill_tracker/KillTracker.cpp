@@ -88,7 +88,7 @@ namespace Plugins
         MSGDARKRED
     };
 
-    MessageType GetMessageType(const ClientId victimId, const PlayerData* pd, const SystemId system, bool isGroupInvolved)
+    MessageType GetMessageType(const ClientId victimId, const ClientId& recevingClient, const SystemId system, bool isGroupInvolved)
     {
         const auto dieMsgType = victimId.GetData().dieMsg;
         if (dieMsgType == DieMsgType::None)
@@ -103,29 +103,29 @@ namespace Plugins
 
         if (dieMsgType == DieMsgType::Self)
         {
-            if (pd->clientId == victimId.GetValue())
+            if (recevingClient.GetValue() == victimId.GetValue())
             {
                 return MSGBLUE;
             }
         }
         else if (dieMsgType == DieMsgType::System)
         {
-            if (pd->clientId == victimId.GetValue())
+            if (recevingClient.GetValue() == victimId.GetValue())
             {
                 return MSGBLUE;
             }
-            if (pd->systemId == system.GetValue())
+            if (recevingClient.GetSystemId().Handle().GetValue() == system.GetValue())
             {
                 return MSGRED;
             }
         }
         else if (dieMsgType == DieMsgType::All)
         {
-            if (pd->clientId == victimId.GetValue())
+            if (recevingClient.GetValue() == victimId.GetValue())
             {
                 return MSGBLUE;
             }
-            if (pd->systemId == system.GetValue())
+            if (recevingClient.GetSystemId().Handle().GetValue() == system.GetValue())
             {
                 return MSGRED;
             }
@@ -135,7 +135,7 @@ namespace Plugins
     }
 
     void ProcessDeath(ClientId victimId, const std::wstring_view message1, const std::wstring_view message2, const SystemId system, bool isPvP,
-                      const std::set<CPlayerGroup*>& involvedGroups, const std::set<ClientId>& involvedPlayers)
+                      const std::set<uint>& involvedGroups, const std::set<ClientId>& involvedPlayers)
     {
         const std::wstring deathMessageBlue1 = std::format(L"<TRA data=\"0xFF000001" // Blue, Bold
                                                            L"\" mask=\"-1\"/><TEXT>{}</TEXT>",
@@ -160,41 +160,41 @@ namespace Plugins
                                             message2);
         }
 
-        PlayerData* pd = nullptr;
-        while (pd = Players.traverse_active(pd))
+        for(const auto& clientData : FLHook::Clients())
         {
-            const bool isInvolved = involvedGroups.contains(pd->playerGroup) || involvedPlayers.contains(ClientId(pd->clientId));
+            const auto client = clientData.id;
+            const bool isInvolved = involvedGroups.contains(client.GetGroup().Handle().GetValue()) || involvedPlayers.contains(client);
 
-            if (const MessageType msgType = GetMessageType(victimId, pd, system, isInvolved); msgType == MSGBLUE)
+            if (const MessageType msgType = GetMessageType(victimId, client, system, isInvolved); msgType == MSGBLUE)
             {
                 if (isPvP)
                 {
-                    (void)ClientId(pd->clientId).MessageCustomXml(deathMessageBlue1);
+                    (void)client.MessageCustomXml(deathMessageBlue1);
                     if (!message2.empty())
                     {
-                        (void)ClientId(pd->clientId).MessageCustomXml(deathMessageBlue2);
+                        (void)client.MessageCustomXml(deathMessageBlue2);
                     }
                 }
                 else
                 {
-                    (void)ClientId(pd->clientId).MessageCustomXml(deathMessageRed1);
+                    (void)client.MessageCustomXml(deathMessageRed1);
                     if (!message2.empty())
                     {
-                        (void)ClientId(pd->clientId).MessageCustomXml(deathMessageRed2);
+                        (void)client.MessageCustomXml(deathMessageRed2);
                     }
                 }
             }
             else if (msgType == MSGRED)
             {
-                (void)ClientId(pd->clientId).MessageCustomXml(deathMessageRed1);
+                (void)client.MessageCustomXml(deathMessageRed1);
                 if (!message2.empty())
                 {
-                    (void)ClientId(pd->clientId).MessageCustomXml(deathMessageRed2);
+                    (void)client.MessageCustomXml(deathMessageRed2);
                 }
             }
             else if (msgType == MSGDARKRED)
             {
-                (void)ClientId(pd->clientId).MessageCustomXml(deathMessageDarkRed);
+                (void)client.MessageCustomXml(deathMessageDarkRed);
             }
         }
     }
@@ -218,30 +218,30 @@ namespace Plugins
         returnCode = ReturnCode::SkipAll;
 
         std::map<float, ClientId> damageToInflictorMap; // damage is the key instead of value because keys are sorted, used to render top contributors in order
-        std::set<CPlayerGroup*> involvedGroups;
+        std::set<uint> involvedGroups;
         std::set<ClientId> involvedPlayers;
 
         float totalDamageTaken = 0.0f;
-        PlayerData* pd = nullptr;
-        while (pd = Players.traverse_active(pd))
+        for(const auto& clientData : FLHook::Clients())
         {
-            auto& damageData = damageArray[victim.GetValue()][pd->clientId];
+            const auto client = clientData.id;
+            auto& damageData = damageArray[victim.GetValue()][client.GetValue()];
             float damageToAdd = GetDamageDone(damageData);
 
-            if (pd->playerGroup && (pd->clientId == victim.GetValue() || damageToAdd > 0.0f))
+            if (const auto playerGroup = client.GetGroup().Unwrap(); playerGroup && (client.GetValue() == victim.GetValue() || damageToAdd > 0.0f))
             {
-                involvedGroups.insert(pd->playerGroup);
+                involvedGroups.insert(playerGroup.GetValue());
             }
             else if (damageToAdd > 0.0f)
             {
-                involvedPlayers.insert(ClientId(pd->clientId));
+                involvedPlayers.insert(client);
             }
             if (damageToAdd == 0.0f)
             {
                 continue;
             }
 
-            damageToInflictorMap[damageToAdd] = ClientId(pd->clientId);
+            damageToInflictorMap[damageToAdd] = client;
             totalDamageTaken += damageToAdd;
         }
 
@@ -268,7 +268,7 @@ namespace Plugins
 
         for (auto i = damageToInflictorMap.rbegin(); i != damageToInflictorMap.rend(); ++i) // top values at the end
         {
-            if (i == damageToInflictorMap.rend() || killerCounter >= config.numberOfListedKillers)
+            if (killerCounter >= config.numberOfListedKillers)
             {
                 break;
             }
