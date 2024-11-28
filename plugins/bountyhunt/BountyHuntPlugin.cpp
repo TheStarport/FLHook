@@ -157,7 +157,7 @@ namespace Plugins
     /** @ingroup BountyHunt
      * @brief Hook for SendDeathMsg to call BillCheck
      */
-    void BountyHuntPlugin::OnSendDeathMessageAfter(const ClientId killer, const ClientId victim, const SystemId system, std::wstring_view msg)
+    void BountyHuntPlugin::OnSendDeathMessageAfter(ClientId& killer, const ClientId victim, const SystemId system, std::wstring_view msg)
     {
         BillCheck(victim, killer);
     }

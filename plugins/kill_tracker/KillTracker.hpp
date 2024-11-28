@@ -32,7 +32,7 @@ namespace Plugins
             void OnShipHullDmg(Ship* ship, float& damage, DamageList* dmgList) override;
             static float GetDamageDone(const DamageDone& damageDone);
             std::wstring SelectRandomDeathMessage(ClientId client);
-            void OnSendDeathMessage(ClientId killer, ClientId victim, SystemId system, std::wstring_view msg) override;
+            void OnSendDeathMessage(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg) override;
             void OnPlayerLaunchAfter(ClientId client, const ShipId& ship) override;
 
         public:

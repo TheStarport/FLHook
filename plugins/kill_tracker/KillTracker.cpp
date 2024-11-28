@@ -213,7 +213,7 @@ namespace Plugins
         }
     }
 
-    void KillTrackerPlugin::OnSendDeathMessage(ClientId killer, ClientId victim, SystemId system, std::wstring_view msg)
+    void KillTrackerPlugin::OnSendDeathMessage(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg)
     {
         returnCode = ReturnCode::SkipAll;
 

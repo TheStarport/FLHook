@@ -82,7 +82,7 @@ namespace Plugins
             void OnDisconnect(ClientId client, EFLConnection connection) override;
             void OnDockCallAfter(const ShipId& shipId, const ObjectId& spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response) override;
             void OnCharacterInfoRequestAfter(ClientId client, bool unk1) override;
-            void OnSendDeathMessageAfter(ClientId killer, ClientId victim, SystemId system, std::wstring_view msg) override;
+            void OnSendDeathMessageAfter(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg) override;
 
         public:
             explicit BettingPlugin(const PluginInfo& info);

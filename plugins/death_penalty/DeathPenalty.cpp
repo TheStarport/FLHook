@@ -134,6 +134,13 @@ namespace Plugins
     {
         document.append(bsoncxx::builder::basic::kvp("deathPenaltyDisplay", ClientInfo[client].displayDPOnLaunch));
     }
+    void DeathPenaltyPlugin::OnSendDeathMessageAfter(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg)
+    {
+        if(victim && (config.penalizePvpOnly || killer))
+        {
+            PenalizeDeath(victim, killer);
+        }
+    }
 
     /** @ingroup DeathPenalty
      * @brief Apply the death penalty on a player death
@@ -146,59 +153,41 @@ namespace Plugins
         }
 
         // Valid client and the ShipArch or System isnt in the excluded list?
-        if (!IsInExcludedSystem(client))
+        if (IsInExcludedSystem(client))
         {
-            // Get the players cash
-            const auto cash = client.GetCash().Handle();
+            return;
+        }
+        // Get the players cash
+        const auto cash = client.GetCash().Handle();
 
-            // Get how much the player owes
-            uint cashOwed = ClientInfo[client].deathPenaltyCredits;
+        // Get how much the player owes
+        uint cashOwed = ClientInfo[client].deathPenaltyCredits;
 
-            // If the amount the player owes is more than they have, set the
-            // amount to their total cash
-            if (cashOwed > cash)
+        // If the amount the player owes is more than they have, set the
+        // amount to their total cash
+        if (cashOwed > cash)
+        {
+            cashOwed = cash;
+        }
+
+        // If another player has killed the player
+        if (killerId && killerId != client && config.DeathPenaltyFractionKiller > 0.0f)
+        {
+            if (const auto killerReward = static_cast<uint>(static_cast<float>(cashOwed) * config.DeathPenaltyFractionKiller))
             {
-                cashOwed = cash;
-            }
-
-            // If another player has killed the player
-            if (killerId != client && config.DeathPenaltyFractionKiller > 0.0f)
-            {
-                if (const auto killerReward = static_cast<uint>(static_cast<float>(cashOwed) * config.DeathPenaltyFractionKiller))
-                {
-                    // Reward the killer, print message to them
-                    (void)killerId.AddCash(killerReward);
-                    killerId.Message(std::format(L"Death penalty: given {} credits from {}'s death penalty.",
-                                                 StringUtils::ToMoneyStr(killerReward),
-                                                 client.GetCharacterName().Handle()));
-                }
-            }
-
-            if (cashOwed)
-            {
-                // Print message to the player and remove cash
-                (void)client.Message(L"Death penalty: charged " + StringUtils::ToMoneyStr(cashOwed) + L" credits.");
-                (void)client.RemoveCash(cashOwed);
+                // Reward the killer, print message to them
+                (void)killerId.AddCash(killerReward);
+                killerId.Message(std::format(L"Death penalty: given {} credits from {}'s death penalty.",
+                                             StringUtils::ToMoneyStr(killerReward),
+                                             client.GetCharacterName().Handle()));
             }
         }
-    }
 
-    /** @ingroup DeathPenalty
-     * @brief Hook on ShipDestroyed to kick off PenalizeDeath
-     */
-    void DeathPenaltyPlugin::OnShipDestroy(Ship* ship, DamageList* dmgList, ShipId killerId)
-    {
-        // Get client
-        const CShip* cShip = ship->cship();
-
-        // Get Killer Id if there is one
-        if (const auto client = ClientId(cShip->GetOwnerPlayer()))
+        if (cashOwed)
         {
-            if (dmgList->inflictorPlayerId)
-            {
-                // Call function to penalize player and reward killer
-                PenalizeDeath(client, ClientId(dmgList->inflictorPlayerId));
-            }
+            // Print message to the player and remove cash
+            (void)client.Message(L"Death penalty: charged " + StringUtils::ToMoneyStr(cashOwed) + L" credits.");
+            (void)client.RemoveCash(cashOwed);
         }
     }
 

@@ -392,7 +392,7 @@ namespace Plugins
     /** @ingroup Betting
      * @brief Hook for death to kick player out of duel
      */
-    void BettingPlugin::OnSendDeathMessageAfter(const ClientId killer, const ClientId victim, SystemId system, std::wstring_view msg)
+    void BettingPlugin::OnSendDeathMessageAfter(ClientId& killer, const ClientId victim, SystemId system, std::wstring_view msg)
     {
         ProcessDuel(victim);
         ProcessFFA(victim);

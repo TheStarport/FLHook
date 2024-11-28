@@ -23,6 +23,8 @@ namespace Plugins
                     float DeathPenaltyFractionKiller = 0.0f;
                     //! List of system where death penalty/kill reward is disabled in.
                     std::unordered_set<SystemId> ExcludedSystems = {};
+                    //! Only penalize players that died after sustaining damage from a player
+                    bool penalizePvpOnly = true;
                     //! Map of ship archetypes to a penalty multiplier.
                     //! For example, {li_elite, 2} causes Defenders to lose twice the amount compared to unlisted ships on death.
                     std::unordered_map<EquipmentId, float> FractionOverridesByShip = {};
@@ -41,7 +43,7 @@ namespace Plugins
             void OnPlayerLaunchAfter(ClientId client, const ShipId& ship) override;
             void OnCharacterSelectAfter(ClientId client) override;
             void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
-            void OnShipDestroy(Ship* ship, DamageList* dmgList, ShipId killerId) override;
+            void OnSendDeathMessageAfter(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg) override;
             void KillIfInJumpTunnel(ClientId client);
             void OnDisconnect(ClientId client, EFLConnection connection) override;
             void OnJumpInComplete(SystemId system, const ShipId& ship) override;

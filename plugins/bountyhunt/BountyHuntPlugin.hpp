@@ -76,7 +76,7 @@ namespace Plugins
             SetupUserCommandHandler(BountyHuntPlugin, commands);
 
             // Hook Functions
-            void OnSendDeathMessageAfter(ClientId killer, ClientId victim, SystemId system, std::wstring_view msg) override;
+            void OnSendDeathMessageAfter(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg) override;
             void OnDisconnect(ClientId client, EFLConnection connection) override;
             void OnCharacterSelectAfter(ClientId client) override;
             bool OnLoadSettings() override;

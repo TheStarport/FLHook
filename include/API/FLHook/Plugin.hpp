@@ -196,7 +196,7 @@ class DLL Plugin
         Aft(void, OnAddDamageEntry, (DamageList * dmg, ushort subObjId, float newHitPts, DamageEntry::SubObjFate fate));
         virtual void OnDamageHit(ClientId hitClient, const ObjectId& spaceId) {}
         Aft(bool, OnAllowPlayerDamage, (ClientId client, ClientId target));
-        Aft(void, OnSendDeathMessage, (ClientId killer, ClientId victim, SystemId system, std::wstring_view msg));
+        Aft(void, OnSendDeathMessage, (ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg));
         virtual bool OnLoadSettings() { return true; }
         virtual void OnClearClientInfo(ClientId client) {}
         virtual void OnSendChat(ClientId client, ClientId targetClient, const uint size, void* rdl) {}
