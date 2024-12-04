@@ -3,10 +3,27 @@ cmake_minimum_required(VERSION 3.20)
 project("${PROJECT_NAME}" LANGUAGES CXX VERSION 5.0.0)
 message(STATUS "Detected compiler: ${CMAKE_CXX_COMPILER}")
 
+if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
+    add_compile_definitions("WINAPI_FAMILY=100")
+    if (NOT DEFINED ENV{MSVC})
+        message(FATAL_ERROR "MSVC env was not found and running on Linux")
+    endif ()
+
+    if (NOT DEFINED ENV{INCLUDE})
+        message(FATAL_ERROR "'INCLUDE' env not found. Have you run 'source $ENV{MSVC}/bin/x86/msvcenv.sh' ?")
+    endif ()
+
+    string(REPLACE "z:\\" "/" MSVC_INCLUDE "$ENV{INCLUDE}")
+    string(REPLACE "\\" "/" MSVC_INCLUDE "${MSVC_INCLUDE}")
+    string(REPLACE ";" " " MSVC_INCLUDE "${MSVC_INCLUDE}")
+    separate_arguments(MSVC_INCLUDE)
+    include_directories(${MSVC_INCLUDE})
+endif ()
+
 # Starting variables / paths
 set(ROOT_PROJECT_NAME "FLHook")
 set(PROJECT_NAME ${ROOT_PROJECT_NAME})
-set(SOURCE_PATH "${PROJECT_SOURCE_DIR}/source" )
+set(SOURCE_PATH "${PROJECT_SOURCE_DIR}/source")
 set(INCLUDE_PATH "${PROJECT_SOURCE_DIR}/include")
 set(SDK_PATH "${PROJECT_SOURCE_DIR}/vendor/FLHookSDK")
 set(VENDOR "${PROJECT_SOURCE_DIR}/vendor")
@@ -15,7 +32,7 @@ set(PROJECT_OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin)
 set(PLUGIN_OUTPUT_DIR ${PROJECT_OUTPUT_DIR}/plugins)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /cgthreads8")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /cgthreads8")
 
 # Load cache variables from
 include("LoadConf.cmake")
@@ -62,39 +79,41 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 macro(SET_POST_BUILD CUR_TARGET)
-    find_package(Python3 COMPONENTS Interpreter)
-    if (${Python3_FOUND} STREQUAL "TRUE" AND ${Python3_Interpreter_FOUND} STREQUAL "TRUE")
-        message(STATUS "Adding post build step")
-        add_custom_command(TARGET ${CUR_TARGET} POST_BUILD
-            COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/post_build.py
-                -o "${PROJECT_OUTPUT_DIR}" -d "${BINARY_COPY_DESTINATION}"
-        )
-    else()
-        message(STATUS "Python3 interpreter not found. Not adding post build step.")
-    endif()
+    if (NOT DEFINED NO_POST_BUILD)
+        find_package(Python3 COMPONENTS Interpreter)
+        if (${Python3_FOUND} STREQUAL "TRUE" AND ${Python3_Interpreter_FOUND} STREQUAL "TRUE")
+            message(STATUS "Adding post build step")
+            add_custom_command(TARGET ${CUR_TARGET} POST_BUILD
+                    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/post_build.py
+                    -o "${PROJECT_OUTPUT_DIR}" -d "${BINARY_COPY_DESTINATION}"
+            )
+        else ()
+            message(STATUS "Python3 interpreter not found. Not adding post build step.")
+        endif ()
+    endif ()
 endmacro()
 
 set_post_build(${PROJECT_NAME})
 
 # Load plugins
 file(GLOB PLUGIN_DIRECTORIES LIST_DIRECTORIES TRUE ${PROJECT_SOURCE_DIR}/plugins/*)
-foreach(PLUGIN_DIR ${PLUGIN_DIRECTORIES})
+foreach (PLUGIN_DIR ${PLUGIN_DIRECTORIES})
     if (NOT IS_DIRECTORY ${PLUGIN_DIR})
         continue()
-    endif()
+    endif ()
 
     if (${PLUGIN_DIR} MATCHES ".*/_examples" AND COMPILE_EXAMPLES)
         file(GLOB DIRS LIST_DIRECTORIES TRUE ${PLUGIN_DIR}/*)
-        foreach(M_DIR ${DIRS})
+        foreach (M_DIR ${DIRS})
             if (NOT IS_DIRECTORY ${M_DIR})
                 continue()
-            endif()
+            endif ()
 
-            if(EXISTS ${M_DIR}/CMakeLists.txt)
+            if (EXISTS ${M_DIR}/CMakeLists.txt)
                 add_subdirectory(${M_DIR})
-            endif()
-        endforeach()
-    elseif(EXISTS ${PLUGIN_DIR}/CMakeLists.txt AND COMPILE_PLUGINS)
+            endif ()
+        endforeach ()
+    elseif (EXISTS ${PLUGIN_DIR}/CMakeLists.txt AND COMPILE_PLUGINS)
         add_subdirectory(${PLUGIN_DIR})
-    endif()
-endforeach()
+    endif ()
+endforeach ()

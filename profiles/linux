@@ -1,0 +1,19 @@
+[settings]
+os=Windows
+arch=x86
+compiler=clang
+compiler.version=19
+compiler.runtime=dynamic
+compiler.cppstd=20
+
+[buildenv]
+CC=clang-cl
+CXX=clang-cl
+LD=lld-link
+RC=llvm-rc
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja
+tools.build:compiler_executables={'cpp': 'clang-cl'}
+tools.build:cxxflags=['-m32']
+tools.build:cflags=['-m32']

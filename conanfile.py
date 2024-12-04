@@ -13,6 +13,7 @@ class CompressorRecipe(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.user_presets_path = 'ConanPresets.json'
+        tc.generator = 'Ninja'
         tc.cache_variables["CMAKE_MSVC_DEBUG_INFORMATION_FORMAT"] = "Embedded"
         tc.generate()
 
