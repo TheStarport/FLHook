@@ -14,7 +14,8 @@
             "displayName": "Debug",
             "inherits": "conan-debug",
             "cacheVariables": {
-                "BUILD_SAMPLES": true
+                "COMPILE_PLUGINS": true,
+                "COMPILE_EXAMPLES": true
             }
         },
         {
@@ -22,8 +23,8 @@
             "displayName": "Release",
             "inherits": "conan-release",
             "cacheVariables": {
-                "BUILD_SAMPLES": true,
-                "CMAKE_BUILD_TYPE": "Release"
+                "COMPILE_PLUGINS": true,
+                "COMPILE_EXAMPLES": true
             }
         }
     ],

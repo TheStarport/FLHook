@@ -19,8 +19,6 @@ class CompressorRecipe(ConanFile):
 
         for dep in self.dependencies.values():
             if len(dep.cpp_info.bindirs) > 0:
-                print(dep.cpp_info.bindirs)
-                print(f"Copying binaries from {dep.cpp_info.bindirs[0]}")
                 copy(self, "*.dll", src=dep.cpp_info.bindirs[0], dst=os.path.join(self.source_folder, "build/bin"),
                      keep_path=False)
 
@@ -47,21 +45,10 @@ class CompressorRecipe(ConanFile):
         self.tool_requires("cmake/3.22.6")
 
     def layout(self):
-        multi = platform.system() == "Windows"
-        if multi:
-            self.folders.generators = os.path.join("build", "generators")
-            self.folders.build = "build"
-        else:
-            self.folders.generators = os.path.join("build", str(self.settings.build_type), "generators")
-            self.folders.build = os.path.join("build", str(self.settings.build_type))
+        self.folders.generators = os.path.join("build", str(self.settings.build_type), "generators")
+        self.folders.build = os.path.join("build", str(self.settings.build_type))
 
     def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-
-    def package(self):
-        cmake = CMake(self)
-        cmake.install()
-
-        copy(self, "*.dll", src=os.path.join(self.build_folder), dst=self.package_folder)
