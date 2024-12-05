@@ -69,6 +69,10 @@ struct PluginInfo
 #ifdef FLHOOK
 class PluginManager;
 class IServerImplHook;
+class IEngineHook;
+class AdminCommandProcessor;
+class AccountManager;
+class FLHook;
 #endif
 
 class DLL Plugin
@@ -77,6 +81,10 @@ class DLL Plugin
 #ifdef FLHOOK
         friend IServerImplHook;
         friend PluginManager;
+        friend AdminCommandProcessor;
+        friend AccountManager;
+        friend IEngineHook;
+        friend FLHook;
 #endif
 
         PluginMajorVersion versionMajor = PluginMajorVersion::Undefined;
@@ -164,6 +172,8 @@ class DLL Plugin
         {
             return shortName;
         }
+
+    protected:
 
         // Define a macro that specifies a hook has an 'after' event
 #define Aft(type, name, params)                 \

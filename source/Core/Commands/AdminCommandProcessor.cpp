@@ -470,8 +470,32 @@ Task AdminCommandProcessor::UnloadPlugin(ClientId client, std::vector<std::wstri
 
 Task AdminCommandProcessor::ReloadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames)
 {
+    std::vector<std::wstring> pluginFileNames;
+    for (auto& pluginName : pluginNames)
+    {
+        const auto plugin = PluginManager::i()->GetPlugin(pluginName);
+        if (!plugin)
+        {
+            continue;
+        }
+
+        std::array<wchar_t, MAX_PATH> path{};
+        const auto size = GetModuleFileNameW(plugin->lock()->dll, path.data(), MAX_PATH);
+        if (!size)
+        {
+            continue;
+        }
+
+        std::wstring dllName{path.data(), size };
+        pluginFileNames.emplace_back(dllName.substr(dllName.find_last_of('\\') + 1));
+    }
+
     UnloadPlugin(client, pluginNames);
-    LoadPlugin(client, pluginNames);
+
+    std::vector<std::wstring_view> pluginPaths;
+    std::ranges::transform(pluginFileNames, std::back_inserter(pluginPaths), [](const std::wstring_view pluginPath) { return pluginPath; });
+
+    LoadPlugin(client, pluginPaths);
 
     co_return TaskStatus::Finished;
 }
