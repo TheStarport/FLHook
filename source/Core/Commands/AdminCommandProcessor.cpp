@@ -320,7 +320,7 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
 
     auto character = StringUtils::wstos(target);
     std::vector<std::string> stringRoles;
-    std::ranges::transform(roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::wstos(role); });
+    std::ranges::transform(roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::ToLower(StringUtils::wstos(role)); });
 
     co_yield TaskStatus::DatabaseAwait;
 
@@ -332,7 +332,7 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
     auto accountCollection = dbClient->database(config->database.dbName).collection(config->database.accountsCollection);
     auto charactersCollection = dbClient->database(config->database.dbName).collection(config->database.charactersCollection);
 
-    const auto findCharacterDoc = make_document(kvp("characterName", StringUtils::wstos(target)));
+    const auto findCharacterDoc = make_document(kvp("characterName", character));
 
     const auto characterResult = charactersCollection.find_one(findCharacterDoc.view());
     if (!characterResult.has_value())
@@ -343,9 +343,9 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
     }
 
     bsoncxx::builder::basic::array roleArray;
-    for (auto role : roles)
+    for (auto role : stringRoles)
     {
-        roleArray.append(StringUtils::wstos(role));
+        roleArray.append(role);
     }
 
     const auto findAccountDoc = make_document(kvp("_id", characterResult->find("accountId")->get_string()));
@@ -359,7 +359,7 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
 
     co_yield TaskStatus::FLHookAwait;
 
-    client.Message(L"Successfully added role(s) to character");
+    client.Message(L"Successfully added role(s) to the account");
     co_return TaskStatus::Finished;
 }
 
