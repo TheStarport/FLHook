@@ -294,65 +294,6 @@ Task AdminCommandProcessor::GetPlayerInfo(ClientId client, const ClientId target
     co_return TaskStatus::Finished;
 }
 
-bool AddRole(std::string characterName, std::vector<std::string> roles, std::shared_ptr<void> taskData)
-{
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_document;
-
-    const auto responseMessage = std::static_pointer_cast<std::wstring>(taskData);
-
-    const auto config = FLHook::GetConfig();
-    const auto dbClient = FLHook::GetDbClient();
-    auto accountCollection = dbClient->database(config->database.dbName).collection(config->database.accountsCollection);
-    auto charactersCollection = dbClient->database(config->database.dbName).collection(config->database.charactersCollection);
-
-    const auto findCharacterDoc = make_document(kvp("characterName", characterName));
-
-    const auto characterResult = charactersCollection.find_one(findCharacterDoc.view());
-    if (!characterResult.has_value())
-    {
-        responseMessage->assign(L"ERR: Provided character name not found");
-        return true;
-    }
-
-    bsoncxx::builder::basic::array roleArray;
-    for (auto& role : roles)
-    {
-        roleArray.append(role);
-    }
-
-    const auto findAccountDoc = make_document(kvp("_id", characterResult->find("accountId")->get_string()));
-    const auto updateAccountDoc = make_document(kvp("$addToSet", make_document(kvp("gameRoles", make_document(kvp("$each", roleArray.view()))))));
-    if (const auto updateResponse = accountCollection.update_one(findAccountDoc.view(), updateAccountDoc.view()); updateResponse->modified_count() != 1)
-    {
-        responseMessage->assign(L"ERR: Unable to add any role. Account was either invalid or already contained role(s).");
-        return true;
-    }
-
-    responseMessage->assign(L"Successfully added role(s) to character");
-    return true;
-}
-
-void AddRoleCallback(std::wstring currentUser, std::shared_ptr<void> taskData)
-{
-    const auto responseMessage = std::wstring_view(std::static_pointer_cast<std::wstring>(taskData)->data());
-    const bool isErr = responseMessage.starts_with(L"ERR: ");
-    if (currentUser == ConsoleName)
-    {
-        isErr ? Logger::Err(responseMessage.substr(5)) : Logger::Info(responseMessage);
-        return;
-    }
-
-    for (ClientData& client : FLHook::Clients())
-    {
-        if (currentUser == client.characterName)
-        {
-            (void)client.id.Message(responseMessage);
-            return;
-        }
-    }
-}
-
 Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view target, std::vector<std::wstring_view> roles)
 {
     if (target.empty())
@@ -367,12 +308,12 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
         co_return TaskStatus::Finished;
     }
 
-    for (const ClientData& client : FLHook::Clients())
+    for (const ClientData& otherClient : FLHook::Clients())
     {
         // They are online
-        if (target == client.characterName)
+        if (otherClient.id != client && target == otherClient.characterName)
         {
-            (void)client.id.Kick();
+            (void)otherClient.id.Kick();
             break;
         }
     }
@@ -381,17 +322,51 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
     std::vector<std::string> stringRoles;
     std::ranges::transform(roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::wstos(role); });
 
-    TaskScheduler::ScheduleWithCallback<std::wstring>(std::bind(AddRole, character, stringRoles, std::placeholders::_1),
-                                                      std::bind(AddRoleCallback, std::wstring(client.GetCharacterName().Handle()), std::placeholders::_1));
+    co_yield TaskStatus::DatabaseAwait;
 
-    client.Message(L"OK");
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
+
+    const auto config = FLHook::GetConfig();
+    const auto dbClient = FLHook::GetDbClient();
+    auto accountCollection = dbClient->database(config->database.dbName).collection(config->database.accountsCollection);
+    auto charactersCollection = dbClient->database(config->database.dbName).collection(config->database.charactersCollection);
+
+    const auto findCharacterDoc = make_document(kvp("characterName", StringUtils::wstos(target)));
+
+    const auto characterResult = charactersCollection.find_one(findCharacterDoc.view());
+    if (!characterResult.has_value())
+    {
+        co_yield TaskStatus::FLHookAwait;
+        client.Message(L"ERR: Provided character name not found");
+        co_return TaskStatus::Finished;
+    }
+
+    bsoncxx::builder::basic::array roleArray;
+    for (auto role : roles)
+    {
+        roleArray.append(StringUtils::wstos(role));
+    }
+
+    const auto findAccountDoc = make_document(kvp("_id", characterResult->find("accountId")->get_string()));
+    const auto updateAccountDoc = make_document(kvp("$addToSet", make_document(kvp("gameRoles", make_document(kvp("$each", roleArray.view()))))));
+    if (const auto updateResponse = accountCollection.update_one(findAccountDoc.view(), updateAccountDoc.view()); updateResponse->modified_count() != 1)
+    {
+        co_yield TaskStatus::FLHookAwait;
+        client.Message(L"ERR: Unable to add any role. Account was either invalid or already contained role(s).");
+        co_return TaskStatus::Finished;
+    }
+
+    co_yield TaskStatus::FLHookAwait;
+
+    client.Message(L"Successfully added role(s) to character");
     co_return TaskStatus::Finished;
 }
 
 Task AdminCommandProcessor::SetRoles(ClientId client, std::wstring_view target, std::vector<std::wstring_view> roles)
 {
     // TODO: pending Character Database rework
-    client.Message(L"Successfully set roles.{} roles");
+    client.Message(L"Successfully set roles. {} roles");
     co_return TaskStatus::Finished;
 }
 
@@ -486,7 +461,7 @@ Task AdminCommandProcessor::ReloadPlugin(ClientId client, std::vector<std::wstri
             continue;
         }
 
-        std::wstring dllName{path.data(), size };
+        std::wstring dllName{ path.data(), size };
         pluginFileNames.emplace_back(dllName.substr(dllName.find_last_of('\\') + 1));
     }
 
