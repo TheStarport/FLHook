@@ -182,11 +182,11 @@ void TaskScheduler::ProcessTasks(moodycamel::ConcurrentQueue<std::shared_ptr<Tas
         }
 
         const auto existingStatus = t->status;
-        auto informUser = [&t](const std::wstring message) -> Task // NOLINT(*-unnecessary-value-param)
+        auto informUser = [](ClientId client, const std::wstring message) -> Task // NOLINT(*-unnecessary-value-param)
         {
-            if (t->client.has_value())
+            if (client)
             {
-                t->client->MessageErr(message);
+                client.MessageErr(message);
             }
             else
             {
@@ -204,22 +204,22 @@ void TaskScheduler::ProcessTasks(moodycamel::ConcurrentQueue<std::shared_ptr<Tas
         {
             if (existingStatus == TaskStatus::FLHookAwait)
             {
-                informUser(std::wstring(ex.Msg()));
+                informUser(t->client.value_or(ClientId()), std::wstring(ex.Msg()));
             }
             else
             {
-                mainTasks.enqueue(std::make_shared<Task>(informUser(std::wstring(ex.Msg()))));
+                mainTasks.enqueue(std::make_shared<Task>(informUser(t->client.value_or(ClientId()), std::wstring(ex.Msg()))));
             }
         }
         catch (GameException& ex)
         {
             if (existingStatus == TaskStatus::FLHookAwait)
             {
-                informUser(std::wstring(ex.Msg()));
+                informUser(t->client.value_or(ClientId()), std::wstring(ex.Msg()));
             }
             else
             {
-                mainTasks.enqueue(std::make_shared<Task>(informUser(std::wstring(ex.Msg()))));
+                mainTasks.enqueue(std::make_shared<Task>(informUser(t->client.value_or(ClientId()), std::wstring(ex.Msg()))));
             }
         }
         catch (StopProcessingException&)
