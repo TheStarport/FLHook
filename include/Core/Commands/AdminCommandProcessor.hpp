@@ -56,8 +56,6 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
              L"Kills the specified character if they are in space."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".setrep"), SetRep, GameAndConsole, Reputation, L".setrep <charname> <repgroup> [value]",
              L"Set the rep value for the specified character for the specified group. Defaults to 0.0 if not specified."),
-             AddAdminCommand(AdminCommandProcessor, Cmds(L".resetrep"), ResetRep, GameAndConsole, Reputation, L".resetrep <charname> <repgroup>",
-             L"Resets the reputation for the specified character and group to their default mpnewplayer value."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".getrep"), GetRep, GameAndConsole, Reputation, L".getrep <charname> <repgroup>",
              L"Gets the rep value for the specified character and rep group."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".msg"), MessagePlayer, GameAndConsole, Message, L".msg <charname> <message>",

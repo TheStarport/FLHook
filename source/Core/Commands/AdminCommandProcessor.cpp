@@ -74,10 +74,12 @@ Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view character
 
     // They are offline, lets lookup the needed info
     const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
-    const auto update = make_document(kvp("$set", make_document(kvp("cash", amount))));
+    const auto update = make_document(kvp("$set", make_document(kvp("cash", static_cast<int>(amount)))));
 
     co_yield TaskStatus::DatabaseAwait;
 
+    bool success = false;
+    std::wstring message;
     try
     {
         auto config = FLHook::GetConfig();
@@ -90,7 +92,6 @@ Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view character
 
         assert(result.has_value());
 
-        bool success = false;
         if (result->modified_count() != 1)
         {
             session.abort_transaction();
@@ -100,22 +101,27 @@ Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view character
             session.commit_transaction();
             success = true;
         }
-
-        co_yield TaskStatus::FLHookAwait;
-        if (success)
-        {
-            client.Message(std::format(L"{} cash set to {} credits", characterName, amount));
-        }
-        else
-        {
-            client.MessageErr(std::format(L"ERR: character {} was not found", characterName));
-        }
     }
     catch (const mongocxx::exception& ex)
     {
-        co_yield TaskStatus::FLHookAwait;
+        message = std::format(L"ERR: {}", StringUtils::stows(ex.what()));
+    }
 
-        client.MessageErr(std::format(L"ERR: {}", StringUtils::stows(ex.what())));
+    co_yield TaskStatus::FLHookAwait;
+
+    if (!message.empty())
+    {
+        client.MessageErr(message).Handle();
+        co_yield TaskStatus::FLHookAwait;
+    }
+
+    if (success)
+    {
+        client.Message(std::format(L"{} cash set to {} credits", characterName, amount));
+    }
+    else
+    {
+        client.MessageErr(std::format(L"ERR: character {} was not found", characterName));
     }
 
     co_return TaskStatus::Finished;
@@ -138,32 +144,40 @@ Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view character
 
     co_yield TaskStatus::DatabaseAwait;
 
+    std::wstring err;
+    int credits;
     try
     {
-        auto config = FLHook::GetConfig();
-        auto db = FLHook::GetDbClient();
+        const auto config = FLHook::GetConfig();
+        const auto db = FLHook::GetDbClient();
         auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
 
         mongocxx::options::find options;
         options.projection(projection.view());
-        const auto result = charactersCollection.find_one(filter.view(), options);
 
-        co_yield TaskStatus::FLHookAwait;
-
-        if (result.has_value())
+        if (const auto result = charactersCollection.find_one(filter.view(), options); result.has_value())
         {
-            client.Message(std::format(L"{} has {} credits", characterName, result->operator[]("cash").get_int32()));
+            credits = result->operator[]("cash").get_int32();
         }
         else
         {
-            client.MessageErr(std::format(L"ERR: character {} was not found", characterName));
+            err = std::format(L"ERR: character {} was not found", characterName);
         }
     }
     catch (const mongocxx::exception& ex)
     {
-        co_yield TaskStatus::FLHookAwait;
+        err = std::format(L"ERR: {}", StringUtils::stows(ex.what()));
+    }
 
-        client.MessageErr(std::format(L"ERR: {}", StringUtils::stows(ex.what())));
+    co_yield TaskStatus::FLHookAwait;
+
+    if (!err.empty())
+    {
+        client.MessageErr(err);
+    }
+    else
+    {
+        client.Message(std::format(L"{} has {} credits", characterName, credits));
     }
 
     co_return TaskStatus::Finished;
@@ -237,14 +251,6 @@ Task AdminCommandProcessor::SetRep(ClientId client, ClientId target, RepGroupId 
     repId.SetAttitudeTowardsRepGroupId(repGroup, value).Handle();
 
     client.Message(std::format(L"{}'s reputation with {} set to {}", target, repGroup, value));
-    co_return TaskStatus::Finished;
-}
-
-Task AdminCommandProcessor::ResetRep(ClientId client, ClientId target, RepGroupId repGroup)
-{
-    // TODO: finish implementing this. Reset to server default
-
-    client.Message(std::format(L"{}'rep to {} reset", target, repGroup));
     co_return TaskStatus::Finished;
 }
 
@@ -423,9 +429,6 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
         roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::ToLower(StringUtils::wstos(role)); });
 
     co_yield TaskStatus::DatabaseAwait;
-
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_document;
 
     const auto config = FLHook::GetConfig();
     const auto dbClient = FLHook::GetDbClient();
