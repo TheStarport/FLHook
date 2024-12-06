@@ -151,6 +151,7 @@ class DLL FLHook final
         static const std::unordered_map<std::wstring, std::vector<std::wstring>>& GetAdmins();
         static ClientList& Clients();
         static ClientData& GetClient(ClientId client);
+        static ClientData* GetClientByName(std::wstring_view characterName);
         static std::shared_ptr<FLHookConfig> GetConfig();
         static std::shared_ptr<Database> GetDatabase();
         static mongocxx::pool::entry GetDbClient();

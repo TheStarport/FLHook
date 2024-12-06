@@ -236,6 +236,19 @@ ClientData& FLHook::GetClient(ClientId client)
     return Clients()[client];
 }
 
+ClientData* FLHook::GetClientByName(std::wstring_view characterName)
+{
+    for (auto& client : Clients())
+    {
+        if (StringUtils::CompareCaseInsensitive(client.characterName, characterName))
+        {
+            return &client;
+        }
+    }
+
+    return nullptr;
+}
+
 std::shared_ptr<Database> FLHook::GetDatabase() { return instance->database; }
 mongocxx::pool::entry FLHook::GetDbClient() { return instance->database->AcquireClient(); }
 std::shared_ptr<InfocardManager> FLHook::GetInfocardManager() { return instance->infocardManager; }

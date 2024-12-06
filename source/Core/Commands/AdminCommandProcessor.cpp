@@ -13,6 +13,9 @@
 // TODO: General, a lot of these functions are agnostic about whether or not the player is online and thus has a clientId, so along with the player database
 // rework a lot of these functions need to be reworked to account for that.
 
+using bsoncxx::builder::basic::kvp;
+using bsoncxx::builder::basic::make_document;
+
 std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId user, const AllowedContext currentContext, std::wstring_view cmd,
                                                           std::vector<std::wstring_view>& paramVector)
 {
@@ -52,18 +55,117 @@ std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId client, const
     return ProcessCommand(client, currentContext, commandString, paramsFiltered);
 }
 
-Task AdminCommandProcessor::SetCash(ClientId client, ClientId characterName, uint amount)
+Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view characterName, uint amount)
 {
-    // TODO: Implement
-    client.Message(std::format(L"{} cash set to {} credits", characterName, amount));
+    // If true, they are online and that makes this easy for us
+    if (const auto* targetClient = FLHook::GetClientByName(characterName))
+    {
+        targetClient->id.SetCash(amount).Handle();
+        targetClient->id.SaveChar().Handle();
+        client.Message(std::format(L"{} cash set to {} credits", characterName, amount));
+
+        if (targetClient->id != client)
+        {
+            targetClient->id.Message(std::format(L"Your credits have been set to {}.", amount));
+        }
+
+        co_return TaskStatus::Finished;
+    }
+
+    // They are offline, lets lookup the needed info
+    const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
+    const auto update = make_document(kvp("$set", make_document(kvp("cash", amount))));
+
+    co_yield TaskStatus::DatabaseAwait;
+
+    try
+    {
+        auto config = FLHook::GetConfig();
+        auto db = FLHook::GetDbClient();
+        auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
+
+        auto session = db->start_session();
+        session.start_transaction();
+        const auto result = charactersCollection.update_one(filter.view(), update.view());
+
+        assert(result.has_value());
+
+        bool success = false;
+        if (result->modified_count() != 1)
+        {
+            session.abort_transaction();
+        }
+        else
+        {
+            session.commit_transaction();
+            success = true;
+        }
+
+        co_yield TaskStatus::FLHookAwait;
+        if (success)
+        {
+            client.Message(std::format(L"{} cash set to {} credits", characterName, amount));
+        }
+        else
+        {
+            client.MessageErr(std::format(L"ERR: character {} was not found", characterName));
+        }
+    }
+    catch (const mongocxx::exception& ex)
+    {
+        co_yield TaskStatus::FLHookAwait;
+
+        client.MessageErr(std::format(L"ERR: {}", StringUtils::stows(ex.what())));
+    }
+
     co_return TaskStatus::Finished;
 }
 
-Task AdminCommandProcessor::GetCash(ClientId client, ClientId target)
+Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view characterName)
 {
-    // TODO: Implement get cash
-    // const auto res = AccountId(characterName).GetCash(characterName).Handle();
-    // client.Message(std::format(L"{} has been set {} credits.", characterName, res));
+    // If true, they are online and that makes this easy for us
+    if (const auto* targetClient = FLHook::GetClientByName(characterName))
+    {
+        auto cash = targetClient->id.GetCash().Handle();
+        client.Message(std::format(L"{} has {} credits", characterName, cash));
+
+        co_return TaskStatus::Finished;
+    }
+
+    // They are offline, lets lookup the needed info
+    const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
+    const auto projection = make_document(kvp("cash", 1));
+
+    co_yield TaskStatus::DatabaseAwait;
+
+    try
+    {
+        auto config = FLHook::GetConfig();
+        auto db = FLHook::GetDbClient();
+        auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
+
+        mongocxx::options::find options;
+        options.projection(projection.view());
+        const auto result = charactersCollection.find_one(filter.view(), options);
+
+        co_yield TaskStatus::FLHookAwait;
+
+        if (result.has_value())
+        {
+            client.Message(std::format(L"{} has {} credits", characterName, result->operator[]("cash").get_int32()));
+        }
+        else
+        {
+            client.MessageErr(std::format(L"ERR: character {} was not found", characterName));
+        }
+    }
+    catch (const mongocxx::exception& ex)
+    {
+        co_yield TaskStatus::FLHookAwait;
+
+        client.MessageErr(std::format(L"ERR: {}", StringUtils::stows(ex.what())));
+    }
+
     co_return TaskStatus::Finished;
 }
 
@@ -215,9 +317,6 @@ Task AdminCommandProcessor::RenameChar(ClientId client, ClientId target, std::ws
 
 Task AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring_view characterName)
 {
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_document;
-
     // Kick the player if they are currently online
     for (auto& player : FLHook::Clients())
     {
@@ -320,7 +419,8 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
 
     auto character = StringUtils::wstos(target);
     std::vector<std::string> stringRoles;
-    std::ranges::transform(roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::ToLower(StringUtils::wstos(role)); });
+    std::ranges::transform(
+        roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::ToLower(StringUtils::wstos(role)); });
 
     co_yield TaskStatus::DatabaseAwait;
 
