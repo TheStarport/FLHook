@@ -880,21 +880,16 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     {
         character.collisionGroups.insert({ std::to_string(col.id), col.health });
     }
-    for(auto& col : playerMapCache.value()->baseCollisionGroups)
+    for(const auto& col : playerMapCache.value()->baseCollisionGroups)
     {
         character.baseCollisionGroups.insert({std::to_string(col.id), col.health});
     }
-
-    Logger::Warn(std::format(L"eq1 {}", character.equipment.size()));
-    Logger::Warn(std::format(L"eq11 {}", character.baseEquipment.size()));
 
     if (character.currentBase)
     {
         character.baseCargo = character.cargo;
         character.baseEquipment = character.equipment;
         character.baseHullStatus = character.hullStatus;
-    Logger::Warn(std::format(L"eq2 {}", character.equipment.size()));
-    Logger::Warn(std::format(L"eq22 {}", character.baseEquipment.size()));
     }
     else if (character.hullStatus == 0.0f)
     {
@@ -904,8 +899,6 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         character.equipment = character.baseEquipment;
         character.hullStatus = character.baseHullStatus;
         character.collisionGroups = character.baseCollisionGroups;
-        Logger::Warn(std::format(L"eq3 {}", character.equipment.size()));
-        Logger::Warn(std::format(L"eq33 {}", character.baseEquipment.size()));
     }
 
 
