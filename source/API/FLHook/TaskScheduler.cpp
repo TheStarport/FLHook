@@ -182,8 +182,10 @@ void TaskScheduler::ProcessTasks(moodycamel::ConcurrentQueue<std::shared_ptr<Tas
         }
 
         const auto existingStatus = t->status;
-        auto informUser = [](ClientId client, const std::wstring message) -> Task // NOLINT(*-unnecessary-value-param)
+        auto informUser = [](const ClientId client, const std::wstring message) -> Task // NOLINT(*-unnecessary-value-param)
         {
+            co_yield TaskStatus::FLHookAwait;
+
             if (client)
             {
                 client.MessageErr(message);
@@ -208,7 +210,7 @@ void TaskScheduler::ProcessTasks(moodycamel::ConcurrentQueue<std::shared_ptr<Tas
             }
             else
             {
-                mainTasks.enqueue(std::make_shared<Task>(informUser(t->client.value_or(ClientId()), std::wstring(ex.Msg()))));
+                AddTask(std::make_shared<Task>(informUser(t->client.value_or(ClientId()), std::wstring(ex.Msg()))));
             }
         }
         catch (GameException& ex)
