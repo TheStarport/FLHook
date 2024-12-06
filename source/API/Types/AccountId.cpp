@@ -218,125 +218,6 @@ Action<void> AccountId::DeleteCharacter(const std::wstring_view name) const
     return { {} };
 }
 
-Action<void> AccountId::AddRoles(const std::vector<std::wstring_view>& roles)
-{
-    if (roles.empty())
-    {
-        // TODO: report error
-        return { {} };
-    }
-
-    if (const auto account = IsOnline(); account)
-    {
-        if (!account->account->gameRoles.has_value())
-        {
-            account->account->gameRoles = {};
-        }
-        for (auto& role : roles)
-        {
-            auto strRole = StringUtils::wstos(role);
-            if (std::ranges::find(account->account->gameRoles.value(), strRole) != account->account->gameRoles->end())
-            {
-                // TODO: Role not found
-                continue;
-            }
-            account->account->gameRoles->emplace_back(strRole);
-        }
-        return { {} };
-    }
-
-    const auto db = FLHook::GetDbClient();
-    const auto config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
-    const auto findAccDoc = make_document(kvp("_id", accountId));
-
-    bsoncxx::builder::basic::array arrayBuilder;
-    for (auto& role : roles)
-    {
-        arrayBuilder.append(StringUtils::wstos(role));
-    }
-
-    const auto roleUpdateDoc = make_document(kvp("$push", make_document(kvp("gameRoles", arrayBuilder.view()))));
-
-    if (const auto updateResponse = accountsCollection.update_one(findAccDoc.view(), roleUpdateDoc.view()); updateResponse->modified_count() == 0)
-    {
-        return { {} };
-    }
-
-    return { {} };
-}
-
-Action<void> AccountId::RemoveRoles(const std::vector<std::wstring_view>& roles, bool clear)
-{
-    if (roles.empty())
-    {
-        // TODO: report error
-        return { {} };
-    }
-
-    if (const auto account = IsOnline(); account)
-    {
-        if (!account->account->gameRoles.has_value())
-        {
-            return { {} };
-        }
-        for (auto roleIter = account->account->gameRoles.value().begin(); roleIter != account->account->gameRoles.value().end();)
-        {
-            if (const auto strRole = StringUtils::stows(*roleIter); std::ranges::find(roles, strRole) == roles.end())
-            {
-                roleIter = account->account->gameRoles.value().erase(roleIter);
-            }
-            else
-            {
-                ++roleIter;
-            }
-        }
-        return { {} };
-    }
-    const auto db = FLHook::GetDbClient();
-    const auto config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
-    const auto findAccDoc = make_document(kvp("_id", accountId));
-
-    bsoncxx::builder::basic::array arrayBuilder;
-    for (auto& role : roles)
-    {
-        arrayBuilder.append(StringUtils::wstos(role));
-    }
-
-    const auto roleUpdateDoc = make_document(kvp("$pull", make_document(kvp("gameRoles", arrayBuilder.view()))));
-
-    if (const auto updateResponse = accountsCollection.update_one(findAccDoc.view(), roleUpdateDoc.view()); updateResponse->modified_count() == 0)
-    {
-        return { {} };
-    }
-
-    return { {} };
-}
-
-Action<void> AccountId::SetRoles(const std::vector<std::wstring_view>& roles)
-{
-    const auto db = FLHook::GetDbClient();
-    const auto config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
-    const auto findAccDoc = make_document(kvp("_id", accountId));
-
-    bsoncxx::builder::basic::array arrayBuilder;
-    for (auto& role : roles)
-    {
-        arrayBuilder.append(StringUtils::wstos(role));
-    }
-
-    const auto roleUpdateDoc = make_document(kvp("$set", make_document(kvp("gameRoles", arrayBuilder.view()))));
-
-    if (const auto updateResponse = accountsCollection.update_one(findAccDoc.view(), roleUpdateDoc.view()); updateResponse->modified_count() == 0)
-    {
-        return { {} };
-    }
-
-    return { {} };
-}
-
 Action<bool> AccountId::HasRole(const std::wstring_view role) const
 {
     if (role.empty())
@@ -355,29 +236,12 @@ Action<bool> AccountId::HasRole(const std::wstring_view role) const
     }
 
     const auto strRole = StringUtils::wstos(role);
-    for (const auto& gameRole : account->account->gameRoles.value())
+    for (const std::string_view gameRole : account->account->gameRoles.value())
     {
-        if (gameRole == "superadmin" || gameRole == strRole)
+        if (gameRole == "superadmin" || StringUtils::CompareCaseInsensitive(gameRole, std::string_view(strRole)))
         {
             return { true };
         }
     }
     return { false };
-}
-
-Action<void> AccountId::SetCash(std::wstring_view characterName, int64 amount) const
-{
-    const auto db = FLHook::GetDbClient();
-    const auto config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
-    const auto findAccDoc = make_document(kvp("_id", accountId));
-
-    const auto roleUpdateDoc = make_document(kvp("$set", make_document(kvp("cash", amount))));
-
-    if (const auto updateResponse = accountsCollection.update_one(findAccDoc.view(), roleUpdateDoc.view()); updateResponse->modified_count() == 0)
-    {
-        return { {} };
-    }
-
-    return { {} };
 }

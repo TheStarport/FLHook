@@ -36,19 +36,20 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
 
         if (const auto charName = client.GetCharacterName().Handle(); charBefore != charName)
         {
-            auto& credentials = FLHook::instance->credentialsMap[std::wstring{charName}] = {};
-
-            if (const auto& roles = info.account->gameRoles; roles.has_value())
+            auto& credentials = FLHook::instance->credentialsMap[std::wstring{ charName }] = {};
+            if (credentials.empty())
             {
-                for (auto& role : roles.value())
+                if (const auto& roles = info.account->gameRoles; roles.has_value())
                 {
-                    credentials.emplace_back(StringUtils::stows(role));
+                    for (auto& role : roles.value())
+                    {
+                        credentials.emplace_back(StringUtils::stows(role));
+                    }
                 }
             }
 
             // If help command is not disabled, alert people they can use it
-            if (const auto& cmds = FLHook::GetConfig()->userCommands.disabledCommands;
-                std::ranges::find(cmds, L"help") == cmds.end())
+            if (const auto& cmds = FLHook::GetConfig()->userCommands.disabledCommands; std::ranges::find(cmds, L"help") == cmds.end())
             {
                 (void)client.Message(L"To get a list of available commands, type '/help [page]' in chat.");
                 if (!credentials.empty())
@@ -111,7 +112,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
     CatchHook({})
 }
 
-void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientId client)   
+void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientId client)
 {
     Logger::Trace(std::format(L"CharacterSelect(\n\tClientId client = {}\n)", client));
 
@@ -172,7 +173,7 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
     {
         CHARACTER_ID cidCopy = cid;
         TaskScheduler::ScheduleWithCallback<void>(std::bind(AccountManager::DeleteCharacter, client, charName),
-            std::bind(IServerImplHook::DestroyCharacterCallback, client, cidCopy));
+                                                  std::bind(IServerImplHook::DestroyCharacterCallback, client, cidCopy));
     }
 }
 
@@ -224,7 +225,6 @@ bool IServerImplHook::CharacterInfoReqInner(ClientId client, bool unk1)
                 return false;
             }
         }
-
     }
     CatchHook({});
 
