@@ -19,6 +19,11 @@ inline static char repFreeFixOld[5];
 
 void FLHook::ClearClientInfo(ClientId client)
 {
+    if(!client)
+    {
+        return;
+    }
+
     CallPlugins(&Plugin::OnClearClientInfo, client);
 
     auto& info = client.GetData();
