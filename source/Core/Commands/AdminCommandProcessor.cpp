@@ -55,9 +55,10 @@ std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId client, const
     return ProcessCommand(client, currentContext, commandString, paramsFiltered);
 }
 
-Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view characterName, uint amount)
+Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view characterNameView, uint amount)
 {
     // If true, they are online and that makes this easy for us
+    std::wstring characterName {characterNameView};
     if (const auto* targetClient = FLHook::GetClientByName(characterName))
     {
         targetClient->id.SetCash(amount).Handle();
@@ -112,7 +113,7 @@ Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view character
     if (!message.empty())
     {
         client.MessageErr(message).Handle();
-        co_yield TaskStatus::FLHookAwait;
+        co_return TaskStatus::Finished;
     }
 
     if (success)
@@ -127,8 +128,9 @@ Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view character
     co_return TaskStatus::Finished;
 }
 
-Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view characterName)
+Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view characterNameView)
 {
+    std::wstring characterName{characterNameView};
     // If true, they are online and that makes this easy for us
     if (const auto* targetClient = FLHook::GetClientByName(characterName))
     {
