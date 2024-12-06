@@ -3,6 +3,8 @@
 
 #include "API/FLHook/TaskScheduler.hpp"
 
+#include "Exceptions/InvalidParameterException.hpp"
+
 Task::Task(const std::coroutine_handle<Promise> h) : handle(h) {}
 void Task::SetClient(ClientId c) { client = c; }
 bool Task::HandleException()
@@ -179,7 +181,56 @@ void TaskScheduler::ProcessTasks(moodycamel::ConcurrentQueue<std::shared_ptr<Tas
             break;
         }
 
-        t->Run();
+        const auto existingStatus = t->status;
+        auto informUser = [&t](const std::wstring message) -> Task // NOLINT(*-unnecessary-value-param)
+        {
+            if (t->client.has_value())
+            {
+                t->client->MessageErr(message);
+            }
+            else
+            {
+                Logger::Warn(message);
+            }
+
+            co_return TaskStatus::Finished;
+        };
+
+        try
+        {
+            t->Run();
+        }
+        catch (InvalidParameterException& ex)
+        {
+            if (existingStatus == TaskStatus::FLHookAwait)
+            {
+                informUser(std::wstring(ex.Msg()));
+            }
+            else
+            {
+                mainTasks.enqueue(std::make_shared<Task>(informUser(std::wstring(ex.Msg()))));
+            }
+        }
+        catch (GameException& ex)
+        {
+            if (existingStatus == TaskStatus::FLHookAwait)
+            {
+                informUser(std::wstring(ex.Msg()));
+            }
+            else
+            {
+                mainTasks.enqueue(std::make_shared<Task>(informUser(std::wstring(ex.Msg()))));
+            }
+        }
+        catch (StopProcessingException&)
+        {
+            // Continue processing
+        }
+        catch (std::exception& ex)
+        {
+            // Anything else critically log
+            Logger::Err(StringUtils::stows(ex.what()));
+        }
 
         if (t->status == TaskStatus::FLHookAwait)
         {
