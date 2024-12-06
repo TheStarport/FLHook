@@ -23,7 +23,6 @@ class CompressorRecipe(ConanFile):
                      keep_path=False)
 
     def requirements(self):
-        self.requires("amqp-cpp/4.3.26")
         self.requires("concurrentqueue/1.0.4")
         self.requires("croncpp/cci.20220503")
         self.requires("glm/cci.20230113")
@@ -35,10 +34,8 @@ class CompressorRecipe(ConanFile):
             "shared": True,
             "polyfill": "std"
         })
-        self.requires("re2/20240702")
         self.requires("spdlog/1.14.1")
         self.requires("stduuid/1.2.3")
-        self.requires("uvw/3.4.0")
         self.requires("xbyak/7.07")
 
     def build_requirements(self):

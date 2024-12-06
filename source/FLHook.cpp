@@ -6,7 +6,6 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
 #include "API/FLHook/InfocardManager.hpp"
-#include "API/FLHook/MessageInterface.hpp"
 #include "API/FLHook/PersonalityHelper.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
 #include "API/InternalApi.hpp"
@@ -29,7 +28,6 @@
 #include "API/Exceptions/InvalidClientException.hpp"
 #include "API/FLHook/ResourceManager.hpp"
 #include "Core/CrashCatcher.hpp"
-#include "Core/MessageHandler.hpp"
 
 // ReSharper disable CppClangTidyClangDiagnosticCastFunctionTypeStrict
 const st6_malloc_t st6_malloc = reinterpret_cast<const st6_malloc_t>(GetProcAddress(GetModuleHandleA("msvcrt.dll"), "malloc"));
@@ -112,14 +110,6 @@ FLHook::FLHook()
     // database = new Database(FLHook::GetConfig().databaseConfig.uri);
 
     const auto config = GetConfig();
-
-    // Init our message service, this is a blocking call and some plugins might want to setup their own queues,
-    // so we want to make sure the service is up at startup time
-    if (config->messageQueue.enableQueues)
-    {
-        messageInterface = std::make_unique<MessageInterface>();
-        messageHandler = std::make_unique<MessageHandler>();
-    }
 
     if (config->plugins.loadAllPlugins)
     {

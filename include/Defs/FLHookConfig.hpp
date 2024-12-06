@@ -155,27 +155,6 @@ struct DLL FLHookConfig final
                 float spinImpulseMultiplier = -1.0f;
         };
 
-        struct MessageQueue final
-        {
-                //! Enable FLHook Message Queues - See setup: https://docs.flhook.org/
-                bool enableQueues = true;
-
-                //! The hostname of your RabbitMQ instance
-                std::wstring hostName = L"127.0.0.1";
-
-                //! The port of your RabbitMQ instance
-                int port = 5672;
-
-                //! The username to connect to RabbitMQ
-                std::wstring username = L"guest";
-
-                //! The password to connect to RabbitMQ
-                std::wstring password = L"guest";
-
-                //! How frequently should FLHook send out updates to the exchange
-                int timeBetweenServerUpdates = 5000;
-        };
-
         struct Plugins final
         {
                 //! If true, loads all plugins on FLHook startup.
@@ -216,7 +195,6 @@ struct DLL FLHookConfig final
         General general;
         AutoKicks autoKicks;
         Plugins plugins;
-        MessageQueue messageQueue;
         UserCommands userCommands;
         Bans bans;
         ChatConfig chatConfig;

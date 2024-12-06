@@ -28,18 +28,15 @@ function(TARGET_DEPENDENCIES PROJ)
 
     ## vcpkg dependencies
 
-    find_package(amqpcpp CONFIG REQUIRED)
     find_package(concurrentqueue CONFIG REQUIRED)
     find_package(croncpp CONFIG REQUIRED)
     find_package(glm CONFIG REQUIRED)
     find_package(magic_enum CONFIG REQUIRED)
-    find_package(re2 CONFIG REQUIRED)
     find_package(spdlog CONFIG REQUIRED)
     find_package(stduuid CONFIG REQUIRED)
-    find_package(uvw CONFIG REQUIRED)
     find_package(xbyak CONFIG REQUIRED)
-    target_link_libraries(${PROJ} PUBLIC amqpcpp concurrentqueue::concurrentqueue croncpp::croncpp glm::glm
-            magic_enum::magic_enum re2::re2 spdlog::spdlog stduuid::stduuid uvw::uvw xbyak::xbyak)
+    target_link_libraries(${PROJ} PUBLIC concurrentqueue::concurrentqueue croncpp::croncpp glm::glm
+            magic_enum::magic_enum spdlog::spdlog stduuid::stduuid xbyak::xbyak)
 
     # MongoCXX
     find_package(mongocxx CONFIG REQUIRED)
