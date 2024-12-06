@@ -24,6 +24,11 @@ class CompressorRecipe(ConanFile):
 
     def requirements(self):
         self.requires("concurrentqueue/1.0.4")
+        self.requires("cpp-httplib/0.18.2", options={
+            "with_openssl": True,
+            "with_zlib": True,
+            "with_brotli": True
+        })
         self.requires("croncpp/cci.20220503")
         self.requires("glm/cci.20230113")
         self.requires("magic_enum/0.9.6")
@@ -33,6 +38,9 @@ class CompressorRecipe(ConanFile):
         self.requires("mongo-cxx-driver/3.11.0", options={
             "shared": True,
             "polyfill": "std"
+        })
+        self.requires("openssl/3.3.2", force=True, options={
+            "shared": True
         })
         self.requires("spdlog/1.14.1")
         self.requires("stduuid/1.2.3")

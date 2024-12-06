@@ -26,6 +26,7 @@
 #include "API/Utils/ZoneUtilities.hpp"
 
 #include "API/Exceptions/InvalidClientException.hpp"
+#include "API/FLHook/HttpServer.hpp"
 #include "API/FLHook/ResourceManager.hpp"
 #include "Core/CrashCatcher.hpp"
 
@@ -78,25 +79,25 @@ FLHook::FLHook()
     infocardManager = std::make_unique<InfocardManager>();
 
     Logger::Debug(L"Creating ClientList");
-    clientList = std::make_unique<ClientList>();
+    clientList = std::make_shared<ClientList>();
 
     Logger::Debug(L"Creating PersonalityHelper");
-    personalityHelper = std::make_unique<PersonalityHelper>();
+    personalityHelper = std::make_shared<PersonalityHelper>();
 
     Logger::Debug(std::format(L"Connecting to database @ \"{}\"", StringUtils::stows(flhookConfig->database.uri)));
-    database = std::make_unique<Database>(flhookConfig->database.uri);
+    database = std::make_shared<Database>(flhookConfig->database.uri);
 
     Logger::Debug(L"Creating AccountManager");
-    accountManager = std::make_unique<AccountManager>();
+    accountManager = std::make_shared<AccountManager>();
 
     Logger::Debug(L"Creating CrashCatcher");
-    crashCatcher = std::make_unique<CrashCatcher>();
+    crashCatcher = std::make_shared<CrashCatcher>();
 
     Logger::Debug(L"Creating ResourceManager");
-    resourceManager = std::make_unique<ResourceManager>();
+    resourceManager = std::make_shared<ResourceManager>();
 
     Logger::Debug(L"Creating TaskScheduler");
-    taskScheduler = std::make_unique<TaskScheduler>();
+    taskScheduler = std::make_shared<TaskScheduler>();
 
     flProc = GetModuleHandle(nullptr);
 
@@ -110,6 +111,12 @@ FLHook::FLHook()
     // database = new Database(FLHook::GetConfig().databaseConfig.uri);
 
     const auto config = GetConfig();
+
+    if (config->httpSettings.enableHttpServer)
+    {
+        Logger::Debug(L"Creating HttpServer");
+        httpServer = std::make_shared<HttpServer>();
+    }
 
     if (config->plugins.loadAllPlugins)
     {
@@ -243,7 +250,6 @@ std::shared_ptr<Database> FLHook::GetDatabase() { return instance->database; }
 mongocxx::pool::entry FLHook::GetDbClient() { return instance->database->AcquireClient(); }
 std::shared_ptr<InfocardManager> FLHook::GetInfocardManager() { return instance->infocardManager; }
 FLHook::LastHitInformation FLHook::GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }
-std::shared_ptr<MessageInterface> FLHook::GetMessageInterface() { return instance->messageInterface; }
 Action<pub::AI::Personality*> FLHook::GetPersonality(const std::wstring& pilotNickname) { return instance->personalityHelper->GetPersonality(pilotNickname); }
 uint FLHook::GetServerLoadInMs() { return instance->serverLoadInMs; }
 CDPClientProxy** FLHook::GetClientProxyArray() { return instance->clientProxyArray; }

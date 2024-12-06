@@ -191,6 +191,15 @@ struct DLL FLHookConfig final
                 int creditCost;
         };
 
+        struct HttpSettings final
+        {
+                bool enableHttpServer = true;
+                std::string host = "localhost";
+                int port = 5577;
+                int timeout = 5;
+                int maxPayloadSize = 1024 * 1024 * 2; // Default 2MB
+        };
+
         Logging logging;
         General general;
         AutoKicks autoKicks;
@@ -203,4 +212,5 @@ struct DLL FLHookConfig final
         Npc npc;
         Rename rename;
         Reputatation reputatation;
+        HttpSettings httpSettings;
 };

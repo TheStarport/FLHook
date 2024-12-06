@@ -19,8 +19,7 @@ class PersonalityHelper;
 class Database;
 class AccountManager;
 class CrashCatcher;
-class MessageHandler;
-class MessageInterface;
+class HttpServer;
 class ResourceManager;
 
 static constexpr std::wstring_view ConsoleName = L"CONSOLE";
@@ -88,8 +87,7 @@ class DLL FLHook final
         std::shared_ptr<ResourceManager> resourceManager;
         std::shared_ptr<FLHookConfig> flhookConfig;
         std::shared_ptr<CrashCatcher> crashCatcher;
-        std::shared_ptr<MessageHandler> messageHandler;
-        std::shared_ptr<MessageInterface> messageInterface;
+        std::shared_ptr<HttpServer> httpServer;
 
         bool OnServerStart();
         void InitHookExports();
@@ -158,7 +156,6 @@ class DLL FLHook final
         static mongocxx::pool::entry GetDbClient();
         static std::shared_ptr<InfocardManager> GetInfocardManager();
         static LastHitInformation GetLastHitInformation();
-        static std::shared_ptr<MessageInterface> GetMessageInterface();
         static IClientImpl* GetPacketInterface();
         static std::shared_ptr<ResourceManager> GetResourceManager();
         static Action<pub::AI::Personality*> GetPersonality(const std::wstring& pilotNickname);
