@@ -59,27 +59,30 @@ class AbstractAdminCommandProcessor
             }
 
             auto& credMap = FLHook::GetAdmins();
-            const auto credentials = credMap.find(std::wstring(client.GetCharacterName().Handle()));
-            if (credentials == credMap.end())
+            const auto credentials = credMap.find(client);
+            if (credentials == credMap.end() || credentials->second.empty())
             {
                 // Some how got here and not authenticated!
                 return cpp::fail(invalidPerms);
             }
 
             // If they have a role and the required role is 'any' then we are all good
-            if (requiredRole == magic_enum::enum_name(DefaultRoles::Any))
+            if (StringUtils::CompareCaseInsensitive(requiredRole, magic_enum::enum_name(DefaultRoles::Any)))
             {
                 return {};
             }
 
-            if (std::ranges::find(credentials->second, requiredRole) == credentials->second.end() &&
-                std::ranges::find(credentials->second, superAdminRole) == credentials->second.end())
+            for (std::wstring_view role : credentials->second)
             {
-                return cpp::fail(invalidPerms);
+                if (StringUtils::CompareCaseInsensitive(requiredRole, role) || StringUtils::CompareCaseInsensitive(L"superadmin"sv, role))
+                {
+                    // All good!
+                    return {};
+                }
             }
 
-            // All good!
-            return {};
+            // Role not found
+            return cpp::fail(invalidPerms);
         }
 
     public:
@@ -92,11 +95,13 @@ class AbstractAdminCommandProcessor
 template <class T>
 concept IsAdminCommandProcessor = std::is_base_of_v<AbstractAdminCommandProcessor, T>;
 
-#define AddAdminCommand(cls, str, func, context, requiredRole, usage, description)                                                                             \
-    {                                                                                                                                                          \
-        str, ClassFunctionWrapper<decltype(&cls::func), &cls::func>::ProcessParam, AllowedContext::context, magic_enum::enum_name(DefaultRoles::requiredRole), \
-            usage, description                                                                                                                                 \
-    }
+#define AddAdminCommand(cls, str, func, context, requiredRole, usage, description) \
+    { str,                                                                         \
+      ClassFunctionWrapper<decltype(&cls::func), &cls::func>::ProcessParam,        \
+      AllowedContext::context,                                                     \
+      magic_enum::enum_name(DefaultRoles::requiredRole),                           \
+      usage,                                                                       \
+      description }
 
 #define GetAdminCommandsFunc(commands)                                                                                                     \
     const std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>>& GetAdminCommands() const override \

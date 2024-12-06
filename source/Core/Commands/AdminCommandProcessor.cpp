@@ -424,6 +424,7 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
     }
 
     auto character = StringUtils::wstos(target);
+    auto stackAllocatedCharacter = std::wstring(target);
     std::vector<std::string> stringRoles;
     std::ranges::transform(
         roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::ToLower(StringUtils::wstos(role)); });
@@ -461,6 +462,16 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
     }
 
     co_yield TaskStatus::FLHookAwait;
+
+    // Success, lets add roles to the credential map for this character, if they are online
+    if (auto targetClient = FLHook::GetClientByName(stackAllocatedCharacter))
+    {
+        auto& credentials = FLHook::instance->credentialsMap[targetClient->id];
+        for (std::string_view role : stringRoles)
+        {
+            credentials.insert(StringUtils::stows(role));
+        }
+    }
 
     client.Message(L"Successfully added role(s) to the account");
     co_return TaskStatus::Finished;

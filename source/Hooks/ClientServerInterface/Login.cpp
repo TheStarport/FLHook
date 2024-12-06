@@ -18,7 +18,23 @@ void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
             return; // DisconnectDelay bug
         }
 
+        // Copy over admin information, if applicable
         auto& clientData = client.GetData();
+        auto& credentials = FLHook::instance->credentialsMap[client] = {};
+        if (const auto& roles = clientData.account->gameRoles; roles.has_value())
+        {
+            for (auto& role : roles.value())
+            {
+
+                auto result = credentials.insert(StringUtils::stows(role));
+                if (!result.second)
+                {
+                    Logger::Warn(std::format(
+                        L"Duplicate role '{}' found on character's account ({})", StringUtils::stows(role), StringUtils::stows(clientData.account->_id)));
+                }
+            }
+        }
+
         for (auto& next : FLHook::Clients())
         {
             if (next.id != client && clientData.account == next.account)
@@ -51,19 +67,18 @@ void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
 
         for (auto& el : clientData.account->accountData)
         {
-            switch(Hash(el.key().data()))
+            switch (Hash(el.key().data()))
             {
                 case Hash("dieMsg"):
-                {
-                    clientData.dieMsg = magic_enum::enum_cast<DieMsgType>(StringUtils::stows(el.get_string().value)).value_or(DieMsgType::All);
-                    break;
-                }
-                default:
-                    break;
+                    {
+                        clientData.dieMsg = magic_enum::enum_cast<DieMsgType>(StringUtils::stows(el.get_string().value)).value_or(DieMsgType::All);
+                        break;
+                    }
+                default: break;
             }
         }
 
-        //TODO: AddConnectLog(client, ip));
+        // TODO: AddConnectLog(client, ip));
     }
     CatchHook({
         CAccount* acc = Players.FindAccountFromClientID(client.GetValue());
@@ -90,7 +105,6 @@ void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
 
     if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip)
     {
-        TaskScheduler::ScheduleWithCallback<void>(std::bind(AccountManager::Login, li.account, client),
-            std::bind(&IServerImplHook::DelayedLogin, li, client));
+        TaskScheduler::ScheduleWithCallback<void>(std::bind(AccountManager::Login, li.account, client), std::bind(&IServerImplHook::DelayedLogin, li, client));
     }
 }

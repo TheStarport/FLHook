@@ -25,10 +25,10 @@ void FLHook::ClearClientInfo(ClientId client)
 
     // Remove any admin roles they may have assosicated.
     std::erase_if(instance->credentialsMap,
-                  [&info](const auto& item)
+                  [client](const auto& item)
                   {
-                      auto const& [key, value] = item;
-                      return key == info.characterName;
+                      const auto& [key, value] = item;
+                      return key == client;
                   });
 
     info.characterName = L"";
