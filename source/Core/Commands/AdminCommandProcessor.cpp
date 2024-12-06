@@ -413,16 +413,6 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
         co_return TaskStatus::Finished;
     }
 
-    for (const ClientData& otherClient : FLHook::Clients())
-    {
-        // They are online
-        if (otherClient.id != client && target == otherClient.characterName)
-        {
-            (void)otherClient.id.Kick();
-            break;
-        }
-    }
-
     auto character = StringUtils::wstos(target);
     auto stackAllocatedCharacter = std::wstring(target);
     std::vector<std::string> stringRoles;
