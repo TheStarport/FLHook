@@ -58,7 +58,7 @@ std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId client, const
 Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view characterNameView, uint amount)
 {
     // If true, they are online and that makes this easy for us
-    std::wstring characterName {characterNameView};
+    std::wstring characterName{ characterNameView };
     if (const auto* targetClient = FLHook::GetClientByName(characterName))
     {
         targetClient->id.SetCash(amount).Handle();
@@ -73,34 +73,31 @@ Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view character
         co_return TaskStatus::Finished;
     }
 
-    // They are offline, lets lookup the needed info
-    const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
-    const auto update = make_document(kvp("$set", make_document(kvp("cash", static_cast<int>(amount)))));
-
     co_yield TaskStatus::DatabaseAwait;
 
-    bool success = false;
+    auto success = MongoResult::Failure;
     std::wstring message;
     try
     {
-        auto config = FLHook::GetConfig();
-        auto db = FLHook::GetDbClient();
+        const auto config = FLHook::GetConfig();
+        const auto db = FLHook::GetDbClient();
         auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
 
-        auto session = db->start_session();
-        session.start_transaction();
+        // They are offline, lets lookup the needed info
+        const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
+        const auto update = make_document(kvp("$set", make_document(kvp("money", static_cast<int>(amount)))));
+
         const auto result = charactersCollection.update_one(filter.view(), update.view());
 
         assert(result.has_value());
 
-        if (result->modified_count() != 1)
+        if (result->modified_count() == 1)
         {
-            session.abort_transaction();
+            success = MongoResult::Success;
         }
-        else
+        else if (result->matched_count() == 1)
         {
-            session.commit_transaction();
-            success = true;
+            success = MongoResult::MatchButNoChange;
         }
     }
     catch (const mongocxx::exception& ex)
@@ -116,13 +113,11 @@ Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view character
         co_return TaskStatus::Finished;
     }
 
-    if (success)
+    switch (success)
     {
-        client.Message(std::format(L"{} cash set to {} credits", characterName, amount));
-    }
-    else
-    {
-        client.MessageErr(std::format(L"ERR: character {} was not found", characterName));
+        case MongoResult::Failure: client.MessageErr(std::format(L"ERR: character {} was not found", characterName)); break;
+        case MongoResult::MatchButNoChange: client.Message(std::format(L"{} already has {} cash!", characterName, amount)); break;
+        case MongoResult::Success: client.Message(std::format(L"{} cash set to {} credits", characterName, amount));
     }
 
     co_return TaskStatus::Finished;
@@ -130,7 +125,7 @@ Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view character
 
 Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view characterNameView)
 {
-    std::wstring characterName{characterNameView};
+    std::wstring characterName{ characterNameView };
     // If true, they are online and that makes this easy for us
     if (const auto* targetClient = FLHook::GetClientByName(characterName))
     {
@@ -141,8 +136,6 @@ Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view character
     }
 
     // They are offline, lets lookup the needed info
-    const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
-    const auto projection = make_document(kvp("cash", 1));
 
     co_yield TaskStatus::DatabaseAwait;
 
@@ -154,12 +147,15 @@ Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view character
         const auto db = FLHook::GetDbClient();
         auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
 
+        const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
+        const auto projection = make_document(kvp("money", 1));
+
         mongocxx::options::find options;
         options.projection(projection.view());
 
         if (const auto result = charactersCollection.find_one(filter.view(), options); result.has_value())
         {
-            credits = result->operator[]("cash").get_int32();
+            credits = result->find("money")->get_int32();
         }
         else
         {
@@ -228,7 +224,11 @@ Task AdminCommandProcessor::UnBanPlayer(ClientId client, std::wstring_view chara
         client.Message(std::format(L"Unable to find account from character: {}", characterName));
         co_return TaskStatus::Finished;
     }
+
+    co_yield TaskStatus::DatabaseAwait;
     (void)account->UnBan();
+    co_yield TaskStatus::FLHookAwait;
+
     client.Message(std::format(L"{} has been successfully unbanned.", characterName));
     co_return TaskStatus::Finished;
 }
