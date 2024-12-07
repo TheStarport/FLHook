@@ -21,12 +21,19 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
         const auto ping = make_document(kvp("ping", 1));
         db.run_command(ping.view());
 
+        if (!db.has_collection(config->database.charactersCollection))
+        {
+            db.create_collection(config->database.charactersCollection);
+            auto characters = db[config->database.charactersCollection];
+            characters.create_index(make_document(kvp("characterName", 1)), make_document(kvp("unique", 1)));
+            characters.create_index(make_document(kvp("accountId", 1)));
+        }
+
         if (!db.has_collection(config->database.accountsCollection))
         {
             db.create_collection(config->database.accountsCollection);
             auto accounts = db[config->database.accountsCollection];
-            accounts.create_index(make_document(kvp("characterName", 1)));
-            accounts.create_index(make_document(kvp("accountId", 1)));
+            accounts.create_index(make_document(kvp("username", 1)));
         }
 
         if (!db.has_collection(config->database.mailCollection))
