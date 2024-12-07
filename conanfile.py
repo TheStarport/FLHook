@@ -1,5 +1,4 @@
 import os
-import platform
 
 from conan import ConanFile
 from conan.tools.files import copy
@@ -18,16 +17,16 @@ class CompressorRecipe(ConanFile):
         tc.generate()
 
         for dep in self.dependencies.values():
-            if len(dep.cpp_info.bindirs) > 0:
-                copy(self, "*.dll", src=dep.cpp_info.bindirs[0], dst=os.path.join(self.source_folder, "build/bin"),
+            for bin_dir in dep.cpp_info.bindirs:
+                copy(self, "*.dll", src=bin_dir,
+                     dst=os.path.join(self.source_folder, f"build/{self.settings.build_type}/bin"),
                      keep_path=False)
 
     def requirements(self):
         self.requires("concurrentqueue/1.0.4")
         self.requires("cpp-httplib/0.18.2", options={
             "with_openssl": True,
-            "with_zlib": True,
-            "with_brotli": True
+            "with_zlib": True
         })
         self.requires("croncpp/cci.20220503")
         self.requires("glm/cci.20230113")

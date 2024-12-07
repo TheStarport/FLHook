@@ -83,9 +83,12 @@ macro(SET_POST_BUILD CUR_TARGET)
         find_package(Python3 COMPONENTS Interpreter)
         if (${Python3_FOUND} STREQUAL "TRUE" AND ${Python3_Interpreter_FOUND} STREQUAL "TRUE")
             message(STATUS "Adding post build step")
+            if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+                set(RELEASE_FLAG "--release")
+            endif ()
             add_custom_command(TARGET ${CUR_TARGET} POST_BUILD
                     COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/post_build.py
-                    -o "${PROJECT_OUTPUT_DIR}" -d "${BINARY_COPY_DESTINATION}"
+                    -o "${PROJECT_OUTPUT_DIR}" -d "${BINARY_COPY_DESTINATION}" ${RELEASE_FLAG}
             )
         else ()
             message(STATUS "Python3 interpreter not found. Not adding post build step.")

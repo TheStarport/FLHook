@@ -13,6 +13,7 @@ if __name__ != "__main__":
 parser = ArgumentParser()
 parser.add_argument("--bin-dir", "-o", dest="bin", type=str, required=True)
 parser.add_argument("--dest", "-d", dest="dest", type=str, required=True, nargs='?', const='')
+parser.add_argument("--release", "-r", dest="release", action="store_true")
 args = parser.parse_args()
 
 if not os.path.isdir(args.dest):
@@ -25,6 +26,10 @@ if not os.path.isdir(args.bin):
 
 def process_folder(files, destination):
     for src in files:
+        # Skip build dependencies that don't have the same build type
+        if ('debug' in src.lower() and args.release) or ('release' in src.lower() and not args.release):
+            continue
+
         # Don't copy the same file multiple times
         file_name = Path(src).stem
         if file_name in copied_files:
