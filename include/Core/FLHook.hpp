@@ -52,11 +52,6 @@ class DLL FLHook final
         inline static CRCAntiCheatT crcAntiCheat;
         inline static GetShipInspectT getShipInspect;
 
-        inline static bool nonGunHitsBase;
-        inline static float lastHitPts;
-        inline static ClientId dmgToClient;
-        inline static ObjectId dmgToSpaceId;
-
         inline static CDPServer* cdpServer;
         inline static CDPClientProxy** clientProxyArray;
         inline static IClientImpl* fakeClientImpl;
@@ -154,6 +149,7 @@ class DLL FLHook final
         static std::shared_ptr<FLHookConfig> GetConfig();
         static std::shared_ptr<Database> GetDatabase();
         static mongocxx::pool::entry GetDbClient();
+        static std::shared_ptr<HttpServer> GetHttpServer();
         static std::shared_ptr<InfocardManager> GetInfocardManager();
         static LastHitInformation GetLastHitInformation();
         static IClientImpl* GetPacketInterface();

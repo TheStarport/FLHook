@@ -2,12 +2,14 @@
 
 #include <croncpp.h>
 
+#include "API/FLHook/AccountManager.hpp"
+#include "API/FLHook/HttpServer.hpp"
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
-#include "API/FLHook/AccountManager.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/ExceptionHandler.hpp"
 #include "Core/FLHook.hpp"
+#include "Core/IpResolver.hpp"
 
 void IServerImplHook::ServerReady()
 {
@@ -123,6 +125,11 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
             ++plugin;
         }
     }
+
+    if (FLHook::instance->httpServer)
+    {
+        FLHook::instance->httpServer->RegisterRoutes();
+    }
 }
 
 int __stdcall IServerImplHook::Update()
@@ -133,8 +140,19 @@ int __stdcall IServerImplHook::Update()
 
     if (!skip)
     {
-        CallServerPreamble { retVal = Server.Update(); }
-        CallServerPostamble(true, int());
+
+        if (FLHook::instance && FLHook::instance->httpServer)
+        {
+            // Lock the http server
+            auto lock = std::scoped_lock{ *FLHook::instance->httpServer };
+            CallServerPreamble { retVal = Server.Update(); }
+            CallServerPostamble(true, int());
+        }
+        else
+        {
+            CallServerPreamble { retVal = Server.Update(); }
+            CallServerPostamble(true, int());
+        }
     }
 
     CallPlugins(&Plugin::OnServerUpdateAfter);

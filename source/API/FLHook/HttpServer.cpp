@@ -14,9 +14,9 @@ void HttpServer::StartServer() const
 void HttpServer::RegisterRoutes()
 {
     server->Get("/onlineplayers",
-                [](const httplib::Request& req, httplib::Response& res)
+                [&](const httplib::Request& req, httplib::Response& res)
                 {
-                    std::scoped_lock lock(mutex);
+                    std::scoped_lock lock(*this);
 
                     auto test = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("a", 1));
                     std::string bytes = { reinterpret_cast<const char*>(test.data()), test.length() };
@@ -26,8 +26,15 @@ void HttpServer::RegisterRoutes()
                 });
 
     // Start the server
+    Logger::Info(std::format(L"Running http server on port {}", FLHook::GetConfig()->httpSettings.port));
     serverThread = std::jthread{ std::bind_front(&HttpServer::StartServer, this) };
+    server->wait_until_ready();
+    Logger::Debug(L"Http server started");
 }
+
+void HttpServer::lock() { mutex.lock(); }
+void HttpServer::unlock() { mutex.unlock(); }
+bool HttpServer::try_lock() { return mutex.try_lock(); }
 
 HttpServer::~HttpServer()
 {

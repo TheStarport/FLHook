@@ -248,8 +248,8 @@ ClientData* FLHook::GetClientByName(std::wstring_view characterName)
 
 std::shared_ptr<Database> FLHook::GetDatabase() { return instance->database; }
 mongocxx::pool::entry FLHook::GetDbClient() { return instance->database->AcquireClient(); }
+std::shared_ptr<HttpServer> FLHook::GetHttpServer() { return instance->httpServer; }
 std::shared_ptr<InfocardManager> FLHook::GetInfocardManager() { return instance->infocardManager; }
-FLHook::LastHitInformation FLHook::GetLastHitInformation() { return { nonGunHitsBase, lastHitPts, dmgToClient, dmgToSpaceId }; }
 Action<pub::AI::Personality*> FLHook::GetPersonality(const std::wstring& pilotNickname) { return instance->personalityHelper->GetPersonality(pilotNickname); }
 uint FLHook::GetServerLoadInMs() { return instance->serverLoadInMs; }
 CDPClientProxy** FLHook::GetClientProxyArray() { return instance->clientProxyArray; }

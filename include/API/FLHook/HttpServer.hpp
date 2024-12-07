@@ -5,7 +5,9 @@
 class HttpServer
 {
         friend FLHook;
-        inline static std::mutex mutex;
+        friend IServerImplHook;
+
+        std::mutex mutex;
         std::unique_ptr<httplib::Server> server;
         std::jthread serverThread;
 
@@ -13,6 +15,9 @@ class HttpServer
         void RegisterRoutes();
 
     public:
+        void lock();
+        void unlock();
+        bool try_lock();
         ~HttpServer();
         HttpServer();
 };
