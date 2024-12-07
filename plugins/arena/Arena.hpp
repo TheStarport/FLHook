@@ -2,6 +2,8 @@
 
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
+#include <httplib.h>
+
 namespace Plugins
 {
     /**
@@ -106,6 +108,13 @@ namespace Plugins
              * trade shortcut.
              */
             static bool ValidateCargo(ClientId client);
+
+            /**
+             * @brief Hook on HttpServerRegister. If enabled, registers the following routes:
+             * @par GET '/plugins/arena/usage' - Reports the players currently within the arena
+             */
+            void OnHttpServerRegister(std::shared_ptr<httplib::Server> httpServer) override;
+            httplib::StatusCode GetCurrentArenaUsers(const httplib::Request& request, httplib::Response& response);
 
         public:
             explicit ArenaPlugin(const PluginInfo& info);

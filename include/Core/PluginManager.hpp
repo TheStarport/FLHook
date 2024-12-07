@@ -6,6 +6,7 @@
 #include "FLHook.hpp"
 
 #ifdef FLHOOK
+    #include "API/FLHook/HttpServer.hpp"
     #include "Commands/AdminCommandProcessor.hpp"
     #include "Commands/ExternalCommandProcessor.hpp"
     #include "Commands/UserCommandProcessor.hpp"
@@ -20,6 +21,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
         friend UserCommandProcessor;
         friend ExternalCommandProcessor;
         friend IServerImplHook;
+        friend HttpServer;
 
         std::vector<std::shared_ptr<Plugin>> plugins;
         std::vector<std::weak_ptr<AbstractUserCommandProcessor>> userCommands;

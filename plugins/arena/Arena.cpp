@@ -3,6 +3,10 @@
 #include "Arena.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/HttpServer.hpp"
+#include "API/FLHook/InfocardManager.hpp"
+
+#include <bsoncxx/json.hpp>
 
 namespace Plugins
 {
@@ -39,6 +43,66 @@ namespace Plugins
         }
 
         return true;
+    }
+
+    void ArenaPlugin::OnHttpServerRegister(const std::shared_ptr<httplib::Server> httpServer)
+    {
+        httpServer->Get("/plugins/arena/usage",
+                        [&](const httplib::Request& req, httplib::Response& res)
+                        {
+                            const auto flHttp = FLHook::GetHttpServer();
+                            std::scoped_lock lock(*flHttp);
+                            return GetCurrentArenaUsers(req, res);
+                        });
+    }
+
+    httplib::StatusCode ArenaPlugin::GetCurrentArenaUsers(const httplib::Request& request, httplib::Response& response)
+    {
+        using bsoncxx::builder::basic::kvp;
+        using bsoncxx::builder::basic::make_document;
+
+        bsoncxx::builder::basic::array players;
+        for (auto& client : FLHook::Clients())
+        {
+            auto system = client.id.GetSystemId().Unwrap();
+            if (client.characterName.empty() || system != config.targetSystem)
+            {
+                continue;
+            }
+
+            auto shipRaw = client.ship.GetShipArchetype().Raw();
+            if (shipRaw.has_error())
+            {
+                continue;
+            }
+
+            auto ship = shipRaw.value();
+
+            // clang-format off
+            players.append(make_document(
+                kvp("clientId", static_cast<int>(client.id.GetValue())),
+                kvp("playerName", StringUtils::wstos(client.characterName)),
+                kvp("shipNick", ship->name), // TODO: Replace name which is a CMP with the actual nickname
+                kvp("shipName", StringUtils::wstos(FLHook::GetInfocardManager()->GetInfocard(ship->idsName)))
+            ));
+
+            // clang-format on
+        }
+
+        const auto payload = make_document(kvp("players", players));
+
+        if (const auto config = FLHook::GetConfig(); config->httpSettings.sendJsonInsteadOfBson)
+        {
+            std::string bytes = bsoncxx::to_json(payload.view());
+            response.set_content(bytes, "application/json");
+        }
+        else
+        {
+            const std::string bytes = { reinterpret_cast<const char*>(payload.data()), payload.length() };
+            response.set_content(bytes, "application/bson");
+        }
+
+        return httplib::StatusCode::OK_200;
     }
 
     BaseId ArenaPlugin::ReadReturnPointForClient(const ClientId client)

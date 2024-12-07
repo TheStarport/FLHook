@@ -1,7 +1,7 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/HttpServer.hpp"
-
 #include "API/InternalApi.hpp"
 
 #include <Psapi.h>
@@ -22,7 +22,14 @@ void HttpServer::StartServer() const
 
 void HttpServer::RegisterRoutes()
 {
-    server->Get("/onlineplayers", [&](const httplib::Request& req, httplib::Response& res) { return GetOnlinePlayers(req, res); });
+    server->Get("/onlineplayers",
+                [&](const httplib::Request& req, httplib::Response& res)
+                {
+                    std::scoped_lock lock(*this);
+                    return GetOnlinePlayers(req, res);
+                });
+
+    CallPlugins(&Plugin::OnHttpServerRegister, server);
 
     // Start the server
     Logger::Info(std::format(L"Running http server on port {}", FLHook::GetConfig()->httpSettings.port));
@@ -33,8 +40,6 @@ void HttpServer::RegisterRoutes()
 
 httplib::StatusCode HttpServer::GetOnlinePlayers(const httplib::Request& req, httplib::Response& res)
 {
-    std::scoped_lock lock(*this);
-
     PROCESS_MEMORY_COUNTERS memCounter;
     GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof memCounter);
 
@@ -50,7 +55,7 @@ httplib::StatusCode HttpServer::GetOnlinePlayers(const httplib::Request& req, ht
 
         // clang-format off
         players.append(make_document(
-            kvp("clientId", client.id.GetValue()),
+            kvp("clientId", static_cast<int>(client.id.GetValue())),
             kvp("playerName", StringUtils::wstos(client.characterName)),
             kvp("systemName", system.GetValue() ? StringUtils::wstos(system.GetName().Unwrap()) : ""),
             kvp("systemNick", system.GetValue() ? StringUtils::wstos(system.GetNickName().Unwrap()) : ""),
@@ -60,7 +65,7 @@ httplib::StatusCode HttpServer::GetOnlinePlayers(const httplib::Request& req, ht
 
     const auto payload = make_document(
         kvp("players", players),
-        kvp("memUsage", memCounter.WorkingSetSize),
+        kvp("memUsage", static_cast<int64_t>(memCounter.WorkingSetSize)),
         kvp("npcsEnabled", InternalApi::NpcsEnabled())
     );
 

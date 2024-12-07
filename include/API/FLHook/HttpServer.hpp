@@ -2,13 +2,13 @@
 
 #include <httplib.h>
 
-class HttpServer
+class DLL HttpServer
 {
         friend FLHook;
         friend IServerImplHook;
 
         std::mutex mutex;
-        std::unique_ptr<httplib::Server> server;
+        std::shared_ptr<httplib::Server> server;
         std::jthread serverThread;
 
         void StartServer() const;

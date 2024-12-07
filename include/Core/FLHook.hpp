@@ -21,6 +21,7 @@ class AccountManager;
 class CrashCatcher;
 class HttpServer;
 class ResourceManager;
+class AdminCommandProcessor;
 
 static constexpr std::wstring_view ConsoleName = L"CONSOLE";
 

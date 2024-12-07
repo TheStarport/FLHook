@@ -10,6 +10,11 @@ constexpr auto CurrentMinorVersion = PluginMinorVersion::V00;
 const std::wstring VersionInformation = std::to_wstring(static_cast<int>(CurrentMajorVersion)) + L"." + std::to_wstring(static_cast<int>(CurrentMinorVersion));
 
 class IServerImplHook;
+class HttpServer;
+namespace httplib
+{
+    class Server;
+}
 struct DLL Timer
 {
         friend IServerImplHook;
@@ -85,6 +90,7 @@ class DLL Plugin
         friend AccountManager;
         friend IEngineHook;
         friend FLHook;
+        friend HttpServer;
 #endif
 
         PluginMajorVersion versionMajor = PluginMajorVersion::Undefined;
@@ -174,7 +180,6 @@ class DLL Plugin
         }
 
     protected:
-
         // Define a macro that specifies a hook has an 'after' event
 #define Aft(type, name, params)                 \
     virtual type name params { return type(); } \
@@ -206,7 +211,7 @@ class DLL Plugin
         Aft(void, OnAddDamageEntry, (DamageList * dmg, ushort subObjId, float newHitPts, DamageEntry::SubObjFate fate));
         virtual void OnDamageHit(ClientId hitClient, const ObjectId& spaceId) {}
         Aft(bool, OnAllowPlayerDamage, (ClientId client, ClientId target));
-        Aft(void, OnSendDeathMessage, (ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg));
+        Aft(void, OnSendDeathMessage, (ClientId & killer, ClientId victim, SystemId system, std::wstring_view msg));
         virtual bool OnLoadSettings() { return true; }
         virtual void OnClearClientInfo(ClientId client) {}
         virtual void OnSendChat(ClientId client, ClientId targetClient, const uint size, void* rdl) {}
@@ -227,7 +232,7 @@ class DLL Plugin
         Aft(void, OnCharacterSelect, (ClientId client));
         Aft(void, OnCharacterCreation, (ClientId client, const SCreateCharacterInfo& info));
         Aft(void, OnCharacterDelete, (ClientId client, std::wstring_view charName));
-        virtual void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document){};
+        virtual void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) {};
         Aft(void, OnRequestShipArch, (ClientId client, ArchId arch));
         Aft(void, OnRequestHullStatus, (ClientId client, float status));
         Aft(void, OnRequestCollisionGroups, (ClientId client, const st6::list<CollisionGroupDesc>& groups));
@@ -286,6 +291,7 @@ class DLL Plugin
         Aft(void, OnStopTradeRequest, (ClientId client));
         Aft(void, OnRequestTrade, (ClientId client1, ClientId client2));
         Aft(void, OnSubmitChat, (ClientId from, ulong size, const void* rdlReader, ClientId to, int genArg1));
+        virtual void OnHttpServerRegister(std::shared_ptr<httplib::Server> httpServer) {}
 };
 
 class DLL PacketInterface
