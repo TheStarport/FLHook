@@ -13,6 +13,7 @@ class HttpServer
 
         void StartServer() const;
         void RegisterRoutes();
+        httplib::StatusCode GetOnlinePlayers(const httplib::Request& req, httplib::Response& res);
 
     public:
         void lock();

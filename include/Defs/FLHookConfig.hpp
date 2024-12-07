@@ -198,6 +198,7 @@ struct DLL FLHookConfig final
                 int port = 5577;
                 int timeout = 5;
                 int maxPayloadSize = 1024 * 1024 * 2; // Default 2MB
+                bool sendJsonInsteadOfBson = false;
         };
 
         Logging logging;

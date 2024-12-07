@@ -6,7 +6,6 @@
 #include "Core/FLHook.hpp"
 
 #include "API/FLHook/ClientList.hpp"
-#include "Defs/ServerStats.hpp"
 
 #define CRONCPP_IS_CPP17
 #include "croncpp.h"
