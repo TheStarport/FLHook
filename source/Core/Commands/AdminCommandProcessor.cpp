@@ -125,18 +125,18 @@ Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view character
 
 Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view characterNameView)
 {
-    std::wstring characterName{ characterNameView };
     // If true, they are online and that makes this easy for us
-    if (const auto* targetClient = FLHook::GetClientByName(characterName))
+    if (const auto* targetClient = FLHook::GetClientByName(characterNameView))
     {
         auto cash = targetClient->id.GetCash().Handle();
-        client.Message(std::format(L"{} has {} credits", characterName, cash));
+        client.Message(std::format(L"{} has {} credits", characterNameView, cash));
 
         co_return TaskStatus::Finished;
     }
 
     // They are offline, lets lookup the needed info
 
+    std::wstring characterName{ characterNameView };
     co_yield TaskStatus::DatabaseAwait;
 
     std::wstring err;
@@ -176,6 +176,74 @@ Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view character
     else
     {
         client.Message(std::format(L"{} has {} credits", characterName, credits));
+    }
+
+    co_return TaskStatus::Finished;
+}
+
+Task AdminCommandProcessor::AddCash(ClientId client, std::wstring_view characterNameView, uint amount)
+{
+    if(!amount)
+    {
+        client.Message(L"Invalid cash amount provided");
+        co_return TaskStatus::Finished;
+    }
+    
+    // If true, they are online and that makes this easy for us
+    if (const auto* targetClient = FLHook::GetClientByName(characterNameView))
+    {
+        targetClient->id.AddCash(amount);
+        client.Message(std::format(L"{} now has {} credits", characterNameView, targetClient->id.GetCash().Handle()));
+
+        co_return TaskStatus::Finished;
+    }
+
+    std::wstring characterName{ characterNameView };
+    co_yield TaskStatus::DatabaseAwait;
+
+    auto success = MongoResult::Failure;
+    std::wstring message;
+    try
+    {
+        const auto config = FLHook::GetConfig();
+        const auto db = FLHook::GetDbClient();
+        auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
+
+        // They are offline, lets lookup the needed info
+        const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
+        const auto update = make_document(kvp("$inc", make_document(kvp("money", static_cast<int>(amount)))));
+
+        const auto result = charactersCollection.update_one(filter.view(), update.view());
+
+        assert(result.has_value());
+
+        if (result->modified_count() == 1)
+        {
+            success = MongoResult::Success;
+        }
+        else if (result->matched_count() == 1)
+        {
+            success = MongoResult::MatchButNoChange;
+        }
+    }
+    catch (const mongocxx::exception& ex)
+    {
+        message = std::format(L"ERR: {}", StringUtils::stows(ex.what()));
+    }
+
+    co_yield TaskStatus::FLHookAwait;
+
+    if (!message.empty())
+    {
+        client.MessageErr(message).Handle();
+        co_return TaskStatus::Finished;
+    }
+
+    switch (success)
+    {
+        case MongoResult::Failure: client.MessageErr(std::format(L"ERR: character {} was not found", characterName)); break;
+        case MongoResult::MatchButNoChange: client.Message(std::format(L"ERR: Can't add {} credits to {}!", amount, characterName)); break;
+        case MongoResult::Success: client.Message(std::format(L"{} given {} credits", characterName, amount));
     }
 
     co_return TaskStatus::Finished;

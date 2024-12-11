@@ -6,6 +6,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
 {
         Task SetCash(ClientId client, std::wstring_view characterName, uint amount);
         Task GetCash(ClientId client, std::wstring_view characterName);
+        Task AddCash(ClientId client, std::wstring_view characterName, uint amount);
         Task KickPlayer(ClientId client, ClientId target, std::wstring_view reason);
         Task BanPlayer(ClientId client, std::wstring_view characterName);
         Task TempbanPlayer(ClientId client, std::wstring_view characterName, uint durationInDays);
@@ -39,9 +40,11 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
 
         const inline static std::array<AdminCommandInfo<AdminCommandProcessor>, 32> commands = {
             { AddAdminCommand(AdminCommandProcessor, Cmds(L".getcash"), GetCash, GameAndConsole, Cash, L".getcash <charname> <cash>",
-             L"Gets the cash of the target cash"),
+             L"Gets the cash of the target character"),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".setcash"), SetCash, GameAndConsole, Cash, L".setcash <charname> <cash>",
-             L"Sets the cash of the target cash"),
+             L"Sets the cash of the target character"),
+             AddAdminCommand(AdminCommandProcessor, Cmds(L".addcash"), AddCash, GameAndConsole, Cash, L".addcash <charname> <cash>",
+             L"Adds the cash to the target character"),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".kick"), KickPlayer, GameAndConsole, Expel, L".kick <charname>",
              L"Kick the specified character from the server."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".ban"), BanPlayer, GameAndConsole, Expel, L".ban <charname>",
