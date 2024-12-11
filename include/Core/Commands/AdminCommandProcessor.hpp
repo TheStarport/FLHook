@@ -6,7 +6,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
 {
         Task SetCash(ClientId client, std::wstring_view characterName, uint amount);
         Task GetCash(ClientId client, std::wstring_view characterName);
-        Task AddCash(ClientId client, std::wstring_view characterName, uint amount);
+        Task AddCash(ClientId client, std::wstring_view characterName, int amount);
         Task KickPlayer(ClientId client, ClientId target, std::wstring_view reason);
         Task BanPlayer(ClientId client, std::wstring_view characterName);
         Task TempbanPlayer(ClientId client, std::wstring_view characterName, uint durationInDays);

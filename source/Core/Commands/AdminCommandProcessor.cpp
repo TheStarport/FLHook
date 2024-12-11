@@ -181,14 +181,14 @@ Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view character
     co_return TaskStatus::Finished;
 }
 
-Task AdminCommandProcessor::AddCash(ClientId client, std::wstring_view characterNameView, uint amount)
+Task AdminCommandProcessor::AddCash(ClientId client, std::wstring_view characterNameView, int amount)
 {
-    if(!amount)
+    if(amount == 0)
     {
         client.Message(L"Invalid cash amount provided");
         co_return TaskStatus::Finished;
     }
-    
+
     // If true, they are online and that makes this easy for us
     if (const auto* targetClient = FLHook::GetClientByName(characterNameView))
     {
@@ -211,7 +211,7 @@ Task AdminCommandProcessor::AddCash(ClientId client, std::wstring_view character
 
         // They are offline, lets lookup the needed info
         const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
-        const auto update = make_document(kvp("$inc", make_document(kvp("money", static_cast<int>(amount)))));
+        const auto update = make_document(kvp("$inc", make_document(kvp("money", amount))));
 
         const auto result = charactersCollection.update_one(filter.view(), update.view());
 
