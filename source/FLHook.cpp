@@ -382,8 +382,19 @@ void FLHook::ProcessPendingCommands()
     {
         try
         {
+            std::wstring& cmdStr = cmd.value();
+            if (cmdStr.empty())
+            {
+                continue;
+            }
+
+            if (cmdStr[0] != L'.')
+            {
+                cmdStr = std::format(L".{}", cmdStr);
+            }
+
             constexpr auto consoleId = L"0"sv;
-            if (const auto response = AdminCommandProcessor::i()->ProcessCommand(ClientId(), AllowedContext::ConsoleOnly, consoleId, cmd.value());
+            if (const auto response = AdminCommandProcessor::i()->ProcessCommand(ClientId(), AllowedContext::ConsoleOnly, consoleId, cmdStr);
                 response.has_value())
             {
                 GetTaskScheduler()->AddTask(std::make_shared<Task>(*response));
