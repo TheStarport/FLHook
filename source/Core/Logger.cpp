@@ -89,7 +89,7 @@ void Logger::PrintToConsole(std::stop_token st)
                 case LogLevel::Debug:
                     {
 
-                        SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::Green));
+                        SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongGreen));
                         break;
                     }
                 case LogLevel::Info:
@@ -112,7 +112,7 @@ void Logger::PrintToConsole(std::stop_token st)
             std::wcout << log << std::endl;
 
             // Reset
-            SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::White));
+            SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongWhite));
         }
     }
 }
