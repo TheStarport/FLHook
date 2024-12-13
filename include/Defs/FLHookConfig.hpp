@@ -1,4 +1,5 @@
 #pragma once
+#include "API/Utils/Logger.hpp"
 
 struct DLL FLHookConfig final
 {
@@ -17,6 +18,7 @@ struct DLL FLHookConfig final
         {
                 //! If true, apply a vanilla FLServer ban in case of a wildcard/IP match on top of kicking them.
                 bool banAccountOnMatch = false;
+
                 //! Instantly kicks any player with a matching IP or matching IP range.
                 std::vector<std::wstring> banWildcardsAndIPs;
         };
@@ -67,17 +69,16 @@ struct DLL FLHookConfig final
 
                 MsgStyle msgStyle;
 
-                //! If true, chatConfig will sent only to local ships
+                //! If true, chatConfig will be sent only to local ships
                 bool defaultLocalChat = false;
 
-                //! If true, sends a copy of submitted commands to the player's chatlog.
+                //! If true, sends a copy of submitted commands to the player's chat log.
                 bool echoCommands = true;
 
                 //! If true, invalid commands are not sent to the chat
                 bool suppressInvalidCommands = true;
 
-                //! Broadcasts a message that the player is attempting docking to all players in range
-                //! currently hardcoded to 15K
+                //! Broadcasts a message that the player is attempting docking to all players in range currently hardcoded to 15K
                 bool dockingMessages = true;
         };
 
@@ -100,25 +101,23 @@ struct DLL FLHookConfig final
                 DamageMode damageMode = DamageMode::All;
 
                 //! Disable the cruise disrupting effects.
-                bool changeCruiseDisruptorBehaviour = false;
+                bool cruiseDisruptorRestartEngines = true;
 
-                //! If true, it encodes player characters to bini (binary ini)
-                bool disableCharfileEncryption = false;
                 //! If a player disconnects in space, their ship will remain in game world for the time specified, in milliseconds.
                 uint disconnectDelay = 0;
 
                 //! Maximum amount of players in a group.
                 uint maxGroupSize = 8;
+
                 //! If true, keeps the player in the group if they switch characters within one account.
                 bool persistGroup = false;
 
                 //! Global damage multiplier to missile and torpedo type weapons.
                 float torpMissileBaseDamageMultiplier = 1.0f;
 
-                bool tempBansEnabled = true;
-
                 //! A vector of forbidden words/phrases, which will not be processed and sent to other players
                 std::vector<std::wstring> chatSuppressList;
+
                 //! Vector of systems where players can't deal damage to one another.
                 std::vector<SystemId> noPvPSystems;
         };
@@ -126,7 +125,7 @@ struct DLL FLHookConfig final
         struct Logging final
         {
                 //! If true, enables FLHook debug mode, also enabled debug level logs
-                int minLogLevel = 2;
+                LogLevel minLogLevel = LogLevel::Info;
 
                 //! If true, it logs performance of functions if they take too long to execute.
                 bool logPerformanceTimers = false;
@@ -185,19 +184,31 @@ struct DLL FLHookConfig final
                 int cooldown = 0;
         };
 
-        struct Reputatation final
+        struct Reputation final
         {
-                //! IF set, causes /droprep command to cost the defined amount of credits to go through.
-                int creditCost;
+                //! If set, causes /droprep command to cost the defined amount of credits to go through.
+                int creditCost = 0;
         };
 
         struct HttpSettings final
         {
+                //! If set, when FLHook starts a HTTP server will be started with it
+                //! that enables various requests to be made to manipulate the server or obtain information
                 bool enableHttpServer = true;
+
+                //! The hostname of the server, this should be localhost unless you are planning to make this accessible from a url.
                 std::string host = "localhost";
+
+                //! The port this http server should run on. Defaults to 5577.
                 int port = 5577;
+
+                //! The time in seconds before any request, going in or out, times out
                 int timeout = 5;
+
+                //! The maximum content body that can be returned from a web request, defaults to 2MB which is the maximum size of a BSON document
                 int maxPayloadSize = 1024 * 1024 * 2; // Default 2MB
+
+                //! If true, requests will be returned as JSON payloads, rather than BSON documents.
                 bool sendJsonInsteadOfBson = false;
         };
 
@@ -212,6 +223,6 @@ struct DLL FLHookConfig final
         DatabaseConfig database;
         Npc npc;
         Rename rename;
-        Reputatation reputatation;
+        Reputation reputation;
         HttpSettings httpSettings;
 };

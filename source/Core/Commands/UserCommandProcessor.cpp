@@ -897,7 +897,7 @@ Task UserCommandProcessor::Help(ClientId client, int page)
 
 Task UserCommandProcessor::DropRep(ClientId client)
 {
-    const auto& config = FLHook::GetConfig()->reputatation;
+    const auto& config = FLHook::GetConfig()->reputation;
 
     if (config.creditCost)
     {

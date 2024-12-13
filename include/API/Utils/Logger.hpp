@@ -3,18 +3,18 @@
 #include <concurrentqueue.h>
 #include <optional>
 
+enum class LogLevel
+{
+    Trace,
+    Debug,
+    Info,
+    Warn,
+    Err,
+};
+
 class FLHook;
 class DLL Logger final
 {
-        enum class LogLevel
-        {
-            Trace,
-            Debug,
-            Info,
-            Warn,
-            Err,
-        };
-
         struct LogMessage
         {
                 LogLevel level;

@@ -5,7 +5,7 @@
 
 using CreateIDType = uint (*)(const char*);
 
-//std::shared_ptr<spdlog::logger> hashList = nullptr;
+// std::shared_ptr<spdlog::logger> hashList = nullptr;
 const auto detour = std::make_unique<FunctionDetour<CreateIDType>>(CreateID);
 
 uint DebugTools::CreateIdDetour(const char* str)
@@ -36,7 +36,7 @@ uint DebugTools::CreateIdDetour(const char* str)
 
 void DebugTools::Init()
 {
-    if (FLHook::GetConfig()->logging.minLogLevel > 2)
+    if (static_cast<int>(FLHook::GetConfig()->logging.minLogLevel) >= 2)
     {
         return;
     }

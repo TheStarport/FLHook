@@ -51,7 +51,7 @@ void IpResolver::TimerCheckResolveResults()
 {
     TryHook
     {
-        mutex.lock();
+        std::scoped_lock lock(mutex);
         for (const auto& [client, connects, IP, hostname] : resolveIPsResult)
         {
             auto cl = ClientId(client);
@@ -79,7 +79,6 @@ void IpResolver::TimerCheckResolveResults()
         }
 
         resolveIPsResult.clear();
-        mutex.unlock();
     }
     CatchHook({})
 }

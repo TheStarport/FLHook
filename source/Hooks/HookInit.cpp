@@ -19,7 +19,7 @@ inline static char repFreeFixOld[5];
 
 void FLHook::ClearClientInfo(ClientId client)
 {
-    if(!client)
+    if (!client)
     {
         return;
     }
@@ -209,16 +209,6 @@ void FLHook::InitHookExports()
     // get CDPServer
     address = Offset(BinaryType::DaLib, AddressList::CdpServer);
     MemUtils::ReadProcMem(address, &cdpServer, 4);
-
-    // charfile encyption(doesn't get disabled when unloading FLHook)
-    if (FLHook::GetConfig()->general.disableCharfileEncryption)
-    {
-        constexpr std::array<byte, 2> buffer = { 0x14, 0xB3 };
-        address = Offset(BinaryType::Server, AddressList::CharFileEncryption);
-        MemUtils::WriteProcMem(address, buffer.data(), 2);
-        address = Offset(BinaryType::Server, AddressList::CharFileEncryption2);
-        MemUtils::WriteProcMem(address, buffer.data(), 2);
-    }
 
     // maximum group size
     if (FLHook::GetConfig()->general.maxGroupSize > 0)
