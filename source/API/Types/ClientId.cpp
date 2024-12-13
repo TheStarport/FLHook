@@ -724,24 +724,8 @@ Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goo
 
 Action<void> ClientId::Undock(Vector pos, std::optional<Matrix> orientation) const
 {
-    ClientCheck;
-    CharSelectCheck;
 
-    const auto rotation = Quaternion(orientation.value_or(Matrix::Identity()));
-
-    FLPACKET_LAUNCH launchPacket;
-    launchPacket.ship = Players[value].shipId;
-    launchPacket.base = 0;
-    launchPacket.state = 0xFFFFFFFF;
-    launchPacket.rotate[0] = rotation.w;
-    launchPacket.rotate[1] = rotation.x;
-    launchPacket.rotate[2] = rotation.y;
-    launchPacket.rotate[3] = rotation.z;
-    launchPacket.pos[0] = pos.x;
-    launchPacket.pos[1] = pos.y;
-    launchPacket.pos[2] = pos.z;
-
-    FLHook::hookClientImpl->Send_FLPACKET_SERVER_LAUNCH(value, launchPacket);
+//TODO: Doesn't work, fix with FLUF clienthook
 
     return { {} };
 }
