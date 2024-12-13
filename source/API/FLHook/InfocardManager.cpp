@@ -29,10 +29,11 @@ InfocardManager::InfocardManager()
             continue;
         }
 
-        Logger::Debug(std::format(L"Loaded Resource DLL: {}", StringUtils::stows(ini.get_value_string())));
-        hDll = LoadLibraryExA(ini.get_value_string(0), nullptr, LOAD_LIBRARY_AS_DATAFILE);
+        std::string dll = ini.get_value_string();
+        hDll = LoadLibraryExA(dll.c_str(), nullptr, LOAD_LIBRARY_AS_DATAFILE);
         if (hDll)
         {
+            Logger::Debug(std::format(L"Loaded Resource DLL: {}", StringUtils::stows(dll)));
             loadedDlls.push_back(hDll);
         }
     }
@@ -47,7 +48,7 @@ InfocardManager::~InfocardManager()
         std::wstring buffer(MAX_PATH, L'\0');
         GetModuleFileName(dll, buffer.data(), buffer.size());
 
-        Logger::Debug(std::format(L"Unloaded Resource DLL: {}",  buffer.substr(buffer.find('\\') + 1)));
+        Logger::Debug(std::format(L"Unloaded Resource DLL: {}", buffer.substr(buffer.find('\\') + 1)));
         FreeLibrary(dll);
     }
 }
