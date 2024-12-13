@@ -118,7 +118,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
                     if (const auto validation = Validate(user, command.allowedContext, command.requiredRole); validation.has_error())
                     {
                         user.Message(validation.error());
-                        return std::nullopt;
+                        return Task::NullOp();
                     }
 
                     paramVector.erase(paramVector.begin(), paramVector.begin() + std::clamp(std::ranges::count(str, L' '), 1, 5));

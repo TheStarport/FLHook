@@ -6,6 +6,9 @@
 #include "Exceptions/InvalidParameterException.hpp"
 
 Task::Task(const std::coroutine_handle<Promise> h) : handle(h) {}
+
+Task Task::NullOp() { co_return TaskStatus::Finished; }
+
 void Task::SetClient(ClientId c) { client = c; }
 bool Task::HandleException()
 {

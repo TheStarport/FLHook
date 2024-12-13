@@ -28,6 +28,7 @@ class DLL Task
         using promise_type = Promise;
 
         explicit Task(std::coroutine_handle<Promise> h);
+        static Task NullOp();
         void SetClient(ClientId);
         bool HandleException();
         TaskStatus UpdateStatus();
