@@ -14,6 +14,14 @@
 
 class ClientList;
 class FLHook;
+class DatabaseQuery;
+
+enum class DatabaseCollection
+{
+    Accounts,
+    Character,
+    Mail
+};
 
 class DLL Database
 {
@@ -33,9 +41,55 @@ class DLL Database
         Database(const Database&) = delete;
         Database& operator=(const Database&) = delete;
 
+        DatabaseQuery BeginDatabaseQuery();
         mongocxx::pool::entry AcquireClient();
         static mongocxx::collection GetCollection(const mongocxx::pool::entry& dbClient, std::string_view collectionName);
         static void SaveValueOnAccount(const AccountId& accountId, std::string_view key, bsoncxx::types::bson_value::view_or_value value);
+};
+
+class DLL DatabaseQuery
+{
+        friend Database;
+
+        mongocxx::pool::entry entry;
+        mongocxx::client_session session;
+        bool sessionStarted = true;
+
+        explicit DatabaseQuery(mongocxx::pool::entry entry);
+        ~DatabaseQuery() = default;
+        static std::string_view CollectionToString(DatabaseCollection collection);
+
+    public:
+        DatabaseQuery(const DatabaseQuery&) = delete;
+        std::optional<bsoncxx::document::value> FindFromCollection(std::string_view collectionName, bsoncxx::document::view filter,
+                                                                   const std::optional<bsoncxx::document::view>& projection) const;
+        std::optional<bsoncxx::document::value> FindFromCollection(DatabaseCollection collectionName, bsoncxx::document::view filter,
+                                                                   const std::optional<bsoncxx::document::view>& projection) const;
+
+        bsoncxx::document::value FindAndUpdate(std::string_view collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
+                                               const std::optional<bsoncxx::document::view>& projection, bool before = true) const;
+        bsoncxx::document::value FindAndUpdate(DatabaseCollection collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
+                                               const std::optional<bsoncxx::document::view>& projection, bool before = true) const;
+
+        bsoncxx::document::value FindAndDelete(DatabaseCollection collectionName, bsoncxx::document::view filter,
+                                               const std::optional<bsoncxx::document::view>& projection) const;
+        bsoncxx::document::value FindAndDelete(std::string_view collectionName, bsoncxx::document::view filter,
+                                               const std::optional<bsoncxx::document::view>& projection) const;
+
+        mongocxx::result::update UpdateFromCollection(std::string_view collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
+                                                      bool many = false) const;
+        mongocxx::result::update UpdateFromCollection(DatabaseCollection collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
+                                                      bool many = false) const;
+
+        mongocxx::result::delete_result DeleteFromCollection(std::string_view collectionName, bsoncxx::document::view filter, bool many = false) const;
+        mongocxx::result::delete_result DeleteFromCollection(DatabaseCollection collectionName, bsoncxx::document::view filter, bool many = false);
+
+        std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> InsertIntoCollection(DatabaseCollection collectionName,
+                                                                                                       const std::vector<bsoncxx::document::view>& newDocs);
+        std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> InsertIntoCollection(std::string_view collectionName,
+                                                                                                       const std::vector<bsoncxx::document::view>& newDocs);
+
+        void ConcludeQuery(bool success);
 };
 
 enum class MongoResult

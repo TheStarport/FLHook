@@ -3,6 +3,8 @@
 #include "API/FLHook/Database.hpp"
 
 #include "API/FLHook/TaskScheduler.hpp"
+#include "Defs/Database/Account.hpp"
+
 #include <mongocxx/exception/error_code.hpp>
 #include <mongocxx/exception/write_exception.hpp>
 
@@ -51,6 +53,8 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
     }
 }
 
+DatabaseQuery Database::BeginDatabaseQuery() { return DatabaseQuery(pool.acquire()); }
+
 mongocxx::pool::entry Database::AcquireClient() { return pool.acquire(); }
 
 mongocxx::collection Database::GetCollection(const mongocxx::pool::entry& dbClient, const std::string_view collectionName)
@@ -73,6 +77,162 @@ void Database::SaveValueOnAccount(const AccountId& accountId, std::string_view k
 
             accountsCollection.update_one(findDoc.view(), updateDoc.view());
         });
+}
+
+DatabaseQuery::DatabaseQuery(mongocxx::pool::entry entry) : entry(std::move(entry)), session(this->entry->start_session()) { session.start_transaction(); }
+
+std::string_view DatabaseQuery::CollectionToString(const DatabaseCollection collection)
+{
+    const auto& config = FLHook::GetConfig();
+    switch (collection)
+    {
+        case DatabaseCollection::Accounts: return config->database.accountsCollection;
+        case DatabaseCollection::Character: return config->database.charactersCollection;
+        case DatabaseCollection::Mail: return config->database.mailCollection;
+        default: throw std::invalid_argument("Invalid collection");
+    }
+}
+
+std::optional<bsoncxx::document::value> DatabaseQuery::FindFromCollection(const std::string_view collectionName, const bsoncxx::document::view filter,
+                                                                          const std::optional<bsoncxx::document::view>& projection) const
+{
+    auto collection = Database::GetCollection(entry, collectionName);
+
+    mongocxx::options::find find;
+    if (projection.has_value())
+    {
+        find.projection(projection.value());
+    }
+
+    auto result = collection.find_one(filter, find);
+    return collection.find_one(filter);
+}
+
+std::optional<bsoncxx::document::value> DatabaseQuery::FindFromCollection(const DatabaseCollection collectionName, const bsoncxx::document::view filter,
+                                                                          const std::optional<bsoncxx::document::view>& projection) const
+{
+    return FindFromCollection(CollectionToString(collectionName), filter, projection);
+}
+
+bsoncxx::document::value DatabaseQuery::FindAndUpdate(const std::string_view collectionName, const bsoncxx::document::view filter,
+                                                      const bsoncxx::document::view update, const std::optional<bsoncxx::document::view>& projection,
+                                                      bool before) const
+{
+    auto collection = Database::GetCollection(entry, collectionName);
+
+    mongocxx::options::find_one_and_update find;
+    find.return_document(static_cast<mongocxx::options::return_document>(before));
+
+    if (projection.has_value())
+    {
+        find.projection(projection.value());
+    }
+
+    auto result = collection.find_one_and_update(filter, update, find);
+    assert(result.has_value());
+    return result.value();
+}
+
+bsoncxx::document::value DatabaseQuery::FindAndUpdate(const DatabaseCollection collectionName, const bsoncxx::document::view filter,
+                                                      const bsoncxx::document::view update, const std::optional<bsoncxx::document::view>& projection,
+                                                      const bool before) const
+{
+    return FindAndUpdate(CollectionToString(collectionName), filter, update, projection, before);
+}
+
+bsoncxx::document::value DatabaseQuery::FindAndDelete(const std::string_view collectionName, const bsoncxx::document::view filter,
+                                                      const std::optional<bsoncxx::document::view>& projection) const
+{
+    auto collection = Database::GetCollection(entry, collectionName);
+
+    mongocxx::options::find_one_and_delete find;
+    if (projection.has_value())
+    {
+        find.projection(projection.value());
+    }
+
+    auto result = collection.find_one_and_delete(filter, find);
+    assert(result.has_value());
+    return result.value();
+}
+
+bsoncxx::document::value DatabaseQuery::FindAndDelete(const DatabaseCollection collectionName, const bsoncxx::document::view filter,
+                                                      const std::optional<bsoncxx::document::view>& projection) const
+{
+    return FindAndDelete(CollectionToString(collectionName), filter, projection);
+}
+
+mongocxx::result::update DatabaseQuery::UpdateFromCollection(const std::string_view collectionName, const bsoncxx::document::view filter,
+                                                             const bsoncxx::document::view update, const bool many) const
+{
+    auto collection = Database::GetCollection(entry, collectionName);
+
+    auto result = many ? collection.update_many(filter, update) : collection.update_one(filter, update);
+    assert(result.has_value());
+    return result.value();
+}
+
+mongocxx::result::update DatabaseQuery::UpdateFromCollection(const DatabaseCollection collectionName, const bsoncxx::document::view filter,
+                                                             const bsoncxx::document::view update, const bool many) const
+{
+    return UpdateFromCollection(CollectionToString(collectionName), filter, update, many);
+}
+
+mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const std::string_view collectionName, const bsoncxx::document::view filter,
+                                                                    const bool many) const
+{
+    auto collection = Database::GetCollection(entry, collectionName);
+
+    auto result = many ? collection.delete_many(filter) : collection.delete_one(filter);
+    assert(result.has_value());
+    return result.value();
+}
+
+mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const DatabaseCollection collectionName, const bsoncxx::document::view filter,
+                                                                    const bool many)
+{
+    return DeleteFromCollection(CollectionToString(collectionName), filter, many);
+}
+
+std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> DatabaseQuery::InsertIntoCollection(
+    const std::string_view collectionName, const std::vector<bsoncxx::document::view>& newDocs)
+{
+    auto collection = Database::GetCollection(entry, collectionName);
+
+    if (newDocs.size() != 1)
+    {
+        auto result = collection.insert_many(newDocs);
+        assert(result.has_value());
+
+        return result.value();
+    }
+
+    auto result = collection.insert_one(newDocs.front());
+    assert(result.has_value());
+    return result.value();
+}
+
+std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> DatabaseQuery::InsertIntoCollection(
+    const DatabaseCollection collectionName, const std::vector<bsoncxx::document::view>& newDocs)
+{
+    return InsertIntoCollection(CollectionToString(collectionName), newDocs);
+}
+
+void DatabaseQuery::ConcludeQuery(const bool success)
+{
+    if (!sessionStarted)
+    {
+        throw std::logic_error("A database query cannot be concluded multiple times.");
+    }
+
+    if (success)
+    {
+        session.commit_transaction();
+    }
+    else
+    {
+        session.abort_transaction();
+    }
 }
 
 std::optional<Character> Database::GetCharacterById(bsoncxx::oid objId)
