@@ -225,6 +225,7 @@ void DatabaseQuery::ConcludeQuery(const bool success)
         throw std::logic_error("A database query cannot be concluded multiple times.");
     }
 
+    sessionStarted = false;
     if (success)
     {
         session.commit_transaction();
