@@ -520,7 +520,7 @@ Action<void> ClientId::Message(const std::wstring_view message, const MessageFor
 
     return { {} };
 }
-Action<void> ClientId::MessageErr(std::wstring_view message) const { return Message(message, MessageFormat::Normal, MessageColor::Crimson); }
+Action<void> ClientId::MessageErr(const std::wstring_view message) const { return Message(message, MessageFormat::Normal, MessageColor::Crimson); }
 
 Action<void> ClientId::MessageLocal(const std::wstring_view message, const float range, const MessageFormat format, const MessageColor color) const
 {
@@ -683,7 +683,7 @@ Action<void> ClientId::AddCargo(const uint goodId, const uint count, const bool 
     pub::Player::AddCargo(value, goodId, count, 1.0, isMission);
     return { {} };
 }
-Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const
+Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, const uint count) const
 {
     switch (goodId.index())
     {
@@ -712,8 +712,7 @@ Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goo
             }
         case 2:
             {
-                const int result = pub::Player::RemoveCargo(value, rfl::get<ushort>(goodId), count);
-                if (result == -2)
+                if (const int result = pub::Player::RemoveCargo(value, rfl::get<ushort>(goodId), count); result == -2)
                 {
                     return { cpp::fail(Error::InvalidGood) };
                 }
@@ -744,7 +743,7 @@ Action<DPN_CONNECTION_INFO> ClientId::GetConnectionData() const
     ClientCheck;
     CharSelectCheck;
 
-    auto cdpClient = FLHook::GetClientProxyArray()[value - 1];
+    const auto cdpClient = FLHook::GetClientProxyArray()[value - 1];
     DPN_CONNECTION_INFO connectionInfo;
     if (!cdpClient || !cdpClient->GetConnectionStats(&connectionInfo))
     {

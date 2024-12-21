@@ -53,7 +53,8 @@ struct CommandInfo
         {                                                                                                                                                   \
             if (cmd.starts_with(str))                                                                                                                       \
             {                                                                                                                                               \
-                paramVector.erase(paramVector.begin(), paramVector.begin() + (std::clamp(std::ranges::count(str, L' '), 1, 5)));                            \
+                const auto countVal = std::ranges::count(str, L' ');                                                                                        \
+                paramVector.erase(paramVector.begin() + 1, paramVector.begin() + std::clamp(countVal + 2, 2, 6));                                           \
                 return command.func(processor, paramVector);                                                                                                \
             }                                                                                                                                               \
         }                                                                                                                                                   \
