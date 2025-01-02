@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/InternalApi.hpp"
 #include "FLCore/FLCoreDefs.hpp"
 #include "rfl/parsing/CustomParser.hpp"
 
@@ -70,27 +71,103 @@ namespace rfl::parsing
     struct Parser<ReaderType, WriterType, RepGroupId, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, RepGroupId, RepGroupImpl>
     {};
 
-#define HashConvert(hashType, example)                                                                                                                    \
-    struct hashType## _Impl                                                                                                                                \
-    {                                                                                                                                                     \
-            using ReflectionType = std::string;                                                                                                           \
-            std::string data;                                                                                                                             \
-            static hashType## _Impl from_class(const hashType## & hash) noexcept { return {## example }; }                                                   \
-                                                                                                                                                          \
-            [[nodiscard]]                                                                                                                                 \
-            ## hashType to_class() const                                                                                                                   \
-            {                                                                                                                                             \
-                return hashType## { CreateID(data.c_str()) };                                                                                              \
-            }                                                                                                                                             \
-    };                                                                                                                                                    \
-    template <class ReaderType, class WriterType, class ProcessorsType>                                                                                   \
-    struct Parser<ReaderType, WriterType, hashType## , ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, hashType## , hashType## _Impl> \
+    struct EquipmentId_Impl
+    {
+            using ReflectionType = std::string;
+            std::string data;
+            static EquipmentId_Impl from_class(const EquipmentId& hash) noexcept
+            {
+                const auto lookup = InternalApi::HashLookup(hash.GetId());
+                return { lookup.empty() ? "nickname" : lookup };
+            }
+            [[nodiscard]]
+            EquipmentId to_class() const
+            {
+                return EquipmentId{ CreateID(data.c_str()) };
+            }
+    };
+    template <class ReaderType, class WriterType, class ProcessorsType>
+    struct Parser<ReaderType, WriterType, EquipmentId, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, EquipmentId, EquipmentId_Impl>
     {};
-
-    HashConvert(EquipmentId, "nickname");
-    HashConvert(BaseId, "li01_01_base");
-    HashConvert(SystemId, "li01_01");
-    HashConvert(GoodId, "commodity_cardamine");
-    HashConvert(Id, "nickname")
+    ;
+    struct BaseId_Impl
+    {
+            using ReflectionType = std::string;
+            std::string data;
+            static BaseId_Impl from_class(const BaseId& hash) noexcept
+            {
+                const auto lookup = InternalApi::HashLookup(hash.GetValue());
+                return { lookup.empty() ? "li01_01_base" : lookup };
+            }
+            [[nodiscard]]
+            BaseId to_class() const
+            {
+                return BaseId{ CreateID(data.c_str()) };
+            }
+    };
+    template <class ReaderType, class WriterType, class ProcessorsType>
+    struct Parser<ReaderType, WriterType, BaseId, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, BaseId, BaseId_Impl>
+    {};
+    ;
+    struct SystemId_Impl
+    {
+            using ReflectionType = std::string;
+            std::string data;
+            static SystemId_Impl from_class(const SystemId& hash) noexcept
+            {
+                const auto lookup = InternalApi::HashLookup(hash.GetValue());
+                return { lookup.empty() ? "li01_01" : lookup };
+            }
+            [[nodiscard]]
+            SystemId to_class() const
+            {
+                return SystemId{ CreateID(data.c_str()) };
+            }
+    };
+    template <class ReaderType, class WriterType, class ProcessorsType>
+    struct Parser<ReaderType, WriterType, SystemId, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, SystemId, SystemId_Impl>
+    {};
+    ;
+    struct GoodId_Impl
+    {
+            using ReflectionType = std::string;
+            std::string data;
+            static GoodId_Impl from_class(const GoodId& hash) noexcept
+            {
+                if(!hash.GetValue())
+                {
+                    return {"commodity_cardamine"};
+                }
+                const auto lookup = InternalApi::HashLookup(hash.GetValue()->goodId);
+                return { lookup.empty() ? "commodity_cardamine" : lookup };
+            }
+            [[nodiscard]]
+            GoodId to_class() const
+            {
+                return GoodId{ CreateID(data.c_str()) };
+            }
+    };
+    template <class ReaderType, class WriterType, class ProcessorsType>
+    struct Parser<ReaderType, WriterType, GoodId, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, GoodId, GoodId_Impl>
+    {};
+    ;
+    struct Id_Impl
+    {
+            using ReflectionType = std::string;
+            std::string data;
+            static Id_Impl from_class(const Id& hash) noexcept
+            {
+                const auto lookup = InternalApi::HashLookup(hash.GetValue());
+                return { lookup.empty() ? "nickname" : lookup };
+            }
+            [[nodiscard]]
+            Id to_class() const
+            {
+                return Id{ CreateID(data.c_str()) };
+            }
+    };
+    template <class ReaderType, class WriterType, class ProcessorsType>
+    struct Parser<ReaderType, WriterType, Id, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, Id, Id_Impl>
+    {};
 
 } // namespace rfl::parsing

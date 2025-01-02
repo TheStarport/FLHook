@@ -40,39 +40,38 @@ namespace Plugins
 
     rfl::Result<WarehousePlugin::PlayerWarehouse> WarehousePlugin::GetOrCreateAccount(const std::string& accountId) const
     {
-        auto collection = Database::GetCollection(FLHook::GetDbClient(), config.collectionName);
-        const auto filter = make_document(kvp("_id", accountId));
+        auto dbQuery = FLHook::GetDatabase()->BeginDatabaseQuery();
 
-        if (const auto document = collection.find_one(filter.view()); document.has_value())
+        const auto filter = make_document(kvp("_id", accountId));
+        auto findResult = dbQuery.FindFromCollection(config.collectionName, filter.view());
+        if (!findResult.has_value())
         {
-            if (const auto& value = document.value(); value.find("_id") != value.end())
-            {
-                return rfl::bson::read<PlayerWarehouse>(document->data(), document->length());
-            }
+            auto warehouse = PlayerWarehouse{ ._id = accountId };
+
+            auto bsonWarehouse = rfl::bson::write(warehouse);
+            auto insertDoc = bsoncxx::document::view{ reinterpret_cast<const uint8_t*>(bsonWarehouse.data()), bsonWarehouse.size() };
+            auto insertResult = std::get<0>(dbQuery.InsertIntoCollection(config.collectionName, { insertDoc }));
+            dbQuery.ConcludeQuery(true);
+
+            return { warehouse };
         }
 
-        // not found, must create
-        const auto newDoc = make_document(kvp("_id", accountId), kvp("equipmentMap", make_document()));
-        collection.insert_one(newDoc.view());
-
-        return rfl::bson::read<PlayerWarehouse>(newDoc.view().data(), newDoc.view().length());
+        dbQuery.ConcludeQuery(false);
+        return rfl::bson::read<PlayerWarehouse>(findResult->view().data(), findResult->length());
     }
 
     void WarehousePlugin::UpdatePlayerWarehouse(const PlayerWarehouse& warehouse) const
     {
         assert(!warehouse._id.empty());
 
-        auto collection = Database::GetCollection(FLHook::GetDbClient(), config.collectionName);
+        auto dbQuery = FLHook::GetDatabase()->BeginDatabaseQuery();
 
+        const auto filterDoc = make_document(kvp("_id", warehouse._id));
         auto warehouseRaw = rfl::bson::write(warehouse);
         const auto warehouseDoc = bsoncxx::document::view{ reinterpret_cast<uint8_t*>(warehouseRaw.data()), warehouseRaw.size() };
 
-        const auto filterDoc = make_document(kvp("_id", warehouse._id));
-
-        mongocxx::options::replace options;
-        options.upsert(true);
-
-        auto result = collection.replace_one(filterDoc.view(), warehouseDoc, options);
+        dbQuery.FindAndUpdate(config.collectionName, filterDoc.view(), warehouseDoc, {}, true, true, true);
+        dbQuery.ConcludeQuery(true);
     }
 
     Task WarehousePlugin::UserCmdListItems(const ClientId client)
@@ -86,8 +85,12 @@ namespace Plugins
         int counter = 1;
         for (const auto& equip : *client.GetEquipCargo().Handle())
         {
-            auto good = GoodId(equip.archId);
-            if (!config.allowCommoditiesToBeStored && good.GetType().Handle() == GoodType::Commodity)
+            if (equip.mounted)
+            {
+                continue;
+            }
+            auto good = GoodId(Arch2Good(equip.archId));
+            if (!good || (!config.allowCommoditiesToBeStored && good.GetType().Handle() == GoodType::Commodity))
             {
                 continue;
             }
@@ -136,20 +139,35 @@ namespace Plugins
         EquipmentId equipment;
         for (const auto& equip : *equipList)
         {
+            if (equip.mounted)
+            {
+                continue;
+            }
+
+            good = GoodId(Arch2Good(equip.archId));
+            if (!good || (!config.allowCommoditiesToBeStored && good.GetType().Handle() == GoodType::Commodity))
+            {
+                continue;
+            }
+
             counter++;
             if (counter != itemNr)
             {
                 continue;
             }
 
-            good = GoodId(Arch2Good(equip.archId));
-            if (!config.allowCommoditiesToBeStored && good.GetType().Handle() == GoodType::Commodity)
+            if (equip.count < count)
             {
-                continue;
+                (void)client.Message(
+                    std::format(L"You tried to deposit {} of {}, but you only have {}!", count, EquipmentId(equip.archId).GetName().Unwrap(), equip.count));
+                co_return TaskStatus::Finished;
             }
+
             equipment = EquipmentId(equip.archId);
             break;
         }
+
+        if (!equipment || !equipment.GetValue()) {}
 
         if (good.GetValue() == nullptr)
         {
@@ -174,7 +192,7 @@ namespace Plugins
         co_return TaskStatus::Finished;
     }
 
-    Task WarehousePlugin::UserCmdWithdraw(const ClientId client, const uint itemNr, const int count)
+    Task WarehousePlugin::UserCmdWithdraw(const ClientId client, const uint itemNr, const int requestedAmount)
     {
 
         if (!client.IsDocked())
@@ -189,7 +207,7 @@ namespace Plugins
             co_yield TaskStatus::Finished;
         }
 
-        if (!count)
+        if (!requestedAmount)
         {
             (void)client.Message(L"Invalid item count!");
             co_yield TaskStatus::Finished;
@@ -235,18 +253,22 @@ namespace Plugins
 
                     co_yield TaskStatus::DatabaseAwait;
 
-                    if (const int currentCount = account.value().baseEquipmentMap[currBase][equipId]; currentCount < count)
+                    if (const int currentCount = account.value().baseEquipmentMap[currBase][equipId]; currentCount < requestedAmount)
                     {
                         databaseProblem = true;
                     }
-                    else if (currentCount == count)
+                    else if (currentCount == requestedAmount)
                     {
                         account.value().baseEquipmentMap[currBase].erase(equipId);
+                        if(account.value().baseEquipmentMap[currBase].empty())
+                        {
+                            account.value().baseEquipmentMap.erase(currBase);
+                        }
                         UpdatePlayerWarehouse(account.value());
                     }
                     else
                     {
-                        account.value().baseEquipmentMap[currBase][equipId] -= count;
+                        account.value().baseEquipmentMap[currBase][equipId] -= requestedAmount;
                         UpdatePlayerWarehouse(account.value());
                     }
 
@@ -257,8 +279,8 @@ namespace Plugins
                     }
                     else
                     {
-                        client.AddCargo(itemId.GetValue()->archId, amount, false);
-                        (void)client.Message(std::format(L"Withdrew {} of {}!", amount, itemId.GetName().Handle()));
+                        client.AddCargo(equipId.GetId(), requestedAmount, false);
+                        (void)client.Message(std::format(L"Withdrew {} of {}!", requestedAmount, equipId.GetName().Handle()));
                     }
                     co_return TaskStatus::Finished;
                 }
@@ -297,21 +319,26 @@ namespace Plugins
 
             const auto equipId = EquipmentId(itemId);
             bool databaseProblem = false;
+            uint storedAmount = amount;
 
             co_yield TaskStatus::DatabaseAwait;
 
-            if (const int currentCount = account.value().baseEquipmentMap[currBase][equipId]; currentCount < count)
+            if (const int currentCount = account.value().baseEquipmentMap[currBase][equipId]; currentCount < requestedAmount)
             {
                 databaseProblem = true;
             }
-            else if (currentCount == count)
+            else if (currentCount == requestedAmount)
             {
                 account.value().baseEquipmentMap[currBase].erase(equipId);
+                if(account.value().baseEquipmentMap[currBase].empty())
+                {
+                    account.value().baseEquipmentMap.erase(currBase);
+                }
                 UpdatePlayerWarehouse(account.value());
             }
             else
             {
-                account.value().baseEquipmentMap[currBase][equipId] -= count;
+                account.value().baseEquipmentMap[currBase][equipId] -= requestedAmount;
                 UpdatePlayerWarehouse(account.value());
             }
 
@@ -319,16 +346,11 @@ namespace Plugins
             if (databaseProblem)
             {
                 (void)client.Message(L"Attempted to withdraw more than is stored!");
+                co_return TaskStatus::Finished;
             }
-            else
-            {
-                client.AddCargo(itemId.GetValue()->archId, amount, false);
-                (void)client.Message(std::format(L"Withdrew {} of {}!", amount, itemId.GetName().Handle()));
-            }
-            co_yield TaskStatus::FLHookAwait;
 
-            client.AddCargo(itemId.GetValue()->archId, amount, false);
-            (void)client.Message(std::format(L"Withdrew {} of {}!", amount, itemId.GetName().Handle()));
+            client.AddCargo(equipId.GetId(), requestedAmount, false);
+            (void)client.Message(std::format(L"Withdrew {} of {}!", requestedAmount, equipId.GetName().Handle()));
             co_return TaskStatus::Finished;
         }
 
@@ -363,9 +385,19 @@ namespace Plugins
         co_return TaskStatus::Finished;
     }
 
-    Task WarehousePlugin::UserCmdListStored(const ClientId client, BaseId base)
+    Task WarehousePlugin::UserCmdListStored(const ClientId client, std::wstring_view baseName)
     {
-        // TODO: Transform base into an argument
+        const auto currBase = client.GetCurrentBase().Handle();
+
+        BaseId base;
+        if (baseName.empty())
+        {
+            base = currBase;
+        }
+        else
+        {
+            base = TransformArg<BaseId>(baseName, 0);
+        }
 
         const std::string accountId = client.GetData().account->_id;
 
@@ -379,6 +411,11 @@ namespace Plugins
 
         if (config.allowWithdrawAndStoreFromAnywhere)
         {
+            if (account.value().baseEquipmentMap.empty())
+            {
+                client.Message(L"You don't have anything stored!");
+                co_yield TaskStatus::Finished;
+            }
             int counter = 1;
             for (const auto& equipMap : account.value().baseEquipmentMap | std::views::values)
             {
@@ -395,6 +432,12 @@ namespace Plugins
         {
             (void)client.Message(L"No items on selected base!");
             co_return TaskStatus::Finished;
+        }
+
+        if (equipMap->second.empty())
+        {
+            client.Message(L"You don't have anything stored on this base!");
+            co_yield TaskStatus::Finished;
         }
 
         int counter = 1;

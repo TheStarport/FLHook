@@ -3,6 +3,7 @@
 #include "API/InternalApi.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "Utils/Detour.hpp"
 
 Action<void> InternalApi::FMsgEncodeXml(std::wstring_view xml, char* buffer, const uint size, uint& ret)
 {
@@ -86,7 +87,55 @@ void InternalApi::ToggleNpcSpawns(const bool on)
     MemUtils::WriteProcMem(address, &cmp, 1);
 }
 
-bool InternalApi::NpcsEnabled()
+
+using CreateIDType = uint (*)(const char*);
+
+// std::shared_ptr<spdlog::logger> hashList = nullptr;
+const auto detour = std::make_unique<FunctionDetour<CreateIDType>>(CreateID);
+
+uint InternalApi::CreateIdDetour(const char* str)
 {
-    return npcEnabled;
+    if (!str)
+    {
+        return 0;
+    }
+
+    const std::string fullStr = str;
+    if (const auto hash = hashMap.find(fullStr); hash != hashMap.end())
+    {
+        return hash->second;
+    }
+
+    detour->UnDetour();
+    const uint hash = ::CreateID(str);
+    detour->Detour(CreateIdDetour);
+
+    #ifdef _DEBUG
+    std::ofstream file;
+    file.open("logs/hashmap.csv", std::ios::app);
+    file << fullStr << "," << hash << ",0x" << std::hex << hash << "\n";
+    file.close();
+    #endif
+
+    hashMap[fullStr] = hash;
+    nicknameMap[hash] = fullStr;
+    return hash;
 }
+
+void InternalApi::Init()
+{
+    if (static_cast<int>(FLHook::GetConfig()->logging.minLogLevel) >= 2)
+    {
+        return;
+    }
+
+    if (constexpr std::string_view hashMap = "logs/hashmap.csv"; std::filesystem::exists(hashMap))
+    {
+        std::filesystem::remove(hashMap);
+    }
+
+    detour->Detour(CreateIdDetour);
+};
+
+bool InternalApi::NpcsEnabled() { return npcEnabled; }
+std::string InternalApi::HashLookup(const uint hash) { const auto findResult = nicknameMap.find(hash); return findResult == nicknameMap.end() ? "" : findResult->second;}

@@ -3,8 +3,8 @@
 #include <API/FLHook/InfocardManager.hpp>
 #include <API/Types/GoodId.hpp>
 
-GoodId::GoodId(const uint hash) : value(GoodList::find_by_id(hash)) {}
-GoodId GoodId::operator=(const GoodId& good) const { return GoodId(good); }
+GoodId::GoodId(const uint hash) : value(const_cast<GoodInfo*>(GoodList::find_by_id(hash))) {}
+GoodId::GoodId(GoodInfo* good) : value(good){}
 bool GoodId::operator==(const GoodId& next) const { return value == next.value; }
 
 // TODO: Handle error code!

@@ -683,7 +683,7 @@ Action<void> ClientId::AddCargo(const uint goodId, const uint count, const bool 
     pub::Player::AddCargo(value, goodId, count, 1.0, isMission);
     return { {} };
 }
-Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, const uint count) const
+Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const
 {
     switch (goodId.index())
     {
@@ -701,6 +701,10 @@ Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goo
                     {
                         goodId = equip.id;
                         foundItem = true;
+                        if(equip.count < count)
+                        {
+                            count = equip.count;
+                        }
                         break;
                     }
                 }

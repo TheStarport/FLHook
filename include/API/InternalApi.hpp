@@ -1,5 +1,5 @@
 #pragma once
-
+class FLHook;
 /**
  * @brief
  * This API is used for manipulating the internal state of FLHook or a shared utility function that
@@ -7,7 +7,16 @@
  */
 class DLL InternalApi
 {
+        friend FLHook;
+
         inline static bool npcEnabled = true;
+        inline static std::unordered_map<uint, std::string> nicknameMap;
+
+        inline static std::unordered_map<std::string, uint> hashMap;
+        inline static std::allocator<BYTE> allocator;
+
+        static uint CreateIdDetour(const char* str);
+        static void Init();
 
     public:
         InternalApi() = delete;
@@ -25,7 +34,6 @@ class DLL InternalApi
          */
         static Action<void> FMsgEncodeXml(std::wstring_view xml, char* buffer, uint size, uint& ret);
 
-
         static void FMsgSendChat(ClientId client, char* buffer, uint size);
         static Action<void> SendMessage(ClientId to, std::wstring_view message, ClientId from = ClientId(), std::wstring_view = L"");
 
@@ -36,4 +44,5 @@ class DLL InternalApi
          */
         static void ToggleNpcSpawns(bool on);
         static bool NpcsEnabled();
+        static std::string HashLookup(uint hash);
 };

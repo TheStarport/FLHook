@@ -19,7 +19,6 @@
 #include "Core/IpResolver.hpp"
 
 #include "Core/ClientServerInterface.hpp"
-#include "Core/DebugTools.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
 
 #include "API/FLHook/Plugin.hpp"
@@ -105,7 +104,7 @@ FLHook::FLHook()
     ExceptionHandler::SetupExceptionHandling();
 
     // Setup needed debug tools
-    DebugTools::Init();
+    InternalApi::Init();
 
     // Initialize the Database before everything as other systems rely on it
     // database = new Database(FLHook::GetConfig().databaseConfig.uri);

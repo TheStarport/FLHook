@@ -11,42 +11,44 @@
         return { cpp::fail(Error::InvalidBase) }; \
     }
 
-BaseId::BaseId(const std::wstring_view name, const bool isWildCard)
+BaseId::BaseId(const std::wstring_view baseName, const bool isWildCard)
 {
-    const auto baseName = StringUtils::ToLower(name);
+    const std::string str = StringUtils::wstos(std::wstring(baseName));
+    auto base = Universe::get_base(CreateID(str.c_str()));
 
-    const Universe::IBase* baseInfo = Universe::GetFirstBase();
-    if (!isWildCard)
+    if (base)
     {
-        while (baseInfo)
-        {
-            static std::array<char, 1024> baseNickname;
-            std::fill_n(baseNickname.begin(), baseNickname.size(), '\0');
-            pub::GetBaseNickname(baseNickname.data(), baseNickname.size(), baseInfo->baseId);
-
-            if (const auto basename = FLHook::GetInfocardManager()->GetInfocard(baseInfo->baseIdS);
-                StringUtils::ToLower(StringUtils::stows(baseNickname.data())) == StringUtils::ToLower(baseName) ||
-                StringUtils::ToLower(basename).find(StringUtils::ToLower(baseName)) != std::wstring::npos)
-            {
-                value = baseInfo->baseId;
-                return;
-            }
-            baseInfo = Universe::GetNextBase();
-        }
-
+        value = base->baseId;
         return;
     }
 
-    while (baseInfo)
+    const auto& im = FLHook::GetInfocardManager();
+    base = Universe::GetFirstBase();
+    do
     {
-        if (const auto basename = FLHook::GetInfocardManager()->GetInfocard(baseInfo->baseIdS);
-            StringUtils::ToLower(basename).find(StringUtils::ToLower(baseName)) != std::wstring::npos)
+        if(isWildCard)
         {
-            value = baseInfo->baseId;
-            return;
+            if (auto name = im->GetInfocard(base->baseIdS); wildcards::match(name, baseName))
+            {
+                value = base->baseId;
+                return;
+            }
         }
-        baseInfo = Universe::GetNextBase();
-    };
+        else
+        {
+            if (auto name = im->GetInfocard(base->baseIdS); name == baseName)
+            {
+                value = base->baseId;
+                return;
+            }
+        }
+
+
+        base = Universe::GetNextBase();
+    }
+    while (base);
+
+    value = 0;
 }
 
 BaseId::operator bool() const { return Universe::get_base(value) != nullptr; }

@@ -30,9 +30,9 @@ namespace Plugins
              */
             Task UserCmdListItems(ClientId);
             Task UserCmdDeposit(ClientId, uint itemNr, int count);
-            Task UserCmdWithdraw(ClientId, uint itemNr, int count);
+            Task UserCmdWithdraw(ClientId, uint itemNr, int requestedAmount);
             Task UserCmdListBasesWithItems(ClientId);
-            Task UserCmdListStored(ClientId, BaseId);
+            Task UserCmdListStored(const ClientId client, std::wstring_view baseName);
 
             void UpdatePlayerWarehouse(const PlayerWarehouse& warehouse) const;
 
@@ -47,7 +47,7 @@ namespace Plugins
                     AddCommand(WarehousePlugin, Cmds(L"/wh deposit"), UserCmdDeposit, L"/wh deposit <itemNr>", L""),
                     AddCommand(WarehousePlugin, Cmds(L"/wh withdraw"), UserCmdWithdraw, L"/wh withdraw <itemNr>", L""),
                     AddCommand(WarehousePlugin, Cmds(L"/wh listbases"), UserCmdListBasesWithItems, L"/wh listbases", L""),
-                    AddCommand(WarehousePlugin, Cmds(L"/wh liststored"), UserCmdListStored, L"/wh listitems [base]", L""),
+                    AddCommand(WarehousePlugin, Cmds(L"/wh liststored"), UserCmdListStored, L"/wh liststored [base]", L""),
                  }
             };
             // clang-format on

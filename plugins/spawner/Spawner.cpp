@@ -9,7 +9,7 @@ namespace Plugins
 {
     bool SpawnerPlugin::OnLoadSettings()
     {
-        auto npcResult = Json::Load<std::vector<Npc>>("config/spawner_npcs.json", false);
+        /*auto npcResult = Json::Load<std::vector<Npc>>("config/spawner_npcs.json", false);
         auto solarResult = Json::Load<std::vector<Solar>>("config/spawner_solars.json", false);
         auto formationResult = Json::Load<std::vector<Formation>>("config/spawner_formations.json", false);
         auto scheduledSpawnsResult = Json::Load<std::vector<ScheduledSpawns>>("config/spawner_scheduled_spawns.json", false);
@@ -114,7 +114,7 @@ namespace Plugins
                 return false;
             }
         }
-
+*/
         return true;
     }
 
@@ -145,9 +145,9 @@ namespace Plugins
         // clang-format off
         builder
         .WithArchetype(common.arch.GetId())
-        .WithLoadout(common.loadout.GetValue())
-        .WithReputation(common.iff.GetValue())
-        .WithPersonality(common.pilot)
+        //.WithLoadout(common.loadout.GetValue())
+        //.WithReputation(common.iff.GetValue())
+        //.WithPersonality(common.pilot)
         .WithSystem(system.GetValue())
         .WithPosition(position)
         .WithRotation(orientation);
@@ -184,7 +184,7 @@ namespace Plugins
 
         else
         {
-            builder.WithDockTo(solar->base.GetValue());
+            //builder.WithDockTo(solar->base.GetValue());
             builder.AsSolar();
         }
         // TODO: Store spawned object and keep track of it
@@ -206,28 +206,28 @@ namespace Plugins
             return;
         }
 
-        for (auto& spawn : scheduledSpawns)
-        {
-            if (!spawn.spawnOnStart)
-            {
-                continue;
-            }
-            auto variant = spawn.object.value();
-            if (variant.index() == 2)
-            {
-                // TODO: Formation
-            }
-            else if (variant.index() == 1)
-            {
-                // TODO: Solar
-            }
-            else
-            {
-                SpawnObject(rfl::get<Npc*>(variant), SystemId(L"li01"), { -32977.f, 0.f, -27417.f });
-            }
-
-            firstRun = false;
-        }
+        //for (auto& spawn : scheduledSpawns)
+        //{
+        //    if (!spawn.spawnOnStart)
+        //    {
+        //        continue;
+        //    }
+        //    auto variant = spawn.object.value();
+        //    if (variant.index() == 2)
+        //    {
+        //        // TODO: Formation
+        //    }
+        //    else if (variant.index() == 1)
+        //    {
+        //        // TODO: Solar
+        //    }
+        //    else
+        //    {
+        //        SpawnObject(rfl::get<Npc*>(variant), SystemId(L"li01"), { -32977.f, 0.f, -27417.f });
+        //    }
+//
+        //    firstRun = false;
+        //}
     }
     SpawnerPlugin::SpawnerPlugin(const PluginInfo& info) : Plugin(info) {}
     const std::vector<SpawnerPlugin::Npc>& SpawnerPlugin::GetNpcs() { return npcs; }

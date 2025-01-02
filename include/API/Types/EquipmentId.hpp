@@ -27,11 +27,7 @@ class DLL EquipmentId
         EquipmentId() = default;
         bool operator==(const EquipmentId next) const { return value == next.value; }
         bool operator<(const EquipmentId& right) const { return value && value->archId < right.value->archId; }
-        EquipmentId& operator=(const EquipmentId& right)
-        {
-            value = right.value;
-            return *this;
-        }
+        EquipmentId& operator=(const EquipmentId& right) = default;
         explicit operator bool() const;
 
         // Returns the underlying value of the ClientId, it is generally recommended to not use this.

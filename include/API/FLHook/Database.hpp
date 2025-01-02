@@ -56,25 +56,25 @@ class DLL DatabaseQuery
         bool sessionStarted = true;
 
         explicit DatabaseQuery(mongocxx::pool::entry entry);
-        ~DatabaseQuery() = default;
         static std::string_view CollectionToString(DatabaseCollection collection);
 
     public:
         DatabaseQuery(const DatabaseQuery&) = delete;
+        ~DatabaseQuery() = default;
         std::optional<bsoncxx::document::value> FindFromCollection(std::string_view collectionName, bsoncxx::document::view filter,
-                                                                   const std::optional<bsoncxx::document::view>& projection) const;
+                                                                   const std::optional<bsoncxx::document::view>& projection = {}) const;
         std::optional<bsoncxx::document::value> FindFromCollection(DatabaseCollection collectionName, bsoncxx::document::view filter,
-                                                                   const std::optional<bsoncxx::document::view>& projection) const;
+                                                                   const std::optional<bsoncxx::document::view>& projection = {}) const;
 
         bsoncxx::document::value FindAndUpdate(std::string_view collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
-                                               const std::optional<bsoncxx::document::view>& projection, bool before = true) const;
+                                               const std::optional<bsoncxx::document::view>& projection = {}, bool before = true, bool replace = false, bool upsert = false) const;
         bsoncxx::document::value FindAndUpdate(DatabaseCollection collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
-                                               const std::optional<bsoncxx::document::view>& projection, bool before = true) const;
+                                               const std::optional<bsoncxx::document::view>& projection = {}, bool before = true, bool replace = false, bool upsert = false) const;
 
         bsoncxx::document::value FindAndDelete(DatabaseCollection collectionName, bsoncxx::document::view filter,
-                                               const std::optional<bsoncxx::document::view>& projection) const;
+                                               const std::optional<bsoncxx::document::view>& projection = {}) const;
         bsoncxx::document::value FindAndDelete(std::string_view collectionName, bsoncxx::document::view filter,
-                                               const std::optional<bsoncxx::document::view>& projection) const;
+                                               const std::optional<bsoncxx::document::view>& projection = {}) const;
 
         mongocxx::result::update UpdateFromCollection(std::string_view collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
                                                       bool many = false) const;
@@ -89,7 +89,7 @@ class DLL DatabaseQuery
         std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> InsertIntoCollection(std::string_view collectionName,
                                                                                                        const std::vector<bsoncxx::document::view>& newDocs);
 
-        void ConcludeQuery(bool success);
+        void ConcludeQuery(bool commitChanges);
 };
 
 enum class MongoResult

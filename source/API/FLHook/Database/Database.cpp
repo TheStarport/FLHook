@@ -116,28 +116,34 @@ std::optional<bsoncxx::document::value> DatabaseQuery::FindFromCollection(const 
 
 bsoncxx::document::value DatabaseQuery::FindAndUpdate(const std::string_view collectionName, const bsoncxx::document::view filter,
                                                       const bsoncxx::document::view update, const std::optional<bsoncxx::document::view>& projection,
-                                                      bool before) const
+                                                      const bool before, const bool replace, const bool upsert) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
     mongocxx::options::find_one_and_update find;
+    mongocxx::options::find_one_and_replace replaceOption;
     find.return_document(static_cast<mongocxx::options::return_document>(before));
+    replaceOption.return_document(static_cast<mongocxx::options::return_document>(before));
 
     if (projection.has_value())
     {
         find.projection(projection.value());
+        replaceOption.projection(projection.value());
     }
 
-    auto result = collection.find_one_and_update(filter, update, find);
+    find.upsert(upsert);
+    replaceOption.upsert(upsert);
+
+    auto result = replace ? collection.find_one_and_replace(filter, update, replaceOption) : collection.find_one_and_update(filter, update, find);
     assert(result.has_value());
     return result.value();
 }
 
 bsoncxx::document::value DatabaseQuery::FindAndUpdate(const DatabaseCollection collectionName, const bsoncxx::document::view filter,
                                                       const bsoncxx::document::view update, const std::optional<bsoncxx::document::view>& projection,
-                                                      const bool before) const
+                                                      const bool before, const bool replace, const bool upsert) const
 {
-    return FindAndUpdate(CollectionToString(collectionName), filter, update, projection, before);
+    return FindAndUpdate(CollectionToString(collectionName), filter, update, projection, before, replace, upsert);
 }
 
 bsoncxx::document::value DatabaseQuery::FindAndDelete(const std::string_view collectionName, const bsoncxx::document::view filter,

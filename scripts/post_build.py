@@ -49,4 +49,7 @@ def process_folder(files, destination):
 
 
 print("Copying files from {0} to {1}".format(args.bin, args.dest))
-process_folder([os.path.join(args.bin, d) for d in os.listdir(args.bin)], args.dest)
+try:
+    process_folder([os.path.join(args.bin, d) for d in os.listdir(args.bin)], args.dest)
+except:
+    pass

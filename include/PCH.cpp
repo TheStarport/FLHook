@@ -144,28 +144,13 @@ GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber)
 template <>
 BaseId TransformArg(std::wstring_view s, size_t paramNumber)
 {
-    const std::string str = StringUtils::wstos(std::wstring(s));
-    auto base = Universe::get_base(CreateID(str.c_str()));
-
-    if (base)
+    const auto foundBase = BaseId(s);
+    if(!foundBase)
     {
-        return BaseId(base->baseId);
+        throw InvalidParameterException(s, paramNumber);
     }
 
-    const auto& im = FLHook::GetInfocardManager();
-    base = Universe::GetFirstBase();
-    do
-    {
-        if (auto name = im->GetInfocard(base->baseIdS); wildcards::match(name, s))
-        {
-            return BaseId(base->baseId);
-        }
-
-        base = Universe::GetNextBase();
-    }
-    while (base);
-
-    throw InvalidParameterException(s, paramNumber);
+    return foundBase;
 }
 
 template <>
