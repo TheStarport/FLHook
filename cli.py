@@ -16,7 +16,7 @@ def log(s: str):
 def run(cmd: str, no_log: bool = False, allow_error: bool = False) -> int:
     log("Running Command: " + cmd)
     proc = subprocess.Popen(cmd, stdout=(subprocess.DEVNULL if no_log else subprocess.PIPE),
-                            stderr=subprocess.STDOUT, shell=True, text=True)
+                            stderr=subprocess.STDOUT, shell=True, text=True, encoding='UTF-8')
 
     if no_log:
         proc.wait()
