@@ -133,28 +133,27 @@ void Logger::Init()
         GetWindowRect(console, &r);
 
         MoveWindow(console, r.left, r.top, 1366, 768, TRUE);
+        FILE* fDummy;
+        freopen_s(&fDummy, "CONOUT$", "w", stdout);
+        freopen_s(&fDummy, "CONOUT$", "w", stderr);
+        freopen_s(&fDummy, "CONIN$", "r", stdin);
+        std::cout.clear();
+        std::clog.clear();
+        std::cerr.clear();
+        std::cin.clear();
+
+        SetStdHandle(STD_OUTPUT_HANDLE, stdout);
+        SetStdHandle(STD_ERROR_HANDLE, stderr);
+        SetStdHandle(STD_INPUT_HANDLE, stdin);
+        std::wcout.clear();
+        std::wclog.clear();
+        std::wcerr.clear();
+        std::wcin.clear();
     }
 
     SetConsoleCtrlHandler(ConsoleHandler, TRUE);
     consoleInput = GetStdHandle(STD_INPUT_HANDLE);
     consoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-
-    FILE* fDummy;
-    freopen_s(&fDummy, "CONOUT$", "w", stdout);
-    freopen_s(&fDummy, "CONOUT$", "w", stderr);
-    freopen_s(&fDummy, "CONIN$", "r", stdin);
-    std::cout.clear();
-    std::clog.clear();
-    std::cerr.clear();
-    std::cin.clear();
-
-    SetStdHandle(STD_OUTPUT_HANDLE, stdout);
-    SetStdHandle(STD_ERROR_HANDLE, stderr);
-    SetStdHandle(STD_INPUT_HANDLE, stdin);
-    std::wcout.clear();
-    std::wclog.clear();
-    std::wcerr.clear();
-    std::wcin.clear();
 
     // change version number here:
     // https://patorjk.com/software/taag/#p=display&f=Doom&t=FLHook%205.0%20pallas
