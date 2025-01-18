@@ -28,6 +28,10 @@ void HttpServer::RegisterRoutes()
                     std::scoped_lock lock(*this);
                     return GetOnlinePlayers(req, res);
                 });
+	server->Get("/ping", [&](const httplib::Request& req, httplib::Response& res)
+	{ std::scoped_lock lock(*this);
+	  return Ping();});
+		
 
     CallPlugins(&Plugin::OnHttpServerRegister, server);
 
@@ -83,6 +87,10 @@ httplib::StatusCode HttpServer::GetOnlinePlayers(const httplib::Request& req, ht
     }
 
     return httplib::StatusCode::OK_200;
+}
+
+httplib::StatusCode HttpServer::Ping(){
+  return httplib::StatusCode::OK_200;
 }
 
 void HttpServer::lock() { mutex.lock(); }

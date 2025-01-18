@@ -14,6 +14,7 @@ class DLL HttpServer
         void StartServer() const;
         void RegisterRoutes();
         httplib::StatusCode GetOnlinePlayers(const httplib::Request& req, httplib::Response& res);
+		httplib::StatusCode Ping();
 
     public:
         void lock();
