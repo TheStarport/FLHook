@@ -24,22 +24,6 @@ enum class ConsoleColor
 
 BOOL WINAPI ConsoleHandler(DWORD ctrlType) { return ctrlType == CTRL_CLOSE_EVENT; }
 
-std::wstring Logger::SetLogSource(void* addr)
-{
-    if (HMODULE dll; RtlPcToFileHeader(addr, (void**)&dll))
-    {
-        WCHAR maxPath[MAX_PATH];
-        // If successful, prepend
-        if (GetModuleFileNameW(dll, maxPath, MAX_PATH))
-        {
-            const std::wstring path = maxPath;
-            return std::format(L"({} {}) ", TimeUtils::CurrentDate(), path.substr(path.find_last_of(L"\\") + 1));
-        }
-    }
-
-    return L"";
-}
-
 using namespace std::chrono_literals;
 void Logger::GetConsoleInput(std::stop_token st)
 {
@@ -75,44 +59,58 @@ void Logger::PrintToConsole(std::stop_token st)
     {
         std::this_thread::sleep_for(0.25s);
 
-        LogMessage logMessage;
+        ::Log logMessage;
         while (logQueue.try_dequeue(logMessage))
         {
-            auto log = std::format(L"{}{}", SetLogSource(logMessage.retAddress), logMessage.message);
-            switch (logMessage.level)
+            if (!consoleAllocated)
             {
-                case LogLevel::Trace:
-                    {
-                        SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongWhite));
-                        break;
-                    }
-                case LogLevel::Debug:
-                    {
-
-                        SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongGreen));
-                        break;
-                    }
-                case LogLevel::Info:
-                    {
-                        SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongCyan));
-                        break;
-                    }
-                case LogLevel::Warn:
-                    {
-                        SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongYellow));
-                        break;
-                    }
-                case LogLevel::Err:
-                    {
-                        SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongRed));
-                        break;
-                    }
+                std::cout << rfl::json::write(logMessage) << std::endl;
             }
+            else
+            {
+                switch (logMessage.level)
+                {
+                    case LogLevel::Trace:
+                        {
+                            SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongWhite));
+                            break;
+                        }
+                    case LogLevel::Debug:
+                        {
 
-            std::wcout << log << std::endl;
+                            SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongGreen));
+                            break;
+                        }
+                    case LogLevel::Info:
+                        {
+                            SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongCyan));
+                            break;
+                        }
+                    case LogLevel::Warn:
+                        {
+                            SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongYellow));
+                            break;
+                        }
+                    case LogLevel::Error:
+                        {
+                            SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongRed));
+                            break;
+                        }
+                }
 
-            // Reset
-            SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongWhite));
+                int i = 0;
+                for (const auto& arg : logMessage.valueMap)
+                {
+                    i++;
+                    logMessage.message =
+                        StringUtils::ReplaceStr(logMessage.message, std::wstring_view(std::format(L"{{{}}}", i)), std::wstring_view(arg.second));
+                }
+
+                std::wcout << std::format(L"{} {}: {}", TimeUtils::CurrentDate(), magic_enum::enum_name(logMessage.level), logMessage.message) << std::endl;
+
+                // Reset
+                SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongWhite));
+            }
         }
     }
 }
@@ -173,35 +171,13 @@ ______ _      _   _             _      _____  _____               _ _
     loggingThread = std::jthread(std::bind_front(&Logger::PrintToConsole));
 }
 
-void Logger::Trace(const std::wstring_view str)
-{
-    if (static_cast<int>(FLHook::GetConfig()->logging.minLogLevel) == 0)
-    {
-        logQueue.enqueue({ LogLevel::Trace, std::wstring(str), _ReturnAddress() });
-    }
-}
-void Logger::Debug(const std::wstring_view str)
-{
-    if (static_cast<int>(FLHook::GetConfig()->logging.minLogLevel) <= 1)
-    {
-        logQueue.enqueue({ LogLevel::Debug, std::wstring(str), _ReturnAddress() });
-    }
-}
-void Logger::Info(const std::wstring_view str)
-{
-    if (static_cast<int>(FLHook::GetConfig()->logging.minLogLevel) <= 2)
-    {
-        logQueue.enqueue({ LogLevel::Info, std::wstring(str), _ReturnAddress() });
-    }
-}
-void Logger::Warn(const std::wstring_view str)
+void Logger::Log(const ::Log& log)
 {
     if (static_cast<int>(FLHook::GetConfig()->logging.minLogLevel) <= 3)
     {
-        logQueue.enqueue({ LogLevel::Warn, std::wstring(str), _ReturnAddress() });
+        logQueue.enqueue(log);
     }
 }
-void Logger::Err(const std::wstring_view str) { logQueue.enqueue({ LogLevel::Err, std::wstring(str), _ReturnAddress() }); }
 
 std::optional<std::wstring> Logger::GetCommand()
 {
