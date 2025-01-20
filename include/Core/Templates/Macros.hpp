@@ -44,7 +44,7 @@
     catch ([[maybe_unused]] const StopProcessingException&) {} \
     catch (const GameException& ex)                            \
     {                                                          \
-        Logger::Info(ex.Msg());                                \
+        INFO(std::wstring(ex.Msg()));                                \
         e;                                                     \
     }                                                          \
     catch ([[maybe_unused]] std::exception & exc) { e; }       \
