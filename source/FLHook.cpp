@@ -74,28 +74,29 @@ FLHook::FLHook()
     // Load our settings before anything that might need access to debug mode
     LoadSettings();
 
-    Logger::Debug(L"Creating InfocardManager");
+    DEBUG(L"Creating InfocardManager");
     infocardManager = std::make_unique<InfocardManager>();
 
-    Logger::Debug(L"Creating ClientList");
+    DEBUG(L"Creating ClientList");
     clientList = std::make_shared<ClientList>();
 
-    Logger::Debug(L"Creating PersonalityHelper");
+    DEBUG(L"Creating PersonalityHelper");
     personalityHelper = std::make_shared<PersonalityHelper>();
 
-    Logger::Debug(std::format(L"Connecting to database @ \"{}\"", StringUtils::stows(flhookConfig->database.uri)));
+    DEBUG(L"Connecting to database at {0}", { L"uri", StringUtils::stows(flhookConfig->database.uri) })
+
     database = std::make_shared<Database>(flhookConfig->database.uri);
 
-    Logger::Debug(L"Creating AccountManager");
+    DEBUG(L"Creating AccountManager");
     accountManager = std::make_shared<AccountManager>();
 
-    Logger::Debug(L"Creating CrashCatcher");
+    DEBUG(L"Creating CrashCatcher");
     crashCatcher = std::make_shared<CrashCatcher>();
 
-    Logger::Debug(L"Creating ResourceManager");
+    DEBUG(L"Creating ResourceManager");
     resourceManager = std::make_shared<ResourceManager>();
 
-    Logger::Debug(L"Creating TaskScheduler");
+    DEBUG(L"Creating TaskScheduler");
     taskScheduler = std::make_shared<TaskScheduler>();
 
     flProc = GetModuleHandle(nullptr);
@@ -113,7 +114,7 @@ FLHook::FLHook()
 
     if (config->httpSettings.enableHttpServer)
     {
-        Logger::Debug(L"Creating HttpServer");
+        DEBUG(L"Creating HttpServer");
         httpServer = std::make_shared<HttpServer>();
     }
 
@@ -136,7 +137,9 @@ FLHook::FLHook()
         }
         catch (std::filesystem::filesystem_error& error)
         {
-            Logger::Err(StringUtils::stows(std::format("Failed to create directory {}\n{}", error.path1().generic_string(), error.what())));
+            ERROR(L"Failed to create directory {0} {1}",
+                  { L"path", StringUtils::stows(error.path1().generic_string()) },
+                  { L"error", StringUtils::stows(error.what()) })
         }
     }
 
@@ -317,7 +320,7 @@ bool FLHook::OnServerStart()
     {
         UnloadHookExports();
 
-        Logger::Err(StringUtils::stows(err.what()));
+        ERROR(L"{0}", {L"error", StringUtils::stows(err.what())});
         return false;
     }
 
@@ -339,7 +342,7 @@ void FLHook::LoadSettings()
         auto configResult = rfl::json::read<FLHookConfig>(stream);
         if (auto err = configResult.error(); err.has_value())
         {
-            Logger::Warn(std::format(L"Error while trying to read FLHook.json. Writing new config.\nErrors: {}", StringUtils::stows(err.value().what())));
+            WARN(L"Error while trying to read FLHook.json. Writing new config. {0}", {L"error",StringUtils::stows(err.value().what())} )
         }
         else
         {
@@ -401,11 +404,11 @@ void FLHook::ProcessPendingCommands()
         }
         catch (InvalidParameterException& ex)
         {
-            Logger::Warn(ex.Msg());
+            WARN(std::wstring(ex.Msg()));
         }
         catch (GameException& ex)
         {
-            Logger::Warn(ex.Msg());
+            WARN(std::wstring(ex.Msg()));
         }
         catch (StopProcessingException&)
         {
@@ -414,7 +417,7 @@ void FLHook::ProcessPendingCommands()
         catch (std::exception& ex)
         {
             // Anything else critically log
-            Logger::Err(StringUtils::stows(ex.what()));
+            WARN(StringUtils::stows(ex.what()));
         }
 
         cmd = Logger::GetCommand();

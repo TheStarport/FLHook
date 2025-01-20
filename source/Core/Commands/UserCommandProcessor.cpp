@@ -36,7 +36,8 @@ std::optional<Task> UserCommandProcessor::ProcessCommand(ClientId triggeringClie
     }
 
     const auto character = triggeringClient.GetCharacterName().Unwrap();
-    Logger::Trace(std::format(L"{}: {}", character, commandStr));
+
+    TRACE(L"{0}{1}", {L"character", std::wstring(character)},{L"commandString", std::wstring(commandStr)})
 
     std::vector paramsFiltered(params.begin(), params.end());
     paramsFiltered.insert(paramsFiltered.begin(), clientStr);

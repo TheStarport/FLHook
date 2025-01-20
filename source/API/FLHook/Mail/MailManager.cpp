@@ -97,7 +97,7 @@ Action<std::vector<Mail>> MailManager::GetAccountMail(std::string accountId, int
             auto mailResult = rfl::bson::read<Mail>(result.data(), result.length());
             if (mailResult.error().has_value())
             {
-                Logger::Err(std::format(L"Error while trying to read mail for character: {}", StringUtils::stows(accountId)));
+                ERROR(L"Error while trying to read mail for character: {0}", { L"Character", StringUtils::stows(accountId) });
                 continue;
             }
 
@@ -117,7 +117,7 @@ Action<std::vector<Mail>> MailManager::GetAccountMail(std::string accountId, int
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Err(std::format(L"Unable to aggregate account mail query: {}", StringUtils::stows(ex.what())));
+        ERROR(L"Unable to aggregate account mail query: {0}", { L"ex", StringUtils::stows(ex.what()) });
         return { cpp::fail(Error::DatabaseError) };
     }
 }
@@ -166,7 +166,9 @@ Action<std::vector<Mail>> MailManager::GetCharacterMail(bsoncxx::oid characterId
             auto mail = rfl::bson::read<Mail>(result.data(), result.length());
             if (mail.error().has_value())
             {
-                Logger::Err(std::format(L"Error while trying to read mail for character: {}", StringUtils::stows(characterId.to_string())));
+
+                ERROR(L"Error while trying to read mail for character: {0}", { L"character", StringUtils::stows(characterId.to_string()) })
+
                 continue;
             }
 
@@ -185,7 +187,7 @@ Action<std::vector<Mail>> MailManager::GetCharacterMail(bsoncxx::oid characterId
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Err(std::format(L"Unable to aggregate account mail query: {}", StringUtils::stows(ex.what())));
+        ERROR(L"Unable to aggregate account mail query: {0}", { L"query", StringUtils::stows(ex.what()) });
         return { cpp::fail(Error::DatabaseError) };
     }
 }
@@ -206,7 +208,8 @@ Action<void> MailManager::DeleteMail(const Mail& mail)
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Err(std::format(L"Unable to delete mail: {}", StringUtils::stows(ex.what())));
+        ERROR(L"Unable to delete mail: {0}", { L"mail", StringUtils::stows(ex.what()) });
+
     }
 
     return { cpp::fail(Error::DatabaseError) };
@@ -246,7 +249,7 @@ Action<void> MailManager::MarkMailAsRead(const Mail& mail, rfl::Variant<std::str
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Err(std::format(L"Unable to mark mail as read: {}", StringUtils::stows(ex.what())));
+        ERROR(L"Unable to mark mail as read: {}", {L"what",StringUtils::stows(ex.what())});
     }
 
     return { cpp::fail(Error::DatabaseError) };
@@ -256,19 +259,19 @@ Action<void> MailManager::SendMail(Mail& mail)
 {
     if (mail._id.bytes() != nullptr)
     {
-        Logger::Warn(L"Sending mail that already has an ID is invalid!");
+        WARN(L"Sending mail that already has an ID is invalid!");
         return { cpp::fail(Error::DatabaseError) };
     }
 
     if (!mail.author.has_value() && !mail.origin.has_value())
     {
-        Logger::Warn(L"Cannot send mail that has no origin and no author!");
+        WARN(L"Cannot send mail that has no origin and no author!");
         return { cpp::fail(Error::DatabaseError) };
     }
 
     if (mail.recipients.empty())
     {
-        Logger::Warn(L"Cannot send mail with no designated recipients!");
+        WARN(L"Cannot send mail with no designated recipients!");
         return { cpp::fail(Error::DatabaseError) };
     }
 
@@ -295,7 +298,7 @@ Action<void> MailManager::SendMail(Mail& mail)
     }
     catch (const mongocxx::exception& ex)
     {
-        Logger::Err(std::format(L"Error while trying to send mail. {}", StringUtils::stows(ex.what())));
+        ERROR(L"Error while trying to send mail {0}", {L"error",  StringUtils::stows(ex.what())})
     }
 
     FLHook::GetTaskScheduler()->AddTask(std::make_shared<Task>(InformOnlineUsersOfNewMail(mailTargets)));

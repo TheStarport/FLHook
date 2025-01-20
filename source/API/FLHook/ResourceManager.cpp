@@ -103,7 +103,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithNp
 
     if (found == npcTemplates.end())
     {
-        Logger::Warn(std::format(L"WithNpc called with invalid npc nickname: {}", npcNickname));
+        WARN(L"invalid npc nickname: {0}", {L"npcName", npcNickname})
         return *this;
     }
 
@@ -152,7 +152,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithPe
     }
     else
     {
-        Logger::Warn(std::format(L"WithPersonality called with an invalid personality: {}", personalityNickname));
+        WARN(L"called with invalid personality {0}", {L"personality", personalityNickname})
     }
 
     return *this;
@@ -200,7 +200,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithSy
     }
     else
     {
-        Logger::Warn(L"WithSystem called with invalid hash");
+        WARN(L"Called with invalid nickname");
     }
 
     return *this;
@@ -214,7 +214,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithSy
     }
     else
     {
-        Logger::Warn(L"WithSystem called with invalid nickname");
+        WARN(L"Called with invalid nickname");
     }
 
     return *this;
@@ -280,12 +280,12 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithFu
 {
     if (fuse.lifetime < 0.0f)
     {
-        Logger::Warn(L"WithFuse called with negative lifetime.");
+       WARN(L"Called with negative lifetime.");
     }
 
     if (fuse.radius < 0.0f)
     {
-        Logger::Warn(L"WithFuse called with negative radius.");
+        WARN(L"Called with negative radius.");
     }
 
     this->fuse = fuse;
@@ -404,7 +404,7 @@ std::weak_ptr<CEqObj> ResourceManager::SpaceObjectBuilder::Spawn()
 {
     if (!ValidateSpawn())
     {
-        Logger::Warn(L"Attempting to spawn NPC/Solar with invalid data within the builder.");
+        WARN(L"Attempting to spawn NPC/Solar with invalid data within the builder.");
         return {};
     }
 
@@ -748,7 +748,7 @@ void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly
         if (const auto erased = std::erase_if(spawnedSolars, [&ptr](std::pair<std::shared_ptr<CSolar>, bool>& solar) { return ptr->id == solar.first->id; });
             !erased)
         {
-            Logger::Debug(L"Tried to dispose of CSolar that wasn't owned by resource manager");
+            DEBUG(L"Tried to dispose of CSolar that wasn't owned by resource manager");
             return;
         }
     }
@@ -758,7 +758,7 @@ void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly
         if (const auto erased = std::erase_if(spawnedShips, [&ptr](std::pair<std::shared_ptr<CShip>, bool>& ship) { return ptr->id == ship.first->id; });
             !erased)
         {
-            Logger::Debug(L"Tried to dispose of CShip that wasn't owned by resource manager");
+            DEBUG(L"Tried to dispose of CShip that wasn't owned by resource manager");
             return;
         }
     }

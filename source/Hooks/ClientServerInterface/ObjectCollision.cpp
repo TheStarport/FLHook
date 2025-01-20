@@ -50,7 +50,7 @@ void IServerImplHook::NpcSpinProtection(const SSPObjCollisionInfo& oci, ClientId
 
 void __stdcall IServerImplHook::SpObjCollision(const SSPObjCollisionInfo& oci, ClientId client)
 {
-    Logger::Trace(std::format(L"SPObjCollision(\n\tClientId client = {}\n)", client));
+    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
 
     if (FLHook::GetConfig()->npc.enableNpcSpinProtection && oci.colliderObjectId)
     {

@@ -1,12 +1,12 @@
 #include "PCH.hpp"
 
+#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "API/Utils/Logger.hpp"
 
 void __stdcall IServerImplHook::SetVisitedState(ClientId client, uint objHash, int state)
 {
-    Logger::Trace(std::format(L"SetVisitedState(\n\tClientId client = {}\n\tuint objHash = {}\n\tint state = {}\n)", client, objHash, state));
+    TRACE(L"{0}{1}{2}", { L"clientId", std::to_wstring(client.GetValue()) }, { L"objHash", std::to_wstring(objHash) }, { L"state", std::to_wstring(state) })
 
     if (const auto skip = CallPlugins(&Plugin::OnSetVisitedState, client, objHash, state); !skip)
     {
@@ -19,7 +19,10 @@ void __stdcall IServerImplHook::SetVisitedState(ClientId client, uint objHash, i
 
 void __stdcall IServerImplHook::RequestBestPath(ClientId client, RequestBestPathStruct* bestPath, int unused)
 {
-   Logger::Trace(std::format(L"RequestBestPath(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, (uint)bestPath, unused));
+    TRACE(L"{0}{1}{2}",
+          { L"clientId", std::to_wstring(client.GetValue()) },
+          { L"bestPathPointer", std::to_wstring((uint)bestPath) },
+          { L"unused", std::to_wstring(unused) })
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestBestPath, client, bestPath, unused); !skip)
     {
@@ -32,7 +35,7 @@ void __stdcall IServerImplHook::RequestBestPath(ClientId client, RequestBestPath
 
 void __stdcall IServerImplHook::LocationInfoRequest(unsigned int unk1, unsigned int unk2, bool unk3)
 {
-    Logger::Trace(std::format(L"LocationInfoRequest(\n\tunsigned int unk1 = {}\n\tunsigned int unk2 = {}\n\tbool unk3 = {}\n)", unk1, unk2, unk3));
+    TRACE(L"{0}{1}{2}", { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) }, { L"unk3", std::to_wstring(unk3) })
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestLocationInfo, unk1, unk2, unk3); !skip)
     {
@@ -45,7 +48,8 @@ void __stdcall IServerImplHook::LocationInfoRequest(unsigned int unk1, unsigned 
 
 void __stdcall IServerImplHook::LocationExit(uint locationId, ClientId client)
 {
-    Logger::Trace(std::format(L"LocationExit(\n\tuint locationId = {}\n\tClientId client = {}\n)", locationId, client));
+
+    TRACE(L"{0}{1}", { L"locationId", std::to_wstring(locationId) }, { L"client", std::to_wstring(client.GetValue()) })
 
     if (const auto skip = CallPlugins(&Plugin::OnLocationExit, client, locationId); !skip)
     {
@@ -58,7 +62,7 @@ void __stdcall IServerImplHook::LocationExit(uint locationId, ClientId client)
 
 void __stdcall IServerImplHook::LocationEnter(uint locationId, ClientId client)
 {
-    Logger::Trace(std::format(L"LocationEnter(\n\tuint locationId = {}\n\tClientId client = {}\n)", locationId, client));
+    TRACE(L"{0}{1}", { L"locationId", std::to_wstring(locationId) }, { L"client", std::to_wstring(client.GetValue()) })
 
     if (const auto skip = CallPlugins(&Plugin::OnLocationEnter, client, locationId); !skip)
     {

@@ -82,22 +82,22 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
     {
         if (isNewCharacter)
         {
-            Logger::Err(std::format(L"Error while creating character: {}", StringUtils::stows(ex.what())));
+            ERROR(L"Error while creating character: {0}", { L"character", StringUtils::stows(ex.what()) });
         }
         else
         {
-            Logger::Err(std::format(L"Error while updating character: {}", StringUtils::stows(ex.what())));
+            ERROR(L"Error while updating character: {0}", { L"character", StringUtils::stows(ex.what()) });
         }
     }
     catch (mongocxx::exception& ex)
     {
         if (isNewCharacter)
         {
-            Logger::Err(std::format(L"Error while creating character: {}", StringUtils::stows(ex.what())));
+            ERROR(L"Error while creating character: {0}", { L"character", StringUtils::stows(ex.what()) });
         }
         else
         {
-            Logger::Err(std::format(L"Error while updating character: {}", StringUtils::stows(ex.what())));
+            ERROR(L"Error while updating character: {0}", { L"character", StringUtils::stows(ex.what()) });
         }
     }
     session.abort_transaction();
@@ -146,12 +146,14 @@ bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring c
         session.commit_transaction();
         account.characters.erase(charCodeString);
         account.internalAccount->numberOfCharacters = account.characters.size();
-        Logger::Info(std::format(L"Successfully hard deleted character: {}", wideCharName));
+        INFO(L"Successfully hard deleted character: {0}", { L"characterName", wideCharName })
+
         return true;
     }
     catch (std::exception& ex)
     {
-        Logger::Err(std::format(L"Error hard deleted character ({}): {}", wideCharName, StringUtils::stows(ex.what())));
+
+        ERROR(L"Error hard deleting character {0}{1}", { L"character", wideCharName }, { L"error", StringUtils::stows(ex.what()) })
     }
     session.abort_transaction();
     return false;
@@ -215,9 +217,10 @@ bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
             auto character = Character{ doc };
             if (character.characterName.empty())
             {
-                Logger::Err(std::format(L"Error when reading character name for account: {}", wideAccountId));
+                ERROR(L"Error when reading character name for account: {0}", { L"accountId", wideAccountId });
                 continue;
             }
+
             char charNameBuf[50];
             getFlName(charNameBuf, StringUtils::stows(character.characterName).c_str());
             std::string charFileName = charNameBuf;
@@ -231,12 +234,13 @@ bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
     }
     catch (bsoncxx::exception& ex)
     {
-        Logger::Err(std::format(L"Error logging in for account ({}): {}", wideAccountId, StringUtils::stows(ex.what())));
+        ERROR(L"Error logging in for account {0} {1} ", { L"accountId", wideAccountId }, { L"error", StringUtils::stows(ex.what()) })
+
         session.abort_transaction();
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Err(std::format(L"Error logging in for account ({}): {}", wideAccountId, StringUtils::stows(ex.what())));
+        ERROR(L"Error logging in for account {0} {1} ", { L"accountId", wideAccountId }, { L"error", wideAccountId })
         session.abort_transaction();
     }
 
@@ -272,7 +276,8 @@ bool AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newN
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Err(std::format(L"Error checking for taken name ({}): {}", client.GetCharacterName().Handle(), StringUtils::stows(ex.what())));
+
+        ERROR(L"Error checking for taken name", { L"accountId", std::wstring(client.GetCharacterName().Handle()) }, { L"error", StringUtils::stows(ex.what()) })
     }
     return true;
 }
@@ -313,12 +318,13 @@ void AccountManager::Rename(std::wstring currName, std::wstring newName)
     }
     catch (bsoncxx::exception& ex)
     {
-        Logger::Err(std::format(L"BSON Error renaming ({}): {}", currName, StringUtils::stows(ex.what())));
+        ERROR(L"BSON error renaming {0}{1}", { L"currentName", currName }, { L"error", StringUtils::stows(ex.what()) })
+
         session.abort_transaction();
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Err(std::format(L"MongoDB Error renaming ({}): {}", currName, StringUtils::stows(ex.what())));
+        ERROR(L"BSON error renaming {0}{1}", { L"currentName", currName }, { L"error", StringUtils::stows(ex.what()) })
         session.abort_transaction();
     }
 }
@@ -356,12 +362,14 @@ void AccountManager::ClearCharacterTransferCode(std::wstring charName)
     }
     catch (bsoncxx::exception& ex)
     {
-        Logger::Err(std::format(L"BSON Error clearing character transfer code ({}): {}", charName, StringUtils::stows(ex.what())));
+
+        ERROR(L"BSON Error clearing character transfer code {0}{1}", {L"characterName", charName},{L"error",StringUtils::stows(ex.what()) } )
+
         session.abort_transaction();
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Err(std::format(L"MongoDB Error clearing character transfer code ({}): {}", charName, StringUtils::stows(ex.what())));
+        ERROR(L"BSON Error clearing character transfer code {0}{1}", {L"characterName", charName},{L"error",StringUtils::stows(ex.what()) } )
         session.abort_transaction();
     }
 }
@@ -400,12 +408,12 @@ void AccountManager::SetCharacterTransferCode(std::wstring charName, std::wstrin
     }
     catch (bsoncxx::exception& ex)
     {
-        Logger::Err(std::format(L"BSON Error setting character transfer code ({}): {}", charName, StringUtils::stows(ex.what())));
+        ERROR(L"MongoDB Error setting character transfer code {0}{1}", {L"characterName", charName},{L"error",StringUtils::stows(ex.what()) } )
         session.abort_transaction();
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Err(std::format(L"MongoDB Error setting character transfer code ({}): {}", charName, StringUtils::stows(ex.what())));
+        ERROR(L"MongoDB Error setting character transfer code {0}{1}", {L"characterName", charName},{L"error",StringUtils::stows(ex.what()) } )
         session.abort_transaction();
     }
 }
@@ -492,13 +500,15 @@ bool AccountManager::TransferCharacter(const AccountId account, const std::wstri
     }
     catch (bsoncxx::exception& ex)
     {
-        Logger::Err(std::format(L"BSON Error setting character transfer code ({}): {}", charName, StringUtils::stows(ex.what())));
+        ERROR(L"BSON Error setting character transfer code {0}{1}", {L"characterName", charName},{L"error",StringUtils::stows(ex.what()) } )
+
         *errorMessage = L"Database error, report to server staff";
         session.abort_transaction();
     }
     catch (mongocxx::exception& ex)
     {
-        Logger::Err(std::format(L"MongoDB Error setting character transfer code ({}): {}", charName, StringUtils::stows(ex.what())));
+        ERROR(L"MongoDB Error setting character transfer code {0}{1}", {L"characterName", charName},{L"error",StringUtils::stows(ex.what()) } )
+
         *errorMessage = L"Database error, report to server staff";
         session.abort_transaction();
     }

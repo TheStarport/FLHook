@@ -104,7 +104,7 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
 
     FLHook::instance->accountManager->LoadNewPlayerFLInfo();
 
-    Logger::Info(L"FLHook Ready");
+    INFO(L"FLHook Ready");
 
     FLHook::instance->flhookReady = true;
 
@@ -114,7 +114,8 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
     {
         if (auto p = plugin->get(); !p->OnLoadSettings())
         {
-            Logger::Info(std::format(L"{} LoadSettings failed. Unloading plugin", p->GetName()));
+
+            INFO(L"{0} LoadSettings failed. Unloading plugin", { L"pluginName", std::wstring(p->GetName()) });
             auto pCopy = p->dll;
             plugin->reset();
             plugin = pluginManager->plugins.erase(plugin);
@@ -162,7 +163,7 @@ int __stdcall IServerImplHook::Update()
 
 void __stdcall IServerImplHook::Shutdown()
 {
-    Logger::Trace(L"Shutdown()");
+    TRACE(L"Shutdown()");
 
     if (const auto skip = CallPlugins(&Plugin::OnServerShutdown); !skip)
     {

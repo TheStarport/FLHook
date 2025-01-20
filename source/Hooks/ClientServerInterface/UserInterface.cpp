@@ -6,7 +6,7 @@
 
 void __stdcall IServerImplHook::Hail(unsigned int unk1, unsigned int unk2, unsigned int unk3)
 {
-    Logger::Trace(std::format(L"Hail(\n\tunsigned int unk1 = {}\n\tunsigned int unk2 = {}\n\tunsigned int unk3 = {}\n)", unk1, unk2, unk3));
+    TRACE(L"{0}{1}{2}", { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) }, { L"unk3", std::to_wstring(unk3) });
 
     if (const auto skip = CallPlugins(&Plugin::OnHail, unk1, unk2, unk3); !skip)
     {
@@ -22,14 +22,13 @@ void __stdcall IServerImplHook::RequestEvent(int eventType, Id shipId, Id dockTa
     auto ship = shipId.AsShip();
     auto dockTargetObj = dockTarget.AsObject();
 
-    Logger::Trace(std::format(L"RequestEvent(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint dockTarget = {}\n\tuint unk1 = {}\n\tulong unk2 = "
-                              "{}\n\tClientId client = {}\n)",
-                              eventType,
-                              shipId,
-                              dockTarget,
-                              unk1,
-                              unk2,
-                              client));
+    TRACE(L"{0}{1}{2}{3}{4}{5}",
+          { L"eventType", std::to_wstring(eventType) },
+          { L"shipId", std::to_wstring(shipId.GetValue()) },
+          { L"dockTarget", std::to_wstring(dockTarget.GetValue()) },
+          { L"unk1", std::to_wstring(unk1) },
+          { L"unk2", std::to_wstring(unk2) },
+          { L"client", std::to_wstring(client.GetValue()) });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestEvent, client, eventType, ship, dockTargetObj, unk1, unk2); !skip)
     {
@@ -45,12 +44,12 @@ void __stdcall IServerImplHook::RequestCancel(int eventType, Id shipId, Id dockT
     auto ship = shipId.AsShip();
     auto dockTargetObj = dockTarget.AsObject();
 
-    Logger::Trace(std::format(L"RequestCancel(\n\tint eventType = {}\n\tuint shipId = {}\n\tuint unk1 = {}\n\tulong unk2 = {}\n\tClientId client = {}\n)",
-                              eventType,
-                              shipId,
-                              dockTarget,
-                              unk2,
-                              client));
+    TRACE(L"{0}{1}{2}{3}{4}",
+          { L"eventType", std::to_wstring(eventType) },
+          { L"shipId", std::to_wstring(shipId.GetValue()) },
+          { L"dockTarget", std::to_wstring(dockTarget.GetValue()) },
+          { L"unk2", std::to_wstring(unk2) },
+          { L"client", std::to_wstring(client.GetValue()) });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestCancel, client, eventType, ship, dockTargetObj, unk2); !skip)
     {
@@ -63,7 +62,7 @@ void __stdcall IServerImplHook::RequestCancel(int eventType, Id shipId, Id dockT
 
 void __stdcall IServerImplHook::InterfaceItemUsed(uint unk1, uint unk2)
 {
-    Logger::Trace(std::format(L"InterfaceItemUsed(\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", unk1, unk2));
+    TRACE(L"{0}{1}", { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     if (const auto skip = CallPlugins(&Plugin::OnInterfaceItemUsed, unk1, unk2); !skip)
     {
@@ -76,7 +75,7 @@ void __stdcall IServerImplHook::InterfaceItemUsed(uint unk1, uint unk2)
 
 void __stdcall IServerImplHook::PopupDialog(ClientId client, ::PopupDialog buttonClicked)
 {
-    Logger::Trace(std::format(L"PopupDialog(\n\tClientId client = {}\n\tuint buttonClicked = {}\n)", client, static_cast<uint>(buttonClicked)));
+    TRACE(L"{0}{1}", { L"client", std::to_wstring(client.GetValue()) }, { L"buttonClicked", std::to_wstring(static_cast<uint>(buttonClicked)) });
 
     if (const auto skip = CallPlugins(&Plugin::OnPopupDialogueConfirm, client, buttonClicked); !skip)
     {
@@ -89,7 +88,8 @@ void __stdcall IServerImplHook::PopupDialog(ClientId client, ::PopupDialog butto
 
 void __stdcall IServerImplHook::SetInterfaceState(ClientId client, uint unk1, int unk2)
 {
-    Logger::Trace(std::format(L"SetInterfaceState(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
+
+    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     if (const auto skip = CallPlugins(&Plugin::OnSetInterfaceState, client, unk1, unk2); !skip)
     {
@@ -102,7 +102,7 @@ void __stdcall IServerImplHook::SetInterfaceState(ClientId client, uint unk1, in
 
 void __stdcall IServerImplHook::RequestGroupPositions(ClientId client, uint unk1, int unk2)
 {
-    Logger::Trace(std::format(L"RequestGroupPositions(\n\tClientId client = {}\n\tuint unk1 = 0x{:08X}\n\tint unk2 = {}\n)", client, unk1, unk2));
+    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestGroupPositions, client, unk1, unk2); !skip)
     {
@@ -115,7 +115,7 @@ void __stdcall IServerImplHook::RequestGroupPositions(ClientId client, uint unk1
 
 void __stdcall IServerImplHook::SetTarget(ClientId client, const XSetTarget& st)
 {
-    Logger::Trace(std::format(L"SetTarget(\n\tClientId client = {}\n)", client));
+    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
 
     if (const auto skip = CallPlugins(&Plugin::OnSetTarget, client, st); !skip)
     {

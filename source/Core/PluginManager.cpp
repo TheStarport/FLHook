@@ -47,14 +47,14 @@ cpp::result<std::wstring, Error> PluginManager::Unload(std::wstring_view name)
 
     if (!plugin->mayUnload)
     {
-        Logger::Warn(L"Plugin may not be unloaded.");
+        WARN(L"Plugin may not be unloaded.");
         return {};
     }
 
     HMODULE dllAddr = plugin->dll;
 
     std::wstring unloadedPluginDll = plugin->dllName;
-    Logger::Info(std::format(L"Unloading {} ({})", plugin->name, plugin->dllName));
+    INFO(L"Unloading {0}", { plugin->name, plugin->dllName })
 
     plugins.erase(pluginIterator);
 
@@ -90,7 +90,8 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
     {
         if (plugin->dllName == dllName)
         {
-            Logger::Info(std::format(L"Plugin {} already loaded, skipping\n", plugin->dllName));
+            INFO(L"{0} already loaded, skipping", { L"plugin", plugin->dllName })
+
             return false;
         }
     }
@@ -99,7 +100,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (!std::filesystem::exists(pathToDll))
     {
-        Logger::Err(std::format(L"ERR plugin {} not found", dllName));
+        ERROR(L"ERR plugin {0} not found", { L"DllName", dllName });
         return false;
     }
 
@@ -107,7 +108,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (!dll)
     {
-        Logger::Err(std::format(L"ERR can't load plugin DLL {}", dllName));
+        ERROR(L"ERR can't load plugin DLL {0}", { L"DllName", dllName });
         return false;
     }
 
@@ -115,7 +116,8 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (!pluginFactory)
     {
-        Logger::Err(std::format(L"ERR could not create plugin instance for {}", dllName));
+        ERROR(L"ERR could not create plugin instance for {0}", { L"DllName", dllName });
+
         FreeLibrary(dll);
         return false;
     }
@@ -126,17 +128,18 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (plugin->versionMinor == PluginMinorVersion::Undefined || plugin->versionMajor == PluginMajorVersion::Undefined)
     {
-        Logger::Err(std::format(L"ERR plugin {} does not have defined API version. Unloading.", dllName));
+        ERROR(L"ERR plugin {0} does not have defined API version. Unloading.", { L"DllName", dllName });
         FreeLibrary(dll);
         return false;
     }
 
     if (plugin->versionMajor != CurrentMajorVersion)
     {
-        Logger::Err(std::format(L"ERR incompatible plugin API (major) version for {}: expected {}, got {}",
-                                dllName,
-                                static_cast<int>(CurrentMajorVersion),
-                                static_cast<int>(plugin->versionMajor)));
+        ERROR(L"ERR incompatible plugin API (major) version for {0}: expected {1}, got {2}",
+              { L"DllName", dllName },
+              { L"CurrentMajorVersion", std::to_wstring(static_cast<int>(CurrentMajorVersion)) },
+              { L"MajorVersion", std::to_wstring(static_cast<int>(plugin->versionMajor)) })
+
         plugin = nullptr;
         FreeLibrary(dll);
         return false;
@@ -144,10 +147,11 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (static_cast<int>(plugin->versionMinor) > static_cast<int>(CurrentMinorVersion))
     {
-        Logger::Err(std::format(L"ERR incompatible plugin API (minor) version for {}: expected {} or lower, got {}",
-                                dllName,
-                                static_cast<int>(CurrentMinorVersion),
-                                static_cast<int>(plugin->versionMinor)));
+        ERROR(L"ERR incompatible plugin API (minor) version for {0}: expected {1} or lower, got {2}",
+              { L"DllName", dllName },
+              { L"CurrentMinorVersion", std::to_wstring(static_cast<int>(CurrentMinorVersion)) },
+              { L"MinorVersion", std::to_wstring(static_cast<int>(plugin->versionMinor)) })
+
         plugin = nullptr;
         FreeLibrary(dll);
         return false;
@@ -155,16 +159,18 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     if (static_cast<int>(plugin->versionMinor) != static_cast<int>(CurrentMinorVersion))
     {
-        Logger::Warn(std::format(L"Warning, incompatible plugin API version for {}: expected {}, got {}",
-                                 dllName,
-                                 static_cast<int>(CurrentMinorVersion),
-                                 static_cast<int>(plugin->versionMinor)));
-        Logger::Info(L"Processing will continue, but plugin should be considered unstable.");
+
+        WARN(L"Warning, incompatible plugin API version for {0}: expected {1}, got {2}",
+              { L"DllName", dllName },
+              { L"CurrentMinorVersion", std::to_wstring(static_cast<int>(CurrentMinorVersion)) },
+              { L"MinorVersion", std::to_wstring(static_cast<int>(plugin->versionMinor)) })
+
+        INFO(L"Processing will continue, but plugin should be considered unstable.");
     }
 
     if (plugin->shortName.empty() || plugin->name.empty())
     {
-        Logger::Err(std::format(L"ERR missing name/short name for {}", dllName));
+        ERROR(L"ERR missing name/short name for {0}", { L"DllName", dllName });
         plugin = nullptr;
         FreeLibrary(dll);
         return false;
@@ -174,7 +180,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
     // also not be loaded after FLServer startup
     if (!plugin->mayUnload && !startup)
     {
-        Logger::Err(std::format(L"ERR could not load plugin {}: plugin cannot be unloaded, need server restart to load", dllName));
+        ERROR(L"ERR could not load plugin {0}: plugin cannot be unloaded, need server restart to load", { L"DllName", dllName });
         plugin = nullptr;
         FreeLibrary(dll);
         return false;
@@ -195,7 +201,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     std::ranges::sort(plugins, [](const std::shared_ptr<Plugin>& a, const std::shared_ptr<Plugin>& b) { return a->callPriority > b->callPriority; });
 
-    Logger::Info(std::format(L"Plugin {} loaded ({})", plugin->shortName, plugin->dllName));
+    INFO(L"Plugin Loaded {0}", {plugin->shortName, plugin->dllName});
     return true;
 }
 

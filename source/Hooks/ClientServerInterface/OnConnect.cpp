@@ -13,7 +13,8 @@ bool IServerImplHook::OnConnectInner(ClientId client)
         // If Id is too high due to disconnect buffer time then manually drop the connection.
         if (client.GetValue() > MaxClientId)
         {
-            Logger::Trace(std::format(L"INFO: Blocking connect in {} due to invalid id, id={}", FUNCTION_W, client));
+            TRACE(L"Blocking connect due to invalid Id {0}", { L"client", std::to_wstring(client.GetValue()) });
+
             CDPClientProxy* cdpClient = FLHook::clientProxyArray[client.GetValue() - 1];
             if (!cdpClient)
             {
@@ -48,7 +49,7 @@ bool IServerImplHook::OnConnectInner(ClientId client)
 
 void __stdcall IServerImplHook::OnConnect(ClientId client)
 {
-    Logger::Trace(std::format(L"OnConnect(\n\tClientId client = {}\n)", client));
+    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
 
     const auto skip = CallPlugins(&Plugin::OnConnect, client);
 

@@ -180,7 +180,11 @@ void ExceptionHandler::SigAbortHandler(int sig)
     UnhandledException();
 }
 
-LPTOP_LEVEL_EXCEPTION_FILTER WINAPI SetUnhandledExceptionFilterOld([[maybe_unused]] LPTOP_LEVEL_EXCEPTION_FILTER) { return nullptr; }
+LPTOP_LEVEL_EXCEPTION_FILTER WINAPI SetUnhandledExceptionFilterOld([[maybe_unused]]
+                                                                   LPTOP_LEVEL_EXCEPTION_FILTER)
+{
+    return nullptr;
+}
 
 void ExceptionHandler::SetupExceptionHandling()
 {
@@ -255,7 +259,8 @@ void ExceptionHandler::LogException(const SehException& ex)
             WCHAR moduleName[MAX_PATH];
             GetModuleBaseNameW(GetCurrentProcess(), module, moduleName, MAX_PATH);
 
-            Logger::Err(std::format(L"Code={:X} Offset={:X} Module=\"{}\"", code, offset, moduleName));
+            ERROR(L"{0}{1}{2}", { L"code", std::to_wstring(code) }, { L"offset", std::to_wstring(offset) }, { L"moduleName", moduleName })
+
             if (code == 0xE06D7363 && exception->NumberParameters == 3) // C++ exception
             {
                 const auto* info = reinterpret_cast<const msvc__ThrowInfo*>(exception->ExceptionInformation[2]);
@@ -281,11 +286,11 @@ void ExceptionHandler::LogException(const SehException& ex)
                     GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)address, &module);
                     GetModuleBaseNameW(GetCurrentProcess(), module, moduleName, MAX_PATH);
                 }
-                Logger::Err(std::format(L"Name=\"{}\" Message=\"{}\" Offset=0x{:08X} Module=\"{}\"",
-                                        StringUtils::stows(szName),
-                                        StringUtils::stows(szMessage),
-                                        offset,
-                                        wcsrchr(moduleName, L'\\') + 1));
+                ERROR(L"{0}{1}{2}{3}",
+                      { L"name", StringUtils::stows(szName) },
+                      { L"message", StringUtils::stows(szMessage) },
+                      { L"offset", std::to_wstring(offset) },
+                      { L"moduleName", wcsrchr(moduleName, L'\\') + 1 })
             }
 
             void* callers[62];
@@ -298,28 +303,28 @@ void ExceptionHandler::LogException(const SehException& ex)
         }
         else
         {
-            Logger::Err(L"No exception information available");
+            ERROR(L"No exception information available");
         }
         if (reg)
         {
-            Logger::Err(std::format(L"eax={:X} ebx={:X} ecx={:X} edx={:X} edi={:X} esi={:X} ebp={:X} eip={:X} esp={:X}",
-                                    reg->Eax,
-                                    reg->Ebx,
-                                    reg->Ecx,
-                                    reg->Edx,
-                                    reg->Edi,
-                                    reg->Esi,
-                                    reg->Ebp,
-                                    reg->Eip,
-                                    reg->Esp));
+            ERROR(L"{0}{1}{2}{3}{4}{5}{6}{7}{8}",
+                  { L"eax", std::to_wstring(reg->Eax) },
+                  { L"ebx", std::to_wstring(reg->Ebx) },
+                  { L"ecx", std::to_wstring(reg->Ecx) },
+                  { L"edx", std::to_wstring(reg->Edx) },
+                  { L"edi", std::to_wstring(reg->Edi) },
+                  { L"esi", std::to_wstring(reg->Esi) },
+                  { L"ebp", std::to_wstring(reg->Ebp) },
+                  { L"eip", std::to_wstring(reg->Eip) },
+                  { L"esp", std::to_wstring(reg->Esp) })
         }
         else
         {
-            Logger::Err(L"No register information available");
+           ERROR(L"No register information available");
         }
     }
     catch (...)
     {
-        Logger::Err(L"Exception in AddExceptionInfoLog!");
+        ERROR(L"Exception in AddExceptionInfoLog!");
     }
 }

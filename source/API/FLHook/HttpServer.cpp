@@ -31,15 +31,14 @@ void HttpServer::RegisterRoutes()
 	server->Get("/ping", [&](const httplib::Request& req, httplib::Response& res)
 	{ std::scoped_lock lock(*this);
 	  return Ping();});
-		
 
     CallPlugins(&Plugin::OnHttpServerRegister, server);
 
     // Start the server
-    Logger::Info(std::format(L"Running http server on port {}", FLHook::GetConfig()->httpSettings.port));
+    INFO(L"Running http server on port {0}", {L"Port ", std::to_wstring(FLHook::GetConfig()->httpSettings.port)});
     serverThread = std::jthread{ std::bind_front(&HttpServer::StartServer, this) };
     server->wait_until_ready();
-    Logger::Debug(L"Http server started");
+    DEBUG(L"Http server started");
 }
 
 httplib::StatusCode HttpServer::GetOnlinePlayers(const httplib::Request& req, httplib::Response& res)

@@ -212,7 +212,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
         {
             f.Message(msg);
         }
-        Logger::Debug(ex.Msg());
+        DEBUG(std::wstring(ex.Msg()));
         return false;
     }
     catch ([[maybe_unused]] std::exception& exc) { return false; }
@@ -225,7 +225,11 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
 
 void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, const void* rdlReader, CHAT_ID cidTo, int genArg1)
 {
-    Logger::Trace(std::format(L"SubmitChat(\n\tuint From = {}\n\tulong size = {}\n\tuint cidTo = {}", cidFrom.id, size, cidTo.id));
+
+    TRACE(L"SubmitChat({0}{1}{2}",
+          { L"cidFrom", std::to_wstring(cidFrom.id) },
+          { L"size", std::to_wstring(size) },
+          { L"cidTo", std::to_wstring(cidTo.id) });
 
     const auto skip = CallPlugins(&Plugin::OnSubmitChat, ClientId(cidFrom.id), size, rdlReader, ClientId(cidTo.id), genArg1);
 

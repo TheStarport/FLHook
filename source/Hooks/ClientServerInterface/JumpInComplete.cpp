@@ -6,7 +6,7 @@
 
 void __stdcall IServerImplHook::JumpInComplete(SystemId systemId, Id shipId)
 {
-    Logger::Trace(std::format(L"JumpInComplete(\n\tuint systemId = {}\n\tuint shipId = {}\n)", systemId, shipId));
+    TRACE(L"JumpInComplete({0}{1})", { L"systemId", std::to_wstring(systemId.GetValue()) }, { L"shipId", std::to_wstring(shipId.GetValue()) })
 
     auto ship = shipId.AsShip();
     if (const auto skip = CallPlugins(&Plugin::OnJumpInComplete, systemId, ship); !skip)

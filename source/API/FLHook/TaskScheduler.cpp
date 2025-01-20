@@ -35,12 +35,12 @@ bool Task::HandleException()
             }
             else
             {
-                Logger::Warn(ex.Msg());
+                WARN(std::wstring(ex.Msg()));
             }
         }
         catch (const std::exception& ex)
         {
-            Logger::Err(std::format(L"Uncaught exception thrown during Task processing!\n{}", StringUtils::stows(ex.what())));
+            WARN(L"Uncaught exception thrown during Task processing!\n{0}",{ L"Exception: ",StringUtils::stows(ex.what())});
         }
 
         // Terminate the task early due to the exception
@@ -195,7 +195,7 @@ void TaskScheduler::ProcessTasks(moodycamel::ConcurrentQueue<std::shared_ptr<Tas
             }
             else
             {
-                Logger::Warn(message);
+                WARN(message);
             }
 
             co_return TaskStatus::Finished;
@@ -234,7 +234,7 @@ void TaskScheduler::ProcessTasks(moodycamel::ConcurrentQueue<std::shared_ptr<Tas
         catch (std::exception& ex)
         {
             // Anything else critically log
-            Logger::Err(StringUtils::stows(ex.what()));
+            ERROR(StringUtils::stows(ex.what()));
         }
 
         if (t->status == TaskStatus::FLHookAwait)

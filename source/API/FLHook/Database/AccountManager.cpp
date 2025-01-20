@@ -422,11 +422,11 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
 
 void AccountManager::LoadNewPlayerFLInfo()
 {
-    Logger::Debug(L"Loading new player information");
+    DEBUG(L"Loading new player information");
     INI_Reader ini;
     if (!ini.open("mpnewcharacter.fl", false) || !ini.find_header("Player"))
     {
-        Logger::Err(L"Unable to load [Player] from mpnewcharacter.fl");
+        ERROR(L"Unable to load [Player] from mpnewcharacter.fl");
         return;
     }
 
@@ -466,7 +466,7 @@ void AccountManager::LoadNewPlayerFLInfo()
             newPlayerTemplate.system = ini.get_value_string();
             if (newPlayerTemplate.system != "%%HOME_SYSTEM%%" && !Universe::get_system(CreateID(newPlayerTemplate.system.c_str())))
             {
-                Logger::Err(L"System referenced inside of newplayer.fl is not valid!");
+                ERROR(L"System referenced inside of newplayer.fl is not valid!");
             }
         }
         else if (key == "base")
@@ -474,7 +474,7 @@ void AccountManager::LoadNewPlayerFLInfo()
             newPlayerTemplate.base = ini.get_value_string();
             if (newPlayerTemplate.base != "%%HOME_BASE%%" && !Universe::get_base(CreateID(newPlayerTemplate.base.c_str())))
             {
-                Logger::Err(L"Base referenced inside of newplayer.fl is not valid!");
+                ERROR(L"Base referenced inside of newplayer.fl is not valid!");
             }
         }
         else if (key == "house")
@@ -490,7 +490,7 @@ void AccountManager::LoadNewPlayerFLInfo()
             newPlayerTemplate.ship = CreateID(ini.get_value_string());
             if (!Archetype::GetShip(newPlayerTemplate.ship))
             {
-                Logger::Err(L"Base referenced inside of newplayerfl is not valid!");
+                ERROR(L"Base referenced inside of newplayerfl is not valid!");
             }
         }
         else if (key == "%%PACKAGE%%")
@@ -501,7 +501,7 @@ void AccountManager::LoadNewPlayerFLInfo()
 
     if (!newPlayerTemplate.hasPackage)
     {
-        Logger::Warn(L"Missing %%PACKAGE%% from mpnewplayer.fl. If the package is missing any data from a valid save file, "
+        ERROR(L"Missing %%PACKAGE%% from mpnewplayer.fl. If the package is missing any data from a valid save file, "
                      L"new characters can cause server and client crashes.");
     }
 }
@@ -661,7 +661,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     auto playerMapCache = pd->characterMap.find(client.playerData->charFile);
     if (playerMapCache == pd->characterMap.end())
     {
-        Logger::Err(std::format(L"Fetching Base Status failed for {}", client.characterName));
+        ERROR(std::format(L"Fetching Base Status failed for {}", client.characterName));
         return true;
     }
 
@@ -671,7 +671,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     auto mdataIter = mdataBST->find(pd->clientId);
     if (mdataIter == mdataBST->end())
     {
-        Logger::Err(std::format(L"Fetching mPlayer data failed for {}", client.characterName));
+        ERROR(std::format(L"Fetching mPlayer data failed for {}", client.characterName));
         return true;
     }
 

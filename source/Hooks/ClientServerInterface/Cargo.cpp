@@ -7,7 +7,7 @@
 
 void __stdcall IServerImplHook::SpScanCargo(const uint& unk1, const uint& unk2, uint unk3)
 {
-    Logger::Trace(std::format(L"SPScanCargo(\n\tuint const& unk1 = {}\n\tuint const& unk2 = {}\n\tuint unk3 = {}\n)", unk1, unk2, unk3));
+    TRACE(L"SPScanCargo({0},{1},{2})", { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) }, { L"unk3", std::to_wstring(unk3) });
 
     if (const auto skip = CallPlugins(&Plugin::OnSpScanCargo, unk1, unk2, unk3); !skip)
     {
@@ -21,14 +21,13 @@ void __stdcall IServerImplHook::SpScanCargo(const uint& unk1, const uint& unk2, 
 void __stdcall IServerImplHook::ReqAddItem(uint goodId, const char* hardpoint, int count, float status, bool mounted, ClientId client)
 {
     const std::wstring hp = StringUtils::stows(hardpoint);
-    Logger::Trace(std::format(L"ReqAddItem(\n\tuint goodId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
-                              L"{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
-                              goodId,
-                              StringUtils::stows(std::string(hardpoint)),
-                              count,
-                              status,
-                              mounted,
-                              client));
+    TRACE(L"ReqAddItem({0},{1},{2},{3},{4},{5})",
+          { L"goodId", std::to_wstring(goodId) },
+          { L"hardpoint", StringUtils::stows(std::string(hardpoint)) },
+          { L"count", std::to_wstring(count) },
+          { L"status", std::to_wstring(status) },
+          { L"mounted", std::to_wstring(mounted) },
+          { L"client", std::to_wstring(client.GetValue()) })
 
     auto good = GoodId(goodId);
 
@@ -43,7 +42,10 @@ void __stdcall IServerImplHook::ReqAddItem(uint goodId, const char* hardpoint, i
 
 void __stdcall IServerImplHook::ReqRemoveItem(ushort slotId, int count, ClientId client)
 {
-    Logger::Trace(std::format(L"ReqRemoveItem(\n\tushort slotId = {}\n\tint count = {}\n\tClientId client = {}\n)", slotId, count, client));
+    TRACE(L"ReqRemoveItem({0},{1},{2},)",
+          { L"slotId", std::to_wstring(slotId) },
+          { L"count", std::to_wstring(count) },
+          { L"clientId", std::to_wstring(client.GetValue()) })
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestRemoveItem, client, slotId, count); !skip)
     {
@@ -57,14 +59,14 @@ void __stdcall IServerImplHook::ReqRemoveItem(ushort slotId, int count, ClientId
 void __stdcall IServerImplHook::ReqModifyItem(ushort slotId, const char* hardpoint, int count, float status, bool mounted, ClientId client)
 {
     std::wstring hp = StringUtils::stows(hardpoint);
-    Logger::Trace(std::format(L"ReqModifyItem(\n\tushort slotId = {}\n\tchar const* hardpoint = {}\n\tint count = {}\n\tfloat status = "
-                              "{}\n\tbool mounted = {}\n\tClientId client = {}\n)",
-                              slotId,
-                              hp,
-                              count,
-                              status,
-                              mounted,
-                              client));
+
+    TRACE(L"ReqModifyItem({0},{1},{2},{3},{4},{5})",
+          { L"goodId", std::to_wstring(slotId) },
+          { L"hardpoint", StringUtils::stows(std::string(hardpoint)) },
+          { L"count", std::to_wstring(count) },
+          { L"status", std::to_wstring(status) },
+          { L"mounted", std::to_wstring(mounted) },
+          { L"client", std::to_wstring(client.GetValue()) })
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestModifyItem, client, slotId, std::wstring_view(hp), count, status, mounted); !skip)
     {
@@ -77,7 +79,7 @@ void __stdcall IServerImplHook::ReqModifyItem(ushort slotId, const char* hardpoi
 
 void __stdcall IServerImplHook::JettisonCargo(ClientId client, const XJettisonCargo& jc)
 {
-    Logger::Trace(std::format(L"JettisonCargo(\n\tClientId client = {}\n)", client));
+    TRACE(L"JettisonCargo({0})", { L"clientId", std::to_wstring(client.GetValue()) })
 
     if (const auto skip = CallPlugins(&Plugin::OnCargoJettison, client, jc); !skip)
     {
@@ -101,7 +103,8 @@ void __stdcall IServerImplHook::JettisonCargo(ClientId client, const XJettisonCa
 
 void __stdcall IServerImplHook::TractorObjects(ClientId client, const XTractorObjects& to)
 {
-    Logger::Trace(std::format(L"TractorObjects(\n\tClientId client = {}\n)", client));
+    TRACE(L"TractorObjects({0})", { L"clientId", std::to_wstring(client.GetValue()) })
+
 
     if (const auto skip = CallPlugins(&Plugin::OnTractorObjects, client, to); !skip)
     {

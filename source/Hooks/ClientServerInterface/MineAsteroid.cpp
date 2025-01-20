@@ -6,13 +6,12 @@
 
 void __stdcall IServerImplHook::MineAsteroid(SystemId systemId, const Vector& pos, ArchId crateId, ArchId lootId, uint count, ClientId client)
 {
-    Logger::Trace(std::format(L"MineAsteroid(\n\tuint systemId = {}\n\tuint crateId = {}\n\tuint lootId = {}\n\tuint count = "
-                                        L"{}\n\tClientId client = {}\n)",
-                                        systemId,
-                                        crateId,
-                                        lootId,
-                                        count,
-                                        client));
+    TRACE(L"{0}{1}{2}{3}{4}",
+          { L"systemId", std::to_wstring(systemId.GetValue()) },
+          { L"crateId", std::to_wstring(crateId) },
+          { L"lootId", std::to_wstring(lootId) },
+          { L"count", std::to_wstring(count) },
+          { L"clientId", std::to_wstring(client.GetValue()) })
 
     if (const auto skip = CallPlugins(&Plugin::OnMineAsteroid, client, systemId, pos, crateId, lootId, count); !skip)
     {

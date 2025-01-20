@@ -7,7 +7,7 @@
 
 void __stdcall IServerImplHook::SpMunitionCollision(const SSPMunitionCollisionInfo& mci, ClientId client)
 {
-    Logger::Trace(std::format(L"SPMunitionCollision(\n\tClientId client = {}\n)", client));
+    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
 
     const auto skip = CallPlugins(&Plugin::OnSpMunitionCollision, client, mci);
 

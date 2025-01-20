@@ -101,7 +101,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
                     }
                     CatchHook({
                         auto targetName = typeid(FuncPtr).name();
-                        Logger::Err(std::format(L"Exception in plugin '{}' in {}", plugin->name, StringUtils::stows(targetName)));
+                        ERROR(L"Exception in plugin {0} in {1}", { L"plugin", plugin->name }, { L"target", StringUtils::stows(targetName) });
                     });
 
                     const auto code = plugin->returnCode;
@@ -117,7 +117,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
                     }
                 }
             }
-            CatchHook({ Logger::Err(std::format(L"Exception {}", StringUtils::stows(FUNCTION))); });
+            CatchHook({ ERROR(L"Exception {}", { L"ex", StringUtils::stows(FUNCTION) }) });
 
             if constexpr (!returnTypeIsVoid)
             {

@@ -17,17 +17,20 @@ bool GoTradelaneCatch(ClientId client, const XGoTradelane& gtl)
 {
     uint system;
     pub::Player::GetSystem(client.GetValue(), system);
-    Logger::Trace(std::format(L"Exception in IServerImpl::GoTradelane charname={} sys=0x{:08X} arch=0x{:08X} arch2=0x{:08X}",
-                              client.GetCharacterName().Unwrap(),
-                              system,
-                              gtl.tradelaneSpaceObj1,
-                              gtl.tradelaneSpaceObj2));
+    TRACE(L"Exception {0}{1}{2}{3}",
+          { L"characterName", std::wstring(client.GetCharacterName().Unwrap()) },
+          { L"system", std::to_wstring(system) },
+          { L"tradelaneSpaceObj1", std::to_wstring(gtl.tradelaneSpaceObj1) },
+          { L"tradelaneSpaceObj2", std::to_wstring(gtl.tradelaneSpaceObj2) })
+
     return true;
 }
 
 void __stdcall IServerImplHook::GoTradelane(ClientId client, const XGoTradelane& gt)
 {
-    Logger::Trace(std::format(L"GoTradelane(\n\tClientId client = {}\n)", client));
+    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) })
+
+
 
     const auto skip = CallPlugins(&Plugin::OnTradelaneStart, client, gt);
 
@@ -48,11 +51,13 @@ void __stdcall IServerImplHook::StopTradelane(ClientId client, Id shipId, Id tra
     auto tradeLane1 = tradelaneRing1.AsObject();
     auto tradeLane2 = tradelaneRing2.AsObject();
 
-    Logger::Trace(std::format(L"StopTradelane(\n\tClientId client = {}\n\tuint shipId = {}\n\tuint tradelaneRing1 = {}\n\tuint tradelaneRing2 = {}\n)",
-                              client,
-                              shipId,
-                              tradelaneRing1,
-                              tradelaneRing2));
+
+    TRACE(L"Exception {0}{1}{2}{3}",
+          { L"client", std::to_wstring(client.GetValue()) },
+          { L"shipId", std::to_wstring(shipId.GetValue()) },
+          { L"tradelaneRing1", std::to_wstring(tradeLane1.GetId().Unwrap()) },
+          { L"tradelaneRing2", std::to_wstring(tradeLane2.GetId().Unwrap()) });
+
 
     const auto skip = CallPlugins(&Plugin::OnTradelaneStop, client, ship, tradeLane1, tradeLane2);
 

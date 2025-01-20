@@ -17,7 +17,7 @@ void InitiateTradeInner(const ClientId client1, const ClientId client2)
 
 void __stdcall IServerImplHook::InitiateTrade(ClientId client1, ClientId client2)
 {
-    Logger::Trace(std::format(L"InitiateTrade(\n\tClientId client1 = {}\n\tClientId client2 = {}\n)", client1, client2));
+    TRACE(L"{0}{1}", { L"client1", std::to_wstring(client1.GetValue()) }, { L"client2", std::to_wstring(client2.GetValue()) });
 
     const auto skip = CallPlugins(&Plugin::OnInitiateTrade, client1, client2);
 
@@ -33,7 +33,7 @@ void __stdcall IServerImplHook::InitiateTrade(ClientId client1, ClientId client2
 }
 void __stdcall IServerImplHook::AcceptTrade(ClientId client, bool unk1)
 {
-    Logger::Trace(std::format(L"AcceptTrade(\n\tClientId client = {}\n\tbool unk1 = {}\n)", client, unk1));
+    TRACE(L"{0}{1}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) });
 
     if (const auto skip = CallPlugins(&Plugin::OnAcceptTrade, client, unk1); !skip)
     {
@@ -46,7 +46,7 @@ void __stdcall IServerImplHook::AcceptTrade(ClientId client, bool unk1)
 
 void __stdcall IServerImplHook::SetTradeMoney(ClientId client, ulong unk1)
 {
-    Logger::Trace(std::format(L"SetTradeMoney(\n\tClientId client = {}\n\tulong unk1 = {}\n)", client, unk1));
+    TRACE(L"{0}{1}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) });
 
     if (const auto skip = CallPlugins(&Plugin::OnSetTradeMoney, client, unk1); !skip)
     {
@@ -59,7 +59,7 @@ void __stdcall IServerImplHook::SetTradeMoney(ClientId client, ulong unk1)
 
 void __stdcall IServerImplHook::AddTradeEquip(ClientId client, const EquipDesc& ed)
 {
-    Logger::Trace(std::format(L"AddTradeEquip(\n\tClientId client = {}\n)", client));
+    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
 
     if (const auto skip = CallPlugins(&Plugin::OnAddTradeEquip, client, ed); !skip)
     {
@@ -72,7 +72,7 @@ void __stdcall IServerImplHook::AddTradeEquip(ClientId client, const EquipDesc& 
 
 void __stdcall IServerImplHook::DelTradeEquip(ClientId client, const EquipDesc& ed)
 {
-    Logger::Trace(std::format(L"DelTradeEquip(\n\tClientId client = {}\n)", client));
+    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) })
 
     if (const auto skip = CallPlugins(&Plugin::OnRemoveTradeEquip, client, ed); !skip)
     {
@@ -85,7 +85,7 @@ void __stdcall IServerImplHook::DelTradeEquip(ClientId client, const EquipDesc& 
 
 void __stdcall IServerImplHook::RequestTrade(ClientId client1, ClientId client2)
 {
-    Logger::Trace(std::format(L"RequestTrade(\n\tuint unk1 = {}\n\tuint unk2 = {}\n)", client1, client2));
+    TRACE(L"{0}{1}", { L"client1", std::to_wstring(client1.GetValue()) }, { L"client2", std::to_wstring(client2.GetValue()) });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestTrade, client1, client2); !skip)
     {
@@ -98,7 +98,7 @@ void __stdcall IServerImplHook::RequestTrade(ClientId client1, ClientId client2)
 
 void __stdcall IServerImplHook::StopTradeRequest(ClientId client)
 {
-    Logger::Trace(std::format(L"StopTradeRequest(\n\tClientId client = {}\n)", client));
+    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) })
 
     if (const auto skip = CallPlugins(&Plugin::OnStopTradeRequest, client); !skip)
     {
@@ -111,10 +111,10 @@ void __stdcall IServerImplHook::StopTradeRequest(ClientId client)
 
 void __stdcall IServerImplHook::TradeResponse(const unsigned char* unk1, int unk2, ClientId client)
 {
-    Logger::Trace(std::format(L"TradeResponse(\n\tunsigned char const* unk1 = {}\n\tint unk2 = {}\n\tClientId client = {}\n)",
-                                        StringUtils::stows(std::string(reinterpret_cast<const char*>(unk1))),
-                                        unk2,
-                                        client));
+    TRACE(L"{0}{1}{2}",
+          { L"unk1", StringUtils::stows(std::string(reinterpret_cast<const char*>(unk1))) },
+          { L"unk2", std::to_wstring(unk2) },
+          { L"client", std::to_wstring(client.GetValue()) })
 
     if (const auto skip = CallPlugins(&Plugin::OnTradeResponse, client, unk1, unk2); !skip)
     {
@@ -152,7 +152,7 @@ void IServerImplHook::TerminateTradeInnerAfter(ClientId client, const int accept
 
 void __stdcall IServerImplHook::TerminateTrade(ClientId client, int accepted)
 {
-    Logger::Trace(std::format(L"TerminateTrade(\n\tClientId client = {}\n\tint accepted = {}\n)", client, accepted));
+    TRACE(L"{0}{1}", { L"client", std::to_wstring(client.GetValue()) }, { L"accepted", std::to_wstring(accepted) });
 
     const auto skip = CallPlugins(&Plugin::OnTerminateTrade, client, accepted);
 

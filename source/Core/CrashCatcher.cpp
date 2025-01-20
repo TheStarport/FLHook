@@ -8,21 +8,23 @@
 // ReSharper disable CppRedundantQualifier
 // ReSharper disable CppCStyleCast
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnreachableCode"
 template <class... Args>
 void LogInternal(const wchar_t* templateStr, Args&&... args)
 {
-    Logger::Err(std::vformat(templateStr, std::make_wformat_args(std::forward<Args&>(args)...)));
+    ERROR(std::vformat(templateStr, std::make_wformat_args(std::forward<Args&>(args)...)));
 }
 
 template <class... Args>
 void LogInternal(const char* templateStr, Args&&... args)
 {
-    Logger::Err(StringUtils::stows(std::vformat(templateStr, std::make_format_args(std::forward<Args&>(args)...))));
+    ERROR(StringUtils::stows(std::vformat(templateStr, std::make_format_args(std::forward<Args&>(args)...))));
 }
 
 void __stdcall CrashCatcher::LogContent47bc4()
 {
-    Logger::Err(L"Exception/Crash in content.dll:0xCb_47bc4 - "
+    ERROR(L"Exception/Crash in content.dll:0xCb_47bc4 - "
                 "probably missing formation in faction_props.ini/formations.ini - exiting");
     Sleep(1000);
     std::exit(-1);
@@ -49,7 +51,7 @@ DWORD __stdcall CrashCatcher::EngBase11A6DCatch(const BYTE* data)
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
-        Logger::Err(L"Exception/Crash suppression engbase.dll:0x11A6D");
+        LogInternal(L"Exception/Crash suppression engbase.dll:0x11A6D");
         return 0;
     }
 }
@@ -96,7 +98,7 @@ const BYTE* __stdcall CrashCatcher::EngBase124BDCatch(const BYTE* data)
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
-        Logger::Err(L"Exception/Crash suppression engbase.dll:0x124BD");
+        LogInternal(L"Exception/Crash suppression engbase.dll:0x124BD");
         LogInternal("Cmp={} Part={}", cmp, part);
         data = nullptr;
     }
@@ -109,13 +111,14 @@ double CrashCatcher::TimingSeconds(int64& delta)
     double seconds = Timing::seconds(delta);
     if (seconds < 0 || seconds > 10.0)
     {
-        Logger::Err(std::format(L"Time delta invalid seconds={:.2f} ticksDelta={}", seconds, delta));
+        ERROR(L"Time delta invalid seconds={0} ticksDelta={1}", { L"seconds", std::to_wstring(seconds) }, { L"delta", std::to_wstring(delta) });
         delta = 1000000;
         seconds = Timing::seconds(delta);
     }
     else if (seconds > 1.0)
     {
-        Logger::Err(std::format(L"Time lag detected seconds={:.2f} ticksDelta={}", seconds, delta));
+
+        ERROR(L"Time lag detected seconds={0} ticksDelta={1}", { L"seconds", std::to_wstring(seconds) }, { L"delta", std::to_wstring(delta) });
     }
     return seconds;
 }
@@ -151,7 +154,7 @@ void CrashCatcher::CrashProc6F671A0(int arg1)
 {
     try
     {
-        Logger::Debug(std::format(L"CrashProc6F671A0(arg1={:#X})", arg1));
+        DEBUG(L"CrashProc6F671A0({0})", { L"arg1", std::to_wstring(arg1) });
 
         __asm {
             pushad
@@ -163,7 +166,7 @@ void CrashCatcher::CrashProc6F671A0(int arg1)
     }
     catch (...)
     {
-        Logger::Err(std::format(L"Crash suppression in CrashProc6F671A0(arg1={:#X})", arg1));
+        ERROR(L"Crash suppression in CrashProc6F671A0({0})", { L"arg1", std::to_wstring(arg1) });
     }
 }
 
@@ -175,16 +178,12 @@ CObject* CrashCatcher::GetRoot(CObject* child)
     }
     catch (...)
     {
-        Logger::Err(std::format(L"Crash suppression in GetRoot(child={})", child->get_archetype()->archId));
+        ERROR(L"Crash suppression in GetRoot(child={0})", { L"archID", std::to_wstring(child->get_archetype()->archId) });
         return child;
     }
 }
 
-
-DWORD __stdcall CrashCatcher::C4800HookNaked()
-{
-    return contentModule;
-}
+DWORD __stdcall CrashCatcher::C4800HookNaked() { return contentModule; }
 
 int CrashCatcher::C4800Hook(int* a1, int* a2, int* zone, double* a4, int a5, int a6)
 {
@@ -222,8 +221,7 @@ char __stdcall CrashCatcher::FixCommon6F8B330Detour(int arg1)
     int res = 0;
     try
     {
-        Logger::Debug(std::format(L"CrashProc6F8B330(arg1={:#X})", arg1));
-
+        DEBUG(L"CrashProc6F8B330({0})", { L"arg1", std::to_wstring(arg1) });
         __asm
         {
             pushad
@@ -236,7 +234,7 @@ char __stdcall CrashCatcher::FixCommon6F8B330Detour(int arg1)
     }
     catch (...)
     {
-        Logger::Err(std::format(L"Crash suppression in CrashProc6F8B330(arg1={:#X})", arg1));
+        ERROR(L"Crash suppression in CrashProc6F8B330({0})", { L"arg1", std::to_wstring(arg1) });
     }
 
     return static_cast<char>(res);
@@ -246,7 +244,8 @@ void __stdcall CrashCatcher::FixCommon6F78DD0Detour(int arg1, int arg2)
 {
     try
     {
-        Logger::Debug(std::format(L"CrashProc6F78DD0(arg1={:#X},arg2={:#X})", arg1, arg2));
+        DEBUG(L"CrashProc6F78DD0({0},{1})", { L"arg1", std::to_wstring(arg1) }, { L"arg2", std::to_wstring(arg2) });
+
         __asm
         {
             pushad
@@ -259,7 +258,7 @@ void __stdcall CrashCatcher::FixCommon6F78DD0Detour(int arg1, int arg2)
     }
     catch (...)
     {
-        Logger::Err(std::format(L"Crash suppression in CrashProc6F78DD0(arg1={:#X}, arg2={:#X})", arg1, arg2));
+        ERROR(L"Crash suppression in CrashProc6F78DD0({0},{1})", { L"arg1", std::to_wstring(arg1) }, { L"arg2", std::to_wstring(arg2) });
     }
 }
 
@@ -299,7 +298,7 @@ CrashCatcher::CrashCatcher()
     const auto engBaseModule = reinterpret_cast<DWORD>(GetModuleHandleA("engbase.dll"));
     contentModule = reinterpret_cast<DWORD>(GetModuleHandleA("content.dll"));
 
-    Logger::Debug(L"Installing patches into content.dll");
+    DEBUG(L"Installing patches into content.dll");
 
     // Patch for crash at content.dll + blarg
     MemUtils::PatchCallAddr(contentModule, 0xC608D, C4800Hook);
@@ -385,47 +384,49 @@ CrashCatcher::~CrashCatcher()
     const auto serverModule = reinterpret_cast<DWORD>(GetModuleHandleA("server.dll"));
     const auto contentModule = reinterpret_cast<DWORD>(GetModuleHandleA("content.dll"));
     const auto engBaseModule = reinterpret_cast<DWORD>(GetModuleHandleA("engbase.dll"));
-	MemUtils::WriteProcMem(serverModule + 0x84018, &oldGetRootProc, 4);
+    MemUtils::WriteProcMem(serverModule + 0x84018, &oldGetRootProc, 4);
 
-	// Unload the timing patches.
-	MemUtils::WriteProcMem(flServerModule + 0x1B0A0, &oldTimingSeconds, 4);
+    // Unload the timing patches.
+    MemUtils::WriteProcMem(flServerModule + 0x1B0A0, &oldTimingSeconds, 4);
 
-    Logger::Debug(L"Uninstalling patches from content.dll");
+    DEBUG(L"Uninstalling patches from content.dll");
 
-	{
-		const uchar patch[] = {0xe8, 0x6e, 0xe7, 0xff, 0xff};
-		MemUtils::WriteProcMem(contentModule + 0xC608D, patch, 5);
-	}
+    {
+        const uchar patch[] = { 0xe8, 0x6e, 0xe7, 0xff, 0xff };
+        MemUtils::WriteProcMem(contentModule + 0xC608D, patch, 5);
+    }
 
-	{
-		const uchar patch[] = {0x8B, 0xF8, 0x8B, 0x17, 0x8B, 0xCF};
-		MemUtils::WriteProcMem(contentModule + 0x47bc2, patch, 6);
-	}
+    {
+        const uchar patch[] = { 0x8B, 0xF8, 0x8B, 0x17, 0x8B, 0xCF };
+        MemUtils::WriteProcMem(contentModule + 0x47bc2, patch, 6);
+    }
 
-	{
-		const uchar patch[] = {0x8B, 0x40, 0x10, 0x85, 0xc0};
-		MemUtils::WriteProcMem(engBaseModule + 0x0124BD, patch, 5);
-	}
+    {
+        const uchar patch[] = { 0x8B, 0x40, 0x10, 0x85, 0xc0 };
+        MemUtils::WriteProcMem(engBaseModule + 0x0124BD, patch, 5);
+    }
 
-	{
-		const uchar patch[] = {0x8B, 0x40, 0x28, 0xC2, 0x08, 0x00};
-		MemUtils::WriteProcMem(engBaseModule + 0x011a6d, patch, 6);
-	}
+    {
+        const uchar patch[] = { 0x8B, 0x40, 0x28, 0xC2, 0x08, 0x00 };
+        MemUtils::WriteProcMem(engBaseModule + 0x011a6d, patch, 6);
+    }
 
-	MemUtils::WriteProcMem(contentModule + 0x11C970, &crashProc6F8B330Old, 4);
-	MemUtils::WriteProcMem(contentModule + 0x11CA00, &crashProc6F8B330Old, 4);
+    MemUtils::WriteProcMem(contentModule + 0x11C970, &crashProc6F8B330Old, 4);
+    MemUtils::WriteProcMem(contentModule + 0x11CA00, &crashProc6F8B330Old, 4);
 
-	MemUtils::PatchCallAddr(contentModule, 0x5ED4B, crashProc6F78DD0Old);
-	MemUtils::PatchCallAddr(contentModule, 0xBD96A, crashProc6F78DD0Old);
+    MemUtils::PatchCallAddr(contentModule, 0x5ED4B, crashProc6F78DD0Old);
+    MemUtils::PatchCallAddr(contentModule, 0xBD96A, crashProc6F78DD0Old);
 
-	MemUtils::PatchCallAddr(contentModule, 0xBDC80, crashProc6F671A0Old);
-	MemUtils::PatchCallAddr(contentModule, 0xBDCF9, crashProc6F671A0Old);
-	MemUtils::PatchCallAddr(contentModule, 0xBE41C, crashProc6F671A0Old);
-	MemUtils::PatchCallAddr(contentModule, 0xC67E2, crashProc6F671A0Old);
-	MemUtils::PatchCallAddr(contentModule, 0xC6AA5, crashProc6F671A0Old);
-	MemUtils::PatchCallAddr(contentModule, 0xC6BE8, crashProc6F671A0Old);
-	MemUtils::PatchCallAddr(contentModule, 0xC6F71, crashProc6F671A0Old);
-	MemUtils::PatchCallAddr(contentModule, 0xC702A, crashProc6F671A0Old);
-	MemUtils::PatchCallAddr(contentModule, 0xC713B, crashProc6F671A0Old);
-	MemUtils::PatchCallAddr(contentModule, 0xC7180, crashProc6F671A0Old);
+    MemUtils::PatchCallAddr(contentModule, 0xBDC80, crashProc6F671A0Old);
+    MemUtils::PatchCallAddr(contentModule, 0xBDCF9, crashProc6F671A0Old);
+    MemUtils::PatchCallAddr(contentModule, 0xBE41C, crashProc6F671A0Old);
+    MemUtils::PatchCallAddr(contentModule, 0xC67E2, crashProc6F671A0Old);
+    MemUtils::PatchCallAddr(contentModule, 0xC6AA5, crashProc6F671A0Old);
+    MemUtils::PatchCallAddr(contentModule, 0xC6BE8, crashProc6F671A0Old);
+    MemUtils::PatchCallAddr(contentModule, 0xC6F71, crashProc6F671A0Old);
+    MemUtils::PatchCallAddr(contentModule, 0xC702A, crashProc6F671A0Old);
+    MemUtils::PatchCallAddr(contentModule, 0xC713B, crashProc6F671A0Old);
+    MemUtils::PatchCallAddr(contentModule, 0xC7180, crashProc6F671A0Old);
 }
+
+#pragma clang diagnostic pop

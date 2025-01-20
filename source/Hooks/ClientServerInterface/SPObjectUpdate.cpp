@@ -10,7 +10,8 @@ bool SPObjUpdateInner(const SSPObjUpdateInfo& ui, ClientId client)
     // NAN check
     if (isnan(ui.pos.x) || isnan(ui.pos.y) || isnan(ui.pos.z) || isnan(ui.dir.w) || isnan(ui.dir.x) || isnan(ui.dir.y) || isnan(ui.dir.z) || isnan(ui.throttle))
     {
-        Logger::Trace(std::format(L"NAN found in SPObjUpdate for id={}", client));
+        TRACE(L"NAN found in SPObjUpdate for clientId {0}", { L"client", std::to_wstring(client.GetValue()) })
+
         client.Kick(L"Possible cheating detected");
         return false;
     }
@@ -18,7 +19,8 @@ bool SPObjUpdateInner(const SSPObjUpdateInfo& ui, ClientId client)
     // Denormalized check
     if (const float n = ui.dir.w * ui.dir.w + ui.dir.x * ui.dir.x + ui.dir.y * ui.dir.y + ui.dir.z * ui.dir.z; n > 1.21f || n < 0.81f)
     {
-        Logger::Trace(std::format(L"Non-normalized quaternion found in SPObjUpdate for id={}", client));
+        TRACE(L"Non-normalized quaternion found for clientId {0}", { L"client", std::to_wstring(client.GetValue()) })
+
         client.Kick(L"Possible cheating detected");
         return false;
     }
@@ -26,7 +28,8 @@ bool SPObjUpdateInner(const SSPObjUpdateInfo& ui, ClientId client)
     // Far check
     if (abs(ui.pos.x) > 1e7f || abs(ui.pos.y) > 1e7f || abs(ui.pos.z) > 1e7f)
     {
-        Logger::Trace(std::format(L"Ship position out of bounds in SPObjUpdate for id={}", client));
+        TRACE(L"Ship position out of bounds for clientId {0}", { L"client", std::to_wstring(client.GetValue()) })
+
         client.Kick(L"Possible cheating detected");
         return false;
     }

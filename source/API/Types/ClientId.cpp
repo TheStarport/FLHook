@@ -13,9 +13,9 @@
         return { cpp::fail(Error::InvalidClientId) }; \
     }
 
-#define CharSelectCheck                                    \
-    if (InCharacterSelect())                               \
-    {                                                      \
+#define CharSelectCheck                                       \
+    if (InCharacterSelect())                                  \
+    {                                                         \
         return { cpp::fail(Error::PlayerInCharacterSelect) }; \
     }
 
@@ -387,7 +387,7 @@ Action<void> ClientId::Kick(const std::optional<std::wstring_view>& reason, std:
     if (!delay.has_value())
     {
         CAccount* acc = Players.FindAccountFromClientID(value);
-        if(acc)
+        if (acc)
         {
             acc->ForceLogout();
         }
@@ -505,7 +505,7 @@ Action<void> ClientId::Message(const std::wstring_view message, const MessageFor
 {
     if (value == 0)
     {
-        Logger::Info(message);
+        INFO(std::wstring(message));
         return { {} };
     }
 
@@ -701,7 +701,7 @@ Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goo
                     {
                         goodId = equip.id;
                         foundItem = true;
-                        if(equip.count < count)
+                        if (equip.count < count)
                         {
                             count = equip.count;
                         }
@@ -728,7 +728,7 @@ Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goo
 Action<void> ClientId::Undock(Vector pos, std::optional<Matrix> orientation) const
 {
 
-//TODO: Doesn't work, fix with FLUF clienthook
+    // TODO: Doesn't work, fix with FLUF clienthook
 
     return { {} };
 }

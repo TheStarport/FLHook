@@ -40,8 +40,11 @@ bool IServerImplHook::GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId clien
             return false;
         }
     }
+
     CatchHook({
-        Logger::Trace(std::format(L"Exception in {} (client={} ({}))", FUNCTION_W, client, client.GetCharacterName().Unwrap()));
+        TRACE(L"Exception {0}{1}",
+              { L"client ", std::to_wstring(client.GetValue()) },
+              { L"characterName", std::wstring(client.GetCharacterName().Unwrap()) });
     })
 
         return true;
@@ -49,7 +52,7 @@ bool IServerImplHook::GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId clien
 
 void __stdcall IServerImplHook::GFGoodSell(const SGFGoodSellInfo& unk1, ClientId client)
 {
-    Logger::Trace(std::format(L"GFGoodSell(\n\tClientId client = {}\n)", client));
+    TRACE(L"GFGoodSell({0})", { L"client ", std::to_wstring(client.GetValue()) });
 
     const auto skip = CallPlugins(&Plugin::OnGfGoodSell, client, unk1);
 
@@ -70,7 +73,7 @@ void __stdcall IServerImplHook::GFGoodSell(const SGFGoodSellInfo& unk1, ClientId
 
 void __stdcall IServerImplHook::GFGoodBuy(const SGFGoodBuyInfo& unk1, ClientId client)
 {
-    Logger::Trace(std::format(L"GFGoodBuy(\n\tClientId client = {}\n)", client));
+    TRACE(L"GFGoodBuy({0})", { L"client ", std::to_wstring(client.GetValue()) });
 
     if (const auto skip = CallPlugins(&Plugin::OnGfGoodBuy, client, unk1); !skip)
     {
@@ -83,7 +86,7 @@ void __stdcall IServerImplHook::GFGoodBuy(const SGFGoodBuyInfo& unk1, ClientId c
 
 void __stdcall IServerImplHook::GFGoodVaporized(const SGFGoodVaporizedInfo& gvi, ClientId client)
 {
-    Logger::Trace(std::format(L"GFGoodVaporized(\n\tClientId client = {}\n)", client));
+    TRACE(L"GFGoodVaporized({0})", { L"client ", std::to_wstring(client.GetValue()) });
 
     if (const auto skip = CallPlugins(&Plugin::OnGfGoodVaporized, client, gvi); !skip)
     {
