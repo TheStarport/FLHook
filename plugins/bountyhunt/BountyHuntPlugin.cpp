@@ -154,9 +154,6 @@ namespace Plugins
     // Timer Hook
     //  const std::vector<Timer> timers = {{TimeOutCheck, 60}};
 
-    /** @ingroup BountyHunt
-     * @brief Hook for SendDeathMsg to call BillCheck
-     */
     void BountyHuntPlugin::OnSendDeathMessageAfter(ClientId& killer, const ClientId victim, const SystemId system, std::wstring_view msg)
     {
         BillCheck(victim, killer);
@@ -179,14 +176,8 @@ namespace Plugins
         }
     }
 
-    /** @ingroup BountyHunt
-     * @brief Hook for Disconnect to see if the player had a bounty on them
-     */
     void BountyHuntPlugin::OnDisconnect(const ClientId client, EFLConnection connection) { CheckIfPlayerFled(client); }
 
-    /** @ingroup BountyHunt
-     * @brief Hook for CharacterSelect to see if the player had a bounty on them
-     */
     void BountyHuntPlugin::OnCharacterSelectAfter(const ClientId client) { CheckIfPlayerFled(client); }
     bool BountyHuntPlugin::OnLoadSettings()
     {

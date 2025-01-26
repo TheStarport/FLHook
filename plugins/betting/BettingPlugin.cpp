@@ -359,9 +359,6 @@ namespace Plugins
     // Hooks
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /** @ingroup Betting
-     * @brief Hook for dock call. Treats a player as if they died if they were part of a duel
-     */
     void BettingPlugin::OnDockCallAfter(const ShipId& shipId, const ObjectId& spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response)
     {
         if (const auto client = shipId.GetPlayer().Unwrap(); client)
@@ -371,27 +368,18 @@ namespace Plugins
         }
     }
 
-    /** @ingroup Betting
-     * @brief Hook for disconnect. Treats a player as if they died if they were part of a duel
-     */
     void BettingPlugin::OnDisconnect(const ClientId client, EFLConnection connection)
     {
         ProcessFFA(client);
         ProcessDuel(client);
     }
 
-    /** @ingroup Betting
-     * @brief Hook for char info request (F1). Treats a player as if they died if they were part of a duel
-     */
     void BettingPlugin::OnCharacterInfoRequestAfter(const ClientId client, [[maybe_unused]] bool unk1)
     {
         ProcessFFA(client);
         ProcessDuel(client);
     }
 
-    /** @ingroup Betting
-     * @brief Hook for death to kick player out of duel
-     */
     void BettingPlugin::OnSendDeathMessageAfter(ClientId& killer, const ClientId victim, SystemId system, std::wstring_view msg)
     {
         ProcessDuel(victim);

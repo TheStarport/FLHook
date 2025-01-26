@@ -14,9 +14,6 @@ namespace Plugins
      */
     void ConnectionDataPlugin::ClearConData(ClientId client) { connectionData[client.GetValue()] = ConnectionData(); }
 
-    /** @ingroup Condata
-     * @brief ClearClientInfo hook. Calls ClearConData().
-     */
     void ConnectionDataPlugin::OnClearClientInfo(ClientId client) { ClearConData(client); }
 
     /** @ingroup Condata
@@ -435,18 +432,11 @@ namespace Plugins
 
     ConnectionDataPlugin::ConnectionDataPlugin(const PluginInfo& info) : Plugin(info)
     {
-        timers.emplace_back(Timer::Add([this] { TimerUpdatePingData(); }, 1000));
-        timers.emplace_back(Timer::Add([this] { TimerUpdateLossData(); }, LossInterval));
+        AddTimer([this] { TimerCheckKick(); }, 1000);
+        AddTimer([this] { TimerUpdatePingData(); }, 1000);
+        AddTimer([this] { TimerUpdateLossData(); }, LossInterval);
     }
 
-    ConnectionDataPlugin::~ConnectionDataPlugin()
-    {
-        // TODO: @Laz
-        for (const auto timer : timers)
-        {
-            Timer::Remove(timer);
-        }
-    }
 } // namespace Plugins
 
 using namespace Plugins;

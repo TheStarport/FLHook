@@ -30,12 +30,12 @@ namespace Plugins
      * }
      * @endcode
      *
-     * @par cmds Player Commands
+     * @par Player Commands
      * All commands are prefixed with '/' unless explicitly specified.
      * - autobuy info - Lists status of autobuy features for this character.
      * - autobuy <all/munition type> <on/off> - enables or disables autobuy feature for selected munition types on this character.
      *
-     * @par adminCmds Admin Commands
+     * @par Admin Commands
      * There are no admin commands in this plugin.
      *
      * @note All player commands are prefixed with '/'.

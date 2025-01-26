@@ -11,7 +11,7 @@ namespace Plugins
         if (const auto iter = std::ranges::find(config.itemsOfInterest, goodId); iter != config.itemsOfInterest.end())
         {
             const auto charName = client.GetCharacterName().Handle();
-            Logger::Info(std::format(L"Item '{}' found in cargo of {} - {}", goodId, charName, details));
+            INFO(L"Item '{0}' found in cargo of {1} - {2}", {L"GoodID", std::to_wstring(goodId.GetHash().Unwrap())}, {L"CharName", charName}, {L"Detail", details});
         }
     }
 

@@ -12,11 +12,11 @@ enum class LogLevel
     Error,
 };
 
-#define WARN(message, ...) Logger::Log({__FUNCSIG__, LogLevel::Warn, { __VA_ARGS__ }, message, TimeUtils::UnixTime<std::chrono::seconds>()});
-#define ERROR(message, ...) Logger::Log({__FUNCSIG__, LogLevel::Error, { __VA_ARGS__ }, message, TimeUtils::UnixTime<std::chrono::seconds>()});
+#define TRACE(message, ...) Logger::Log({__FUNCSIG__, LogLevel::Trace, { __VA_ARGS__ }, message, TimeUtils::UnixTime<std::chrono::seconds>()});
 #define DEBUG(message, ...) Logger::Log({__FUNCSIG__, LogLevel::Debug, { __VA_ARGS__ }, message, TimeUtils::UnixTime<std::chrono::seconds>()});
 #define INFO(message, ...) Logger::Log({__FUNCSIG__, LogLevel::Info, { __VA_ARGS__ }, message, TimeUtils::UnixTime<std::chrono::seconds>()});
-#define TRACE(message, ...) Logger::Log({__FUNCSIG__, LogLevel::Trace, { __VA_ARGS__ }, message, TimeUtils::UnixTime<std::chrono::seconds>()});
+#define WARN(message, ...) Logger::Log({__FUNCSIG__, LogLevel::Warn, { __VA_ARGS__ }, message, TimeUtils::UnixTime<std::chrono::seconds>()});
+#define ERROR(message, ...) Logger::Log({__FUNCSIG__, LogLevel::Error, { __VA_ARGS__ }, message, TimeUtils::UnixTime<std::chrono::seconds>()});
 
 #define UNWRAP_VECTOR(v) std::accumulate(v.begin(), v.end(), std::wstring{}, [](const std::wstring& a, auto b) { return std::format(L"{}, {}", a, b); });
 #define UNWRAP_MAP_KEYS(v) std::accumulate((v  | std::views::values).begin(), (v | std::views::values).end(), std::wstring{}, [](const std::wstring& a, auto b) { return std::format(L"{}, {}", a, b); });

@@ -230,7 +230,7 @@ namespace Plugins
         // If there is no death penalty, no point in having death penalty commands
         if (std::abs(config.DeathPenaltyFraction) < 0.0001f)
         {
-            Logger::Warn(L"DP Plugin active, but no/too low death penalty fraction is set.");
+            WARN(L"DP Plugin active, but no/too low death penalty fraction is set.");
             co_return TaskStatus::Finished;
         }
 

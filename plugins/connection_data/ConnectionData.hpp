@@ -7,8 +7,37 @@ constexpr int LossInterval = 4;
 
 namespace Plugins
 {
+    /**
+     * @date unknown
+     * @author Cannon (Ported in 2022)
+     * @brief
+     * Connection data analysis tool, provides players and the server with average latency, loss, latency fluct data.
+     *
+     * @par Configuration
+     * @code
+     * {
+     *     "enableBountyHunt": true,
+     *     "levelProtect": 0,
+     *     "minimalHuntTime": 1,
+     *     "maximumHuntTime": 240,
+     *     "defaultHuntTime": 30
+     * }
+     * @endcode
+     *
+     * @par Player Commands
+     * All commands are prefixed with '/' unless explicitly specified.
+     * - bountyhunt <player> <amount> [timelimit] - Places a bounty on the specified player. When another player kills them, they gain <credits>.
+     * - bountyhuntid <id> <amount> [timelimit] - Same as above but with an id instead of a player name. Use /ids
+     *
+     * @par Admin Commands
+     * There are no admin commands in this plugin.
+     *
+     * @note All player commands are prefixed with '/'.
+     * All admin commands are prefixed with a '.'.
+     */
     class ConnectionDataPlugin final : public Plugin, public AbstractUserCommandProcessor, public AbstractAdminCommandProcessor
     {
+            /// @brief Connection data struct
             struct ConnectionData
             {
                     // connection data
@@ -39,13 +68,6 @@ namespace Plugins
                     std::string reason;
             };
 
-            //! The struct that holds client info for this plugin
-            struct MiscClientInfo final
-            {
-                    bool lightsOn = false;
-                    bool shieldsDown = false;
-            };
-
             struct Config final
             {
                     uint pingKick = 0;
@@ -68,18 +90,24 @@ namespace Plugins
             // Other fields
             ConnectionData connectionData[MaxClientId + 1];
 
-            void OnClearClientInfo(ClientId client) override;
+            /// @brief Periodically checks and kicks players whose connections are too poor
             void TimerCheckKick();
             Task UserCmdPing(ClientId client);
             Task UserCmdPingTarget(ClientId client);
             Task AdminCmdGetStats(ClientId admin);
-            bool OnLoadSettings() override;
-            void OnSpObjectUpdateAfter(ClientId client, const SSPObjUpdateInfo& info) override;
-            void PrintClientPing(ClientId clientToInform, ClientId clientToScan);
+            /// @brief Runs once a second, updates the average ping data
             void TimerUpdatePingData();
+            /// @brief Periodically updates the average packet loss data
             void TimerUpdateLossData();
-            void OnPlayerLaunchAfter(ClientId client, const ShipId& ship) override;
+            void PrintClientPing(ClientId clientToInform, ClientId clientToScan);
             void ClearConData(ClientId client);
+
+            void OnClearClientInfo(ClientId client) override;
+            bool OnLoadSettings() override;
+            /// @brief Hook on client position packet update, used for speed hack detection.
+            void OnSpObjectUpdateAfter(ClientId client, const SSPObjUpdateInfo& info) override;
+            /// @brief Launch hook, resets player telemetry data.
+            void OnPlayerLaunchAfter(ClientId client, const ShipId& ship) override;
 
             // clang-format off
             inline static const std::array<CommandInfo<ConnectionDataPlugin>, 2> commands =
@@ -101,13 +129,7 @@ namespace Plugins
             SetupUserCommandHandler(ConnectionDataPlugin, commands);
             SetupAdminCommandHandler(ConnectionDataPlugin, adminCommands);
 
-            std::vector<std::shared_ptr<Timer>> timers;
-
-            // Admin Commands
-            // Timer Method
-
         public:
             explicit ConnectionDataPlugin(const PluginInfo& info);
-            ~ConnectionDataPlugin();
     };
 } // namespace Plugins

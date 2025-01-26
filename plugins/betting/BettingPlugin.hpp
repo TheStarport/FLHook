@@ -12,7 +12,7 @@ namespace Plugins
      * @par Configuration
      * This plugin has no configuration file.
      *
-     * @par cmds Player Commands
+     * @par Player Commands
      * All commands are prefixed with '/' unless explicitly specified.
      * - acceptduel - Accepts the current duel request.
      * - acceptffa - Accept the current ffa request.
@@ -20,7 +20,7 @@ namespace Plugins
      * - duel <amount> - Create a duel request to the targeted player. Winner gets the pot.
      * - ffa <amount> - Create an ffa and send an invite to everyone in the system. Winner gets the pot.
      *
-     * @par adminCmds Admin Commands
+     * @par Admin Commands
      * There are no admin commands in this plugin.
      *
      * @note All player commands are prefixed with '/'.
@@ -31,7 +31,7 @@ namespace Plugins
             void ProcessFFA(ClientId client);
             void ProcessDuel(ClientId client);
 
-            //! A struct to hold a duel between two players. This holds the amount of cash they're betting on, and whether it's been accepted or not
+            /// @brief A struct to hold a duel between two players. This holds the amount of cash they're betting on, and whether it's been accepted or not
             struct Duel
             {
                     ClientId client;
@@ -40,15 +40,14 @@ namespace Plugins
                     bool accepted;
             };
 
-            //! A struct to hold a contestant for a Free-For-All
+            /// @brief A struct to hold a contestant for a Free-For-All
             struct Contestant
             {
                     bool accepted;
                     bool loser;
             };
 
-            //! A struct to hold a Free-For-All competition. This holds the contestants, how much it costs to enter, and the total pot to be won by the eventual
-            //! winner
+            /// @brief A struct to hold a Free-For-All competition. This holds the contestants, how much it costs to enter, and the total pot to be won by the eventual winner
             struct FreeForAll
             {
                     std::unordered_map<ClientId, Contestant> contestants;
@@ -79,9 +78,13 @@ namespace Plugins
 
             SetupUserCommandHandler(BettingPlugin, commands);
 
+            /// @brief Hook for disconnect. Treats a player as if they died if they were part of a duel
             void OnDisconnect(ClientId client, EFLConnection connection) override;
+            /// @brief Hook for dock call. Treats a player as if they died if they were part of a duel
             void OnDockCallAfter(const ShipId& shipId, const ObjectId& spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response) override;
+            /// @brief Hook for char info request (F1). Treats a player as if they died if they were part of a duel
             void OnCharacterInfoRequestAfter(ClientId client, bool unk1) override;
+            /// @brief Hook for death to kick player out of duel
             void OnSendDeathMessageAfter(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg) override;
 
         public:

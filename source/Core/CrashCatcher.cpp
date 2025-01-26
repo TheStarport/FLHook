@@ -8,8 +8,6 @@
 // ReSharper disable CppRedundantQualifier
 // ReSharper disable CppCStyleCast
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnreachableCode"
 template <class... Args>
 void LogInternal(const wchar_t* templateStr, Args&&... args)
 {
@@ -428,5 +426,3 @@ CrashCatcher::~CrashCatcher()
     MemUtils::PatchCallAddr(contentModule, 0xC713B, crashProc6F671A0Old);
     MemUtils::PatchCallAddr(contentModule, 0xC7180, crashProc6F671A0Old);
 }
-
-#pragma clang diagnostic pop

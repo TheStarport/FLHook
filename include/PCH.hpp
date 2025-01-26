@@ -140,7 +140,8 @@ namespace Json
      */
     template <typename T>
         requires std::is_default_constructible_v<T>
-    std::pair<LoadState, std::optional<T>> Load(std::string_view path, const bool createIfNotExist = true, const bool useSaveGameFolder = false)
+    std::pair<LoadState, std::optional<T>> Load(std::string_view path, const bool createIfNotExist = true,
+        const bool useSaveGameFolder = false)
     {
         std::string relativePath;
         if (useSaveGameFolder)

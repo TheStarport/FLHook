@@ -22,12 +22,12 @@ namespace Plugins
      * }
      * @endcode
      *
-     * @par cmds Player Commands
+     * @par Player Commands
      * All commands are prefixed with '/' unless explicitly specified.
      * - bountyhunt <player> <amount> [timelimit] - Places a bounty on the specified player. When another player kills them, they gain <credits>.
      * - bountyhuntid <id> <amount> [timelimit] - Same as above but with an id instead of a player name. Use /ids
      *
-     * @par adminCmds Admin Commands
+     * @par Admin Commands
      * There are no admin commands in this plugin.
      *
      * @note All player commands are prefixed with '/'.
@@ -35,7 +35,7 @@ namespace Plugins
      */
     class BountyHuntPlugin final : public Plugin, public AbstractUserCommandProcessor
     {
-            //! Structs
+            /// @brief Bounty struct holding the info about the active bounty
             struct Bounty
             {
                     ClientId issuer;
@@ -76,8 +76,11 @@ namespace Plugins
             SetupUserCommandHandler(BountyHuntPlugin, commands);
 
             // Hook Functions
+            /// @brief Hook for SendDeathMsg, process bounty claim if valid
             void OnSendDeathMessageAfter(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg) override;
+            /// @brief Hook for Disconnect to see if the player had a bounty on them
             void OnDisconnect(ClientId client, EFLConnection connection) override;
+            /// @brief Hook for CharacterSelect to see if the player had a bounty on them
             void OnCharacterSelectAfter(ClientId client) override;
             bool OnLoadSettings() override;
 

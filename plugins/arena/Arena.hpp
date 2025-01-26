@@ -16,7 +16,7 @@ namespace Plugins
      * The configuration file is generated at config/arena.json. An example configuration is as follows:
      * @code
      * {
-     *     "restrictedSystems": [ "Li01" ],
+     *     "restrictedSystems": [ "Li01", "Li02" ],
      *     "targetBase": "Li02_01_Base",
      *     "targetSystem": "Li02"
      * }

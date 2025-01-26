@@ -4,61 +4,124 @@
 
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=bugs)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=code_smells)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=coverage)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=ncloc)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=alert_status)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=security_rating)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=sqale_index)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
 
-## Installation
+## What is FLHook?
+FLHook is a server-side extension utility for Freelancer (2003) that proviudes a framework for running custom commands
+and code that can manipulate player and server data. It uses a plugin based architecture and ships with a collection
+of examples plugins and commands.
+
+## Documentation
+The docs can be found [here](https://flhook.the-starport.com) or can be built locally from the repo. See [here](#building) for more information.
+
+## Usage
 **N.B. FLHOOK ONLY WORKS WITH THE 1.1 PATCH INSTALLED. USING IT WITH 1.0 WILL CRASH FLSERVER!**
 
-For the purpose of this readme, your Freelancer root installation folder (e.g. by default `C:\Program Files (x86)\Microsoft Games\Freelancer`) will be referred to as `.`.
+In order to use FLHook, a few dependencies are required:
+- [MongoDB Communty Server](https://www.mongodb.com/try/download/community)
+- [Visual Studio Redistributables (x86)](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
 
-1. Copy all files from `dist\$Configuration` to your `.\EXE` directory. You may selectively remove some of the default plugins as desired.
-2. Edit `.\EXE\dacomsrv.ini` and append `FLHook.dll` to the `[Libraries]` section.
-3. Launch `FLServer.exe`, this should generate a fresh `FLHook.json` file.
-4. Edit this file as needed and relaunch `FLServer.exe`.
+You can grab the latest FLHook release from [here](https://github.com/TheStarport/FLHook/releases/latest). 
 
-## Plugin Installation
+Freelancer's directory with FLHook structure is as follows:
+```
+Freelancer/
+├── DATA/
+│   └── ....
+├── DLLS/
+│   └── ....
+└── EXE/
+    ├── ....
+    ├── plugins/
+    │   ├── arena.dll
+    │   └── etc...
+    ├── config/
+    │   ├── arena.json
+    │   └── etc...
+    ├── dacomsrv.ini
+    ├── FLServer.exe
+    └── FLHook.dll
+```
 
-Typically, plugins are distributed as DLL files (or archives with a DLL and configuration files).
-The plugin DLL needs to be in `.\EXE\plugins`. Verify with the plugin's documentation for additional setup steps.
+When copying the contents of the release build to your Freelancer directory, ensure that it matches the above diagram.
+After doing the copy you **must** edit "dacomsrv.ini" and add "FLHook.dll" to the bottom of the "Libraries" section.
+
+After doing so, if everything is correct, when you launch FLServer.exe you should be greeted with a console window that
+welcomes you to FLHook and lists all your loaded plugins. This console will allow you to run various commands once the 
+the console has given you the "FLHook Ready" message.
+
+Type `help` in the console to see your options. For further information, see the [documentation](https://flhook.the-starport.com).
 
 ## Configuration
 
 All configuration options are found in `.\EXE\FLHook.json` and are documented therein. Note that plugins may create additional options, either in this file or elsewhere. Refer to the plugin's documentation for more information.
 
-## User Commands
+## Cloning
 
-User commands may be entered in game by every player in chat and can be enabled or disabled in the JSON config. Enter them in game to get a description, and use `/help` to list all of them.
+When cloning ensure that you run `git clone` with `--recurse-submodules`, otherwise you will run into compiler errors.
+If you have already cloned it and didn't run the above option, open a terminal in the cloned directory and run the 
+following command:
 
-## Compiling
+```
+git submodule update --init
+```
 
-Starting with version 4.0, Visual Studio 2022 is required. To compile, simply build the solution as normal. The final build will be found in `dist`, whereas intermediate files are located in `int` and `bin`.
+## Building
 
-If you wish to develop a new plugin within the solution, please see our `Plugin Development` section in the [docs](https://docs.flhook.org).
+FLHook has the following requirements to be built:
+- Visual Studio 2022 (vc143)
+- Python 3.11+
+- cmake
+- Doxygen (for building docs)
 
-If you would like the build process to copy FLHook as well as any enabled plugin, you may set the `FLHOOK_COPY_PATH` environment variable to your `.\EXE` directory. If it is not set, no such copy will occur. Unlike the `dist` folder structure, no configuration subfolder will be created, so Debug and Release builds will overwrite one another.
+It's recommended that you use a Python virtual environment for FLHook. This can be done with the following commands:
 
-### Compiling Instructions
+```ps
+python -m venv .venv
+./.venv/Scripts/activate.ps1
+```
 
-1. Install Visual Studio 2022, required toolchains/modules are: `MSVC v142 (x86), C++ MFC for v142 build tools, C++ ATL for v142 build tools, C++/CLI support for v142 build tools.`
-2. If you don't already have vcpkg installed and setup, do so. Instructions available here: https://github.com/microsoft/vcpkg/tree/master#quick-start-windows - Ensure you do the steps pertaining to Visual Studio.
-3. Clone this repository (`git clone https://github.com/fl-devs/FLHook.git`)
-4. Open `project\FLHook.sln`
-5. Ensure you are on `Release` (or `Debug` for development) and build the solution.
-6. Build Solution. vcpkg should download a number of dependencies.
+### Building the project and plugins
 
-## Contributing and Support
+The first build requires the following commands, but after that an IDE of choice can be used. This command will use our
+package manager Conan2 to download and build all needed dependencies and setup the cmake project for usage. Most IDEs
+can then load the folder and run the generated CMake configuration.
+- JetBrains CLion can handle this all natively once the folder is open
+- VSCode requires two plugins, CMake and cmake-tools in order to use cmake probably.
+- Visual Studio supports it out of the box, when opening a project pick the option that is "Open CMake Project", and 
+select the FLHook directory you cloned.
 
-Merge requests are welcome. The old Forge SVN repositories are no longer tracked and will not be merged into this repository unless the commit author also creates a merge request here.
+### Building Docs
 
-For any and all support, please join the [Discord](https://discord.com/invite/c6wtsBk) or visit the [forums](https://the-starport.net) and look for the FLHook section. Github issues are available for bug reports and feature requests *only*.
+Building the docs can be done with the following commands
+```ps
+pip install -r requirements.txt
+doxygen Doxyfile
+cd docs
+sphinx-build -M html . ./_build
+python -m http.server 8080 -d /_build/html
+```
+
+## Contributing
+
+Pull requests are welcome, but be aware that this project ships with a .clang-format file. This file should be treated
+as the style guide and code should generally conform to how it formats (with exceptions).
+
+For casing we use `camelCase` in the following instances:
+- Variable names
+- Class/struct fields
+- Function parameters
+
+We use `PascalCase` in the following instances:
+- Function Defintions
+- Using/Typedef staements
+- Class/Struct definitions
+- Template definitions
+
+Macros can be defined either as `SCREAMING_SNAKE_CASE` or as `PascalCase`, depending on the context.
 
 ## Credits
 
@@ -67,11 +130,6 @@ For any and all support, please join the [Discord](https://discord.com/invite/c6
 * Versions 1.6.0 to 2.0.0 based on open-source SVN, supervised by w0dk4.
 * Versions 2.1.0 and later on Github, supervised by FriendlyFire.
 * Versions 4.0.0 and later on Github, supervised by Laz and Raikkonen.
+* Versions 5.0.0 and later on Github, supervised by Laz and Aingar
 
-Special thanks to:
-* FriendlyFire for kicking off the initial rewrite.
-* Nen for testing and plugin development.
-* Aingar for extensive plugin development and code quality improvements.
-* All those who have worked on FLHook before.
-
-FLHook uses a heavily modified version of `flcodec.c`.
+*Version 3.0.0 was skipped due to conflicts with the Discovery mod*

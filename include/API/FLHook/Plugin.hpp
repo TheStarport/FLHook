@@ -162,7 +162,7 @@ class DLL Plugin
                 Timer::Remove(*timer);
                 timer = timers.erase(timer);
             }
-        };
+        }
 
         Plugin& operator=(const Plugin&&) = delete;
         Plugin& operator=(const Plugin&) = delete;

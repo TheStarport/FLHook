@@ -332,27 +332,44 @@ void FLHook::LoadSettings()
 {
     auto* config = &instance->flhookConfig;
     std::ifstream stream("flhook.json");
+    *config = std::make_shared<FLHookConfig>();
+
     if (!stream.is_open())
     {
-        *config = std::make_shared<FLHookConfig>();
+        return;
+    }
+
+    auto configResult = Json::Load<FLHookConfig>("flhook.json");
+    if (configResult.first == Json::LoadState::Success)
+    {
+        **config = configResult.second.value();
     }
     else
     {
-        *config = std::make_shared<FLHookConfig>();
-        auto configResult = rfl::json::read<FLHookConfig>(stream);
-        if (auto err = configResult.error(); err.has_value())
+        // clang-format off
+        if (configResult.first == Json::LoadState::DoesNotExist)
         {
-            WARN(L"Error while trying to read FLHook.json. Writing new config. {0}", {L"error",StringUtils::stows(err.value().what())} )
+            MessageBoxA(nullptr, "This is your first time opening FLServer with FLHook enabled."
+                "A file called flhook.json has been created in the Freelancer directory.\n"
+                "Please open and configure it as per documentation.", "flhook.json Created", MB_OK);
+            std::abort();
+
+        }
+
+        const auto boxResult = MessageBoxA(nullptr, "Failed to read/validate flhook.json.\nPlease ensure that the JSON within the file is"
+            "not malformed and all parameters are as expected (types match, for instance).\n\n"
+            "If you would like to generate a fresh config, press OK, otherwise press cancel and try again.",
+            "flhook.json failed to load", MB_OKCANCEL);
+        // clang-format on
+        if (boxResult == IDOK)
+        {
+            Json::Save<FLHookConfig>(**config, "flhook.json");
         }
         else
         {
-            rfl::internal::wrap_in_rfl_array_t<FLHookConfig> value = configResult.value();
-            **config = value;
+            std::abort();
         }
     }
-
-    // Resave to add any missing properties that have been added
-    Json::Save(*config, "flhook.json");
 }
 
 DWORD __stdcall Unload(const LPVOID module)
