@@ -222,9 +222,6 @@ namespace Plugins
 
     DeathPenaltyPlugin::DeathPenaltyPlugin(const PluginInfo& info) : Plugin(info) {}
 
-    /** @ingroup DeathPenalty
-     * @brief /dp command. Shows information about death penalty
-     */
     Task DeathPenaltyPlugin::UserCmdDeathPenalty(const ClientId client, const std::wstring_view param)
     {
         // If there is no death penalty, no point in having death penalty commands

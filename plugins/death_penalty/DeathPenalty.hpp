@@ -4,6 +4,33 @@
 
 namespace Plugins
 {
+    /**
+     * @date unknown
+     * @author Cannon (Ported in 2022)
+     * @brief
+     * Penalize player deaths by loss of credits, optionally reward the killer player.
+     *
+     * @par Configuration
+     * @code
+     * {
+     *     "DeathPenaltyFraction": 0.0,
+     *     "DeathPenaltyFractionKiller": 0.0,
+     *     "ExcludedSystems": ["Li01", "Li02"],
+     *     "penalizePvpOnly": true,
+     *     "FractionOverridesByShip": [{"ge_fighter", 0.2}, {"li_elite", 0.15}]
+     * }
+     * @endcode
+     *
+     * @par Player Commands
+     * All commands are prefixed with '/' unless explicitly specified.
+     * - dp - Set amount of credits player will lose upon death, enable/disable notifications.
+     *
+     * @par Admin Commands
+     * This plugin has no admin commands
+     *
+     * @note All player commands are prefixed with '/'.
+     * All admin commands are prefixed with a '.'.
+     */
     class DeathPenaltyPlugin final : public Plugin, public AbstractUserCommandProcessor, public PacketInterface
     {
             struct CLIENT_DATA
@@ -44,17 +71,17 @@ namespace Plugins
             void OnCharacterSelectAfter(ClientId client) override;
             void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
             void OnSendDeathMessageAfter(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg) override;
-            void KillIfInJumpTunnel(ClientId client);
             void OnDisconnect(ClientId client, EFLConnection connection) override;
             void OnJumpInComplete(SystemId system, const ShipId& ship) override;
             void OnCharacterInfoRequest(ClientId client, bool unk1) override;
             bool OnSystemSwitchOutPacket(ClientId client, FLPACKET_SYSTEM_SWITCH_OUT& packet) override;
 
+            void KillIfInJumpTunnel(ClientId client);
             [[nodiscard]]
             bool IsInExcludedSystem(ClientId client) const;
             float GetShipFractionOverride(ClientId client);
             void PenalizeDeath(ClientId client, ClientId killerId);
-
+            /// @brief /dp command. Shows information about death penalty
             Task UserCmdDeathPenalty(ClientId client, std::wstring_view param);
 
             // clang-format off

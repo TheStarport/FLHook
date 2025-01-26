@@ -2,6 +2,27 @@
 
 namespace Plugins
 {
+    /**
+     * @author Aingar 2024
+     * @brief
+     * Tracks player damage and overrides death message to provide percentage contribution to hull damage.
+     *
+     * @par configuration Configuration
+     * @code
+     * {
+     *     "numberOfListedKillers": 3,
+     *     "deathBroadcastRange": 15000,
+     *     "minimumAssistancePercentage": 5
+     * }
+     * @endcode
+     *
+     * @par Player Commands
+     * There are no player commands in this plugin.
+     *
+     * @par Admin Commands
+     * There are no admin commands in this plugin.
+     *
+     */
     class KillTrackerPlugin final : public Plugin
     {
             struct Config final
@@ -32,7 +53,9 @@ namespace Plugins
             void OnShipHullDmg(Ship* ship, float& damage, DamageList* dmgList) override;
             static float GetDamageDone(const DamageDone& damageDone);
             std::wstring SelectRandomDeathMessage(ClientId client);
+            /// @brief Suppresses the core FLHook death message and prints its own which shows the damage contribution percentages.
             void OnSendDeathMessage(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg) override;
+            /// @brief Reset damage taken/dealt upon launch
             void OnPlayerLaunchAfter(ClientId client, const ShipId& ship) override;
 
         public:

@@ -26,11 +26,11 @@ namespace Plugins
      *
      * @par Player Commands
      * All commands are prefixed with '/' unless explicitly specified.
-     * - bountyhunt <player> <amount> [timelimit] - Places a bounty on the specified player. When another player kills them, they gain <credits>.
-     * - bountyhuntid <id> <amount> [timelimit] - Same as above but with an id instead of a player name. Use /ids
+     * - ping - Prints connection data of the player
+     * - pingtarget - Same as above but for the targeted player
      *
      * @par Admin Commands
-     * There are no admin commands in this plugin.
+     * - getstats - print connection data for all online players
      *
      * @note All player commands are prefixed with '/'.
      * All admin commands are prefixed with a '.'.

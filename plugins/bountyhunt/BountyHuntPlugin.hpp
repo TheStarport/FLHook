@@ -7,11 +7,10 @@ namespace Plugins
     /**
      * @date unknown
      * @author ||KOS||Acid (Ported by Raikkonen 2022)
-     * @defgroup BountyHunt Bounty Hunt
      * @brief
      * The "Bounty Hunt" plugin allows players to put bounties on each other that can be collected by destroying that player.
      *
-     * @par configuration Configuration
+     * @par Configuration
      * @code
      * {
      *     "enableBountyHunt": true,
