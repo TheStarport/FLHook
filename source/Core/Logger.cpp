@@ -101,9 +101,8 @@ void Logger::PrintToConsole(std::stop_token st)
                 int i = 0;
                 for (const auto& arg : logMessage.valueMap)
                 {
-                    i++;
                     logMessage.message =
-                        StringUtils::ReplaceStr(logMessage.message, std::wstring_view(std::format(L"{{{}}}", i)), std::wstring_view(arg.second));
+                        StringUtils::ReplaceStr(logMessage.message, std::wstring_view(std::format(L"{{{}}}", i++)), std::wstring_view(arg.second));
                 }
 
                 std::wcout << std::format(L"{} {}: {}", TimeUtils::CurrentDate(), magic_enum::enum_name(logMessage.level), logMessage.message) << std::endl;
