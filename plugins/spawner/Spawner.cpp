@@ -191,11 +191,11 @@ namespace Plugins
         auto object = builder.Spawn();
         if (object.expired())
         {
-            Logger::Warn(std::format(L"Could not spawn object '{}' in '{}' ({})", common.name, system.GetName().Unwrap(), system.GetValue()));
+            //Logger::Warn(std::format(L"Could not spawn object '{}' in '{}' ({})", common.name, system.GetName().Unwrap(), system.GetValue()));
         }
         else
         {
-            Logger::Debug(std::format(L"Spawned '{}' at {}, {}, {} in '{}'", common.name, position.x, position.y, position.z, system.GetName().Handle()));
+            //Logger::Debug(std::format(L"Spawned '{}' at {}, {}, {} in '{}'", common.name, position.x, position.y, position.z, system.GetName().Handle()));
         }
     }
 

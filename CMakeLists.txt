@@ -49,6 +49,14 @@ file(GLOB_RECURSE SOURCE_FILES LIST_DIRECTORIES false
         "${VENDOR}/reflect-cpp/*.hpp"
 )
 
+find_package(msgpack)
+find_package(mongoc-1.0 CONFIG REQUIRED)
+
+set(REFLECTCPP_BUILD_SHARED OFF)
+set(REFLECTCPP_MSGPACK ON)
+set(REFLECTCPP_BSON ON)
+add_subdirectory(${VENDOR}/reflect-cpp)
+
 add_library("${PROJECT_NAME}" SHARED ${SOURCE_FILES} include/PCH.hpp include/PCH.cpp)
 set_target_properties("${PROJECT_NAME}" PROPERTIES
         LINKER_LANGUAGE CXX

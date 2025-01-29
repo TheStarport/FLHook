@@ -14,7 +14,7 @@ namespace Plugins
 #define VALIDATE_ACCOUNT                                                                                   \
     if (const auto error = account.error(); error.has_value())                                             \
     {                                                                                                      \
-        Logger::Err(std::format(L"Error when accessing database: {}", StringUtils::stows(error->what()))); \
+        ERROR(L"Error when accessing database: {0}", {L"Error", StringUtils::stows(error->what())}); \
         if (client && client.GetData().account->_id == accountId)                                          \
         {                                                                                                  \
             (void)client.Message(L"Something went wrong while accessing the data. Please try again.");     \
