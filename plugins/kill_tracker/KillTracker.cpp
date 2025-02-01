@@ -163,7 +163,7 @@ namespace Plugins
         for(const auto& clientData : FLHook::Clients())
         {
             const auto client = clientData.id;
-            const bool isInvolved = involvedGroups.contains(client.GetGroup().Handle().GetValue()) || involvedPlayers.contains(client);
+            const bool isInvolved = involvedGroups.contains(client.GetGroup().Unwrap().GetValue()) || involvedPlayers.contains(client);
 
             if (const MessageType msgType = GetMessageType(victimId, client, system, isInvolved); msgType == MSGBLUE)
             {
