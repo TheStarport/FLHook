@@ -31,6 +31,7 @@ class CompressorRecipe(ConanFile):
         self.requires("croncpp/cci.20220503")
         self.requires("glm/cci.20230113")
         self.requires("magic_enum/0.9.6")
+        self.requires("msgpack-c/6.1.0")
         self.requires("mongo-c-driver/1.28.0", options={
             "shared": True
         })
@@ -46,7 +47,7 @@ class CompressorRecipe(ConanFile):
         self.requires("xbyak/7.07")
 
     def build_requirements(self):
-        self.tool_requires("cmake/3.22.6")
+        self.tool_requires("cmake/3.26.6")
 
     def layout(self):
         self.folders.generators = os.path.join("build", str(self.settings.build_type), "generators")
