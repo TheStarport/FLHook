@@ -331,15 +331,9 @@ bool FLHook::OnServerStart()
 void FLHook::LoadSettings()
 {
     auto* config = &instance->flhookConfig;
-    std::ifstream stream("flhook.json");
     *config = std::make_shared<FLHookConfig>();
 
-    if (!stream.is_open())
-    {
-        return;
-    }
-
-    auto configResult = Json::Load<FLHookConfig>("flhook.json");
+    auto configResult = Json::Load<FLHookConfig>("flhook.json", false);
     if (configResult.first == Json::LoadState::Success)
     {
         **config = configResult.second.value();
@@ -349,9 +343,11 @@ void FLHook::LoadSettings()
         // clang-format off
         if (configResult.first == Json::LoadState::DoesNotExist)
         {
+            Json::Save<FLHookConfig>(**config, "flhook.json");
             MessageBoxA(nullptr, "This is your first time opening FLServer with FLHook enabled."
                 "A file called flhook.json has been created in the Freelancer directory.\n"
-                "Please open and configure it as per documentation.", "flhook.json Created", MB_OK);
+                "Please open and configure it as per documentation.\n\n"
+                "FLServer will now terminate.", "flhook.json Created", MB_OK);
             std::abort();
 
         }
