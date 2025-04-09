@@ -41,7 +41,7 @@ void IServerImplHook::BaseEnterInnerAfter([[maybe_unused]] BaseId baseId, Client
 
 void __stdcall IServerImplHook::BaseEnter(BaseId baseId, ClientId client)
 {
-    TRACE(L"{0}{1}", { L"baseId", std::to_wstring(baseId.GetValue()) }, { L"clientId", std::to_wstring(client.GetValue()) })
+    TRACE(L"{0} {1}", { L"baseId", std::to_wstring(baseId.GetValue()) }, { L"clientId", std::to_wstring(client.GetValue()) })
 
     const auto skip = CallPlugins(&Plugin::OnBaseEnter, BaseId(baseId), ClientId(client));
 
@@ -80,7 +80,7 @@ void BaseExitInnerAfter([[maybe_unused]] BaseId baseId, [[maybe_unused]] ClientI
 }
 void __stdcall IServerImplHook::BaseExit(BaseId baseId, ClientId client)
 {
-    TRACE(L"{0}{1}", { L"baseId", std::to_wstring(baseId.GetValue()) }, { L"clientId", std::to_wstring(client.GetValue()) })
+    TRACE(L"{0} {1}", { L"baseId", std::to_wstring(baseId.GetValue()) }, { L"clientId", std::to_wstring(client.GetValue()) })
 
     const auto skip = CallPlugins(&Plugin::OnBaseExit, baseId, client);
 
@@ -100,7 +100,7 @@ void __stdcall IServerImplHook::BaseExit(BaseId baseId, ClientId client)
 
 void __stdcall IServerImplHook::BaseInfoRequest(unsigned int unk1, unsigned int unk2, bool unk3)
 {
-    ERROR(L"{0}{1}{2}", { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) }, { L"unk3", std::to_wstring(unk3) })
+    ERROR(L"{0} {1} {2}", { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) }, { L"unk3", std::to_wstring(unk3) })
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestBaseInfo, unk1, unk2, unk3); !skip)
     {

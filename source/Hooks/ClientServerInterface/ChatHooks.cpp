@@ -226,7 +226,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
 void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, const void* rdlReader, CHAT_ID cidTo, int genArg1)
 {
 
-    TRACE(L"SubmitChat({0}{1}{2}",
+    TRACE(L"{0} {1} {2}",
           { L"cidFrom", std::to_wstring(cidFrom.id) },
           { L"size", std::to_wstring(size) },
           { L"cidTo", std::to_wstring(cidTo.id) });

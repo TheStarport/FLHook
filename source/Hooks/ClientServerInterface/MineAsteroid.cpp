@@ -6,7 +6,7 @@
 
 void __stdcall IServerImplHook::MineAsteroid(SystemId systemId, const Vector& pos, ArchId crateId, ArchId lootId, uint count, ClientId client)
 {
-    TRACE(L"{0}{1}{2}{3}{4}",
+    TRACE(L"{0} {1} {2} {3} {4}",
           { L"systemId", std::to_wstring(systemId.GetValue()) },
           { L"crateId", std::to_wstring(crateId) },
           { L"lootId", std::to_wstring(lootId) },

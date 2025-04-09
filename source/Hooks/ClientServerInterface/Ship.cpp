@@ -32,7 +32,7 @@ void __stdcall IServerImplHook::ReqCollisionGroups(const st6::list<CollisionGrou
 
 void __stdcall IServerImplHook::ReqShipArch(ArchId archId, ClientId client)
 {
-    TRACE(L"{0}{1}}", { L"archId", std::to_wstring(archId) }, { L"client", std::to_wstring(client.GetValue()) });
+    TRACE(L"{0} {1}}", { L"archId", std::to_wstring(archId) }, { L"client", std::to_wstring(client.GetValue()) });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestShipArch, client, archId); !skip)
     {
@@ -45,7 +45,7 @@ void __stdcall IServerImplHook::ReqShipArch(ArchId archId, ClientId client)
 
 void __stdcall IServerImplHook::ReqHullStatus(float status, ClientId client)
 {
-    TRACE(L"{0}{1}}", { L"status", std::to_wstring(status) }, { L"client", std::to_wstring(client.GetValue()) });
+    TRACE(L"{0} {1}}", { L"status", std::to_wstring(status) }, { L"client", std::to_wstring(client.GetValue()) });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestHullStatus, client, status); !skip)
     {
@@ -60,7 +60,7 @@ void __stdcall IServerImplHook::SpRequestInvincibility(Id shipId, bool enable, I
 {
     auto ship = shipId.AsShip();
 
-    TRACE(L"{0}{1}{2}{3}",
+    TRACE(L"{0} {1} {2} {3}",
           { L"shipId", std::to_wstring(shipId.GetValue()) },
           { L"enable", std::to_wstring(enable) },
           { L"reason", std::to_wstring(static_cast<int>(reason)) },

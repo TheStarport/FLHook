@@ -109,14 +109,14 @@ double CrashCatcher::TimingSeconds(int64& delta)
     double seconds = Timing::seconds(delta);
     if (seconds < 0 || seconds > 10.0)
     {
-        ERROR(L"Time delta invalid seconds={0} ticksDelta={1}", { L"seconds", std::to_wstring(seconds) }, { L"delta", std::to_wstring(delta) });
+        ERROR(L"Time delta invalid {0} {1}", { L"seconds", std::to_wstring(seconds) }, { L"delta", std::to_wstring(delta) });
         delta = 1000000;
         seconds = Timing::seconds(delta);
     }
     else if (seconds > 1.0)
     {
 
-        ERROR(L"Time lag detected seconds={0} ticksDelta={1}", { L"seconds", std::to_wstring(seconds) }, { L"delta", std::to_wstring(delta) });
+        ERROR(L"Time lag detected {0} {1}", { L"seconds", std::to_wstring(seconds) }, { L"delta", std::to_wstring(delta) });
     }
     return seconds;
 }
@@ -152,7 +152,7 @@ void CrashCatcher::CrashProc6F671A0(int arg1)
 {
     try
     {
-        DEBUG(L"CrashProc6F671A0({0})", { L"arg1", std::to_wstring(arg1) });
+        DEBUG(L"{0}", { L"arg1", std::to_wstring(arg1) });
 
         __asm {
             pushad
@@ -164,7 +164,7 @@ void CrashCatcher::CrashProc6F671A0(int arg1)
     }
     catch (...)
     {
-        ERROR(L"Crash suppression in CrashProc6F671A0({0})", { L"arg1", std::to_wstring(arg1) });
+        ERROR(L"Crash suppression {0}", { L"arg1", std::to_wstring(arg1) });
     }
 }
 
@@ -176,7 +176,7 @@ CObject* CrashCatcher::GetRoot(CObject* child)
     }
     catch (...)
     {
-        ERROR(L"Crash suppression in GetRoot(child={0})", { L"archID", std::to_wstring(child->get_archetype()->archId) });
+        ERROR(L"Crash suppression {0}", { L"archID", HEXIFY(child->get_archetype()->archId) });
         return child;
     }
 }
@@ -219,7 +219,7 @@ char __stdcall CrashCatcher::FixCommon6F8B330Detour(int arg1)
     int res = 0;
     try
     {
-        DEBUG(L"CrashProc6F8B330({0})", { L"arg1", std::to_wstring(arg1) });
+        DEBUG(L"{0}", { L"arg1", std::to_wstring(arg1) });
         __asm
         {
             pushad
@@ -232,7 +232,7 @@ char __stdcall CrashCatcher::FixCommon6F8B330Detour(int arg1)
     }
     catch (...)
     {
-        ERROR(L"Crash suppression in CrashProc6F8B330({0})", { L"arg1", std::to_wstring(arg1) });
+        ERROR(L"Crash suppression {0}", { L"arg1", std::to_wstring(arg1) });
     }
 
     return static_cast<char>(res);
@@ -242,7 +242,7 @@ void __stdcall CrashCatcher::FixCommon6F78DD0Detour(int arg1, int arg2)
 {
     try
     {
-        DEBUG(L"CrashProc6F78DD0({0},{1})", { L"arg1", std::to_wstring(arg1) }, { L"arg2", std::to_wstring(arg2) });
+        DEBUG(L"{0} {1}", { L"arg1", std::to_wstring(arg1) }, { L"arg2", std::to_wstring(arg2) });
 
         __asm
         {
@@ -256,7 +256,7 @@ void __stdcall CrashCatcher::FixCommon6F78DD0Detour(int arg1, int arg2)
     }
     catch (...)
     {
-        ERROR(L"Crash suppression in CrashProc6F78DD0({0},{1})", { L"arg1", std::to_wstring(arg1) }, { L"arg2", std::to_wstring(arg2) });
+        ERROR(L"Crash suppression {0} {1}", { L"arg1", std::to_wstring(arg1) }, { L"arg2", std::to_wstring(arg2) });
     }
 }
 

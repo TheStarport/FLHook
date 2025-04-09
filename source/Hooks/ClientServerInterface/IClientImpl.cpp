@@ -104,7 +104,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(uint client, XGoTradelane& tl
 
 bool IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(uint client, uint shipId, uint archTradelane1, uint archTradelane2)
 {
-    TRACE(L"{0}{1}{2}{3}",
+    TRACE(L"{0} {1} {2} {3}",
           { L"client", std::to_wstring(client) },
           { L"shipId", std::to_wstring(shipId) },
           { L"archTradeLane1", std::to_wstring(archTradelane1) },
@@ -250,7 +250,7 @@ double IClientImpl::CDPClientProxyGetLinkSaturation(uint client)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(uint client, uint shipArch)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"shipArch", std::to_wstring(shipArch) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"shipArch", std::to_wstring(shipArch) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetShipArchPacket, ClientId(client), shipArch);
 
@@ -318,7 +318,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(uint client, st6::vector<Equ
 
 void IClientImpl::unknown_26(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     CallClientPreamble { unknown_26(client, unk1); }
     CallClientPostamble;
@@ -343,7 +343,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(uint client, FLPACKET_UNKNOWN*
 
 void IClientImpl::unknown_28(uint client, uint unk1, uint unk2, uint unk3)
 {
-    TRACE(L"{0}{1}{2}{3}",
+    TRACE(L"{0} {1} {2} {3}",
           { L"client", std::to_wstring(client) },
           { L"unk1", std::to_wstring(unk1) },
           { L"unk2", std::to_wstring(unk2) },
@@ -355,7 +355,7 @@ void IClientImpl::unknown_28(uint client, uint unk1, uint unk2, uint unk3)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetStartRoomPacket, ClientId(client), unk1, unk2);
 
@@ -372,7 +372,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSTARTROOM(uint client, uint unk1, uint
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFDESTROYCHARACTER(client, unk1, unk2); }
@@ -383,7 +383,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYCHARACTER(uint client, uint unk1
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATECHAR(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFUPDATECHAR(client, unk1, unk2); }
@@ -394,7 +394,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATECHAR(uint client, uint unk1, uint
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(client, unk1); }
@@ -405,7 +405,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETECHARLIST(uint client, uint unk1
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(client, unk1, unk2); }
@@ -416,7 +416,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFSCRIPTBEHAVIOR(uint client, uint unk1, 
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(client, unk1, unk2); }
@@ -427,7 +427,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR(uint client, uint
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(client, unk1); }
@@ -438,7 +438,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST(uint client,
 
 void IClientImpl::unknown_36(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     CallClientPreamble { unknown_36(client, unk1, unk2); }
     CallClientPostamble;
@@ -446,7 +446,7 @@ void IClientImpl::unknown_36(uint client, uint unk1, uint unk2)
 
 void IClientImpl::unknown_37(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     CallClientPreamble { unknown_37(client, unk1, unk2); }
     CallClientPostamble;
@@ -454,7 +454,7 @@ void IClientImpl::unknown_37(uint client, uint unk1, uint unk2)
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(client, unk1); }
@@ -465,7 +465,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST(uint client, 
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(client, unk1, unk2); }
@@ -476,7 +476,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER(uint client, uin
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(client, unk1, unk2); }
@@ -487,7 +487,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER(uint client, uint
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(client, unk1); }
@@ -498,7 +498,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST(uint client
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(client, unk1, unk2); }
@@ -509,7 +509,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE(uint client, ui
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(uint client, uint reason)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"reason", std::to_wstring(reason) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"reason", std::to_wstring(reason) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(client, reason); }
@@ -520,7 +520,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY(uint client, uint
 
 void IClientImpl::unknown_44(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     CallClientPreamble { unknown_44(client, unk1, unk2); }
     CallClientPostamble;
@@ -529,7 +529,7 @@ void IClientImpl::unknown_44(uint client, uint unk1, uint unk2)
 bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(uint client, uint unk1, uint unk2)
 {
 
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(client, unk1, unk2); }
@@ -540,7 +540,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFUPDATENEWSBROADCAST(uint client, uint u
 
 bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(client, unk1); }
@@ -661,7 +661,7 @@ void IClientImpl::unknown_53(uint client, FLPACKET_UNKNOWN* unk1)
 
 void IClientImpl::unknown_54(uint client, uint unk1, uint unk2, uint unk3)
 {
-    TRACE(L"{0}{1}{2}{3}",
+    TRACE(L"{0} {1} {2} {3}",
           { L"client", std::to_wstring(client) },
           { L"unk1", std::to_wstring(unk1) },
           { L"unk2", std::to_wstring(unk2) },
@@ -776,7 +776,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LAUNCH(uint client, FLPACKET_LAUNCH& laun
 bool IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint client, bool response, uint shipId)
 {
 
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"response", std::to_wstring(response) }, { L"shipId", std::to_wstring(shipId) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"response", std::to_wstring(response) }, { L"shipId", std::to_wstring(shipId) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnRequestCreateShipResponsePacket, ClientId(client), response, ShipId(shipId));
 
@@ -810,7 +810,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_DAMAGEOBJECT(uint client, uint objId, Dam
 
 bool IClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_ITEMTRACTORED(client, unk1); }
@@ -821,7 +821,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_ITEMTRACTORED(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_USE_ITEM(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnUseItemPacket, ClientId(client), unk1);
 
@@ -866,7 +866,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(uint client, uint unk1, uint unk
                                                 uint unk19, uint unk20, uint unk21, uint unk22)
 {
 
-    TRACE(L"{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}{12}{13}{14}{15}{16}{17}{18}{19}{20}{21}{22}",
+    TRACE(L"{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16} {17} {18} {19} {20} {21} {22}",
           { L"client", std::to_wstring(client) },
           { L"unk1", std::to_wstring(unk1) },
           { L"unk2", std::to_wstring(unk2) },
@@ -924,7 +924,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(uint client, uint unk1, uint unk
 
 void IClientImpl::unknown_70(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     CallClientPreamble { unknown_70(client, unk1); }
     CallClientPostamble;
@@ -957,7 +957,7 @@ void IClientImpl::unknown_72(uint client, FLPACKET_UNKNOWN* unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetMissionObjectivesPacket, ClientId(client), unk1);
 
@@ -982,7 +982,7 @@ void IClientImpl::unknown_74(uint client, FLPACKET_UNKNOWN* unk1)
 
 void IClientImpl::unknown_75(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     CallClientPreamble { unknown_75(client, unk1); }
     CallClientPostamble;
@@ -990,7 +990,7 @@ void IClientImpl::unknown_75(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_MARKOBJ(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_MARKOBJ(client, unk1, unk2); }
@@ -1001,7 +1001,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MARKOBJ(uint client, uint unk1, uint unk2
 
 void IClientImpl::unknown_77(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     CallClientPreamble { unknown_77(client, unk1); }
     CallClientPostamble;
@@ -1009,7 +1009,7 @@ void IClientImpl::unknown_77(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETCASH(uint client, uint cash)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"cash", std::to_wstring(cash) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"cash", std::to_wstring(cash) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetCashPacket, ClientId(client), cash);
 
@@ -1026,7 +1026,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETCASH(uint client, uint cash)
 
 void IClientImpl::unknown_79(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     CallClientPreamble { unknown_79(client, unk1); }
     CallClientPostamble;
@@ -1034,7 +1034,7 @@ void IClientImpl::unknown_79(uint client, uint unk1)
 
 void IClientImpl::unknown_80(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     CallClientPreamble { unknown_80(client, unk1); }
     CallClientPostamble;
@@ -1042,7 +1042,7 @@ void IClientImpl::unknown_80(uint client, uint unk1)
 
 void IClientImpl::unknown_81(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     CallClientPreamble { unknown_81(client, unk1); }
     CallClientPostamble;
@@ -1050,7 +1050,7 @@ void IClientImpl::unknown_81(uint client, uint unk1)
 
 void IClientImpl::unknown_82(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     CallClientPreamble { unknown_82(client, unk1); }
     CallClientPostamble;
@@ -1058,7 +1058,7 @@ void IClientImpl::unknown_82(uint client, uint unk1)
 
 void IClientImpl::unknown_83(uint client, char* unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", StringUtils::stows(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", StringUtils::stows(unk1) });
 
     CallClientPreamble { unknown_83(client, unk1); }
     CallClientPostamble;
@@ -1066,7 +1066,7 @@ void IClientImpl::unknown_83(uint client, char* unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(uint& client, uint shipId, uint flag, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}{3}{4}",
+    TRACE(L"{0} {1} {2} {3} {4}",
           { L"client", std::to_wstring(client) },
           { L"shipId", std::to_wstring(shipId) },
           { L"flag", std::to_wstring(flag) },
@@ -1090,7 +1090,7 @@ void IClientImpl::unknown_85(uint client, FLPACKET_UNKNOWN* unk1)
 
 void IClientImpl::unknown_86(uint client, uint unk1, uint unk2, uint unk3)
 {
-    TRACE(L"{0}{1}{2}{3}",
+    TRACE(L"{0} {1} {2} {3}",
           { L"client", std::to_wstring(client) },
           { L"unk1", std::to_wstring(unk1) },
           { L"unk2", std::to_wstring(unk2) },
@@ -1103,7 +1103,7 @@ void IClientImpl::unknown_86(uint client, uint unk1, uint unk2, uint unk3)
 bool IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(SObjectCargoUpdate& cargoUpdate, uint dunno1, uint dunno2)
 {
 
-    TRACE(L"{0}{1}{2}{3}", { L"client", std::to_wstring(cargoUpdate.client) }, { L"dunno1", std::to_wstring(dunno1) }, { L"dunno2", std::to_wstring(dunno2) });
+    TRACE(L"{0} {1} {2} {3}", { L"client", std::to_wstring(cargoUpdate.client) }, { L"dunno1", std::to_wstring(dunno1) }, { L"dunno2", std::to_wstring(dunno2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(cargoUpdate, dunno1, dunno2); }
@@ -1148,7 +1148,7 @@ void IClientImpl::unknown_90(uint client)
 
 void IClientImpl::unknown_91(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     CallClientPreamble { unknown_91(client, unk1); }
     CallClientPostamble;
@@ -1156,7 +1156,7 @@ void IClientImpl::unknown_91(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(uint client, uint unk1, int unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_SET_WEAPON_GROUP(client, unk1, unk2); }
@@ -1167,7 +1167,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(uint client, uint unk1, 
 
 bool IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(uint client, uint objHash, int state)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"objHash", std::to_wstring(objHash) }, { L"state", std::to_wstring(state) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"objHash", std::to_wstring(objHash) }, { L"state", std::to_wstring(state) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_SET_VISITED_STATE(client, objHash, state); }
@@ -1178,7 +1178,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(uint client, uint objHa
 
 bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(uint client, uint objHash, int unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"objHash", std::to_wstring(objHash) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"objHash", std::to_wstring(objHash) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_REQUEST_BEST_PATH(client, objHash, unk2); }
@@ -1189,7 +1189,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_BEST_PATH(uint client, uint objHa
 
 bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(uint client, uint unk1, int unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(client, unk1, unk2); }
@@ -1200,7 +1200,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_PLAYER_STATS(uint client, uint un
 
 void IClientImpl::unknown_96(uint client, uint unk1, uint unk2, uint unk3)
 {
-    TRACE(L"{0}{1}{2}{3}{4}",
+    TRACE(L"{0} {1} {2} {3} {4}",
           { L"client", std::to_wstring(client) },
           { L"unk1", std::to_wstring(unk1) },
           { L"unk2", std::to_wstring(unk2) },
@@ -1212,7 +1212,7 @@ void IClientImpl::unknown_96(uint client, uint unk1, uint unk2, uint unk3)
 
 bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(uint client, uint unk1, int unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(client, unk1, unk2); }
@@ -1223,7 +1223,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS(uint client, uint
 
 bool IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(uint client, uint unk1, int unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_SET_MISSION_LOG(client, unk1, unk2); }
@@ -1234,7 +1234,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_MISSION_LOG(uint client, uint unk1, i
 
 bool IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(uint client, uint unk1, int unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_SET_INTERFACE_STATE(client, unk1, unk2); }
@@ -1245,7 +1245,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_INTERFACE_STATE(uint client, uint unk
 
 void IClientImpl::unknown_100(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     CallClientPreamble { unknown_100(client, unk1, unk2); }
     CallClientPostamble;
@@ -1261,7 +1261,7 @@ void IClientImpl::unknown_101(uint& client, FLPACKET_UNKNOWN* unk1)
 
 void IClientImpl::PlayerInitiateTrade(uint client, uint targetShip)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"targetShip", std::to_wstring(targetShip) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"targetShip", std::to_wstring(targetShip) });
 
     CallClientPreamble { PlayerInitiateTrade(client, targetShip); }
     CallClientPostamble;
@@ -1269,7 +1269,7 @@ void IClientImpl::PlayerInitiateTrade(uint client, uint targetShip)
 
 void IClientImpl::PlayerTradeTarget(uint client, uint targetShip)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"targetShip", std::to_wstring(targetShip) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"targetShip", std::to_wstring(targetShip) });
 
     CallClientPreamble { PlayerTradeTarget(client, targetShip); }
     CallClientPostamble;
@@ -1277,7 +1277,7 @@ void IClientImpl::PlayerTradeTarget(uint client, uint targetShip)
 
 void IClientImpl::PlayerAcceptTrade(uint client, uint targetShip, uint doAccept)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"targetShip", std::to_wstring(targetShip) }, { L"doAccept", std::to_wstring(doAccept) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"targetShip", std::to_wstring(targetShip) }, { L"doAccept", std::to_wstring(doAccept) });
 
     CallClientPreamble { PlayerAcceptTrade(client, targetShip, doAccept); }
     CallClientPostamble;
@@ -1286,7 +1286,7 @@ void IClientImpl::PlayerAcceptTrade(uint client, uint targetShip, uint doAccept)
 void IClientImpl::PlayerSetTradeMoney(uint client, uint targetShipId, uint totalMoney)
 {
 
-    TRACE(L"{0}{1}{2}",
+    TRACE(L"{0} {1} {2}",
           { L"client", std::to_wstring(client) },
           { L"targetShipId", std::to_wstring(targetShipId) },
           { L"totalMoney", std::to_wstring(totalMoney) });
@@ -1297,7 +1297,7 @@ void IClientImpl::PlayerSetTradeMoney(uint client, uint targetShipId, uint total
 
 void IClientImpl::PlayerAddTradeEquip(uint client, uint targetShip, EquipDesc* item)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"targetShip", std::to_wstring(targetShip) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"targetShip", std::to_wstring(targetShip) });
 
     CallClientPreamble { PlayerAddTradeEquip(client, targetShip, item); }
     CallClientPostamble;
@@ -1305,7 +1305,7 @@ void IClientImpl::PlayerAddTradeEquip(uint client, uint targetShip, EquipDesc* i
 
 void IClientImpl::PlayerRemoveTradeEquip(uint client, uint shipId, EquipDesc* item)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"shipId", std::to_wstring(shipId) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"shipId", std::to_wstring(shipId) });
 
     CallClientPreamble { PlayerRemoveTradeEquip(client, shipId, item); }
     CallClientPostamble;
@@ -1313,7 +1313,7 @@ void IClientImpl::PlayerRemoveTradeEquip(uint client, uint shipId, EquipDesc* it
 
 bool IClientImpl::PlayerRequestTrade(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     bool retVal;
     CallClientPreamble { retVal = PlayerRequestTrade(client, unk1); }
@@ -1324,7 +1324,7 @@ bool IClientImpl::PlayerRequestTrade(uint client, uint unk1)
 
 void IClientImpl::PlayerStopTradeRequest(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     CallClientPreamble { PlayerStopTradeRequest(client, unk1); }
     CallClientPostamble;
@@ -1332,7 +1332,7 @@ void IClientImpl::PlayerStopTradeRequest(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnScanNotifyPacket, ClientId(client), unk1, unk2);
 
@@ -1350,7 +1350,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SCANNOTIFY(uint client, uint unk1, uint u
 bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(uint client, wchar_t* characterName, uint unk2, char unk3)
 {
 
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"characterName", std::wstring(characterName) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"characterName", std::wstring(characterName) }, { L"unk2", std::to_wstring(unk2) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnPlayerListPacket, ClientId(client), characterName, unk2, unk3);
 
@@ -1367,7 +1367,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST(uint client, wchar_t* characte
 
 void IClientImpl::PlayerIsLeavingServer(uint onlineClient, uint leavingClient)
 {
-    TRACE(L"{0}{1}", { L"onlineClient", std::to_wstring(onlineClient) }, { L"leavingClient", std::to_wstring(leavingClient) });
+    TRACE(L"{0} {1}", { L"onlineClient", std::to_wstring(onlineClient) }, { L"leavingClient", std::to_wstring(leavingClient) });
 
     CallClientPreamble { PlayerIsLeavingServer(onlineClient, leavingClient); }
     CallClientPostamble;
@@ -1392,7 +1392,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(uint client)
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdate6Packet, ClientId(client), unk1, unk2);
 
@@ -1409,7 +1409,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_6(uint client, uint unk1, u
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdate7Packet, ClientId(client), unk1, unk2);
 
@@ -1443,7 +1443,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(uint client, FLPACKET_UNKNO
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdate2Packet, ClientId(client), unk1, unk2);
 
@@ -1460,7 +1460,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_2(uint client, uint unk1, u
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint client, uint targetId, uint rank)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"targetId", std::to_wstring(targetId) }, { L"rank", std::to_wstring(rank) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"targetId", std::to_wstring(targetId) }, { L"rank", std::to_wstring(rank) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdate3Packet, ClientId(client), targetId, rank);
 
@@ -1477,7 +1477,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_3(uint client, uint targetI
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdate4Packet, ClientId(client), unk1, unk2);
 
@@ -1494,7 +1494,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_4(uint client, uint unk1, u
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint client, uint unk1, uint unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdate5Packet, ClientId(client), unk1, unk2);
 
@@ -1511,7 +1511,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_5(uint client, uint unk1, u
 
 void IClientImpl::unknown_121(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     CallClientPreamble { unknown_121(client, unk1); }
     CallClientPostamble;
@@ -1519,7 +1519,7 @@ void IClientImpl::unknown_121(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_FORMATION_UPDATE(uint client, uint shipId, Vector& formationOffset)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"shipId", std::to_wstring(shipId) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"shipId", std::to_wstring(shipId) });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_FORMATION_UPDATE(client, shipId, formationOffset); }
@@ -1530,7 +1530,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_FORMATION_UPDATE(uint client, uint shipId
 
 void IClientImpl::unknown_123(uint client, uint unk1, uint unk2, uint unk3, uint unk4, uint unk5, uint unk6)
 {
-    TRACE(L"{0}{1}{2}{3}{4}{5}{6}",
+    TRACE(L"{0} {1} {2} {3} {4} {5} {6}",
           { L"client", std::to_wstring(client) },
           { L"unk1", std::to_wstring(unk1) },
           { L"unk2", std::to_wstring(unk2) },
@@ -1553,7 +1553,7 @@ void IClientImpl::unknown_124(uint client)
 
 void IClientImpl::unknown_125(uint client, uint unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client) }, { L"unk1", std::to_wstring(unk1) });
 
     CallClientPreamble { unknown_125(client, unk1); }
     CallClientPostamble;

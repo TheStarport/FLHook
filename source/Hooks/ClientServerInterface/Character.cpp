@@ -168,7 +168,7 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
 
 void __stdcall IServerImplHook::RequestRankLevel(ClientId client, uint unk1, int unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestRankLevel, client, unk1, unk2); !skip)
     {
@@ -181,7 +181,7 @@ void __stdcall IServerImplHook::RequestRankLevel(ClientId client, uint unk1, int
 
 void __stdcall IServerImplHook::RequestPlayerStats(ClientId client, uint unk1, int unk2)
 {
-    TRACE(L"{0}{1}{2}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
+    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
     if (const auto skip = CallPlugins(&Plugin::OnRequestPlayerStats, client, unk1, unk2); !skip)
     {
         CallServerPreamble { Server.RequestPlayerStats(client.GetValue(), (uchar*)unk1, unk2); }
@@ -227,7 +227,7 @@ bool CharacterInfoReqCatch(ClientId client, bool)
 
 void __stdcall IServerImplHook::CharacterInfoReq(ClientId client, bool unk1)
 {
-    TRACE(L"{0}{1}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE(L"{0} {1}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) });
 
     const auto skip = CallPlugins(&Plugin::OnCharacterInfoRequest, client, unk1);
 

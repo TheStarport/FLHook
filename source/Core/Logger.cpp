@@ -102,10 +102,10 @@ void Logger::PrintToConsole(std::stop_token st)
                 for (const auto& arg : logMessage.valueMap)
                 {
                     logMessage.message =
-                        StringUtils::ReplaceStr(logMessage.message, std::wstring_view(std::format(L"{{{}}}", i++)), std::wstring_view(arg.second));
+                        StringUtils::ReplaceStr(logMessage.message, std::wstring_view(std::format(L"{{{}}}", i++)), std::wstring_view(std::format(L"{}:{}", arg.first, arg.second)));
                 }
 
-                std::wcout << std::format(L"{} {}: {}", TimeUtils::CurrentDate(), magic_enum::enum_name(logMessage.level), logMessage.message) << std::endl;
+                std::wcout << std::format(L"{} {} {}: {}", TimeUtils::CurrentDate(), StringUtils::stows(logMessage.function), magic_enum::enum_name(logMessage.level), logMessage.message) << std::endl;
 
                 // Reset
                 SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongWhite));

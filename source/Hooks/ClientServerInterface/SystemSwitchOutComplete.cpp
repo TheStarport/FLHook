@@ -8,7 +8,7 @@ void __stdcall IServerImplHook::SystemSwitchOutComplete(Id shipId, ClientId clie
 {
     auto ship = shipId.AsShip();
 
-    TRACE(L"{0}{1}}", { L"shipId", std::to_wstring(shipId.GetValue()) }, { L"client", std::to_wstring(client.GetValue()) });
+    TRACE(L"{0} {1}}", { L"shipId", std::to_wstring(shipId.GetValue()) }, { L"client", std::to_wstring(client.GetValue()) });
 
     if (const auto skip = CallPlugins(&Plugin::OnSystemSwitchOutComplete, client, ship); !skip)
     {

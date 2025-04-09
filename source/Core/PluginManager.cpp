@@ -201,7 +201,7 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
 
     std::ranges::sort(plugins, [](const std::shared_ptr<Plugin>& a, const std::shared_ptr<Plugin>& b) { return a->callPriority > b->callPriority; });
 
-    INFO(L"Plugin Loaded {0}", {plugin->shortName, plugin->dllName});
+    INFO(L"Plugin Loaded {0}", { L"dll", plugin->dllName });
     return true;
 }
 

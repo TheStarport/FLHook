@@ -163,7 +163,7 @@ int __stdcall IServerImplHook::Update()
 
 void __stdcall IServerImplHook::Shutdown()
 {
-    TRACE(L"Shutdown()");
+    TRACE(L"Shutdown");
 
     if (const auto skip = CallPlugins(&Plugin::OnServerShutdown); !skip)
     {

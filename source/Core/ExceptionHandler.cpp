@@ -259,7 +259,7 @@ void ExceptionHandler::LogException(const SehException& ex)
             WCHAR moduleName[MAX_PATH];
             GetModuleBaseNameW(GetCurrentProcess(), module, moduleName, MAX_PATH);
 
-            ERROR(L"{0}{1}{2}", { L"code", std::to_wstring(code) }, { L"offset", std::to_wstring(offset) }, { L"moduleName", moduleName })
+            ERROR(L"{0} {1} {2}", { L"code", std::to_wstring(code) }, { L"offset", std::to_wstring(offset) }, { L"moduleName", moduleName })
 
             if (code == 0xE06D7363 && exception->NumberParameters == 3) // C++ exception
             {
@@ -286,7 +286,7 @@ void ExceptionHandler::LogException(const SehException& ex)
                     GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)address, &module);
                     GetModuleBaseNameW(GetCurrentProcess(), module, moduleName, MAX_PATH);
                 }
-                ERROR(L"{0}{1}{2}{3}",
+                ERROR(L"{0} {1} {2} {3}",
                       { L"name", StringUtils::stows(szName) },
                       { L"message", StringUtils::stows(szMessage) },
                       { L"offset", std::to_wstring(offset) },
@@ -307,7 +307,7 @@ void ExceptionHandler::LogException(const SehException& ex)
         }
         if (reg)
         {
-            ERROR(L"{0}{1}{2}{3}{4}{5}{6}{7}{8}",
+            ERROR(L"{0} {1} {2} {3} {4} {5} {6} {7} {8}",
                   { L"eax", std::to_wstring(reg->Eax) },
                   { L"ebx", std::to_wstring(reg->Ebx) },
                   { L"ecx", std::to_wstring(reg->Ecx) },

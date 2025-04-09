@@ -192,7 +192,7 @@ enum class CSolarVTable
     GetSubObjectRelativeHealth,
     InstToSubObjectId,
     SubObjectIdToInst,
-    DstroySubObjects,
+    DestroySubObjects,
     EnumerateSubObjects,
     AllocEquip,
     LinkShields,

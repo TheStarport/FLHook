@@ -35,7 +35,7 @@ void HttpServer::RegisterRoutes()
     CallPlugins(&Plugin::OnHttpServerRegister, server);
 
     // Start the server
-    INFO(L"Running http server on port {0}", {L"Port ", std::to_wstring(FLHook::GetConfig()->httpSettings.port)});
+    INFO(L"Running http server {0}", {L"port", std::to_wstring(FLHook::GetConfig()->httpSettings.port)});
     serverThread = std::jthread{ std::bind_front(&HttpServer::StartServer, this) };
     server->wait_until_ready();
     DEBUG(L"Http server started");
