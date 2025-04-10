@@ -141,6 +141,12 @@ class DLL ClientId
         Action<uint> GetWealth() const;
 
         /**
+         * @brief Get current player position. Exact point in space in case of in-space player, docked solar position when not
+         * @returns Player Position
+         */
+        Action<Vector> GetPosition() const;
+
+        /**
          * @brief Gets PVP kills of the character the player is logged in as
          * @returns On success : Returns the kill count as an integer.
          * @returns On fail : InCharacterSelect
@@ -393,6 +399,8 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect or InvalidClientId
          */
         Action<void> InvitePlayer(ClientId otherClient) const;
+
+        Action<void> SendBestPath(SystemId targetSystem, Vector targetPosition) const;
 };
 
 template <>

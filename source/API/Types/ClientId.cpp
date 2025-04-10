@@ -785,3 +785,29 @@ Action<void> ClientId::InvitePlayer(ClientId otherClient) const
 
     return { {} };
 }
+
+Action<Vector> ClientId::GetPosition() const
+{ 
+    auto ship = this->GetShip();
+    if (ship.Raw().has_error())
+    {
+        return { GetData().playerData->position };
+    }
+    return { ship.Unwrap().GetValue().lock()->position };
+}
+
+Action<void> ClientId::SendBestPath(SystemId targetSystem, Vector targetPosition) const
+{
+    static BestPathInfo bpi;
+    bpi.waypointStartIndex = 1; // Use 1 as start index so the waypoints of the player get overwritten
+    bpi.pathEntries[0].systemId = GetSystemId().Unwrap().GetValue();
+    bpi.pathEntries[0].pos = GetPosition().Unwrap();
+    bpi.pathEntries[1].systemId = targetSystem.GetValue();
+    bpi.pathEntries[1].pos = targetPosition;
+    bpi.waypointCount = 2;
+
+    // The original asm code sets 52 as size for the struct. So better hard code it instead of sizeof in case someone messes up the struct in a commit.
+    Server.RequestBestPath(GetValue(), (uchar*)&bpi, 12 + (20 * 2));
+
+    return { {} };
+}
