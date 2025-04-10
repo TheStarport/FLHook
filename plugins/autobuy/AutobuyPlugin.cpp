@@ -9,7 +9,7 @@ namespace Plugins
 
     void AutobuyPlugin::LoadPlayerAutobuy(const ClientId client)
     {
-        auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[client.GetValue()];
+        auto& [updated, ammo, mines, cm, bb, repairs] = autobuyInfo[client.GetValue()];
 
         const auto view = client.GetData().characterData;
         if (auto autobuyDoc = view->characterDocument.find("autobuy"); autobuyDoc != view->characterDocument.end())
@@ -21,10 +21,8 @@ namespace Plugins
                     case Hash("repairs"): repairs = item.get_bool(); break;
                     case Hash("bb"): bb = item.get_bool(); break;
                     case Hash("cm"): cm = item.get_bool(); break;
-                    case Hash("cd"): cd = item.get_bool(); break;
-                    case Hash("torps"): torps = item.get_bool(); break;
                     case Hash("mines"): mines = item.get_bool(); break;
-                    case Hash("missiles"): missiles = item.get_bool(); break;
+                    case Hash("ammo"): ammo = item.get_bool(); break;
                     default:;
                 }
             }
@@ -135,8 +133,15 @@ namespace Plugins
     {
         // TODO: Update to per-weapon ammo limits once implemented
         item.archId = launcher->projectileArchId;
-        item.count = MAX_PLAYER_AMMO - PlayerGetAmmoCount(cargo, item.archId);
-        item.description = desc;
+        uint itemId = Arch2Good(item.archId);
+        if (ammoLimits.contains(Arch2Good(item.archId)))
+        {
+            item.count = ammoLimits[itemId] - PlayerGetAmmoCount(cargo, item.archId);
+        }
+        else
+        {
+            item.count = MAX_PLAYER_AMMO - PlayerGetAmmoCount(cargo, item.archId);
+        }
         cart[item.archId] = item;
     }
 
@@ -145,7 +150,7 @@ namespace Plugins
     void AutobuyPlugin::OnCharacterSave(const ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
     {
         using bsoncxx::builder::basic::kvp;
-        const auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[client.GetValue()];
+        const auto& [updated, ammo, mines, cm, bb, repairs] = autobuyInfo[client.GetValue()];
 
         if (!updated)
         {
@@ -155,7 +160,7 @@ namespace Plugins
         document.append(kvp(
             "autobuy",
             bsoncxx::builder::basic::make_document(
-                kvp("cd", cd), kvp("cm", cm), kvp("bb", bb), kvp("repairs", repairs), kvp("mines", mines), kvp("torps", torps), kvp("missiles", missiles))));
+                kvp("cm", cm), kvp("bb", bb), kvp("repairs", repairs), kvp("mines", mines), kvp("ammo", ammo))));
     }
 
     void AutobuyPlugin::OnBaseEnterAfter(const BaseId baseId, const ClientId client)
@@ -169,7 +174,7 @@ namespace Plugins
         // shopping cart
         std::map<uint, AutobuyCartItem> cartMap;
 
-        const auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[client.GetValue()];
+        const auto& [updated, ammo, mines, cm, bb, repairs] = autobuyInfo[client.GetValue()];
         if (bb)
         {
             // shield bats & nanobots
@@ -217,7 +222,7 @@ namespace Plugins
             }
         }
 
-        if (cd || cm || mines || missiles || torps)
+        if (ammo || cm || mines)
         {
             // check mounted equip
             for (const auto& equip : *equipCargo)
@@ -248,29 +253,14 @@ namespace Plugins
 
                             break;
                         }
+                    case EquipmentType::Gun:
                     case EquipmentType::TorpedoLauncher:
-                        {
-                            if (torps)
-                            {
-                                AddEquipToCart(dynamic_cast<Archetype::Launcher*>(eq), equipCargo, cartMap, aci, L"Torpedoes");
-                            }
-
-                            break;
-                        }
                     case EquipmentType::CdLauncher:
-                        {
-                            if (cd)
-                            {
-                                AddEquipToCart(dynamic_cast<Archetype::Launcher*>(eq), equipCargo, cartMap, aci, L"Cruise Disrupters");
-                            }
-
-                            break;
-                        }
                     case EquipmentType::MissileLauncher:
                         {
-                            if (missiles)
+                            if (ammo)
                             {
-                                AddEquipToCart(dynamic_cast<Archetype::Launcher*>(eq), equipCargo, cartMap, aci, L"Missiles");
+                                AddEquipToCart(dynamic_cast<Archetype::Launcher*>(eq), equipCargo, cartMap, aci, L"Ammo");
                             }
 
                             break;
@@ -368,27 +358,23 @@ namespace Plugins
             (void)client.Message(L"Usage: /autobuy <param> [<on/off>]");
             (void)client.Message(L"<Param>:");
             (void)client.Message(L"|  info - display current autobuy-settings");
-            (void)client.Message(L"|  missiles - enable/disable autobuy for missiles");
-            (void)client.Message(L"|  torps - enable/disable autobuy for torpedos");
+            (void)client.Message(L"|  ammo - enable/disable autobuy for ammo");
             (void)client.Message(L"|  mines - enable/disable autobuy for mines");
-            (void)client.Message(L"|  cd - enable/disable autobuy for cruise disruptors");
             (void)client.Message(L"|  cm - enable/disable autobuy for countermeasures");
             (void)client.Message(L"|  bb - enable/disable autobuy for nanobots/shield batteries");
             (void)client.Message(L"|  repairs - enable/disable automatic repair of ship and equipment");
             (void)client.Message(L"|  all: enable/disable autobuy for all of the above");
             (void)client.Message(L"Examples:");
-            (void)client.Message(L"|  \"/autobuy missiles on\" enable autobuy for missiles");
+            (void)client.Message(L"|  \"/autobuy ammo on\" enable autobuy of ammunition");
             (void)client.Message(L"|  \"/autobuy all off\" completely disable autobuy");
             (void)client.Message(L"|  \"/autobuy info\" show autobuy info");
         }
 
-        auto& [updated, missiles, mines, torps, cd, cm, bb, repairs] = autobuyInfo[client.GetValue()];
+        auto& [updated, ammo, mines, cm, bb, repairs] = autobuyInfo[client.GetValue()];
         if (autobuyType == L"info")
         {
-            (void)client.Message(std::format(L"Missiles: {}", missiles ? L"On" : L"Off"));
+            (void)client.Message(std::format(L"Ammo: {}", ammo ? L"On" : L"Off"));
             (void)client.Message(std::format(L"Mines: {}", mines ? L"On" : L"Off"));
-            (void)client.Message(std::format(L"Torpedos: {}", torps ? L"On" : L"Off"));
-            (void)client.Message(std::format(L"Cruise Disruptors: {}", cd ? L"On" : L"Off"));
             (void)client.Message(std::format(L"Countermeasures: {}", cm ? L"On" : L"Off"));
             (void)client.Message(std::format(L"Nanobots/Shield Batteries: {}", bb ? L"On" : L"Off"));
             (void)client.Message(std::format(L"Repairs: {}", repairs ? L"On" : L"Off"));
@@ -406,33 +392,21 @@ namespace Plugins
         if (autobuyType == L"all")
         {
             updated = true;
-            missiles = enable;
+            ammo = enable;
             mines = enable;
-            torps = enable;
-            cd = enable;
             cm = enable;
             bb = enable;
             repairs = enable;
         }
-        else if (autobuyType == L"missiles")
+        else if (autobuyType == L"ammo")
         {
             updated = true;
-            missiles = enable;
+            ammo = enable;
         }
         else if (autobuyType == L"mines")
         {
             updated = true;
             mines = enable;
-        }
-        else if (autobuyType == L"torps")
-        {
-            updated = true;
-            torps = enable;
-        }
-        else if (autobuyType == L"cd")
-        {
-            updated = true;
-            cd = enable;
         }
         else if (autobuyType == L"cm")
         {
@@ -464,6 +438,63 @@ namespace Plugins
     bool AutobuyPlugin::OnLoadSettings()
     {
         LoadJsonWithValidation(Config, config, "config/autobuy.json");
+
+        INI_Reader ini;
+        std::vector<std::string> iniPaths;
+        if (!ini.open("freelancer.ini", false) || !ini.find_header("Data"))
+        {
+            ERROR(L"Unable to read freelancer.ini's Data header");
+            return false;
+        }
+
+        while (ini.read_value())
+        {
+            if (!ini.is_value("equipment"))
+            {
+                continue;
+            }
+            iniPaths.push_back(std::string("../DATA/") + ini.get_value_string());
+        }
+
+        ini.close();
+
+        // Get ammo limit
+        for (const auto& iniPath : iniPaths)
+        {
+            if (!ini.open(iniPath.c_str(), false))
+            {
+                ERROR(L"Was unable to read ammo limits from the {0}", { L"file", StringUtils::stows(iniPath) });
+                return false;
+            }
+
+            while (ini.read_header())
+            {
+                if (ini.is_header("Munition"))
+                {
+                    uint itemname = 0;
+                    int itemlimit = 0;
+                    bool valid = false;
+
+                    while (ini.read_value())
+                    {
+                        if (ini.is_value("nickname"))
+                        {
+                            itemname = CreateID(ini.get_value_string(0));
+                        }
+                        else if (ini.is_value("ammo_limit"))
+                        {
+                            valid = true;
+                            itemlimit = ini.get_value_int(0);
+                        }
+                    }
+
+                    if (valid)
+                    {
+                        ammoLimits[itemname] = itemlimit;
+                    }
+                }
+            }
+        }
 
         return true;
     }

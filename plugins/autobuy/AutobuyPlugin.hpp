@@ -8,10 +8,8 @@ namespace Plugins
     struct AutobuyInfo
     {
             bool updated;
-            bool missiles;
+            bool ammo;
             bool mines;
-            bool torps;
-            bool cd;
             bool cm;
             bool bb;
             bool repairs;
@@ -75,6 +73,7 @@ namespace Plugins
 
             Config config;
             std::array<AutobuyInfo, MaxClientId + 1> autobuyInfo;
+            std::unordered_map<uint, int> ammoLimits;
             bool OnLoadSettings() override;
             /**
              * @brief Hook on BaseEnter. Triggers the autobuy/repair.
