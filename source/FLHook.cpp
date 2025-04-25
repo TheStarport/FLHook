@@ -90,9 +90,6 @@ FLHook::FLHook()
     DEBUG(L"Creating AccountManager");
     accountManager = std::make_shared<AccountManager>();
 
-    DEBUG(L"Creating CrashCatcher");
-    crashCatcher = std::make_shared<CrashCatcher>();
-
     DEBUG(L"Creating ResourceManager");
     resourceManager = std::make_shared<ResourceManager>();
 

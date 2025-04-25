@@ -17,7 +17,7 @@ bool GoTradelaneCatch(ClientId client, const XGoTradelane& gtl)
 {
     uint system;
     pub::Player::GetSystem(client.GetValue(), system);
-    TRACE(L"Exception {0} {1} {2} {3}",
+    TRACE(L"{0} {1} {2} {3}",
           { L"characterName", std::wstring(client.GetCharacterName().Unwrap()) },
           { L"system", std::to_wstring(system) },
           { L"tradelaneSpaceObj1", std::to_wstring(gtl.tradelaneSpaceObj1) },
@@ -52,7 +52,7 @@ void __stdcall IServerImplHook::StopTradelane(ClientId client, Id shipId, Id tra
     auto tradeLane2 = tradelaneRing2.AsObject();
 
 
-    TRACE(L"Exception {0} {1} {2} {3}",
+    TRACE(L"{0} {1} {2} {3}",
           { L"client", std::to_wstring(client.GetValue()) },
           { L"shipId", std::to_wstring(shipId.GetValue()) },
           { L"tradelaneRing1", std::to_wstring(tradeLane1.GetId().Unwrap()) },

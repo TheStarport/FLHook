@@ -36,10 +36,10 @@ Action<float> ShipId::GetShields(bool percentage) const
 
     if (percentage)
     {
-        return { shield->currentShieldHitPoints / shield->maxShieldHitPoints };
+        return { shield->currShieldHitPoints / shield->maxShieldHitPoints };
     }
 
-    return { shield->currentShieldHitPoints };
+    return { shield->currShieldHitPoints };
 }
 
 Action<ClientId> ShipId::GetPlayer() const

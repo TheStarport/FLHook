@@ -138,13 +138,13 @@ CrashCatcher::FixEngBase124BD::FixEngBase124BD()
 
 CrashCatcher::FixContent6F8B330::FixContent6F8B330()
 {
-    mov(ptr[CrashCatcher::savedEcx], ecx);
+    mov(ptr[&CrashCatcher::savedEcx], ecx);
     jmp(CrashCatcher::FixCommon6F8B330Detour);
 }
 
 CrashCatcher::FixContent6F78DD0::FixContent6F78DD0()
 {
-    mov(ptr[CrashCatcher::savedEcx], ecx);
+    mov(ptr[&CrashCatcher::savedEcx], ecx);
     jmp(CrashCatcher::FixCommon6F78DD0Detour);
 }
 

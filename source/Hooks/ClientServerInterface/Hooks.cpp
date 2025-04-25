@@ -9,6 +9,7 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Core/ExceptionHandler.hpp"
 #include "Core/FLHook.hpp"
+#include "Core/CrashCatcher.hpp"
 #include "Core/IpResolver.hpp"
 
 void IServerImplHook::ServerReady()
@@ -95,6 +96,9 @@ void IServerImplHook::StartupInner(SStartupInfo& si)
 
 void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
 {
+    DEBUG(L"Creating CrashCatcher");
+    FLHook::instance->crashCatcher = std::make_shared<CrashCatcher>();
+
     // Patch to set maximum number of players to connect. This is normally less than MaxClientId
     const auto address = FLHook::Offset(FLHook::BinaryType::Server, AddressList::PlayerDbMaxPlayers);
     MemUtils::WriteProcMem(address, &si.maxPlayers, sizeof maxPlayers);

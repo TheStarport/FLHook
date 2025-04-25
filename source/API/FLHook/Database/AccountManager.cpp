@@ -1048,7 +1048,7 @@ AccountManager::AccountManager()
     MemUtils::NopAddress(serverOffset + 0x69A07, 7);
 
     std::array<byte, 2> removeStringCheck = { 0xB0, 0x01 }; // mov al, 1
-    MemUtils::WriteProcMem(serverOffset + 0x734FEE, removeStringCheck.data(), removeStringCheck.size());
+    MemUtils::WriteProcMem(serverOffset + 0x734FE, removeStringCheck.data(), removeStringCheck.size());
     MemUtils::NopAddress(serverOffset + 0x7352B, 0x6D53589 - 0x6D5352B);
     std::array<byte, 3> stackFix = { 0x83, 0xEC, 0x14 };
     MemUtils::WriteProcMem(serverOffset + 0x7357A, stackFix.data(), stackFix.size());
