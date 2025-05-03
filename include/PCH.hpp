@@ -140,8 +140,7 @@ namespace Json
      */
     template <typename T>
         requires std::is_default_constructible_v<T>
-    std::pair<LoadState, std::optional<T>> Load(std::string_view path, const bool createIfNotExist = true,
-        const bool useSaveGameFolder = false)
+    std::pair<LoadState, std::optional<T>> Load(std::string_view path, const bool createIfNotExist = true, const bool useSaveGameFolder = false)
     {
         std::string relativePath;
         if (useSaveGameFolder)
@@ -176,9 +175,9 @@ namespace Json
         }
 
         auto result = rfl::json::read<T>(stream);
-        if (auto err = result.error(); err.has_value())
+        if (!result)
         {
-            ERROR(L"Error while trying to serialize {0} {1}", { L"path", StringUtils::stows(path) }, { L"error", StringUtils::stows(err.value().what()) })
+            ERROR(L"Error while trying to serialize {0} {1}", { L"path", StringUtils::stows(path) }, { L"error", StringUtils::stows(result.error().what()) })
 
             return { LoadState::FailedToValidate, std::nullopt };
         }
@@ -187,18 +186,51 @@ namespace Json
     }
 } // namespace Json
 
-#define LoadJsonWithValidation(confgCls, config, path)                                             \
-    if (const auto conf = Json::Load<confgCls>(path); conf.first == Json::LoadState::DoesNotExist) \
-    {                                                                                              \
-        Json::Save(config, path);                                                                  \
-    }                                                                                              \
-    else if (conf.first == Json::LoadState::Success)                                               \
-    {                                                                                              \
-        config = conf.second.value();                                                              \
-    }                                                                                              \
-    else                                                                                           \
-    {                                                                                              \
-        return false;                                                                              \
+#define LoadJsonWithValidation(configCls, config, path)                                             \
+    if (const auto conf = Json::Load<configCls>(path); conf.first == Json::LoadState::DoesNotExist) \
+    {                                                                                               \
+        Json::Save(config, path);                                                                   \
+    }                                                                                               \
+    else if (conf.first == Json::LoadState::Success)                                                \
+    {                                                                                               \
+        config = conf.second.value();                                                               \
+    }                                                                                               \
+    else                                                                                            \
+    {                                                                                               \
+        return false;                                                                               \
+    }
+
+#define LoadJsonWithPrompt(configCls, config, path)                                                                                                     \
+    if (const auto conf = Json::Load<configCls>(path); conf.first == Json::LoadState::DoesNotExist)                                                     \
+    {                                                                                                                                                   \
+        Json::Save(config, path);                                                                                                                       \
+    }                                                                                                                                                   \
+    else if (conf.first == Json::LoadState::Success)                                                                                                    \
+    {                                                                                                                                                   \
+        config = conf.second.value();                                                                                                                   \
+    }                                                                                                                                                   \
+    else if (conf.first == Json::LoadState::FailedToValidate)                                                                                           \
+    {                                                                                                                                                   \
+        if (MessageBoxA(nullptr,                                                                                                                        \
+                        std::format("Error trying to read file: {}\nThis file was trying to be serialized to {} but could not be. See the console for " \
+                                    "details on why serialization failed.\n\nShould this file be deleted and a fresh copy be generated?\n"              \
+                                    "Press 'OK' to regenerate, 'Cancel' to stop processing.",                                                           \
+                                    path,                                                                                                               \
+                                    typeid(configCls).name())                                                                                           \
+                            .c_str(),                                                                                                                   \
+                        "Failed to read JSON",                                                                                                          \
+                        MB_OKCANCEL) == IDOK)                                                                                                           \
+        {                                                                                                                                               \
+            Json::Save(lootTables, "config");                                                                                                           \
+        }                                                                                                                                               \
+        else                                                                                                                                            \
+        {                                                                                                                                               \
+            return false;                                                                                                                               \
+        }                                                                                                                                               \
+    }                                                                                                                                                   \
+    else                                                                                                                                                \
+    {                                                                                                                                                   \
+        return false;                                                                                                                                   \
     }
 
 #pragma warning(pop)

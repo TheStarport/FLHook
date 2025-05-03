@@ -95,14 +95,13 @@ Action<std::vector<Mail>> MailManager::GetAccountMail(std::string accountId, int
             }
 
             auto mailResult = rfl::bson::read<Mail>(result.data(), result.length());
-            if (mailResult.error().has_value())
+            if (!mailResult)
             {
                 ERROR(L"Error while trying to read mail for character: {0}", { L"Character", StringUtils::stows(accountId) });
                 continue;
             }
 
-            const Mail& mail = mailResult.value();
-            if (!mail.message.empty() && !mail.recipients.empty())
+            if (const Mail& mail = mailResult.value(); !mail.message.empty() && !mail.recipients.empty())
             {
                 allMail.emplace_back(mail);
             }
@@ -164,7 +163,7 @@ Action<std::vector<Mail>> MailManager::GetCharacterMail(bsoncxx::oid characterId
         for (const auto result : mailCollection.aggregate(pipeline))
         {
             auto mail = rfl::bson::read<Mail>(result.data(), result.length());
-            if (mail.error().has_value())
+            if (!mail)
             {
 
                 ERROR(L"Error while trying to read mail for character: {0}", { L"character", StringUtils::stows(characterId.to_string()) })
@@ -209,7 +208,6 @@ Action<void> MailManager::DeleteMail(const Mail& mail)
     catch (mongocxx::exception& ex)
     {
         ERROR(L"Unable to delete mail: {0}", { L"mail", StringUtils::stows(ex.what()) });
-
     }
 
     return { cpp::fail(Error::DatabaseError) };
@@ -249,7 +247,7 @@ Action<void> MailManager::MarkMailAsRead(const Mail& mail, rfl::Variant<std::str
     }
     catch (mongocxx::exception& ex)
     {
-        ERROR(L"Unable to mark mail as read: {}", {L"what",StringUtils::stows(ex.what())});
+        ERROR(L"Unable to mark mail as read: {}", { L"what", StringUtils::stows(ex.what()) });
     }
 
     return { cpp::fail(Error::DatabaseError) };
@@ -298,7 +296,7 @@ Action<void> MailManager::SendMail(Mail& mail)
     }
     catch (const mongocxx::exception& ex)
     {
-        ERROR(L"Error while trying to send mail {0}", {L"error",  StringUtils::stows(ex.what())})
+        ERROR(L"Error while trying to send mail {0}", { L"error", StringUtils::stows(ex.what()) })
     }
 
     FLHook::GetTaskScheduler()->AddTask(std::make_shared<Task>(InformOnlineUsersOfNewMail(mailTargets)));
