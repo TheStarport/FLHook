@@ -77,7 +77,6 @@ void Logger::PrintToConsole(std::stop_token st)
                         }
                     case LogLevel::Debug:
                         {
-
                             SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongGreen));
                             break;
                         }
@@ -101,11 +100,16 @@ void Logger::PrintToConsole(std::stop_token st)
                 int i = 0;
                 for (const auto& arg : logMessage.valueMap)
                 {
-                    logMessage.message =
-                        StringUtils::ReplaceStr(logMessage.message, std::wstring_view(std::format(L"{{{}}}", i++)), std::wstring_view(std::format(L"{}:{}", arg.first, arg.second)));
+                    logMessage.message = StringUtils::ReplaceStr(
+                        logMessage.message, std::wstring_view(std::format(L"{{{}}}", i++)), std::wstring_view(std::format(L"{}:{}", arg.first, arg.second)));
                 }
 
-                std::wcout << std::format(L"{} {} {}: {}", TimeUtils::CurrentDate(), StringUtils::stows(logMessage.function), magic_enum::enum_name(logMessage.level), logMessage.message) << std::endl;
+                std::wcout << std::format(L"{} {} {}: {}",
+                                          TimeUtils::CurrentDate(),
+                                          StringUtils::stows(logMessage.function),
+                                          magic_enum::enum_name(logMessage.level),
+                                          logMessage.message)
+                           << std::endl;
 
                 // Reset
                 SetConsoleTextAttribute(consoleOutput, static_cast<WORD>(ConsoleColor::StrongWhite));
@@ -172,7 +176,7 @@ ______ _      _   _             _      _____  _____               _ _
 
 void Logger::Log(const ::Log& log)
 {
-    if (static_cast<int>(FLHook::GetConfig()->logging.minLogLevel) <= 3)
+    if (static_cast<int>(FLHook::GetConfig()->logging.minLogLevel) <= static_cast<int>(log.level))
     {
         logQueue.enqueue(log);
     }
