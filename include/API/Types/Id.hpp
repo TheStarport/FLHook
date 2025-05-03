@@ -6,7 +6,7 @@ class DLL Id
 
     public:
         explicit Id(const uint val) : value(val) {}
-        explicit Id(const std::wstring_view nickName) : value(CreateID(StringUtils::wstos(nickName).c_str())){};
+        explicit Id(const std::wstring_view nickName) : value(CreateID(StringUtils::wstos(nickName).c_str())) {};
         explicit Id(const std::string_view nickName) : value(CreateID(nickName.data())) {}
 
         Id() : value(0) {}
@@ -32,4 +32,10 @@ template <>
 struct std::hash<Id>
 {
         std::size_t operator()(const Id& id) const noexcept { return std::hash<uint>()(id.GetValue()); }
+};
+
+template <>
+struct std::less<Id>
+{
+        bool operator()(const Id& lhs, const Id& rhs) const { return lhs.GetValue() < rhs.GetValue(); }
 };

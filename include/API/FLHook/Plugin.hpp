@@ -190,8 +190,8 @@ class DLL Plugin
         virtual void OnCLootInit(CLoot* loot) {}
         virtual void OnCSolarInit(CSolar* solar) {}
         virtual void OnShipDestroy(Ship* ship, DamageList* dmgList, ShipId killerId) {}
-        virtual void OnLootDestroy(Loot* loot, bool isKill, uint killerId) {}
-        virtual void OnSolarDestroy(Solar* solar, bool isKill, uint killerId) {}
+        virtual void OnLootDestroy(Loot* loot, bool isKill, ShipId killerId) {}
+        virtual void OnSolarDestroy(Solar* solar, bool isKill, ShipId killerId) {}
         virtual void OnShipHullDmg(Ship* ship, float& damage, DamageList* dmgList) {}
         virtual void OnSolarHullDmg(Solar* solar, float& damage, DamageList* dmgList) {}
         virtual void OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList) {}

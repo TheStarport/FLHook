@@ -103,7 +103,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithNp
 
     if (found == npcTemplates.end())
     {
-        WARN(L"invalid npc nickname: {0}", {L"npcName", npcNickname})
+        WARN(L"invalid npc nickname: {0}", { L"npcName", npcNickname })
         return *this;
     }
 
@@ -152,7 +152,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithPe
     }
     else
     {
-        WARN(L"called with invalid personality {0}", {L"personality", personalityNickname})
+        WARN(L"called with invalid personality {0}", { L"personality", personalityNickname })
     }
 
     return *this;
@@ -280,7 +280,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithFu
 {
     if (fuse.lifetime < 0.0f)
     {
-       WARN(L"Called with negative lifetime.");
+        WARN(L"Called with negative lifetime.");
     }
 
     if (fuse.radius < 0.0f)
@@ -825,6 +825,24 @@ std::weak_ptr<CMine> ResourceManager::Get<CMine>(const uint id)
     return obj != cMineIdMap.end() ? obj->second : nullptr;
 }
 
+const pub::SpaceObj::ShipInfo* ResourceManager::LookupShipCreationInfo(const uint id)
+{
+    const auto params = shipCreationParams.find(id);
+    return params != shipCreationParams.end() ? &params->second : nullptr;
+}
+
+const pub::SpaceObj::SolarInfo* ResourceManager::LookupSolarCreationInfo(const uint id)
+{
+    const auto params = solarCreationParams.find(id);
+    return params != solarCreationParams.end() ? &params->second : nullptr;
+}
+
+const pub::SpaceObj::LootInfo* ResourceManager::LookupLootCreationInfo(const uint id)
+{
+    const auto params = lootCreationParams.find(id);
+    return params != lootCreationParams.end() ? &params->second : nullptr;
+}
+
 template <>
 std::weak_ptr<CSimple> ResourceManager::Get<CSimple>(const uint id)
 {
@@ -888,6 +906,10 @@ ResourceManager::ResourceManager()
 
     cObjDestrDetour = std::make_unique<FunctionDetour<DefaultNakedType>>(reinterpret_cast<DefaultNakedType>(0x62AF440));
     cObjDestrDetour->Detour(CObjDestrOrgNaked);
+
+    spaceObjCreateDetour.Detour(SpaceObjCreateDetour);
+    spaceObjCreateLootDetour.Detour(SpaceObjLootCreateDetour);
+    spaceObjCreateSolarDetour.Detour(SpaceObjSolarCreateDetour);
 
     std::array<byte, 2> patchCobjDestr = { 0xEB, 0x5F };
     MemUtils::WriteProcMem(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonCObjDestructor), patchCobjDestr.data(), patchCobjDestr.size());
@@ -1175,7 +1197,7 @@ GameObject* __stdcall ResourceManager::FindInStarList(StarSystemMock* starSystem
 __declspec(naked) void ResourceManager::FindInStarListNaked()
 {
     __asm
-    {
+        {
         push ecx
         push[esp + 0x8]
         sub ecx, 4
@@ -1183,13 +1205,13 @@ __declspec(naked) void ResourceManager::FindInStarListNaked()
         call FindInStarList
         pop ecx
         ret 0x4
-    }
+        }
 }
 
 __declspec(naked) void ResourceManager::FindInStarListNaked2()
 {
     __asm
-    {
+        {
         mov eax, [esp+0x4]
         mov edx, [eax]
          mov [esp+0x4], edx
@@ -1200,7 +1222,7 @@ __declspec(naked) void ResourceManager::FindInStarListNaked2()
         call FindInStarList
         pop ecx
         ret 0x4
-    }
+        }
 }
 
 void __stdcall ResourceManager::GameObjectDestructor(const uint id)
@@ -1281,6 +1303,36 @@ void __fastcall ResourceManager::CSimpleInit(CSimple* simple, void* edx, const C
     }
 }
 
+int ResourceManager::SpaceObjCreateDetour(unsigned int& id, const pub::SpaceObj::ShipInfo& info)
+{
+    spaceObjCreateDetour.UnDetour();
+    const auto ret = spaceObjCreateDetour.GetOriginalFunc()(id, info);
+    spaceObjCreateDetour.Detour(SpaceObjCreateDetour);
+
+    shipCreationParams[id] = info;
+    return ret;
+}
+
+int ResourceManager::SpaceObjSolarCreateDetour(unsigned int& id, const pub::SpaceObj::SolarInfo& info)
+{
+    spaceObjCreateSolarDetour.UnDetour();
+    const auto ret = spaceObjCreateSolarDetour.GetOriginalFunc()(id, info);
+    spaceObjCreateSolarDetour.Detour(SpaceObjSolarCreateDetour);
+
+    solarCreationParams[id] = info;
+    return ret;
+}
+
+int ResourceManager::SpaceObjLootCreateDetour(unsigned int& id, const pub::SpaceObj::LootInfo& info)
+{
+    spaceObjCreateLootDetour.UnDetour();
+    const auto ret = spaceObjCreateLootDetour.GetOriginalFunc()(id, info);
+    spaceObjCreateLootDetour.Detour(SpaceObjLootCreateDetour);
+
+    lootCreationParams[id] = info;
+    return ret;
+}
+
 constexpr uint CSimpleRetAddr = 0x62B5B66;
 __declspec(naked) void ResourceManager::CSimpleInitNaked()
 {
@@ -1298,38 +1350,42 @@ __declspec(naked) void ResourceManager::CSimpleInitNaked()
 
 void __fastcall ResourceManager::CObjDestr(CObject* cobj)
 {
+    const auto simpleCast = reinterpret_cast<CSimple*>(cobj);
     std::unordered_map<CObject*, CObjNode*>* cobjMap;
     switch (cobj->objectClass)
     {
         case CObject::CASTEROID_OBJECT:
-            cAsteroidIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            cAsteroidIdMap.erase(simpleCast->id);
             cobjMap = &cAsteroidMap;
             break;
         case CObject::CEQUIPMENT_OBJECT: cobjMap = &cEquipmentMap; break;
         case CObject::COBJECT_MASK: cobjMap = &cObjectMap; break;
         case CObject::CSOLAR_OBJECT:
-            cSolarIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            solarCreationParams.erase(simpleCast->id);
+            cSolarIdMap.erase(simpleCast->id);
             cobjMap = &cSolarMap;
             break;
         case CObject::CSHIP_OBJECT:
-            cShipIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            shipCreationParams.erase(simpleCast->id);
+            cShipIdMap.erase(simpleCast->id);
             cobjMap = &cShipMap;
             break;
         case CObject::CLOOT_OBJECT:
-            cLootIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            lootCreationParams.erase(simpleCast->id);
+            cLootIdMap.erase(simpleCast->id);
             cobjMap = &cLootMap;
             break;
         case CObject::CBEAM_OBJECT: cobjMap = &cBeamMap; break;
         case CObject::CGUIDED_OBJECT:
-            cGuidedIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            cGuidedIdMap.erase(simpleCast->id);
             cobjMap = &cGuidedMap;
             break;
         case CObject::CCOUNTERMEASURE_OBJECT:
-            cCmIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            cCmIdMap.erase(simpleCast->id);
             cobjMap = &cCmMap;
             break;
         case CObject::CMINE_OBJECT:
-            cMineIdMap.erase(reinterpret_cast<CSimple*>(cobj)->id);
+            cMineIdMap.erase(simpleCast->id);
             cobjMap = &cMineMap;
             break;
         default: return; // will never be hit, but shuts up the InteliSense

@@ -38,10 +38,18 @@ def post_build(release: bool, dest: str | None):
     except Exception as e:
         print(e)
 
+
 if __name__ == "__main__":
+    cwd = os.getcwd()
+    if 'build' in cwd:
+        cwd, _, _ = cwd.partition('build')
+        os.chdir(cwd)
+
     parser = ArgumentParser()
-    parser.add_argument("--dest", "-d", dest="dest", type=str, required=False, nargs='?', const='', help="Copy to another destination when done")
-    parser.add_argument("--release", "-r", dest="release", default=False, action="store_true", help="Include/Exclude files depending on release mode")
+    parser.add_argument("--dest", "-d", dest="dest", type=str, required=False, nargs='?', const='',
+                        help="Copy to another destination when done")
+    parser.add_argument("--release", "-r", dest="release", default=False, action="store_true",
+                        help="Include/Exclude files depending on release mode")
     args = parser.parse_args()
 
     post_build(args.release, args.dest)

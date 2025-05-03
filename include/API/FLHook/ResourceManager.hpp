@@ -15,6 +15,13 @@ class DLL ResourceManager final
         inline static std::unique_ptr<FunctionDetour<CObjAllocatorType>> cObjAllocatorDetour;
         inline static std::unique_ptr<FunctionDetour<DefaultNakedType>> findStarListNaked2;
 
+        using SpaceObjCreateType = int (*)(unsigned int& id, const pub::SpaceObj::ShipInfo& info);
+        using SpaceObjSolarCreateType = int (*)(unsigned int& id, const pub::SpaceObj::SolarInfo& info);
+        using SpaceObjLootCreateType = int (*)(unsigned int& id, const pub::SpaceObj::LootInfo& info);
+        inline static FunctionDetour<SpaceObjCreateType> spaceObjCreateDetour{ pub::SpaceObj::Create };
+        inline static FunctionDetour<SpaceObjSolarCreateType> spaceObjCreateSolarDetour{ pub::SpaceObj::CreateSolar };
+        inline static FunctionDetour<SpaceObjLootCreateType> spaceObjCreateLootDetour{ pub::SpaceObj::CreateLoot };
+
         struct StarSystemMock
         {
                 uint systemId;
@@ -79,6 +86,10 @@ class DLL ResourceManager final
         inline static std::unordered_map<uint, iobjCache> cacheSolarIObjs;
         inline static std::unordered_map<uint, iobjCache> cacheNonsolarIObjs;
 
+        inline static std::unordered_map<uint, pub::SpaceObj::ShipInfo> shipCreationParams;
+        inline static std::unordered_map<uint, pub::SpaceObj::SolarInfo> solarCreationParams;
+        inline static std::unordered_map<uint, pub::SpaceObj::LootInfo> lootCreationParams;
+
         static GameObject* FindNonSolar(StarSystemMock* starSystem, uint searchedId);
         static GameObject* FindSolar(StarSystemMock* starSystem, uint searchedId);
         static GameObject* __stdcall FindInStarList(StarSystemMock* starSystem, uint searchedId);
@@ -92,6 +103,9 @@ class DLL ResourceManager final
         static CObject* CObjAllocDetour(CObject::Class objClass);
         static void __fastcall CObjDestr(CObject* cobj);
         static void __fastcall CSimpleInit(CSimple* casteroid, void* edx, const CSimple::CreateParms& param);
+        static int SpaceObjCreateDetour(unsigned int& id, const pub::SpaceObj::ShipInfo& info);
+        static int SpaceObjSolarCreateDetour(unsigned int& id, const pub::SpaceObj::SolarInfo& info);
+        static int SpaceObjLootCreateDetour(unsigned int& id, const pub::SpaceObj::LootInfo& info);
 
         friend IEngineHook;
 
@@ -381,7 +395,7 @@ class DLL ResourceManager final
                 std::weak_ptr<CShip> SpawnNpc();
                 std::weak_ptr<CSolar> SpawnSolar();
                 bool ValidateSpawn() const;
-                explicit SpaceObjectBuilder(ResourceManager& resourceManager) : resourceManager(resourceManager){};
+                explicit SpaceObjectBuilder(ResourceManager& resourceManager) : resourceManager(resourceManager) {};
         };
 
         ResourceManager();
@@ -434,4 +448,8 @@ class DLL ResourceManager final
 
         template <>
         std::weak_ptr<CMine> Get(uint id);
+
+        static const pub::SpaceObj::ShipInfo* LookupShipCreationInfo(uint id);
+        static const pub::SpaceObj::SolarInfo* LookupSolarCreationInfo(uint id);
+        static const pub::SpaceObj::LootInfo* LookupLootCreationInfo(uint id);
 };

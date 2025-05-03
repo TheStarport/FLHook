@@ -114,22 +114,22 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, bool i
     static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(ship, isKill, killerId.GetValue());
 }
 
-void __fastcall IEngineHook::LootDestroy(Loot* loot, void* edx, bool isKill, uint killerId)
+void __fastcall IEngineHook::LootDestroy(Loot* loot, void* edx, bool isKill, Id killerId)
 {
-    CallPlugins(&Plugin::OnLootDestroy, loot, isKill, killerId);
+    CallPlugins(&Plugin::OnLootDestroy, loot, isKill, killerId.AsShip());
 
     using ILootDestroyType = void(__thiscall*)(Loot*, bool, uint);
-    static_cast<ILootDestroyType>(iLootVTable.GetOriginal(static_cast<ushort>(ILootInspectVTable::ObjectDestroyed)))(loot, isKill, killerId);
+    static_cast<ILootDestroyType>(iLootVTable.GetOriginal(static_cast<ushort>(ILootInspectVTable::ObjectDestroyed)))(loot, isKill, killerId.GetValue());
 }
 
-void __fastcall IEngineHook::SolarDestroy(Solar* solar, void* edx, bool isKill, uint killerId)
+void __fastcall IEngineHook::SolarDestroy(Solar* solar, void* edx, bool isKill, Id killerId)
 {
-    CallPlugins(&Plugin::OnSolarDestroy, solar, isKill, killerId);
+    CallPlugins(&Plugin::OnSolarDestroy, solar, isKill, killerId.AsShip());
 
     FLHook::GetResourceManager()->OnSolarDestroyed(solar);
 
     using ISolarDestroyType = void(__thiscall*)(Solar*, bool, uint);
-    static_cast<ISolarDestroyType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::ObjectDestroyed)))(solar, isKill, killerId);
+    static_cast<ISolarDestroyType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::ObjectDestroyed)))(solar, isKill, killerId.GetValue());
 }
 
 void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, ClientId clientVictim, ClientId clientKiller)

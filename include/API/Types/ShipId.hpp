@@ -12,8 +12,6 @@ class DLL ShipId final : public ObjectId
         ShipId() = default;
         bool operator==(const ShipId& next) const;
 
-        ~ShipId() = default;
-
         [[nodiscard]]
         Action<const Archetype::Ship*> GetShipArchetype() const;
 
@@ -78,7 +76,8 @@ class DLL ShipId final : public ObjectId
 
         Action<void> IgniteFuse(uint fuseId, float id = 0.0f) const;
         Action<void> ExtinguishFuse(uint fuseId, float id = 0.0f) const;
-        [[nodiscard]] Action<CEquipManager*> GetEquipmentManager() const;
+        [[nodiscard]]
+        Action<CEquipManager*> GetEquipmentManager() const;
 };
 
 template <>

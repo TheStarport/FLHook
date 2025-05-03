@@ -47,8 +47,8 @@ class IEngineHook
 #undef VTablePtr
 
         static void __fastcall ShipDestroy(Ship* ship, DamageList* dmgList, bool isKill, Id killerId);
-        static void __fastcall LootDestroy(Loot* loot, void* edx, bool isKill, uint killerId);
-        static void __fastcall SolarDestroy(Solar* solar, void* edx, bool isKill, uint killerId);
+        static void __fastcall LootDestroy(Loot* loot, void* edx, bool isKill, Id killerId);
+        static void __fastcall SolarDestroy(Solar* solar, void* edx, bool isKill, Id killerId);
 
         static void __fastcall ShipHullDamage(Ship* ship, void* edx, float damage, DamageList* dmgList);
         static void __fastcall SolarHullDamage(Solar* ship, void* edx, float damage, DamageList* dmgList);
