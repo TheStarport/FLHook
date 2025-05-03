@@ -13,7 +13,12 @@
  */
 class Random
 {
-        #define Init if (!init) { engine = std::mt19937(std::random_device{}()); init = true; }
+#define Init                                           \
+    if (!init)                                         \
+    {                                                  \
+        engine = std::mt19937(std::random_device{}()); \
+        init = true;                                   \
+    }
 
         inline static std::mt19937 engine;
         inline static bool init = false;
@@ -60,6 +65,21 @@ class Random
             Init;
 
             return std::discrete_distribution<>(start, end)(engine);
+        }
+
+        template <typename C>
+            requires requires(C c) {
+                { c.begin() } -> std::random_access_iterator;
+                { c.end() } -> std::random_access_iterator;
+            }
+        static typename C::value_type Item(C container)
+        {
+            if (container.empty())
+            {
+                throw std::runtime_error("Container is empty");
+            }
+
+            return container[Uniform(0u, container.size() - 1u)];
         }
 };
 
