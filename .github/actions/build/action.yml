@@ -1,0 +1,40 @@
+name: "Build FLHook Modules"
+author: laz
+description: "Composite action for building FLHook and all of its plugins"
+runs:
+  using: composite
+  steps:
+    - name: setup-msbuild
+      uses: microsoft/setup-msbuild@v1.1
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+
+    - name: "Install Pip Packages"
+      shell: powershell
+      run: pip install -r requirements.txt
+
+    - name: "Restore Conan Cache"
+      id: dependency-conan
+      uses: actions/cache@v4
+      with:
+        path: ~/.conan2
+        key: dependency-conan
+
+    - uses: ilammy/msvc-dev-cmd@v1.13.0
+      with:
+        arch: x86
+
+    - name: "Install Dependencies via Python"
+      run: python cli.py dependencies
+      shell: powershell
+
+    - name: "Build the project"
+      run: python cli.py build --no-post-build --release
+      shell: powershell
+
+    - name: "Run post build via Python"
+      run: python scripts/post_build.py --release --dest dist
+      shell: powershell

@@ -1,55 +1,47 @@
-from shutil import copy2
-from pathlib import Path
+from glob import glob
+from shutil import copy2, copytree, rmtree, make_archive
 import os
-import sys
 from argparse import ArgumentParser, ArgumentError
 
-copied_files = []
-bin_dir = None
 
-if __name__ != "__main__":
-    raise NotImplementedError("This file should not be imported")
+def post_build(release: bool, dest: str | None):
+    # noinspection PyBroadException
+    try:
+        if not os.path.isdir('./build'):
+            print('Build directory not present. Run the build first.')
+            return
 
-parser = ArgumentParser()
-parser.add_argument("--bin-dir", "-o", dest="bin", type=str, required=True)
-parser.add_argument("--dest", "-d", dest="dest", type=str, required=True, nargs='?', const='')
-parser.add_argument("--release", "-r", dest="release", action="store_true")
-args = parser.parse_args()
+        if os.path.isdir('./dist'):
+            rmtree('./dist')
 
-if not os.path.isdir(args.dest):
-    print("Destination copy path not set or is not directory, not copying binaries")
-    sys.exit(0)
+        os.makedirs('./dist/plugins', exist_ok=True)
 
-if not os.path.isdir(args.bin):
-    raise ArgumentError(argument=args.bin, message="Provided Bin Directory was not a valid directory")
+        # Dll Files
+        result = [y for x in os.walk('./build') for y in glob(os.path.join(x[0], '*.dll'))]
+        for dll in result:
+            if (release and 'Debug' in dll) or (not release and 'Release' in dll):
+                continue
 
+            dist = './dist/' if 'plugin' not in dll else './dist/plugins/'
+            copy2(dll, dist)
+            print(f'copied {dll} to {dist}')
 
-def process_folder(files, destination):
-    for src in files:
-        # Skip build dependencies that don't have the same build type
-        if ('debug' in src.lower() and args.release) or ('release' in src.lower() and not args.release):
-            continue
+        print('Zipping up dist folder to build.zip')
+        make_archive('build', 'zip', './dist')
 
-        # Don't copy the same file multiple times
-        file_name = Path(src).stem
-        if file_name in copied_files:
-            continue
+        if dest:
+            print('Copying to end dest: ' + dest)
+            if not dest.endswith(os.path.sep):
+                dest += os.path.sep
 
-        source_path = str(os.path.join(args.bin, src))
-        print("Copying {0} to {1}".format(src, destination))
-        if os.path.isdir(source_path):
-            out_dir = os.path.join(destination, file_name)
-            if not os.path.exists(out_dir):
-                os.mkdir(out_dir)
+            copytree('./dist', dest, dirs_exist_ok=True)
+    except Exception as e:
+        print(e)
 
-            process_folder([os.path.join(source_path, d) for d in os.listdir(source_path)], out_dir)
-        else:
-            copy2(source_path, destination)
-            copied_files.append(file_name)
+if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("--dest", "-d", dest="dest", type=str, required=False, nargs='?', const='', help="Copy to another destination when done")
+    parser.add_argument("--release", "-r", dest="release", default=False, action="store_true", help="Include/Exclude files depending on release mode")
+    args = parser.parse_args()
 
-
-print("Copying files from {0} to {1}".format(args.bin, args.dest))
-try:
-    process_folder([os.path.join(args.bin, d) for d in os.listdir(args.bin)], args.dest)
-except:
-    pass
+    post_build(args.release, args.dest)

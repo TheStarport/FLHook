@@ -37,7 +37,7 @@
 **/*.cmake
 **/CMakeFiles/**
 **/reflect-cpp-tests
-**/build/**
+/build/**
 **/build_clang/**
 CMakePresets.json
 
@@ -47,8 +47,6 @@ CMakePresets.json
 *.json
 *.fb
 *.xml
-*.yml
-*.yaml
 
 # IDE Files
 *.iml
@@ -56,8 +54,11 @@ CMakePresets.json
 **/.vs/
 .idea/
 .venv/
+__pycache__/
 
 # Docs
 docs/_build/
 
 build.conf
+dist/
+build.zip

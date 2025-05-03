@@ -1,0 +1,99 @@
+name: Nightly Release
+on:
+  # This can be used to automatically publish nightlies at UTC nighttime
+  schedule:
+    - cron: '0 3 * * *' # run at 3 AM UTC
+  # This can be used to allow manually triggering nightlies from the web interface
+  workflow_dispatch:
+    inputs:
+      release_name:
+        description: 'The release name for this release. If nightly specified, will overwrite the nightly release.'
+        type: string
+        required: true
+        default: "nightly"
+      version:
+        description: 'The version number to give to a named release. Defaults to the current date if not specified.'
+        type: string
+        required: false
+        default: ''
+
+
+jobs:
+  date-check:
+    runs-on: ubuntu-latest
+    name: Check latest commit
+    outputs:
+      date: ${{ steps.current_date.outputs.date }}
+      should_run: ${{ steps.should_run.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: print latest_commit
+        run: echo ${{ github.sha }}
+
+      - id: should_run
+        continue-on-error: true
+        name: check latest commit is less than a day
+        if: ${{ github.event_name == 'schedule' }}
+        run: test -z $(git rev-list  --after="24 hours"  ${{ github.sha }}) && echo "::set-output name=should_run::false"
+
+      - id: current_date
+        name: 'Get Current Date'
+        shell: bash
+        run: echo "date=$(date +'%Y-%m-%d-%H-%M')" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: date-check
+    if: ${{ needs.date-check.outputs.should_run != 'false' }}
+    runs-on: windows-latest
+    steps:
+      # Clone this repo
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: 'recursive'
+      # Build the modules
+      - name: "Build FLHook"
+        id: "build"
+        uses: "./.github/actions/build"
+
+      - name: Publish Nightly Release
+        id: create_release
+        if: ${{ !inputs.release_name || inputs.release_name == 'nightly' }}
+        uses: viperproject/create-nightly-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag_name: 'nightly-${{ needs.date-check.outputs.date }}'
+          release_name: Nightly Release
+          body: 'This build is automatically generated from the latest commit every night (3 AM UTC). No build will be generated if no commit happens in a day.'
+          keep_num: 0
+          keep_tags: false
+
+      - name: Add build.zip to Nightly Release
+        uses: WebFreak001/deploy-nightly@v3.1.0
+        id: 'publish_nightly'
+        if: steps.create_release.outcome == 'success'
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          release_id: ${{ steps.create_release.outputs.id }}
+          asset_path: ./build.zip
+          asset_name: FLHook Nightly.zip
+          asset_content_type: application/zip
+          max_releases: 1
+
+      - name: "Publish Named Release"
+        id: 'publish_named'
+        if: ${{ inputs.release_name && inputs.release_name != 'nightly' }}
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "${{ github.workspace }}/build.zip"
+          name: '${{ inputs.release_name }}'
+          body: 'Changelog: https://github.com/TheStarport/FLHook/blob/master/CHANGELOG.md'
+          tag: ${{ inputs.version != '' && inputs.version || needs.date-check.outputs.date }}
+
+      - name: "Validate Successful Publish"
+        if: ${{ !(steps.publish_named.outcome == 'success' || steps.publish_nightly.outcome == 'success') }}
+        shell: bash
+        run: |
+          echo "Neither publish step was successful, reporting error."
+          exit 1

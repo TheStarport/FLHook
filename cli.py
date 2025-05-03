@@ -4,6 +4,8 @@ import click
 import shutil
 import os
 
+from scripts.post_build import post_build
+
 
 def is_windows():
     return platform.system() == "Windows" or os.getenv("GITHUB_ACTIONS") is not None
@@ -54,6 +56,12 @@ def cli():
     pass
 
 
+@cli.command(name='post_build', short_help='Create a build zip of all the build artefacts, and optionally copying them elsewhere')
+@click.option("-r", "--release", is_flag=True, help="Build in release mode")
+@click.option("-d", "--dest", default=None, type=str, help="Copy to another destination when done")
+def _post_build(release: bool, dest: str | None):
+    post_build(release, dest)
+
 @cli.command(short_help='Install and build dependencies via conan')
 def configure():
     default_profile = run("conan profile path default", allow_error=True)
@@ -61,8 +69,8 @@ def configure():
         run("conan profile detect")
 
     host = 'windows' if is_windows() else 'linux'
-    run(f"conan install . -s build_type=Debug --build missing -pr:b=default -pr:h=./profiles/{host}")
-    run(f"conan install . -s build_type=Release --build missing -pr:b=default -pr:h=./profiles/{host}")
+    run(f"conan install . --lockfile-out=conan.lock -s build_type=Debug --build missing -pr:b=default -pr:h=./profiles/{host}")
+    run(f"conan install . --lockfile-out=conan.lock -s build_type=Release --build missing -pr:b=default -pr:h=./profiles/{host}")
 
 
 @cli.command(short_help='Runs a first-time build, downloading any needed dependencies, and generating preset files.')
