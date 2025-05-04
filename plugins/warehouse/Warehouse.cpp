@@ -11,15 +11,15 @@ namespace Plugins
     using bsoncxx::builder::basic::make_array;
     using bsoncxx::builder::basic::make_document;
 
-#define VALIDATE_ACCOUNT                                                                                   \
-    if (const auto error = account.error(); error.has_value())                                             \
-    {                                                                                                      \
-        ERROR(L"Error when accessing database: {0}", {L"Error", StringUtils::stows(error->what())}); \
-        if (client && client.GetData().account->_id == accountId)                                          \
-        {                                                                                                  \
-            (void)client.Message(L"Something went wrong while accessing the data. Please try again.");     \
-        }                                                                                                  \
-        co_return TaskStatus::Finished;                                                                    \
+#define VALIDATE_ACCOUNT                                                                                        \
+    if (!account)                                                                                               \
+    {                                                                                                           \
+        ERROR(L"Error when accessing database: {0}", { L"Error", StringUtils::stows(account.error().what()) }); \
+        if (client && client.GetData().account->_id == accountId)                                               \
+        {                                                                                                       \
+            (void)client.Message(L"Something went wrong while accessing the data. Please try again.");          \
+        }                                                                                                       \
+        co_return TaskStatus::Finished;                                                                         \
     }
 
     WarehousePlugin::WarehousePlugin(const PluginInfo& info) : Plugin(info) {}
@@ -260,7 +260,7 @@ namespace Plugins
                     else if (currentCount == requestedAmount)
                     {
                         account.value().baseEquipmentMap[currBase].erase(equipId);
-                        if(account.value().baseEquipmentMap[currBase].empty())
+                        if (account.value().baseEquipmentMap[currBase].empty())
                         {
                             account.value().baseEquipmentMap.erase(currBase);
                         }
@@ -330,7 +330,7 @@ namespace Plugins
             else if (currentCount == requestedAmount)
             {
                 account.value().baseEquipmentMap[currBase].erase(equipId);
-                if(account.value().baseEquipmentMap[currBase].empty())
+                if (account.value().baseEquipmentMap[currBase].empty())
                 {
                     account.value().baseEquipmentMap.erase(currBase);
                 }

@@ -221,7 +221,7 @@ namespace Json
                         "Failed to read JSON",                                                                                                          \
                         MB_OKCANCEL) == IDOK)                                                                                                           \
         {                                                                                                                                               \
-            Json::Save(lootTables, "config");                                                                                                           \
+            Json::Save(config, path);                                                                                                           \
         }                                                                                                                                               \
         else                                                                                                                                            \
         {                                                                                                                                               \
