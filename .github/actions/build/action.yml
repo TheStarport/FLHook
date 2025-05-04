@@ -27,14 +27,10 @@ runs:
       with:
         arch: x86
 
-    - name: "Install Dependencies via Python"
-      run: python cli.py dependencies
-      shell: powershell
-
     - name: "Build the project"
       run: python cli.py build --no-post-build --release
       shell: powershell
 
     - name: "Run post build via Python"
-      run: python scripts/post_build.py --release --dest dist
+      run: python cli.py post_build --release --dest dist
       shell: powershell
