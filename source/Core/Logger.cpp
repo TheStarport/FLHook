@@ -106,8 +106,8 @@ void Logger::PrintToConsole(std::stop_token st)
 
                 std::wcout << std::format(L"{} {} {}: {}",
                                           TimeUtils::CurrentDate(),
-                                          StringUtils::stows(logMessage.function),
                                           magic_enum::enum_name(logMessage.level),
+                                          StringUtils::stows(logMessage.function),
                                           logMessage.message)
                            << std::endl;
 
