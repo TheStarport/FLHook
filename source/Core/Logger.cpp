@@ -29,24 +29,12 @@ void Logger::GetConsoleInput(std::stop_token st)
 {
     while (!st.stop_requested())
     {
-        DWORD bytesRead;
         std::wstring cmd;
-        cmd.resize(1024);
-        if (ReadConsole(consoleInput, cmd.data(), cmd.size(), &bytesRead, nullptr))
-        {
-            if (cmd[cmd.length() - 1] == '\n')
-            {
-                cmd = cmd.substr(0, cmd.length() - 1);
-            }
-            if (cmd[cmd.length() - 1] == '\r')
-            {
-                cmd = cmd.substr(0, cmd.length() - 1);
-            }
+        std::getline(std::wcin >> std::ws, cmd);
 
-            if (!cmd.empty())
-            {
-                commandQueue.enqueue(cmd);
-            }
+        if (!cmd.empty())
+        {
+            commandQueue.enqueue(cmd);
         }
 
         std::this_thread::sleep_for(1s);
