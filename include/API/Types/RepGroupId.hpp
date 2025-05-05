@@ -12,11 +12,11 @@ class DLL RepGroupId final
 
         explicit RepGroupId() = default;
         ~RepGroupId() = default;
-        RepGroupId(const RepGroupId& value) : value(value.value){}
+        RepGroupId(const RepGroupId& value) : value(value.value) {}
 
         explicit operator uint() const noexcept { return value; }
         bool operator==(const RepGroupId& next) const { return value == next.value; }
-        explicit operator bool() const { return value; };
+        explicit operator bool() const;
 
         uint GetValue() const { return value; }
 
@@ -35,5 +35,5 @@ struct std::formatter<RepGroupId, wchar_t>
 template <>
 struct std::hash<RepGroupId>
 {
-    std::size_t operator()(const RepGroupId &id) const noexcept { return std::hash<uint>()(id.GetValue()); }
+        std::size_t operator()(const RepGroupId& id) const noexcept { return std::hash<uint>()(id.GetValue()); }
 };

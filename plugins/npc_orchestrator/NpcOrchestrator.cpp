@@ -14,7 +14,7 @@ namespace Plugins
         auto resourceManager = FLHook::GetResourceManager();
         resourceManager->NewBuilder()
             .WithNpc(L"MSN01a_Liberty_Rogue")
-            .WithSystem(client.GetSystemId().Handle().GetValue())
+            .WithSystem(client.GetSystemId().Handle())
             .WithPosition(client.GetShip().Handle().GetPositionAndOrientation().Handle().first)
             .Spawn();
 

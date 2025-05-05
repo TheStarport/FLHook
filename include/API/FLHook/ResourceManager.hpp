@@ -245,7 +245,7 @@ class DLL ResourceManager final
                  * @brief Specify the hash of the system to be spawned into.
                  * @param systemHash The system hash. Will be validated on spawn.
                  */
-                SpaceObjectBuilder& WithSystem(uint systemHash);
+                SpaceObjectBuilder& WithSystem(SystemId systemHash);
 
                 /**
                  * @brief Specify the nickname of the system to be spawned into.
@@ -304,13 +304,13 @@ class DLL ResourceManager final
                  * @brief Specify the affiliation that the NPC/Solar should be spawned with
                  * @param affiliation The rep group id that should be used.
                  */
-                SpaceObjectBuilder& WithReputation(uint affiliation);
+                SpaceObjectBuilder& WithReputation(RepGroupId affiliation);
 
                 /**
                  * @brief Specify that the spawned solar should have a dock target
                  * @param base The hash of the base that should be a dock target for the spawned solar
                  */
-                SpaceObjectBuilder& WithDockTo(uint base);
+                SpaceObjectBuilder& WithDockTo(BaseId base);
 
                 /**
                  * @brief Indicates that a certain fuse should be played when the ship is spawned.
@@ -376,7 +376,6 @@ class DLL ResourceManager final
                 std::optional<float> positionVariance{};
                 std::optional<uint> system{};
                 std::optional<float> health{};
-                std::optional<std::wstring> reputation{};
                 std::optional<uint> affiliation{};
                 std::optional<std::pair<uint, uint>> name{};
                 std::optional<uint> dockTo{};

@@ -148,7 +148,7 @@ namespace Plugins
         //.WithLoadout(common.loadout.GetValue())
         //.WithReputation(common.iff.GetValue())
         //.WithPersonality(common.pilot)
-        .WithSystem(system.GetValue())
+        .WithSystem(system)
         .WithPosition(position)
         .WithRotation(orientation);
         // clang-format on
@@ -184,18 +184,18 @@ namespace Plugins
 
         else
         {
-            //builder.WithDockTo(solar->base.GetValue());
+            // builder.WithDockTo(solar->base.GetValue());
             builder.AsSolar();
         }
         // TODO: Store spawned object and keep track of it
         auto object = builder.Spawn();
         if (object.expired())
         {
-            //Logger::Warn(std::format(L"Could not spawn object '{}' in '{}' ({})", common.name, system.GetName().Unwrap(), system.GetValue()));
+            // Logger::Warn(std::format(L"Could not spawn object '{}' in '{}' ({})", common.name, system.GetName().Unwrap(), system.GetValue()));
         }
         else
         {
-            //Logger::Debug(std::format(L"Spawned '{}' at {}, {}, {} in '{}'", common.name, position.x, position.y, position.z, system.GetName().Handle()));
+            // Logger::Debug(std::format(L"Spawned '{}' at {}, {}, {} in '{}'", common.name, position.x, position.y, position.z, system.GetName().Handle()));
         }
     }
 
@@ -206,26 +206,26 @@ namespace Plugins
             return;
         }
 
-        //for (auto& spawn : scheduledSpawns)
+        // for (auto& spawn : scheduledSpawns)
         //{
-        //    if (!spawn.spawnOnStart)
-        //    {
-        //        continue;
-        //    }
-        //    auto variant = spawn.object.value();
-        //    if (variant.index() == 2)
-        //    {
-        //        // TODO: Formation
-        //    }
-        //    else if (variant.index() == 1)
-        //    {
-        //        // TODO: Solar
-        //    }
-        //    else
-        //    {
-        //        SpawnObject(rfl::get<Npc*>(variant), SystemId(L"li01"), { -32977.f, 0.f, -27417.f });
-        //    }
-//
+        //     if (!spawn.spawnOnStart)
+        //     {
+        //         continue;
+        //     }
+        //     auto variant = spawn.object.value();
+        //     if (variant.index() == 2)
+        //     {
+        //         // TODO: Formation
+        //     }
+        //     else if (variant.index() == 1)
+        //     {
+        //         // TODO: Solar
+        //     }
+        //     else
+        //     {
+        //         SpawnObject(rfl::get<Npc*>(variant), SystemId(L"li01"), { -32977.f, 0.f, -27417.f });
+        //     }
+        //
         //    firstRun = false;
         //}
     }

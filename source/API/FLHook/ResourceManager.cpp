@@ -192,11 +192,11 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRo
     return *this;
 }
 
-ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithSystem(uint systemHash)
+ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithSystem(SystemId systemHash)
 {
-    if (Universe::get_system(systemHash))
+    if (systemHash)
     {
-        system = systemHash;
+        system = systemHash.GetValue();
     }
     else
     {
@@ -258,21 +258,15 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithNa
     return *this;
 }
 
-ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithReputation(const std::wstring& rep)
+ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithReputation(RepGroupId affiliation)
 {
-    reputation = rep;
+    this->affiliation = affiliation.GetValue();
     return *this;
 }
 
-ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithReputation(uint affiliation)
+ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithDockTo(BaseId base)
 {
-    this->affiliation = affiliation;
-    return *this;
-}
-
-ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithDockTo(uint base)
-{
-    dockTo = base;
+    dockTo = base.GetValue();
     return *this;
 }
 
@@ -306,7 +300,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRa
 {
     auto& repGroups = GameData::repGroups;
 
-    std::wstring rep;
+    std::string rep;
     while (rep.empty())
     {
         const uint randomGroupIndex = Random::Uniform(0u, repGroups.size() - 1);
@@ -317,7 +311,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRa
             {
                 if (!excludeStoryFactions || std::ranges::find(GameData::storyFactions, listItem.key()) == GameData::storyFactions.end())
                 {
-                    rep = StringUtils::stows(std::string_view(listItem.value()->name));
+                    rep = std::string(listItem.value()->name);
                 }
 
                 break;
@@ -325,8 +319,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRa
         }
     }
 
-    reputation = rep;
-
+    affiliation = MakeId(rep.c_str());
     return *this;
 }
 
@@ -566,18 +559,10 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
     personalityParams.stateId = true;
 
     pub::Reputation::Alloc(si.rep, scannerName, pilotName);
+
     if (affiliation.has_value())
     {
         pub::Reputation::SetAffiliation(si.rep, affiliation.value());
-    }
-    else if (reputation.has_value())
-    {
-        uint r;
-        pub::Reputation::GetReputationGroup(r, StringUtils::wstos(reputation.value()).c_str());
-        if (r)
-        {
-            pub::Reputation::SetAffiliation(si.rep, r);
-        }
     }
 
     uint spaceObj = 0;
@@ -608,20 +593,20 @@ std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
     const auto solarArch = Archetype::GetSolar(npcTemplate.archetypeHash);
 
     pub::SpaceObj::SolarInfo si{};
+    std::memset(&si, 0, sizeof(si));
+
     si.flag = 4;
 
     // Prepare the settings for the space object
     si.archId = npcTemplate.archetypeHash;
     si.loadoutId = npcTemplate.loadoutHash;
-    si.hitPointsLeft = 1000;
+    si.hitPointsLeft = -1;
     si.systemId = system.value();
     si.orientation = rotation.value_or(Matrix::Identity());
 
     si.costume =
         costumeOverride.value_or(Costume(CreateID("benchmark_male_head"), CreateID("benchmark_male_body"))); // NOLINT(clang-diagnostic-c++20-extensions)
     si.voiceId = voiceOverride.value_or(CreateID("atc_leg_m01"));
-
-    si.rep = MakeId(StringUtils::wstos(reputation.value_or(L"")).c_str());
 
     auto nickname = Random::UniformString<std::string>(32);
     strncpy_s(si.nickName, sizeof(si.nickName), nickname.c_str(), nickname.size());
@@ -637,34 +622,24 @@ std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
 
     si.dockWith = dockTo.value_or(0);
 
-    // Define the string used for the scanner name.
-    // Because this is empty, the solar_name will be used instead.
-    FmtStr scannerName(0, nullptr);
-    scannerName.begin_mad_lib(0);
-    scannerName.end_mad_lib();
-
     // Define the string used for the solar name.
     FmtStr solarName(0, nullptr);
-    solarName.begin_mad_lib(16163); // ids of "%s0 %s1"
+
     if (name.has_value())
     {
         auto [firstName, secondName] = name.value();
-        solarName.append_string(firstName);
-        if (secondName != 0)
-        {
-            solarName.append_string(secondName);
-        }
+        solarName.begin_mad_lib(firstName); // ids of "%s0 %s1"
+        solarName.end_mad_lib();
     }
-    solarName.end_mad_lib();
+
+    FmtStr scannerName = solarName;
 
     // Set Reputation
     pub::Reputation::Alloc(si.rep, scannerName, solarName);
 
-    if (reputation.has_value())
+    if (affiliation.has_value())
     {
-        uint r;
-        pub::Reputation::GetReputationGroup(r, StringUtils::wstos(reputation.value()).c_str());
-        pub::Reputation::SetAffiliation(si.rep, r);
+        pub::Reputation::SetAffiliation(si.rep, affiliation.value());
     }
 
     // prevent the game from sending the solar creation packet (we need to do it ourselves)

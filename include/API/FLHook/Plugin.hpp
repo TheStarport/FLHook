@@ -222,7 +222,7 @@ class DLL Plugin
         Aft(void, OnSetTarget, (ClientId client, const XSetTarget& target));
         Aft(void, OnTradelaneStart, (ClientId client, const XGoTradelane& tradelane));
         Aft(void, OnTradelaneStop, (ClientId client, const ShipId& ship, const ObjectId& tradelaneRing1, const ObjectId& tradelaneRing2));
-        Aft(bool, OnServerStartup, (const SStartupInfo& info));
+        Aft(bool, OnServerStartup, ());
         virtual void OnServerShutdown() {}
         Aft(int, OnServerUpdate, ());
         Aft(void, OnLogin, (ClientId client, const SLoginInfo& li));

@@ -7,6 +7,12 @@
 
 RepGroupId::RepGroupId(std::wstring_view nickName) { pub::Reputation::GetReputationGroup(value, StringUtils::wstos(std::wstring(nickName)).c_str()); }
 
+RepGroupId::operator bool() const
+{
+    uint ids;
+    return static_cast<ResponseCode>(pub::Reputation::GetShortGroupName(value, ids)) == ResponseCode::Success;
+}
+
 Action<std::wstring_view> RepGroupId::GetName() const
 {
     uint ids;
