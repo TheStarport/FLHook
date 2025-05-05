@@ -183,7 +183,7 @@ Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view character
 
 Task AdminCommandProcessor::AddCash(ClientId client, std::wstring_view characterNameView, int amount)
 {
-    if(amount == 0)
+    if (amount == 0)
     {
         client.Message(L"Invalid cash amount provided");
         co_return TaskStatus::Finished;
@@ -651,15 +651,6 @@ Task AdminCommandProcessor::ReloadPlugin(ClientId client, std::vector<std::wstri
 
 Task AdminCommandProcessor::ListPlugins(ClientId client)
 {
-    auto builder = FLHook::GetResourceManager()->NewBuilder();
-    builder.WithNpc(L"fc_c_co_fighter_d8")
-        .WithReputation(L"fc_x_grp")
-        .WithLevel(90)
-        .WithRandomName()
-        .WithPosition(client.GetShip().Handle().GetPositionAndOrientation().Handle().first)
-        .WithSystem(client.GetSystemId().Handle().GetValue())
-        .Spawn();
-
     if (PluginManager::i()->plugins.empty())
     {
         client.Message(L"No plugins are loaded");

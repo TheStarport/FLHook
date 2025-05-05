@@ -154,11 +154,10 @@ void FLHook::InitHookExports()
 
     ptr = &IEngineHook::CLootInit;
     IEngineHook::cLootVTable.Hook(VTablePtr(CLootVTable::InitCLoot), &ptr);
+
     ptr = &IEngineHook::LootDestroy;
     IEngineHook::iLootVTable.Hook(VTablePtr(ILootInspectVTable::ObjectDestroyed), &ptr);
 
-    ptr = &IEngineHook::CSolarInit;
-    IEngineHook::cSolarVtable.Hook(VTablePtr(CSolarVTable::InitializeInstance), &ptr);
     ptr = &IEngineHook::SolarDestroy;
     IEngineHook::iSolarVTable.Hook(VTablePtr(ISolarInspectVTable::ObjectDestroyed), &ptr);
 

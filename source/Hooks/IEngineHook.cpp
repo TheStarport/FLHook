@@ -110,13 +110,6 @@ void __fastcall IEngineHook::CLootInit(CLoot* loot, void* edx, CLoot::CreateParm
 
     CallPlugins(&Plugin::OnCLootInit, loot);
 }
-void __fastcall IEngineHook::CSolarInit(CSolar* solar, void* edx, CSolar::CreateParms* createParms)
-{
-    using CSolarInitType = void(__thiscall*)(CSolar*, CSolar::CreateParms*);
-    static_cast<CSolarInitType>(cSolarVtable.GetOriginal(static_cast<ushort>(CSolarVTable::LinkShields)))(solar, createParms);
-
-    CallPlugins(&Plugin::OnCSolarInit, solar);
-}
 
 IEngineHook::LaunchPositionAssembly::LaunchPositionAssembly()
 {

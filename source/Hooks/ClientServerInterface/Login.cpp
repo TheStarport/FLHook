@@ -103,7 +103,15 @@ void IServerImplHook::DelayedLogin(const SLoginInfo& li, ClientId client)
 
 void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
 {
-    TRACE(L"{0}", {L"ClientId", std::to_wstring(client.GetValue())})
+    static bool firstLogin = true;
+    if (firstLogin)
+    {
+        // Only call StartupAfter on first login as the only time we can guarantee everything is fully initalised
+        CallPlugins(&Plugin::OnServerStartupAfter);
+        firstLogin = false;
+    }
+
+    TRACE(L"{0}", { L"ClientId", std::to_wstring(client.GetValue()) })
 
     if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip)
     {

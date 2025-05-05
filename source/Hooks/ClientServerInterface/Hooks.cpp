@@ -182,7 +182,7 @@ bool __stdcall IServerImplHook::Startup(SStartupInfo& si)
 {
     StartupInner(si);
 
-    auto [retVal, skip] = CallPlugins<bool>(&Plugin::OnServerStartup, si);
+    auto [retVal, skip] = CallPlugins<bool>(&Plugin::OnServerStartup);
 
     if (!skip)
     {
@@ -190,8 +190,6 @@ bool __stdcall IServerImplHook::Startup(SStartupInfo& si)
         CallServerPostamble(true, bool());
     }
     StartupInnerAfter(si);
-
-    CallPlugins(&Plugin::OnServerStartupAfter, si);
 
     return retVal;
 }
