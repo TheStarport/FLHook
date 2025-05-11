@@ -1,16 +1,18 @@
 #pragma once
 
-template<typename Test, template<typename...> class Ref>
-struct IsSpecialization : std::false_type {};
+template <typename Test, template <typename...> class Ref>
+struct IsSpecialization : std::false_type
+{};
 
-template<template<typename...> class Ref, typename... Args>
-struct IsSpecialization<Ref<Args...>, Ref>: std::true_type {};
+template <template <typename...> class Ref, typename... Args>
+struct IsSpecialization<Ref<Args...>, Ref> : std::true_type
+{};
 
 // Default implementation is not allowed, explicit types only
-template<typename T>
+template <typename T>
 T TransformArg(std::wstring_view s, size_t paramNumber) = delete;
 
-template<typename T>
+template <typename T>
     requires std::is_arithmetic_v<T>
 T TransformArg(std::wstring_view s, size_t paramNumber)
 {
@@ -26,22 +28,22 @@ bool TransformArg(std::wstring_view s, size_t paramNumber);
 template <>
 Archetype::Ship* TransformArg(std::wstring_view s, size_t paramNumber);
 
-template<>
+template <>
 Archetype::Equipment* TransformArg(std::wstring_view s, size_t paramNumber);
 
 template <>
 ClientId TransformArg(std::wstring_view s, size_t paramNumber);
 
-template<>
+template <>
 GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber);
 
-template<>
+template <>
 BaseId TransformArg(std::wstring_view s, size_t paramNumber);
 
-template<>
+template <>
 SystemId TransformArg(std::wstring_view s, size_t paramNumber);
 
-template<>
+template <>
 RepGroupId TransformArg(std::wstring_view s, size_t paramNumber);
 
 template <typename T>
@@ -69,7 +71,7 @@ T TransformArg(std::wstring_view s, size_t paramNumber)
     return views;
 }
 
-template<typename T, size_t ParamNumber, size_t TotalParams>
+template <typename T, size_t ParamNumber, size_t TotalParams>
 constexpr int ValidateTransformationArgument()
 {
     static_assert(!(ParamNumber != TotalParams - 1 && IsSpecialization<T, std::vector>::value), "A vector can only be the last parameter of any command.");
@@ -122,14 +124,28 @@ auto CreateTuple(std::vector<std::wstring_view>& arguments)
 template <typename F, F f>
 class ClassFunctionWrapper;
 
+#define DefaultClassFunctionWrapper                                                                                                      \
+    { public : static auto ProcessParam(Cl * cl, std::vector<std::wstring_view> & params)->Ret{ auto arg = CreateTuple<Args...>(params); \
+    auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cl->*func)(args...); } };                             \
+    return std::apply(lambda, arg);                                                                                                      \
+    }                                                                                                                                    \
+    }
+
 template <class Ret, class Cl, class... Args, Ret (Cl::*func)(Args...)>
+class ClassFunctionWrapper<Ret (Cl::*)(Args...), func> DefaultClassFunctionWrapper;
+
+template <class Ret, class Cl, class... Args, Ret (Cl::*func)(Args...) const>
+class ClassFunctionWrapper<Ret (Cl::*)(Args...) const, func> DefaultClassFunctionWrapper;
+
+// Static Class Function Wrapper
+template <class Ret, class Cl, class... Args, Ret (*func)(Args...)>
 class ClassFunctionWrapper<Ret (Cl::*)(Args...), func>
 {
     public:
-    static Ret ProcessParam(Cl* cl, std::vector<std::wstring_view>& params)
-    {
-        auto arg = CreateTuple<Args...>(params);
-        auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cl->*func)(args...); } };
-        return std::apply(lambda, arg);
-    }
+        static auto ProcessParam(Cl* cl, std::vector<std::wstring_view>& params) -> Ret
+        {
+            auto arg = CreateTuple<Args...>(params);
+            auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return func(args...); } };
+            return std::apply(lambda, arg);
+        }
 };
