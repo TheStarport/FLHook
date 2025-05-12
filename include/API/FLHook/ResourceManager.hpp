@@ -400,7 +400,11 @@ class DLL ResourceManager final
         ResourceManager();
         ~ResourceManager();
 
-        SpaceObjectBuilder NewBuilder() { return SpaceObjectBuilder{ *this }; }
+        [[nodiscard]]
+        SpaceObjectBuilder NewBuilder()
+        {
+            return SpaceObjectBuilder{ *this };
+        }
 
         /**
          * @brief Cause an object to be destroyed, but not despawned.

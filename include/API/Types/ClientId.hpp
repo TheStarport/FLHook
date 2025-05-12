@@ -388,6 +388,8 @@ class DLL ClientId
 
         Action<void> Undock(Vector pos, std::optional<Matrix> orientation = std::nullopt) const;
 
+        Action<void> PlayMusic(const pub::Audio::Tryptich& info) const;
+
         Action<void> PlaySound(uint hash) const;
 
         Action<DPN_CONNECTION_INFO> GetConnectionData() const;

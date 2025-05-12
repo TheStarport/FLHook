@@ -258,6 +258,12 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithNa
     return *this;
 }
 
+ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithReputation(const std::wstring& rep)
+{
+    this->affiliation = RepGroupId(rep).GetValue();
+    return *this;
+}
+
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithReputation(RepGroupId affiliation)
 {
     this->affiliation = affiliation.GetValue();

@@ -8,17 +8,19 @@ class DLL GroupId final
         explicit GroupId(const uint val) : value(val) {}
         explicit GroupId() = default;
         ~GroupId() = default;
-        GroupId(const GroupId&) = default;
-        GroupId& operator=(GroupId) = delete;
-        GroupId(GroupId&&) = default;
-        GroupId& operator=(GroupId&&) = delete;
 
         bool operator==(const GroupId& next) const { return value == next.value; }
         explicit operator bool() const { return value != 0; }
 
-        uint GetValue() const { return value; }
+        [[nodiscard]]
+        uint GetValue() const
+        {
+            return value;
+        }
 
+        [[nodiscard]]
         Action<std::vector<ClientId>> GetGroupMembers() const;
+        [[nodiscard]]
         Action<uint> GetGroupSize() const;
         Action<void> ForEachGroupMember(const std::function<std::optional<Error>(ClientId client)>& func, bool stopIfErr = true) const;
         Action<void> InviteMember(ClientId client) const;

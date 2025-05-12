@@ -147,8 +147,8 @@ Action<void> SystemId::PlaySoundOrMusic(const std::wstring& trackNickNameSound, 
 {
     ValidSystemCheck;
     auto sound = pub::Audio::Tryptich();
-    uint id = InternalApi::CreateID(trackNickNameSound);
-    sound.musicId = id;
+    const uint id = InternalApi::CreateID(trackNickNameSound);
+    sound.overrideMusic = id;
     const auto clientsInSystem = GetPlayersInSystem().Raw();
 
     if (clientsInSystem.has_error())
@@ -187,11 +187,10 @@ Action<void> SystemId::PlaySoundOrMusic(const std::wstring& trackNickNameSound, 
                 {
                     return { cpp::fail(Error::InvalidSound) };
                 }
-
-                if (pub::Audio::PlaySoundEffect(client.GetValue(), id) != static_cast<int>(ResponseCode::Success))
-                {
-                    return { cpp::fail(Error::InvalidSound) };
-                }
+            }
+            else if (pub::Audio::PlaySoundEffect(client.GetValue(), id) != static_cast<int>(ResponseCode::Success))
+            {
+                return { cpp::fail(Error::InvalidSound) };
             }
         }
     }

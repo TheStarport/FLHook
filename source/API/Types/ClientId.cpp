@@ -727,9 +727,17 @@ Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goo
 
 Action<void> ClientId::Undock(Vector pos, std::optional<Matrix> orientation) const
 {
-
     // TODO: Doesn't work, fix with FLUF clienthook
 
+    return { {} };
+}
+
+Action<void> ClientId::PlayMusic(const pub::Audio::Tryptich& info) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    pub::Audio::SetMusic(value, info);
     return { {} };
 }
 
@@ -787,7 +795,7 @@ Action<void> ClientId::InvitePlayer(ClientId otherClient) const
 }
 
 Action<Vector> ClientId::GetPosition() const
-{ 
+{
     auto ship = this->GetShip();
     if (ship.Raw().has_error())
     {
