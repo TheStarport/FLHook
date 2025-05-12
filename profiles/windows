@@ -3,5 +3,5 @@ os=Windows
 arch=x86
 compiler=msvc
 compiler.version=194
-compiler.runtime=static
+compiler.runtime=dynamic
 compiler.cppstd=20
