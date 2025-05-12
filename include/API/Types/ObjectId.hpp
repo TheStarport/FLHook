@@ -54,6 +54,13 @@ class DLL ObjectId
 
         [[nodiscard]]
         Action<ClientId> GetPlayer() const;
+
+        /**
+         * @param preventDamage If true prevent all damage to this entity
+         * @param allowPlayerDamage If true, and the previous false, prevent damage from all non-player sources
+         * @param maxHpLossPercentage A value between 0 and 1. Will stop health from falling below the specified value
+         */
+        Action<void> SetInvincible(bool preventDamage, bool allowPlayerDamage, float maxHpLossPercentage = 0.0f) const;
 };
 
 template <>

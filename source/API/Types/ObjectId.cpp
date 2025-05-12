@@ -4,10 +4,10 @@
 
 #include "API/FLHook/ResourceManager.hpp"
 
-#define IsValidObj                                 \
-    auto obj = value.lock();                       \
-    if (!obj)                                      \
-    {                                              \
+#define IsValidObj                                  \
+    auto obj = value.lock();                        \
+    if (!obj)                                       \
+    {                                               \
         return { cpp::fail(Error::InvalidObject) }; \
     }
 
@@ -123,4 +123,12 @@ Action<ClientId> ObjectId::GetPlayer() const
     }
 
     return { cpp::fail(Error::ObjectIsNotAShip) };
+}
+
+Action<void> ObjectId::SetInvincible(bool preventDamage, bool allowPlayerDamage, float maxHpLossPercentage) const
+{
+    IsValidObj;
+
+    pub::SpaceObj::SetInvincible(obj->get_id(), preventDamage, allowPlayerDamage, maxHpLossPercentage);
+    return { {} };
 }
