@@ -100,7 +100,7 @@ void __stdcall IServerImplHook::BaseExit(BaseId baseId, ClientId client)
 
 void __stdcall IServerImplHook::BaseInfoRequest(unsigned int unk1, unsigned int unk2, bool unk3)
 {
-    ERROR(L"{0} {1} {2}", { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) }, { L"unk3", std::to_wstring(unk3) })
+    TRACE(L"{0} {1} {2}", { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) }, { L"unk3", std::to_wstring(unk3) })
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestBaseInfo, unk1, unk2, unk3); !skip)
     {
