@@ -619,6 +619,20 @@ Task UserCommandProcessor::InvitePlayer(ClientId client, ClientId otherClient)
     co_return TaskStatus::Finished;
 }
 
+Task UserCommandProcessor::LeaveGroup(ClientId client)
+{
+    auto group = client.GetGroup();
+    if (group.HasError())
+    {
+        client.MessageErr(L"You are not currently in a group.");
+        co_return TaskStatus::Finished;
+    }
+
+    group.Value().RemoveMember(client);
+    client.Message(std::format(L"Group {} left", group.Value().GetValue()));
+    co_return TaskStatus::Finished;
+}
+
 Task UserCommandProcessor::FactionInvite(ClientId client, std::wstring_view factionTag)
 {
 

@@ -14,10 +14,6 @@ class DLL RepId final
         explicit RepId(const int val) : value(val) {}
         explicit RepId() = default;
         ~RepId() = default;
-        RepId(const RepId&) = default;
-        RepId& operator=(RepId) = delete;
-        RepId(RepId&&) = default;
-        RepId& operator=(RepId&&) = delete;
 
         bool operator==(const RepId& next) const { return value == next.value; }
         explicit operator bool() const;

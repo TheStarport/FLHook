@@ -23,6 +23,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         Task MarkTarget(ClientId client);
         Task Rename(ClientId client, std::wstring_view newName);
         Task InvitePlayer(ClientId client, ClientId otherClient);
+        Task LeaveGroup(ClientId client);
         Task FactionInvite(ClientId client, std::wstring_view factionTag);
         Task TransferCharacter(ClientId client, std::wstring_view cmd, std::wstring_view param1, std::wstring_view param2);
         // Task DeleteMail(std::wstring_view mailID, std::wstring_view readOnlyDel);
@@ -62,7 +63,8 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
              AddCommand(UserCommandProcessor, Cmds( L"/unignore"sv ), RemoveFromIgnored, L"/unignore <name ...>",
              L"removes specified names from ignore list, typing /unignore all removes ignore list entierly."),
              AddCommand(UserCommandProcessor, Cmds( L"/invite"sv ), InvitePlayer, L"/invite <name/client id>", L"invites specified player to group"),
-             AddCommand(UserCommandProcessor, Cmds( L"/fi", L"/finv"sv ), FactionInvite, L"/finv <prefix>", L"invites players that matches the listed prefix in their name"),
+             AddCommand(UserCommandProcessor, Cmds( L"/leave"sv ), LeaveGroup, L"/leave", L"Leave your current group"),
+             AddCommand(UserCommandProcessor, Cmds( L"/fi", L"/finvite"sv ), FactionInvite, L"/fi <prefix>", L"invites players that matches the listed prefix in their name"),
              //AddCommand(UserCommandProcessor, L"/delmail", DeleteMail, L"/delmail <id>", L"deletes specified mail"),
              //AddCommand(UserCommandProcessor, L"/readmail", ReadMail, L"/readmail <id>", L"prints specified mail."),
              //AddCommand(UserCommandProcessor, L"/listmail", ListMail, L"/listmail [page]", L"lists the mails of the specified page."),

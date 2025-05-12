@@ -25,6 +25,7 @@ class DLL GroupId final
         Action<void> ForEachGroupMember(const std::function<std::optional<Error>(ClientId client)>& func, bool stopIfErr = true) const;
         Action<void> InviteMember(ClientId client) const;
         Action<void> AddMember(ClientId client) const;
+        Action<void> RemoveMember(ClientId client) const;
 };
 
 template <>
