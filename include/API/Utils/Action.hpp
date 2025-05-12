@@ -63,4 +63,29 @@ class Action
          * and is designed to only be used internally.
          */
         const cpp::result<Ret, Error>& Raw() { return result; }
+
+        // The following functions are added for the purpose of lua compatibility
+
+        /**
+         * @brief Check whether the action object errored while trying to perform the desired action
+         * @return A boolean indicating whether the underlying call was a failure
+         */
+        bool HasError() { return result.has_error(); }
+
+        /**
+         * @brief Return the underlying error enum. Will throw an exception if an error is not present.
+         * @return An error enum representing the type of error
+         */
+        Error Error() { return result.error(); }
+
+        /**
+         * @brief Check whether the action object errored while trying to perform the desired action
+         * @return A boolean indicating whether the underlying call was successful
+         */
+        bool HasValue() { return result.has_value(); }
+
+        /**
+         * @brief Return the underlying value object. Will throw an exception if a value is not present.
+         */
+        Ret Value() { return result.value(); }
 };

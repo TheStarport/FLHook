@@ -368,12 +368,12 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
         return LoginReturnCode::InvalidUsernamePassword;
     }
 
-    if(account.account.banned)
+    if (account.account.banned)
     {
         return LoginReturnCode::Banned;
     }
 
-    if(loggedInAccounts.contains(account.account._id))
+    if (loggedInAccounts.contains(account.account._id))
     {
         return LoginReturnCode::AlreadyLoggedIn;
     }
@@ -502,7 +502,7 @@ void AccountManager::LoadNewPlayerFLInfo()
     if (!newPlayerTemplate.hasPackage)
     {
         ERROR(L"Missing %%PACKAGE%% from mpnewplayer.fl. If the package is missing any data from a valid save file, "
-                     L"new characters can cause server and client crashes.");
+              L"new characters can cause server and client crashes.");
     }
 }
 
@@ -620,7 +620,7 @@ void UpdateCharacterCache(PlayerData* pd, CharacterData* cd)
 
     cd->voiceLen = pd->voiceLen;
     strcpy(cd->voice, pd->voice);
-    
+
     cd->interfaceState = pd->interfaceState;
     cd->visits = pd->visitEntries;
     cd->prefilledWeaponGroupIni = pd->weaponGroups;
@@ -763,7 +763,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     // for (auto visit = pd->visitEntries.begin(); visit != pd->visitEntries.end(); ++visit)
     for (auto visit : pd->visitEntries)
     {
-        character.visits.emplace_back( std::array{static_cast<int>(visit->key), static_cast<int>(visit->data)});
+        character.visits.emplace_back(std::array{ static_cast<int>(visit->key), static_cast<int>(visit->data) });
     }
     character.equipment.clear();
     character.baseEquipment.clear();
@@ -880,9 +880,9 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     {
         character.collisionGroups.insert({ std::to_string(col.id), col.health });
     }
-    for(const auto& col : playerMapCache.value()->baseCollisionGroups)
+    for (const auto& col : playerMapCache.value()->baseCollisionGroups)
     {
-        character.baseCollisionGroups.insert({std::to_string(col.id), col.health});
+        character.baseCollisionGroups.insert({ std::to_string(col.id), col.health });
     }
 
     if (character.currentBase)
@@ -894,13 +894,12 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     else if (character.hullStatus == 0.0f)
     {
         character.currentBase = character.lastDockedBase;
-        //TODO: customizable cargo loss on death
+        // TODO: customizable cargo loss on death
         character.cargo = character.baseCargo;
         character.equipment = character.baseEquipment;
         character.hullStatus = character.baseHullStatus;
         character.collisionGroups = character.baseCollisionGroups;
     }
-
 
     // Update the character kept in the account cache.
     ConvertCharacterToVanillaData(&characterData->data, character, pd->clientId);
@@ -1003,7 +1002,7 @@ void __fastcall AccountManager::CreateAccountInitFromFolderBypass(CAccount* acco
 
     for (auto& acc : accounts)
     {
-        if (!acc.internalAccount)
+        if (!acc.internalAccount && account->accId)
         {
             account->accId[36] = L'\0';
             account->accId[37] = L'\0';

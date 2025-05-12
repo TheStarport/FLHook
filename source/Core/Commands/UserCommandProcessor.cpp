@@ -37,7 +37,7 @@ std::optional<Task> UserCommandProcessor::ProcessCommand(ClientId triggeringClie
 
     const auto character = triggeringClient.GetCharacterName().Unwrap();
 
-    TRACE(L"{0} {1}", {L"character", std::wstring(character)},{L"commandString", std::wstring(commandStr)})
+    TRACE(L"{0} {1}", { L"character", std::wstring(character) }, { L"commandString", std::wstring(commandStr) })
 
     std::vector paramsFiltered(params.begin(), params.end());
     paramsFiltered.insert(paramsFiltered.begin(), clientStr);
@@ -55,9 +55,14 @@ std::optional<Task> UserCommandProcessor::MatchCommand<0>([[maybe_unused]] UserC
 std::optional<Task> UserCommandProcessor::ProcessCommand(ClientId triggeringClient, const std::wstring_view fullCmdStr,
                                                          std::vector<std::wstring_view>& paramVector)
 {
-    for (auto& user : PluginManager::i()->userCommands)
+    for (auto& cmdProcessor : PluginManager::i()->userCommands)
     {
-        if (auto task = user.lock()->ProcessCommand(triggeringClient, fullCmdStr, paramVector); task.has_value())
+        if (cmdProcessor.expired())
+        {
+            continue;
+        }
+
+        if (auto task = cmdProcessor.lock()->ProcessCommand(triggeringClient, fullCmdStr, paramVector); task.has_value())
         {
             return task;
         }

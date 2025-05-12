@@ -1,5 +1,6 @@
 #pragma once
 
+// NOLINTBEGIN(*-identifier-length)
 template <typename Test, template <typename...> class Ref>
 struct IsSpecialization : std::false_type
 {};
@@ -19,8 +20,16 @@ T TransformArg(std::wstring_view s, size_t paramNumber)
     return StringUtils::Cast<T>(s);
 }
 
+struct StrToEnd
+{
+        std::wstring_view end;
+};
+
 template <>
 std::wstring_view TransformArg(std::wstring_view s, size_t paramNumber);
+
+template <>
+StrToEnd TransformArg(std::wstring_view s, size_t paramNumber);
 
 template <>
 bool TransformArg(std::wstring_view s, size_t paramNumber);
@@ -75,6 +84,7 @@ template <typename T, size_t ParamNumber, size_t TotalParams>
 constexpr int ValidateTransformationArgument()
 {
     static_assert(!(ParamNumber != TotalParams - 1 && IsSpecialization<T, std::vector>::value), "A vector can only be the last parameter of any command.");
+    static_assert(!(ParamNumber != TotalParams - 1 && std::is_same_v<T, StrToEnd>), "A StrToEnd can only be the last parameter of any command.");
     return 0;
 }
 
@@ -103,7 +113,7 @@ auto CreateTupleImpl(std::index_sequence<Is...>, std::vector<std::wstring_view>&
         static_assert(std::is_same_v<FirstType, ClientId>, "The first parameter of any command must be a client id");
 
         using LastType = std::tuple_element_t<size - 1, std::tuple<Args...>>;
-        if constexpr (IsSpecialization<LastType, std::vector>::value)
+        if constexpr (IsSpecialization<LastType, std::vector>::value || std::is_same_v<LastType, StrToEnd>)
         {
             // Given we know all the values come from the same string (same buffer),
             // We can do some janky pointer logic here to get the wstring_view
@@ -124,11 +134,11 @@ auto CreateTuple(std::vector<std::wstring_view>& arguments)
 template <typename F, F f>
 class ClassFunctionWrapper;
 
-#define DefaultClassFunctionWrapper                                                                                                      \
-    { public : static auto ProcessParam(Cl * cl, std::vector<std::wstring_view> & params)->Ret{ auto arg = CreateTuple<Args...>(params); \
-    auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cl->*func)(args...); } };                             \
-    return std::apply(lambda, arg);                                                                                                      \
-    }                                                                                                                                    \
+#define DefaultClassFunctionWrapper                                                                                                       \
+    { public : static auto ProcessParam(Cl * cls, std::vector<std::wstring_view> & params)->Ret{ auto arg = CreateTuple<Args...>(params); \
+    auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return (cls->*func)(args...); } };                             \
+    return std::apply(lambda, arg);                                                                                                       \
+    }                                                                                                                                     \
     }
 
 template <class Ret, class Cl, class... Args, Ret (Cl::*func)(Args...)>
@@ -137,15 +147,19 @@ class ClassFunctionWrapper<Ret (Cl::*)(Args...), func> DefaultClassFunctionWrapp
 template <class Ret, class Cl, class... Args, Ret (Cl::*func)(Args...) const>
 class ClassFunctionWrapper<Ret (Cl::*)(Args...) const, func> DefaultClassFunctionWrapper;
 
+#undef DefaultClassFunctionWrapper
+
 // Static Class Function Wrapper
 template <class Ret, class Cl, class... Args, Ret (*func)(Args...)>
 class ClassFunctionWrapper<Ret (Cl::*)(Args...), func>
 {
     public:
-        static auto ProcessParam(Cl* cl, std::vector<std::wstring_view>& params) -> Ret
+        static auto ProcessParam(Cl* cls, std::vector<std::wstring_view>& params) -> Ret
         {
             auto arg = CreateTuple<Args...>(params);
             auto lambda = std::function<Ret(Args...)>{ [=](Args... args) mutable { return func(args...); } };
             return std::apply(lambda, arg);
         }
 };
+
+// NOLINTEND(*-identifier-length)

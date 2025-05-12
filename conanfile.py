@@ -42,6 +42,7 @@ class CompressorRecipe(ConanFile):
         self.requires("openssl/3.3.2", force=True, options={
             "shared": True
         })
+        self.requires('sol2/3.5.0')
         self.requires("spdlog/1.14.1")
         self.requires("stduuid/1.2.3")
         self.requires("xbyak/7.07")

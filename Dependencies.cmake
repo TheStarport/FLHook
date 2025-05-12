@@ -27,28 +27,30 @@ function(TARGET_DEPENDENCIES PROJ)
 
     target_precompile_headers(${PROJ} PRIVATE ${INCLUDE_PATH}/PCH.hpp)
 
-    ## vcpkg dependencies
-
+    # conan dependencies
     find_package(concurrentqueue CONFIG REQUIRED)
     find_package(croncpp CONFIG REQUIRED)
     find_package(glm CONFIG REQUIRED)
     find_PACKAGE(httplib CONFIG REQUIRED)
     find_package(magic_enum CONFIG REQUIRED)
     find_package(OpenSSL CONFIG REQUIRED)
-    find_package(spdlog CONFIG REQUIRED)
     find_package(stduuid CONFIG REQUIRED)
     find_package(xbyak CONFIG REQUIRED)
     target_link_libraries(${PROJ} PUBLIC concurrentqueue::concurrentqueue croncpp::croncpp glm::glm httplib::httplib
-            magic_enum::magic_enum openssl::openssl spdlog::spdlog stduuid::stduuid xbyak::xbyak)
+            magic_enum::magic_enum openssl::openssl stduuid::stduuid xbyak::xbyak)
+
+    # Lua
+    find_package(lua CONFIG REQUIRED)
+    find_package(sol2 CONFIG REQUIRED)
+    target_link_libraries(${PROJ} PUBLIC sol2::sol2 lua::lua)
+    target_compile_definitions(${PROJ} PUBLIC SOL_ALL_SAFETIES_ON=1)
 
     # MongoCXX
     find_package(mongocxx CONFIG REQUIRED)
     find_package(mongoc-1.0 CONFIG REQUIRED)
-    target_link_libraries(${PROJ} PUBLIC mongo::mongoc_shared)
-    target_link_libraries(${PROJ} PUBLIC mongo::mongocxx_shared)
+    target_link_libraries(${PROJ} PUBLIC mongo::mongoc_shared mongo::mongocxx_shared)
 
     # FLCore
-
     target_link_libraries(${PROJ} PUBLIC "${SDK_PATH}/lib/FLCoreCommon.lib")
     target_link_libraries(${PROJ} PUBLIC "${SDK_PATH}/lib/FLCoreDACom.lib")
     target_link_libraries(${PROJ} PUBLIC "${SDK_PATH}/lib/FLCoreDALib.lib")

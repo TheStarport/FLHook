@@ -104,6 +104,12 @@ std::wstring_view TransformArg(const std::wstring_view s, size_t paramNumber)
 }
 
 template <>
+StrToEnd TransformArg<StrToEnd>(const std::wstring_view s, size_t paramNumber)
+{
+    return StrToEnd(s);
+}
+
+template <>
 bool TransformArg(const std::wstring_view s, size_t paramNumber)
 {
     const auto lower = StringUtils::ToLower(s);
@@ -145,7 +151,7 @@ template <>
 BaseId TransformArg(std::wstring_view s, size_t paramNumber)
 {
     const auto foundBase = BaseId(s);
-    if(!foundBase)
+    if (!foundBase)
     {
         throw InvalidParameterException(s, paramNumber);
     }

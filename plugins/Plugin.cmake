@@ -1,14 +1,14 @@
 if (PLUGIN_IS_EXAMPLE)
     message(STATUS "Processing Example: ${PLUGIN_NAME}")
-else()
+else ()
     message(STATUS "Processing Plugin: ${PLUGIN_NAME}")
-endif()
+endif ()
 
 if (${PLUGIN_VERSION})
     project(${PLUGIN_NAME} LANGUAGES CXX VERSION ${PLUGIN_VERSION})
-else()
+else ()
     project(${PLUGIN_NAME} LANGUAGES CXX)
-endif()
+endif ()
 
 file(GLOB_RECURSE PLUGIN_SOURCE_FILES LIST_DIRECTORIES false
         "${PLUGIN_PATH}/*.c*"
@@ -19,7 +19,8 @@ file(GLOB_RECURSE PLUGIN_SOURCE_FILES LIST_DIRECTORIES false
 )
 
 add_library("${PLUGIN_NAME}" SHARED ${PLUGIN_SOURCE_FILES}
-        ${INCLUDE_PATH}/PCH.hpp ${INCLUDE_PATH}/PCH.cpp)
+        ${INCLUDE_PATH}/PCH.hpp ${INCLUDE_PATH}/PCH.cpp
+)
 
 message(STATUS ${PLUGIN_OUTPUT_DIR})
 set_target_properties("${PLUGIN_NAME}" PROPERTIES

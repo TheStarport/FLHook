@@ -170,9 +170,6 @@ struct DLL FLHookConfig final
 
                 //! Maximum size of users added via /ignore command
                 uint userCmdMaxIgnoreList = 0;
-
-                //! If true, the default player chat will be local, not system.
-                bool defaultLocalChat = false;
         };
 
         struct Rename final
