@@ -47,19 +47,18 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
 
 #define DEFINE_ACTION_TYPE(type)                                                                                                   \
     {                                                                                                                              \
-        using namespace std;                                                                                                       \
-        sol::usertype<Action<type>> PPCAT(type, _actionType) = lua->new_usertype<Action<type>>(PPCAT("action_", STRINGIZE(type))); \
-        PPCAT(type, _actionType)["Handle"] = &Action<type>::Handle;                                                                \
-        PPCAT(type, _actionType)["Unwrap"] = &Action<type>::Unwrap;                                                                \
-        PPCAT(type, _actionType)["HasError"] = &Action<type>::HasError;                                                            \
-        PPCAT(type, _actionType)["Error"] = &Action<type>::Error;                                                                  \
-        PPCAT(type, _actionType)["HasValue"] = &Action<type>::HasValue;                                                            \
-        PPCAT(type, _actionType)["Value"] = &Action<type>::Value;                                                                  \
+        sol::usertype<Action<type>> PPCAT(actionType_, LINE) = lua->new_usertype<Action<type>>(PPCAT("action_", STRINGIZE(type))); \
+        PPCAT(actionType_, LINE)["Handle"] = &Action<type>::Handle;                                                                \
+        PPCAT(actionType_, LINE)["Unwrap"] = &Action<type>::Unwrap;                                                                \
+        PPCAT(actionType_, LINE)["HasError"] = &Action<type>::HasError;                                                            \
+        PPCAT(actionType_, LINE)["Error"] = &Action<type>::Error;                                                                  \
+        PPCAT(actionType_, LINE)["HasValue"] = &Action<type>::HasValue;                                                            \
+        PPCAT(actionType_, LINE)["Value"] = &Action<type>::Value;                                                                  \
     }
 
-    DEFINE_ACTION_TYPE(string);
-    DEFINE_ACTION_TYPE(wstring);
-    DEFINE_ACTION_TYPE(wstring_view);
+    DEFINE_ACTION_TYPE(std::string);
+    DEFINE_ACTION_TYPE(std::wstring);
+    DEFINE_ACTION_TYPE(std::wstring_view);
     DEFINE_ACTION_TYPE(uint);
     DEFINE_ACTION_TYPE(int);
     DEFINE_ACTION_TYPE(float);
@@ -73,7 +72,24 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     DEFINE_ACTION_TYPE(GoodId);
     DEFINE_ACTION_TYPE(GroupId);
     DEFINE_ACTION_TYPE(EquipmentId);
-    DEFINE_ACTION_TYPE(AccountId);
+    DEFINE_ACTION_TYPE(std::vector<ClientId>);
+    DEFINE_ACTION_TYPE(std::vector<BaseId>);
+    DEFINE_ACTION_TYPE(std::vector<SystemId>);
+    DEFINE_ACTION_TYPE(std::vector<ObjectId>);
+    DEFINE_ACTION_TYPE(std::vector<ShipId>);
+    DEFINE_ACTION_TYPE(std::vector<GoodId>);
+    DEFINE_ACTION_TYPE(std::vector<EquipmentId>);
+    DEFINE_ACTION_TYPE(std::vector<RepGroupId>);
+    DEFINE_ACTION_TYPE(std::vector<RepId>);
+    DEFINE_ACTION_TYPE(Vector);
+
+    // Handle void type
+    {
+        sol::usertype<Action<void>> voidType = lua->new_usertype<Action<void>>("action_void");
+        voidType["Handle"] = &Action<void>::Handle;
+        voidType["HasError"] = &Action<void>::HasError;
+        voidType["Error"] = &Action<void>::Error;
+    }
 
 #undef DEFINE_ACTION_TYPE
 
