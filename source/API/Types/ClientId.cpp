@@ -6,6 +6,7 @@
 #include "API/InternalApi.hpp"
 #include "Core/FLHook.hpp"
 #include "Defs/FLPacket.hpp"
+#include "API/Utils/PathHelper.hpp"
 
 #define ClientCheck                                   \
     if (!IsValidClientId())                           \
@@ -806,13 +807,14 @@ Action<Vector> ClientId::GetPosition() const
 
 Action<void> ClientId::SendBestPath(SystemId targetSystem, Vector targetPosition) const
 {
-    static BestPathInfo bpi;
-    bpi.waypointStartIndex = 1; // Use 1 as start index so the waypoints of the player get overwritten
+    static RequestPath<2> bpi;
     bpi.pathEntries[0].systemId = GetSystemId().Unwrap().GetValue();
     bpi.pathEntries[0].pos = GetPosition().Unwrap();
     bpi.pathEntries[1].systemId = targetSystem.GetValue();
     bpi.pathEntries[1].pos = targetPosition;
     bpi.waypointCount = 2;
+    bpi.noPathFound = false;
+    bpi.repId = GetReputation().Handle().GetValue();
 
     // The original asm code sets 52 as size for the struct. So better hard code it instead of sizeof in case someone messes up the struct in a commit.
     Server.RequestBestPath(GetValue(), (uchar*)&bpi, 12 + (20 * 2));
