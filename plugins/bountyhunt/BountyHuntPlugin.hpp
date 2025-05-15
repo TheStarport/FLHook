@@ -81,6 +81,7 @@ namespace Plugins
             void OnDisconnect(ClientId client, EFLConnection connection) override;
             /// @brief Hook for CharacterSelect to see if the player had a bounty on them
             void OnCharacterSelectAfter(ClientId client) override;
+            void OnCharacterInfoRequest(ClientId client, bool dunno) override;
             bool OnLoadSettings() override;
 
         public:

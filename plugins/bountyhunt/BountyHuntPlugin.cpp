@@ -179,6 +179,7 @@ namespace Plugins
     void BountyHuntPlugin::OnDisconnect(const ClientId client, EFLConnection connection) { CheckIfPlayerFled(client); }
 
     void BountyHuntPlugin::OnCharacterSelectAfter(const ClientId client) { CheckIfPlayerFled(client); }
+    void BountyHuntPlugin::OnCharacterInfoRequest(ClientId client, bool dunno) { CheckIfPlayerFled(client); }
     bool BountyHuntPlugin::OnLoadSettings()
     {
         LoadJsonWithValidation(Config, config, "config/bountyhunt.json");
