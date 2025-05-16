@@ -1,5 +1,6 @@
 #pragma once
 class FLHook;
+class ClientId;
 /**
  * @brief
  * This API is used for manipulating the internal state of FLHook or a shared utility function that
@@ -35,7 +36,7 @@ class DLL InternalApi
         static Action<void> FMsgEncodeXml(std::wstring_view xml, char* buffer, uint size, uint& ret);
 
         static void FMsgSendChat(ClientId client, char* buffer, uint size);
-        static Action<void> SendMessage(ClientId to, std::wstring_view message, ClientId from = ClientId(), std::wstring_view = L"");
+        static Action<void> SendMessage(ClientId to, std::wstring_view message, ClientId from, std::wstring_view = L"");
 
         static uint CreateID(const std::wstring& nickname);
 

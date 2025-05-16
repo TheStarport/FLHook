@@ -83,7 +83,7 @@ namespace Plugins
                 kvp("clientId", static_cast<int>(client.id.GetValue())),
                 kvp("playerName", StringUtils::wstos(client.characterName)),
                 kvp("shipNick", ship->name), // TODO: Replace name which is a CMP with the actual nickname
-                kvp("shipName", StringUtils::wstos(FLHook::GetInfocardManager()->GetInfocard(ship->idsName)))
+                kvp("shipName", StringUtils::wstos(FLHook::GetInfocardManager()->GetInfoName(ship->idsName)))
             ));
 
             // clang-format on

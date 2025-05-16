@@ -1,5 +1,7 @@
 #include "PCH.hpp"
 
+#include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/InfocardManager.hpp"
 #include "API/InternalApi.hpp"
 
 #include "API/Utils/Logger.hpp"
@@ -32,8 +34,11 @@ std::wstring ReplaceExclamationMarkWithClientId(std::wstring commandString, uint
     return commandString;
 }
 
-bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlReader, CHAT_ID& to, int)
+bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CHAT_ID& to, int)
 {
+    // Header for client side payloads
+    constexpr ushort flufHeader = 0xF10F;
+
     TryHook
     {
         const auto config = FLHook::GetConfig();
@@ -42,6 +47,27 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
         if (to.id == static_cast<uint>(SpecialChatIds::GroupEvent))
         {
             return true;
+        }
+
+        if (to.id == static_cast<uint>(SpecialChatIds::SpecialBase) && size > 6 && *reinterpret_cast<ushort*>(buffer) == flufHeader)
+        {
+            char* dataOffset = buffer + sizeof(flufHeader);
+
+            std::array<char, 4> header{};
+            memcpy_s(header.data(), header.size(), dataOffset, 4);
+
+            dataOffset += header.size();
+            const size_t newDataSize = size - sizeof(flufHeader) - header.size();
+
+            if (strncmp(header.data(), "fluf", header.size()) == 0)
+            {
+                ClientId(from.id).GetData().usingFlufClientHook = true;
+            }
+            else
+            {
+                CallPlugins(&Plugin::OnPayloadReceived, ClientId(from.id), header, dataOffset, newDataSize);
+            }
+            return false;
         }
 
         // Anything outside normal bounds is aborted to prevent crashes
@@ -66,11 +92,11 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
 
         // extract text from rdlReader
         BinaryRDLReader rdl;
-        std::wstring buffer;
-        buffer.resize(size);
+        std::wstring strBuffer;
+        strBuffer.resize(size);
         uint ret1;
-        rdl.extract_text_from_buffer((unsigned short*)buffer.data(), buffer.size(), ret1, static_cast<const char*>(rdlReader), size);
-        std::erase(buffer, '\0');
+        rdl.extract_text_from_buffer((unsigned short*)strBuffer.data(), strBuffer.size(), ret1, buffer, size);
+        std::erase(strBuffer, '\0');
 
         // if this is a message in system chat then convert it to local unless
         // explicitly overriden by the player using /s.
@@ -81,9 +107,9 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
 
         // fix flserver commands and change chat to id so that event logging is accurate.
         bool foundCommand = false;
-        if (buffer[0] == '/')
+        if (strBuffer[0] == '/')
         {
-            const std::wstring cmdString = ReplaceExclamationMarkWithClientId(buffer, from.id);
+            const std::wstring cmdString = ReplaceExclamationMarkWithClientId(strBuffer, from.id);
 
             std::wstring clientIdStr = std::to_wstring(from.id);
             auto processor = UserCommandProcessor::i();
@@ -94,7 +120,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
                     const std::wstring xml = std::format(LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)",
                                                          FLHook::GetConfig()->chatConfig.msgStyle.msgEchoStyle,
                                                          StringUtils::XmlText(cmdString));
-                    InternalApi::SendMessage(ClientId(from.id), xml);
+                    InternalApi::SendMessage(ClientId(from.id), xml, ClientId());
                 }
 
                 auto t = std::make_shared<Task>(*task);
@@ -109,35 +135,35 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
                 return false;
             }
 
-            if (buffer.length() > 2 && buffer[2] == L' ')
+            if (strBuffer.length() > 2 && strBuffer[2] == L' ')
             {
-                if (buffer[1] == 'g')
+                if (strBuffer[1] == 'g')
                 {
                     foundCommand = true;
                     to.id = static_cast<uint>(SpecialChatIds::Group);
                 }
-                else if (buffer[1] == 's')
+                else if (strBuffer[1] == 's')
                 {
                     foundCommand = true;
                     to.id = static_cast<uint>(SpecialChatIds::System);
                 }
-                else if (buffer[1] == 'l')
+                else if (strBuffer[1] == 'l')
                 {
                     foundCommand = true;
                     to.id = static_cast<uint>(SpecialChatIds::Local);
                 }
             }
         }
-        else if (buffer[0] == '.')
+        else if (strBuffer[0] == '.')
         {
             if (FLHook::GetConfig()->chatConfig.echoCommands)
             {
                 const std::wstring xml = std::format(
-                    LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig()->chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(buffer));
-                InternalApi::SendMessage(ClientId(from.id), xml);
+                    LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig()->chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(strBuffer));
+                InternalApi::SendMessage(ClientId(from.id), xml, ClientId());
             }
 
-            const std::wstring cmdString = ReplaceExclamationMarkWithClientId(buffer, from.id);
+            const std::wstring cmdString = ReplaceExclamationMarkWithClientId(strBuffer, from.id);
             const auto processor = AdminCommandProcessor::i();
             const auto clientStr = std::to_wstring(from.id);
             if (auto response = processor->ProcessCommand(ClientId(from.id), AllowedContext::GameOnly, clientStr, cmdString); response.has_value())
@@ -155,13 +181,13 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
         }
 
         // check if chat should be suppressed for in-built command prefixes
-        if (buffer[0] == L'/')
+        if (strBuffer[0] == L'/')
         {
             if (FLHook::GetConfig()->chatConfig.echoCommands)
             {
                 const std::wstring xml = std::format(
-                    LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig()->chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(buffer));
-                InternalApi::SendMessage(ClientId(from.id), xml);
+                    LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig()->chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(strBuffer));
+                InternalApi::SendMessage(ClientId(from.id), xml, ClientId());
             }
 
             if (config->chatConfig.suppressInvalidCommands && !foundCommand)
@@ -173,13 +199,13 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
         if (foundCommand)
         {
             // Trim the first two characters
-            buffer.erase(0, 2);
+            strBuffer.erase(0, 2);
         }
 
         // Check if any other custom prefixes have been added
         if (!config->general.chatSuppressList.empty())
         {
-            const auto lcBuffer = StringUtils::ToLower(buffer);
+            const auto lcBuffer = StringUtils::ToLower(strBuffer);
             for (const auto& chat : config->general.chatSuppressList)
             {
                 if (lcBuffer.rfind(chat, 0) == 0)
@@ -223,13 +249,10 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, const void* rdlR
 // clang-format on
 }
 
-void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, const void* rdlReader, CHAT_ID cidTo, int genArg1)
+void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, char* rdlReader, CHAT_ID cidTo, int genArg1)
 {
 
-    TRACE(L"{0} {1} {2}",
-          { L"cidFrom", std::to_wstring(cidFrom.id) },
-          { L"size", std::to_wstring(size) },
-          { L"cidTo", std::to_wstring(cidTo.id) });
+    TRACE(L"{0} {1} {2}", { L"cidFrom", std::to_wstring(cidFrom.id) }, { L"size", std::to_wstring(size) }, { L"cidTo", std::to_wstring(cidTo.id) });
 
     const auto skip = CallPlugins(&Plugin::OnSubmitChat, ClientId(cidFrom.id), size, rdlReader, ClientId(cidTo.id), genArg1);
 

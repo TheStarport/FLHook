@@ -111,7 +111,7 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             wos << L"<TRA data=\"0x" << traDataSenderColor + traDataFormat << L"\" mask=\"-1\"/><TEXT>" << StringUtils::XmlText(sender) << L": </TEXT>"
                 << L"<TRA data =\"0x" << traDataColor + traDataFormat << L"\" mask=\"-1\"/>" << "<TEXT>" << StringUtils::XmlText(text) + L"</TEXT>";
 
-            InternalApi::SendMessage(client, wos.str());
+            InternalApi::SendMessage(client, wos.str(), ClientId());
         }
         else
         {

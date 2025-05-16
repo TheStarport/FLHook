@@ -37,6 +37,7 @@ void FLHook::ClearClientInfo(ClientId client)
                   });
 
     info.characterName = L"";
+    info.usingFlufClientHook = false;
 
     info.dieMsg = DieMsgType::All;
     info.ship = ShipId();

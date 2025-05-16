@@ -29,7 +29,7 @@ Action<std::wstring_view> SystemId::GetName() const
     uint ids;
     pub::System::GetName(value, ids);
 
-    return { FLHook::GetInfocardManager()->GetInfocard(ids) };
+    return { FLHook::GetInfocardManager()->GetInfoName(ids) };
 }
 
 Action<std::wstring> SystemId::GetNickName() const

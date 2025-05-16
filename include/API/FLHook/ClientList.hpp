@@ -12,6 +12,7 @@ struct ClientData
         std::wstring_view characterName{};
         PlayerData* playerData = nullptr;
         bool isValid = false;
+        bool usingFlufClientHook = false;
 
         Id shipId{};
         ShipId ship;

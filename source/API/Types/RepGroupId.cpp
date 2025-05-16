@@ -21,7 +21,7 @@ Action<std::wstring_view> RepGroupId::GetName() const
         return { cpp::fail(Error::InvalidRepGroup) };
     }
 
-    return { FLHook::GetInfocardManager()->GetInfocard(ids) };
+    return { FLHook::GetInfocardManager()->GetInfoName(ids) };
 }
 
 Action<std::wstring_view> RepGroupId::GetShortName() const
@@ -32,7 +32,7 @@ Action<std::wstring_view> RepGroupId::GetShortName() const
         return { cpp::fail(Error::InvalidRepGroup) };
     }
 
-    return { FLHook::GetInfocardManager()->GetInfocard(ids) };
+    return { FLHook::GetInfocardManager()->GetInfoName(ids) };
 }
 
 Action<float> RepGroupId::GetAttitudeTowardsRepId(RepId target) const

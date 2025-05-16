@@ -41,7 +41,7 @@ Action<std::wstring_view> GoodId::GetName() const
 {
     GoodCheck;
 
-    return { FLHook::GetInfocardManager()->GetInfocard(value->idsName) };
+    return { FLHook::GetInfocardManager()->GetInfoName(value->idsName) };
 }
 
 Action<float> GoodId::GetPrice() const

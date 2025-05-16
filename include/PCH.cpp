@@ -137,7 +137,7 @@ GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber)
     auto* goods = GoodList_get();
     for (const auto good : *goods->get_list())
     {
-        if (wildcards::match(im->GetInfocard(good->idsName), s))
+        if (wildcards::match(im->GetInfoName(good->idsName), s))
         {
             return good;
         }
@@ -175,7 +175,7 @@ SystemId TransformArg(std::wstring_view s, size_t paramNumber)
     system = Universe::GetFirstSystem();
     do
     {
-        if (auto name = im->GetInfocard(system->idsName); wildcards::match(name, s))
+        if (auto name = im->GetInfoName(system->idsName); wildcards::match(name, s))
         {
             return SystemId(system->id);
         }
@@ -201,12 +201,12 @@ RepGroupId TransformArg(std::wstring_view s, size_t paramNumber)
     const auto& im = FLHook::GetInfocardManager();
     for (const auto group : GameData::repGroups)
     {
-        if (auto name = im->GetInfocard(group->data.nameIds); wildcards::match(name, s))
+        if (auto name = im->GetInfoName(group->data.nameIds); wildcards::match(name, s))
         {
             return RepGroupId(group->key);
         }
 
-        if (auto name = im->GetInfocard(group->data.shortNameIds); wildcards::match(name, s))
+        if (auto name = im->GetInfoName(group->data.shortNameIds); wildcards::match(name, s))
         {
             return RepGroupId(group->key);
         }

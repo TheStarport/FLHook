@@ -379,7 +379,7 @@ Task AdminCommandProcessor::AddCargo(ClientId client, ClientId target, GoodInfo*
     target.GetShip().Handle().AddCargo(good->goodId, count, mission).Handle();
 
     const auto& im = FLHook::GetInfocardManager();
-    client.Message(std::format(L"{} units of {} has been added to {}'s cargo", count, im->GetInfocard(good->idsName), target.GetCharacterName().Handle()));
+    client.Message(std::format(L"{} units of {} has been added to {}'s cargo", count, im->GetInfoName(good->idsName), target.GetCharacterName().Handle()));
 
     co_return TaskStatus::Finished;
 }

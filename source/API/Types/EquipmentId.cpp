@@ -144,7 +144,7 @@ Action<std::wstring_view> EquipmentId::GetName() const
 {
     ValidEquipmentCheck;
 
-    return { FLHook::GetInfocardManager()->GetInfocard(value->idsName) };
+    return { FLHook::GetInfocardManager()->GetInfoName(value->idsName) };
 }
 
 Action<float> EquipmentId::GetVolume() const

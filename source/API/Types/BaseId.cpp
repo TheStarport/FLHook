@@ -28,7 +28,7 @@ BaseId::BaseId(const std::wstring_view baseName, const bool isWildCard)
     {
         if(isWildCard)
         {
-            if (auto name = im->GetInfocard(base->baseIdS); wildcards::match(name, baseName))
+            if (auto name = im->GetInfoName(base->baseIdS); wildcards::match(name, baseName))
             {
                 value = base->baseId;
                 return;
@@ -36,7 +36,7 @@ BaseId::BaseId(const std::wstring_view baseName, const bool isWildCard)
         }
         else
         {
-            if (auto name = im->GetInfocard(base->baseIdS); name == baseName)
+            if (auto name = im->GetInfoName(base->baseIdS); name == baseName)
             {
                 value = base->baseId;
                 return;
@@ -93,7 +93,7 @@ Action<std::wstring_view> BaseId::GetName() const
         return { cpp::fail(Error::InvalidBase) };
     }
 
-    return { FLHook::GetInfocardManager()->GetInfocard(base->baseIdS) };
+    return { FLHook::GetInfocardManager()->GetInfoName(base->baseIdS) };
 }
 
 Action<std::pair<float, float>> BaseId::GetBaseHealth() const

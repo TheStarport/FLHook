@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/InternalApi.hpp"
 #include "API/Types/AccountId.hpp"
 #include "API/Types/BaseId.hpp"
 #include "API/Types/ShipId.hpp"
@@ -7,6 +8,7 @@
 #include "Defs/Structs.hpp"
 
 #include <format>
+#include <rfl/msgpack.hpp>
 #include <string>
 
 class ShipId;
@@ -403,6 +405,29 @@ class DLL ClientId
         Action<void> InvitePlayer(ClientId otherClient) const;
 
         Action<void> SendBestPath(SystemId targetSystem, Vector targetPosition) const;
+
+        bool HasFluf() const;
+
+        template <typename T>
+        Action<void> SendFlufPayload(const std::array<char, 4>& header, const T& payload) const
+        {
+            if (!IsValidClientId())
+            {
+                return { cpp::fail(Error::InvalidClientId) };
+            }
+
+            constexpr ushort flufHeader = 0xF10F;
+            auto msgPack = rfl::msgpack::write<T>(payload);
+            const size_t size = msgPack.size() + header.size() + 2;
+            std::vector<char> data(size);
+
+            memcpy_s(data.data(), data.size(), &flufHeader, sizeof(flufHeader));
+            memcpy_s(data.data() + sizeof(flufHeader), data.size(), header.data(), header.size());
+            memcpy_s(data.data() + msgPack.size() + sizeof(flufHeader), data.size() - msgPack.size(), msgPack.data(), msgPack.size());
+
+            InternalApi::FMsgSendChat(*this, data.data(), size);
+            return { {} };
+        }
 };
 
 template <>

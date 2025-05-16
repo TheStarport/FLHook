@@ -4,9 +4,9 @@
 
 #include "API/FLHook/ClientList.hpp"
 #include "API/InternalApi.hpp"
+#include "API/Utils/PathHelper.hpp"
 #include "Core/FLHook.hpp"
 #include "Defs/FLPacket.hpp"
-#include "API/Utils/PathHelper.hpp"
 
 #define ClientCheck                                   \
     if (!IsValidClientId())                           \
@@ -516,7 +516,7 @@ Action<void> ClientId::Message(const std::wstring_view message, const MessageFor
     for (auto messages = StringUtils::GetParams(message, L'\n'); auto msg : messages)
     {
         const auto formattedMessage = StringUtils::FormatMsg(color, format, std::wstring(msg));
-        InternalApi::SendMessage(*this, formattedMessage);
+        InternalApi::SendMessage(*this, formattedMessage, ClientId());
     }
 
     return { {} };
@@ -821,3 +821,4 @@ Action<void> ClientId::SendBestPath(SystemId targetSystem, Vector targetPosition
 
     return { {} };
 }
+bool ClientId::HasFluf() const { return GetData().usingFlufClientHook; }

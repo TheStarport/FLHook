@@ -123,14 +123,14 @@ void TrafficControlPlugin::AddShipCargoSnapshot(ClientId client)
 
     clientData.scanCache.clear();
     clientData.scanCache.emplace_back(std::format(L"Scan snapshot of {}:", client.GetCharacterName().Handle()));
-    clientData.scanCache.emplace_back(std::format(L"Ship: {}", FLHook::GetInfocardManager()->GetInfocard(ship.GetArchetype().Handle()->idsName)));
+    clientData.scanCache.emplace_back(std::format(L"Ship: {}", FLHook::GetInfocardManager()->GetInfoName(ship.GetArchetype().Handle()->idsName)));
 
     auto* shipEqManager = ship.GetEquipmentManager().Handle();
     CEquipTraverser tr(static_cast<int>(EquipmentClass::Cargo));
     CECargo* cargo;
     while (cargo = reinterpret_cast<CECargo*>(shipEqManager->Traverse(tr)))
     {
-        clientData.scanCache.emplace_back(std::format(L"| {}x{}", FLHook::GetInfocardManager()->GetInfocard(cargo->archetype->idsInfo), cargo->count));
+        clientData.scanCache.emplace_back(std::format(L"| {}x{}", FLHook::GetInfocardManager()->GetInfoName(cargo->archetype->idsInfo), cargo->count));
     }
 
     clientData.timestamp = TimeUtils::UnixTime<std::chrono::seconds>();
