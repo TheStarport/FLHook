@@ -5,6 +5,7 @@
 #include "API/Types/BaseId.hpp"
 #include "API/Types/ShipId.hpp"
 #include "API/Types/SystemId.hpp"
+#include "API/Utils/FlufPayload.hpp"
 #include "Defs/Structs.hpp"
 
 #include <format>
@@ -409,23 +410,17 @@ class DLL ClientId
         bool HasFluf() const;
 
         template <typename T>
-        Action<void> SendFlufPayload(const std::array<char, 4>& header, const T& payload) const
+        Action<void> SendFlufPayload(const char header[4], const T& payload) const
         {
             if (!IsValidClientId())
             {
                 return { cpp::fail(Error::InvalidClientId) };
             }
 
-            constexpr ushort flufHeader = 0xF10F;
-            auto msgPack = rfl::msgpack::write<T>(payload);
-            const size_t size = msgPack.size() + header.size() + 2;
-            std::vector<char> data(size);
+            auto flufPayload = FlufPayload::ToPayload<T>(payload, header);
+            auto bytes = flufPayload.ToBytes();
 
-            memcpy_s(data.data(), data.size(), &flufHeader, sizeof(flufHeader));
-            memcpy_s(data.data() + sizeof(flufHeader), data.size(), header.data(), header.size());
-            memcpy_s(data.data() + msgPack.size() + sizeof(flufHeader), data.size() - msgPack.size(), msgPack.data(), msgPack.size());
-
-            InternalApi::FMsgSendChat(*this, data.data(), size);
+            InternalApi::FMsgSendChat(*this, bytes.data(), bytes.size());
             return { {} };
         }
 };

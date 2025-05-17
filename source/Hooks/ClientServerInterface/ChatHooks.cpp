@@ -3,6 +3,7 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/InfocardManager.hpp"
 #include "API/InternalApi.hpp"
+#include "API/Utils/FlufPayload.hpp"
 
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
@@ -36,9 +37,6 @@ std::wstring ReplaceExclamationMarkWithClientId(std::wstring commandString, uint
 
 bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CHAT_ID& to, int)
 {
-    // Header for client side payloads
-    constexpr ushort flufHeader = 0xF10F;
-
     TryHook
     {
         const auto config = FLHook::GetConfig();
@@ -49,23 +47,16 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
             return true;
         }
 
-        if (to.id == static_cast<uint>(SpecialChatIds::SpecialBase) && size > 6 && *reinterpret_cast<ushort*>(buffer) == flufHeader)
+        auto flufPayload = FlufPayload::FromPayload(buffer, size);
+        if (to.id == static_cast<uint>(SpecialChatIds::SpecialBase) && flufPayload.has_value())
         {
-            char* dataOffset = buffer + sizeof(flufHeader);
-
-            std::array<char, 4> header{};
-            memcpy_s(header.data(), header.size(), dataOffset, 4);
-
-            dataOffset += header.size();
-            const size_t newDataSize = size - sizeof(flufHeader) - header.size();
-
-            if (strncmp(header.data(), "fluf", header.size()) == 0)
+            if (strncmp(flufPayload.value().header, "fluf", sizeof(flufPayload.value().header)) == 0)
             {
                 ClientId(from.id).GetData().usingFlufClientHook = true;
             }
             else
             {
-                CallPlugins(&Plugin::OnPayloadReceived, ClientId(from.id), header, dataOffset, newDataSize);
+                CallPlugins(&Plugin::OnPayloadReceived, ClientId(from.id), *flufPayload);
             }
             return false;
         }

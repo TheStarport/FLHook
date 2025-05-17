@@ -36,8 +36,9 @@ function(TARGET_DEPENDENCIES PROJ)
     find_package(OpenSSL CONFIG REQUIRED)
     find_package(stduuid CONFIG REQUIRED)
     find_package(xbyak CONFIG REQUIRED)
+    find_package(zstd REQUIRED)
     target_link_libraries(${PROJ} PUBLIC concurrentqueue::concurrentqueue croncpp::croncpp glm::glm httplib::httplib
-            magic_enum::magic_enum openssl::openssl stduuid::stduuid xbyak::xbyak)
+            magic_enum::magic_enum openssl::openssl stduuid::stduuid xbyak::xbyak zstd::libzstd_static)
 
     # Lua
     find_package(lua CONFIG REQUIRED)

@@ -4,6 +4,7 @@
 
 #include <bsoncxx/builder/basic/document.hpp>
 
+struct FlufPayload;
 constexpr auto CurrentMajorVersion = PluginMajorVersion::V05;
 constexpr auto CurrentMinorVersion = PluginMinorVersion::V00;
 
@@ -292,7 +293,7 @@ class DLL Plugin
         Aft(void, OnRequestTrade, (ClientId client1, ClientId client2));
         Aft(void, OnSubmitChat, (ClientId from, ulong size, const void* rdlReader, ClientId to, int genArg1));
         virtual void OnHttpServerRegister(std::shared_ptr<httplib::Server> httpServer) {}
-        virtual void OnPayloadReceived(ClientId client, const std::array<char, 4>& header, char* data, size_t size) {};
+        virtual void OnPayloadReceived(ClientId client, const FlufPayload&) {};
 };
 
 class DLL PacketInterface

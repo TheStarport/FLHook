@@ -46,6 +46,7 @@ class CompressorRecipe(ConanFile):
         self.requires("spdlog/1.14.1")
         self.requires("stduuid/1.2.3")
         self.requires("xbyak/7.07")
+        self.requires("zstd/1.5.7")
 
     def build_requirements(self):
         self.tool_requires("cmake/3.26.6")
