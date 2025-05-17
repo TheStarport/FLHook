@@ -74,44 +74,64 @@ void InfocardManager::OverrideInfocard(const uint ids, const std::wstring& overr
         return;
     }
 
-    constexpr ushort fluf = 0xF10F;
-    constexpr std::array header = { 'i', 'n', 'f', 'o' };
+    InfocardPayload payload;
+    if (isName)
+    {
+        payload.infoNames[ids] = StringUtils::wstos(override);
+    }
+    else
+    {
+        payload.infoCards[ids] = StringUtils::wstos(override);
+    }
 
-    std::vector<char> buffer;
-    buffer.resize(sizeof(ushort) + header.size() + sizeof(bool) * 2 + override.size() * 2);
-    char* offset = buffer.data();
-
-    memcpy_s(offset, buffer.size(), &fluf, sizeof(fluf));
-    offset += sizeof(fluf);
-
-    memcpy_s(offset, buffer.size(), header.data(), header.size());
-    offset += header.size();
-
-    offset[0] = static_cast<char>(isName);
-    offset[1] = 0; // Is UTF8 = false
-
-    memcpy_s(offset + 2, buffer.size(), override.data(), override.size() * 2);
     if (client)
     {
-        InternalApi::FMsgSendChat(client, buffer.data(), buffer.size());
+        client.SendFlufPayload(header, payload);
         return;
     }
 
     if (isName)
     {
-        infoCardOverride[ids] = override;
+        infoNameOverride[ids] = override;
     }
     else
     {
-        infoNameOverride[ids] = override;
+        infoCardOverride[ids] = override;
     }
 
     for (const auto& flufClient : FLHook::Clients())
     {
         if (flufClient.usingFlufClientHook)
         {
-            InternalApi::FMsgSendChat(client, buffer.data(), buffer.size());
+            flufClient.id.SendFlufPayload(header, payload);
         }
+    }
+}
+
+void InfocardManager::OverrideInfocards(const InfocardPayload& payload, ClientId client)
+{
+    if (client)
+    {
+        client.SendFlufPayload(header, payload);
+        return;
+    }
+
+    for (const auto& flufClient : FLHook::Clients())
+    {
+        if (flufClient.usingFlufClientHook)
+        {
+            flufClient.id.SendFlufPayload(header, payload);
+        }
+    }
+
+    for (auto& [ids, override] : payload.infoNames)
+    {
+        infoNameOverride[ids] = StringUtils::stows(override);
+    }
+
+    for (auto& [ids, override] : payload.infoCards)
+    {
+        infoCardOverride[ids] = StringUtils::stows(override);
     }
 }
 

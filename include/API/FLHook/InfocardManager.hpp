@@ -7,8 +7,15 @@ class DLL InfocardManager
         std::unordered_map<uint, std::wstring> infoCardOverride;
         std::unordered_map<uint, std::wstring> infoNameOverride;
         std::vector<HMODULE> loadedDlls;
+        static constexpr char header[4] = { 'i', 'n', 'f', 'o' };
 
     public:
+        struct InfocardPayload
+        {
+                std::unordered_map<uint, std::string> infoCards;
+                std::unordered_map<uint, std::string> infoNames;
+        };
+
         InfocardManager();
         ~InfocardManager();
         InfocardManager(const InfocardManager&) = delete;
@@ -29,6 +36,7 @@ class DLL InfocardManager
          * Otherwise the change will be sent to all connected clients.
          */
         void OverrideInfocard(uint ids, const std::wstring& override, bool isName, ClientId client = {});
+        void OverrideInfocards(const InfocardPayload& payload, ClientId client = {});
 
         void ClearOverride(uint ids, bool all = false);
 };
