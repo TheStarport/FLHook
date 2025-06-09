@@ -2,7 +2,9 @@
 
 #include "API/Utils/LuaHelper.hpp"
 
+#include "API/FLHook/InfocardManager.hpp"
 #include "API/FLHook/ResourceManager.hpp"
+#include "API/Utils/PathHelper.hpp"
 
 void LuaHelper::LuaPrint(lua_State* lua, const std::wstring& text, const LogLevel level)
 {
@@ -45,6 +47,11 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     vectorType["z"] = &Vector::z;
     vectorType["InRadius"] = &Vector::InRadius;
 
+    sol::usertype<Matrix> matrixType = lua->new_usertype<Matrix>("Matrix");
+    matrixType["ToEuler"] = &Matrix::ToEuler;
+    matrixType["FromEuler"] = &Matrix::FromEuler;
+    matrixType["Identity"] = &Matrix::Identity;
+
 #define DEFINE_ACTION_TYPE(type)                                                                                                   \
     {                                                                                                                              \
         sol::usertype<Action<type>> PPCAT(actionType_, LINE) = lua->new_usertype<Action<type>>(PPCAT("action_", STRINGIZE(type))); \
@@ -82,6 +89,7 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     DEFINE_ACTION_TYPE(std::vector<RepGroupId>);
     DEFINE_ACTION_TYPE(std::vector<RepId>);
     DEFINE_ACTION_TYPE(Vector);
+    DEFINE_ACTION_TYPE(Matrix);
 
     // Handle void type
     {
@@ -91,15 +99,53 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
         voidType["Error"] = &Action<void>::Error;
     }
 
+    // Enums
+    auto errors = lua->create_named_table("Error");
+    for (const auto& [val, name] : magic_enum::enum_entries<Error>())
+    {
+        errors[name] = val;
+    }
+
+    auto engineState = lua->create_named_table("EngineState");
+    for (const auto& [val, name] : magic_enum::enum_entries<EngineState>())
+    {
+        errors[name] = val;
+    }
+
+    auto msgColor = lua->create_named_table("MessageColor");
+    for (const auto& [val, name] : magic_enum::enum_entries<MessageColor>())
+    {
+        msgColor[name] = val;
+    }
+
+    auto msgFormat = lua->create_named_table("MessageFormat");
+    for (const auto& [val, name] : magic_enum::enum_entries<MessageFormat>())
+    {
+        msgFormat[name] = val;
+    }
+
+    auto objectClass = lua->create_named_table("ObjectClass");
+    for (const auto& [val, name] : magic_enum::enum_entries<CObject::Class>())
+    {
+        objectClass[name] = val;
+    }
+
+    auto equipmentClass = lua->create_named_table("EquipmentType");
+    for (const auto& [val, name] : magic_enum::enum_entries<EquipmentType>())
+    {
+        objectClass[name] = val;
+    }
+
 #undef DEFINE_ACTION_TYPE
 
     lua->set_function("create_id", [](const std::string& id) { return CreateID(id.c_str()); });
     lua->set_function("make_id", [](const std::string& id) { return MakeId(id.c_str()); });
 
 #define ClsFunc(func) PPCAT(lua_, TYPE)[STRINGIZE(func)] = &TYPE::##func
-#define NEW_TYPE(...) sol::usertype<TYPE> PPCAT(lua_, TYPE) = lua -> new_usertype<TYPE>(STRINGIZE(TYPE), sol::constructors<__VA_ARGS__>())
+#define NEW_TYPE(...) \
+    sol::usertype<TYPE> PPCAT(lua_, TYPE) = lua -> new_usertype<TYPE>(STRINGIZE(TYPE), sol::constructors<__VA_ARGS__>()) // NOLINT(*-macro-usage)
 
-#define TYPE          SystemId
+#define TYPE SystemId
     NEW_TYPE(TYPE(), TYPE(uint));
     ClsFunc(GetValue);
     ClsFunc(GetName);
@@ -147,13 +193,13 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     ClsFunc(RemoveCash);
     ClsFunc(Beam);
     // ClsFunc(Rename); TODO Implement Lua rename
-    ClsFunc(MarkObject);
+    // ClsFunc(MarkObject);
     ClsFunc(Message);
     ClsFunc(MessageErr);
     ClsFunc(MessageLocal);
     ClsFunc(MessageFrom);
     ClsFunc(MessageCustomXml);
-    ClsFunc(SetEquip);
+    // ClsFunc(SetEquip);
     ClsFunc(AddEquip);
     ClsFunc(AddCargo);
     ClsFunc(RemoveCargo);
@@ -177,11 +223,11 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
 #undef TYPE
 #define TYPE ObjectId
     NEW_TYPE(TYPE(), TYPE(uint));
-    ClsFunc(GetValue);
+    // ClsFunc(GetValue);
     ClsFunc(GetId);
     ClsFunc(GetObjectType);
     ClsFunc(GetNickName);
-    ClsFunc(GetArchetype);
+    // ClsFunc(GetArchetype);
     ClsFunc(GetVelocityAndSpeed);
     ClsFunc(GetAngularVelocity);
     ClsFunc(GetPositionAndOrientation);
@@ -214,7 +260,7 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
 #define TYPE EquipmentId
     NEW_TYPE(TYPE(), TYPE(uint));
 
-    ClsFunc(GetValue);
+    // ClsFunc(GetValue);
     ClsFunc(GetId);
     ClsFunc(GetType);
     ClsFunc(GetName);
@@ -223,11 +269,22 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
 #define TYPE ShipId
     NEW_TYPE(TYPE(), TYPE(uint));
 
-    ClsFunc(GetShipArchetype);
-    ClsFunc(GetShields);
-    ClsFunc(GetPlayer);
-    ClsFunc(GetTarget);
+    // ClsFunc(GetShipArchetype); TODO: Implement ship archetype lua interface
+    // ClsFunc(GetValue);
+    ClsFunc(GetId);
+    ClsFunc(GetObjectType);
+    ClsFunc(GetNickName);
+    // ClsFunc(GetArchetype);
+    ClsFunc(GetVelocityAndSpeed);
+    ClsFunc(GetAngularVelocity);
+    ClsFunc(GetPositionAndOrientation);
+    ClsFunc(GetSystem);
     ClsFunc(GetReputation);
+    ClsFunc(GetHealth);
+    ClsFunc(GetPlayer);
+    // Ship methods
+    ClsFunc(GetShields);
+    ClsFunc(GetTarget);
     ClsFunc(GetSpeed);
     ClsFunc(IsPlayer);
     ClsFunc(IsNpc);
@@ -238,21 +295,21 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     ClsFunc(Relocate);
     ClsFunc(IgniteFuse);
     ClsFunc(ExtinguishFuse);
-    ClsFunc(GetEquipmentManager);
+    // ClsFunc(GetEquipmentManager); TODO: Implement CEquipmentManager lua interface
 #undef TYPE
 #define TYPE GroupId
     NEW_TYPE(TYPE(), TYPE(uint));
     ClsFunc(GetValue);
     ClsFunc(GetGroupMembers);
     ClsFunc(GetGroupSize);
-    ClsFunc(ForEachGroupMember);
+    // ClsFunc(ForEachGroupMember);
     ClsFunc(InviteMember);
     ClsFunc(AddMember);
 #undef TYPE
 #undef ClsFunc
 #undef NEW_TYPE
 
-    auto state = lua->lua_state();
+    auto* state = lua->lua_state();
     auto logTable = lua->create_named_table("log");
     logTable.set_function("info", [state](const std::wstring& str) { LuaPrint(state, str, LogLevel::Info); });
     logTable.set_function("debug", [state](const std::wstring& str) { LuaPrint(state, str, LogLevel::Debug); });
@@ -260,35 +317,56 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     logTable.set_function("warn", [state](const std::wstring& str) { LuaPrint(state, str, LogLevel::Warn); });
     logTable.set_function("trace", [state](const std::wstring& str) { LuaPrint(state, str, LogLevel::Trace); });
 
+    auto pathEntry = lua->new_usertype<PathEntry>("PathEntry", sol::constructors<PathEntry()>());
+    pathEntry["pos"] = &PathEntry::pos;
+    pathEntry["obj_id"] = &PathEntry::objId;
+    pathEntry["system_id"] = &PathEntry::systemId;
+
+    auto pathHelper = lua->create_named_table("path_helper");
+    pathHelper.set_function("clear_waypoints", PathHelper::ClearWaypoints);
+    pathHelper.set_function("create_object_waypoints", PathHelper::CreateObjectWaypoint);
+    pathHelper.set_function("create_clearable_waypoints", PathHelper::CreateClearableWaypoints);
+
+    // TODO: Uncomment once fixed downstream https://github.com/ThePhD/sol2/pull/1676
+    // auto infocardPayload = lua->new_usertype<InfocardManager::InfocardPayload>("InfocardPayload", sol::constructors<InfocardManager::InfocardPayload()>());
+    // infocardPayload["info_cards"] = &InfocardManager::InfocardPayload::infoCards;
+    // infocardPayload["info_names"] = &InfocardManager::InfocardPayload::infoNames;
+
+    auto infocardManager = lua->new_usertype<InfocardManager>("InfocardManager", sol::factories([] { return FLHook::GetInfocardManager(); }));
+    infocardManager["get_info_name"] = &InfocardManager::GetInfoName;
+    infocardManager["override_infocard"] = &InfocardManager::OverrideInfocard;
+    // infocardManager["override_infocards"] = &InfocardManager::OverrideInfocards;
+    infocardManager["clear_override"] = &InfocardManager::ClearOverride;
+
     auto builder =
         lua->new_usertype<ResourceManager::SpaceObjectBuilder>("SpaceObjectBuilder", sol::factories([] { return FLHook::GetResourceManager()->NewBuilder(); }));
-    builder["WithNpc"] = &ResourceManager::SpaceObjectBuilder::WithNpc;
-    builder["WithArchetype"] =
+    builder["with_npc"] = &ResourceManager::SpaceObjectBuilder::WithNpc;
+    builder["with_archetype"] =
         static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(uint)>(&ResourceManager::SpaceObjectBuilder::WithArchetype);
-    builder["WithLoadout"] =
+    builder["with_loadout"] =
         static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(uint)>(&ResourceManager::SpaceObjectBuilder::WithLoadout);
-    builder["WithPersonality"] = static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(const std::wstring&)>(
+    builder["with_personality"] = static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(const std::wstring&)>(
         &ResourceManager::SpaceObjectBuilder::WithPersonality);
-    builder["WithStateGraph"] = &ResourceManager::SpaceObjectBuilder::WithStateGraph;
-    builder["WithPosition"] = &ResourceManager::SpaceObjectBuilder::WithPosition;
-    builder["WithRotation"] = static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(const Vector&)>(
+    builder["with_state_graph"] = &ResourceManager::SpaceObjectBuilder::WithStateGraph;
+    builder["with_position"] = &ResourceManager::SpaceObjectBuilder::WithPosition;
+    builder["with_rotation"] = static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(const Vector&)>(
         &ResourceManager::SpaceObjectBuilder::WithRotation);
-    builder["WithSystem"] =
+    builder["with_system"] =
         static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(SystemId)>(&ResourceManager::SpaceObjectBuilder::WithSystem);
-    builder["WithAbsoluteHealth"] = &ResourceManager::SpaceObjectBuilder::WithAbsoluteHealth;
-    builder["WithRelativeHealth"] = &ResourceManager::SpaceObjectBuilder::WithRelativeHealth;
-    builder["WithLevel"] = &ResourceManager::SpaceObjectBuilder::WithLevel;
-    builder["WithVoice"] = &ResourceManager::SpaceObjectBuilder::WithVoice;
-    builder["WithName"] =
+    builder["with_absolute_health"] = &ResourceManager::SpaceObjectBuilder::WithAbsoluteHealth;
+    builder["with_relative_health"] = &ResourceManager::SpaceObjectBuilder::WithRelativeHealth;
+    builder["with_level"] = &ResourceManager::SpaceObjectBuilder::WithLevel;
+    builder["with_voice"] = &ResourceManager::SpaceObjectBuilder::WithVoice;
+    builder["with_name"] =
         static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(uint, uint)>(&ResourceManager::SpaceObjectBuilder::WithName);
-    builder["WithReputation"] = static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(RepGroupId)>(
+    builder["with_reputation"] = static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(RepGroupId)>(
         &ResourceManager::SpaceObjectBuilder::WithReputation);
-    builder["WithDockTo"] = &ResourceManager::SpaceObjectBuilder::WithDockTo;
-    builder["WithFuse"] = &ResourceManager::SpaceObjectBuilder::WithFuse;
-    builder["WithRandomNpc"] = &ResourceManager::SpaceObjectBuilder::WithRandomNpc;
-    builder["WithRandomReputation"] = &ResourceManager::SpaceObjectBuilder::WithRandomReputation;
-    builder["WithRandomName"] = &ResourceManager::SpaceObjectBuilder::WithRandomName;
-    builder["AsSolar"] = &ResourceManager::SpaceObjectBuilder::AsSolar;
-    builder["AsNpc"] = &ResourceManager::SpaceObjectBuilder::AsNpc;
-    builder["Spawn"] = &ResourceManager::SpaceObjectBuilder::Spawn;
+    builder["with_dock_to"] = &ResourceManager::SpaceObjectBuilder::WithDockTo;
+    builder["with_fuse"] = &ResourceManager::SpaceObjectBuilder::WithFuse;
+    builder["with_random_npc"] = &ResourceManager::SpaceObjectBuilder::WithRandomNpc;
+    builder["with_random_reputation"] = &ResourceManager::SpaceObjectBuilder::WithRandomReputation;
+    builder["with_random_name"] = &ResourceManager::SpaceObjectBuilder::WithRandomName;
+    builder["as_solar"] = &ResourceManager::SpaceObjectBuilder::AsSolar;
+    builder["as_npc"] = &ResourceManager::SpaceObjectBuilder::AsNpc;
+    builder["spawn"] = &ResourceManager::SpaceObjectBuilder::Spawn;
 }

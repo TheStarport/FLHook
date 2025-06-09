@@ -25,7 +25,8 @@ namespace Plugins
             "quest_name", &QuestInfo::questName,
             "required_rep", &QuestInfo::requiredRep,
             "required_min_rep", &QuestInfo::requiredMinRep,
-            "required_max_rep", &QuestInfo::requiredMaxRep
+            "required_max_rep", &QuestInfo::requiredMaxRep,
+            "clean_up_time", &QuestInfo::cleanUpTime
         );
         // clang-format on
     }

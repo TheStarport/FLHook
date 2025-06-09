@@ -26,7 +26,7 @@ BaseId::BaseId(const std::wstring_view baseName, const bool isWildCard)
     base = Universe::GetFirstBase();
     do
     {
-        if(isWildCard)
+        if (isWildCard)
         {
             if (auto name = im->GetInfoName(base->baseIdS); wildcards::match(name, baseName))
             {
@@ -43,7 +43,6 @@ BaseId::BaseId(const std::wstring_view baseName, const bool isWildCard)
             }
         }
 
-
         base = Universe::GetNextBase();
     }
     while (base);
@@ -55,8 +54,6 @@ BaseId::operator bool() const { return Universe::get_base(value) != nullptr; }
 
 Action<ObjectId> BaseId::GetSpaceId() const
 {
-    ValidBaseCheck;
-
     const auto base = Universe::get_base(value);
     if (!this->operator bool())
     {
