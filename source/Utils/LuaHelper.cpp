@@ -205,6 +205,7 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     ClsFunc(RemoveCargo);
     ClsFunc(Undock);
     ClsFunc(PlaySound);
+    ClsFunc(DisplayMissionObjective);
     ClsFunc(InvitePlayer);
     ClsFunc(SendBestPath);
 #undef TYPE

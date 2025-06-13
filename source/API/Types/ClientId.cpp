@@ -751,6 +751,19 @@ Action<void> ClientId::PlaySound(const uint hash) const
     return { {} };
 }
 
+Action<void> ClientId::DisplayMissionObjective(const uint ids) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    FmtStr fmt(0, nullptr);
+    fmt.begin_mad_lib(ids);
+    fmt.end_mad_lib();
+
+    pub::Player::DisplayMissionMessage(value, fmt, MissionMessageType::Type2, true);
+    return { {} };
+}
+
 Action<DPN_CONNECTION_INFO> ClientId::GetConnectionData() const
 {
     ClientCheck;

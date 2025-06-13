@@ -395,6 +395,8 @@ class DLL ClientId
 
         Action<void> PlaySound(uint hash) const;
 
+        Action<void> DisplayMissionObjective(uint ids) const;
+
         Action<DPN_CONNECTION_INFO> GetConnectionData() const;
 
         /**

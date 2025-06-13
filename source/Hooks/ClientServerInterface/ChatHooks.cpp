@@ -47,8 +47,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
             return true;
         }
 
-        auto flufPayload = FlufPayload::FromPayload(buffer, size);
-        if (to.id == static_cast<uint>(SpecialChatIds::SpecialBase) && flufPayload.has_value())
+        if (auto flufPayload = FlufPayload::FromPayload(buffer, size); to.id == static_cast<uint>(SpecialChatIds::SpecialBase) && flufPayload.has_value())
         {
             if (strncmp(flufPayload.value().header, "fluf", sizeof(flufPayload.value().header)) == 0)
             {
@@ -86,7 +85,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
         std::wstring strBuffer;
         strBuffer.resize(size);
         uint ret1;
-        rdl.extract_text_from_buffer((unsigned short*)strBuffer.data(), strBuffer.size(), ret1, buffer, size);
+        rdl.extract_text_from_buffer(reinterpret_cast<unsigned short*>(strBuffer.data()), strBuffer.size(), ret1, buffer, size);
         std::erase(strBuffer, '\0');
 
         // if this is a message in system chat then convert it to local unless
@@ -103,7 +102,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
             const std::wstring cmdString = ReplaceExclamationMarkWithClientId(strBuffer, from.id);
 
             std::wstring clientIdStr = std::to_wstring(from.id);
-            auto processor = UserCommandProcessor::i();
+            auto* processor = UserCommandProcessor::i();
             if (auto task = processor->ProcessCommand(ClientId(from.id), clientIdStr, std::wstring_view(cmdString)); task.has_value())
             {
                 if (FLHook::GetConfig()->chatConfig.echoCommands)
@@ -155,7 +154,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
             }
 
             const std::wstring cmdString = ReplaceExclamationMarkWithClientId(strBuffer, from.id);
-            const auto processor = AdminCommandProcessor::i();
+            auto* processor = AdminCommandProcessor::i();
             const auto clientStr = std::to_wstring(from.id);
             if (auto response = processor->ProcessCommand(ClientId(from.id), AllowedContext::GameOnly, clientStr, cmdString); response.has_value())
             {
@@ -199,7 +198,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
             const auto lcBuffer = StringUtils::ToLower(strBuffer);
             for (const auto& chat : config->general.chatSuppressList)
             {
-                if (lcBuffer.rfind(chat, 0) == 0)
+                if (lcBuffer.starts_with(chat))
                 {
                     return false;
                 }

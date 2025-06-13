@@ -64,20 +64,17 @@ void __stdcall IServerImplHook::BaseEnter(BaseId baseId, ClientId client)
 
 void IServerImplHook::BaseExitInner(BaseId baseId, ClientId client)
 {
-    TryHook
-    {
-        auto& data = client.GetData();
-        data.baseEnterTime = 0;
-        data.lastExitedBaseId = baseId;
-        data.baseId = {};
-    }
-    CatchHook({})
+    auto& data = client.GetData();
+    data.baseEnterTime = 0;
+    data.lastExitedBaseId = baseId;
+    data.baseId = {};
 }
 
 void BaseExitInnerAfter([[maybe_unused]] BaseId baseId, [[maybe_unused]] ClientId client)
 {
     // TODO: implement base exit event
 }
+
 void __stdcall IServerImplHook::BaseExit(BaseId baseId, ClientId client)
 {
     TRACE(L"{0} {1}", { L"baseId", std::to_wstring(baseId.GetValue()) }, { L"clientId", std::to_wstring(client.GetValue()) })
