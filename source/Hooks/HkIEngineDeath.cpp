@@ -3,6 +3,7 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/ResourceManager.hpp"
 #include "API/InternalApi.hpp"
+#include "API/Utils/Random.hpp"
 #include "Core/IEngineHook.hpp"
 
 std::wstring SetSizeToSmall(const std::wstring& dataFormat) { return dataFormat.substr(0, 8) + L"90"; }
@@ -236,3 +237,33 @@ void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, C
     const std::wstring formattedMsg = StringUtils::stows(BufSmallSys.data());
     CallPlugins(&Plugin::OnSendDeathMessageAfter, clientKiller, clientVictim, systemId, std::wstring_view(formattedMsg));
 }
+
+void IEngineHook::OnPlayerLaunch(ClientId client)
+{
+    uint affiliation;
+    Reputation::Vibe::GetAffiliation(client.GetData().playerData->reputation, affiliation, false);
+
+    if (!affiliation)
+    {
+        affiliation = SendCommData::Callsign::FreelancerAffiliation;
+    }
+
+    const auto fd = sendCommData.factions.find(affiliation);
+    if (fd == sendCommData.factions.end())
+    {
+        return;
+    }
+
+    if (auto& [lastFactionAff, factionLine, formationLine, number1, number2] = sendCommData.callsigns[client.GetValue()]; lastFactionAff != affiliation)
+    {
+        lastFactionAff = affiliation;
+        factionLine = fd->second.msgId;
+        formationLine = Random::Item(fd->second.formationHashes);
+        const int randNum1 = Random::Uniform(0u, sendCommData.numberHashes.size() - 1) + 1; // +1 because map starts at 1
+        number1 = sendCommData.numberHashes.at(randNum1).first;
+        const int randNum2 = Random::Uniform(0u, sendCommData.numberHashes.size() - 1) + 1;
+        number2 = sendCommData.numberHashes.at(randNum2).second;
+    }
+}
+
+void IEngineHook::OnCharacterSelectAfter(ClientId client) { sendCommData.callsigns.erase(client.GetValue()); }

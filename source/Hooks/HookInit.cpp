@@ -179,8 +179,6 @@ void FLHook::InitHookExports()
                                                            0x73, 0x14, 0x89, 0xDA, 0x6A, 0x01, 0x89, 0xF1, 0xFF, 0x90, 0x58, 0x01, 0x00, 0x00, 0x90 };
     MemUtils::WriteProcMem(address, shipDestroyedDamageList.data(), shipDestroyedDamageList.size());
 
-    // DetourSendComm();
-
     // patch rep array free
     address = Offset(BinaryType::Server, AddressList::RepArrayFree);
     MemUtils::ReadProcMem(address, repFreeFixOld, 5);
@@ -227,6 +225,11 @@ void FLHook::InitHookExports()
     temp += 0x10;
     memcpy(&clientProxyArray, &temp, 4);
 
+    // Detour SendComm to apply it to players correctly
+    address = Offset(BinaryType::Server, AddressList::SendComm);
+    IEngineHook::sendCommDetour = std::make_unique<FunctionDetour<IEngineHook::SendCommType>>(reinterpret_cast<IEngineHook::SendCommType>(address));
+    IEngineHook::sendCommDetour->Detour(IEngineHook::SendCommDetour);
+
     // init variables
     char dataPath[MAX_PATH];
     GetUserDataPath(dataPath);
@@ -251,6 +254,8 @@ void FLHook::InitHookExports()
     // Remove default death messages
     constexpr std::array<byte, 1> removeDeathMessages = { 0xEB };
     MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::RemoveDefaultDeathMessages), removeDeathMessages.data(), 1);
+
+    IEngineHook::Init();
 }
 
 void FLHook::PatchClientImpl()
@@ -285,8 +290,6 @@ void FLHook::UnloadHookExports()
 
     delete IEngineHook::disconnectPacketSentAssembly;
     delete IEngineHook::loadReputationFromCharacterFileAssembly;
-
-    // UnDetourSendComm();
 
     // unpatch rep array free
     DWORD address = Offset(BinaryType::Server, AddressList::RepArrayFree);

@@ -6,6 +6,7 @@
 #include "API/FLHook/ResourceManager.hpp"
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
+#include "Core/IEngineHook.hpp"
 
 void IServerImplHook::PlayerLaunchInner(const ShipId& shipId, ClientId client)
 {
@@ -39,6 +40,8 @@ void __stdcall IServerImplHook::PlayerLaunch(Id shipId, ClientId client)
     auto ship = shipId.AsShip();
 
     TRACE(L"{0} {1}}", { L"shipId", std::to_wstring(shipId.GetValue()) }, { L"client", std::to_wstring(client.GetValue()) });
+
+    IEngineHook::OnPlayerLaunch(client);
 
     const auto skip = CallPlugins(&Plugin::OnPlayerLaunch, client, ship);
 

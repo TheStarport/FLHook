@@ -2,6 +2,8 @@
 
 #include "Core/IEngineHook.hpp"
 
+#include "API/FLHook/ClientList.hpp"
+
 IEngineHook::CallAndRet::CallAndRet(void* toCall, void* ret)
 {
     push(ecx); // Reserve ecx
@@ -11,10 +13,68 @@ IEngineHook::CallAndRet::CallAndRet(void* toCall, void* ret)
     jmp(ret);
 }
 
+void IEngineHook::Init()
+{
+    INI_Reader ini;
+    std::string factionPropLocation = R"(..\DATA\MISSIONS\faction_prop.ini)";
+
+    if (!ini.open(factionPropLocation.c_str(), false))
+    {
+        return;
+    }
+
+    while (ini.read_header())
+    {
+        if (!ini.is_header("FactionProps"))
+        {
+            continue;
+        }
+
+        uint currentAff;
+        SendCommData::FactionData facData{};
+
+        while (ini.read_value())
+        {
+            if (ini.is_value("affiliation"))
+            {
+                currentAff = MakeId(ini.get_value_string());
+            }
+            else if (ini.is_value("msg_id_prefix"))
+            {
+                facData.msgId = CreateID(ini.get_value_string());
+            }
+            else if (ini.is_value("formation_desig"))
+            {
+                const int start = ini.get_value_int(0);
+                const int end = ini.get_value_int(1);
+
+                for (int i = start; i <= end; i++)
+                {
+                    char buf[50];
+                    const int number = i - SendCommData::Callsign::AlphaDesignation + 1;
+                    sprintf_s(buf, "gcs_refer_formationdesig_%02d", number);
+                    facData.formationHashes.emplace_back(CreateID(buf));
+                }
+            }
+        }
+
+        sendCommData.factions[currentAff] = facData;
+    }
+
+    ini.close();
+
+    for (int i = 1; i < 20; i++)
+    {
+        uint number1 = CreateID(std::format("gcs_misc_number_{}", i).c_str());
+        uint number2 = CreateID(std::format("gcs_misc_number_{}-", i).c_str());
+        sendCommData.numberHashes[i] = { number1, number2 };
+    }
+}
+
 int IEngineHook::FreeReputationVibe(const int& p1)
 {
     using FreeRepFunc = void (*)(const int& p);
-    static auto freeRep = FreeRepFunc(DWORD(FLHook::serverDll) + 0x65C20);
+    static auto freeRep = reinterpret_cast<FreeRepFunc>(reinterpret_cast<DWORD>(FLHook::serverDll) + 0x65C20);
     freeRep(p1);
     return Reputation::Vibe::Free(p1);
 }
@@ -23,7 +83,7 @@ void IEngineHook::UpdateTime(const double interval) { Timing::UpdateGlobalTime(i
 
 static void* dummy;
 
-void __stdcall IEngineHook::ElapseTime(float interval)
+void __stdcall IEngineHook::ElapseTime(const float interval)
 {
     // TODO: Figure out if this is even needed
     dummy = &Server;
@@ -81,7 +141,7 @@ int IEngineHook::DockCall(const uint& shipId, const uint& spaceId, int dockPortI
     return retVal;
 }
 
-bool __stdcall IEngineHook::LaunchPosition(const uint spaceId, CEqObj& obj, Vector& position, Matrix& orientation, int dock)
+bool __stdcall IEngineHook::LaunchPosition(const uint spaceId, CEqObj& obj, Vector& position, Matrix& orientation, const int dock)
 {
     const LaunchData data = { &obj, position, orientation, dock };
     if (auto [retVal, skip] = CallPlugins<std::optional<LaunchData>>(&Plugin::OnLaunchPosition, ObjectId(spaceId), data); skip && retVal.has_value())
@@ -162,4 +222,53 @@ IEngineHook::LoadReputationFromCharacterFileAssembly::LoadReputationFromCharacte
     inLocalLabel();
     L(".abort");
     ret(0xC);
+}
+
+int IEngineHook::SendCommDetour(const uint sender, uint receiver, const uint voiceId, const Costume* costume, const uint infocardId, uint* lines,
+                                const int lineCount, const uint infocardId2, const float radioSilenceTimerAfter, const bool global)
+{
+    static uint freelancerHash = CreateID("gcs_refer_faction_player_short");
+    static BYTE origMemory[] = { 0x8B, 0x44, 0x24, 0x18, 0x83 };
+    static BYTE currMemory[5];
+    memcpy(currMemory, pub::SpaceObj::SendComm, sizeof(currMemory));
+
+    for (ClientData& client : FLHook::Clients())
+    {
+        if (client.shipId.GetValue() != receiver)
+        {
+            continue;
+        }
+
+        auto cd = sendCommData.callsigns.find(client.id.GetValue());
+        if (cd == sendCommData.callsigns.end())
+        {
+            break;
+        }
+
+        for (int i = 0; i < lineCount; ++i)
+        {
+            if (lines[i] != SendCommData::Callsign::FreelancerCommHash)
+            {
+                continue;
+            }
+
+            if (i + 4 > lineCount)
+            {
+                break;
+            }
+
+            lines[i] = cd->second.factionLine;
+            lines[i + 1] = cd->second.formationLine;
+            lines[i + 2] = cd->second.number1;
+            lines[i + 4] = cd->second.number2;
+
+            break;
+        }
+    }
+
+    memcpy(pub::SpaceObj::SendComm, origMemory, sizeof(origMemory));
+    const int retVal = pub::SpaceObj::SendComm(sender, receiver, voiceId, costume, infocardId, lines, lineCount, infocardId2, radioSilenceTimerAfter, global);
+    memcpy(pub::SpaceObj::SendComm, currMemory, sizeof(currMemory));
+
+    return retVal;
 }

@@ -54,6 +54,7 @@ enum class AddressList : uint
     GetObjectInspect1 = 0x87CD4,
     GetObjectInspect2 = 0x2074A,
     GetObjectInspect3 = 0x207BF,
+    SendComm = 0x19230,
 
     // Common.dll Offsets
 

@@ -7,6 +7,7 @@
 
 #include "API/Utils/Logger.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/IEngineHook.hpp"
 
 bool IServerImplHook::CharacterSelectInner(const CHARACTER_ID& cid, const ClientId client)
 {
@@ -32,6 +33,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
 {
     TryHook
     {
+        IEngineHook::OnCharacterSelectAfter(client);
         auto& info = client.GetData();
 
         if (const auto charName = client.GetCharacterName().Handle(); charBefore != charName)
