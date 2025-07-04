@@ -240,5 +240,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Spawner", L"spawner", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(SpawnerPlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+	return PluginInfo{
+	    .name = L"Spawner",
+	    .shortName = L"spawner",
+	    .versionMajor = PluginMajorVersion::V05,
+	    .versionMinor = PluginMinorVersion::V00
+	};
+};
+
+SetupPlugin(SpawnerPlugin);

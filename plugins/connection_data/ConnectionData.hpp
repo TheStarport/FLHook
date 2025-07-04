@@ -92,9 +92,9 @@ namespace Plugins
 
             /// @brief Periodically checks and kicks players whose connections are too poor
             void TimerCheckKick();
-            Task UserCmdPing(ClientId client);
-            Task UserCmdPingTarget(ClientId client);
-            Task AdminCmdGetStats(ClientId admin);
+            concurrencpp::result<void>UserCmdPing(ClientId client);
+            concurrencpp::result<void>UserCmdPingTarget(ClientId client);
+            concurrencpp::result<void>AdminCmdGetStats(ClientId admin);
             /// @brief Runs once a second, updates the average ping data
             void TimerUpdatePingData();
             /// @brief Periodically updates the average packet loss data

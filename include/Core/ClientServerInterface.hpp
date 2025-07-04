@@ -1,9 +1,11 @@
 #pragma once
 
 class FLHook;
+class AccountManager;
 class IServerImplHook
 {
         friend FLHook;
+        friend AccountManager;
         struct SubmitData
         {
                 bool inSubmitChat;
@@ -26,7 +28,8 @@ class IServerImplHook
         static void BaseExitInner(BaseId baseId, ClientId client);
         static void __stdcall BaseExit(BaseId baseId, ClientId client);
         static void __stdcall BaseInfoRequest(unsigned int unk1, unsigned int unk2, bool unk3);
-        static void __stdcall Dock([[maybe_unused]] const uint& unk1, [[maybe_unused]] const uint& unk2);
+        static void __stdcall Dock([[maybe_unused]] const uint& unk1, [[maybe_unused]]
+                                                                      const uint& unk2);
 
         // Cargo.cpp
         static void __stdcall SpScanCargo(const uint& unk1, const uint& unk2, uint unk3);
@@ -103,7 +106,7 @@ class IServerImplHook
         static void __stdcall LocationEnter(uint locationId, ClientId client);
 
         // Login.cpp
-        static void DelayedLogin(const SLoginInfo& li, ClientId client);
+        static void DelayedLogin(SLoginInfo li, ClientId client);
         static void LoginInnerAfter(const SLoginInfo& li, ClientId client);
         static void __stdcall Login(const SLoginInfo& li, ClientId client);
 
@@ -192,17 +195,17 @@ class IServerImplHook
         timer.Start();                           \
         TryHook                                  \
         {
-#define CallServerPostamble(catchArgs, rval)                                     \
-    }                                                                            \
-    CatchHook({                                                                  \
-        ERROR(L"Exception in server call"); \
-        bool ret = catchArgs;                                                    \
-        if (!ret)                                                                \
-        {                                                                        \
-            timer.Stop();                                                        \
-            return rval;                                                         \
-        }                                                                        \
-    }) timer.Stop();                                                             \
+#define CallServerPostamble(catchArgs, rval) \
+    }                                        \
+    CatchHook({                              \
+        ERROR(L"Exception in server call");  \
+        bool ret = catchArgs;                \
+        if (!ret)                            \
+        {                                    \
+            timer.Stop();                    \
+            return rval;                     \
+        }                                    \
+    }) timer.Stop();                         \
     }
 
 #define CallClientPreamble        \
@@ -213,15 +216,15 @@ class IServerImplHook
         memcpy(&Client, &FLHook::oldClientImpl, 4);
 
 #define CallClientPostamble   \
-    __asm { mov [vRet], eax}  \
+    __asm { mov [vRet], eax}     \
     memcpy(&Client, &tmp, 4); \
     }
 
-#define CheckForDisconnect                                                                               \
-    {                                                                                                    \
-        if (client.GetData().disconnected)                                                               \
-        {                                                                                                \
-            DEBUG(L"Ignoring disconnected client {0}", {L"client", std::to_wstring(client.GetValue())}); \
-            return;                                                                                      \
-        };                                                                                               \
+#define CheckForDisconnect                                                                                 \
+    {                                                                                                      \
+        if (client.GetData().disconnected)                                                                 \
+        {                                                                                                  \
+            DEBUG(L"Ignoring disconnected client {0}", { L"client", std::to_wstring(client.GetValue()) }); \
+            return;                                                                                        \
+        };                                                                                                 \
     }

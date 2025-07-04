@@ -314,5 +314,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"KillTracker", L"killtracker", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(KillTrackerPlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+	return PluginInfo{
+	    .name = L"KillTracker",
+	    .shortName = L"killtracker",
+	    .versionMajor = PluginMajorVersion::V05,
+	    .versionMinor = PluginMinorVersion::V00
+	};
+};
+
+SetupPlugin(KillTrackerPlugin);

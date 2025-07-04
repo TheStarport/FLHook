@@ -44,7 +44,8 @@
     catch ([[maybe_unused]] const StopProcessingException&) {} \
     catch (const GameException& ex)                            \
     {                                                          \
-        INFO(std::wstring(ex.Msg()));                                \
+        INFO(std::wstring(ex.Msg()));                          \
+        WARN(std::wstring(ex.Trace()));                        \
         e;                                                     \
     }                                                          \
     catch ([[maybe_unused]] std::exception & exc) { e; }       \
@@ -62,7 +63,7 @@ private:                                                                   \
 #define Cmds(...) \
     std::vector<std::wstring_view> { __VA_ARGS__ }
 
-#define COMMA ,
+#define COMMA      ,
 
 #define FUNCTION   reinterpret_cast<const char*>(__FUNCTION__)
 #define FUNCTION_W reinterpret_cast<const wchar_t*>(__FUNCTIONW__)

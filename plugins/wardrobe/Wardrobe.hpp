@@ -49,9 +49,9 @@ namespace Plugins
             Config config;
 
             bool OnLoadSettings() override;
-            Task UserCmdShowWardrobe(ClientId client, std::wstring_view param);
-            Task UserCmdChangeCostume(ClientId client, std::wstring_view type, std::wstring_view costume);
-            Task UserCmdHandle(ClientId client, std::wstring_view command, std::wstring_view param, std::wstring_view param2);
+            concurrencpp::result<void>UserCmdShowWardrobe(ClientId client, std::wstring_view param);
+            concurrencpp::result<void>UserCmdChangeCostume(ClientId client, std::wstring_view type, std::wstring_view costume);
+            concurrencpp::result<void>UserCmdHandle(ClientId client, std::wstring_view command, std::wstring_view param, std::wstring_view param2);
 
             // clang-format off
             inline static const std::array<CommandInfo<WardrobePlugin>, 1> commands = {

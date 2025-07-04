@@ -3,247 +3,87 @@
 
 #include "API/FLHook/TaskScheduler.hpp"
 
-#include "Exceptions/InvalidParameterException.hpp"
-
-Task::Task(const std::coroutine_handle<Promise> h) : handle(h) {}
-
-Task Task::NullOp() { co_return TaskStatus::Finished; }
-
-void Task::SetClient(ClientId c) { client = c; }
-bool Task::HandleException()
+TaskScheduler::TaskScheduler()
 {
-    UpdateStatus();
+    executor = runtime.make_manual_executor();
+    backgroundExecutor = runtime.thread_pool_executor();
+    timerQueue = runtime.timer_queue();
+}
 
-    if (status == TaskStatus::Finished)
+void TaskScheduler::ProcessTasks()
+{
+    const auto msNow = TimeUtils::UnixTime<std::chrono::milliseconds>();
+    bool processed = false;
+    do
     {
-        return true;
+        processed = executor->loop_once();
     }
+    while (processed && msNow + 12 > TimeUtils::UnixTime<std::chrono::milliseconds>());
 
-    if (const auto exception = handle.promise().GetException(); exception != nullptr)
+    for (auto iter = taskHandles.begin(); iter != taskHandles.end();)
     {
-        try
+        const auto& task = *iter;
+        assert(task);
+
+        if (!task->result)
         {
-            std::rethrow_exception(exception);
-        }
-        catch (const StopProcessingException&)
-        {}
-        catch (const GameException& ex)
-        {
-            if (client.has_value())
-            {
-                client->Message(ex.Msg());
-            }
-            else
-            {
-                WARN(std::wstring(ex.Msg()));
-            }
-        }
-        catch (const std::exception& ex)
-        {
-            WARN(L"Uncaught exception thrown during Task processing!\n{0}",{ L"Exception: ",StringUtils::stows(ex.what())});
+            iter = taskHandles.erase(iter);
+            continue;
         }
 
-        // Terminate the task early due to the exception
-        exceptioned = true;
-        status = TaskStatus::Finished;
-        return false;
-    }
-
-    return true;
-}
-
-void Task::Run()
-{
-    if (status == TaskStatus::Finished)
-    {
-        handle.destroy();
-        return;
-    }
-
-    handle.resume();
-    if (!HandleException())
-    {
-        return;
-    }
-
-    UpdateStatus();
-}
-
-TaskStatus Task::UpdateStatus()
-{
-    if (!exceptioned)
-    {
-        status = handle.promise().GetStatus();
-    }
-
-    return status;
-}
-
-TaskStatus Promise::GetStatus() const { return status; }
-std::exception_ptr Promise::GetException()
-{
-    auto ex = exception;
-    exception = nullptr;
-    return ex;
-}
-std::suspend_never Promise::initial_suspend() const noexcept { return {}; }
-std::suspend_always Promise::final_suspend() const noexcept { return {}; }
-Task Promise::get_return_object() { return Task(std::coroutine_handle<Promise>::from_promise(*this)); }
-void Promise::return_value(TaskStatus&& newStatus) { status = std::forward<TaskStatus>(newStatus); }
-
-std::suspend_always Promise::yield_value(TaskStatus&& newStatus)
-{
-    status = std::forward<TaskStatus>(newStatus);
-    return {};
-}
-
-void Promise::unhandled_exception() noexcept { exception = std::current_exception(); }
-
-void TaskScheduler::ProcessTasksOld(const std::stop_token& st)
-{
-    using namespace std::chrono_literals;
-
-    while (!st.stop_requested())
-    {
-        CallbackTask task;
-        while (incompleteTasksOld.try_dequeue(task))
+        if (task->result.status() == concurrencpp::result_status::exception)
         {
-            if (task.task.index() == 0)
+            // ReSharper disable once CppPassValueParameterByConstReference
+            static auto informUser = [](const ClientId client, const std::wstring message)
             {
-                std::get<0>(task.task)();
-                continue;
-            }
+                if (client)
+                {
+                    client.MessageErr(message);
+                }
+                else
+                {
+                    WARN(message);
+                }
+            };
 
-            if (const auto invokeCallback = std::get<1>(task.task)(task.taskData); invokeCallback && task.callback.has_value())
+            try
             {
-                completeTasksOld.enqueue(task);
+                // Intentionally trigger the exception to handle gracefully
+                task->result.get();
+            }
+            catch (const InvalidParameterException& ex)
+            {
+                auto client = task->client;
+                executor->post([ex, client] { informUser(client, std::wstring(ex.Msg())); });
+                WARN(std::wstring(ex.Trace()));
+            }
+            catch (GameException& ex)
+            {
+                auto client = task->client;
+                executor->post([ex, client] { informUser(client, std::wstring(ex.Msg())); });
+                WARN(std::wstring(ex.Trace()));
+            }
+            catch (const StopProcessingException&)
+            {
+                //
+            }
+            catch (const std::exception& ex)
+            {
+                // Anything else critically log
+                ERROR(StringUtils::stows(ex.what()));
             }
         }
 
-        std::this_thread::sleep_for(50ms);
+        ++iter;
     }
 }
 
-void TaskScheduler::Schedule(std::function<void()> task) { incompleteTasksOld.enqueue({ task }); }
-
-void TaskScheduler::ScheduleWithCallback(std::function<bool()> task, std::function<void()> callback)
+concurrencpp::details::resume_on_awaitable<concurrencpp::thread_pool_executor> TaskScheduler::RunOnBackgroundThread() const
 {
-    incompleteTasksOld.enqueue(CallbackTask{ task, callback, nullptr });
+    return concurrencpp::resume_on(backgroundExecutor);
 }
 
-bool TaskScheduler::AddTask(const std::shared_ptr<Task>& task)
-{
-    task->UpdateStatus();
-    if (task->status == TaskStatus::Finished)
-    {
-        return true;
-    }
+concurrencpp::details::resume_on_awaitable<concurrencpp::manual_executor> TaskScheduler::RunOnMainThread() const { return concurrencpp::resume_on(executor); }
 
-    if (task->status == TaskStatus::FLHookAwait)
-    {
-        return mainTasks.try_enqueue(task);
-    }
-
-    if (task->status == TaskStatus::DatabaseAwait)
-    {
-        return databaseTasks.try_enqueue(task);
-    }
-
-    return false;
-}
-
-std::optional<TaskScheduler::CallbackTask> TaskScheduler::GetCompletedTask()
-{
-    CallbackTask task;
-    if (!completeTasksOld.try_dequeue(task))
-    {
-        return {};
-    }
-
-    return task;
-}
-
-void TaskScheduler::ProcessDatabaseTasks(const std::stop_token& st)
-{
-    using namespace std::chrono_literals;
-    while (!st.stop_requested())
-    {
-        std::this_thread::sleep_for(1ms);
-
-        ProcessTasks(databaseTasks);
-    }
-}
-
-void TaskScheduler::ProcessTasks(moodycamel::ConcurrentQueue<std::shared_ptr<Task>>& tasks)
-{
-    for (size_t i = tasks.size_approx(); i > 0; i--)
-    {
-        std::shared_ptr<Task> t;
-        if (!tasks.try_dequeue(t))
-        {
-            break;
-        }
-
-        const auto existingStatus = t->status;
-        auto informUser = [](const ClientId client, const std::wstring message) -> Task // NOLINT(*-unnecessary-value-param)
-        {
-            co_yield TaskStatus::FLHookAwait;
-
-            if (client)
-            {
-                client.MessageErr(message);
-            }
-            else
-            {
-                WARN(message);
-            }
-
-            co_return TaskStatus::Finished;
-        };
-
-        try
-        {
-            t->Run();
-        }
-        catch (InvalidParameterException& ex)
-        {
-            if (existingStatus == TaskStatus::FLHookAwait)
-            {
-                informUser(t->client.value_or(ClientId()), std::wstring(ex.Msg()));
-            }
-            else
-            {
-                AddTask(std::make_shared<Task>(informUser(t->client.value_or(ClientId()), std::wstring(ex.Msg()))));
-            }
-        }
-        catch (GameException& ex)
-        {
-            if (existingStatus == TaskStatus::FLHookAwait)
-            {
-                informUser(t->client.value_or(ClientId()), std::wstring(ex.Msg()));
-            }
-            else
-            {
-                mainTasks.enqueue(std::make_shared<Task>(informUser(t->client.value_or(ClientId()), std::wstring(ex.Msg()))));
-            }
-        }
-        catch (StopProcessingException&)
-        {
-            // Continue processing
-        }
-        catch (std::exception& ex)
-        {
-            // Anything else critically log
-            ERROR(StringUtils::stows(ex.what()));
-        }
-
-        if (t->status == TaskStatus::FLHookAwait)
-        {
-            mainTasks.try_enqueue(t);
-        }
-        else if (t->status == TaskStatus::DatabaseAwait)
-        {
-            databaseTasks.try_enqueue(t);
-        }
-    }
-}
+Task::Task(concurrencpp::result<void> result, const ClientId client) : result(std::move(result)), client(client) {}
+concurrencpp::result<void> Task::NullOp() { return concurrencpp::make_ready_result<void>(); }

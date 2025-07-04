@@ -1,5 +1,6 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
+#include "Core/ClientServerInterface.hpp"
 #include "PCH.hpp"
 
 #include <API/FLHook/AccountManager.hpp>
@@ -104,8 +105,10 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
     return false;
 }
 
-bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring characterCode)
+concurrencpp::result<void> AccountManager::DeleteCharacter(const ClientId client, const std::wstring characterCode, CHARACTER_ID cid)
 {
+    THREAD_BACKGROUND;
+
     auto db = FLHook::GetDbClient();
     auto session = db->start_session();
     session.start_transaction();
@@ -146,22 +149,25 @@ bool AccountManager::DeleteCharacter(const ClientId client, const std::wstring c
         session.commit_transaction();
         account.characters.erase(charCodeString);
         account.internalAccount->numberOfCharacters = account.characters.size();
-        INFO(L"Successfully hard deleted character: {0}", { L"characterName", wideCharName })
+        INFO(L"Successfully hard deleted character: {0}", { L"characterName", wideCharName });
 
-        return true;
+        THREAD_MAIN;
+
+        IServerImplHook::DestroyCharacterCallback(client, cid);
     }
     catch (std::exception& ex)
     {
-
-        ERROR(L"Error hard deleting character {0}{1}", { L"character", wideCharName }, { L"error", StringUtils::stows(ex.what()) })
+        session.abort_transaction();
+        ERROR(L"Error hard deleting character {0}{1}", { L"character", wideCharName }, { L"error", StringUtils::stows(ex.what()) });
     }
-    session.abort_transaction();
-    return false;
 }
 
-bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId client)
+// ReSharper disable once CppPassValueParameterByConstReference
+concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId client)
 {
+    std::wstring wideAccountId = li.account;
     accounts[client.GetValue()].loginSuccess = false;
+
     const auto db = FLHook::GetDbClient();
     auto session = db->start_session();
     session.start_transaction();
@@ -244,15 +250,18 @@ bool AccountManager::Login(const std::wstring& wideAccountId, const ClientId cli
         session.abort_transaction();
     }
 
-    return true;
+    THREAD_MAIN;
+
+    IServerImplHook::DelayedLogin(li, client);
 }
 
-bool AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newName, const std::shared_ptr<void>& taskData)
+concurrencpp::result<std::wstring> AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newName)
 {
+    THREAD_BACKGROUND;
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
 
-    auto errorMessage = std::static_pointer_cast<std::wstring>(taskData);
+    std::wstring err;
     const auto db = FLHook::GetDbClient();
     try
     {
@@ -262,28 +271,32 @@ bool AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newN
 
         if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); checkCharNameDoc.has_value())
         {
-            *errorMessage = L"Name already taken!";
-            return true;
+            err = L"Name already taken!";
         }
-
-        auto character = AccountManager::GetCurrentCharacterData(client);
-        if (!character)
+        else if (auto character = AccountManager::GetCurrentCharacterData(client); !character)
         {
-            *errorMessage = L"Error fetching the character, contact staff!";
-            return true;
+            err = L"Error fetching the character, contact staff!";
         }
-        character->characterName = StringUtils::wstos(newName);
+        else
+        {
+            character->characterName = StringUtils::wstos(newName);
+        }
     }
     catch (mongocxx::exception& ex)
     {
-
-        ERROR(L"Error checking for taken name", { L"accountId", std::wstring(client.GetCharacterName().Handle()) }, { L"error", StringUtils::stows(ex.what()) })
+        ERROR(
+            L"Error checking for taken name", { L"accountId", std::wstring(client.GetCharacterName().Handle()) }, { L"error", StringUtils::stows(ex.what()) });
+        err = L"Error while contacting database, contact staff!";
     }
-    return true;
+
+    THREAD_MAIN;
+    co_return err;
 }
 
-void AccountManager::Rename(std::wstring currName, std::wstring newName)
+concurrencpp::result<void> AccountManager::Rename(std::wstring currName, std::wstring newName)
 {
+    THREAD_BACKGROUND;
+
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_array;
     using bsoncxx::builder::basic::make_document;
@@ -319,7 +332,6 @@ void AccountManager::Rename(std::wstring currName, std::wstring newName)
     catch (bsoncxx::exception& ex)
     {
         ERROR(L"BSON error renaming {0}{1}", { L"currentName", currName }, { L"error", StringUtils::stows(ex.what()) })
-
         session.abort_transaction();
     }
     catch (mongocxx::exception& ex)
@@ -327,10 +339,14 @@ void AccountManager::Rename(std::wstring currName, std::wstring newName)
         ERROR(L"BSON error renaming {0}{1}", { L"currentName", currName }, { L"error", StringUtils::stows(ex.what()) })
         session.abort_transaction();
     }
+
+    THREAD_MAIN;
 }
 
-void AccountManager::ClearCharacterTransferCode(std::wstring charName)
+concurrencpp::result<bool> AccountManager::ClearCharacterTransferCode(std::wstring charName)
 {
+    THREAD_BACKGROUND;
+
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
 
@@ -338,6 +354,7 @@ void AccountManager::ClearCharacterTransferCode(std::wstring charName)
     auto session = db->start_session();
     session.start_transaction();
 
+    bool result = false;
     try
     {
         const auto config = FLHook::GetConfig();
@@ -359,23 +376,31 @@ void AccountManager::ClearCharacterTransferCode(std::wstring charName)
         }
 
         session.commit_transaction();
+        result = true;
     }
     catch (bsoncxx::exception& ex)
     {
 
-        ERROR(L"BSON Error clearing character transfer code {0}{1}", {L"characterName", charName},{L"error",StringUtils::stows(ex.what()) } )
+        ERROR(L"BSON Error clearing character transfer code {0}{1}", { L"characterName", charName }, { L"error", StringUtils::stows(ex.what()) })
 
         session.abort_transaction();
+        result = false;
     }
     catch (mongocxx::exception& ex)
     {
-        ERROR(L"BSON Error clearing character transfer code {0}{1}", {L"characterName", charName},{L"error",StringUtils::stows(ex.what()) } )
+        ERROR(L"BSON Error clearing character transfer code {0}{1}", { L"characterName", charName }, { L"error", StringUtils::stows(ex.what()) })
         session.abort_transaction();
+        result = false;
     }
+
+    THREAD_MAIN;
+    co_return result;
 }
 
-void AccountManager::SetCharacterTransferCode(std::wstring charName, std::wstring transferCode)
+concurrencpp::result<bool> AccountManager::SetCharacterTransferCode(std::wstring charName, std::wstring transferCode)
 {
+    THREAD_BACKGROUND;
+
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_document;
 
@@ -383,6 +408,7 @@ void AccountManager::SetCharacterTransferCode(std::wstring charName, std::wstrin
     auto session = db->start_session();
     session.start_transaction();
 
+    bool result;
     try
     {
         const auto config = FLHook::GetConfig();
@@ -405,22 +431,29 @@ void AccountManager::SetCharacterTransferCode(std::wstring charName, std::wstrin
         }
 
         session.commit_transaction();
+        result = true;
     }
     catch (bsoncxx::exception& ex)
     {
-        ERROR(L"MongoDB Error setting character transfer code {0}{1}", {L"characterName", charName},{L"error",StringUtils::stows(ex.what()) } )
+        ERROR(L"MongoDB Error setting character transfer code {0}{1}", { L"characterName", charName }, { L"error", StringUtils::stows(ex.what()) })
         session.abort_transaction();
+        result = false;
     }
     catch (mongocxx::exception& ex)
     {
-        ERROR(L"MongoDB Error setting character transfer code {0}{1}", {L"characterName", charName},{L"error",StringUtils::stows(ex.what()) } )
+        ERROR(L"MongoDB Error setting character transfer code {0}{1}", { L"characterName", charName }, { L"error", StringUtils::stows(ex.what()) })
         session.abort_transaction();
+        result = false;
     }
+
+    THREAD_MAIN;
+    co_return result;
 }
 
-bool AccountManager::TransferCharacter(const AccountId account, const std::wstring charName, const std::wstring characterCode,
-                                       const std::shared_ptr<void>& taskData)
+concurrencpp::result<std::wstring> AccountManager::TransferCharacter(const AccountId account, const std::wstring charName, const std::wstring characterCode)
 {
+    THREAD_BACKGROUND;
+
     using bsoncxx::builder::basic::kvp;
     using bsoncxx::builder::basic::make_array;
     using bsoncxx::builder::basic::make_document;
@@ -429,8 +462,7 @@ bool AccountManager::TransferCharacter(const AccountId account, const std::wstri
     auto session = db->start_session();
     session.start_transaction();
 
-    auto errorMessage = std::static_pointer_cast<std::wstring>(taskData);
-
+    std::wstring err;
     try
     {
         // check if character exists
@@ -438,24 +470,23 @@ bool AccountManager::TransferCharacter(const AccountId account, const std::wstri
         // check if current account has capacity for another character
 
         // clang-format off
-    const auto config = FLHook::GetConfig();
-    auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
-    auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        const auto findTransferCharacterDoc = make_document(
-            kvp("$and",
-                make_array(
-                    make_document(kvp("characterName", StringUtils::wstos(charName))),
-                    make_document(kvp("characterTransferCode", StringUtils::wstos(characterCode)))
+        const auto config = FLHook::GetConfig();
+        auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
+        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
+            const auto findTransferCharacterDoc = make_document(
+                kvp("$and",
+                    make_array(
+                        make_document(kvp("characterName", StringUtils::wstos(charName))),
+                        make_document(kvp("characterTransferCode", StringUtils::wstos(characterCode)))
+                    )
                 )
-            )
-        );
+            );
 
         const auto transferredCharacterDoc = charactersCollection.find_one(findTransferCharacterDoc.view());
         if (!transferredCharacterDoc.has_value())
         {
             session.abort_transaction();
-            *errorMessage = L"Character or transfer code was incorrect";
-            return true;
+            err = L"Character or transfer code was incorrect";
         }
 
         const auto transferCharacterOid = transferredCharacterDoc->find("_id")->get_oid();
@@ -478,40 +509,39 @@ bool AccountManager::TransferCharacter(const AccountId account, const std::wstri
         if (auto updatedDocs = accountsCollection.update_one(findNewAccountDoc.view(), updateNewAccountDoc.view()); !updatedDocs->modified_count())
         {
             session.abort_transaction();
-            *errorMessage = L"Character transfer failed on updating of target account!";
-            return true;
+            err = L"Character transfer failed on updating of target account!";
         }
-
-        if (auto updatedDocs = charactersCollection.update_one(findTransferredCharacterDoc.view(), clearCharacterTransferCodeDoc.view());
-            !updatedDocs->modified_count())
+        else if (updatedDocs = charactersCollection.update_one(findTransferredCharacterDoc.view(), clearCharacterTransferCodeDoc.view());
+                 !updatedDocs->modified_count())
         {
             session.abort_transaction();
-            *errorMessage = L"Character transfer failed on updating of the character!";
-            return true;
+            err = L"Character transfer failed on updating of the character!";
         }
-
-        if (auto updatedDocs = accountsCollection.update_one(findOldAccountDoc.view(), updateOldAccountDoc.view()); !updatedDocs->modified_count())
+        else if (updatedDocs = accountsCollection.update_one(findOldAccountDoc.view(), updateOldAccountDoc.view()); !updatedDocs->modified_count())
         {
             session.abort_transaction();
-            *errorMessage = L"Character transfer failed on updating of target account!";
-            return true;
+            err = L"Character transfer failed on updating of target account!";
         }
-        session.commit_transaction();
+        else
+        {
+            session.commit_transaction();
+        }
     }
     catch (bsoncxx::exception& ex)
     {
-        ERROR(L"BSON Error setting character transfer code {0}{1}", {L"characterName", charName},{L"error",StringUtils::stows(ex.what()) } )
+        ERROR(L"BSON Error setting character transfer code {0}{1}", { L"characterName", charName }, { L"error", StringUtils::stows(ex.what()) })
 
-        *errorMessage = L"Database error, report to server staff";
+        err = L"Database error, report to server staff";
         session.abort_transaction();
     }
     catch (mongocxx::exception& ex)
     {
-        ERROR(L"MongoDB Error setting character transfer code {0}{1}", {L"characterName", charName},{L"error",StringUtils::stows(ex.what()) } )
+        ERROR(L"MongoDB Error setting character transfer code {0}{1}", { L"characterName", charName }, { L"error", StringUtils::stows(ex.what()) })
 
-        *errorMessage = L"Database error, report to server staff";
+        err = L"Database error, report to server staff";
         session.abort_transaction();
     }
 
-    return true;
+    THREAD_MAIN;
+    co_return err;
 }

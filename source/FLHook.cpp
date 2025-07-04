@@ -126,6 +126,7 @@ FLHook::FLHook()
             PluginManager::i()->Load(plugin, true);
         }
     }
+
     if (!std::filesystem::exists(L"config"))
     {
         try
@@ -140,32 +141,9 @@ FLHook::FLHook()
         }
     }
 
-    Timer::Add(std::bind_front(&TaskScheduler::ProcessTasks, taskScheduler, std::ref(taskScheduler->mainTasks)), 25);
-    Timer::Add(ProcessPendingAsyncTasks, 250);
+    Timer::Add(std::bind_front(&TaskScheduler::ProcessTasks, taskScheduler), 1);
 
     PatchClientImpl();
-}
-
-void FLHook::ProcessPendingAsyncTasks()
-{
-    std::optional<TaskScheduler::CallbackTask> task;
-    while ((task = TaskScheduler::GetCompletedTask()).has_value())
-    {
-        auto& t = task.value();
-        if (!t.callback.has_value())
-        {
-            continue;
-        }
-
-        if (t.callback.value().index() == 0)
-        {
-            std::get<0>(t.callback.value())(t.taskData);
-        }
-        else
-        {
-            std::get<1>(t.callback.value())();
-        }
-    }
 }
 
 void FLHook::SetupEventLoop()
@@ -317,7 +295,7 @@ bool FLHook::OnServerStart()
     {
         UnloadHookExports();
 
-        ERROR(L"{0}", {L"error", StringUtils::stows(err.what())});
+        ERROR(L"{0}", { L"error", StringUtils::stows(err.what()) });
         return false;
     }
 
@@ -392,42 +370,21 @@ void FLHook::ProcessPendingCommands()
     auto cmd = Logger::GetCommand();
     while (cmd.has_value())
     {
-        try
+        std::wstring& cmdStr = cmd.value();
+        if (cmdStr.empty())
         {
-            std::wstring& cmdStr = cmd.value();
-            if (cmdStr.empty())
-            {
-                continue;
-            }
+            continue;
+        }
 
-            if (cmdStr[0] != L'.')
-            {
-                cmdStr = std::format(L".{}", cmdStr);
-            }
+        if (cmdStr[0] != L'.')
+        {
+            cmdStr = std::format(L".{}", cmdStr);
+        }
 
-            constexpr auto consoleId = L"0"sv;
-            if (const auto response = AdminCommandProcessor::i()->ProcessCommand(ClientId(), AllowedContext::ConsoleOnly, consoleId, cmdStr);
-                response.has_value())
-            {
-                GetTaskScheduler()->AddTask(std::make_shared<Task>(*response));
-            }
-        }
-        catch (InvalidParameterException& ex)
+        constexpr auto consoleId = L"0"sv;
+        if (auto task = AdminCommandProcessor::i()->ProcessCommand(ClientId(), AllowedContext::ConsoleOnly, consoleId, cmdStr))
         {
-            WARN(std::wstring(ex.Msg()));
-        }
-        catch (GameException& ex)
-        {
-            WARN(std::wstring(ex.Msg()));
-        }
-        catch (StopProcessingException&)
-        {
-            // Continue processing
-        }
-        catch (std::exception& ex)
-        {
-            // Anything else critically log
-            WARN(StringUtils::stows(ex.what()));
+            GetTaskScheduler()->StoreTaskHandle(std::make_shared<Task>(std::move(*task), ClientId()));
         }
 
         cmd = Logger::GetCommand();

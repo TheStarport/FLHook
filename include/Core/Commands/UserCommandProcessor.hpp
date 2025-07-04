@@ -4,38 +4,38 @@
 
 class UserCommandProcessor final : public Singleton<UserCommandProcessor>, public AbstractUserCommandProcessor
 {
-        Task GetClientIds(ClientId client);
-        Task SetDieMessage(ClientId client, std::wstring_view param);
-        Task SetDieMessageFontSize(ClientId client, std::wstring_view param);
-        Task SetChatFont(ClientId client, std::wstring_view fontSize, std::wstring_view fontType);
-        Task SetChatTime(ClientId client, std::wstring_view option);
-        Task ShowLastSender(ClientId client);
-        Task ShowSavedMsgs(ClientId client);
-        Task SetSavedMsg(ClientId client, uint index, std::wstring_view msg);
-        Task ReplyToLastMsg(ClientId client, std::wstring_view text);
-        Task MessageTarget(ClientId client, std::wstring_view text);
-        Task MessageTag(ClientId client, std::wstring_view tag, std::wstring_view msg);
-        Task IgnoreUser(ClientId client, std::wstring_view ignoredUser, std::wstring_view flags);
-        Task IgnoreClientId(ClientId client, ClientId ignoredClient, std::wstring_view flags);
-        Task GetIgnoreList(ClientId client);
-        Task RemoveFromIgnored(ClientId client, std::vector<std::wstring_view> charactersToRemove);
-        Task GetSelfClientId(ClientId client);
-        Task MarkTarget(ClientId client);
-        Task Rename(ClientId client, std::wstring_view newName);
-        Task InvitePlayer(ClientId client, ClientId otherClient);
-        Task LeaveGroup(ClientId client);
-        Task FactionInvite(ClientId client, std::wstring_view factionTag);
-        Task TransferCharacter(ClientId client, std::wstring_view cmd, std::wstring_view param1, std::wstring_view param2);
-        // Task DeleteMail(std::wstring_view mailID, std::wstring_view readOnlyDel);
-        // Task ReadMail(uint mailId);
-        // Task ListMail(int pageNumber, std::wstring_view unread);
-        Task GiveCash(ClientId client, std::wstring_view characterName, std::wstring_view amount);
-        Task Time(ClientId client);
-        Task Dice(ClientId client, uint sidesOfDice);
-        Task Coin(ClientId client);
-        Task Value(ClientId client);
-        Task DropRep(ClientId client);
-        Task Help(ClientId client, int page);
+        concurrencpp::result<void> GetClientIds(ClientId client);
+        concurrencpp::result<void> SetDieMessage(ClientId client, std::wstring_view param);
+        concurrencpp::result<void> SetDieMessageFontSize(ClientId client, std::wstring_view param);
+        concurrencpp::result<void> SetChatFont(ClientId client, std::wstring_view fontSize, std::wstring_view fontType);
+        concurrencpp::result<void> SetChatTime(ClientId client, std::wstring_view option);
+        concurrencpp::result<void> ShowLastSender(ClientId client);
+        concurrencpp::result<void> ShowSavedMsgs(ClientId client);
+        concurrencpp::result<void> SetSavedMsg(ClientId client, uint index, std::wstring_view msg);
+        concurrencpp::result<void> ReplyToLastMsg(ClientId client, std::wstring_view text);
+        concurrencpp::result<void> MessageTarget(ClientId client, std::wstring_view text);
+        concurrencpp::result<void> MessageTag(ClientId client, std::wstring_view tag, std::wstring_view msg);
+        concurrencpp::result<void> IgnoreUser(ClientId client, std::wstring_view ignoredUser, std::wstring_view flags);
+        concurrencpp::result<void> IgnoreClientId(ClientId client, ClientId ignoredClient, std::wstring_view flags);
+        concurrencpp::result<void> GetIgnoreList(ClientId client);
+        concurrencpp::result<void> RemoveFromIgnored(ClientId client, std::vector<std::wstring_view> charactersToRemove);
+        concurrencpp::result<void> GetSelfClientId(ClientId client);
+        concurrencpp::result<void> MarkTarget(ClientId client);
+        concurrencpp::result<void> Rename(ClientId client, std::wstring_view newName);
+        concurrencpp::result<void> InvitePlayer(ClientId client, ClientId otherClient);
+        concurrencpp::result<void> LeaveGroup(ClientId client);
+        concurrencpp::result<void> FactionInvite(ClientId client, std::wstring_view factionTag);
+        concurrencpp::result<void> TransferCharacter(ClientId client, std::wstring_view cmd, std::wstring_view param1, std::wstring_view param2);
+        // concurrencpp::result<void>DeleteMail(std::wstring_view mailID, std::wstring_view readOnlyDel);
+        // concurrencpp::result<void>ReadMail(uint mailId);
+        // concurrencpp::result<void>ListMail(int pageNumber, std::wstring_view unread);
+        concurrencpp::result<void> GiveCash(ClientId client, std::wstring_view characterName, std::wstring_view amount);
+        concurrencpp::result<void> Time(ClientId client);
+        concurrencpp::result<void> Dice(ClientId client, uint sidesOfDice);
+        concurrencpp::result<void> Coin(ClientId client);
+        concurrencpp::result<void> Value(ClientId client);
+        concurrencpp::result<void> DropRep(ClientId client);
+        concurrencpp::result<void> Help(ClientId client, int page);
 
         // clang-format off
         inline static const std::array<CommandInfo<UserCommandProcessor>, 27> commands = {
@@ -84,8 +84,8 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         GetUserCommandsFunc(commands);
 
         template <int N>
-        std::optional<Task> MatchCommand(UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd,
-                                         std::vector<std::wstring_view>& paramVector)
+        std::optional<concurrencpp::result<void>> MatchCommand(UserCommandProcessor* processor, ClientId triggeringClient, const std::wstring_view cmd,
+                                                               std::vector<std::wstring_view>& paramVector)
         {
             const CommandInfo<UserCommandProcessor>& command = std::get<N - 1>(commands);
             for (const auto str : command.cmd)
@@ -103,10 +103,11 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
 
         template <>
         // ReSharper disable once CppExplicitSpecializationInNonNamespaceScope
-        std::optional<Task> MatchCommand<0>(UserCommandProcessor* processor, ClientId triggeringClient, std::wstring_view fullCmdString,
-                                            std::vector<std::wstring_view>& paramVector);
+        std::optional<concurrencpp::result<void>> MatchCommand<0>(UserCommandProcessor* processor, ClientId triggeringClient, std::wstring_view fullCmdString,
+                                                                  std::vector<std::wstring_view>& paramVector);
 
     public:
-        std::optional<Task> ProcessCommand(ClientId triggeringClient, const std::wstring_view fullCmdStr, std::vector<std::wstring_view>& paramVector) override;
-        std::optional<Task> ProcessCommand(ClientId triggeringClient, std::wstring_view clientStr, std::wstring_view commandStr);
+        std::optional<concurrencpp::result<void>> ProcessCommand(ClientId triggeringClient, const std::wstring_view fullCmdStr,
+                                                                 std::vector<std::wstring_view>& paramVector) override;
+        std::optional<concurrencpp::result<void>> ProcessCommand(ClientId triggeringClient, std::wstring_view clientStr, std::wstring_view commandStr);
 };

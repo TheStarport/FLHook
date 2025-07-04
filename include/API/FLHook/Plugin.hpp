@@ -63,13 +63,8 @@ struct PluginInfo
         std::wstring shortName;
         PluginMajorVersion versionMajor = PluginMajorVersion::Undefined;
         PluginMinorVersion versionMinor = PluginMinorVersion::Undefined;
-        bool mayUnload;
-
-        PluginInfo() = delete;
-        PluginInfo(const std::wstring_view name, const std::wstring_view shortName, const PluginMajorVersion major, const PluginMinorVersion minor,
-                   const bool mayUnload = true)
-            : name(name), shortName(shortName), versionMajor(major), versionMinor(minor), mayUnload(mayUnload)
-        {}
+        bool mayUnload = true;
+        bool requiresFluf = false;
 };
 
 #ifdef FLHOOK
@@ -148,6 +143,12 @@ class DLL Plugin
     public:
         explicit Plugin(const PluginInfo& info)
         {
+            if (info.name.empty() || info.shortName.empty() || info.versionMajor == PluginMajorVersion::Undefined ||
+                info.versionMinor == PluginMinorVersion::Undefined)
+            {
+                throw GameException(L"Plugin was created without valid data!");
+            }
+
             name = info.name;
             shortName = info.shortName;
             mayUnload = info.mayUnload;
@@ -342,9 +343,10 @@ class DLL PacketInterface
 
 #undef Aft
 
-#define SetupPlugin(type, info)                                               \
+#define SetupPlugin(type)                                                     \
     EXPORT std::shared_ptr<type> PluginFactory()                              \
     {                                                                         \
+        auto pi = getPi();                                                    \
         __pragma(comment(linker, "/EXPORT:" __FUNCTION__ "=" __FUNCDNAME__)); \
-        return std::move(std::make_shared<type>(info));                       \
+        return std::move(std::make_shared<type>(pi));                         \
     }

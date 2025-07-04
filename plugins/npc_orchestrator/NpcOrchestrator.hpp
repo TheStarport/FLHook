@@ -31,7 +31,7 @@ namespace Plugins
              * or solar will spawn at a random coordinate near the user's location.
              */
 
-            Task AdminCmdCreateNpc(ClientId client);
+            concurrencpp::result<void>AdminCmdCreateNpc(ClientId client);
 
             // npc_spawn [group] [npc_class] [?count] [?system] [?coordinates] [?rank] [?delay] [?message]
 

@@ -12,21 +12,21 @@ void TaxPlugin::RemoveTax(const Tax& toRemove)
     taxes.erase(taxToRemove);
 }
 
-Task TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
+concurrencpp::result<void>TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
 {
     const auto& noPvpSystems = FLHook::GetConfig()->general.noPvPSystems;
     // no-pvp check
     if (const SystemId system = client.GetSystemId().Unwrap(); std::ranges::find(noPvpSystems, system) == noPvpSystems.end())
     {
         client.Message(L"Error: You cannot tax in a No-PvP system.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     if (taxAmount.empty())
     {
         client.Message(L"Usage:");
         client.Message(L"/tax <credits>");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     const uint taxValue = StringUtils::MultiplyUIntBySuffix(taxAmount);
@@ -34,7 +34,7 @@ Task TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
     if (taxValue > config.maxTax)
     {
         client.Message(std::format(L"Error: Maximum tax value is {} credits.", config.maxTax));
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     const auto targetShip = client.GetShip().Handle().GetTarget().Handle();
@@ -43,7 +43,7 @@ Task TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
     if (!player)
     {
         client.Message(L"Error: Your current target is not a player.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     for (const auto& [targetId, initiatorId, target, initiator, cash, f1] : taxes)
@@ -51,7 +51,7 @@ Task TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
         if (targetId == player)
         {
             client.Message(L"Error: There already is a tax request pending for this player.");
-            co_return TaskStatus::Finished;
+            co_return;
         }
     }
 
@@ -84,10 +84,10 @@ Task TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
         client.Message(std::vformat(config.huntingMessageOriginator, std::make_wformat_args(targetCharacterName)));
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task TaxPlugin::UserCmdPay(const ClientId client)
+concurrencpp::result<void>TaxPlugin::UserCmdPay(const ClientId client)
 {
     for (auto& it : taxes)
     {
@@ -99,14 +99,14 @@ Task TaxPlugin::UserCmdPay(const ClientId client)
         if (it.cash == 0)
         {
             client.Message(config.cannotPay);
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         if (const auto cash = client.GetCash().Unwrap(); cash < it.cash)
         {
             client.Message(L"You have not enough money to pay the tax.");
             it.initiatorId.Message(L"The player does not have enough money to pay the tax.");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         client.RemoveCash(it.cash).Handle();
@@ -120,12 +120,12 @@ Task TaxPlugin::UserCmdPay(const ClientId client)
         // Queue up some saves
         client.SaveChar();
         it.initiatorId.SaveChar();
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     client.Message(L"Error: No tax request was found that could be accepted!");
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
 void TaxPlugin::FiveSecondTimer()
@@ -180,5 +180,15 @@ TaxPlugin::~TaxPlugin() { Timer::Remove(timer); }
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Tax", L"tax", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(TaxPlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+	return PluginInfo{
+	    .name = L"Tax",
+	    .shortName = L"tax",
+	    .versionMajor = PluginMajorVersion::V05,
+	    .versionMinor = PluginMinorVersion::V00
+	};
+};
+
+SetupPlugin(TaxPlugin);

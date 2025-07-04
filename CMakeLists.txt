@@ -21,6 +21,7 @@ if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
 endif ()
 
 # Starting variables / paths
+include(FetchContent)
 set(ROOT_PROJECT_NAME "FLHook")
 set(PROJECT_NAME ${ROOT_PROJECT_NAME})
 set(SOURCE_PATH "${PROJECT_SOURCE_DIR}/source")
@@ -33,6 +34,10 @@ set(PLUGIN_OUTPUT_DIR ${PROJECT_OUTPUT_DIR}/plugins)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /cgthreads8 /bigobj")
+
+# Load Concurrencpp
+FetchContent_Declare(concurrencpp SOURCE_DIR "${VENDOR}/concurrencpp")
+FetchContent_MakeAvailable(concurrencpp)
 
 # Load cache variables from
 include("LoadConf.cmake")
@@ -71,7 +76,6 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_OUTPUT_DIR}
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_PATH}/External/uvw)
 target_dependencies(${PROJECT_NAME})
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE

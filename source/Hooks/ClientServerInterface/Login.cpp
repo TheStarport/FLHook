@@ -91,7 +91,7 @@ void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
     });
 }
 
-void IServerImplHook::DelayedLogin(const SLoginInfo& li, ClientId client)
+void IServerImplHook::DelayedLogin(SLoginInfo li, ClientId client)
 {
     CallServerPreamble { Server.Login(li, client.GetValue()); }
     CallServerPostamble(true, );
@@ -115,6 +115,6 @@ void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
 
     if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip)
     {
-        TaskScheduler::ScheduleWithCallback<void>(std::bind(AccountManager::Login, li.account, client), std::bind(&IServerImplHook::DelayedLogin, li, client));
+        FLHook::GetTaskScheduler()->ScheduleTask(AccountManager::Login, li, client);
     }
 }

@@ -25,10 +25,15 @@ function(TARGET_DEPENDENCIES PROJ)
     target_include_directories(${PROJ} PRIVATE ${VENDOR}/reflect-cpp/include/rfl/thirdparty)
     target_link_libraries(${PROJ} PRIVATE reflectcpp)
 
+    # PCH
     target_precompile_headers(${PROJ} PRIVATE ${INCLUDE_PATH}/PCH.hpp)
+
+    # Concurrencpp
+    target_link_libraries(${PROJ} PRIVATE concurrencpp::concurrencpp)
 
     # conan dependencies
     find_package(concurrentqueue CONFIG REQUIRED)
+    find_package(cpptrace CONFIG REQUIRED)
     find_package(croncpp CONFIG REQUIRED)
     find_package(glm CONFIG REQUIRED)
     find_PACKAGE(httplib CONFIG REQUIRED)
@@ -37,7 +42,7 @@ function(TARGET_DEPENDENCIES PROJ)
     find_package(stduuid CONFIG REQUIRED)
     find_package(xbyak CONFIG REQUIRED)
     find_package(zstd REQUIRED)
-    target_link_libraries(${PROJ} PUBLIC concurrentqueue::concurrentqueue croncpp::croncpp glm::glm httplib::httplib
+    target_link_libraries(${PROJ} PUBLIC concurrentqueue::concurrentqueue cpptrace::cpptrace croncpp::croncpp glm::glm httplib::httplib
             magic_enum::magic_enum openssl::openssl stduuid::stduuid xbyak::xbyak zstd::libzstd_static)
 
     # Lua

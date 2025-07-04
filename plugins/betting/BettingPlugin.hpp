@@ -61,11 +61,11 @@ namespace Plugins
             std::unordered_map<SystemId, FreeForAll> freeForAlls;
 
             // User Commands.
-            Task UserCmdStartFreeForAll(ClientId client, uint amount);
-            Task UserCmdAcceptFFA(ClientId client);
-            Task UserCmdDuel(ClientId client, uint amount);
-            Task UserCmdAcceptDuel(ClientId client);
-            Task UserCmdCancel(ClientId client);
+            concurrencpp::result<void>UserCmdStartFreeForAll(ClientId client, uint amount);
+            concurrencpp::result<void>UserCmdAcceptFFA(ClientId client);
+            concurrencpp::result<void>UserCmdDuel(ClientId client, uint amount);
+            concurrencpp::result<void>UserCmdAcceptDuel(ClientId client);
+            concurrencpp::result<void>UserCmdCancel(ClientId client);
 
             inline static const std::array<CommandInfo<BettingPlugin>, 5> commands = {
                 { AddCommand(BettingPlugin, Cmds(L"/ffa"sv), UserCmdStartFreeForAll, L"/ffa",

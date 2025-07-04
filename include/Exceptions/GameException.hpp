@@ -9,13 +9,14 @@
 class DLL GameException : std::exception
 {
         std::wstring msg;
+        std::wstring trace;
 
     public:
 #ifdef SERVER
-        explicit GameException(std::wstring msg, const Error err) : msg(std::format(L"{}\n{}", std::move(msg), ErrorInfo::GetText(err))) {}
+        explicit GameException(const std::wstring& msg, const Error err);
 #endif
 
-        explicit GameException(std::wstring msg) : msg(std::move(msg)) {}
+        explicit GameException(const std::wstring& msg);
         ~GameException() noexcept override = default;
 
         /**
@@ -30,5 +31,15 @@ class DLL GameException : std::exception
         /**
          * @brief Retrieve the underlying error message from the exception
          */
-        [[nodiscard]] std::wstring_view Msg() const { return msg; }
+        [[nodiscard]]
+        std::wstring_view Msg() const
+        {
+            return msg;
+        }
+
+        [[nodiscard]]
+        std::wstring_view Trace() const
+        {
+            return trace;
+        }
 };

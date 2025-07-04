@@ -306,5 +306,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Startup Solars", L"startup_solars", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(StartupSolarsPlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+	return PluginInfo{
+	    .name = L"Startup Solars",
+	    .shortName = L"startup_solars",
+	    .versionMajor = PluginMajorVersion::V05,
+	    .versionMinor = PluginMinorVersion::V00
+	};
+};
+
+SetupPlugin(StartupSolarsPlugin);

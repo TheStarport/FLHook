@@ -4,39 +4,39 @@
 
 class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, public AbstractAdminCommandProcessor
 {
-        Task SetCash(ClientId client, std::wstring_view characterName, uint amount);
-        Task GetCash(ClientId client, std::wstring_view characterName);
-        Task AddCash(ClientId client, std::wstring_view characterName, int amount);
-        Task KickPlayer(ClientId client, ClientId target, std::wstring_view reason);
-        Task BanPlayer(ClientId client, std::wstring_view characterName);
-        Task TempbanPlayer(ClientId client, std::wstring_view characterName, uint durationInDays);
-        Task UnBanPlayer(ClientId client, std::wstring_view characterName);
-        Task GetClientId(ClientId client, ClientId target);
-        Task KillPlayer(ClientId client, ClientId target);
-        Task SetRep(ClientId client, ClientId target, RepGroupId repGroup, float value);
-        Task ResetRep(ClientId client, ClientId target, RepGroupId repGroup);
-        Task GetRep(ClientId client, ClientId target, RepGroupId repGroup);
-        Task MessagePlayer(ClientId client, ClientId target, const std::wstring_view text);
-        Task SendSystemMessage(ClientId client, SystemId system, const std::wstring_view text);
-        Task SendUniverseMessage(ClientId client, std::wstring_view text);
-        Task ListCargo(ClientId client, const ClientId target);
-        Task AddCargo(ClientId client, ClientId target, GoodInfo* good, uint count, const bool mission);
-        Task RenameChar(ClientId client, ClientId target, std::wstring_view newName);
-        Task DeleteChar(ClientId client, std::wstring_view characterName);
-        Task GetPlayerInfo(ClientId client, const ClientId target);
-        Task AddRoles(ClientId client, const std::wstring_view target, std::vector<std::wstring_view> roles);
-        Task DeleteRoles(ClientId client, std::wstring_view characterName, std::vector<std::wstring_view> roles);
-        Task SetRoles(ClientId client, std::wstring_view characterName, std::vector<std::wstring_view> roles);
-        Task LoadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames);
-        Task UnloadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames);
-        Task ReloadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames);
-        Task ListPlugins(ClientId client);
-        Task Chase(ClientId client, const ClientId target);
-        Task Beam(ClientId client, ClientId target, BaseId base);
-        Task Pull(ClientId client, ClientId target);
-        Task SetDamageType(ClientId client, std::wstring_view newDamageType);
-        Task Move(ClientId client, ClientId target, float x, float y, float z);
-        Task Help(ClientId client, int page);
+        concurrencpp::result<void> SetCash(ClientId client, std::wstring_view characterName, uint amount);
+        concurrencpp::result<void> GetCash(ClientId client, std::wstring_view characterName);
+        concurrencpp::result<void> AddCash(ClientId client, std::wstring_view characterName, int amount);
+        concurrencpp::result<void> KickPlayer(ClientId client, ClientId target, std::wstring_view reason);
+        concurrencpp::result<void> BanPlayer(ClientId client, std::wstring_view characterName);
+        concurrencpp::result<void> TempbanPlayer(ClientId client, std::wstring_view characterName, uint durationInDays);
+        concurrencpp::result<void> UnBanPlayer(ClientId client, std::wstring_view characterName);
+        concurrencpp::result<void> GetClientId(ClientId client, ClientId target);
+        concurrencpp::result<void> KillPlayer(ClientId client, ClientId target);
+        concurrencpp::result<void> SetRep(ClientId client, ClientId target, RepGroupId repGroup, float value);
+        concurrencpp::result<void> ResetRep(ClientId client, ClientId target, RepGroupId repGroup);
+        concurrencpp::result<void> GetRep(ClientId client, ClientId target, RepGroupId repGroup);
+        concurrencpp::result<void> MessagePlayer(ClientId client, ClientId target, const std::wstring_view text);
+        concurrencpp::result<void> SendSystemMessage(ClientId client, SystemId system, const std::wstring_view text);
+        concurrencpp::result<void> SendUniverseMessage(ClientId client, std::wstring_view text);
+        concurrencpp::result<void> ListCargo(ClientId client, const ClientId target);
+        concurrencpp::result<void> AddCargo(ClientId client, ClientId target, GoodInfo* good, uint count, const bool mission);
+        concurrencpp::result<void> RenameChar(ClientId client, ClientId target, std::wstring_view newName);
+        concurrencpp::result<void> DeleteChar(ClientId client, std::wstring_view characterName);
+        concurrencpp::result<void> GetPlayerInfo(ClientId client, const ClientId target);
+        concurrencpp::result<void> AddRoles(ClientId client, const std::wstring_view target, std::vector<std::wstring_view> roles);
+        concurrencpp::result<void> DeleteRoles(ClientId client, std::wstring_view characterName, std::vector<std::wstring_view> roles);
+        concurrencpp::result<void> SetRoles(ClientId client, std::wstring_view characterName, std::vector<std::wstring_view> roles);
+        concurrencpp::result<void> LoadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames);
+        concurrencpp::result<void> UnloadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames);
+        concurrencpp::result<void> ReloadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames);
+        concurrencpp::result<void> ListPlugins(ClientId client);
+        concurrencpp::result<void> Chase(ClientId client, const ClientId target);
+        concurrencpp::result<void> Beam(ClientId client, ClientId target, BaseId base);
+        concurrencpp::result<void> Pull(ClientId client, ClientId target);
+        concurrencpp::result<void> SetDamageType(ClientId client, std::wstring_view newDamageType);
+        concurrencpp::result<void> Move(ClientId client, ClientId target, float x, float y, float z);
+        concurrencpp::result<void> Help(ClientId client, int page);
 
         const inline static std::array<AdminCommandInfo<AdminCommandProcessor>, 32> commands = {
             { AddAdminCommand(AdminCommandProcessor, Cmds(L".getcash"), GetCash, GameAndConsole, Cash, L".getcash <charname> <cash>",
@@ -108,8 +108,8 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         GetAdminCommandsFunc(commands);
 
         template <int N>
-        std::optional<Task> MatchCommand(AdminCommandProcessor* processor, ClientId user, AllowedContext currentContext, std::wstring_view cmd,
-                                         std::vector<std::wstring_view>& paramVector)
+        std::optional<concurrencpp::result<void>> MatchCommand(AdminCommandProcessor* processor, ClientId user, AllowedContext currentContext,
+                                                               std::wstring_view cmd, std::vector<std::wstring_view>& paramVector)
         {
             for (const auto& command = std::get<N - 1>(commands); auto& str : command.cmd)
             {
@@ -131,16 +131,17 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
 
         template <>
         // ReSharper disable once CppExplicitSpecializationInNonNamespaceScope
-        std::optional<Task> MatchCommand<0>(AdminCommandProcessor* processor, ClientId user, AllowedContext currentContext, std::wstring_view cmd,
-                                            std::vector<std::wstring_view>& paramVector)
+        std::optional<concurrencpp::result<void>> MatchCommand<0>(AdminCommandProcessor* processor, ClientId user, AllowedContext currentContext,
+                                                                  std::wstring_view cmd, std::vector<std::wstring_view>& paramVector)
         {
             // No matching command was found
             return std::nullopt;
         }
 
-        std::optional<Task> ProcessCommand(ClientId user, const AllowedContext currentContext, std::wstring_view cmd,
-                                           std::vector<std::wstring_view>& paramVector) override;
+        std::optional<concurrencpp::result<void>> ProcessCommand(ClientId user, const AllowedContext currentContext, std::wstring_view cmd,
+                                                                 std::vector<std::wstring_view>& paramVector) override;
 
     public:
-        std::optional<Task> ProcessCommand(ClientId client, const AllowedContext currentContext, std::wstring_view clientStr, std::wstring_view commandString);
+        std::optional<concurrencpp::result<void>> ProcessCommand(ClientId client, const AllowedContext currentContext, std::wstring_view clientStr,
+                                                                 std::wstring_view commandString);
 };

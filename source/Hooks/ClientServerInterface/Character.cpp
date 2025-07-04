@@ -143,7 +143,7 @@ void __stdcall IServerImplHook::CreateNewCharacter(const SCreateCharacterInfo& c
 
     if (const auto skip = CallPlugins(&Plugin::OnCharacterCreation, client, createCharacterInfo); !skip)
     {
-        TaskScheduler::Schedule(std::bind(AccountManager::OnCreateNewCharacterCopy, &Players[client.GetValue()], createCharacterInfo));
+        FLHook::GetTaskScheduler()->ScheduleTask(AccountManager::OnCreateNewCharacterCopy, &Players[client.GetValue()], createCharacterInfo);
     }
 }
 
@@ -163,8 +163,7 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
     if (const auto skip = CallPlugins(&Plugin::OnCharacterDelete, client, std::wstring_view(charName)); !skip)
     {
         CHARACTER_ID cidCopy = cid;
-        TaskScheduler::ScheduleWithCallback<void>(std::bind(AccountManager::DeleteCharacter, client, charName),
-                                                  std::bind(IServerImplHook::DestroyCharacterCallback, client, cidCopy));
+        FLHook::GetTaskScheduler()->ScheduleTask(AccountManager::DeleteCharacter, client, charName, cidCopy);
     }
 }
 

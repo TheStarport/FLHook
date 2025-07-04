@@ -63,12 +63,12 @@ namespace Plugins
             /**
              * @brief Used to switch to the arena system
              */
-            Task UserCmdArena(ClientId client);
+            concurrencpp::result<void>UserCmdArena(ClientId client);
 
             /**
              * @brief Used to return from the arena system.
              */
-            Task UserCmdReturn(ClientId client);
+            concurrencpp::result<void>UserCmdReturn(ClientId client);
 
             // clang-format off
             inline static const std::array<CommandInfo<ArenaPlugin>, 2> commands = {

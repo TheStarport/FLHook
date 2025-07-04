@@ -63,9 +63,9 @@ namespace Plugins
             void OnServerStartupAfter() override;
             void OnBaseEnterAfter(BaseId base, ClientId client) override;
 
-            Task UserCmdStartQuest(ClientId client, StrToEnd questName);
-            Task UserCmdListQuests(ClientId client) const;
-            Task UserCmdConfirmQuest(ClientId client);
+            concurrencpp::result<void>UserCmdStartQuest(ClientId client, StrToEnd questName);
+            concurrencpp::result<void>UserCmdListQuests(ClientId client) const;
+            concurrencpp::result<void>UserCmdConfirmQuest(ClientId client);
 
             // clang-format off
             inline static const std::array<CommandInfo<QuestingPlugin>, 3> commands =

@@ -84,11 +84,11 @@ namespace Plugins
                                                          DOCK_HOST_RESPONSE response) override;
             bool OnLoadSettings() override;
 
-            Task UserCmdNetSwitch(ClientId client, std::wstring_view networkName);
-            Task UserCmdNetList(ClientId client);
-            Task UserCmdNet(ClientId client, std::wstring_view setting, bool newState);
-            Task UserCmdNodockInfo(ClientId client);
-            Task UserCmdNodock(ClientId client);
+            concurrencpp::result<void>UserCmdNetSwitch(ClientId client, std::wstring_view networkName);
+            concurrencpp::result<void>UserCmdNetList(ClientId client);
+            concurrencpp::result<void>UserCmdNet(ClientId client, std::wstring_view setting, bool newState);
+            concurrencpp::result<void>UserCmdNodockInfo(ClientId client);
+            concurrencpp::result<void>UserCmdNodock(ClientId client);
 
             const inline static std::array<CommandInfo<TrafficControlPlugin>, 5> commands = {
                 {

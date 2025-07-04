@@ -103,7 +103,8 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
 
             std::wstring clientIdStr = std::to_wstring(from.id);
             auto* processor = UserCommandProcessor::i();
-            if (auto task = processor->ProcessCommand(ClientId(from.id), clientIdStr, std::wstring_view(cmdString)); task.has_value())
+            ClientId client{ from.id };
+            if (auto task = processor->ProcessCommand(client, clientIdStr, std::wstring_view(cmdString)); task.has_value())
             {
                 if (FLHook::GetConfig()->chatConfig.echoCommands)
                 {
@@ -113,14 +114,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
                     InternalApi::SendMessage(ClientId(from.id), xml, ClientId());
                 }
 
-                auto t = std::make_shared<Task>(*task);
-                t->SetClient(ClientId(from.id));
-                t->HandleException();
-
-                if (t->UpdateStatus() != TaskStatus::Finished)
-                {
-                    FLHook::GetTaskScheduler()->AddTask(t);
-                }
+                FLHook::GetTaskScheduler()->StoreTaskHandle(std::make_shared<Task>(std::move(*task), client));
 
                 return false;
             }
@@ -156,16 +150,10 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
             const std::wstring cmdString = ReplaceExclamationMarkWithClientId(strBuffer, from.id);
             auto* processor = AdminCommandProcessor::i();
             const auto clientStr = std::to_wstring(from.id);
-            if (auto response = processor->ProcessCommand(ClientId(from.id), AllowedContext::GameOnly, clientStr, cmdString); response.has_value())
+            auto client = ClientId(from.id);
+            if (auto task = processor->ProcessCommand(client, AllowedContext::GameOnly, clientStr, cmdString); task.has_value())
             {
-                auto t = std::make_shared<Task>(*response);
-                t->SetClient(ClientId(from.id));
-                t->HandleException();
-
-                if (t->UpdateStatus() != TaskStatus::Finished)
-                {
-                    FLHook::GetTaskScheduler()->AddTask(t);
-                }
+                FLHook::GetTaskScheduler()->StoreTaskHandle(std::make_shared<Task>(std::move(*task), client));
             }
             return false;
         }

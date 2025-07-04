@@ -11,7 +11,10 @@ namespace Plugins
         if (const auto iter = std::ranges::find(config.itemsOfInterest, goodId); iter != config.itemsOfInterest.end())
         {
             const auto charName = client.GetCharacterName().Handle();
-            INFO(L"Item '{0}' found in cargo of {1} - {2}", {L"GoodID", std::to_wstring(goodId.GetHash().Unwrap())}, {L"CharName", std::wstring(charName)}, {L"Detail", std::wstring(details)});
+            INFO(L"Item '{0}' found in cargo of {1} - {2}",
+                 { L"GoodID", std::to_wstring(goodId.GetHash().Unwrap()) },
+                 { L"CharName", std::wstring(charName) },
+                 { L"Detail", std::wstring(details) });
         }
     }
 
@@ -81,7 +84,7 @@ namespace Plugins
             if (!CheckIdEquipRestrictions(client, good, false))
             {
                 const auto charName = client.GetCharacterName().Handle();
-                INFO(L"{0} attempting to buy {1} without correct Id", {L"Name", std::wstring(charName)}, {L"GoodId", std::to_wstring(info.goodId)});
+                INFO(L"{0} attempting to buy {1} without correct Id", { L"Name", std::wstring(charName) }, { L"GoodId", std::to_wstring(info.goodId) });
                 if (config.enforceItemRestrictions)
                 {
                     client.Message(config.goodPurchaseDenied);
@@ -110,7 +113,9 @@ namespace Plugins
                 config.shipItemRestrictions.contains(shipGood) && !CheckIdEquipRestrictions(client, shipGood, true))
             {
                 const auto charName = client.GetCharacterName().Handle();
-                INFO(L"{0} attempting to buy {1} without correct Id", { L"Name", std::wstring(charName) }, { L"ShipGood", std::to_wstring(hullInfo->shipGoodId)});
+                INFO(L"{0} attempting to buy {1} without correct Id",
+                     { L"Name", std::wstring(charName) },
+                     { L"ShipGood", std::to_wstring(hullInfo->shipGoodId) });
                 if (config.enforceItemRestrictions)
                 {
                     client.Message(config.shipPurchaseDenied);
@@ -180,6 +185,16 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"PurchaseRestrictions", L"purchase_restrictions", PluginMajorVersion::V05, PluginMinorVersion::V00);
+// clang-format off
+constexpr auto getPi = []
+{
+    return PluginInfo{
+        .name = L"PurchaseRestrictions",
+        .shortName = L"purchase_restrictions",
+        .versionMajor = PluginMajorVersion::V05,
+        .versionMinor = PluginMinorVersion::V00
+    };
+};
 
-SetupPlugin(PurchaseRestrictionsPlugin, Info);
+
+SetupPlugin(PurchaseRestrictionsPlugin);

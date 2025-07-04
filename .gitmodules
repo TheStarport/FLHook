@@ -10,3 +10,7 @@
 [submodule "vendor/result"]
 	path = vendor/result
 	url = https://github.com/bitwizeshift/result.git
+[submodule "vendor/concurrencpp"]
+	path = vendor/concurrencpp
+	url = https://github.com/David-Haim/concurrencpp.git
+	branch = develop

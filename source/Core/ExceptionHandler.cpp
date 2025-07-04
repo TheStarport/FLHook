@@ -8,6 +8,8 @@
 #include <Psapi.h>
 #include <csignal>
 
+// TODO: Integrate CPP Trace
+
 #pragma pack(push, ehdata, 4)
 
 struct msvc__PMD // NOLINT(*-reserved-identifier)
@@ -320,7 +322,7 @@ void ExceptionHandler::LogException(const SehException& ex)
         }
         else
         {
-           ERROR(L"No register information available");
+            ERROR(L"No register information available");
         }
     }
     catch (...)

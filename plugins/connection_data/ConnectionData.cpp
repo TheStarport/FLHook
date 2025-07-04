@@ -346,25 +346,25 @@ namespace Plugins
     /** @ingroup Condata
      * @brief Gets called when the player types /ping
      */
-    Task ConnectionDataPlugin::UserCmdPing(ClientId client)
+    concurrencpp::result<void>ConnectionDataPlugin::UserCmdPing(ClientId client)
     {
         if (!config.allowPing)
         {
             (void)client.MessageErr(L"Command disabled");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         PrintClientPing(client, client);
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    Task ConnectionDataPlugin::UserCmdPingTarget(ClientId client)
+    concurrencpp::result<void>ConnectionDataPlugin::UserCmdPingTarget(ClientId client)
     {
         if (!config.allowPing)
         {
             (void)client.MessageErr(L"Command disabled");
-            co_return TaskStatus::Finished;
+            co_return;
         }
         const ShipId ship = client.GetShip().Handle();
         const auto target = ship.GetTarget().Handle();
@@ -373,17 +373,17 @@ namespace Plugins
         if (!targetClient)
         {
             (void)client.MessageErr(L"Target not a player");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         PrintClientPing(client, targetClient);
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     /** @ingroup Condata
      * @brief Process admin commands.
      */
-    Task ConnectionDataPlugin::AdminCmdGetStats(ClientId admin)
+    concurrencpp::result<void>ConnectionDataPlugin::AdminCmdGetStats(ClientId admin)
     {
         PlayerData* playerData = nullptr;
         while ((playerData = Players.traverse_active(playerData)))
@@ -413,7 +413,7 @@ namespace Plugins
                                       txqueue));
         }
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     bool ConnectionDataPlugin::OnLoadSettings()
@@ -443,5 +443,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"ConData", L"condata", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(ConnectionDataPlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+	return PluginInfo{
+	    .name = L"ConData",
+	    .shortName = L"condata",
+	    .versionMajor = PluginMajorVersion::V05,
+	    .versionMinor = PluginMinorVersion::V00
+	};
+};
+
+SetupPlugin(ConnectionDataPlugin);

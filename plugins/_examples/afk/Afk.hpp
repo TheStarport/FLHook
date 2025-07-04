@@ -32,13 +32,13 @@ namespace Plugins
              * @brief This command is called when a player types /afk. It prints a message in red text to nearby players saying they are afk. It will also let
              * anyone who messages them know too.
              */
-            Task UserCmdAfk(ClientId);
+            concurrencpp::result<void>UserCmdAfk(ClientId);
 
             /**
              * @brief This command is called when a player types /back. It removes the afk status and welcomes the player back.
              * who messages them know too.
              */
-            Task UserCmdBack(ClientId);
+            concurrencpp::result<void>UserCmdBack(ClientId);
 
             void OnClearClientInfo(ClientId client) override;
             void OnSendChat(ClientId fromClient, ClientId targetClient, uint size, void* rdl) override;

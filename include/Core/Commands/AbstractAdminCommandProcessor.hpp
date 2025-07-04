@@ -31,7 +31,7 @@ template <class Processor>
 struct AdminCommandInfo
 {
         std::vector<std::wstring_view> cmd;
-        Task (*func)(Processor* cl, std::vector<std::wstring_view>& params);
+        concurrencpp::result<void> (*func)(Processor* cl, std::vector<std::wstring_view>& params);
         AllowedContext allowedContext;
         std::wstring_view requiredRole;
         std::wstring_view usage;
@@ -87,7 +87,7 @@ class AbstractAdminCommandProcessor
 
     public:
         virtual ~AbstractAdminCommandProcessor() = default;
-        virtual std::optional<Task> ProcessCommand(ClientId user, AllowedContext currentContext, std::wstring_view cmd,
+        virtual std::optional<concurrencpp::result<void>> ProcessCommand(ClientId user, AllowedContext currentContext, std::wstring_view cmd,
                                                    std::vector<std::wstring_view>& paramVector) = 0;
         virtual const std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>>& GetAdminCommands() const = 0;
 };
@@ -120,7 +120,7 @@ concept IsAdminCommandProcessor = std::is_base_of_v<AbstractAdminCommandProcesso
 
 #define SetupAdminCommandHandler(class, commandArray)                                                                                                        \
     template <int N>                                                                                                                                         \
-    std::optional<Task> MatchCommand(class* processor, const std::wstring_view cmd, std::vector<std::wstring_view>& paramVector)                             \
+    std::optional<concurrencpp::result<void>> MatchCommand(class* processor, const std::wstring_view cmd, std::vector<std::wstring_view>& paramVector)                             \
     {                                                                                                                                                        \
         const AdminCommandInfo<class>& command = std::get<N - 1>(class ::commandArray);                                                                      \
         for (auto& str : command.cmd)                                                                                                                        \
@@ -136,12 +136,12 @@ concept IsAdminCommandProcessor = std::is_base_of_v<AbstractAdminCommandProcesso
     }                                                                                                                                                        \
                                                                                                                                                              \
     template <>                                                                                                                                              \
-    std::optional<Task> MatchCommand<0>(class * processor, std::wstring_view cmd, std::vector<std::wstring_view> & paramVector)                              \
+    std::optional<concurrencpp::result<void>> MatchCommand<0>(class * processor, std::wstring_view cmd, std::vector<std::wstring_view> & paramVector)                              \
     {                                                                                                                                                        \
         return std::nullopt;                                                                                                                                 \
     }                                                                                                                                                        \
                                                                                                                                                              \
-    std::optional<Task> ProcessCommand(ClientId client, AllowedContext context, std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) override \
+    std::optional<concurrencpp::result<void>> ProcessCommand(ClientId client, AllowedContext context, std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) override \
     {                                                                                                                                                        \
         currentContext = context;                                                                                                                            \
         return MatchCommand<commandArray.size()>(this, cmd, paramVector);                                                                                    \

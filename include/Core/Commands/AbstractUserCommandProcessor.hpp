@@ -11,7 +11,7 @@ class AbstractUserCommandProcessor
 {
     public:
         virtual ~AbstractUserCommandProcessor() = default;
-        virtual std::optional<Task> ProcessCommand(ClientId client, std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) = 0;
+        virtual std::optional<concurrencpp::result<void>> ProcessCommand(ClientId client, std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) = 0;
         virtual const std::vector<std::tuple<std::vector<std::wstring_view>, std::wstring_view, std::wstring_view>>& GetUserCommands() const = 0;
 };
 
@@ -19,7 +19,7 @@ template <class Processor>
 struct CommandInfo
 {
         std::vector<std::wstring_view> cmd;
-        Task (*func)(Processor* cl, std::vector<std::wstring_view>& params);
+        concurrencpp::result<void>(*func)(Processor* cl, std::vector<std::wstring_view>& params);
         std::wstring_view usage;
         std::wstring_view description;
 };
@@ -46,7 +46,7 @@ struct CommandInfo
 
 #define SetupUserCommandHandler(class, commandArray)                                                                                                        \
     template <int N>                                                                                                                                        \
-    std::optional<Task> MatchCommand(class* processor, ClientId triggeringClient, const std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) \
+    std::optional<concurrencpp::result<void>> MatchCommand(class* processor, ClientId triggeringClient, const std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) \
     {                                                                                                                                                       \
         const CommandInfo<class> command = std::get<N - 1>(class ::commandArray);                                                                           \
         for (auto& str : command.cmd)                                                                                                                       \
@@ -63,12 +63,12 @@ struct CommandInfo
     }                                                                                                                                                       \
                                                                                                                                                             \
     template <>                                                                                                                                             \
-    std::optional<Task> MatchCommand<0>(class * processor, ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring_view> & paramVector)  \
+    std::optional<concurrencpp::result<void>> MatchCommand<0>(class * processor, ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring_view> & paramVector)  \
     {                                                                                                                                                       \
         return std::nullopt;                                                                                                                                \
     }                                                                                                                                                       \
                                                                                                                                                             \
-    std::optional<Task> ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) override              \
+    std::optional<concurrencpp::result<void>> ProcessCommand(ClientId triggeringClient, std::wstring_view cmd, std::vector<std::wstring_view>& paramVector) override              \
     {                                                                                                                                                       \
         return MatchCommand<commandArray.size()>(this, triggeringClient, cmd, paramVector);                                                                 \
     }                                                                                                                                                       \

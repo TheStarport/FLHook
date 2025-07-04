@@ -1,109 +1,62 @@
 #pragma once
 
-#include <any>
-#include <concurrentqueue.h>
-#include <coroutine>
+#include "Exceptions/InvalidParameterException.hpp"
 
-enum class TaskStatus
-{
-    FLHookAwait,
-    DatabaseAwait,
-    Finished,
-    Error
-};
+#include <concurrencpp/concurrencpp.h>
+
+#define THREAD_MAIN       co_await FLHook::GetTaskScheduler()->RunOnMainThread()
+#define THREAD_BACKGROUND co_await FLHook::GetTaskScheduler()->RunOnBackgroundThread()
 
 class TaskScheduler;
-class Promise;
 class DLL Task
 {
         friend TaskScheduler;
-        TaskStatus status = TaskStatus::Error;
-        std::coroutine_handle<Promise> handle;
-        std::optional<ClientId> client;
-        bool exceptioned = false;
 
-        void Run();
+        ClientId client;
+        concurrencpp::result<void> result;
 
     public:
-        using promise_type = Promise;
-
-        explicit Task(std::coroutine_handle<Promise> h);
-        static Task NullOp();
-        void SetClient(ClientId);
-        bool HandleException();
-        TaskStatus UpdateStatus();
+        explicit Task(concurrencpp::result<void> result, ClientId client);
+        static concurrencpp::result<void> NullOp();
 };
 
-class DLL Promise
-{
-        TaskStatus status = TaskStatus::Error;
-        std::exception_ptr exception;
-
-    public:
-        [[nodiscard]]
-        TaskStatus GetStatus() const;
-
-        [[nodiscard]]
-        std::exception_ptr GetException();
-
-        // ReSharper disable twice CppMemberFunctionMayBeStatic
-        [[nodiscard]]
-        std::suspend_never initial_suspend() const noexcept;
-
-        [[nodiscard]]
-        std::suspend_always final_suspend() const noexcept;
-        Task get_return_object();
-        void return_value(TaskStatus&& newStatus);
-        std::suspend_always yield_value(TaskStatus&& newStatus);
-        void unhandled_exception() noexcept;
-};
-
-// TODO: Remove all references to the old callback style of task processing
+class FLHook;
 class DLL TaskScheduler
 {
-    public:
-        struct CallbackTask
-        {
-                std::variant<std::function<void()>, std::function<bool(std::shared_ptr<void>)>> task;
-                std::optional<std::variant<std::function<void(std::shared_ptr<void>)>, std::function<void()>>> callback;
-                std::shared_ptr<void> taskData = nullptr;
-        };
-
-    private:
         friend FLHook;
-        static void ProcessTasksOld(const std::stop_token& st);
-        static std::optional<CallbackTask> GetCompletedTask();
 
-        inline static moodycamel::ConcurrentQueue<CallbackTask> incompleteTasksOld{};
-        inline static moodycamel::ConcurrentQueue<CallbackTask> completeTasksOld{};
+        concurrencpp::runtime runtime;
+        std::shared_ptr<concurrencpp::manual_executor> executor;
+        std::shared_ptr<concurrencpp::thread_pool_executor> backgroundExecutor;
+        std::shared_ptr<concurrencpp::timer_queue> timerQueue;
+        std::list<std::shared_ptr<Task>> taskHandles;
 
-        void ProcessDatabaseTasks(const std::stop_token& st);
-        void ProcessTasks(moodycamel::ConcurrentQueue<std::shared_ptr<Task>>& tasks);
-        moodycamel::ConcurrentQueue<std::shared_ptr<Task>> mainTasks{};
-        moodycamel::ConcurrentQueue<std::shared_ptr<Task>> databaseTasks{};
-
-        std::jthread databaseThread;
-
-        inline static std::jthread taskProcessorThread{ ProcessTasksOld };
+        void ProcessTasks();
 
     public:
-        TaskScheduler() : databaseThread(std::bind_front(&TaskScheduler::ProcessDatabaseTasks, this)) {}
-        ~TaskScheduler() = default;
+        TaskScheduler();
 
-        static void Schedule(std::function<void()> task);
-        template <typename T>
-        static void ScheduleWithCallback(std::function<bool(const std::shared_ptr<void>&)> task, std::function<void(const std::shared_ptr<void>&)> callback)
+        template <typename T, class... Args>
+        auto ScheduleTask(T callable, Args&&... args)
         {
-            if constexpr (!std::is_same_v<void, T>)
-            {
-                incompleteTasksOld.enqueue({ task, callback, std::make_shared<T>() });
-            }
-            else
-            {
-                incompleteTasksOld.enqueue({ task, callback, nullptr });
-            }
+            return backgroundExecutor->submit(std::forward<T>(callable), std::forward<Args&>(args)...);
         }
 
-        static void ScheduleWithCallback(std::function<bool()> task, std::function<void()> callback);
-        bool AddTask(const std::shared_ptr<Task>& task);
+        void StoreTaskHandle(const std::shared_ptr<Task>& task) { taskHandles.emplace_back(task); }
+
+        concurrencpp::details::resume_on_awaitable<concurrencpp::thread_pool_executor> RunOnBackgroundThread() const;
+        concurrencpp::details::resume_on_awaitable<concurrencpp::manual_executor> RunOnMainThread() const;
+
+        template <typename Duration>
+            requires IsChronoDurationV<Duration>
+        auto Delay(Duration duration, const bool background = false) const
+        {
+            auto durationMs = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+            if (background)
+            {
+                return timerQueue->make_delay_object(durationMs, backgroundExecutor);
+            }
+
+            return timerQueue->make_delay_object(durationMs, executor);
+        }
 };

@@ -904,7 +904,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     // Update the character kept in the account cache.
     ConvertCharacterToVanillaData(&characterData->data, character, pd->clientId);
 
-    TaskScheduler::Schedule(std::bind(SaveCharacter, client.id, character, false));
+    FLHook::GetTaskScheduler()->ScheduleTask(SaveCharacter, client.id, character, false);
     return true;
 }
 

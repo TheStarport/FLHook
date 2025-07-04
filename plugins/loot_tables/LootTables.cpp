@@ -249,5 +249,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Loot Tables", L"loot_tables", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(LootTablesPlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+	return PluginInfo{
+	    .name = L"Loot Tables",
+	    .shortName = L"loot_tables",
+	    .versionMajor = PluginMajorVersion::V05,
+	    .versionMinor = PluginMinorVersion::V00
+	};
+};
+
+SetupPlugin(LootTablesPlugin);

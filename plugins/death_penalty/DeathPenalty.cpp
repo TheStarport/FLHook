@@ -136,7 +136,7 @@ namespace Plugins
     }
     void DeathPenaltyPlugin::OnSendDeathMessageAfter(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg)
     {
-        if(victim && (config.penalizePvpOnly || killer))
+        if (victim && (config.penalizePvpOnly || killer))
         {
             PenalizeDeath(victim, killer);
         }
@@ -177,9 +177,8 @@ namespace Plugins
             {
                 // Reward the killer, print message to them
                 (void)killerId.AddCash(killerReward);
-                killerId.Message(std::format(L"Death penalty: given {} credits from {}'s death penalty.",
-                                             StringUtils::ToMoneyStr(killerReward),
-                                             client.GetCharacterName().Handle()));
+                killerId.Message(std::format(
+                    L"Death penalty: given {} credits from {}'s death penalty.", StringUtils::ToMoneyStr(killerReward), client.GetCharacterName().Handle()));
             }
         }
 
@@ -222,13 +221,13 @@ namespace Plugins
 
     DeathPenaltyPlugin::DeathPenaltyPlugin(const PluginInfo& info) : Plugin(info) {}
 
-    Task DeathPenaltyPlugin::UserCmdDeathPenalty(const ClientId client, const std::wstring_view param)
+    concurrencpp::result<void>DeathPenaltyPlugin::UserCmdDeathPenalty(const ClientId client, const std::wstring_view param)
     {
         // If there is no death penalty, no point in having death penalty commands
         if (std::abs(config.DeathPenaltyFraction) < 0.0001f)
         {
             WARN(L"DP Plugin active, but no/too low death penalty fraction is set.");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         if (!param.empty()) // Arguments passed
@@ -270,7 +269,7 @@ namespace Plugins
             }
         }
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
 } // namespace Plugins
@@ -279,5 +278,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Death Penalty", L"deathpenalty", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(DeathPenaltyPlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+	return PluginInfo{
+	    .name = L"Death Penalty",
+	    .shortName = L"death_penalty",
+	    .versionMajor = PluginMajorVersion::V05,
+	    .versionMinor = PluginMinorVersion::V00
+	};
+};
+
+SetupPlugin(DeathPenaltyPlugin);

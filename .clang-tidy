@@ -1,5 +1,5 @@
 ---
-Checks: 'modernize-*,readability-*,bugprone-*,performance-*,clang-analyzer-*,concurrency-*,cppcoreguidelines-*,-*-function-cognitive-complexity,-*-else-after-return,-*-special-member-functions,-modernize-use-trailing-return-type,-*-use-nodiscard,-*-owning-memory,-*-pro-bounds-pointer-arithmetic,-*-pro-type-reinterpret-cast,-*-pro-bounds-array-to-pointer-decay'
+Checks: 'modernize-*,readability-*,bugprone-*,performance-*,clang-analyzer-*,concurrency-*,cppcoreguidelines-*,-*-implicit-bool-conversion,-*-pro-bounds-constant-array-index,-*-avoid-do-while,-*-empty-catch,-*-avoid-goto,-*-function-cognitive-complexity,-*-else-after-return,-*-special-member-functions,-modernize-use-trailing-return-type,-*-use-nodiscard,-*-owning-memory,-*-pro-bounds-pointer-arithmetic,-*-pro-type-reinterpret-cast,-*-pro-bounds-array-to-pointer-decay'
 CheckOptions:
   - key: performance-unnecessary-value-param.AllowedTypes
     value: ClientId;SystemId;ObjectId;BaseId;EquipmentId;GroupId;RepId;RepGroupId;ShipId;AccountId

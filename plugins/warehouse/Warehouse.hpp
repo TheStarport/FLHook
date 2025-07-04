@@ -28,11 +28,11 @@ namespace Plugins
              * @brief This command is called when a player types /afk. It prints a message in red text to nearby players saying they are afk. It will also let
              * anyone who messages them know too.
              */
-            Task UserCmdListItems(ClientId);
-            Task UserCmdDeposit(ClientId, uint itemNr, int count);
-            Task UserCmdWithdraw(ClientId, uint itemNr, int requestedAmount);
-            Task UserCmdListBasesWithItems(ClientId);
-            Task UserCmdListStored(const ClientId client, std::wstring_view baseName);
+            concurrencpp::result<void>UserCmdListItems(ClientId);
+            concurrencpp::result<void>UserCmdDeposit(ClientId, uint itemNr, int count);
+            concurrencpp::result<void>UserCmdWithdraw(ClientId, uint itemNr, int requestedAmount);
+            concurrencpp::result<void>UserCmdListBasesWithItems(ClientId);
+            concurrencpp::result<void>UserCmdListStored(const ClientId client, std::wstring_view baseName);
 
             void UpdatePlayerWarehouse(const PlayerWarehouse& warehouse) const;
 

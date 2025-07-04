@@ -10,10 +10,10 @@ using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
 using bsoncxx::builder::basic::make_document;
 
-Task MailManager::InformOnlineUsersOfNewMail(
+concurrencpp::result<void>MailManager::InformOnlineUsersOfNewMail(
     std::vector<rfl::Variant<bsoncxx::oid, std::string>> accountIdOrCharacterNames) // NOLINT(*-unnecessary-value-param)
 {
-    co_yield TaskStatus::FLHookAwait;
+    THREAD_MAIN;
 
     auto& clients = FLHook::Clients();
     for (const auto& variant : accountIdOrCharacterNames)
@@ -30,7 +30,7 @@ Task MailManager::InformOnlineUsersOfNewMail(
         }
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
 Action<std::vector<Mail>> MailManager::GetAccountMail(std::string accountId, int count, int page, bool newestFirst) // NOLINT(*-unnecessary-value-param)
@@ -299,7 +299,7 @@ Action<void> MailManager::SendMail(Mail& mail)
         ERROR(L"Error while trying to send mail {0}", { L"error", StringUtils::stows(ex.what()) })
     }
 
-    FLHook::GetTaskScheduler()->AddTask(std::make_shared<Task>(InformOnlineUsersOfNewMail(mailTargets)));
+    FLHook::GetTaskScheduler()->ScheduleTask(InformOnlineUsersOfNewMail, mailTargets);
 
     return { {} };
 }

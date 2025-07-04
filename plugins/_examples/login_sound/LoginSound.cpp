@@ -28,5 +28,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Login Sound", L"login_sound", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(LoginSound, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+	return PluginInfo{
+	    .name = L"Login Sound",
+	    .shortName = L"login_sound",
+	    .versionMajor = PluginMajorVersion::V05,
+	    .versionMinor = PluginMinorVersion::V00
+	};
+};
+
+SetupPlugin(LoginSound);

@@ -179,27 +179,27 @@ namespace Plugins
         document.append(bsoncxx::builder::basic::kvp("arenaReturnBase", value));
     }
 
-    Task ArenaPlugin::UserCmdArena(const ClientId client)
+    concurrencpp::result<void> ArenaPlugin::UserCmdArena(const ClientId client)
     {
         // Prohibit jump if in a restricted system or in the target system
         if (const SystemId system = client.GetSystemId().Unwrap();
             std::ranges::find(config.restrictedSystems, system) != config.restrictedSystems.end() || system == config.targetSystem)
         {
             (void)client.Message(L"ERR Cannot use command in this system or base");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         const BaseId currBase = client.GetCurrentBase().Unwrap();
         if (!currBase)
         {
             (void)client.Message(dockErrorText);
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         if (!ValidateCargo(client))
         {
             (void)client.Message(cargoErrorText);
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         (void)client.Message(L"Redirecting undock to Arena.");
@@ -207,39 +207,39 @@ namespace Plugins
         flag = TransferFlag::Transfer;
         returnBase = currBase;
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    Task ArenaPlugin::UserCmdReturn(const ClientId client)
+    concurrencpp::result<void> ArenaPlugin::UserCmdReturn(const ClientId client)
     {
         if (!ReadReturnPointForClient(client))
         {
             (void)client.Message(L"No return possible");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         if (!client.IsDocked())
         {
             (void)client.Message(dockErrorText);
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         if (client.GetCurrentBase().Unwrap() != config.targetBase)
         {
             (void)client.Message(L"Not in correct base");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         if (!ValidateCargo(client))
         {
             (void)client.Message(cargoErrorText);
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         (void)client.Message(L"Redirecting undock to previous base");
         clientData[client.GetValue()].flag = TransferFlag::Return;
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 } // namespace Plugins
 
@@ -247,5 +247,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Arena", L"arena", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(ArenaPlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+	return PluginInfo{
+	    .name = L"Arena",
+	    .shortName = L"arena",
+	    .versionMajor = PluginMajorVersion::V05,
+	    .versionMinor = PluginMinorVersion::V00
+	};
+};
+
+SetupPlugin(ArenaPlugin);

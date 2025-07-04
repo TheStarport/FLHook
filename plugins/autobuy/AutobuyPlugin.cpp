@@ -350,7 +350,7 @@ namespace Plugins
     // USER COMMANDS
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Task AutobuyPlugin::UserCmdAutobuy(const ClientId client, const std::wstring_view autobuyType, const std::wstring_view newState)
+    concurrencpp::result<void>AutobuyPlugin::UserCmdAutobuy(const ClientId client, const std::wstring_view autobuyType, const std::wstring_view newState)
     {
         if (autobuyType.empty())
         {
@@ -378,13 +378,13 @@ namespace Plugins
             (void)client.Message(std::format(L"Countermeasures: {}", cm ? L"On" : L"Off"));
             (void)client.Message(std::format(L"Nanobots/Shield Batteries: {}", bb ? L"On" : L"Off"));
             (void)client.Message(std::format(L"Repairs: {}", repairs ? L"On" : L"Off"));
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         if (newState.empty() || (newState != L"on" && newState != L"off"))
         {
             (void)client.Message(L"ERR invalid parameters");
-            co_return TaskStatus::Finished;
+            co_return;
             ;
         }
 
@@ -426,13 +426,13 @@ namespace Plugins
         else
         {
             (void)client.Message(L"ERR invalid parameters");
-            co_return TaskStatus::Finished;
+            co_return;
             ;
         }
 
         (void)client.Message(L"OK");
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     bool AutobuyPlugin::OnLoadSettings()
@@ -504,5 +504,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Autobuy", L"autobuy", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(AutobuyPlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+	return PluginInfo{
+	    .name = L"Autobuy",
+	    .shortName = L"autobuy",
+	    .versionMajor = PluginMajorVersion::V05,
+	    .versionMinor = PluginMinorVersion::V00
+	};
+};
+
+SetupPlugin(AutobuyPlugin);

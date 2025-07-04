@@ -14,7 +14,8 @@
 
 #include <Core/Commands/UserCommandProcessor.hpp>
 
-std::optional<Task> UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstring_view clientStr, std::wstring_view commandStr)
+std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstring_view clientStr,
+                                                                               std::wstring_view commandStr)
 {
     if (commandStr.length() < 2)
     {
@@ -46,14 +47,15 @@ std::optional<Task> UserCommandProcessor::ProcessCommand(ClientId triggeringClie
 }
 
 template <>
-std::optional<Task> UserCommandProcessor::MatchCommand<0>([[maybe_unused]] UserCommandProcessor* processor, ClientId triggeringClient,
-                                                          const std::wstring_view fullCmdString, std::vector<std::wstring_view>& paramVector)
+std::optional<concurrencpp::result<void>> UserCommandProcessor::MatchCommand<0>([[maybe_unused]] UserCommandProcessor* processor, ClientId triggeringClient,
+                                                                                const std::wstring_view fullCmdString,
+                                                                                std::vector<std::wstring_view>& paramVector)
 {
     return std::nullopt;
 }
 
-std::optional<Task> UserCommandProcessor::ProcessCommand(ClientId triggeringClient, const std::wstring_view fullCmdStr,
-                                                         std::vector<std::wstring_view>& paramVector)
+std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(ClientId triggeringClient, const std::wstring_view fullCmdStr,
+                                                                               std::vector<std::wstring_view>& paramVector)
 {
     for (auto& cmdProcessor : PluginManager::i()->userCommands)
     {
@@ -71,7 +73,7 @@ std::optional<Task> UserCommandProcessor::ProcessCommand(ClientId triggeringClie
     return MatchCommand<commands.size()>(this, triggeringClient, fullCmdStr, paramVector);
 }
 
-Task UserCommandProcessor::SetDieMessage(ClientId client, std::wstring_view param)
+concurrencpp::result<void> UserCommandProcessor::SetDieMessage(ClientId client, std::wstring_view param)
 {
     DieMsgType dieMsg;
     if (param == L"all")
@@ -95,7 +97,7 @@ Task UserCommandProcessor::SetDieMessage(ClientId client, std::wstring_view para
         (void)client.Message(L"Error: Invalid parameters\n"
                              L"Usage: /setdiemsg <param>\n"
                              L"<param>: 'all', 'system', 'self' or 'none'");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     auto dieMsgVal = StringUtils::wstos(magic_enum::enum_name(dieMsg));
@@ -108,16 +110,16 @@ Task UserCommandProcessor::SetDieMessage(ClientId client, std::wstring_view para
     // send confirmation msg
     client.Message(L"OK");
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::SetDieMessageFontSize(ClientId client, std::wstring_view param)
+concurrencpp::result<void> UserCommandProcessor::SetDieMessageFontSize(ClientId client, std::wstring_view param)
 {
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /set diemsgsize <size>\n"
                                          L"<size>: small, default";
 
-    auto params = StringUtils::GetParams(param, ' ');
+    const auto params = StringUtils::GetParams(param, ' ');
     const std::wstring dieMsgSizeParam = StringUtils::ToLower(StringUtils::GetParam(params, 0));
 
     ChatSize dieMsgSize;
@@ -132,17 +134,17 @@ Task UserCommandProcessor::SetDieMessageFontSize(ClientId client, std::wstring_v
     else
     {
         (void)client.Message(errorMsg);
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     client.GetData().dieMsgSize = dieMsgSize;
     client.SaveChar();
     client.Message(L"OK");
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::SetChatFont(ClientId client, std::wstring_view fontSize, std::wstring_view fontType)
+concurrencpp::result<void> UserCommandProcessor::SetChatFont(ClientId client, std::wstring_view fontSize, std::wstring_view fontType)
 {
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /set chatfont <size> <style>\n"
@@ -164,7 +166,7 @@ Task UserCommandProcessor::SetChatFont(ClientId client, std::wstring_view fontSi
     else
     {
         (void)client.Message(errorMsg);
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     ChatStyle chatStyle;
@@ -187,7 +189,7 @@ Task UserCommandProcessor::SetChatFont(ClientId client, std::wstring_view fontSi
     else
     {
         (void)client.Message(errorMsg);
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     auto& info = client.GetData();
@@ -199,10 +201,10 @@ Task UserCommandProcessor::SetChatFont(ClientId client, std::wstring_view fontSi
     // send confirmation msg
     client.Message(L"OK");
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::SetChatTime(ClientId client, std::wstring_view option)
+concurrencpp::result<void> UserCommandProcessor::SetChatTime(ClientId client, std::wstring_view option)
 {
     auto& info = client.GetData();
     if (option == L"on")
@@ -234,12 +236,12 @@ Task UserCommandProcessor::SetChatTime(ClientId client, std::wstring_view option
         (void)client.Message(L"Invalid parameter");
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::ShowLastSender(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::ShowLastSender(ClientId client)
 {
-    auto& info = client.GetData();
+    const auto& info = client.GetData();
     if (info.lastPMSender.IsValidClientId())
     {
         (void)client.Message(std::format(L"Last PM sender is {}", info.lastPMSender.GetCharacterName().Handle()));
@@ -249,12 +251,12 @@ Task UserCommandProcessor::ShowLastSender(ClientId client)
         (void)client.Message(L"Last PM sender not found!");
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::ReplyToLastMsg(ClientId client, std::wstring_view response)
+concurrencpp::result<void> UserCommandProcessor::ReplyToLastMsg(ClientId client, std::wstring_view response)
 {
-    auto& info = client.GetData();
+    const auto& info = client.GetData();
     if (info.lastPMSender.IsValidClientId())
     {
         (void)client.MessageFrom(client, response);
@@ -265,10 +267,10 @@ Task UserCommandProcessor::ReplyToLastMsg(ClientId client, std::wstring_view res
         (void)client.Message(L"Last PM sender not found!");
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::MessageTarget(ClientId client, std::wstring_view text)
+concurrencpp::result<void> UserCommandProcessor::MessageTarget(ClientId client, std::wstring_view text)
 {
     const auto clientShip = client.GetShip().Handle();
     const auto target = clientShip.GetTarget().Handle();
@@ -277,16 +279,16 @@ Task UserCommandProcessor::MessageTarget(ClientId client, std::wstring_view text
     if (!targetPlayer)
     {
         (void)client.Message(L"Target is not a player");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     client.MessageFrom(client, text);
     targetPlayer.MessageFrom(client, text);
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::MessageTag(ClientId client, std::wstring_view tag, std::wstring_view msg)
+concurrencpp::result<void> UserCommandProcessor::MessageTag(ClientId client, std::wstring_view tag, std::wstring_view msg)
 {
     PlayerData* pd = nullptr;
     bool foundTaggedPlayer = false;
@@ -314,26 +316,26 @@ Task UserCommandProcessor::MessageTag(ClientId client, std::wstring_view tag, st
         (void)client.Message(L"No players with matching tag found");
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::SetSavedMsg(ClientId client, uint index, std::wstring_view msg)
+concurrencpp::result<void> UserCommandProcessor::SetSavedMsg(ClientId client, uint index, std::wstring_view msg)
 {
     if (index > 9)
     {
         (void)client.Message(L"Invalid message index provided");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     auto& info = client.GetData().presetMsgs.at(index) = msg;
     client.Message(L"Ok");
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::ShowSavedMsgs(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::ShowSavedMsgs(ClientId client)
 {
-    auto& info = client.GetData();
+    const auto& info = client.GetData();
     uint counter = 0;
     (void)client.Message(L"Saved messages");
     for (const auto& msg : info.presetMsgs)
@@ -341,10 +343,10 @@ Task UserCommandProcessor::ShowSavedMsgs(ClientId client)
         (void)client.Message(std::format(L"{}: {}", counter++, msg));
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::IgnoreUser(ClientId client, std::wstring_view ignoredUser, std::wstring_view flags)
+concurrencpp::result<void> UserCommandProcessor::IgnoreUser(ClientId client, std::wstring_view ignoredUser, std::wstring_view flags)
 {
     static const std::wstring errorMsg =
         L"Error: Invalid parameters\n"
@@ -364,10 +366,10 @@ Task UserCommandProcessor::IgnoreUser(ClientId client, std::wstring_view ignored
     if (ignoredUser.empty())
     {
         (void)client.Message(errorMsg);
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    auto ignoredLower = StringUtils::ToLower(ignoredUser);
+    const auto ignoredLower = StringUtils::ToLower(ignoredUser);
 
     // check if flags are valid
     for (const auto flag : flags)
@@ -375,7 +377,7 @@ Task UserCommandProcessor::IgnoreUser(ClientId client, std::wstring_view ignored
         if (allowedFlags.find_first_of(flag) == std::wstring::npos)
         {
             (void)client.Message(errorMsg);
-            co_return TaskStatus::Finished;
+            co_return;
         }
     }
 
@@ -383,7 +385,7 @@ Task UserCommandProcessor::IgnoreUser(ClientId client, std::wstring_view ignored
     if (info.ignoreInfoList.size() > FLHook::GetConfig()->userCommands.userCmdMaxIgnoreList)
     {
         (void)client.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     IgnoreInfo ii;
@@ -393,10 +395,10 @@ Task UserCommandProcessor::IgnoreUser(ClientId client, std::wstring_view ignored
 
     client.SaveChar();
     client.Message(L"Ok");
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::IgnoreClientId(ClientId client, ClientId ignoredClient, std::wstring_view flags)
+concurrencpp::result<void> UserCommandProcessor::IgnoreClientId(ClientId client, ClientId ignoredClient, std::wstring_view flags)
 {
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /ignoreid <id> [<flags>]\n"
@@ -406,20 +408,20 @@ Task UserCommandProcessor::IgnoreClientId(ClientId client, ClientId ignoredClien
     if (!ignoredClient || (!flags.empty() && flags != L"p"))
     {
         (void)client.Message(errorMsg);
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    auto& data = client.GetData();
+    const auto& data = client.GetData();
     if (data.ignoreInfoList.size() > FLHook::GetConfig()->userCommands.userCmdMaxIgnoreList)
     {
         (void)client.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     if (ignoredClient.InCharacterSelect())
     {
         (void)client.Message(L"Error: Invalid client id");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     auto character = StringUtils::ToLower(ignoredClient.GetCharacterName().Handle());
@@ -434,10 +436,10 @@ Task UserCommandProcessor::IgnoreClientId(ClientId client, ClientId ignoredClien
     client.SaveChar();
 
     (void)client.Message(std::format(L"OK, \"{}\" added to ignore list", character));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::GetIgnoreList(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::GetIgnoreList(ClientId client)
 {
     (void)client.Message(L"Id | Character Name | flags");
     int i = 1;
@@ -449,10 +451,10 @@ Task UserCommandProcessor::GetIgnoreList(ClientId client)
     }
 
     client.Message(L"Ok");
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::RemoveFromIgnored(ClientId client, std::vector<std::wstring_view> charactersToRemove)
+concurrencpp::result<void> UserCommandProcessor::RemoveFromIgnored(ClientId client, std::vector<std::wstring_view> charactersToRemove)
 {
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /delignore <id> [<id2> <id3> ...]\n"
@@ -460,7 +462,7 @@ Task UserCommandProcessor::RemoveFromIgnored(ClientId client, std::vector<std::w
     if (charactersToRemove.empty())
     {
         (void)client.Message(errorMsg);
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     auto& info = client.GetData();
@@ -469,7 +471,7 @@ Task UserCommandProcessor::RemoveFromIgnored(ClientId client, std::vector<std::w
         info.ignoreInfoList.clear();
         client.SaveChar();
         client.Message(L"Ok");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     std::vector<uint> idsToBeDeleted;
@@ -479,7 +481,7 @@ Task UserCommandProcessor::RemoveFromIgnored(ClientId client, std::vector<std::w
         if (!id || id > info.ignoreInfoList.size())
         {
             (void)client.Message(L"Error: Invalid Id");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         idsToBeDeleted.push_back(id);
@@ -504,10 +506,10 @@ Task UserCommandProcessor::RemoveFromIgnored(ClientId client, std::vector<std::w
 
     client.SaveChar();
     client.Message(L"Ok");
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::GetClientIds(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::GetClientIds(ClientId client)
 {
     for (auto& next : FLHook::Clients())
     {
@@ -515,68 +517,37 @@ Task UserCommandProcessor::GetClientIds(ClientId client)
     }
 
     (void)client.Message(L"OK");
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::GetSelfClientId(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::GetSelfClientId(ClientId client)
 {
     client.Message(std::format(L"Your client-id: {}", client));
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-void RenameCallback(ClientId client, std::wstring newName, const std::shared_ptr<void>& taskData)
-{
-    auto errorMessage = std::static_pointer_cast<std::wstring>(taskData);
-    if (!errorMessage->empty())
-    {
-        (void)client.Message(*errorMessage);
-        return;
-    }
-    std::wstring currName = client.GetCharacterName().Handle().data();
-
-    const auto& [renameCost, cooldown] = FLHook::GetConfig()->rename;
-    if (renameCost)
-    {
-        if (client.GetCash().Handle() < renameCost)
-        {
-            (void)client.Message(L"Insufficient money!");
-            return;
-        }
-        (void)client.RemoveCash(renameCost);
-    }
-
-    (void)client.Message(L"Renaming, you will be kicked.");
-    Timer::AddOneShot(
-        [client, currName, newName]()
-        {
-            (void)client.Kick();
-            TaskScheduler::Schedule(std::bind(AccountManager::Rename, currName, newName));
-        },
-        5000);
-}
-
-Task UserCommandProcessor::Rename(ClientId client, std::wstring_view newName)
+concurrencpp::result<void> UserCommandProcessor::Rename(ClientId client, std::wstring_view newName)
 {
     const auto& [renameCost, cooldown] = FLHook::GetConfig()->rename;
 
     if (newName.find(L' ') != std::wstring_view::npos)
     {
         (void)client.Message(L"No whitespaces allowed.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     if (newName.length() > 23)
     {
         (void)client.Message(L"Name too long, max 23 characters allowed");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     // Ban any name that is numeric and might interfere with commands
     if (const auto numeric = StringUtils::Cast<uint>(newName); numeric < 10000 && numeric != 0)
     {
         (void)client.Message(L"Names that are strictly numerical must be at least 5 digits.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     if (renameCost)
@@ -584,7 +555,7 @@ Task UserCommandProcessor::Rename(ClientId client, std::wstring_view newName)
         if (client.GetCash().Unwrap() < renameCost)
         {
             (void)client.Message(L"Insufficient money!");
-            co_return TaskStatus::Finished;
+            co_return;
         }
     }
 
@@ -600,40 +571,61 @@ Task UserCommandProcessor::Rename(ClientId client, std::wstring_view newName)
             {
                 (void)client.Message(std::format(L"Rename cooldown not elapsed yet, end of cooldown: {}",
                                                  TimeUtils::AsDate(std::chrono::duration_cast<std::chrono::seconds>(endOfCooldown))));
-                co_return TaskStatus::Finished;
+                co_return;
             }
         }
     }
 
     std::wstring newNameStr = newName.data();
-    TaskScheduler::ScheduleWithCallback<std::wstring>(std::bind(AccountManager::CheckCharnameTaken, client, newNameStr, std::placeholders::_1),
-                                                      std::bind(RenameCallback, client, newNameStr, std::placeholders::_1));
 
-    co_return TaskStatus::Finished;
+    auto errMsg = co_await AccountManager::CheckCharnameTaken(client, newNameStr);
+    if (!errMsg.empty())
+    {
+        (void)client.Message(errMsg);
+        co_return;
+    }
+    std::wstring currName = client.GetCharacterName().Handle().data();
+
+    if (renameCost)
+    {
+        if (client.GetCash().Handle() < renameCost)
+        {
+            (void)client.Message(L"Insufficient money!");
+            co_return;
+        }
+
+        (void)client.RemoveCash(renameCost);
+    }
+
+    client.Message(L"Renaming, you will be kicked.");
+    co_await FLHook::GetTaskScheduler()->Delay(5s);
+    client.Kick();
+    co_await FLHook::GetTaskScheduler()->Delay(0.5s);
+    co_await AccountManager::Rename(currName, std::wstring(newName));
 }
 
-Task UserCommandProcessor::InvitePlayer(ClientId client, ClientId otherClient)
+concurrencpp::result<void> UserCommandProcessor::InvitePlayer(ClientId client, ClientId otherClient)
 {
     client.InvitePlayer(otherClient);
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::LeaveGroup(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::LeaveGroup(ClientId client)
 {
     auto group = client.GetGroup();
     if (group.HasError())
     {
         client.MessageErr(L"You are not currently in a group.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     group.Value().RemoveMember(client);
     client.Message(std::format(L"Group {} left", group.Value().GetValue()));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::FactionInvite(ClientId client, std::wstring_view factionTag)
+concurrencpp::result<void> UserCommandProcessor::FactionInvite(ClientId client, std::wstring_view factionTag)
 {
 
     bool msgSent = false;
@@ -642,7 +634,7 @@ Task UserCommandProcessor::FactionInvite(ClientId client, std::wstring_view fact
     {
         (void)client.Message(L"ERR Invalid parameters");
         (void)client.Message(L"Usage: /factioninvite <tag> or /fi ...");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     for (const auto& player : FLHook::Clients())
@@ -666,54 +658,64 @@ Task UserCommandProcessor::FactionInvite(ClientId client, std::wstring_view fact
         (void)client.Message(L"ERR No chars found");
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-void CharacterTransferCallback(ClientId client, const std::shared_ptr<void>& taskData)
-{
-    auto errorMessage = std::static_pointer_cast<std::wstring>(taskData);
-    if (!errorMessage->empty())
-    {
-        (void)client.Message(*errorMessage);
-    }
-
-    (void)client.Kick(L"Transferring the character, you will be kicked.", 3);
-}
-
-Task UserCommandProcessor::TransferCharacter(ClientId client, const std::wstring_view cmd, const std::wstring_view param1, const std::wstring_view param2)
+concurrencpp::result<void> UserCommandProcessor::TransferCharacter(ClientId client, const std::wstring_view cmd, const std::wstring_view param1,
+                                                                   const std::wstring_view param2)
 {
     const auto db = FLHook::GetDbClient();
     if (cmd == L"clearcode")
     {
-        std::wstring charName = client.GetCharacterName().Handle().data();
-        TaskScheduler::Schedule(std::bind(AccountManager::ClearCharacterTransferCode, charName));
-        (void)client.Message(L"Character transfer code cleared");
+        const std::wstring charName = client.GetCharacterName().Handle().data();
+        if (co_await AccountManager::ClearCharacterTransferCode(charName))
+        {
+            (void)client.Message(L"Character transfer code cleared");
+        }
+        else
+        {
+            (void)client.MessageErr(L"Failed to clear character transfer code");
+        }
     }
     else if (cmd == L"setcode")
     {
-        std::wstring charName = client.GetCharacterName().Handle().data();
-        std::wstring newCharCode = param1.data();
-        TaskScheduler::Schedule(std::bind(AccountManager::SetCharacterTransferCode, charName, newCharCode));
-        (void)client.Message(L"Character transfer code set");
+        const std::wstring charName = client.GetCharacterName().Handle().data();
+        const std::wstring newCharCode = param1.data();
+        if (co_await AccountManager::SetCharacterTransferCode(charName, newCharCode))
+        {
+            (void)client.Message(L"Character transfer code set");
+        }
+        else
+        {
+            (void)client.MessageErr(L"Failed to set character transfer code");
+        }
     }
     else if (cmd == L"transfer")
     {
         if (client.GetData().account->characters.size() >= 5)
         {
             (void)client.Message(L"This account cannot hold more characters");
-            co_return TaskStatus::Finished;
+            co_return;
         }
-        AccountId accountId = client.GetAccount().Handle();
-        std::wstring charName = param1.data();
-        std::wstring charCode = param2.data();
-        TaskScheduler::ScheduleWithCallback<std::wstring>(std::bind(AccountManager::TransferCharacter, accountId, charName, charCode, std::placeholders::_1),
-                                                          std::bind(CharacterTransferCallback, client, std::placeholders::_1));
+
+        const AccountId accountId = client.GetAccount().Handle();
+        const std::wstring charName = param1.data();
+        const std::wstring charCode = param2.data();
+
+        if (const auto err = co_await AccountManager::TransferCharacter(accountId, charName, charCode); err.empty())
+        {
+            (void)client.Message(err);
+        }
+        else
+        {
+            (void)client.Kick(L"Transferring the character, you will be kicked.", 3);
+        }
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-/*Task UserCommandProcessor::DeleteMail(const std::wstring_view mailID, const std::wstring_view readOnlyDel)
+/*concurrencpp::result<void>UserCommandProcessor::DeleteMail(const std::wstring_view mailID, const std::wstring_view readOnlyDel)
 {
     if (mailID == L"all")
     {
@@ -721,7 +723,7 @@ Task UserCommandProcessor::TransferCharacter(ClientId client, const std::wstring
         if (count.has_error())
         {
             client.Message(std::format(L"Error deleting mail: {}", count.error()));
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         client.Message(std::format(L"Deleted {} mail", count.value()));
@@ -732,26 +734,26 @@ Task UserCommandProcessor::TransferCharacter(ClientId client, const std::wstring
         if (const auto err = MailManager::i()->DeleteMail(client, index); err.has_error())
         {
             client.Message(std::format(L"Error deleting mail: {}", err.error()));
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         client.Message(L"Mail deleted");
     }
 }
 
-Task UserCommandProcessor::ReadMail(uint mailId)
+concurrencpp::result<void>UserCommandProcessor::ReadMail(uint mailId)
 {
     if (mailId <= 0)
     {
         client.Message(L"Id was not provided or was invalid.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     const auto mail = MailManager::i()->GetMailById(client, mailId);
     if (mail.has_error())
     {
         client.Message(std::format(L"Error retreiving mail: {}", mail.error()));
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     const auto& item = mail.value();
@@ -761,13 +763,13 @@ Task UserCommandProcessor::ReadMail(uint mailId)
     client.Message(item.body);
 }
 
-Task UserCommandProcessor::ListMail(int pageNumber, std::wstring_view unread)
+concurrencpp::result<void>UserCommandProcessor::ListMail(int pageNumber, std::wstring_view unread)
 {
 
     if (pageNumber <= 0)
     {
         client.Message(L"Page was not provided or was invalid.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     const bool unreadOnly = (unread == L"unread");
@@ -776,14 +778,14 @@ Task UserCommandProcessor::ListMail(int pageNumber, std::wstring_view unread)
     if (mail.has_error())
     {
         client.Message(std::format(L"Error retrieving mail: {}", mail.error()));
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     const auto& mailList = mail.value();
     if (mailList.empty())
     {
         client.Message(L"You have no mail.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     client.Message(std::format(L"Printing mail of page {}", mailList.size()));
@@ -796,7 +798,7 @@ Task UserCommandProcessor::ListMail(int pageNumber, std::wstring_view unread)
 }*/
 
 // TODO: Implement GiveCash Target and by ID
-Task UserCommandProcessor::GiveCash(ClientId client, std::wstring_view characterName, std::wstring_view amount)
+concurrencpp::result<void> UserCommandProcessor::GiveCash(ClientId client, std::wstring_view characterName, std::wstring_view amount)
 {
     // TODO: resolve sending money to offline people
     const auto cash = StringUtils::MultiplyUIntBySuffix(amount);
@@ -806,19 +808,19 @@ Task UserCommandProcessor::GiveCash(ClientId client, std::wstring_view character
     if (client == targetPlayer)
     {
         (void)client.Message(L"Not sure this really accomplishes much... (Don't give cash to yourself.)");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     if (cash == 0)
     {
         (void)client.Message(std::format(L"Err: Invalid cash amount."));
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     if (clientCash < cash)
     {
         (void)client.Message(std::format(L"Err: You do not have enough cash, you only have {}, and are trying to give {}.", clientCash, cash));
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     client.RemoveCash(cash).Handle();
@@ -827,19 +829,19 @@ Task UserCommandProcessor::GiveCash(ClientId client, std::wstring_view character
     client.SaveChar().Handle();
     targetPlayer.SaveChar().Handle();
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Task UserCommandProcessor::Time(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::Time(ClientId client)
 {
     (void)client.Message(std::format(L"{:%Y-%m-%d %X}", std::chrono::system_clock::now()));
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::Help(ClientId client, int page)
+concurrencpp::result<void> UserCommandProcessor::Help(ClientId client, int page)
 {
     constexpr int itemsPerPage = 20;
     const auto& pm = PluginManager::i();
@@ -912,10 +914,10 @@ Task UserCommandProcessor::Help(ClientId client, int page)
         }
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::DropRep(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::DropRep(ClientId client)
 {
     const auto& config = FLHook::GetConfig()->reputation;
 
@@ -924,7 +926,7 @@ Task UserCommandProcessor::DropRep(ClientId client)
         if (const uint cash = client.GetCash().Handle(); cash < config.creditCost)
         {
             (void)client.Message(std::format(L"Not enough money, {} credits required", config.creditCost));
-            co_return TaskStatus::Finished;
+            co_return;
         }
         (void)client.RemoveCash(config.creditCost);
     }
@@ -933,22 +935,22 @@ Task UserCommandProcessor::DropRep(ClientId client)
     if (playerAffliation.GetValue() == -1)
     {
         (void)client.Message(L"No affiliation, can't drop one");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     (void)playerRep.SetAttitudeTowardsRepGroupId(playerAffliation, 0.3f);
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::Value(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::Value(ClientId client)
 {
     (void)client.Message(std::format(L"Your worth is ${} credits", client.GetValue()));
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::Dice(ClientId client, const uint sidesOfDice)
+concurrencpp::result<void> UserCommandProcessor::Dice(ClientId client, const uint sidesOfDice)
 {
     uint result;
     if (!sidesOfDice)
@@ -962,18 +964,18 @@ Task UserCommandProcessor::Dice(ClientId client, const uint sidesOfDice)
         client.MessageLocal(std::format(L"{} has rolled {} out of {}", client.GetCharacterName().Handle(), result, sidesOfDice));
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::Coin(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::Coin(ClientId client)
 {
     const uint result = Random::Uniform(0u, 1u);
     client.MessageLocal(std::format(L"{} tossed a coin, it landed on {}", client.GetCharacterName().Handle(), result ? L"heads" : L"tails"));
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task UserCommandProcessor::MarkTarget(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::MarkTarget(ClientId client)
 {
     const auto ship = client.GetShip().Handle();
     const auto group = client.GetGroup().Handle();
@@ -983,7 +985,7 @@ Task UserCommandProcessor::MarkTarget(ClientId client)
     if (!otherPlayer)
     {
         (void)client.Message(L"ERR: Target not a player");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     uint targetShip = target.GetId().Unwrap();
@@ -992,7 +994,7 @@ Task UserCommandProcessor::MarkTarget(ClientId client)
     auto targetName = otherPlayer.GetCharacterName().Handle();
 
     // std::wstring message1 = std::format(L"Target: {}", targetName);
-    std::wstring message2 = std::format(L"{} has set {} as group target.", charName, targetName);
+    const std::wstring message2 = std::format(L"{} has set {} as group target.", charName, targetName);
 
     // std::wstring_view msgView1 = message1;
     std::wstring_view msgView2 = message2;
@@ -1028,5 +1030,5 @@ Task UserCommandProcessor::MarkTarget(ClientId client)
 
     (void)client.Message(L"OK");
 
-    co_return TaskStatus::Finished;
+    co_return;
 }

@@ -68,8 +68,8 @@ namespace Plugins
                     bool f1 = false;
             };
 
-            Task UserCmdTax(ClientId client, std::wstring_view taxAmount);
-            Task UserCmdPay(ClientId client);
+            concurrencpp::result<void>UserCmdTax(ClientId client, std::wstring_view taxAmount);
+            concurrencpp::result<void>UserCmdPay(ClientId client);
             void RemoveTax(const Tax& toRemove);
             void FiveSecondTimer();
 

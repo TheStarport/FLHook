@@ -42,25 +42,25 @@ namespace Plugins
     /** @ingroup BountyHunt
      * @brief User Command for /bountyhunt. Creates a bounty against a specified player.
      */
-    Task BountyHuntPlugin::UserCmdBountyHunt(ClientId client, ClientId target, const uint prize, uint time)
+    concurrencpp::result<void> BountyHuntPlugin::UserCmdBountyHunt(ClientId client, ClientId target, const uint prize, uint time)
     {
         if (!prize)
         {
             (void)client.Message(L"Usage: /bountyhunt <playername> <credits> [time]");
             PrintBountyHunts(client);
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         if (!target || target.InCharacterSelect())
         {
             (void)client.Message(std::format(L"{} is not online.", target));
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         if (const uint rankTarget = target.GetRank().Handle(); rankTarget < config.levelProtect)
         {
             (void)client.Message(L"Low level players may not be hunted.");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         // clamp the hunting time to configured range, or set default if not specified
@@ -76,7 +76,7 @@ namespace Plugins
         if (const uint clientCash = client.GetCash().Unwrap(); clientCash < prize)
         {
             (void)client.Message(L"You do not possess enough credits.");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         auto vec = bountiesOnPlayers[target.GetValue()];
@@ -84,7 +84,7 @@ namespace Plugins
         if (std::ranges::find_if(vec, [client](const Bounty& b) { return b.issuer == client; }) != vec.end())
         {
             (void)client.Message(L"You already have a bounty on this player.");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         (void)client.RemoveCash(prize);
@@ -98,7 +98,7 @@ namespace Plugins
 
         FLHook::MessageUniverse(std::format(L"{} offers {} credits for killing {} in {} minutes.", bounty.issuer, std::to_wstring(bounty.cash), target, time));
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     /**
@@ -192,6 +192,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"bounty hunt", L"bountyhunt", PluginMajorVersion::V05, PluginMinorVersion::V00);
+// clang-format off
+constexpr auto getPi = []
+{
+    return PluginInfo{
+        .name = L"Bounty Hunting",
+        .shortName = L"bounty_hunting",
+        .versionMajor = PluginMajorVersion::V05,
+        .versionMinor = PluginMinorVersion::V00
+    };
+};
 
-SetupPlugin(BountyHuntPlugin, Info);
+SetupPlugin(BountyHuntPlugin);

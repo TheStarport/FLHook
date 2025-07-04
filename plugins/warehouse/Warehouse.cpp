@@ -19,7 +19,7 @@ namespace Plugins
         {                                                                                                       \
             (void)client.Message(L"Something went wrong while accessing the data. Please try again.");          \
         }                                                                                                       \
-        co_return TaskStatus::Finished;                                                                         \
+        co_return;                                                                                              \
     }
 
     WarehousePlugin::WarehousePlugin(const PluginInfo& info) : Plugin(info) {}
@@ -74,12 +74,12 @@ namespace Plugins
         dbQuery.ConcludeQuery(true);
     }
 
-    Task WarehousePlugin::UserCmdListItems(const ClientId client)
+    concurrencpp::result<void> WarehousePlugin::UserCmdListItems(const ClientId client)
     {
         if (!client.IsDocked())
         {
             (void)client.Message(L"Not docked on a station!");
-            co_yield TaskStatus::Finished;
+            co_return;
         }
 
         int counter = 1;
@@ -97,33 +97,33 @@ namespace Plugins
             (void)client.Message(std::format(L"{}. {} x{}", counter++, good.GetName().Handle(), equip.count));
         }
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    Task WarehousePlugin::UserCmdDeposit(const ClientId client, uint itemNr, int count)
+    concurrencpp::result<void> WarehousePlugin::UserCmdDeposit(const ClientId client, uint itemNr, int count)
     {
         if (!client.IsDocked())
         {
             (void)client.Message(L"Not docked on a station!");
-            co_yield TaskStatus::Finished;
+            co_return;
         }
 
         if (!itemNr)
         {
             (void)client.Message(L"Invalid item number!");
-            co_yield TaskStatus::Finished;
+            co_return;
         }
 
         if (!count)
         {
             (void)client.Message(L"Invalid item count!");
-            co_yield TaskStatus::Finished;
+            co_return;
         }
 
         if (config.bannedBases.contains(client.GetCurrentBase().Handle()) || config.bannedSystems.contains(client.GetSystemId().Handle()))
         {
             (void)client.Message(L"Command unavailable");
-            co_yield TaskStatus::Finished;
+            co_return;
         }
 
         int counter = 0;
@@ -132,7 +132,7 @@ namespace Plugins
         if (itemNr > equipList->size())
         {
             (void)client.Message(L"You don't have that much of this item!");
-            co_yield TaskStatus::Finished;
+            co_return;
         }
 
         GoodId good;
@@ -160,7 +160,7 @@ namespace Plugins
             {
                 (void)client.Message(
                     std::format(L"You tried to deposit {} of {}, but you only have {}!", count, EquipmentId(equip.archId).GetName().Unwrap(), equip.count));
-                co_return TaskStatus::Finished;
+                co_return;
             }
 
             equipment = EquipmentId(equip.archId);
@@ -172,7 +172,7 @@ namespace Plugins
         if (good.GetValue() == nullptr)
         {
             (void)client.Message(L"This item no longer exists!");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         (void)client.RemoveCargo(good, count);
@@ -180,53 +180,53 @@ namespace Plugins
         const std::string accountId = client.GetData().account->_id;
         const BaseId currBase = client.GetCurrentBase().Handle();
 
-        co_yield TaskStatus::DatabaseAwait;
+        THREAD_BACKGROUND;
 
         auto result = GetOrCreateAccount(accountId).value();
         result.baseEquipmentMap[currBase][equipment] += count;
         UpdatePlayerWarehouse(result);
 
-        co_yield TaskStatus::FLHookAwait;
+        THREAD_MAIN;
 
         (void)client.Message(std::format(L"Deposited {} of {}!", count, good.GetName().Handle()));
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    Task WarehousePlugin::UserCmdWithdraw(const ClientId client, const uint itemNr, const int requestedAmount)
+    concurrencpp::result<void> WarehousePlugin::UserCmdWithdraw(const ClientId client, const uint itemNr, const int requestedAmount)
     {
 
         if (!client.IsDocked())
         {
             (void)client.Message(L"Not docked on a station!");
-            co_yield TaskStatus::Finished;
+            co_return;
         }
 
         if (!itemNr)
         {
             (void)client.Message(L"Invalid item number!");
-            co_yield TaskStatus::Finished;
+            co_return;
         }
 
         if (!requestedAmount)
         {
             (void)client.Message(L"Invalid item count!");
-            co_yield TaskStatus::Finished;
+            co_return;
         }
 
         if (config.bannedBases.contains(client.GetCurrentBase().Handle()) || config.bannedSystems.contains(client.GetSystemId().Handle()))
         {
             (void)client.Message(L"Command unavailable");
-            co_yield TaskStatus::Finished;
+            co_return;
         }
 
         const std::string accountId = client.GetData().account->_id;
         const BaseId currBase = client.GetCurrentBase().Handle();
 
-        co_yield TaskStatus::DatabaseAwait;
+        THREAD_BACKGROUND;
 
         auto account = GetOrCreateAccount(accountId);
 
-        co_yield TaskStatus::FLHookAwait;
+        THREAD_MAIN;
         VALIDATE_ACCOUNT
 
         if (config.allowWithdrawAndStoreFromAnywhere)
@@ -245,13 +245,13 @@ namespace Plugins
                         itemVolume * static_cast<float>(amount) > client.GetRemainingCargo().Handle())
                     {
                         (void)client.Message(L"Insufficient cargo space!");
-                        co_return TaskStatus::Finished;
+                        co_return;
                     }
 
                     const auto equipId = EquipmentId(itemId);
                     bool databaseProblem = false;
 
-                    co_yield TaskStatus::DatabaseAwait;
+                    THREAD_BACKGROUND;
 
                     if (const int currentCount = account.value().baseEquipmentMap[currBase][equipId]; currentCount < requestedAmount)
                     {
@@ -272,7 +272,7 @@ namespace Plugins
                         UpdatePlayerWarehouse(account.value());
                     }
 
-                    co_yield TaskStatus::FLHookAwait;
+                    THREAD_MAIN;
                     if (databaseProblem)
                     {
                         (void)client.Message(L"Attempted to withdraw more than is stored!");
@@ -282,24 +282,24 @@ namespace Plugins
                         client.AddCargo(equipId.GetId(), requestedAmount, false);
                         (void)client.Message(std::format(L"Withdrew {} of {}!", requestedAmount, equipId.GetName().Handle()));
                     }
-                    co_return TaskStatus::Finished;
+                    co_return;
                 }
             }
             (void)client.Message(L"Invalid item number!");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         const auto equipMap = account.value().baseEquipmentMap.find(client.GetCurrentBase().Handle());
         if (equipMap == account.value().baseEquipmentMap.end())
         {
             (void)client.Message(L"No items on current base!");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         if (itemNr > equipMap->second.size())
         {
             (void)client.Message(L"Invalid item number!");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         uint counter = 0;
@@ -314,14 +314,14 @@ namespace Plugins
             if (const auto itemVolume = EquipmentId(itemId).GetVolume().Handle(); itemVolume * static_cast<float>(amount) > client.GetRemainingCargo().Handle())
             {
                 (void)client.Message(L"Insufficient cargo space!");
-                co_return TaskStatus::Finished;
+                co_return;
             }
 
             const auto equipId = EquipmentId(itemId);
             bool databaseProblem = false;
             uint storedAmount = amount;
 
-            co_yield TaskStatus::DatabaseAwait;
+            THREAD_BACKGROUND;
 
             if (const int currentCount = account.value().baseEquipmentMap[currBase][equipId]; currentCount < requestedAmount)
             {
@@ -342,37 +342,37 @@ namespace Plugins
                 UpdatePlayerWarehouse(account.value());
             }
 
-            co_yield TaskStatus::FLHookAwait;
+            THREAD_MAIN;
             if (databaseProblem)
             {
                 (void)client.Message(L"Attempted to withdraw more than is stored!");
-                co_return TaskStatus::Finished;
+                co_return;
             }
 
             client.AddCargo(equipId.GetId(), requestedAmount, false);
             (void)client.Message(std::format(L"Withdrew {} of {}!", requestedAmount, equipId.GetName().Handle()));
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         (void)client.Message(L"Invalid item number!");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    Task WarehousePlugin::UserCmdListBasesWithItems(const ClientId client)
+    concurrencpp::result<void> WarehousePlugin::UserCmdListBasesWithItems(const ClientId client)
     {
         if (config.allowWithdrawAndStoreFromAnywhere)
         {
             (void)client.Message(L"Items can be withdrawn or deposited regardless of location on this server.");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         const std::string accountId = client.GetData().account->_id;
 
-        co_yield TaskStatus::DatabaseAwait;
+        THREAD_BACKGROUND;
 
         auto account = GetOrCreateAccount(accountId);
 
-        co_yield TaskStatus::FLHookAwait;
+        THREAD_MAIN;
 
         VALIDATE_ACCOUNT
 
@@ -382,10 +382,10 @@ namespace Plugins
             client.Message(std::format(L"{}. {} - {} items", counter++, base.GetName().Handle(), items.size()));
         }
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    Task WarehousePlugin::UserCmdListStored(const ClientId client, std::wstring_view baseName)
+    concurrencpp::result<void> WarehousePlugin::UserCmdListStored(const ClientId client, std::wstring_view baseName)
     {
         const auto currBase = client.GetCurrentBase().Handle();
 
@@ -401,11 +401,11 @@ namespace Plugins
 
         const std::string accountId = client.GetData().account->_id;
 
-        co_yield TaskStatus::DatabaseAwait;
+        THREAD_BACKGROUND;
 
         auto account = GetOrCreateAccount(accountId);
 
-        co_yield TaskStatus::FLHookAwait;
+        THREAD_MAIN;
 
         VALIDATE_ACCOUNT
 
@@ -414,7 +414,7 @@ namespace Plugins
             if (account.value().baseEquipmentMap.empty())
             {
                 client.Message(L"You don't have anything stored!");
-                co_yield TaskStatus::Finished;
+                co_return;
             }
             int counter = 1;
             for (const auto& equipMap : account.value().baseEquipmentMap | std::views::values)
@@ -424,20 +424,20 @@ namespace Plugins
                     client.Message(std::format(L"{}. {} x{}", counter++, EquipmentId(itemId).GetName().Handle(), amount));
                 }
             }
-            co_yield TaskStatus::Finished;
+            co_return;
         }
 
         const auto& equipMap = account.value().baseEquipmentMap.find(base);
         if (equipMap == account.value().baseEquipmentMap.end())
         {
             (void)client.Message(L"No items on selected base!");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         if (equipMap->second.empty())
         {
             client.Message(L"You don't have anything stored on this base!");
-            co_yield TaskStatus::Finished;
+            co_return;
         }
 
         int counter = 1;
@@ -446,7 +446,7 @@ namespace Plugins
             client.Message(std::format(L"{}. {} x{}", counter++, EquipmentId(itemId).GetName().Handle(), amount));
         }
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     // Clean up when a client disconnects
@@ -457,5 +457,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Warehouse", L"warehouse", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(WarehousePlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+	return PluginInfo{
+	    .name = L"Warehouse",
+	    .shortName = L"warehouse",
+	    .versionMajor = PluginMajorVersion::V05,
+	    .versionMinor = PluginMinorVersion::V00
+	};
+};
+
+SetupPlugin(WarehousePlugin);

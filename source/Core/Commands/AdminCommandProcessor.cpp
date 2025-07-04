@@ -16,8 +16,8 @@
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
 
-std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId user, const AllowedContext currentContext, std::wstring_view cmd,
-                                                          std::vector<std::wstring_view>& paramVector)
+std::optional<concurrencpp::result<void>> AdminCommandProcessor::ProcessCommand(ClientId user, const AllowedContext currentContext, std::wstring_view cmd,
+                                                                                std::vector<std::wstring_view>& paramVector)
 {
     for (auto& admin : PluginManager::i()->adminCommands)
     {
@@ -29,17 +29,17 @@ std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId user, const A
     }
 
     // If empty, command not found
-    if (const auto result = MatchCommand<commands.size()>(this, user, currentContext, cmd, paramVector); result.has_value())
+    if (auto result = MatchCommand<commands.size()>(this, user, currentContext, cmd, paramVector); result.has_value())
     {
-        return result;
+        return std::move(result);
     }
 
     user.Message(std::format(L"ERR: Command not found. ({})", cmd));
     return std::nullopt;
 }
 
-std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId client, const AllowedContext currentContext, const std::wstring_view clientStr,
-                                                          const std::wstring_view commandString)
+std::optional<concurrencpp::result<void>> AdminCommandProcessor::ProcessCommand(ClientId client, const AllowedContext currentContext,
+                                                                                const std::wstring_view clientStr, const std::wstring_view commandString)
 {
     this->currentContext = currentContext;
 
@@ -55,7 +55,7 @@ std::optional<Task> AdminCommandProcessor::ProcessCommand(ClientId client, const
     return ProcessCommand(client, currentContext, commandString, paramsFiltered);
 }
 
-Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view characterNameView, uint amount)
+concurrencpp::result<void> AdminCommandProcessor::SetCash(ClientId client, std::wstring_view characterNameView, uint amount)
 {
     // If true, they are online and that makes this easy for us
     std::wstring characterName{ characterNameView };
@@ -70,10 +70,10 @@ Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view character
             targetClient->id.Message(std::format(L"Your credits have been set to {}.", amount));
         }
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    co_yield TaskStatus::DatabaseAwait;
+    THREAD_BACKGROUND;
 
     auto success = MongoResult::Failure;
     std::wstring message;
@@ -105,12 +105,12 @@ Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view character
         message = std::format(L"ERR: {}", StringUtils::stows(ex.what()));
     }
 
-    co_yield TaskStatus::FLHookAwait;
+    THREAD_MAIN;
 
     if (!message.empty())
     {
         client.MessageErr(message).Handle();
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     switch (success)
@@ -120,10 +120,10 @@ Task AdminCommandProcessor::SetCash(ClientId client, std::wstring_view character
         case MongoResult::Success: client.Message(std::format(L"{} cash set to {} credits", characterName, amount));
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view characterNameView)
+concurrencpp::result<void> AdminCommandProcessor::GetCash(ClientId client, std::wstring_view characterNameView)
 {
     // If true, they are online and that makes this easy for us
     if (const auto* targetClient = FLHook::GetClientByName(characterNameView))
@@ -131,13 +131,13 @@ Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view character
         auto cash = targetClient->id.GetCash().Handle();
         client.Message(std::format(L"{} has {} credits", characterNameView, cash));
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     // They are offline, lets lookup the needed info
 
     std::wstring characterName{ characterNameView };
-    co_yield TaskStatus::DatabaseAwait;
+    THREAD_BACKGROUND;
 
     std::wstring err;
     int credits;
@@ -167,7 +167,7 @@ Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view character
         err = std::format(L"ERR: {}", StringUtils::stows(ex.what()));
     }
 
-    co_yield TaskStatus::FLHookAwait;
+    THREAD_MAIN;
 
     if (!err.empty())
     {
@@ -178,15 +178,15 @@ Task AdminCommandProcessor::GetCash(ClientId client, std::wstring_view character
         client.Message(std::format(L"{} has {} credits", characterName, credits));
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::AddCash(ClientId client, std::wstring_view characterNameView, int amount)
+concurrencpp::result<void> AdminCommandProcessor::AddCash(ClientId client, std::wstring_view characterNameView, int amount)
 {
     if (amount == 0)
     {
         client.Message(L"Invalid cash amount provided");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     // If true, they are online and that makes this easy for us
@@ -195,11 +195,11 @@ Task AdminCommandProcessor::AddCash(ClientId client, std::wstring_view character
         targetClient->id.AddCash(amount);
         client.Message(std::format(L"{} now has {} credits", characterNameView, targetClient->id.GetCash().Handle()));
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     std::wstring characterName{ characterNameView };
-    co_yield TaskStatus::DatabaseAwait;
+    THREAD_BACKGROUND;
 
     auto success = MongoResult::Failure;
     std::wstring message;
@@ -231,12 +231,12 @@ Task AdminCommandProcessor::AddCash(ClientId client, std::wstring_view character
         message = std::format(L"ERR: {}", StringUtils::stows(ex.what()));
     }
 
-    co_yield TaskStatus::FLHookAwait;
+    THREAD_MAIN;
 
     if (!message.empty())
     {
         client.MessageErr(message).Handle();
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     switch (success)
@@ -246,10 +246,10 @@ Task AdminCommandProcessor::AddCash(ClientId client, std::wstring_view character
         case MongoResult::Success: client.Message(std::format(L"{} given {} credits", characterName, amount));
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::KickPlayer(ClientId client, ClientId target, std::wstring_view reason)
+concurrencpp::result<void> AdminCommandProcessor::KickPlayer(ClientId client, ClientId target, std::wstring_view reason)
 {
     if (reason.empty())
     {
@@ -261,100 +261,100 @@ Task AdminCommandProcessor::KickPlayer(ClientId client, ClientId target, std::ws
     }
 
     client.Message(std::format(L"{} has been successfully kicked. Reason: {}", target, reason));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::BanPlayer(ClientId client, std::wstring_view characterName)
+concurrencpp::result<void> AdminCommandProcessor::BanPlayer(ClientId client, std::wstring_view characterName)
 {
     const auto account = AccountId::GetAccountFromCharacterName(characterName);
     if (!account.has_value())
     {
         client.Message(std::format(L"Unable to find account from character: {}", characterName));
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     (void)account->Ban(0);
     client.Message(std::format(L"{} has been successfully banned.", characterName));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::TempbanPlayer(ClientId client, std::wstring_view characterName, uint durationInDays)
+concurrencpp::result<void> AdminCommandProcessor::TempbanPlayer(ClientId client, std::wstring_view characterName, uint durationInDays)
 {
     client.Message(L"This command currently does nothing.");
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::UnBanPlayer(ClientId client, std::wstring_view characterName)
+concurrencpp::result<void> AdminCommandProcessor::UnBanPlayer(ClientId client, std::wstring_view characterName)
 {
     const auto account = AccountId::GetAccountFromCharacterName(characterName);
     if (!account.has_value())
     {
         client.Message(std::format(L"Unable to find account from character: {}", characterName));
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    co_yield TaskStatus::DatabaseAwait;
+    THREAD_BACKGROUND;
     (void)account->UnBan();
-    co_yield TaskStatus::FLHookAwait;
+    THREAD_MAIN;
 
     client.Message(std::format(L"{} has been successfully unbanned.", characterName));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::GetClientId(ClientId client, ClientId target)
+concurrencpp::result<void> AdminCommandProcessor::GetClientId(ClientId client, ClientId target)
 {
     client.Message(std::to_wstring(target.GetValue()));
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::KillPlayer(ClientId client, ClientId target)
+concurrencpp::result<void> AdminCommandProcessor::KillPlayer(ClientId client, ClientId target)
 {
     target.GetShip().Handle().Destroy();
     client.Message(std::format(L"{} successfully killed", target));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::SetRep(ClientId client, ClientId target, RepGroupId repGroup, float value)
+concurrencpp::result<void> AdminCommandProcessor::SetRep(ClientId client, ClientId target, RepGroupId repGroup, float value)
 {
     const auto repId = target.GetReputation().Handle();
     repId.SetAttitudeTowardsRepGroupId(repGroup, value).Handle();
 
     client.Message(std::format(L"{}'s reputation with {} set to {}", target, repGroup, value));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::GetRep(ClientId client, ClientId target, RepGroupId repGroup)
+concurrencpp::result<void> AdminCommandProcessor::GetRep(ClientId client, ClientId target, RepGroupId repGroup)
 {
     const auto charRepId = target.GetReputation().Handle();
     const auto rep = repGroup.GetAttitudeTowardsRepId(charRepId).Handle();
 
     client.Message(std::format(L"{}'reputation to {} is {}", target, repGroup, rep));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::MessagePlayer(ClientId client, ClientId target, const std::wstring_view text)
+concurrencpp::result<void> AdminCommandProcessor::MessagePlayer(ClientId client, ClientId target, const std::wstring_view text)
 {
     target.Message(text).Handle();
     client.Message(std::format(L"Message sent to {} successfully sent. Contents: {}", target, text));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::SendSystemMessage(ClientId client, SystemId system, const std::wstring_view text)
+concurrencpp::result<void> AdminCommandProcessor::SendSystemMessage(ClientId client, SystemId system, const std::wstring_view text)
 {
     system.Message(text).Handle();
     client.Message(std::format(L"Message successfully sent to {}", system));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::SendUniverseMessage(ClientId client, const std::wstring_view text)
+concurrencpp::result<void> AdminCommandProcessor::SendUniverseMessage(ClientId client, const std::wstring_view text)
 {
     FLHook::MessageUniverse(text).Handle();
     client.Message(std::format(L"Message Sent to Server."));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::ListCargo(ClientId client, const ClientId target)
+concurrencpp::result<void> AdminCommandProcessor::ListCargo(ClientId client, const ClientId target)
 {
     const auto cargo = target.GetEquipCargo().Handle();
     std::wstring res;
@@ -371,27 +371,27 @@ Task AdminCommandProcessor::ListCargo(ClientId client, const ClientId target)
 
     client.Message(res);
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::AddCargo(ClientId client, ClientId target, GoodInfo* good, uint count, const bool mission)
+concurrencpp::result<void> AdminCommandProcessor::AddCargo(ClientId client, ClientId target, GoodInfo* good, uint count, const bool mission)
 {
     target.GetShip().Handle().AddCargo(good->goodId, count, mission).Handle();
 
     const auto& im = FLHook::GetInfocardManager();
     client.Message(std::format(L"{} units of {} has been added to {}'s cargo", count, im->GetInfoName(good->idsName), target.GetCharacterName().Handle()));
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::RenameChar(ClientId client, ClientId target, std::wstring_view newName)
+concurrencpp::result<void> AdminCommandProcessor::RenameChar(ClientId client, ClientId target, std::wstring_view newName)
 {
     // TODO: Rename is to be reimplemented
     client.Message(std::format(L"{} has been renamed to {}", target.GetCharacterName().Handle(), newName));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring_view characterName)
+concurrencpp::result<void> AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring_view characterName)
 {
     // Kick the player if they are currently online
     for (auto& player : FLHook::Clients())
@@ -403,7 +403,7 @@ Task AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring
         }
     }
 
-    co_yield TaskStatus::DatabaseAwait;
+    THREAD_BACKGROUND;
 
     const auto config = FLHook::GetConfig();
     auto db = FLHook::GetDbClient();
@@ -429,7 +429,7 @@ Task AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring
 
             transaction.commit_transaction();
 
-            co_yield TaskStatus::FLHookAwait;
+            THREAD_MAIN;
 
             for (const auto& player : FLHook::Clients())
             {
@@ -444,7 +444,7 @@ Task AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring
         else
         {
             // Not found
-            co_yield TaskStatus::FLHookAwait;
+            THREAD_MAIN;
             client.Message(L"ERR: Character name not found.");
         }
     }
@@ -453,10 +453,10 @@ Task AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring
         transaction.abort_transaction();
     }
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::GetPlayerInfo(ClientId client, const ClientId target)
+concurrencpp::result<void> AdminCommandProcessor::GetPlayerInfo(ClientId client, const ClientId target)
 {
     client.Message(std::format(L"Name: {}, Id: {}, IP: {}, Ping: {}, Base: {}, System: {}\n",
                                target.GetCharacterName().Unwrap(),
@@ -466,21 +466,21 @@ Task AdminCommandProcessor::GetPlayerInfo(ClientId client, const ClientId target
                                target.GetCurrentBase().Handle().GetName().Unwrap(),
                                target.GetSystemId().Handle().GetName().Unwrap()));
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view target, std::vector<std::wstring_view> roles)
+concurrencpp::result<void> AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view target, std::vector<std::wstring_view> roles)
 {
     if (target.empty())
     {
         client.Message(L"ERR: Character name not provided.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     if (roles.empty())
     {
         client.Message(L"ERR: No roles provided.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     auto character = StringUtils::wstos(target);
@@ -489,7 +489,7 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
     std::ranges::transform(
         roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::ToLower(StringUtils::wstos(role)); });
 
-    co_yield TaskStatus::DatabaseAwait;
+    THREAD_BACKGROUND;
 
     const auto config = FLHook::GetConfig();
     const auto dbClient = FLHook::GetDbClient();
@@ -501,9 +501,9 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
     const auto characterResult = charactersCollection.find_one(findCharacterDoc.view());
     if (!characterResult.has_value())
     {
-        co_yield TaskStatus::FLHookAwait;
+        THREAD_MAIN;
         client.Message(L"ERR: Provided character name not found");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     bsoncxx::builder::basic::array roleArray;
@@ -516,12 +516,12 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
     const auto updateAccountDoc = make_document(kvp("$addToSet", make_document(kvp("gameRoles", make_document(kvp("$each", roleArray.view()))))));
     if (const auto updateResponse = accountCollection.update_one(findAccountDoc.view(), updateAccountDoc.view()); updateResponse->modified_count() != 1)
     {
-        co_yield TaskStatus::FLHookAwait;
+        THREAD_MAIN;
         client.Message(L"ERR: Unable to add any role. Account was either invalid or already contained role(s).");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    co_yield TaskStatus::FLHookAwait;
+    THREAD_MAIN;
 
     // Success, lets add roles to the credential map for this character, if they are online
     if (auto targetClient = FLHook::GetClientByName(stackAllocatedCharacter))
@@ -534,29 +534,29 @@ Task AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view ta
     }
 
     client.Message(L"Successfully added role(s) to the account");
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::SetRoles(ClientId client, std::wstring_view target, std::vector<std::wstring_view> roles)
+concurrencpp::result<void> AdminCommandProcessor::SetRoles(ClientId client, std::wstring_view target, std::vector<std::wstring_view> roles)
 {
     // TODO: pending Character Database rework
     client.Message(L"Successfully set roles. {} roles");
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::DeleteRoles(ClientId client, std::wstring_view target, std::vector<std::wstring_view> roles)
+concurrencpp::result<void> AdminCommandProcessor::DeleteRoles(ClientId client, std::wstring_view target, std::vector<std::wstring_view> roles)
 {
     // TODO: pending Character Database rework
     client.Message(L"Successfully removed roles.");
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::LoadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames)
+concurrencpp::result<void> AdminCommandProcessor::LoadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames)
 {
     if (pluginNames.empty())
     {
         client.Message(L"No plugin names provided. Use 'all' to load all plugins.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     std::wstring res;
@@ -581,15 +581,15 @@ Task AdminCommandProcessor::LoadPlugin(ClientId client, std::vector<std::wstring
 
     client.Message(res);
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::UnloadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames)
+concurrencpp::result<void> AdminCommandProcessor::UnloadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames)
 {
     if (pluginNames.empty())
     {
         client.Message(L"No plugin names provided. Use 'all' to unload all plugins.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     std::wstring res;
@@ -614,10 +614,10 @@ Task AdminCommandProcessor::UnloadPlugin(ClientId client, std::vector<std::wstri
 
     client.Message(res);
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::ReloadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames)
+concurrencpp::result<void> AdminCommandProcessor::ReloadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames)
 {
     std::vector<std::wstring> pluginFileNames;
     for (auto& pluginName : pluginNames)
@@ -646,15 +646,15 @@ Task AdminCommandProcessor::ReloadPlugin(ClientId client, std::vector<std::wstri
 
     LoadPlugin(client, pluginPaths);
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::ListPlugins(ClientId client)
+concurrencpp::result<void> AdminCommandProcessor::ListPlugins(ClientId client)
 {
     if (PluginManager::i()->plugins.empty())
     {
         client.Message(L"No plugins are loaded");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     std::wstring plugins;
@@ -664,15 +664,15 @@ Task AdminCommandProcessor::ListPlugins(ClientId client)
     }
 
     client.Message(plugins);
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::Chase(ClientId client, const ClientId target)
+concurrencpp::result<void> AdminCommandProcessor::Chase(ClientId client, const ClientId target)
 {
     if (!target.InSpace())
     {
         client.Message(L"Player not found or not in space");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     auto [pos, orientation] = target.GetShip().Handle().GetPositionAndOrientation().Handle();
@@ -681,28 +681,28 @@ Task AdminCommandProcessor::Chase(ClientId client, const ClientId target)
     client.GetShip().Handle().Relocate(pos, orientation);
 
     client.Message(std::format(L"Jump to system={} x={:.0f} y={:.0f} z={:.0f}", target.GetSystemId().Handle().GetName().Handle(), pos.x, pos.y, pos.z));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::Beam(ClientId client, ClientId target, BaseId base)
+concurrencpp::result<void> AdminCommandProcessor::Beam(ClientId client, ClientId target, BaseId base)
 {
     target.Beam(base).Handle();
     client.Message(std::format(L"{} beamed to {}", target.GetCharacterName().Handle(), base.GetName().Handle()));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::Pull(ClientId client, ClientId target)
+concurrencpp::result<void> AdminCommandProcessor::Pull(ClientId client, ClientId target)
 {
     if (!target.InSpace())
     {
         client.Message(L"Player not found or not in space ");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     if (!client.InSpace())
     {
         client.Message(L"You are currently not in space.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     const auto transform = target.GetShip().Handle().GetPositionAndOrientation().Handle();
@@ -713,17 +713,17 @@ Task AdminCommandProcessor::Pull(ClientId client, ClientId target)
     target.GetShip().Handle().Relocate(pos, orientation);
 
     client.Message(std::format(L"player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}", target.GetCharacterName().Handle(), client, pos.x, pos.y, pos.z));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::SetDamageType(ClientId client, const std::wstring_view newDamageType)
+concurrencpp::result<void> AdminCommandProcessor::SetDamageType(ClientId client, const std::wstring_view newDamageType)
 {
     static std::wstring usage = L"Sets what can be damaged on the server. Valid values are 'None', 'All', PvP, 'PvE'.";
     if (newDamageType.empty())
     {
         client.Message(usage);
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     const auto config = FLHook::GetConfig();
@@ -733,7 +733,7 @@ Task AdminCommandProcessor::SetDamageType(ClientId client, const std::wstring_vi
         config->general.damageMode = DamageMode::None;
         Json::Save(config, "flhook.json");
         client.Message(L"Set damage mode to None. No player ship can take damage, but NPCs can still hurt each other.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     if (lower == L"all")
@@ -741,7 +741,7 @@ Task AdminCommandProcessor::SetDamageType(ClientId client, const std::wstring_vi
         config->general.damageMode = DamageMode::All;
         Json::Save(config, "flhook.json");
         client.Message(L"Set damage mode to All. All ships can take damage.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     if (lower == L"pvp")
@@ -749,7 +749,7 @@ Task AdminCommandProcessor::SetDamageType(ClientId client, const std::wstring_vi
         config->general.damageMode = DamageMode::PvP;
         Json::Save(config, "flhook.json");
         client.Message(L"Set damage mode to PvP. Players can hurt players, and NPCs can hurt NPCs, but they cannot hurt each other.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     if (lower == L"pve")
@@ -757,35 +757,36 @@ Task AdminCommandProcessor::SetDamageType(ClientId client, const std::wstring_vi
         config->general.damageMode = DamageMode::PvE;
         Json::Save(config, "flhook.json");
         client.Message(L"Set damage mode to PvE. Players cannot hurt each other, but can hurt and be hurt by NPCs.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     client.Message(usage);
 
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::Move(ClientId client, ClientId target, const float x, const float y, const float z)
+concurrencpp::result<void> AdminCommandProcessor::Move(ClientId client, ClientId target, const float x, const float y, const float z)
 {
     if (x == 0.0f || z == 0.0f)
     {
         client.Message(L"X or Z coordinates were 0. Suppressing to prevent accidental sun-teleporting. If this was intentional, try '0.1 0 0.1' instead.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     const auto shipId = target.GetShip().Unwrap();
     if (!shipId)
     {
         client.Message(L"Target is docked. Unable to move.");
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     shipId.Relocate({ x, y, z });
     client.Message(std::format(L"Moving target to location: {:0f}, {:0f}, {:0f}", x, y, z));
-    co_return TaskStatus::Finished;
+    co_return;
 }
 
-Task AdminCommandProcessor::Help(ClientId client, int page)
+#include <cpptrace/basic.hpp>
+concurrencpp::result<void> AdminCommandProcessor::Help(ClientId client, int page)
 {
     constexpr int itemsPerPage = 20;
     const auto& pm = PluginManager::i();
@@ -860,5 +861,5 @@ Task AdminCommandProcessor::Help(ClientId client, int page)
     }
 
     client.Message(response);
-    co_return TaskStatus::Finished;
+    co_return;
 }

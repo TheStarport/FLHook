@@ -7,7 +7,7 @@ namespace Plugins
 
     AfkPlugin::AfkPlugin(const PluginInfo& info) : Plugin(info) {}
 
-    Task AfkPlugin::UserCmdAfk(const ClientId client)
+    concurrencpp::result<void> AfkPlugin::UserCmdAfk(const ClientId client)
     {
         awayClients.emplace_back(client);
         const auto playerName = client.GetCharacterName().Handle();
@@ -17,10 +17,10 @@ namespace Plugins
         (void)system.Message(message, MessageColor::Red, MessageFormat::Normal);
         (void)client.Message(L"Use the /back command to stop sending automatic replies to PMs.");
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    Task AfkPlugin::UserCmdBack(const ClientId client)
+    concurrencpp::result<void> AfkPlugin::UserCmdBack(const ClientId client)
     {
         if (const auto it = awayClients.begin(); std::find(it, awayClients.end(), client) != awayClients.end())
         {
@@ -33,7 +33,7 @@ namespace Plugins
             system.Message(std::format(L"{} has returned.", playerName), MessageColor::Red);
         }
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
     // Clean up when a client disconnects
@@ -68,5 +68,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"AFK", L"afk", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(AfkPlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+	return PluginInfo{
+	    .name = L"AFK",
+	    .shortName = L"afk",
+	    .versionMajor = PluginMajorVersion::V05,
+	    .versionMinor = PluginMinorVersion::V00
+	};
+};
+
+SetupPlugin(AfkPlugin);

@@ -28,6 +28,7 @@ class CompressorRecipe(ConanFile):
             "with_openssl": True,
             "with_zlib": True
         })
+        self.requires("cpptrace/1.0.1")
         self.requires("croncpp/cci.20220503")
         self.requires("glm/cci.20230113")
         self.requires("magic_enum/0.9.6")

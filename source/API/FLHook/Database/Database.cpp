@@ -67,11 +67,11 @@ void Database::SaveValueOnAccount(const AccountId& accountId, std::string_view k
     auto findDoc = make_document(kvp("_id", accountId.GetValue()));
     auto updateDoc = make_document(kvp("$set", make_document(kvp(key, value))));
 
-    TaskScheduler::Schedule(
+    FLHook::GetTaskScheduler()->ScheduleTask(
         [findDoc, updateDoc]
         {
             const auto config = FLHook::GetConfig()->database;
-            auto db = FLHook::GetDbClient();
+            const auto db = FLHook::GetDbClient();
 
             auto accountsCollection = db->database(config.dbName)[config.accountsCollection];
 

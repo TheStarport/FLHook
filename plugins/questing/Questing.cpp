@@ -188,20 +188,20 @@ namespace Plugins
         }
     }
 
-    Task QuestingPlugin::UserCmdStartQuest(const ClientId client, const StrToEnd questName)
+    concurrencpp::result<void> QuestingPlugin::UserCmdStartQuest(const ClientId client, const StrToEnd questName)
     {
         if (questName.end.empty())
         {
             client.Message(L"No quest name provided!");
 
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         auto quest = std::ranges::find_if(quests, [questName](const auto& q) { return q.questName == questName.end; });
         if (quest == quests.end())
         {
             client.Message(std::format(L"Quest '{}' not found", questName.end));
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         GroupId groupId;
@@ -229,7 +229,7 @@ namespace Plugins
 
             client.Message(std::format(L"DEV ERROR: unable to start quest '{}', please report this to your server administrator.", quest->questName));
             instance->timeUntilCleanup = 0; // Cleanup immediately
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         instance->questStarter = std::wstring(client.GetCharacterName().Handle());
@@ -243,10 +243,10 @@ namespace Plugins
         }
 
         client.Message(std::format(L"Quest '{}' started! Gather your squad mates and /quest confirm when you are ready to begin.", questName.end));
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    Task QuestingPlugin::UserCmdListQuests(const ClientId client) const
+    concurrencpp::result<void> QuestingPlugin::UserCmdListQuests(const ClientId client) const
     {
         for (const auto& quest : quests)
         {
@@ -255,16 +255,16 @@ namespace Plugins
             client.Message(quest.questName);
         }
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
-    Task QuestingPlugin::UserCmdConfirmQuest(ClientId client)
+    concurrencpp::result<void> QuestingPlugin::UserCmdConfirmQuest(ClientId client)
     {
         auto group = client.GetGroup();
         if (group.HasError())
         {
             client.Message(L"You've not started preparing a quest yet!");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         const auto groupId = group.Value();
@@ -272,7 +272,7 @@ namespace Plugins
         if (quest == activeQuests.end())
         {
             client.Message(L"You've not started preparing a quest yet!");
-            co_return TaskStatus::Finished;
+            co_return;
         }
 
         client.Message(L"Quest started!");
@@ -282,7 +282,7 @@ namespace Plugins
             quest->second->stages[0].onStageBegin.value()();
         }
 
-        co_return TaskStatus::Finished;
+        co_return;
     }
 
 } // namespace Plugins
@@ -291,5 +291,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Questing", L"questing", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(QuestingPlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+    return PluginInfo{
+        .name = L"Questing",
+        .shortName = L"questing",
+        .versionMajor = PluginMajorVersion::V05,
+        .versionMinor = PluginMinorVersion::V00
+    };
+};
+
+SetupPlugin(QuestingPlugin);
