@@ -3,24 +3,124 @@
 #include "SetInfo.hpp"
 
 #include "API/FLHook/ClientList.hpp"
-#include "API/FLHook/HttpServer.hpp"
 #include "API/FLHook/InfocardManager.hpp"
-
-#include <bsoncxx/json.hpp>
 
 namespace Plugins
 {
+    constexpr std::string_view characterInfocardKey = "playerInfocard";
+
     SetInfoPlugin::SetInfoPlugin(const PluginInfo& info) : Plugin(info) {}
 
-    concurrencpp::result<void> SetInfoPlugin::UserCmdSetInfo(ClientId client, std::wstring_view newInfo) { co_return; }
+    void SetInfoPlugin::PropagatePlayerInfo(const ClientId client) const
+    {
+        const auto& info = playersInfo[client.GetValue()];
 
-    concurrencpp::result<void> SetInfoPlugin::UserCmdShowInfo(ClientId client) { co_return; }
+        if (info.infocard.empty())
+        {
+            return;
+        }
 
-    void SetInfoPlugin::OnPlayerLaunchAfter(ClientId client, const ShipId& ship) {}
+        SetInfoFlufPayload flufPayload;
+        flufPayload[client.GetValue()] = info.infocard;
+
+        if (info.changedSinceLastLaunch)
+        {
+            for (auto& player : FLHook::Clients())
+            {
+                if (player.id == client || !player.usingFlufClientHook)
+                {
+                    continue;
+                }
+
+                FlufPayload::ToPayload(flufPayload, "sinf");
+            }
+        }
+    }
+
+    void SetInfoPlugin::FetchPlayerInfo(const ClientId client)
+    {
+        if (auto& info = playersInfo[client.GetValue()]; !info.pulledInfos)
+        {
+            SetInfoFlufPayload flufPayload;
+            for (int i = 1; i < MaxClientId; i++)
+            {
+                if (info.initialised)
+                {
+                    flufPayload[i] = playersInfo[i].infocard;
+                }
+            }
+
+            FlufPayload::ToPayload(flufPayload, "sinf");
+            info.pulledInfos = true;
+        }
+    }
+
+    void SetInfoPlugin::InitializePlayerInfo(ClientId client)
+    {
+        auto& playerInfo = playersInfo[client.GetValue()];
+        if (playerInfo.initialised)
+        {
+            return;
+        }
+        const auto view = client.GetData().characterData->characterDocument;
+        auto playerInfocard = view.find(characterInfocardKey);
+        if (playerInfocard == view.end())
+        {
+            return;
+        }
+
+        playerInfo.infocard = playerInfocard->get_string();
+        playerInfo.initialised = true;
+    }
+
+    concurrencpp::result<void> SetInfoPlugin::UserCmdSetInfo(ClientId client, std::wstring_view newInfo)
+    {
+        auto& info = playersInfo[client.GetValue()];
+        info.infocard = StringUtils::wstos(newInfo);
+        info.initialised = true;
+
+        client.SaveChar();
+
+        PropagatePlayerInfo(client);
+        co_return;
+    }
+
+    concurrencpp::result<void> SetInfoPlugin::UserCmdShowInfo(ClientId client)
+    {
+        InitializePlayerInfo(client);
+
+        const auto info = StringUtils::stows(playersInfo[client.GetValue()].infocard);
+        if (info.empty())
+        {
+            client.Message(L"You have no infocard set");
+            co_return;
+        }
+
+        for (auto split = StringUtils::GetParams(info, '\n'); const auto line : split)
+        {
+            client.Message(line);
+        }
+    }
+
+    void SetInfoPlugin::OnPlayerLaunchAfter(const ClientId client, const ShipId& ship)
+    {
+        if (playersInfo[client.GetValue()].initialised)
+        {
+            return;
+        }
+
+        FetchPlayerInfo(client);
+        InitializePlayerInfo(client);
+        PropagatePlayerInfo(client);
+    }
 
     void SetInfoPlugin::OnClearClientInfo(ClientId client) {}
 
-    void SetInfoPlugin::OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) {}
+    void SetInfoPlugin::OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
+    {
+        auto& info = playersInfo[client.GetValue()];
+        document.append(bsoncxx::builder::basic::kvp(characterInfocardKey, info.infocard));
+    }
 
 } // namespace Plugins
 

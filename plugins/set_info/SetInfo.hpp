@@ -10,11 +10,11 @@ namespace Plugins
      * @date July 2025
      * @author Aingar, ported by Laz
      * @brief
-     * This plugin is used to teleport players to/from an arena system for the purpose of pvp.
+     * Allows a player to set a custom infocard that displays within the F9 menu. Requires FLUF integration
      *
      * @par Player Commands
-     * - arena (configurable) - This beams the player to the pvp system.
-     * - return - This returns the player to their last docked base.
+     * - setinfo - Update the current player infocard
+     * - showinfo - Display the current player infocard
      *
      * @par Admin Commands
      * There are no admin commands in this plugin.
@@ -23,7 +23,21 @@ namespace Plugins
      */
     class SetInfoPlugin final : public Plugin, public AbstractUserCommandProcessor
     {
-            std::unordered_map<std::wstring, std::wstring> pendingSaves;
+            struct PlayerSetInfo
+            {
+                    bool initialised = false;
+                    bool pulledInfos = false;
+                    bool changedSinceLastLaunch = true;
+                    std::string infocard;
+            };
+
+            using SetInfoFlufPayload = std::unordered_map<uint, std::string>;
+
+            std::array<PlayerSetInfo, MaxClientId + 1> playersInfo;
+
+            void PropagatePlayerInfo(ClientId client) const;
+            void FetchPlayerInfo(ClientId client);
+            void InitializePlayerInfo(ClientId client);
 
             void OnPlayerLaunchAfter(ClientId client, const ShipId& ship) override;
 
@@ -34,12 +48,12 @@ namespace Plugins
             /**
              * @brief Used to change the info of the triggering player
              */
-            concurrencpp::result<void>UserCmdSetInfo(ClientId client, std::wstring_view newInfo);
+            concurrencpp::result<void> UserCmdSetInfo(ClientId client, std::wstring_view newInfo);
 
             /**
              * @brief Used to show the current infocard of this ship
              */
-            concurrencpp::result<void>UserCmdShowInfo(ClientId client);
+            concurrencpp::result<void> UserCmdShowInfo(ClientId client);
 
             // clang-format off
             inline static const std::array<CommandInfo<SetInfoPlugin>, 2> commands = {
