@@ -26,7 +26,7 @@ class DLL GoodId
         const GoodInfo *GetValue() const;
 
         [[nodiscard]]
-        Action<uint> GetHash() const;
+        Action<Id> GetHash() const;
 
         [[nodiscard]]
         Action<EquipmentId> GetEquipment() const;
@@ -54,5 +54,5 @@ struct std::formatter<GoodId, wchar_t>
 template <>
 struct std::hash<GoodId>
 {
-        std::size_t operator()(const GoodId &id) const noexcept { return std::hash<uint>()(id.GetHash().Unwrap()); }
+        std::size_t operator()(const GoodId &id) const noexcept { return std::hash<uint>()(id.GetHash().Unwrap().GetValue()); }
 };

@@ -16,7 +16,7 @@ concurrencpp::result<void>TaxPlugin::UserCmdTax(ClientId client, const std::wstr
 {
     const auto& noPvpSystems = FLHook::GetConfig()->general.noPvPSystems;
     // no-pvp check
-    if (const SystemId system = client.GetSystemId().Unwrap(); std::ranges::find(noPvpSystems, system) == noPvpSystems.end())
+    if (const SystemId system = client.GetSystemId().Unwrap(); noPvpSystems.contains(system))
     {
         client.Message(L"Error: You cannot tax in a No-PvP system.");
         co_return;

@@ -226,7 +226,6 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     NEW_TYPE(TYPE(), TYPE(uint));
     // ClsFunc(GetValue);
     ClsFunc(GetId);
-    ClsFunc(GetObjectType);
     ClsFunc(GetNickName);
     // ClsFunc(GetArchetype);
     ClsFunc(GetVelocityAndSpeed);
@@ -273,7 +272,6 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     // ClsFunc(GetShipArchetype); TODO: Implement ship archetype lua interface
     // ClsFunc(GetValue);
     ClsFunc(GetId);
-    ClsFunc(GetObjectType);
     ClsFunc(GetNickName);
     // ClsFunc(GetArchetype);
     ClsFunc(GetVelocityAndSpeed);
@@ -343,7 +341,7 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
         lua->new_usertype<ResourceManager::SpaceObjectBuilder>("SpaceObjectBuilder", sol::factories([] { return FLHook::GetResourceManager()->NewBuilder(); }));
     builder["with_npc"] = &ResourceManager::SpaceObjectBuilder::WithNpc;
     builder["with_archetype"] =
-        static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(uint)>(&ResourceManager::SpaceObjectBuilder::WithArchetype);
+        static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(Id)>(&ResourceManager::SpaceObjectBuilder::WithArchetype);
     builder["with_loadout"] =
         static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(uint)>(&ResourceManager::SpaceObjectBuilder::WithLoadout);
     builder["with_personality"] = static_cast<ResourceManager::SpaceObjectBuilder& (ResourceManager::SpaceObjectBuilder::*)(const std::wstring&)>(

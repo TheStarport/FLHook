@@ -46,7 +46,7 @@ void ConvertCharacterToVanillaData(CharacterData* data, const Character& charact
 #define AddCargo(cargo, list)                               \
     EquipDesc equipDesc;                                    \
     equipDesc.id = data->equipIdEnumerator.CreateEquipID(); \
-    equipDesc.archId = cargo.archId;                        \
+    equipDesc.archId = Id(cargo.archId);                        \
     equipDesc.mounted = false;                              \
     equipDesc.count = cargo.amount;                         \
     equipDesc.health = cargo.health;                        \
@@ -55,7 +55,7 @@ void ConvertCharacterToVanillaData(CharacterData* data, const Character& charact
 #define AddEquip(equip, list)                                                \
     EquipDesc equipDesc;                                                     \
     equipDesc.id = data->equipIdEnumerator.CreateEquipID();                  \
-    equipDesc.archId = equip.archId;                                         \
+    equipDesc.archId = Id(equip.archId);                                         \
     equipDesc.health = equip.health;                                         \
     equipDesc.mounted = equip.mounted;                                       \
     equipDesc.count = equip.amount;                                          \
@@ -299,10 +299,10 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
         FLCargo cargo = {};
 
         bool isCommodity = false;
-        pub::IsCommodity(equip.archId, isCommodity);
+        pub::IsCommodity(equip.archId.GetValue(), isCommodity);
         if (!isCommodity)
         {
-            equipment.archId = equip.archId;
+            equipment.archId = equip.archId.GetValue();
             equipment.health = equip.health;
             equipment.mounted = equip.mounted;
             equipment.hardPoint = equip.hardPoint.value;
@@ -310,7 +310,7 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
         }
         else
         {
-            cargo.archId = equip.archId;
+            cargo.archId = equip.archId.GetValue();
             cargo.health = equip.health;
             cargo.isMissionCargo = equip.mission;
             cargo.amount = equip.count;
@@ -324,10 +324,10 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
         FLCargo cargo = {};
 
         bool isCommodity = false;
-        pub::IsCommodity(equip.archId, isCommodity);
+        pub::IsCommodity(equip.archId.GetValue(), isCommodity);
         if (!isCommodity)
         {
-            equipment.archId = equip.archId;
+            equipment.archId = equip.archId.GetValue();
             equipment.health = equip.health;
             equipment.mounted = equip.mounted;
             equipment.hardPoint = equip.hardPoint.value;
@@ -335,7 +335,7 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
         }
         else
         {
-            cargo.archId = equip.archId;
+            cargo.archId = equip.archId.GetValue();
             cargo.health = equip.health;
             cargo.isMissionCargo = equip.mission;
             cargo.amount = equip.count;
@@ -400,11 +400,11 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
     auto& internalAccount = accounts[clientId];
     internalAccount.internalAccount->numberOfCharacters = account.characters.size();
 
-    data->systemId = 0;
+    data->systemId = SystemId();
     data->shipId = 0;
-    data->baseId = 0;
+    data->baseId = BaseId();
     data->characterId = 0;
-    data->lastBaseId = 0;
+    data->lastBaseId = BaseId();
     data->lastEquipId = 0;
     data->createdShipId = 0;
     data->baseRoomId = 0;
@@ -413,7 +413,7 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
     data->account->clientId = clientId;
     wcscpy_s(data->accId, internalAccount.internalAccount->accId);
     data->clientId = clientId;
-    data->exitedBase = 0;
+    data->exitedBase = BaseId();
 
     loggedInAccounts.insert(account.account._id);
 
@@ -535,8 +535,8 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
     auto* loadData = static_cast<CharacterData*>(createCharacterLoadingData(&data->characterMap, characterCodeBuffer.data()));
 
     loadData->currentBase = newPlayerTemplate.base == "%%HOME_BASE%%" ? characterInfo->base : CreateID(newPlayerTemplate.base.c_str());
-    loadData->system =
-        newPlayerTemplate.system == "%%HOME_SYSTEM%%" ? Universe::get_base(characterInfo->base)->systemId : CreateID(newPlayerTemplate.system.c_str());
+    loadData->system = newPlayerTemplate.system == "%%HOME_SYSTEM%%" ? Universe::get_base(characterInfo->base)->systemId.GetValue()
+                                                                     : CreateID(newPlayerTemplate.system.c_str());
 
     loadData->name = reinterpret_cast<unsigned short*>(characterInfo->charname);
 
@@ -566,7 +566,7 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
             EquipDesc e = *equip;
             // For some reason some loadouts contain invalid entries
             // Since all hashes have the first two bit set, we can filter those out
-            if ((e.archId & 0x80000000) == 0 || !e.id)
+            if ((e.archId.GetValue() & 0x80000000) == 0 || !e.id)
             {
                 continue;
             }
@@ -611,10 +611,10 @@ void UpdateCharacterCache(PlayerData* pd, CharacterData* cd)
 
     cd->equipIdEnumerator.currSID = pd->lastEquipId;
 
-    cd->currentBase = pd->baseId;
-    cd->lastDockedBase = pd->lastBaseId;
+    cd->currentBase = pd->baseId.GetValue();
+    cd->lastDockedBase = pd->lastBaseId.GetValue();
 
-    cd->system = pd->systemId;
+    cd->system = pd->systemId.GetValue();
     cd->pos = pd->position;
     cd->rot = pd->orientation;
 
@@ -782,16 +782,16 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 
     if (pd->exitedBase && !pd->shipId)
     {
-        character.currentBase = pd->exitedBase;
+        character.currentBase = pd->exitedBase.GetValue();
     }
     else
     {
-        character.currentBase = pd->baseId;
+        character.currentBase = pd->baseId.GetValue();
     }
 
-    character.lastDockedBase = pd->lastBaseId;
+    character.lastDockedBase = pd->lastBaseId.GetValue();
     character.currentRoom = pd->baseRoomId;
-    character.system = pd->systemId;
+    character.system = pd->systemId.GetValue();
     character.interfaceState = pd->interfaceState;
 
     character.commCostume = pd->commCostume;
@@ -830,10 +830,10 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         FLCargo cargo = {};
 
         bool isCommodity = false;
-        pub::IsCommodity(equip.archId, isCommodity);
+        pub::IsCommodity(equip.archId.GetValue(), isCommodity);
         if (!isCommodity)
         {
-            equipment.archId = equip.archId;
+            equipment.archId = equip.archId.GetValue();
             equipment.hardPoint = equip.hardPoint.value;
             equipment.health = equip.health;
             equipment.amount = equip.count;
@@ -842,7 +842,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         }
         else
         {
-            cargo.archId = equip.archId;
+            cargo.archId = equip.archId.GetValue();
             cargo.health = equip.health;
             cargo.isMissionCargo = equip.mission;
             cargo.amount = equip.count;
@@ -856,10 +856,10 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         FLCargo cargo = {};
 
         bool isCommodity = false;
-        pub::IsCommodity(equip.archId, isCommodity);
+        pub::IsCommodity(equip.archId.GetValue(), isCommodity);
         if (!isCommodity)
         {
-            equipment.archId = equip.archId;
+            equipment.archId = equip.archId.GetValue();
             equipment.hardPoint = equip.hardPoint.value;
             equipment.health = equip.health;
             equipment.amount = equip.count;
@@ -868,7 +868,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         }
         else
         {
-            cargo.archId = equip.archId;
+            cargo.archId = equip.archId.GetValue();
             cargo.health = equip.health;
             cargo.isMissionCargo = equip.mission;
             cargo.amount = equip.count;

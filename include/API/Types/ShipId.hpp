@@ -18,6 +18,9 @@ class DLL ShipId final : public ObjectId
         [[nodiscard]]
         Action<float> GetShields(bool percentage = false) const;
 
+        [[nodiscard]]
+        std::weak_ptr<CShip> GetValue() const;
+
         // TODO: Implement Me!
         [[nodiscard]]
         void* GetNpcPersonality() const;

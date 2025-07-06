@@ -1,24 +1,30 @@
 #pragma once
 
+class SystemId;
+class BaseId;
+class ShipId;
+class ObjectId;
+
 class DLL Id
 {
         uint value;
 
     public:
         explicit Id(const uint val) : value(val) {}
-        explicit Id(const std::wstring_view nickName) : value(CreateID(StringUtils::wstos(nickName).c_str())) {};
-        explicit Id(const std::string_view nickName) : value(CreateID(nickName.data())) {}
+        explicit Id(const std::wstring_view nickName);
+        explicit Id(const std::string_view nickName);
 
         Id() : value(0) {}
         bool operator==(const Id& next) const { return value == next.value; }
+        bool operator<(const Id& next) const { return value < next.value; }
         explicit operator bool() const { return value; };
 
         uint GetValue() const { return value; }
 
-        ShipId AsShip() { return ShipId(value); }
-        ObjectId AsObject() { return ObjectId(value); }
-        SystemId AsSystem() { return SystemId(value); }
-        BaseId AsBase() { return BaseId(value); }
+        ShipId AsShip();
+        ObjectId AsObject();
+        SystemId AsSystem();
+        BaseId AsBase();
 };
 
 template <>

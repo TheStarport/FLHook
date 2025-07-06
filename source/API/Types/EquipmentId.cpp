@@ -19,7 +19,21 @@ EquipmentId::EquipmentId(const uint val)
     }
 }
 
+EquipmentId::EquipmentId(const Id val) { EquipmentId(val.GetValue()); }
+
+bool EquipmentId::operator<(const EquipmentId& right) const { return value && value->archId < right.value->archId; }
+
 EquipmentId::operator bool() const { return value != nullptr; }
+
+Id EquipmentId::GetId() const
+{
+    if (!value)
+    {
+        return Id();
+    }
+
+    return Id(value->archId);
+}
 
 Action<EquipmentType> EquipmentId::GetType() const
 {
@@ -45,7 +59,7 @@ Action<EquipmentType> EquipmentId::GetType() const
     if (vft == vftGun)
     {
         const Archetype::Gun* gun = reinterpret_cast<Archetype::Gun*>(value);
-        Archetype::Equipment* eqAmmo = Archetype::GetEquipment(gun->projectileArchId);
+        Archetype::Equipment* eqAmmo = Archetype::GetEquipment(gun->projectileArchId.GetValue());
         int missile;
         memcpy(&missile, reinterpret_cast<char*>(eqAmmo) + 0x90, 4);
         const uint gunType = gun->get_hp_type_by_index(0);

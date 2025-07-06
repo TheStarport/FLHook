@@ -54,20 +54,11 @@ Archetype::Ship* TransformArg(const std::wstring_view s, const size_t paramNumbe
     const std::string str = StringUtils::wstos(std::wstring(s));
     auto ship = Archetype::GetShip(CreateID(str.c_str()));
 
-    if (ship)
-    {
-        return ship;
-    }
-
-    // ReSharper disable once CppLocalVariableMayBeConst
-    auto ids = ID_String();
-    strncpy_s(reinterpret_cast<char*>(ids.data), sizeof(ids.data), str.c_str(), str.size());
-    ship = Archetype::GetShipByName(ids);
-
     if (!ship)
     {
         throw InvalidParameterException(s, paramNumber);
     }
+    //TODO: find ship by IDSName
 
     return ship;
 }
@@ -78,20 +69,12 @@ Archetype::Equipment* TransformArg(const std::wstring_view s, const size_t param
     const std::string str = StringUtils::wstos(std::wstring(s));
     auto equipment = Archetype::GetEquipment(CreateID(str.c_str()));
 
-    if (equipment)
-    {
-        return equipment;
-    }
-
-    // ReSharper disable once CppLocalVariableMayBeConst
-    auto ids = ID_String();
-    strncpy_s(reinterpret_cast<char*>(ids.data), sizeof(ids.data), str.c_str(), str.size());
-    equipment = Archetype::GetEquipmentByName(ids);
-
     if (!equipment)
     {
         throw InvalidParameterException(s, paramNumber);
     }
+
+    // TODO: find ship by IDSName
 
     return equipment;
 }
@@ -150,7 +133,7 @@ GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber)
 template <>
 BaseId TransformArg(std::wstring_view s, size_t paramNumber)
 {
-    const auto foundBase = BaseId(s);
+    const auto foundBase = BaseId(s, true);
     if (!foundBase)
     {
         throw InvalidParameterException(s, paramNumber);

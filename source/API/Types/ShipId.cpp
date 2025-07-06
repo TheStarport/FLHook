@@ -42,6 +42,8 @@ Action<float> ShipId::GetShields(bool percentage) const
     return { shield->currShieldHitPoints };
 }
 
+std::weak_ptr<CShip> ShipId::GetValue() const { return std::static_pointer_cast<CShip>(value.lock()); }
+
 Action<ClientId> ShipId::GetPlayer() const
 {
     IsValidShip;
@@ -93,7 +95,7 @@ Action<void> ShipId::Destroy(DestroyType type)
     IsValidShip;
 
     // TODO: Check for failure
-    pub::SpaceObj::Destroy(ship->id, type);
+    pub::SpaceObj::Destroy(ship->id.GetValue(), type);
 
     return { {} };
 }
@@ -155,9 +157,9 @@ Action<void> ShipId::AddCargo(uint good, uint count, bool mission)
         if (goodInfo->multiCount)
         {
             // we need to do this, else server or client may crash
-            for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : *cargo)
+            for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : cargo->equip)
             {
-                if (item.archId == good && item.mission != mission)
+                if (item.archId.GetValue() == good && item.mission != mission)
                 {
                     pub::Player::RemoveCargo(client.GetValue(), static_cast<ushort>(item.id), item.count);
                     count += item.count;
@@ -199,7 +201,7 @@ Action<void> ShipId::AddCargo(uint good, uint count, bool mission)
     {
         highestId = equip.id > highestId ? equip.id : highestId;
 
-        if (equip.archId == good)
+        if (equip.archId.GetValue() == good)
         {
             equip.count += count;
             return { {} };
@@ -208,7 +210,7 @@ Action<void> ShipId::AddCargo(uint good, uint count, bool mission)
 
     EquipDesc desc;
     desc.count = count;
-    desc.archId = good;
+    desc.archId = Id(good);
     desc.health = 1.0f;
     desc.make_internal();
     desc.mounted = false;
@@ -237,7 +239,7 @@ Action<void> ShipId::Relocate(const Vector& pos, const std::optional<Matrix>& or
         player->Undock(pos, orientation).Handle();
     }
 
-    pub::SpaceObj::Relocate(ship->id, system.GetValue(), pos, orientation.value_or(Matrix::Identity()));
+    pub::SpaceObj::Relocate(ship->id.GetValue(), system.GetValue(), pos, orientation.value_or(Matrix::Identity()));
     return { {} };
 }
 
@@ -245,9 +247,9 @@ Action<void> ShipId::IgniteFuse(uint fuseId, float id) const
 {
     IsValidShip;
 
-    IObjInspectImpl* inspect;
+    GameObject* inspect = FLHook::GetObjInspect(ship->id);
 
-    if (!FLHook::GetObjInspect(ship->id, inspect))
+    if (!inspect)
     {
         return { cpp::fail(Error::InvalidObject) };
     }
@@ -285,9 +287,9 @@ Action<void> ShipId::ExtinguishFuse(uint fuseId, float id) const
 {
     IsValidShip;
 
-    IObjInspectImpl* inspect;
+    GameObject* inspect = FLHook::GetObjInspect(ship->id);
 
-    if (!FLHook::GetObjInspect(ship->id, inspect))
+    if (!inspect)
     {
         return { cpp::fail(Error::InvalidObject) };
     }

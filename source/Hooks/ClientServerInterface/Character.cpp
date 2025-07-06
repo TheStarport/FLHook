@@ -56,7 +56,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
                 return;
             }
 
-            for (const auto& cargo : *cargoList.value())
+            for (const auto& cargo : cargoList.value()->equip)
             {
                 if (cargo.count < 0)
                 {

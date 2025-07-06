@@ -14,7 +14,7 @@ void NoOp(T*)
 
 void ResourceManager::SendSolarPacket(uint spaceId, pub::SpaceObj::SolarInfo& si)
 {
-    if (IObjInspectImpl * inspect; FLHook::GetObjInspect(spaceId, inspect))
+    if (GameObject * inspect; inspect = FLHook::GetObjInspect(spaceId))
     {
         const auto* solar = reinterpret_cast<const CSolar*>(inspect->cobject());
 
@@ -55,7 +55,8 @@ void ResourceManager::SendSolarPacket(uint spaceId, pub::SpaceObj::SolarInfo& si
         {
             if (client.playerData->systemId == si.systemId)
             {
-                GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(client.playerData->clientId, reinterpret_cast<FLPACKET_CREATESOLAR&>(solarPacket));
+                GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(client.playerData->clientId,
+                                                                       reinterpret_cast<FLPACKET_CREATESOLAR&>(solarPacket));
             }
         }
     }
@@ -65,7 +66,7 @@ void ResourceManager::OnSolarDestroyed(Solar* solar)
 {
     for (auto& [spawnedSolar, protectMemory] : spawnedSolars)
     {
-        if (spawnedSolar->id != solar->get_id())
+        if (spawnedSolar->id.GetValue() != solar->get_id())
         {
             continue;
         }
@@ -83,7 +84,7 @@ void ResourceManager::OnShipDestroyed(Ship* ship)
 {
     for (auto& [spawnedShip, protectMemory] : spawnedShips)
     {
-        if (spawnedShip->id != ship->get_id())
+        if (spawnedShip->id.GetValue() != ship->get_id())
         {
             continue;
         }
@@ -99,7 +100,7 @@ void ResourceManager::OnShipDestroyed(Ship* ship)
 
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithNpc(const std::wstring& npcNickname)
 {
-    const auto found = npcTemplates.find(InternalApi::CreateID(npcNickname));
+    const auto found = npcTemplates.find(Id(npcNickname));
 
     if (found == npcTemplates.end())
     {
@@ -115,11 +116,11 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithNp
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithArchetype(const std::wstring& archetype)
 {
     npcTemplate.archetype = archetype;
-    npcTemplate.archetypeHash = InternalApi::CreateID(archetype);
+    npcTemplate.archetypeHash = Id(archetype);
     return *this;
 }
 
-ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithArchetype(const uint archetype)
+ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithArchetype(const Id archetype)
 {
     npcTemplate.archetypeHash = archetype;
     return *this;
@@ -128,13 +129,13 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithAr
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithLoadout(const std::wstring& loadout)
 {
     npcTemplate.loadout = loadout;
-    npcTemplate.loadoutHash = InternalApi::CreateID(loadout);
+    npcTemplate.loadoutHash = Id(loadout);
     return *this;
 }
 
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithLoadout(const uint loadout)
 {
-    npcTemplate.loadoutHash = loadout;
+    npcTemplate.loadoutHash = Id(loadout);
     return *this;
 }
 
@@ -196,7 +197,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithSy
 {
     if (systemHash)
     {
-        system = systemHash.GetValue();
+        system = systemHash;
     }
     else
     {
@@ -210,7 +211,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithSy
 {
     if (auto id = Universe::get_system_id(StringUtils::wstos(systemNick).c_str()))
     {
-        system = id;
+        system = SystemId(id);
     }
     else
     {
@@ -242,7 +243,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithLe
 
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithVoice(const std::wstring& voice)
 {
-    voiceOverride = InternalApi::CreateID(voice);
+    voiceOverride = CreateID(StringUtils::wstos(voice).c_str());
     return *this;
 }
 
@@ -260,19 +261,19 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithNa
 
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithReputation(const std::wstring& rep)
 {
-    this->affiliation = RepGroupId(rep).GetValue();
+    this->affiliation = RepGroupId(rep);
     return *this;
 }
 
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithReputation(RepGroupId affiliation)
 {
-    this->affiliation = affiliation.GetValue();
+    this->affiliation = affiliation;
     return *this;
 }
 
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithDockTo(BaseId base)
 {
-    dockTo = base.GetValue();
+    dockTo = base;
     return *this;
 }
 
@@ -325,7 +326,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRa
         }
     }
 
-    affiliation = MakeId(rep.c_str());
+    affiliation = RepGroupId(MakeId(rep.c_str()));
     return *this;
 }
 
@@ -431,10 +432,10 @@ std::weak_ptr<CEqObj> ResourceManager::SpaceObjectBuilder::Spawn()
 
     if (fuse.has_value() && obj)
     {
-        if (EqObj* inspect = nullptr; FLHook::GetObjInspect(obj->id, reinterpret_cast<IObjInspectImpl*&>(inspect)))
+        if (EqObj* inspect = nullptr; inspect = reinterpret_cast<EqObj*>(FLHook::GetObjInspect(obj->id)))
         {
             inspect->light_fuse(0,
-                                ID_String{ fuse->fuse.index() == 0 ? InternalApi::CreateID(std::get<std::wstring>(fuse->fuse)) : std::get<uint>(fuse->fuse) },
+                                fuse->fuse.index() == 0 ? InternalApi::CreateID(std::get<std::wstring>(fuse->fuse)) : std::get<uint>(fuse->fuse),
                                 fuse->equipmentId,
                                 fuse->radius,
                                 fuse->lifetime);
@@ -446,14 +447,14 @@ std::weak_ptr<CEqObj> ResourceManager::SpaceObjectBuilder::Spawn()
 
 std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
 {
-    const auto shipArch = Archetype::GetShip(npcTemplate.archetypeHash);
+    const auto shipArch = Archetype::GetShip(npcTemplate.archetypeHash.GetValue());
 
     pub::SpaceObj::ShipInfo si{};
     std::memset(&si, 0x0, sizeof(pub::SpaceObj::ShipInfo)); // NOLINT
 
     si.flag = 1;
 
-    si.system = system.value();
+    si.system = system.value().GetValue();
     si.pos = position.value();
     if (positionVariance.has_value())
     {
@@ -462,9 +463,9 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
         si.pos.z += Random::UniformFloat(-positionVariance.value(), positionVariance.value());
     }
 
-    si.shipArchetype = npcTemplate.archetypeHash;
+    si.shipArchetype = npcTemplate.archetypeHash.GetValue();
     si.orientation = rotation.value_or(Matrix::Identity());
-    si.loadout = npcTemplate.loadoutHash;
+    si.loadout = npcTemplate.loadoutHash.GetValue();
 
     if (costumeOverride.has_value())
     {
@@ -568,7 +569,7 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
 
     if (affiliation.has_value())
     {
-        pub::Reputation::SetAffiliation(si.rep, affiliation.value());
+        pub::Reputation::SetAffiliation(si.rep, affiliation.value().GetValue());
     }
 
     uint spaceObj = 0;
@@ -596,7 +597,7 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
 
 std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
 {
-    const auto solarArch = Archetype::GetSolar(npcTemplate.archetypeHash);
+    const auto solarArch = Archetype::GetSolar(npcTemplate.archetypeHash.GetValue());
 
     pub::SpaceObj::SolarInfo si{};
     std::memset(&si, 0, sizeof(si));
@@ -612,7 +613,7 @@ std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
 
     si.costume =
         costumeOverride.value_or(Costume(CreateID("benchmark_male_head"), CreateID("benchmark_male_body"))); // NOLINT(clang-diagnostic-c++20-extensions)
-    si.voiceId = voiceOverride.value_or(CreateID("atc_leg_m01"));
+    si.voiceId = Id(voiceOverride.value_or(CreateID("atc_leg_m01")));
 
     auto nickname = Random::UniformString<std::string>(32);
     strncpy_s(si.nickName, sizeof(si.nickName), nickname.c_str(), nickname.size());
@@ -626,7 +627,7 @@ std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
         si.pos.z += Random::UniformFloat(-positionVariance.value(), positionVariance.value());
     }
 
-    si.dockWith = dockTo.value_or(0);
+    si.dockWith = dockTo.value_or(BaseId());
 
     // Define the string used for the solar name.
     FmtStr solarName(0, nullptr);
@@ -645,7 +646,7 @@ std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
 
     if (affiliation.has_value())
     {
-        pub::Reputation::SetAffiliation(si.rep, affiliation.value());
+        pub::Reputation::SetAffiliation(si.rep, affiliation.value().GetValue());
     }
 
     // prevent the game from sending the solar creation packet (we need to do it ourselves)
@@ -712,8 +713,19 @@ std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
 
 bool ResourceManager::SpaceObjectBuilder::ValidateSpawn() const
 {
-    return (Archetype::GetSolar(npcTemplate.archetypeHash) || Archetype::GetShip(npcTemplate.archetypeHash)) && system.has_value() && npcTemplate.loadoutHash &&
-           Loadout::Get(npcTemplate.loadoutHash);
+    return (Archetype::GetSolar(npcTemplate.archetypeHash.GetValue()) || Archetype::GetShip(npcTemplate.archetypeHash.GetValue())) && system.has_value() &&
+           npcTemplate.loadoutHash && Loadout::Get(npcTemplate.loadoutHash.GetValue());
+}
+
+std::optional<ClientId> ResourceManager::GetLastAttackingPlayer(uint id)
+{
+    auto iter = npcToLastAttackingPlayerMap.find(id);
+    if (iter != npcToLastAttackingPlayerMap.end())
+    {
+        return {};
+    }
+
+    return { iter->second };
 }
 
 void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly)
@@ -746,12 +758,12 @@ void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly
 
     if (instantly)
     {
-        pub::SpaceObj::Destroy(ptr->id, DestroyType::Vanish);
+        pub::SpaceObj::Destroy(ptr->id.GetValue(), DestroyType::Vanish);
     }
     else
     {
         ptr->isDead = true;
-        pub::SpaceObj::SetRelativeHealth(ptr->id, 0.0f);
+        pub::SpaceObj::SetRelativeHealth(ptr->id.GetValue(), 0.0f);
     }
 }
 
@@ -822,6 +834,172 @@ const pub::SpaceObj::LootInfo* ResourceManager::LookupLootCreationInfo(const uin
 {
     const auto params = lootCreationParams.find(id);
     return params != lootCreationParams.end() ? &params->second : nullptr;
+}
+
+void SpawnSolar(unsigned int& spaceID, const pub::SpaceObj::SolarInfo& solarInfo)
+{
+    // hack server.dll so it does not call create solar packet send
+    static DWORD skipSolarPacket = FLHook::Offset(FLHook::BinaryType::Server, AddressList::SkipCSolarPacketSend);
+    char serverHack[] = { '\xEB' };
+    MemUtils::WriteProcMem(skipSolarPacket, &serverHack, 1);
+
+    pub::SpaceObj::CreateSolar(spaceID, solarInfo);
+
+    if (GameObject* inspect = FLHook::GetObjInspect(spaceID); inspect)
+    {
+        CObject* solar = inspect->cobject();
+
+        // for every player in the same system, send solar creation packet
+        struct SOLAR_STRUCT
+        {
+                byte dunno[0x100];
+        };
+
+        SOLAR_STRUCT packetSolar;
+
+        static DWORD address1 = FLHook::Offset(FLHook::BinaryType::Server, AddressList::SkipCSolarPacket1);
+        static DWORD address2 = FLHook::Offset(FLHook::BinaryType::Server, AddressList::SkipCSolarPacket2);
+
+        // fill struct
+        __asm
+        {
+			pushad
+			lea ecx, packetSolar
+			mov eax, address1
+			call eax
+			push solar
+			lea ecx, packetSolar
+			push ecx
+			mov eax, address2
+			call eax
+			add esp, 8
+			popad
+        }
+
+        struct PlayerData* pPD = 0;
+        while (pPD = Players.traverse_active(pPD))
+        {
+            if (pPD->systemId == solarInfo.systemId)
+            {
+                GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(pPD->clientId, (FLPACKET_CREATESOLAR&)packetSolar);
+            }
+        }
+    }
+
+    // undo the server.dll hack
+    char serverUnHack[] = { '\x74' };
+    MemUtils::WriteProcMem(skipSolarPacket, &serverUnHack, 1);
+}
+
+Id ResourceManager::CreateSolarSimple(SolarSpawnStruct& solarSpawnData)
+{
+    solarSpawnData.spaceObjId = Id(solarSpawnData.nickname);
+    if (auto object = FLHook::GetObjInspect(solarSpawnData.spaceObjId); object)
+    {
+        ERROR(L"Attempting to spawn an already existing object {}", { L"solarName", StringUtils::stows(solarSpawnData.nickname) })
+        return Id();
+    }
+
+    pub::SpaceObj::SolarInfo si;
+    memset(&si, 0, sizeof(si));
+    si.flag = 4;
+    si.archId = solarSpawnData.solarArchetypeId;
+    si.loadoutId = solarSpawnData.loadoutArchetypeId;
+
+    si.hitPointsLeft = -1;
+    si.systemId = solarSpawnData.systemId;
+    si.orientation = solarSpawnData.ori;
+    si.pos = solarSpawnData.pos;
+    si.costume.head = CreateID("pi_pirate2_head");
+    si.costume.body = CreateID("pi_pirate8_body");
+    si.costume.leftHand = 0;
+    si.costume.rightHand = 0;
+    si.costume.accessories = 0;
+    si.voiceId = Id("atc_leg_m01");
+    // TODO: something about this. Disco smuggles in destination system to a custom spawned Jump Object via otherwise unused DockWith field.
+    //  Handled via clienthook. Will probably switch to a FLUF based solution?
+    // si.dockWith = solarSpawnData.destSystem;
+    strncpy_s(si.nickName, sizeof(si.nickName), solarSpawnData.nickname.c_str(), solarSpawnData.nickname.size());
+
+    if (solarSpawnData.solarIds && !solarSpawnData.nameOverride.empty())
+    {
+        struct PlayerData* pd = nullptr;
+        while (pd = Players.traverse_active(pd))
+        {
+            if (pd->systemId == solarSpawnData.systemId)
+            {
+                // TODO: Send infocard override
+                // HkChangeIDSString(pd->onlineId, solarSpawnData.solarIds, solarSpawnData.nameOverride);
+            }
+        }
+    }
+    // Set the base name
+    FmtStr infoname(solarSpawnData.solarIds, 0);
+    infoname.begin_mad_lib(solarSpawnData.solarIds); // scanner name
+    infoname.end_mad_lib();
+
+    FmtStr infocard(solarSpawnData.solarIds, 0);
+    infocard.begin_mad_lib(solarSpawnData.solarIds); // infocard
+    infocard.end_mad_lib();
+
+    pub::Reputation::Alloc(si.rep, infoname, infocard);
+    pub::Reputation::SetAffiliation(si.rep, solarSpawnData.affiliation.GetValue());
+
+    uint spaceObjId;
+
+    SpawnSolar(spaceObjId, si);
+
+    pub::AI::SetPersonalityParams pers = PersonalityHelper::MakePersonality();
+    pub::AI::SubmitState(spaceObjId, &pers);
+
+    solarSpawnData.spaceObjId = Id(spaceObjId);
+    if (solarSpawnData.percentageHp != 1.0f)
+    {
+        pub::SpaceObj::SetRelativeHealth(spaceObjId, solarSpawnData.percentageHp);
+    }
+
+    if (!solarSpawnData.destObj || !solarSpawnData.destSystem)
+    {
+        return Id(spaceObjId);
+    }
+
+    //TODO: Add Handling for gate objects
+    //TODO: Create a per-plugin list of solars to dispose of when unloading the plugin
+
+    //uint type;
+    //pub::SpaceObj::GetType(spaceObjId, type);
+    //if (type & (ObjectType::JumpGate | ObjectType::JumpHole))
+    //{
+    //    HyperJump::InitJumpHole(spaceObjId, solarSpawnData.destSystem, solarSpawnData.destObj);
+    //}
+
+    return Id(spaceObjId);
+}
+
+Id ResourceManager::CreateLootSimple(SystemId system, const Vector& pos, Id commodity, uint amount, ShipId owner, bool canAITractor)
+{
+
+    pub::SpaceObj::LootInfo lootInfo;
+    lootInfo.systemId = system;
+    lootInfo.ownerId = owner.GetId().Unwrap();
+    lootInfo.equipmentArchId = commodity;
+    lootInfo.itemCount = amount;
+    lootInfo.pos = pos;
+    lootInfo.rot = Matrix::RandomMatrix();
+    lootInfo.isMissionLoot = false;
+    lootInfo.canAITractor = canAITractor;
+    lootInfo.hitPtsPercentage = 1.0f;
+    lootInfo.linearVelocity = { 0, 0, 0 };
+    lootInfo.angularVelocity = { 0, 0, 0 };
+    lootInfo.infocardOverride = Id();
+
+    uint spaceObjId = 0;
+    if (0 == pub::SpaceObj::CreateLoot(spaceObjId, lootInfo))
+    {
+        return Id(spaceObjId);
+    }
+
+    return Id();
 }
 
 template <>
@@ -940,25 +1118,25 @@ ResourceManager::ResourceManager()
                 {
                     std::string_view nickname = ini.get_value_string();
                     npc.nickname = StringUtils::stows(ini.get_value_string());
-                    npc.hash = CreateID(nickname.data());
+                    npc.hash = Id(nickname);
                 }
                 else if (ini.is_value("loadout"))
                 {
                     std::string_view loadout = ini.get_value_string();
                     npc.loadout = StringUtils::stows(ini.get_value_string());
-                    npc.loadoutHash = CreateID(loadout.data());
+                    npc.loadoutHash = Id(loadout);
                 }
                 else if (ini.is_value("pilot"))
                 {
                     std::string_view pilot = ini.get_value_string();
                     npc.pilot = StringUtils::stows(pilot);
-                    npc.pilotHash = CreateID(pilot.data());
+                    npc.pilotHash = Id(pilot);
                 }
                 else if (ini.is_value("ship_archetype"))
                 {
                     std::string_view archetype = ini.get_value_string();
                     npc.archetype = StringUtils::stows(ini.get_value_string());
-                    npc.archetypeHash = CreateID(archetype.data());
+                    npc.archetypeHash = Id(archetype);
                 }
                 else if (ini.is_value("level"))
                 {
@@ -987,13 +1165,13 @@ ResourceManager::~ResourceManager()
 {
     for (const auto& solar : spawnedSolars | std::views::keys)
     {
-        pub::SpaceObj::Destroy(solar->id, DestroyType::Vanish);
+        pub::SpaceObj::Destroy(solar->id.GetValue(), DestroyType::Vanish);
         solar->Release();
     }
 
     for (const auto& ship : spawnedShips | std::views::keys)
     {
-        pub::SpaceObj::Destroy(ship->id, DestroyType::Vanish);
+        pub::SpaceObj::Destroy(ship->id.GetValue(), DestroyType::Vanish);
         ship->Release();
     }
 }
@@ -1336,37 +1514,37 @@ void __fastcall ResourceManager::CObjDestr(CObject* cobj)
     switch (cobj->objectClass)
     {
         case CObject::CASTEROID_OBJECT:
-            cAsteroidIdMap.erase(simpleCast->id);
+            cAsteroidIdMap.erase(simpleCast->id.GetValue());
             cobjMap = &cAsteroidMap;
             break;
         case CObject::CEQUIPMENT_OBJECT: cobjMap = &cEquipmentMap; break;
         case CObject::COBJECT_MASK: cobjMap = &cObjectMap; break;
         case CObject::CSOLAR_OBJECT:
-            solarCreationParams.erase(simpleCast->id);
-            cSolarIdMap.erase(simpleCast->id);
+            solarCreationParams.erase(simpleCast->id.GetValue());
+            cSolarIdMap.erase(simpleCast->id.GetValue());
             cobjMap = &cSolarMap;
             break;
         case CObject::CSHIP_OBJECT:
-            shipCreationParams.erase(simpleCast->id);
-            cShipIdMap.erase(simpleCast->id);
+            shipCreationParams.erase(simpleCast->id.GetValue());
+            cShipIdMap.erase(simpleCast->id.GetValue());
             cobjMap = &cShipMap;
             break;
         case CObject::CLOOT_OBJECT:
-            lootCreationParams.erase(simpleCast->id);
-            cLootIdMap.erase(simpleCast->id);
+            lootCreationParams.erase(simpleCast->id.GetValue());
+            cLootIdMap.erase(simpleCast->id.GetValue());
             cobjMap = &cLootMap;
             break;
         case CObject::CBEAM_OBJECT: cobjMap = &cBeamMap; break;
         case CObject::CGUIDED_OBJECT:
-            cGuidedIdMap.erase(simpleCast->id);
+            cGuidedIdMap.erase(simpleCast->id.GetValue());
             cobjMap = &cGuidedMap;
             break;
         case CObject::CCOUNTERMEASURE_OBJECT:
-            cCmIdMap.erase(simpleCast->id);
+            cCmIdMap.erase(simpleCast->id.GetValue());
             cobjMap = &cCmMap;
             break;
         case CObject::CMINE_OBJECT:
-            cMineIdMap.erase(simpleCast->id);
+            cMineIdMap.erase(simpleCast->id.GetValue());
             cobjMap = &cMineMap;
             break;
         default: return; // will never be hit, but shuts up the InteliSense

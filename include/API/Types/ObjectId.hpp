@@ -1,9 +1,9 @@
 #pragma once
 
-#include "FLCore/Common/CObjects/CSimple.hpp"
 #include "RepId.hpp"
 #include "SystemId.hpp"
 
+class CSimple;
 /**
  * @brief This object represents instances of both Stations and Ships in space.
  */
@@ -24,9 +24,6 @@ class DLL ObjectId
 
         [[nodiscard]]
         Action<uint> GetId() const;
-
-        [[nodiscard]]
-        Action<CObject::Class> GetObjectType() const;
 
         [[nodiscard]]
         Action<std::wstring> GetNickName() const;

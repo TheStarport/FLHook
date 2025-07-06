@@ -28,14 +28,7 @@ Action<uint> ObjectId::GetId() const
 {
     IsValidObj;
 
-    return { obj->id };
-}
-
-Action<CObject::Class> ObjectId::GetObjectType() const
-{
-    IsValidObj;
-
-    return { obj->objectClass };
+    return { obj->id.GetValue() };
 }
 
 Action<std::wstring> ObjectId::GetNickName() const

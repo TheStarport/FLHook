@@ -2,9 +2,9 @@
 
 #include "API/InternalApi.hpp"
 #include "API/Types/AccountId.hpp"
+#include "API/Types/SystemId.hpp"
 #include "API/Types/BaseId.hpp"
 #include "API/Types/ShipId.hpp"
-#include "API/Types/SystemId.hpp"
 #include "API/Utils/FlufPayload.hpp"
 #include "Defs/Structs.hpp"
 
@@ -70,6 +70,14 @@ class DLL ClientId
          */
         [[nodiscard]]
         Action<BaseId> GetCurrentBase() const;
+
+        /**
+         * @brief Gets the BaseId of the base the client has last docked on.
+         * @returns On success : BaseId of the base the client last docked on
+         * @returns On fail : Error code of InCharacterSelect
+         */
+        [[nodiscard]]
+        Action<BaseId> GetLastDockedBase() const;
 
         /**
          * @brief Gets the SystemId of the system the client currently is in.
@@ -187,7 +195,7 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect
          */
         [[nodiscard]]
-        Action<st6::list<EquipDesc>* const> GetEquipCargo() const;
+        Action<EquipDescList* const> GetEquipCargo() const;
 
         /**
          * @brief Gets the remaining cargo hold of the player
@@ -204,6 +212,14 @@ class DLL ClientId
          */
         [[nodiscard]]
         Action<st6::list<CollisionGroupDesc>* const> GetCollisionGroups() const;
+
+        /**
+         * @brief Gets the collision groups of the player ship.
+         * @returns On success : Reference to st6::list of CollisionGroupDesc of all collision groups the player ship has.
+         * @returns On fail : InCharacterSelect
+         */
+        [[nodiscard]]
+        Action<CPlayerTradeOffer*> GetTradeOffer() const;
 
         /**
          * @brief Gets overall data related to the clientID
@@ -383,9 +399,9 @@ class DLL ClientId
          */
         Action<void> SetEquip(const st6::list<EquipDesc>& equip) const;
 
-        Action<void> AddEquip(uint goodId, const std::wstring& hardpoint) const;
+        Action<void> AddEquip(Id goodId, const std::wstring& hardpoint) const;
 
-        Action<void> AddCargo(uint goodId, uint count, bool isMission) const;
+        Action<void> AddCargo(Id goodId, uint count, bool isMission) const;
 
         Action<void> RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const;
 
@@ -393,7 +409,7 @@ class DLL ClientId
 
         Action<void> PlayMusic(const pub::Audio::Tryptich& info) const;
 
-        Action<void> PlaySound(uint hash) const;
+        Action<void> PlaySound(Id hash) const;
 
         Action<void> DisplayMissionObjective(uint ids) const;
 

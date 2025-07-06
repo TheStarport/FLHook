@@ -18,7 +18,7 @@ void LoginSound::OnLoginAfter(const ClientId client, [[maybe_unused]] const SLog
     if (!config.sounds.empty())
     {
         const auto sound = config.sounds[Random::Uniform(0u, config.sounds.size() - 1)];
-        client.PlaySound(sound.GetValue());
+        client.PlaySound(sound);
     }
 }
 

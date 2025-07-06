@@ -60,6 +60,7 @@ void __stdcall IServerImplHook::BaseEnter(BaseId baseId, ClientId client)
     BaseEnterInnerAfter(baseId, client);
 
     CallPlugins(&Plugin::OnBaseEnterAfter, baseId, client);
+    IServerImplHook::clientState.erase(client);
 }
 
 void IServerImplHook::BaseExitInner(BaseId baseId, ClientId client)

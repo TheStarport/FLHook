@@ -83,13 +83,13 @@ namespace Plugins
         }
 
         int counter = 1;
-        for (const auto& equip : *client.GetEquipCargo().Handle())
+        for (const auto& equip : client.GetEquipCargo().Handle()->equip)
         {
             if (equip.mounted)
             {
                 continue;
             }
-            auto good = GoodId(Arch2Good(equip.archId));
+            auto good = GoodId(Arch2Good(equip.archId.GetValue()));
             if (!good || (!config.allowCommoditiesToBeStored && good.GetType().Handle() == GoodType::Commodity))
             {
                 continue;
@@ -129,7 +129,7 @@ namespace Plugins
         int counter = 0;
         const auto equipList = client.GetEquipCargo().Handle();
 
-        if (itemNr > equipList->size())
+        if (itemNr > equipList->equip.size())
         {
             (void)client.Message(L"You don't have that much of this item!");
             co_return;
@@ -137,14 +137,14 @@ namespace Plugins
 
         GoodId good;
         EquipmentId equipment;
-        for (const auto& equip : *equipList)
+        for (const auto& equip : equipList->equip)
         {
             if (equip.mounted)
             {
                 continue;
             }
 
-            good = GoodId(Arch2Good(equip.archId));
+            good = GoodId(Arch2Good(equip.archId.GetValue()));
             if (!good || (!config.allowCommoditiesToBeStored && good.GetType().Handle() == GoodType::Commodity))
             {
                 continue;

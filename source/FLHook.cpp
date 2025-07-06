@@ -191,10 +191,23 @@ DWORD __stdcall FLHook::Offset(const BinaryType type, AddressList address)
 bool FLHook::IsReady() { return instance != nullptr && instance->flhookReady; }
 std::wstring_view FLHook::GetAccountPath() { return instance->accPath; }
 
-bool FLHook::GetObjInspect(uint& ship, IObjInspectImpl*& inspect)
+GameObject* FLHook::GetObjInspect(const uint& objId)
+{ 
+    StarSystem* starSystem;
+    GameObject* inspect;
+    getShipInspect(objId, reinterpret_cast<IObjInspectImpl*&>(inspect), starSystem);
+    return inspect;
+}
+GameObject* FLHook::GetObjInspect(Id objId) { return GetObjInspect(objId.GetValue()); }
+
+bool FLHook::GetObjInspect(const uint& objId, GameObject*& inspect, StarSystem*& starSystem)
 {
-    uint dunno; // Something related to watchables
-    return getShipInspect(ship, inspect, dunno);
+    return getShipInspect(objId, reinterpret_cast<IObjInspectImpl*&>(inspect), starSystem);
+}
+
+bool FLHook::GetObjInspect(Id objId, GameObject*& inspect, StarSystem*& starSystem)
+{
+    return GetObjInspect(objId.GetValue(), inspect, starSystem);
 }
 
 const std::unordered_map<ClientId, std::unordered_set<std::wstring>>& FLHook::GetAdmins() { return instance->credentialsMap; }
@@ -323,7 +336,7 @@ void FLHook::LoadSettings()
                 "A file called flhook.json has been created in the Freelancer directory.\n"
                 "Please open and configure it as per documentation.\n\n"
                 "FLServer will now terminate.", "flhook.json Created", MB_OK);
-            std::abort();
+            std::exit(0);
 
         }
 

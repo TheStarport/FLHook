@@ -2,9 +2,11 @@
 
 #include "Utils/Detour.hpp"
 
+class IEngineHook;
 class DLL ResourceManager final
 {
         friend IServerImplHook;
+        friend IEngineHook;
 
         using DefaultNakedType = void (*)();
         using CObjAllocatorType = CObject*(__cdecl*)(CObject::Class objClass);
@@ -62,7 +64,7 @@ class DLL ResourceManager final
         const inline static auto findIObjFunc = reinterpret_cast<FindIObjInSystem>(0x6D0C840);
         const inline static auto CObjListFind = reinterpret_cast<CObjListFunc>(0x62AE690);
         const inline static auto removeCObjNode = reinterpret_cast<RemoveCobjFromVector>(0x62AF830);
-
+        
         inline static std::unordered_map<CObject*, CObjNode*> cMineMap;
         inline static std::unordered_map<CObject*, CObjNode*> cCmMap;
         inline static std::unordered_map<CObject*, CObjNode*> cBeamMap;
@@ -73,7 +75,7 @@ class DLL ResourceManager final
         inline static std::unordered_map<CObject*, CObjNode*> cLootMap;
         inline static std::unordered_map<CObject*, CObjNode*> cEquipmentMap;
         inline static std::unordered_map<CObject*, CObjNode*> cObjectMap;
-        inline static std::unordered_set<uint> playerShips;
+        inline static std::unordered_map<uint, ClientId> playerShips;
 
         inline static std::unordered_map<uint, std::shared_ptr<CAsteroid>> cAsteroidIdMap;
         inline static std::unordered_map<uint, std::shared_ptr<CSolar>> cSolarIdMap;
@@ -112,17 +114,17 @@ class DLL ResourceManager final
         struct NpcTemplate
         {
                 std::wstring nickname;
-                uint hash;
+                Id hash;
                 std::wstring loadout;
-                uint loadoutHash;
+                Id loadoutHash;
                 std::wstring archetype;
-                uint archetypeHash;
+                Id archetypeHash;
                 std::wstring pilot;
-                uint pilotHash;
+                Id pilotHash;
                 uint level;
         };
 
-        inline static std::unordered_map<uint, NpcTemplate> npcTemplates;
+        inline static std::unordered_map<Id, NpcTemplate> npcTemplates;
         std::vector<std::pair<std::shared_ptr<CShip>, bool>> spawnedShips;
         std::vector<std::pair<std::shared_ptr<CSolar>, bool>> spawnedSolars;
 
@@ -130,7 +132,9 @@ class DLL ResourceManager final
         void OnSolarDestroyed(Solar* solar);
         static void SendSolarPacket(uint spaceId, pub::SpaceObj::SolarInfo& si);
 
+        inline static std::unordered_map<uint, ClientId> npcToLastAttackingPlayerMap;
     public:
+
         struct DLL SpaceObjectBuilder
         {
                 struct Fuse
@@ -178,7 +182,7 @@ class DLL ResourceManager final
                  * Set the archetype of the ship/solar via hash. It will be validated on spawn.
                  * @param archetype The hash of a ship/solar archetype
                  */
-                SpaceObjectBuilder& WithArchetype(uint archetype);
+                SpaceObjectBuilder& WithArchetype(Id archetype);
 
                 /**
                  * Set the loadout for the ship/solar.
@@ -374,11 +378,11 @@ class DLL ResourceManager final
                 std::optional<Matrix> rotation{};
                 std::optional<Vector> position{};
                 std::optional<float> positionVariance{};
-                std::optional<uint> system{};
+                std::optional<SystemId> system{};
                 std::optional<float> health{};
-                std::optional<uint> affiliation{};
+                std::optional<RepGroupId> affiliation{};
                 std::optional<std::pair<uint, uint>> name{};
-                std::optional<uint> dockTo{};
+                std::optional<BaseId> dockTo{};
                 std::optional<std::pair<FmtStr&, FmtStr&>> names{};
                 std::optional<Fuse> fuse{};
 
@@ -405,6 +409,12 @@ class DLL ResourceManager final
         {
             return SpaceObjectBuilder{ *this };
         }
+
+        /**
+         * @brief Returns an optional of the last ClientId to hit an NPC with a given id.
+         * @param id The Id of the NPC ship.
+         */
+        std::optional<ClientId> GetLastAttackingPlayer(uint id);
 
         /**
          * @brief Cause an object to be destroyed, but not despawned.
@@ -455,4 +465,26 @@ class DLL ResourceManager final
         static const pub::SpaceObj::ShipInfo* LookupShipCreationInfo(uint id);
         static const pub::SpaceObj::SolarInfo* LookupSolarCreationInfo(uint id);
         static const pub::SpaceObj::LootInfo* LookupLootCreationInfo(uint id);
+
+        struct SolarSpawnStruct
+        {
+                std::string pluginName;
+                Id solarArchetypeId;
+                Id loadoutArchetypeId;
+                std::string nickname;
+                uint solarIds;
+                std::wstring nameOverride;
+                Vector pos;
+                Matrix ori;
+                SystemId systemId;
+                Id spaceObjId;
+                SystemId destSystem;
+                Id destObj;
+                Id affiliation;
+                float percentageHp = 1.0f;
+        };
+
+        static ShipId CreateShipSimple (SystemId system, const Vector& pos, Matrix& rot );
+        static Id CreateSolarSimple(SolarSpawnStruct& solarSpawnData);
+        static Id CreateLootSimple(SystemId system, const Vector& pos, Id commodity, uint amount, ShipId owner, bool canAITractor);
 };

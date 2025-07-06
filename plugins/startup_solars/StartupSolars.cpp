@@ -237,7 +237,7 @@ namespace Plugins
             // clang-format off
             solar->spawnedEntity = resourceManager->NewBuilder()
                 .AsSolar()
-                .WithArchetype(solar->archetype.GetValue())
+                .WithArchetype(solar->archetype)
                 .WithPersonality(solar->pilot)
                 .WithLoadout(solar->loadout.GetValue())
                 .WithReputation(solar->repGroup.value_or(group))
@@ -276,9 +276,9 @@ namespace Plugins
 
                         const auto entity = solar->spawnedEntity.value().lock();
                         float health;
-                        pub::SpaceObj::GetRelativeHealth(entity->id, health);
+                        pub::SpaceObj::GetRelativeHealth(entity->id.GetValue(), health);
                         health += group->hullRegen.value() + health;
-                        pub::SpaceObj::SetRelativeHealth(entity->id, health);
+                        pub::SpaceObj::SetRelativeHealth(entity->id.GetValue(), health);
                     }
                 }
             }

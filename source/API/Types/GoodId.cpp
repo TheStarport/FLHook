@@ -18,11 +18,11 @@ GoodId::operator bool() const { return value; }
 
 const GoodInfo* GoodId::GetValue() const { return value; }
 
-Action<uint> GoodId::GetHash() const
+Action<Id> GoodId::GetHash() const
 {
     GoodCheck;
 
-    return { value->goodId };
+    return { Id(value->goodId) };
 }
 
 Action<EquipmentId> GoodId::GetEquipment() const

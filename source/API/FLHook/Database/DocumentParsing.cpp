@@ -712,7 +712,7 @@ void Character::HandleDeadCharacter()
         equipment = baseEquipment;
         collisionGroups = baseCollisionGroups;
         currentBase = lastDockedBase;
-        system = Universe::get_base(currentBase)->systemId;
+        system = Universe::get_base(currentBase)->systemId.GetValue();
     }
 }
 

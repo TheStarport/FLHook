@@ -94,9 +94,9 @@ void TrafficControlPlugin::OnPlayerLaunchAfter(const ClientId client, const Ship
     auto& playerNetworks = clientInfo[client.GetValue()].availableNetworks;
     playerNetworks.clear();
 
-    for (EquipDesc& equip : *client.GetEquipCargo().Handle())
+    for (EquipDesc& equip : client.GetEquipCargo().Handle()->equip)
     {
-        if (const auto findResult = config.equipAccesses.find(equip.archId); findResult != config.equipAccesses.end())
+        if (const auto findResult = config.equipAccesses.find(equip.archId.GetValue()); findResult != config.equipAccesses.end())
         {
             playerNetworks[findResult->second.second->networkId] = findResult->second;
         }

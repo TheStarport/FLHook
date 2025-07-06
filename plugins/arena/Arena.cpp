@@ -30,10 +30,10 @@ namespace Plugins
 
     bool ArenaPlugin::ValidateCargo(const ClientId client)
     {
-        for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : *cargo)
+        for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : cargo->equip)
         {
             bool flag = false;
-            pub::IsCommodity(item.archId, flag);
+            pub::IsCommodity(item.archId.GetValue(), flag);
 
             // Some commodity present.
             if (flag)

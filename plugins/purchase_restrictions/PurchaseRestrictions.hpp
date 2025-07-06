@@ -58,30 +58,30 @@ namespace Plugins
                     std::wstring goodPurchaseDenied = L"You are not authorized to buy this item.";
 
                     //! Items that we log transfers for
-                    std::vector<GoodId> itemsOfInterest{};
+                    std::vector<Id> itemsOfInterest{};
 
                     //! Items that cannot be bought at all.
-                    std::vector<GoodId> unbuyableItems{};
+                    std::vector<Id> unbuyableItems{};
 
                     //! Items that can only be bought with a certain item equipped (item, [ equippedItemsThatAllowPurchase ])
-                    std::unordered_map<GoodId, std::vector<GoodId>> goodItemRestrictions{};
+                    std::unordered_map<Id, std::vector<Id>> goodItemRestrictions{};
 
                     //! Ships that can only be bought with a certain item equipped (ship, [ equippedItemsThatAllowPurchase ])
-                    std::unordered_map<GoodId, std::vector<GoodId>> shipItemRestrictions{};
+                    std::unordered_map<Id, std::vector<Id>> shipItemRestrictions{};
             };
 
             Config config;
             ReturnCode returnCode = ReturnCode::Default;
             std::unordered_map<ClientId, bool> clientSuppressBuy;
 
-            void LogItemsOfInterest(const ClientId& client, GoodId goodId, std::wstring_view details);
-            bool CheckIdEquipRestrictions(ClientId client, GoodId goodId, bool isShip) const;
+            void LogItemsOfInterest(const ClientId& client, Id goodId, std::wstring_view details);
+            bool CheckIdEquipRestrictions(ClientId client, Id goodId, bool isShip) const;
             bool OnLoadSettings() override;
             void OnClearClientInfo(ClientId client) override;
             void OnPlayerLaunch(ClientId client, const ShipId& ship) override;
             void OnBaseEnter(BaseId base, ClientId client) override;
             void OnGfGoodBuy(ClientId client, const SGFGoodBuyInfo& info) override;
-            void OnRequestAddItem(ClientId client, GoodId goodId, std::wstring_view hardpoint, int count, float status, bool mounted) override;
+            void OnRequestAddItem(ClientId client, GoodId& goodId, std::wstring_view hardpoint, int count, float status, bool mounted) override;
             void OnRequestChangeCash(ClientId client, int cash) override;
             void OnRequestSetCash(ClientId client, int cash) override;
             void OnRequestEquipment(ClientId client, const EquipDescList& edl) override;

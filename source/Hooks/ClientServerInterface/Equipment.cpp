@@ -11,7 +11,7 @@ void IServerImplHook::ActivateEquipInner(ClientId client, const XActivateEquip& 
     {
         auto& data = client.GetData();
 
-        for (const auto cargoList = client.GetEquipCargo().Raw(); const auto& cargo : *cargoList.value())
+        for (const auto cargoList = client.GetEquipCargo().Raw(); const auto& cargo : cargoList.value()->equip)
         {
             if (cargo.id != aq.id)
             {

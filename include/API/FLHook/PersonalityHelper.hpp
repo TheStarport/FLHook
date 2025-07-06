@@ -49,4 +49,6 @@ class PersonalityHelper
         PersonalityHelper(const PersonalityHelper&) = delete;
         PersonalityHelper& operator=(const PersonalityHelper&) = delete;
         ~PersonalityHelper() = default;
+
+        static pub::AI::SetPersonalityParams MakePersonality();
 };

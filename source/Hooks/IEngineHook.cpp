@@ -3,6 +3,7 @@
 #include "Core/IEngineHook.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/ResourceManager.hpp"
 
 IEngineHook::CallAndRet::CallAndRet(void* toCall, void* ret)
 {
@@ -160,7 +161,15 @@ void __fastcall IEngineHook::CShipInit(CShip* ship, void* edx, CShip::CreateParm
     using CShipInitType = void(__thiscall*)(CShip*, CShip::CreateParms*);
     static_cast<CShipInitType>(cShipVTable.GetOriginal(static_cast<ushort>(CShipVTable::InitCShip)))(ship, creationParams);
 
-    CallPlugins(&Plugin::OnCShipInit, ship);
+    CallPlugins(&Plugin::OnCShipInitAfter, ship);
+}
+
+void __fastcall IEngineHook::CSolarInit(CSolar* solar, void* edx, CSolar::CreateParms* creationParams)
+{
+    using CSolarInitType = void(__thiscall*)(CSolar*, CSolar::CreateParms*);
+    static_cast<CSolarInitType>(cSolarVTable.GetOriginal(static_cast<ushort>(CSolarVTable::InitCSolar)))(solar, creationParams);
+
+    CallPlugins(&Plugin::OnCSolarInitAfter, solar);
 }
 
 void __fastcall IEngineHook::CLootInit(CLoot* loot, void* edx, CLoot::CreateParms* creationParams)
@@ -168,7 +177,25 @@ void __fastcall IEngineHook::CLootInit(CLoot* loot, void* edx, CLoot::CreateParm
     using CLootInitType = void(__thiscall*)(CLoot*, CLoot::CreateParms*);
     static_cast<CLootInitType>(cLootVTable.GetOriginal(static_cast<ushort>(CLootVTable::InitCLoot)))(loot, creationParams);
 
-    CallPlugins(&Plugin::OnCLootInit, loot);
+    CallPlugins(&Plugin::OnCLootInitAfter, loot);
+}
+
+void __fastcall IEngineHook::CGuidedInit(CGuided* guided, void* edx, CGuided::CreateParms* creationParams)
+{
+    using CGuidedInitType = void(__thiscall*)(CGuided*, CGuided::CreateParms*);
+    static_cast<CGuidedInitType>(cGuidedVTable.GetOriginal(static_cast<ushort>(CGuidedVTable::InitCEquipObject)))(guided, creationParams);
+
+    CallPlugins(&Plugin::OnCGuidedInitAfter, guided);
+}
+
+FireResult __fastcall IEngineHook::CELauncherFireAfter(CELauncher* launcher, void* edx, const Vector& pos)
+{
+    using CELauncherFireType = FireResult(__thiscall*)(CELauncher*, const Vector&);
+    FireResult retVal = static_cast<CELauncherFireType>(ceLauncherVTable.GetOriginal(static_cast<ushort>(CELauncherVTable::Fire)))(launcher, pos);
+
+    CallPlugins(&Plugin::OnCELauncherFireAfter, launcher, pos, retVal);
+
+    return retVal;
 }
 
 IEngineHook::LaunchPositionAssembly::LaunchPositionAssembly()
@@ -232,37 +259,31 @@ int IEngineHook::SendCommDetour(const uint sender, uint receiver, const uint voi
     static BYTE currMemory[5];
     memcpy(currMemory, pub::SpaceObj::SendComm, sizeof(currMemory));
 
-    for (ClientData& client : FLHook::Clients())
+    auto& playerMap = FLHook::GetResourceManager()->playerShips;
+    if (auto client = playerMap.find(receiver); client != playerMap.end())
     {
-        if (client.shipId.GetValue() != receiver)
+        auto cd = sendCommData.callsigns.find(client->second.GetValue());
+        if (cd != sendCommData.callsigns.end())
         {
-            continue;
-        }
-
-        auto cd = sendCommData.callsigns.find(client.id.GetValue());
-        if (cd == sendCommData.callsigns.end())
-        {
-            break;
-        }
-
-        for (int i = 0; i < lineCount; ++i)
-        {
-            if (lines[i] != SendCommData::Callsign::FreelancerCommHash)
+            for (int i = 0; i < lineCount; ++i)
             {
-                continue;
-            }
+                if (lines[i] != SendCommData::Callsign::FreelancerCommHash)
+                {
+                    continue;
+                }
 
-            if (i + 4 > lineCount)
-            {
+                if (i + 4 > lineCount)
+                {
+                    break;
+                }
+
+                lines[i] = cd->second.factionLine;
+                lines[i + 1] = cd->second.formationLine;
+                lines[i + 2] = cd->second.number1;
+                lines[i + 4] = cd->second.number2;
+
                 break;
             }
-
-            lines[i] = cd->second.factionLine;
-            lines[i + 1] = cd->second.formationLine;
-            lines[i + 2] = cd->second.number1;
-            lines[i + 4] = cd->second.number2;
-
-            break;
         }
     }
 

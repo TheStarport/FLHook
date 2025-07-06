@@ -32,11 +32,12 @@ std::shared_ptr<Timer> Timer::AddCron(const std::function<void()>& function, con
     return ptr;
 }
 
-std::shared_ptr<Timer> Timer::Add(const std::function<void()>& function, const uint interval)
+std::shared_ptr<Timer> Timer::Add(const std::function<void()>& function, const uint intervalInMs)
 {
+    //TODO: Use chrono:: instead of uint
     auto ptr = std::make_shared<Timer>();
     ptr->func = function;
-    ptr->interval = interval;
+    ptr->interval = intervalInMs;
     timers.emplace(ptr);
 
     return ptr;
@@ -52,7 +53,7 @@ void Timer::Remove(const std::shared_ptr<Timer>& timer)
 std::shared_ptr<Timer> Timer::AddOneShot(const std::function<void()>& function, const uint intervalInMs,
                                          const std::optional<std::function<void(std::shared_ptr<Timer>)>>& callback)
 {
-    std::shared_ptr<Timer> timer;
+    std::shared_ptr<Timer> timer = std::make_shared<Timer>();
     timer->func = function;
     timer->interval = intervalInMs;
     timer->lastTime = TimeUtils::UnixTime<std::chrono::milliseconds>();

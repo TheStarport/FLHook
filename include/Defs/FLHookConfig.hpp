@@ -100,9 +100,6 @@ struct DLL FLHookConfig final
                 //! The type of damage allowed on this server. Allowed values: 'All', 'None', 'PvP' and 'PvE'
                 DamageMode damageMode = DamageMode::All;
 
-                //! Disable the cruise disrupting effects.
-                bool cruiseDisruptorRestartEngines = true;
-
                 //! If a player disconnects in space, their ship will remain in game world for the time specified, in milliseconds.
                 uint disconnectDelay = 0;
 
@@ -119,7 +116,25 @@ struct DLL FLHookConfig final
                 std::vector<std::wstring> chatSuppressList;
 
                 //! Vector of systems where players can't deal damage to one another.
-                std::vector<SystemId> noPvPSystems;
+                std::unordered_set<SystemId> noPvPSystems;
+        };
+
+        struct GameFixes final
+        {
+                //! If true, enables RayHit based explosion logic. Also prevents ships with rooted collision groups from taking extra damage from explosions.
+                bool enableExplosionFix = false;
+
+                //! Disable the cruise disrupting effects.
+                bool cruiseDisruptorRestartEngines = true;
+
+                //! Toggles the NPC spin protection
+                bool enableNpcSpinProtection = false;
+
+                //! The minimum amount of mass a ship must have for spin protection to kick in
+                float spinProtectionMass = 180.0f;
+
+                //! The higher this value is the more aggressive the spin protection is
+                float spinImpulseMultiplier = -1.0f;
         };
 
         struct Logging final
@@ -143,15 +158,6 @@ struct DLL FLHookConfig final
 
                 //! The distance at which ALL NPCs will be visible from. Vanilla default is 2.5k
                 float npcVisibilityDistance = 6500.f;
-
-                //! Toggles the NPC spin protection
-                bool enableNpcSpinProtection = false;
-
-                //! The minimum amount of mass a ship must have for spin protection to kick in
-                float spinProtectionMass = 180.0f;
-
-                //! The higher this value is the more aggressive the spin protection is
-                float spinImpulseMultiplier = -1.0f;
         };
 
         struct Plugins final
@@ -218,6 +224,7 @@ struct DLL FLHookConfig final
         ChatConfig chatConfig;
         Callsign callsign;
         DatabaseConfig database;
+        GameFixes gameFixes;
         Npc npc;
         Rename rename;
         Reputation reputation;

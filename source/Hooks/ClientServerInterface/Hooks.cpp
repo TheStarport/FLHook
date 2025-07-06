@@ -191,5 +191,7 @@ bool __stdcall IServerImplHook::Startup(SStartupInfo& si)
     }
     StartupInnerAfter(si);
 
+    INFO(L"FLHook Ready");
+
     return retVal;
 }

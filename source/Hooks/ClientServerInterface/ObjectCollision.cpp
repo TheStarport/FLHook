@@ -9,13 +9,11 @@ void IServerImplHook::NpcSpinProtection(const SSPObjCollisionInfo& oci, ClientId
 {
     static uint dummy;
     // static
-    static EqObj* collidingIObject;
-    uint spaceObjId = oci.colliderObjectId;
-    FLHook::getShipInspect(spaceObjId, reinterpret_cast<IObjInspectImpl*&>(collidingIObject), dummy);
+    static GameObject* collidingIObject = FLHook::GetObjInspect(oci.colliderObjectId);
     const float targetMass = collidingIObject->get_mass();
     // Don't do spin protect unless the hit ship is big
     const auto config = FLHook::GetConfig();
-    if (targetMass < config->npc.spinProtectionMass)
+    if (targetMass < config->gameFixes.spinProtectionMass)
     {
         return;
     }
@@ -38,12 +36,12 @@ void IServerImplHook::NpcSpinProtection(const SSPObjCollisionInfo& oci, ClientId
         return;
     }
 
-    linearVelocity.x *= config->npc.spinImpulseMultiplier * clientMass;
-    linearVelocity.y *= config->npc.spinImpulseMultiplier * clientMass;
-    linearVelocity.z *= config->npc.spinImpulseMultiplier * clientMass;
-    angularVelocity.x *= config->npc.spinImpulseMultiplier * clientMass;
-    angularVelocity.y *= config->npc.spinImpulseMultiplier * clientMass;
-    angularVelocity.z *= config->npc.spinImpulseMultiplier * clientMass;
+    linearVelocity.x *= config->gameFixes.spinImpulseMultiplier * clientMass;
+    linearVelocity.y *= config->gameFixes.spinImpulseMultiplier * clientMass;
+    linearVelocity.z *= config->gameFixes.spinImpulseMultiplier * clientMass;
+    angularVelocity.x *= config->gameFixes.spinImpulseMultiplier * clientMass;
+    angularVelocity.y *= config->gameFixes.spinImpulseMultiplier * clientMass;
+    angularVelocity.z *= config->gameFixes.spinImpulseMultiplier * clientMass;
 
     collidingIObject->cobject()->add_impulse(linearVelocity, angularVelocity);
 }
@@ -52,7 +50,7 @@ void __stdcall IServerImplHook::SpObjCollision(const SSPObjCollisionInfo& oci, C
 {
     TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
 
-    if (FLHook::GetConfig()->npc.enableNpcSpinProtection && oci.colliderObjectId)
+    if (FLHook::GetConfig()->gameFixes.enableNpcSpinProtection && oci.colliderObjectId)
     {
         NpcSpinProtection(oci, client);
     }

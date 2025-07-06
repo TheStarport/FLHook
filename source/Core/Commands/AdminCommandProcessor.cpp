@@ -359,7 +359,7 @@ concurrencpp::result<void> AdminCommandProcessor::ListCargo(ClientId client, con
     const auto cargo = target.GetEquipCargo().Handle();
     std::wstring res;
 
-    for (auto& item : *cargo)
+    for (auto& item : cargo->equip)
     {
         if (item.mounted)
         {

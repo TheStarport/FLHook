@@ -176,7 +176,7 @@ CObject* CrashCatcher::GetRoot(CObject* child)
     }
     catch (...)
     {
-        ERROR(L"Crash suppression {0}", { L"archID", HEXIFY(child->get_archetype()->archId) });
+        ERROR(L"Crash suppression {0}", { L"archID", HEXIFY(child->get_archetype()->archId.GetValue()) });
         return child;
     }
 }

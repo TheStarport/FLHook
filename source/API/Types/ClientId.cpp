@@ -76,12 +76,25 @@ Action<BaseId> ClientId::GetCurrentBase() const
     ClientCheck;
     CharSelectCheck;
 
-    if (const uint base = Players[value].baseId; base)
+    if (const BaseId base = Players[value].baseId; base)
     {
-        return { BaseId(base) };
+        return { base };
     }
 
     return { cpp::fail(Error::PlayerNotDocked) };
+}
+
+Action<BaseId> ClientId::GetLastDockedBase() const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    if (const BaseId base = Players[value].lastBaseId; base)
+    {
+        return { base };
+    }
+
+    return { cpp::fail(Error::InvalidBase) };
 }
 
 Action<SystemId> ClientId::GetSystemId() const
@@ -89,13 +102,13 @@ Action<SystemId> ClientId::GetSystemId() const
     ClientCheck;
     CharSelectCheck;
 
-    const uint sys = Players[value].systemId;
+    const SystemId sys = Players[value].systemId;
 
     if (!sys)
     {
         return { cpp::fail(Error::InvalidSystem) };
     }
-    return { SystemId(sys) };
+    return { sys };
 }
 
 Action<AccountId> ClientId::GetAccount() const
@@ -128,14 +141,14 @@ Action<ShipId> ClientId::GetShip() const
     ClientCheck;
     CharSelectCheck;
 
-    const uint ship = Players[value].shipId;
+    const ShipId ship = ShipId(Players[value].shipId);
 
     if (!ship)
     {
         return { cpp::fail(Error::PlayerNotInSpace) };
     }
 
-    return cpp::result<ShipId, Error>(ShipId(ship));
+    return { ship };
 }
 
 Action<uint> ClientId::GetLatency() const
@@ -239,7 +252,14 @@ Action<std::wstring_view> ClientId::GetCharacterName() const
     return { GetData().characterName };
 }
 
-bool ClientId::InSpace() const { return Players[value].shipId; }
+bool ClientId::InSpace() const
+{
+    if (Players[value].shipId)
+    {
+        return true;
+    }
+    return false;
+}
 
 bool ClientId::IsDocked() const { return Players[value].systemId && Players[value].baseId; }
 
@@ -247,12 +267,12 @@ bool ClientId::InCharacterSelect() const { return !Players[value].systemId; }
 
 bool ClientId::IsAlive() const { return Players[value].systemId && Players[value].shipId; }
 
-Action<st6::list<EquipDesc>* const> ClientId::GetEquipCargo() const
+Action<EquipDescList* const> ClientId::GetEquipCargo() const
 {
     ClientCheck;
     CharSelectCheck;
 
-    return { &Players[value].equipAndCargo.equip };
+    return { &Players[value].equipAndCargo };
 }
 
 Action<float> ClientId::GetRemainingCargo() const
@@ -271,6 +291,19 @@ Action<st6::list<CollisionGroupDesc>* const> ClientId::GetCollisionGroups() cons
     CharSelectCheck;
 
     return { &Players[value].collisionGroupDesc };
+}
+
+Action<CPlayerTradeOffer*> ClientId::GetTradeOffer() const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    if (Players[value].tradeOffer)
+    {
+        return { Players[value].tradeOffer };
+    }
+
+    return { cpp::fail(Error::PlayerNoTradeActive) };
 }
 
 ClientData& ClientId::GetData() const { return FLHook::Clients()[value]; }
@@ -465,7 +498,7 @@ Action<void> ClientId::Beam(const BaseId base) const
         return { cpp::fail(Error::InvalidBase) };
     }
 
-    const uint sysId = Players[value].systemId;
+    const SystemId sysId = Players[value].systemId;
     const Universe::IBase* basePtr = Universe::get_base(base.GetValue());
 
     if (!basePtr)
@@ -648,7 +681,7 @@ Action<void> ClientId::SetEquip(const st6::list<EquipDesc>& equip) const
     return { cpp::fail(Error::PacketError) };
 }
 
-Action<void> ClientId::AddEquip(const uint goodId, const std::wstring& hardpoint) const
+Action<void> ClientId::AddEquip(const Id goodId, const std::wstring& hardpoint) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -658,12 +691,12 @@ Action<void> ClientId::AddEquip(const uint goodId, const std::wstring& hardpoint
     if (!data.playerData->enteredBase)
     {
         data.playerData->enteredBase = data.playerData->baseId;
-        Server.ReqAddItem(goodId, StringUtils::wstos(hardpoint).c_str(), 1, 1.0f, true, value);
-        data.playerData->enteredBase = 0;
+        Server.ReqAddItem(goodId.GetValue(), StringUtils::wstos(hardpoint).c_str(), 1, 1.0f, true, value);
+        data.playerData->enteredBase = BaseId();
     }
     else
     {
-        Server.ReqAddItem(goodId, StringUtils::wstos(hardpoint).c_str(), 1, 1.0f, true, value);
+        Server.ReqAddItem(goodId.GetValue(), StringUtils::wstos(hardpoint).c_str(), 1, 1.0f, true, value);
     }
 
     // Add to check-list which is being compared to the users equip-list when
@@ -676,12 +709,12 @@ Action<void> ClientId::AddEquip(const uint goodId, const std::wstring& hardpoint
     return { {} };
 }
 
-Action<void> ClientId::AddCargo(const uint goodId, const uint count, const bool isMission) const
+Action<void> ClientId::AddCargo(const Id goodId, const uint count, const bool isMission) const
 {
     ClientCheck;
     CharSelectCheck;
 
-    pub::Player::AddCargo(value, goodId, count, 1.0, isMission);
+    pub::Player::AddCargo(value, goodId.GetValue(), count, 1.0, isMission);
     return { {} };
 }
 Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const
@@ -690,7 +723,7 @@ Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goo
     {
         case 0:
             {
-                goodId = EquipmentId(Arch2Good(rfl::get<GoodId>(goodId).GetHash().Handle()));
+                goodId = EquipmentId(Arch2Good(rfl::get<GoodId>(goodId).GetHash().Handle().GetValue()));
             }
         case 1:
             {
@@ -742,12 +775,12 @@ Action<void> ClientId::PlayMusic(const pub::Audio::Tryptich& info) const
     return { {} };
 }
 
-Action<void> ClientId::PlaySound(const uint hash) const
+Action<void> ClientId::PlaySound(const Id hash) const
 {
     ClientCheck;
     CharSelectCheck;
 
-    pub::Audio::PlaySoundEffect(value, hash);
+    pub::Audio::PlaySoundEffect(value, hash.GetValue());
     return { {} };
 }
 

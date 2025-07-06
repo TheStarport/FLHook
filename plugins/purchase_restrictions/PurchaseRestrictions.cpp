@@ -6,7 +6,7 @@ namespace Plugins
 {
 
     //! Log items of interest so we can see what cargo cheats people are using.
-    void PurchaseRestrictionsPlugin::LogItemsOfInterest(const ClientId& client, GoodId goodId, const std::wstring_view details)
+    void PurchaseRestrictionsPlugin::LogItemsOfInterest(const ClientId& client, Id goodId, const std::wstring_view details)
     {
         if (const auto iter = std::ranges::find(config.itemsOfInterest, goodId); iter != config.itemsOfInterest.end())
         {
@@ -19,7 +19,7 @@ namespace Plugins
     }
 
     //! Check that this client is allowed to buy/mount this piece of equipment or ship Return true if the equipment is mounted to allow this good.
-    bool PurchaseRestrictionsPlugin::CheckIdEquipRestrictions(ClientId client, GoodId goodId, const bool isShip) const
+    bool PurchaseRestrictionsPlugin::CheckIdEquipRestrictions(ClientId client, Id goodId, const bool isShip) const
     {
         const auto list = isShip ? config.shipItemRestrictions : config.goodItemRestrictions;
 
@@ -31,9 +31,9 @@ namespace Plugins
 
         int remainingHoldSize;
         auto items = client.GetEquipCargo().Handle();
-        for (auto& item : *items)
+        for (auto& item : items->equip)
         {
-            if (item.mounted && std::ranges::find(validItem->second, GoodId(item.archId)) != validItem->second.end())
+            if (item.mounted && std::ranges::find(validItem->second, item.archId) != validItem->second.end())
             {
                 return true;
             }
@@ -57,16 +57,15 @@ namespace Plugins
 
     void PurchaseRestrictionsPlugin::OnGfGoodBuy(ClientId client, const SGFGoodBuyInfo& info)
     {
-        auto good = GoodId(info.goodId);
 
         clientSuppressBuy[client] = false;
         auto& suppress = clientSuppressBuy[client];
-        LogItemsOfInterest(client, good, L"good-buy");
+        LogItemsOfInterest(client, info.goodId, L"good-buy");
 
-        if (std::ranges::find(config.unbuyableItems, good) != config.unbuyableItems.end())
+        if (std::ranges::find(config.unbuyableItems, info.goodId) != config.unbuyableItems.end())
         {
             suppress = true;
-            client.PlaySound(CreateID("info_access_denied"));
+            client.PlaySound(Id("info_access_denied"));
             client.Message(config.goodPurchaseDenied);
             returnCode = ReturnCode::SkipAll;
             return;
@@ -79,16 +78,16 @@ namespace Plugins
         }
 
         // Check Item
-        if (config.goodItemRestrictions.contains(good))
+        if (config.goodItemRestrictions.contains(info.goodId))
         {
-            if (!CheckIdEquipRestrictions(client, good, false))
+            if (!CheckIdEquipRestrictions(client, info.goodId, false))
             {
                 const auto charName = client.GetCharacterName().Handle();
                 INFO(L"{0} attempting to buy {1} without correct Id", { L"Name", std::wstring(charName) }, { L"GoodId", std::to_wstring(info.goodId) });
                 if (config.enforceItemRestrictions)
                 {
                     client.Message(config.goodPurchaseDenied);
-                    client.PlaySound(CreateID("info_access_denied"));
+                    client.PlaySound(Id("info_access_denied"));
                     suppress = true;
                     returnCode = ReturnCode::SkipAll;
                 }
@@ -97,7 +96,7 @@ namespace Plugins
         else
         {
             // Check Ship
-            const GoodInfo* packageInfo = GoodList::find_by_id(info.goodId);
+            const GoodInfo* packageInfo = GoodList::find_by_id(info.goodId.GetValue());
             if (packageInfo->type != GoodType::Ship)
             {
                 return;
@@ -110,7 +109,7 @@ namespace Plugins
             }
 
             if (const auto shipGood = GoodId(hullInfo->shipGoodId);
-                config.shipItemRestrictions.contains(shipGood) && !CheckIdEquipRestrictions(client, shipGood, true))
+                config.shipItemRestrictions.contains(shipGood.GetHash().Unwrap()) && !CheckIdEquipRestrictions(client, shipGood.GetHash().Unwrap(), true))
             {
                 const auto charName = client.GetCharacterName().Handle();
                 INFO(L"{0} attempting to buy {1} without correct Id",
@@ -119,7 +118,7 @@ namespace Plugins
                 if (config.enforceItemRestrictions)
                 {
                     client.Message(config.shipPurchaseDenied);
-                    client.PlaySound(CreateID("info_access_denied"));
+                    client.PlaySound(Id("info_access_denied"));
                     suppress = true;
                     returnCode = ReturnCode::SkipAll;
                 }
@@ -127,10 +126,10 @@ namespace Plugins
         }
     }
 
-    void PurchaseRestrictionsPlugin::OnRequestAddItem(const ClientId client, const GoodId goodId, std::wstring_view hardpoint, int count, float status,
+    void PurchaseRestrictionsPlugin::OnRequestAddItem(const ClientId client, GoodId& goodId, std::wstring_view hardpoint, int count, float status,
                                                       bool mounted)
     {
-        LogItemsOfInterest(client, goodId, L"add-item");
+        LogItemsOfInterest(client, goodId.GetHash().Unwrap(), L"add-item");
         if (clientSuppressBuy[client])
         {
             returnCode = ReturnCode::SkipAll;

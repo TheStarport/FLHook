@@ -55,6 +55,12 @@ enum class AddressList : uint
     GetObjectInspect2 = 0x2074A,
     GetObjectInspect3 = 0x207BF,
     SendComm = 0x19230,
+    FireRemoveAmmoFuncCall = 0x6F260,
+    EqObjExplosionHit = 0x9500,
+    CGuidedInitCallAddr = 0x846A0,
+    SkipCSolarPacketSend = 0x2A62A,
+    SkipCSolarPacket1 = 0x163F0,
+    SkipCSolarPacket2 = 0x27950,
 
     // Common.dll Offsets
 

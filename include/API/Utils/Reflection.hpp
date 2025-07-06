@@ -77,7 +77,7 @@ namespace rfl::parsing
             std::string data;
             static EquipmentId_Impl from_class(const EquipmentId& hash) noexcept
             {
-                const auto lookup = InternalApi::HashLookup(hash.GetId());
+                const auto lookup = InternalApi::HashLookup(hash.GetId().GetValue());
                 return { lookup.empty() ? "nickname" : lookup };
             }
             [[nodiscard]]

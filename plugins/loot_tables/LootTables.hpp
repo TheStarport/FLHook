@@ -41,7 +41,7 @@ namespace Plugins
             static void LootTableRoll(rfl::Ref<LootTable> table, ClientId client);
 
             void OnShipDestroy(Ship* ship, DamageList* dmgList, ShipId killerId) override;
-            void OnSolarDestroy(Solar* solar, bool isKill, ShipId killerId) override;
+            void OnSolarDestroy(Solar* solar, DestroyType& isKill, ShipId killerId) override;
 
         public:
             explicit LootTablesPlugin(const PluginInfo& info);

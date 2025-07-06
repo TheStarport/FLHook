@@ -80,6 +80,8 @@ void FLHook::ClearClientInfo(ClientId client)
 
     AccountManager::ClearClientInfo(client);
     info.account = nullptr;
+
+    IServerImplHook::clientState.erase(client);
 }
 
 void FLHook::InitHookExports()
@@ -150,25 +152,60 @@ void FLHook::InitHookExports()
     // Common.dll
     const void* ptr = &IEngineHook::CShipInit;
     IEngineHook::cShipVTable.Hook(VTablePtr(CShipVTable::InitCShip), &ptr);
-    ptr = &IEngineHook::ShipDestroy;
-    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::ObjectDestroyed), &ptr);
-
+    ptr = &IEngineHook::CSolarInit;
+    IEngineHook::cSolarVTable.Hook(VTablePtr(CSolarVTable::InitCSolar), &ptr);
     ptr = &IEngineHook::CLootInit;
     IEngineHook::cLootVTable.Hook(VTablePtr(CLootVTable::InitCLoot), &ptr);
+    ptr = &IEngineHook::CGuidedInit;
+    IEngineHook::cGuidedVTable.Hook(VTablePtr(CGuidedVTable::InitCEquipObject), &ptr);
 
-    ptr = &IEngineHook::LootDestroy;
-    IEngineHook::iLootVTable.Hook(VTablePtr(ILootInspectVTable::ObjectDestroyed), &ptr);
-
+    ptr = &IEngineHook::ShipDestroy;
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::ObjectDestroyed), &ptr);
     ptr = &IEngineHook::SolarDestroy;
     IEngineHook::iSolarVTable.Hook(VTablePtr(ISolarInspectVTable::ObjectDestroyed), &ptr);
+    ptr = &IEngineHook::LootDestroy;
+    IEngineHook::iLootVTable.Hook(VTablePtr(ILootInspectVTable::ObjectDestroyed), &ptr);
+    ptr = &IEngineHook::MineDestroy;
+    IEngineHook::iMineVTable.Hook(VTablePtr(IMineInspectVTable::ObjectDestroyed), &ptr);
+    ptr = &IEngineHook::GuidedDestroy;
+    IEngineHook::iGuidedVTable.Hook(VTablePtr(IGuidedInspectVTable::ObjectDestroyed), &ptr);
 
     ptr = &IEngineHook::ShipHullDamage;
     IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::DamageHull), &ptr);
     ptr = &IEngineHook::SolarHullDamage;
     IEngineHook::iSolarVTable.Hook(VTablePtr(ISolarInspectVTable::DamageHull), &ptr);
 
+    ptr = &IEngineHook::SolarColGrpDestroy;
+    IEngineHook::iSolarVTable.Hook(VTablePtr(ISolarInspectVTable::ColGrpDeath), &ptr);
+    
+    ptr = &IEngineHook::ShipShieldHit;
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::DamageShield), &ptr);
+
     ptr = &IEngineHook::ShipExplosionHit;
     IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::ProcessExplosionDamage), &ptr);
+    ptr = &IEngineHook::GuidedExplosionHit;
+    IEngineHook::iGuidedVTable.Hook(VTablePtr(IGuidedInspectVTable::ProcessExplosionDamage), &ptr);
+    ptr = &IEngineHook::SolarExplosionHit;
+    IEngineHook::iSolarVTable.Hook(VTablePtr(ISolarInspectVTable::ProcessExplosionDamage), &ptr);
+
+    ptr = &IEngineHook::ShipFuse;
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::LightFuse), &ptr);
+
+    ptr = &IEngineHook::ShipEquipDmg;
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::DamageExtEq), &ptr);
+    ptr = &IEngineHook::ShipEquipDestroy;
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::CEquipDeath), &ptr);
+
+    ptr = &IEngineHook::ShipColGrpDmg;
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::DamageColGrp), &ptr);
+    ptr = &IEngineHook::ShipColGrpDestroy;
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::ColGrpDeath), &ptr);
+
+    ptr = &IEngineHook::CELauncherFireAfter;
+    IEngineHook::ceLauncherVTable.Hook(VTablePtr(CELauncherVTable::Fire), &ptr);
+
+
+
     // Server.dll
 
 #undef VtablePtr
@@ -178,6 +215,11 @@ void FLHook::InitHookExports()
     const std::array<byte, 30> shipDestroyedDamageList = { 0x90, 0x90, 0x8A, 0x88, 0x5C, 0x01, 0x00, 0x00, 0x84, 0xC9, 0x75, 0x10, 0x8B, 0x06, 0xFF,
                                                            0x73, 0x14, 0x89, 0xDA, 0x6A, 0x01, 0x89, 0xF1, 0xFF, 0x90, 0x58, 0x01, 0x00, 0x00, 0x90 };
     MemUtils::WriteProcMem(address, shipDestroyedDamageList.data(), shipDestroyedDamageList.size());
+
+    // Redirect CGuided calls to our own method
+    address = Offset(BinaryType::Server, AddressList::CGuidedInitCallAddr);
+    ptr = &IEngineHook::CGuidedInit;
+    MemUtils::WriteProcMem(address, &ptr, 4);
 
     // patch rep array free
     address = Offset(BinaryType::Server, AddressList::RepArrayFree);

@@ -140,7 +140,10 @@ class DLL FLHook final
 
         static bool IsReady();
         static std::wstring_view GetAccountPath();
-        static bool GetObjInspect(uint& ship, IObjInspectImpl*& inspect);
+        static GameObject* GetObjInspect(const uint& objId);
+        static GameObject* GetObjInspect(Id objId);
+        static bool GetObjInspect(const uint& objId, GameObject*& inspect, StarSystem*& starSystem);
+        static bool GetObjInspect(Id objId, GameObject*& inspect, StarSystem*& starSystem);
 
         static std::shared_ptr<AccountManager> GetAccountManager();
         static const std::unordered_map<ClientId, std::unordered_set<std::wstring>>& GetAdmins();
@@ -152,7 +155,6 @@ class DLL FLHook final
         static mongocxx::pool::entry GetDbClient();
         static std::shared_ptr<HttpServer> GetHttpServer();
         static std::shared_ptr<InfocardManager> GetInfocardManager();
-        static LastHitInformation GetLastHitInformation();
         static IClientImpl* GetPacketInterface();
         static std::shared_ptr<ResourceManager> GetResourceManager();
         static Action<pub::AI::Personality*> GetPersonality(const std::wstring& pilotNickname);

@@ -1,5 +1,9 @@
 #pragma once
-#include "FLCore/Common/Universe/IZone.hpp"
+
+namespace Universe
+{
+    struct IZone;
+}
 
 class CSolar;
 

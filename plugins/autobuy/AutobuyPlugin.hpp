@@ -45,7 +45,7 @@ namespace Plugins
 
             struct AutobuyCartItem
             {
-                    uint archId = 0;
+                    Id archId;
                     uint count = 0;
                     std::wstring description;
             };
@@ -73,7 +73,7 @@ namespace Plugins
 
             Config config;
             std::array<AutobuyInfo, MaxClientId + 1> autobuyInfo;
-            std::unordered_map<uint, int> ammoLimits;
+            std::unordered_map<Id, int> ammoLimits;
             bool OnLoadSettings() override;
             /**
              * @brief Hook on BaseEnter. Triggers the autobuy/repair.
@@ -92,7 +92,7 @@ namespace Plugins
              */
             void OnClearClientInfo(ClientId client) override;
             void LoadPlayerAutobuy(ClientId client);
-            void AddEquipToCart(const Archetype::Launcher* launcher, const st6::list<EquipDesc>* cargo, std::map<uint, AutobuyCartItem>& cart,
+            void AddEquipToCart(const Archetype::Launcher* launcher, const EquipDescList* cargo, std::map<Id, AutobuyCartItem>& cart,
                                 AutobuyCartItem& item, const std::wstring_view& desc);
 
         public:

@@ -70,17 +70,20 @@ using namespace std::chrono_literals;
 #include "Defs/Enums.hpp"
 #include "Utils/Utils.hpp"
 
-#include "API/Types/BaseId.hpp"
+#include "API/Types/Id.hpp"
+
 #include "API/Types/ClientId.hpp"
-#include "API/Types/EquipmentId.hpp"
+#include "API/Types/SystemId.hpp"
 #include "API/Types/GoodId.hpp"
 #include "API/Types/GroupId.hpp"
-#include "API/Types/ObjectId.hpp"
 #include "API/Types/RepGroupId.hpp"
 #include "API/Types/RepId.hpp"
 #include "API/Types/ShipId.hpp"
 
-#include "API/Types/Id.hpp"
+#include "API/Types/BaseId.hpp"
+#include "API/Types/ObjectId.hpp"
+#include "API/Types/EquipmentId.hpp"
+
 #include "API/Utils/Reflection.hpp" // For reflectiong custom types with rfl
 #include "FLCore/Common.hpp"
 #include "FLCore/FLCoreDALib.h"

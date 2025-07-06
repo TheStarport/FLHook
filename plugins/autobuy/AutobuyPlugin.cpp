@@ -31,9 +31,9 @@ namespace Plugins
 
     void AutobuyPlugin::OnClearClientInfo(const ClientId client) { autobuyInfo[client.GetValue()] = {}; }
 
-    int PlayerGetAmmoCount(const st6::list<EquipDesc>* cargoList, const uint itemArchId)
+    int PlayerGetAmmoCount(const EquipDescList* cargoList, Id itemArchId)
     {
-        for (auto& cargo : *cargoList)
+        for (auto& cargo : cargoList->equip)
         {
             if (cargo.archId == itemArchId)
             {
@@ -49,14 +49,14 @@ namespace Plugins
 
         std::vector<ushort> eqToFix;
 
-        for (const auto& item : *client.GetEquipCargo().Unwrap())
+        for (const auto& item : client.GetEquipCargo().Unwrap()->equip)
         {
             if (!item.mounted || item.health == 1)
             {
                 continue;
             }
 
-            const GoodInfo* info = GoodList_get()->find_by_archetype(item.archId);
+            const GoodInfo* info = GoodList_get()->find_by_archetype(item.archId.GetValue());
             if (!info)
             {
                 continue;
@@ -82,7 +82,7 @@ namespace Plugins
         {
             auto currEq = eqToFix.begin();
             auto& equip = *client.GetEquipCargo().Unwrap();
-            for (auto& item : equip)
+            for (auto& item : equip.equip)
             {
                 if (item.id == *currEq)
                 {
@@ -100,7 +100,7 @@ namespace Plugins
             //}
 
             st6::vector<EquipDesc> eqVector;
-            for (auto& eq : equip)
+            for (auto& eq : equip.equip)
             {
                 if (eq.mounted)
                 {
@@ -128,13 +128,13 @@ namespace Plugins
         }
     }
 
-    void AutobuyPlugin::AddEquipToCart(const Archetype::Launcher* launcher, const st6::list<EquipDesc>* cargo, std::map<uint, AutobuyCartItem>& cart,
+    void AutobuyPlugin::AddEquipToCart(const Archetype::Launcher* launcher, const EquipDescList* cargo, std::map<Id, AutobuyCartItem>& cart,
                                        AutobuyCartItem& item, const std::wstring_view& desc)
     {
         // TODO: Update to per-weapon ammo limits once implemented
         item.archId = launcher->projectileArchId;
-        uint itemId = Arch2Good(item.archId);
-        if (ammoLimits.contains(Arch2Good(item.archId)))
+        Id itemId = Id(Arch2Good(item.archId.GetValue()));
+        if (ammoLimits.contains(itemId))
         {
             item.count = ammoLimits[itemId] - PlayerGetAmmoCount(cargo, item.archId);
         }
@@ -172,7 +172,7 @@ namespace Plugins
         auto equipCargo = client.GetEquipCargo().Unwrap();
 
         // shopping cart
-        std::map<uint, AutobuyCartItem> cartMap;
+        std::map<Id, AutobuyCartItem> cartMap;
 
         const auto& [updated, ammo, mines, cm, bb, repairs] = autobuyInfo[client.GetValue()];
         if (bb)
@@ -181,7 +181,7 @@ namespace Plugins
 
             bool nanobotsFound = false;
             bool shieldBattsFound = false;
-            for (auto& item : *equipCargo)
+            for (auto& item : equipCargo->equip)
             {
                 if (item.archId == config.nanobot.GetId())
                 {
@@ -225,7 +225,7 @@ namespace Plugins
         if (ammo || cm || mines)
         {
             // check mounted equip
-            for (const auto& equip : *equipCargo)
+            for (const auto& equip : equipCargo->equip)
             {
                 if (!equip.mounted)
                 {
@@ -233,7 +233,7 @@ namespace Plugins
                 }
                 AutobuyCartItem aci;
 
-                switch (Archetype::Equipment* eq = Archetype::GetEquipment(equip.archId); EquipmentId(eq->archId).GetType().Unwrap())
+                switch (Archetype::Equipment* eq = Archetype::GetEquipment(equip.archId.GetValue()); EquipmentId(eq->archId).GetType().Unwrap())
                 {
                     case EquipmentType::MineDropper:
                         {
@@ -291,7 +291,7 @@ namespace Plugins
 
         for (auto& [key, value] : cartMap)
         {
-            if (!value.count || !Arch2Good(value.archId))
+            if (!value.count || !Arch2Good(value.archId.GetValue()))
             {
                 continue;
             }
@@ -310,7 +310,7 @@ namespace Plugins
                 continue;
             }
 
-            const Archetype::Equipment* eq = Archetype::GetEquipment(value.archId);
+            const Archetype::Equipment* eq = Archetype::GetEquipment(value.archId.GetValue());
             uint amountToBuy = value.count;
             // will always fail for volume == 0, no need to worry about potential div by 0
             if (remHoldSize < eq->volume * static_cast<float>(value.count))
@@ -490,7 +490,7 @@ namespace Plugins
 
                     if (valid)
                     {
-                        ammoLimits[itemname] = itemlimit;
+                        ammoLimits[Id(itemname)] = itemlimit;
                     }
                 }
             }

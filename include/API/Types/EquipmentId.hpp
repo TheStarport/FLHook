@@ -18,15 +18,17 @@ namespace Archetype
     struct ShieldBattery;
 } // namespace Archetype
 // TODO: Allow assigning to uint variables without the need to extract GetValue explicitly
+class Id;
 class DLL EquipmentId
 {
         Archetype::Root* value = nullptr;
 
     public:
         explicit EquipmentId(uint val);
+        explicit EquipmentId(Id val);
         EquipmentId() = default;
         bool operator==(const EquipmentId next) const { return value == next.value; }
-        bool operator<(const EquipmentId& right) const { return value && value->archId < right.value->archId; }
+        bool operator<(const EquipmentId& right) const;
         EquipmentId& operator=(const EquipmentId& right) = default;
         explicit operator bool() const;
 
@@ -38,15 +40,7 @@ class DLL EquipmentId
         }
 
         [[nodiscard]]
-        uint GetId() const
-        {
-            if (!value)
-            {
-                return 0;
-            }
-
-            return value->archId;
-        }
+        Id GetId() const;
 
         [[nodiscard]]
         Action<EquipmentType> GetType() const;
@@ -159,5 +153,5 @@ struct std::formatter<EquipmentId, wchar_t>
 template <>
 struct std::hash<EquipmentId>
 {
-        std::size_t operator()(const EquipmentId& id) const noexcept { return std::hash<uint>()(id.GetValue()->archId); }
+        std::size_t operator()(const EquipmentId& id) const noexcept { return std::hash<uint>()(id.GetValue()->archId.GetValue()); }
 };

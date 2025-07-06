@@ -41,6 +41,7 @@ void __stdcall IServerImplHook::PlayerLaunch(Id shipId, ClientId client)
 
     TRACE(L"{0} {1}}", { L"shipId", std::to_wstring(shipId.GetValue()) }, { L"client", std::to_wstring(client.GetValue()) });
 
+    IServerImplHook::clientState.erase(client);
     IEngineHook::OnPlayerLaunch(client);
 
     const auto skip = CallPlugins(&Plugin::OnPlayerLaunch, client, ship);
@@ -49,7 +50,7 @@ void __stdcall IServerImplHook::PlayerLaunch(Id shipId, ClientId client)
 
     PlayerLaunchInner(ship, client);
 
-    ResourceManager::playerShips.insert(shipId.GetValue());
+    ResourceManager::playerShips[shipId.GetValue()] = client;
     if (!skip)
     {
         CallServerPreamble { Server.PlayerLaunch(shipId.GetValue(), client.GetValue()); }

@@ -79,6 +79,8 @@ class IServerImplHook
         // Goods.cpp
         static bool GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId client);
         static void __stdcall GFGoodSell(const SGFGoodSellInfo& unk1, ClientId client);
+        static bool CheckBuybackCache(ClientId client, const SGFGoodBuyInfo& gsi);
+        static bool GFGoodBuyInner(const SGFGoodBuyInfo& gsi, ClientId client);
         static void __stdcall GFGoodBuy(const SGFGoodBuyInfo& unk1, ClientId client);
         static void __stdcall GFGoodVaporized(const SGFGoodVaporizedInfo& gvi, ClientId client);
 
@@ -114,7 +116,7 @@ class IServerImplHook
         static void __stdcall SetManeuver(ClientId client, const XSetManeuver& sm);
 
         // MineAsteroid.cpp
-        static void __stdcall MineAsteroid(SystemId systemId, const Vector& pos, ArchId crateId, ArchId lootId, uint count, ClientId client);
+        static void __stdcall MineAsteroid(SystemId systemId, const Vector& pos, Id crateId, Id lootId, uint count, ClientId client);
 
         // Mission.cpp
         static void __stdcall AbortMission(ClientId client, uint unk1);
@@ -184,6 +186,12 @@ class IServerImplHook
         };
 
         static std::array<HookEntry, 73> entries;
+
+        struct ClientState
+        {
+                std::unordered_map<uint, int> clientSales;
+        };
+        inline static std::unordered_map<ClientId, ClientState> clientState;
 
     public:
         IServerImplHook() = delete;

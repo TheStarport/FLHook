@@ -1,4 +1,7 @@
 #pragma once
+
+#include "FLCore/Common/AI/Ops.hpp"
+
 class FLHook;
 class ClientId;
 /**

@@ -29,6 +29,8 @@ enum class Error
     DatabaseError = 24,
     PacketError = 25,
     PluginNotFound = 26,
+    PlayerNoTradeActive = 27,
+    NoFlufClientHook = 28,
 };
 
 class DLL ErrorInfo
@@ -62,6 +64,8 @@ class DLL ErrorInfo
              { Error::DatabaseError, L"An error occurred while reading/writing to the database. This is a developer/admin issue, contact support." },
              { Error::PacketError, L"An error occurred while reading/sending a packet. Try again later, report if error is recurring." },
              { Error::PluginNotFound, L"Plugin not found / not loaded. This is a developer issue, contact support." },
+             { Error::PlayerNoTradeActive, L"Player has no trade window open." },
+             { Error::NoFlufClientHook, L"Client has no FLUF clienthook active." },
              }
         };
 

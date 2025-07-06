@@ -87,7 +87,6 @@ void InternalApi::ToggleNpcSpawns(const bool on)
     MemUtils::WriteProcMem(address, &cmp, 1);
 }
 
-
 using CreateIDType = uint (*)(const char*);
 
 // std::shared_ptr<spdlog::logger> hashList = nullptr;
@@ -110,12 +109,12 @@ uint InternalApi::CreateIdDetour(const char* str)
     const uint hash = ::CreateID(str);
     detour->Detour(CreateIdDetour);
 
-    #ifdef _DEBUG
+#ifdef _DEBUG
     std::ofstream file;
     file.open("logs/hashmap.csv", std::ios::app);
     file << fullStr << "," << hash << ",0x" << std::hex << hash << "\n";
     file.close();
-    #endif
+#endif
 
     hashMap[fullStr] = hash;
     nicknameMap[hash] = fullStr;
@@ -138,4 +137,8 @@ void InternalApi::Init()
 };
 
 bool InternalApi::NpcsEnabled() { return npcEnabled; }
-std::string InternalApi::HashLookup(const uint hash) { const auto findResult = nicknameMap.find(hash); return findResult == nicknameMap.end() ? "" : findResult->second;}
+std::string InternalApi::HashLookup(const uint hash)
+{
+    const auto findResult = nicknameMap.find(hash);
+    return findResult == nicknameMap.end() ? "" : findResult->second;
+}

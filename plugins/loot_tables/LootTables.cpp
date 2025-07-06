@@ -170,7 +170,7 @@ namespace Plugins
         for (auto& item : basket)
         {
             pub::SpaceObj::LootInfo lootInfo;
-            lootInfo.systemId = client.GetSystemId().Handle().GetValue();
+            lootInfo.systemId = client.GetSystemId().Handle();
             lootInfo.ownerId = 0;
             lootInfo.equipmentArchId = item->goodId.value().GetHash().Unwrap();
             lootInfo.itemCount = Random::Item(item->count);
@@ -186,7 +186,7 @@ namespace Plugins
             // Randomise movement speed and angular velocity to make it feel more dynamic
             lootInfo.linearVelocity = { Random::UniformFloat(-5.f, 5.f), Random::UniformFloat(-5.f, 5.f), Random::UniformFloat(-5.f, 5.f) };
             lootInfo.angularVelocity = { Random::UniformFloat(-10.f, 10.f), Random::UniformFloat(-10.f, 10.f), Random::UniformFloat(-10.f, 10.f) };
-            lootInfo.infocardOverride = 0;
+            lootInfo.infocardOverride = Id();
             uint spaceObjId = 0;
             pub::SpaceObj::CreateLoot(spaceObjId, lootInfo);
         }
@@ -200,7 +200,7 @@ namespace Plugins
             return;
         }
 
-        auto* params = ResourceManager::LookupShipCreationInfo(ship->cship()->id);
+        auto* params = ResourceManager::LookupShipCreationInfo(ship->cship()->id.GetValue());
         if (!params)
         {
             DEBUG(L"Destroyed ship had no creation params");
@@ -218,7 +218,7 @@ namespace Plugins
         LootTableRoll(lootTable->second, killerId.GetPlayer().Handle());
     }
 
-    void LootTablesPlugin::OnSolarDestroy(Solar* solar, bool isKill, const ShipId killerId)
+    void LootTablesPlugin::OnSolarDestroy(Solar* solar, DestroyType& isKill, const ShipId killerId)
     {
         if (killerId.IsNpc())
         {
@@ -226,14 +226,14 @@ namespace Plugins
             return;
         }
 
-        auto* params = ResourceManager::LookupSolarCreationInfo(solar->csolar()->id);
+        auto* params = ResourceManager::LookupSolarCreationInfo(solar->csolar()->id.GetValue());
         if (!params)
         {
             DEBUG(L"Destroyed solar had no creation params");
             return;
         }
 
-        const auto lootTable = std::ranges::find_if(lootTables, [params](const auto& table) { return table.second->loadout.GetValue() == params->loadoutId; });
+        const auto lootTable = std::ranges::find_if(lootTables, [params](const auto& table) { return table.second->loadout == params->loadoutId; });
         if (lootTable == lootTables.end())
         {
             DEBUG(L"Destroyed solar had no loot table associated with it");

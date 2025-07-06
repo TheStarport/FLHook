@@ -24,7 +24,7 @@ struct DLL Timer
         int64 lastTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
         std::optional<std::function<void(std::shared_ptr<Timer>)>> callback;
 
-        static std::shared_ptr<Timer> Add(const std::function<void()>& function, uint interval);
+        static std::shared_ptr<Timer> Add(const std::function<void()>& function, uint intervalInMs);
         static std::shared_ptr<Timer> AddOneShot(const std::function<void()>& function, uint intervalInMs,
                                                  const std::optional<std::function<void(std::shared_ptr<Timer>)>>& callback = std::nullopt);
 
@@ -121,11 +121,11 @@ class DLL Plugin
             return weakPlugin;
         }
 
-        void AddTimer(const std::function<void()>& function, const uint interval) { timers.emplace(Timer::Add(function, interval)); }
+        void AddTimer(const std::function<void()>& function, const uint intervalInMs) { timers.emplace(Timer::Add(function, intervalInMs)); }
 
-        void AddOneShotTimer(const std::function<void()>& function, const uint interval)
+        void AddOneShotTimer(const std::function<void()>& function, const uint intervalInMs)
         {
-            timers.emplace(Timer::AddOneShot(function, interval, [this](const std::shared_ptr<Timer>& timer) { timers.erase(timer); }));
+            timers.emplace(Timer::AddOneShot(function, intervalInMs, [this](const std::shared_ptr<Timer>& timer) { timers.erase(timer); }));
         }
 
         /**
@@ -188,15 +188,43 @@ class DLL Plugin
     virtual void name##After params {}
 
         // Hooks
-        virtual void OnCShipInit(CShip* ship) {}
-        virtual void OnCLootInit(CLoot* loot) {}
-        virtual void OnCSolarInit(CSolar* solar) {}
+        virtual void OnCShipInitAfter(CShip* ship) {}
+        virtual void OnCLootInitAfter(CLoot* loot) {}
+        virtual void OnCSolarInitAfter(CSolar* solar) {}
+        virtual void OnCGuidedInitAfter(CGuided* guided) {}
+
         virtual void OnShipDestroy(Ship* ship, DamageList* dmgList, ShipId killerId) {}
-        virtual void OnLootDestroy(Loot* loot, bool isKill, ShipId killerId) {}
-        virtual void OnSolarDestroy(Solar* solar, bool isKill, ShipId killerId) {}
+        virtual void OnShipDespawn(Ship* ship) {}
+        virtual void OnShipEquipmentDestroy(Ship*, CEquip* eq, DamageEntry::SubObjFate fate, DamageList* dmg) {}
+        virtual void OnLootDestroy(Loot* loot, DestroyType& destroyType, ShipId killerId) {}
+        virtual void OnSolarDestroy(Solar* solar, DestroyType& destroyType, ShipId killerId) {}
+        virtual void OnMineDestroy(Mine* mine, DestroyType& destroyType, ShipId killerId) {}
+        virtual void OnGuidedDestroy(Guided* guided, DestroyType& destroyType, ShipId killerId) {}
+
+        virtual void OnShipDropAllCargo(Ship* ship, const char* hardPoint, DamageList* dmgList) {}
+
+        virtual void OnShipMunitionHit(Ship* ship, MunitionImpactData* munition, DamageList* dmgList) {}
+
         virtual void OnShipHullDmg(Ship* ship, float& damage, DamageList* dmgList) {}
         virtual void OnSolarHullDmg(Solar* solar, float& damage, DamageList* dmgList) {}
+
+        virtual void OnShipEquipDmg(Ship* ship, CAttachedEquip* eq, float& incDmg, DamageList* dmgList) {}
+        virtual void OnShipEquipDestroy(Ship* ship, CEquip* eq, DamageEntry::SubObjFate fate, DamageList* dmgList) {}
+
+        virtual void OnShipColGrpDmg(Ship* ship, CArchGroup* colGrp, float& incDmg, DamageList* dmg) {}
+        virtual void OnShipColGrpDestroy(Ship* ship, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmg) {}
+
+        virtual void OnSolarColGrpDestroy(Solar*, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmg) {}
+
+        virtual void OnShipShieldDmg(Ship* ship, CEShield* shield, float& damage, DamageList* dmgList) {}
+
         virtual void OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList) {}
+        virtual void OnGuidedExplosionHit(Guided* guided, ExplosionDamageEvent* explosion, DamageList* dmgList){}
+        virtual void OnSolarExplosionHit(Solar* solar, ExplosionDamageEvent* explosion, DamageList* dmgList){}
+
+        virtual void OnShipFuse(Ship*, uint fuseCause, uint& fuseId, ushort sId, float radius, float fuseLifetime){}
+
+        virtual void OnCELauncherFireAfter(CELauncher* launcher, const Vector& pos, FireResult) {}
 
         /**
          * @brief Hook call for when a player attempts to dock with a station.
@@ -240,7 +268,7 @@ class DLL Plugin
         Aft(void, OnRequestCollisionGroups, (ClientId client, const st6::list<CollisionGroupDesc>& groups));
         Aft(void, OnRequestEquipment, (ClientId client, const EquipDescList& edl));
         Aft(void, OnRequestModifyItem, (ClientId client, ushort slotId, std::wstring_view hardpoint, int count, float status, bool mounted));
-        Aft(void, OnRequestAddItem, (ClientId client, GoodId goodId, std::wstring_view hardpoint, int count, float status, bool mounted));
+        Aft(void, OnRequestAddItem, (ClientId client, GoodId& goodId, std::wstring_view hardpoint, int count, float status, bool mounted));
         Aft(void, OnRequestRemoveItem, (ClientId client, ushort slotId, int count));
         Aft(void, OnCargoJettison, (ClientId client, const XJettisonCargo& cargo));
         Aft(void, OnTractorObjects, (ClientId client, const XTractorObjects& tractor));
@@ -270,7 +298,7 @@ class DLL Plugin
         Aft(void, OnSpRequestInvincibility, (ClientId client, const ShipId& shipId, bool enable, InvincibilityReason reason));
         Aft(void, OnRequestEvent, (ClientId client, int eventType, const ShipId& ship, const ObjectId& dockTarget, uint unk1, uint unk2));
         Aft(void, OnRequestCancel, (ClientId client, int eventType, const ShipId& ship, const ObjectId& dockTarget, uint unk1));
-        Aft(void, OnMineAsteroid, (ClientId client, SystemId system, const Vector& pos, ArchId crateId, ArchId lootId, uint count));
+        Aft(void, OnMineAsteroid, (ClientId client, SystemId system, const Vector& pos, Id crateId, Id lootId, uint count));
         Aft(void, OnRequestCreateShip, (ClientId client));
         Aft(void, OnSetManeuver, (ClientId client, const XSetManeuver& maneuver));
         Aft(void, OnInterfaceItemUsed, (uint unk1, uint unk2));
@@ -286,7 +314,7 @@ class DLL Plugin
         Aft(void, OnTradeResponse, (ClientId client, const unsigned char* unk1, int unk2));
         Aft(void, OnInitiateTrade, (ClientId client1, ClientId client2));
         Aft(void, OnTerminateTrade, (ClientId client, int accepted));
-        Aft(void, OnAcceptTrade, (ClientId client, bool unk1));
+        Aft(void, OnAcceptTrade, (ClientId client, bool newTradeAcceptState));
         Aft(void, OnSetTradeMoney, (ClientId client, ulong cash));
         Aft(void, OnAddTradeEquip, (ClientId client, const EquipDesc& equip));
         Aft(void, OnRemoveTradeEquip, (ClientId client, const EquipDesc& equip));
