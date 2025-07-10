@@ -308,8 +308,7 @@ namespace Plugins
             {
                 return;
             }
-            ResourceManager::CreateLootSimple(
-                solar->cobj->system, solar->cobj->position, node.itemArchId, minedAmount, killerPlayer.GetShip().Unwrap(), false);
+            ResourceManager::CreateLootSimple(solar->cobj->system, solar->cobj->position, node.itemArchId, minedAmount, killerPlayer.GetShip().Unwrap(), false);
         }
     }
 
@@ -555,7 +554,7 @@ namespace Plugins
 
         if (!equip)
         {
-            
+
             // PrintUserCmdText(iClientID, L"ERR Issue when handling jettison event, contact developers. Error code %u", jc.iSlot);
             WARN(L"Error: jettisoned item not found! {0} {1} {2}",
                  { L"slot", std::to_wstring(cargo.slot) },
@@ -737,5 +736,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"MiningController", L"mining_cntl", PluginMajorVersion::V05, PluginMinorVersion::V00);
+// clang-format off
+constexpr auto getPi = []
+{
+    return PluginInfo{
+        .name = L"Mining Controller",
+        .shortName = L"mining_controller",
+        .versionMajor = PluginMajorVersion::V05,
+        .versionMinor = PluginMinorVersion::V00
+    };
+};
+
 SetupPlugin(MiningControllerPlugin, Info);

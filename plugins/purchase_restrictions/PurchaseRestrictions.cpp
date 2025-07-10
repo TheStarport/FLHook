@@ -12,7 +12,7 @@ namespace Plugins
         {
             const auto charName = client.GetCharacterName().Handle();
             INFO(L"Item '{0}' found in cargo of {1} - {2}",
-                 { L"GoodID", std::to_wstring(goodId.GetHash().Unwrap()) },
+                 { L"GoodID", std::to_wstring(goodId.GetValue()) },
                  { L"CharName", std::wstring(charName) },
                  { L"Detail", std::wstring(details) });
         }
@@ -83,7 +83,9 @@ namespace Plugins
             if (!CheckIdEquipRestrictions(client, info.goodId, false))
             {
                 const auto charName = client.GetCharacterName().Handle();
-                INFO(L"{0} attempting to buy {1} without correct Id", { L"Name", std::wstring(charName) }, { L"GoodId", std::to_wstring(info.goodId) });
+                INFO(L"{0} attempting to buy {1} without correct Id",
+                     { L"Name", std::wstring(charName) },
+                     { L"GoodId", std::to_wstring(info.goodId.GetValue()) });
                 if (config.enforceItemRestrictions)
                 {
                     client.Message(config.goodPurchaseDenied);
@@ -126,8 +128,7 @@ namespace Plugins
         }
     }
 
-    void PurchaseRestrictionsPlugin::OnRequestAddItem(const ClientId client, GoodId& goodId, std::wstring_view hardpoint, int count, float status,
-                                                      bool mounted)
+    void PurchaseRestrictionsPlugin::OnRequestAddItem(const ClientId client, GoodId& goodId, std::wstring_view hardpoint, int count, float status, bool mounted)
     {
         LogItemsOfInterest(client, goodId.GetHash().Unwrap(), L"add-item");
         if (clientSuppressBuy[client])

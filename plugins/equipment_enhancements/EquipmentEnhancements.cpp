@@ -4,8 +4,8 @@
 
 #include "API/FLHook/ClientList.hpp"
 #include "API/Utils/Random.hpp"
-#include <FLCore/Common/Globals.hpp>
 #include <API/FLHook/ResourceManager.hpp>
+#include <FLCore/Common/Globals.hpp>
 
 namespace Plugins
 {
@@ -101,7 +101,6 @@ namespace Plugins
             usedBatts = true;
         }
     }
-    
     void EquipmentEnhancementsPlugin::OnSpRequestUseItemAfter(ClientId client, const SSPUseItem& p1)
     {
         if (!usedBatts)
@@ -223,7 +222,7 @@ namespace Plugins
 
         DWORD GetWeaponAddr = DWORD(&GetWeaponModifier);
         MemUtils::WriteProcMem(DWORD(GetModuleHandleA("Server.dll")) + 0x8426C, &GetWeaponAddr, 4);
-        
+
         if (!config.shieldExplosionArch.empty())
         {
             ID_String str;
@@ -249,7 +248,7 @@ namespace Plugins
             SpeedCheck& speedData = iter->second;
 
             Vector velocityVec = guided->get_velocity();
-            float velocity = glm::length(velocityVec*velocityVec);
+            float velocity = glm::length(velocityVec * velocityVec);
 
             if (velocity > speedData.targetSpeed * 1.02f)
             {
@@ -341,13 +340,13 @@ namespace Plugins
             }
 
             shieldExplosion->radius = boostData->radius;
-            shieldExplosion->hullDamage = std::min(boostData->hullDamageCap,
+            shieldExplosion->hullDamage =
+                std::min(boostData->hullDamageCap,
                          boostData->hullBaseDamage + boostData->hullReflectDamagePercentage * playerShieldState[shieldFuse.first.GetValue()].damageTaken);
             shieldExplosion->energyDamage =
                 std::min(boostData->energyDamageCap,
                          boostData->energyBaseDamage + boostData->energyReflectDamagePercentage * playerShieldState[shieldFuse.first.GetValue()].damageTaken);
 
-            
             static auto starSystemMap =
                 (st6::map<unsigned int, StarSystem, st6::less<unsigned int>, st6::allocator<std::pair<const unsigned int, StarSystem>>>*)0x6D8DA2C;
 
@@ -767,5 +766,15 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"Equipment Enhancements", L"equipment_enhancements", PluginMajorVersion::V05, PluginMinorVersion::V00);
+// clang-format off
+constexpr auto getPi = []
+{
+    return PluginInfo{
+        .name = L"Equipment Enhancements",
+        .shortName = L"equipment_enhancements",
+        .versionMajor = PluginMajorVersion::V05,
+        .versionMinor = PluginMinorVersion::V00
+    };
+};
+
 SetupPlugin(EquipmentEnhancementsPlugin, Info);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/Plugin.hpp"
 #include "Core/Commands/AbstractAdminCommandProcessor.hpp"
 
 namespace Plugins
@@ -83,7 +84,7 @@ namespace Plugins
             void OnShipColGrpDestroy(Ship*, CArchGroup*, DamageEntry::SubObjFate, DamageList*) override;
             void OnShipDropAllCargo(Ship* ship, const char* hardPoint, DamageList* dmgList) override;
 
-            Task AdminCmdReloadPrices(const ClientId client);
+            concurrencpp::result<void> AdminCmdReloadPrices(const ClientId client);
 
             // CommodityLimit
             bool LoadSettingsCL();

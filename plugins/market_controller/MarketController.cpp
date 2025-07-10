@@ -1,8 +1,8 @@
 ﻿#include "PCH.hpp"
 
-#include "MarketController.hpp"
 #include "API/FLHook/ResourceManager.hpp"
 #include "API/Utils/Random.hpp"
+#include "MarketController.hpp"
 
 namespace Plugins
 {
@@ -345,7 +345,7 @@ namespace Plugins
             return {};
         }
 
-        if ((response == DOCK_HOST_RESPONSE::ProceedDock || response == DOCK_HOST_RESPONSE::Dock) && dockPortIndex!= -1)
+        if ((response == DOCK_HOST_RESPONSE::ProceedDock || response == DOCK_HOST_RESPONSE::Dock) && dockPortIndex != -1)
         {
             uint solarArchetypeID;
             pub::SpaceObj::GetSolarArchetypeID(spaceId.GetId().Unwrap(), solarArchetypeID);
@@ -355,7 +355,7 @@ namespace Plugins
             {
                 returnCode = ReturnCode::SkipPlugins;
                 client.MessageErr(std::format(L"ERR This jumphole is unstable, can't take more than {} cargo through!", unstableJumpObjInfo->second));
-                return {DOCK_HOST_RESPONSE::AccessDenied};
+                return { DOCK_HOST_RESPONSE::AccessDenied };
             }
         }
 
@@ -537,7 +537,7 @@ namespace Plugins
             }
 
             Vector dropPos = cship->position;
-            Vector randomVector = RandomVector(Random::UniformFloat(20.f,80.f));
+            Vector randomVector = RandomVector(Random::UniformFloat(20.f, 80.f));
             dropPos += (glm::vec<3, float, glm::packed_highp>)randomVector;
 
             ResourceManager::CreateLootSimple(
@@ -589,10 +589,10 @@ namespace Plugins
         }
     }
 
-    Task MarketControllerPlugin::AdminCmdReloadPrices(const ClientId client)
+    concurrencpp::result<void> MarketControllerPlugin::AdminCmdReloadPrices(const ClientId client)
     {
         OnLoadSettings();
-        co_return TaskStatus::Finished;
+        co_return;
     }
 } // namespace Plugins
 
@@ -600,5 +600,16 @@ using namespace Plugins;
 
 DefaultDllMain();
 
-const PluginInfo Info(L"MarketController", L"market_cntl", PluginMajorVersion::V05, PluginMinorVersion::V00);
-SetupPlugin(MarketControllerPlugin, Info);
+// clang-format off
+constexpr auto getPi = []
+{
+    return PluginInfo{
+        .name = L"Market Controller",
+        .shortName = L"market_controller",
+        .versionMajor = PluginMajorVersion::V05,
+        .versionMinor = PluginMinorVersion::V00
+    };
+};
+
+SetupPlugin(MarketControllerPlugin);
+
