@@ -101,12 +101,14 @@ void __fastcall IEngineHook::ShipColGrpDmg(Ship* ship, void* edx, CArchGroup* co
     static_cast<IShipColGrpDmgType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::DamageColGrp)))(ship, colGrp, damage, dmgList);
 }
 
-void __fastcall IEngineHook::ShipColGrpDestroy(Ship* ship, void* edx, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmgList)
+void __fastcall IEngineHook::ShipColGrpDestroy(Ship* ship, void* edx, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmgList,
+                                               const bool killLinkedElements)
 {
     CallPlugins(&Plugin::OnShipColGrpDestroy, ship, colGrp, fate, dmgList);
 
-    using IShipColGrpDmgType = void(__thiscall*)(Ship*, CArchGroup*, DamageEntry::SubObjFate, DamageList*);
-    static_cast<IShipColGrpDmgType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ColGrpDeath)))(ship, colGrp, fate, dmgList);
+    using IShipColGrpDmgType = void(__thiscall*)(Ship*, CArchGroup*, DamageEntry::SubObjFate, DamageList*, bool);
+    static_cast<IShipColGrpDmgType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ColGrpDeath)))(
+        ship, colGrp, fate, dmgList, killLinkedElements);
 }
 
 void __fastcall IEngineHook::ShipDropAllCargo(Ship* ship, void* edx, const char* hardPoint, DamageList* dmgList)
