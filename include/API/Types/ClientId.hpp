@@ -16,6 +16,24 @@ class ShipId;
 struct ClientData;
 class GroupId;
 
+enum class ToastType
+{
+    None,
+    Success,
+    Warning,
+    Error,
+    Info,
+};
+
+struct ToastPayload
+{
+        std::string title;
+        std::string content;
+        ToastType toastType;
+        int timeUntilDismiss;
+        bool addSeparator;
+};
+
 // All methods associated with ClientId will return a failure of Invalid clientId if the client Id is not an active client or outside acceptable range (1 -255)
 class DLL ClientId
 {
@@ -441,6 +459,9 @@ class DLL ClientId
             InternalApi::FMsgSendChat(*this, bytes.data(), bytes.size());
             return { {} };
         }
+
+        Action<void> ToastMessage(std::wstring_view title, std::wstring_view message, ToastType type = ToastType::Info, int timeOut = 10000,
+                                  bool withSeperator = true, bool sendMessageIfNoFluf = true) const;
 };
 
 template <>
@@ -448,6 +469,13 @@ struct std::formatter<ClientId, wchar_t>
 {
         constexpr auto parse(std::wformat_parse_context& ctx) const { return ctx.begin(); }
         auto format(const ClientId& client, std::wformat_context& ctx) const { return std::format_to(ctx.out(), L"{}", client.GetValue()); }
+};
+
+template <>
+struct std::formatter<ClientId, char>
+{
+        constexpr auto parse(std::format_parse_context& ctx) const { return ctx.begin(); }
+        auto format(const ClientId& client, std::format_context& ctx) const { return std::format_to(ctx.out(), "{}", client.GetValue()); }
 };
 
 template <>

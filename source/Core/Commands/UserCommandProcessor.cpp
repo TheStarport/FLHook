@@ -522,7 +522,7 @@ concurrencpp::result<void> UserCommandProcessor::GetClientIds(ClientId client)
 
 concurrencpp::result<void> UserCommandProcessor::GetSelfClientId(ClientId client)
 {
-    client.Message(std::format(L"Your client-id: {}", client));
+    client.ToastMessage(L"Your Client Id", std::format(L"Your client id is currently: {}", client));
 
     co_return;
 }

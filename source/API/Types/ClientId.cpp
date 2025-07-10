@@ -868,3 +868,28 @@ Action<void> ClientId::SendBestPath(SystemId targetSystem, Vector targetPosition
     return { {} };
 }
 bool ClientId::HasFluf() const { return GetData().usingFlufClientHook; }
+
+Action<void> ClientId::ToastMessage(std::wstring_view title, std::wstring_view message, ToastType type, int timeOut, bool withSeperator,
+                                    bool sendMessageIfNoFluf) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    if (HasFluf())
+    {
+        ToastPayload payload{ .title = StringUtils::wstos(title),
+                              .content = StringUtils::wstos(message),
+                              .toastType = type,
+                              .timeUntilDismiss = timeOut,
+                              .addSeparator = withSeperator };
+
+        return SendFlufPayload<ToastPayload>("toast", payload);
+    }
+
+    if (sendMessageIfNoFluf)
+    {
+        return Message(message);
+    }
+
+    return { {} };
+}

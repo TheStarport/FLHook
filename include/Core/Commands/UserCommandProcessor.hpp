@@ -38,8 +38,9 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         concurrencpp::result<void> Help(ClientId client, int page);
 
         // clang-format off
-        inline static const std::array<CommandInfo<UserCommandProcessor>, 27> commands = {
+        inline static const std::array<CommandInfo<UserCommandProcessor>, 28> commands = {
             {AddCommand(UserCommandProcessor, Cmds( L"/ids"sv ), GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
+                AddCommand(UserCommandProcessor, Cmds( L"/id"sv ), GetSelfClientId, L"/id", L"Prints your client id"),
              AddCommand(UserCommandProcessor, Cmds( L"/setdiemsgsize"sv ), SetDieMessageFontSize, L"/setdiemsgsize [option]",
              L"Sets the text size of death chatConfig. Use without parameters to see available options."),
              AddCommand(UserCommandProcessor, Cmds( L"/setdiemsg"sv ), SetDieMessage, L"/setdiemsg [option]",

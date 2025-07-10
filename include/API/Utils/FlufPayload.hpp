@@ -65,13 +65,15 @@ struct DLL FlufPayload
 
             const char* ptr = data + sizeof(flufHeader);
             const auto headerSize = *ptr;
+            ++ptr;
 
-            if (sizeof(flufHeader) + sizeof(compressed) + 2 + headerSize < size)
+            if (sizeof(flufHeader) + sizeof(compressed) + 1 + headerSize > size)
             {
                 return std::nullopt;
             }
+
             FlufPayload payload;
-            payload.data.resize(headerSize);
+            payload.header.resize(headerSize);
             memcpy_s(payload.header.data(), headerSize, ptr, headerSize);
             ptr += headerSize;
 
