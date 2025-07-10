@@ -1,9 +1,9 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/ClientList.hpp"
-#include "Core/IEngineHook.hpp"
-#include "Core/ClientServerInterface.hpp"
 #include "API/FLHook/ResourceManager.hpp"
+#include "Core/ClientServerInterface.hpp"
+#include "Core/IEngineHook.hpp"
 
 #include <magic_enum.hpp>
 
@@ -80,7 +80,7 @@ void __fastcall IEngineHook::SolarColGrpDestroy(Solar* solar, void* edx, CArchGr
 void __fastcall IEngineHook::ShipEquipDmg(Ship* ship, void* edx, CAttachedEquip* equip, float damage, DamageList* dmgList)
 {
     CallPlugins(&Plugin::OnShipEquipDmg, ship, equip, damage, dmgList);
-    
+
     using IShipEquipDmgType = void(__thiscall*)(Ship*, CAttachedEquip*, float, DamageList*);
     static_cast<IShipEquipDmgType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::DamageExtEq)))(ship, equip, damage, dmgList);
 }
@@ -93,7 +93,7 @@ void __fastcall IEngineHook::ShipEquipDestroy(Ship* ship, void* edx, CEquip* equ
     static_cast<IShipEquipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::CEquipDeath)))(ship, equip, fate, dmgList);
 }
 
-void __fastcall IEngineHook::ShipColGrpDmg(Ship* ship, void* edx, CArchGroup* colGrp, float& damage, DamageList* dmgList) 
+void __fastcall IEngineHook::ShipColGrpDmg(Ship* ship, void* edx, CArchGroup* colGrp, float damage, DamageList* dmgList)
 {
     CallPlugins(&Plugin::OnShipColGrpDmg, ship, colGrp, damage, dmgList);
 
