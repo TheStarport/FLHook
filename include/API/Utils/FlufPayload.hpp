@@ -7,7 +7,7 @@ constexpr USHORT flufHeader = 0xF10F;
 struct DLL FlufPayload
 {
         bool compressed{};
-        char header[4]{};
+        std::string header;
         std::vector<char> data;
 
         template <typename T>
@@ -29,14 +29,28 @@ struct DLL FlufPayload
         std::vector<char> ToBytes() const
         {
             std::vector<char> bytes;
-            bytes.resize(sizeof(flufHeader) + sizeof(header) + sizeof(compressed) + data.size());
-            memcpy_s(bytes.data(), bytes.size(), &flufHeader, sizeof(flufHeader));
-            memcpy_s(bytes.data() + sizeof(flufHeader), bytes.size() - sizeof(flufHeader), header, sizeof(header));
-            memcpy_s(bytes.data() + sizeof(flufHeader) + sizeof(header), bytes.size() - sizeof(flufHeader) - sizeof(header), &compressed, sizeof(bool));
-            memcpy_s(bytes.data() + sizeof(flufHeader) + sizeof(header) + sizeof(compressed),
-                     bytes.size() - sizeof(flufHeader) - sizeof(header) - sizeof(compressed),
-                     data.data(),
-                     data.size());
+            bytes.resize(sizeof(flufHeader) + 1 + header.size() + sizeof(compressed) + data.size());
+
+            auto ptr = bytes.data();
+            const auto size = sizeof(flufHeader);
+            memcpy_s(ptr, bytes.size(), &flufHeader, size);
+
+            // Write our string header
+            ptr += sizeof(flufHeader);
+            auto newSize = bytes.size() - size + 1;
+
+            *ptr = static_cast<byte>(header.size());
+            ++ptr;
+            memcpy_s(ptr, newSize, header.data(), header.size());
+
+            // Write compressed boolean
+            newSize -= header.size();
+            ptr += header.size();
+            memcpy_s(ptr, newSize, &compressed, sizeof(bool));
+
+            --newSize;
+            ++ptr;
+            memcpy_s(ptr, newSize, data.data(), data.size());
 
             return bytes;
         }
@@ -44,26 +58,44 @@ struct DLL FlufPayload
         static std::optional<FlufPayload> FromPayload(char* data, size_t size)
         {
             // Check if enough room for the fluf header and the body, and that the header matches
-            if (size < sizeof(flufHeader) + sizeof(header) + sizeof(compressed) + 1 || *reinterpret_cast<ushort*>(data) != flufHeader)
+            if (size < sizeof(flufHeader) + sizeof(compressed) + 2 || *reinterpret_cast<ushort*>(data) != flufHeader)
             {
                 return std::nullopt;
             }
 
+            const char* ptr = data + sizeof(flufHeader);
+            const auto headerSize = *ptr;
+
+            if (sizeof(flufHeader) + sizeof(compressed) + 2 + headerSize < size)
+            {
+                return std::nullopt;
+            }
             FlufPayload payload;
-            memcpy_s(payload.header, sizeof(payload.header), data + sizeof(flufHeader), sizeof(payload.header));
-            memcpy_s(&payload.compressed, sizeof(payload.compressed), data + sizeof(flufHeader) + sizeof(header), sizeof(payload.compressed));
-            const size_t newSize = size - sizeof(flufHeader) + sizeof(header) + sizeof(compressed);
+            payload.data.resize(headerSize);
+            memcpy_s(payload.header.data(), headerSize, ptr, headerSize);
+            ptr += headerSize;
+
+            memcpy_s(&payload.compressed, sizeof(payload.compressed), ptr, sizeof(payload.compressed));
+            ptr += sizeof(payload.compressed);
+
+            const size_t newSize = size - (ptr - data);
             payload.data.resize(newSize);
-            memcpy_s(payload.data.data(), newSize, data + sizeof(flufHeader) + sizeof(header) + sizeof(compressed), newSize);
+            memcpy_s(payload.data.data(), newSize, ptr, newSize);
 
             return payload;
         }
 
         template <typename T>
-        static FlufPayload ToPayload(const T& data, const char header[4])
+        static FlufPayload ToPayload(const T& data, const std::string_view header)
         {
+            if (header.size() > 255)
+            {
+                throw std::runtime_error("Header size cannot be bigger than one byte.");
+            }
+
             FlufPayload payload;
-            memcpy_s(payload.header, sizeof(payload.header), header, sizeof(header));
+            payload.header.resize(header.size());
+            memcpy_s(payload.header.data(), payload.header.size(), header.data(), header.size());
 
             auto msgPack = rfl::msgpack::write(data);
 

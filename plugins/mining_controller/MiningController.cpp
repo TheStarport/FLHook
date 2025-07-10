@@ -747,4 +747,4 @@ constexpr auto getPi = []
     };
 };
 
-SetupPlugin(MiningControllerPlugin, Info);
+SetupPlugin(MiningControllerPlugin);

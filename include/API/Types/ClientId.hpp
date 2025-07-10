@@ -2,9 +2,9 @@
 
 #include "API/InternalApi.hpp"
 #include "API/Types/AccountId.hpp"
-#include "API/Types/SystemId.hpp"
 #include "API/Types/BaseId.hpp"
 #include "API/Types/ShipId.hpp"
+#include "API/Types/SystemId.hpp"
 #include "API/Utils/FlufPayload.hpp"
 #include "Defs/Structs.hpp"
 
@@ -428,7 +428,7 @@ class DLL ClientId
         bool HasFluf() const;
 
         template <typename T>
-        Action<void> SendFlufPayload(const char header[4], const T& payload) const
+        Action<void> SendFlufPayload(const std::string_view header, const T& payload) const
         {
             if (!IsValidClientId())
             {

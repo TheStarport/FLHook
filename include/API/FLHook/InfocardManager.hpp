@@ -7,7 +7,7 @@ class DLL InfocardManager
         std::unordered_map<uint, std::wstring> infoCardOverride;
         std::unordered_map<uint, std::wstring> infoNameOverride;
         std::vector<HMODULE> loadedDlls;
-        static constexpr char header[4] = { 'i', 'n', 'f', 'o' };
+        static constexpr std::string_view header = "info";
 
     public:
         struct InfocardPayload

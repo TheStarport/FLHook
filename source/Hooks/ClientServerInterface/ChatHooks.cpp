@@ -219,9 +219,10 @@ void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, char* rd
 
     TRACE(L"{0} {1} {2}", { L"cidFrom", std::to_wstring(cidFrom.id) }, { L"size", std::to_wstring(size) }, { L"cidTo", std::to_wstring(cidTo.id) });
 
-    if (auto flufPayload = FlufPayload::FromPayload(rdlReader, size); cidTo.id == static_cast<uint>(SpecialChatIds::SpecialBase) && flufPayload.has_value())
+    if (const auto flufPayload = FlufPayload::FromPayload(rdlReader, size);
+        cidTo.id == static_cast<uint>(SpecialChatIds::SpecialBase) && flufPayload.has_value())
     {
-        if (strncmp(flufPayload.value().header, "fluf", sizeof(flufPayload.value().header)) == 0)
+        if (flufPayload.value().header == "fluf")
         {
             ClientId(cidFrom.id).GetData().usingFlufClientHook = true;
         }

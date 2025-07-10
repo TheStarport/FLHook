@@ -777,4 +777,4 @@ constexpr auto getPi = []
     };
 };
 
-SetupPlugin(EquipmentEnhancementsPlugin, Info);
+SetupPlugin(EquipmentEnhancementsPlugin);
