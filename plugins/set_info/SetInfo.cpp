@@ -32,7 +32,7 @@ namespace Plugins
                     continue;
                 }
 
-                FlufPayload::ToPayload(flufPayload, "sinf");
+                FlufPayload::ToPayload(flufPayload, "set_info");
             }
         }
     }
@@ -50,7 +50,7 @@ namespace Plugins
                 }
             }
 
-            FlufPayload::ToPayload(flufPayload, "sinf");
+            FlufPayload::ToPayload(flufPayload, "set_info");
             info.pulledInfos = true;
         }
     }
