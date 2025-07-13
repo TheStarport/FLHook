@@ -20,8 +20,8 @@ bool GoTradelaneCatch(ClientId client, const XGoTradelane& gtl)
     TRACE(L"{0} {1} {2} {3}",
           { L"characterName", std::wstring(client.GetCharacterName().Unwrap()) },
           { L"system", std::to_wstring(system) },
-          { L"tradelaneSpaceObj1", std::to_wstring(gtl.tradelaneSpaceObj1) },
-          { L"tradelaneSpaceObj2", std::to_wstring(gtl.tradelaneSpaceObj2) })
+          { L"tradelaneSpaceObj1", std::to_wstring(gtl.tradelaneSpaceObj1.GetValue()) },
+          { L"tradelaneSpaceObj2", std::to_wstring(gtl.tradelaneSpaceObj2.GetValue()) })
 
     return true;
 }

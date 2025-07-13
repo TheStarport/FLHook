@@ -243,7 +243,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithLe
 
 ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithVoice(const std::wstring& voice)
 {
-    voiceOverride = CreateID(StringUtils::wstos(voice).c_str());
+    voiceOverride = Id(voice);
     return *this;
 }
 
@@ -435,7 +435,7 @@ std::weak_ptr<CEqObj> ResourceManager::SpaceObjectBuilder::Spawn()
         if (EqObj* inspect = nullptr; inspect = reinterpret_cast<EqObj*>(FLHook::GetObjInspect(obj->id)))
         {
             inspect->light_fuse(0,
-                                fuse->fuse.index() == 0 ? InternalApi::CreateID(std::get<std::wstring>(fuse->fuse)) : std::get<uint>(fuse->fuse),
+                                fuse->fuse.index() == 0 ? Id(InternalApi::CreateID(std::get<std::wstring>(fuse->fuse))) : Id(std::get<uint>(fuse->fuse)),
                                 fuse->equipmentId,
                                 fuse->radius,
                                 fuse->lifetime);
@@ -454,7 +454,7 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
 
     si.flag = 1;
 
-    si.system = system.value().GetValue();
+    si.system = system.value();
     si.pos = position.value();
     if (positionVariance.has_value())
     {
@@ -463,7 +463,7 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
         si.pos.z += Random::UniformFloat(-positionVariance.value(), positionVariance.value());
     }
 
-    si.shipArchetype = npcTemplate.archetypeHash.GetValue();
+    si.shipArchetype = npcTemplate.archetypeHash;
     si.orientation = rotation.value_or(Matrix::Identity());
     si.loadout = npcTemplate.loadoutHash.GetValue();
 
@@ -484,7 +484,7 @@ std::weak_ptr<CShip> ResourceManager::SpaceObjectBuilder::SpawnNpc()
         si.comm = CreateID("comm_br_darcy_female");        // Hat
     }
 
-    si.pilotVoice = voiceOverride.value_or(CreateID("pilot_f_leg_f01a"));
+    si.pilotVoice = voiceOverride.value_or(Id("pilot_f_leg_f01a"));
 
     if (health.has_value())
     {
@@ -613,7 +613,7 @@ std::weak_ptr<CSolar> ResourceManager::SpaceObjectBuilder::SpawnSolar()
 
     si.costume =
         costumeOverride.value_or(Costume(CreateID("benchmark_male_head"), CreateID("benchmark_male_body"))); // NOLINT(clang-diagnostic-c++20-extensions)
-    si.voiceId = Id(voiceOverride.value_or(CreateID("atc_leg_m01")));
+    si.voiceId = voiceOverride.value_or(Id("atc_leg_m01"));
 
     auto nickname = Random::UniformString<std::string>(32);
     strncpy_s(si.nickName, sizeof(si.nickName), nickname.c_str(), nickname.size());
@@ -891,7 +891,22 @@ void SpawnSolar(unsigned int& spaceID, const pub::SpaceObj::SolarInfo& solarInfo
     MemUtils::WriteProcMem(skipSolarPacket, &serverUnHack, 1);
 }
 
-Id ResourceManager::CreateSolarSimple(SolarSpawnStruct& solarSpawnData)
+Id ResourceManager::CreateShipSimple(SystemId system, const Vector& pos, Matrix& rot, Plugin* callingPlugin) { 
+
+    pub::SpaceObj::ShipInfo si;
+    memset(&si, 0, sizeof(si));
+    
+    si.flag = 4;
+    si.system = system;
+    si.pos = pos;
+    si.orientation = rot;
+
+    //TODO: add the rest of crucial parameters;
+
+    return Id();
+}
+
+Id ResourceManager::CreateSolarSimple(SolarSpawnStruct& solarSpawnData, Plugin* plugin)
 {
     solarSpawnData.spaceObjId = Id(solarSpawnData.nickname);
     if (auto object = FLHook::GetObjInspect(solarSpawnData.spaceObjId); object)
@@ -963,6 +978,11 @@ Id ResourceManager::CreateSolarSimple(SolarSpawnStruct& solarSpawnData)
         return Id(spaceObjId);
     }
 
+    if (plugin)
+    {
+        spawnedIdsPerPlugin[plugin].emplace_back(spaceObjId);
+    }
+
     //TODO: Add Handling for gate objects
     //TODO: Create a per-plugin list of solars to dispose of when unloading the plugin
 
@@ -976,7 +996,7 @@ Id ResourceManager::CreateSolarSimple(SolarSpawnStruct& solarSpawnData)
     return Id(spaceObjId);
 }
 
-Id ResourceManager::CreateLootSimple(SystemId system, const Vector& pos, Id commodity, uint amount, ShipId owner, bool canAITractor)
+Id ResourceManager::CreateLootSimple(SystemId system, const Vector& pos, Id commodity, uint amount, ShipId owner, bool canAITractor, Plugin* plugin)
 {
 
     pub::SpaceObj::LootInfo lootInfo;
@@ -985,7 +1005,7 @@ Id ResourceManager::CreateLootSimple(SystemId system, const Vector& pos, Id comm
     lootInfo.equipmentArchId = commodity;
     lootInfo.itemCount = amount;
     lootInfo.pos = pos;
-    lootInfo.rot = Matrix::RandomMatrix();
+    lootInfo.rot = Random::RandomMatrix();
     lootInfo.isMissionLoot = false;
     lootInfo.canAITractor = canAITractor;
     lootInfo.hitPtsPercentage = 1.0f;

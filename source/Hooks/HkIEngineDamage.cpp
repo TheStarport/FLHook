@@ -9,6 +9,16 @@
 
 using namespace magic_enum::bitwise_operators;
 
+void __fastcall IEngineHook::ShipMunitionHit(Ship* ship, void* edx, MunitionImpactData* impact, DamageList* dmgList)
+{
+    CallPlugins(&Plugin::OnShipMunitionHit, ship, impact, dmgList);
+
+    using IShipMunitionImpactType = void(__thiscall*)(Ship*, MunitionImpactData*, DamageList*);
+    static_cast<IShipMunitionImpactType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::MunitionImpact)))(ship, impact, dmgList);
+
+    CallPlugins(&Plugin::OnShipMunitionHitAfter, ship, impact, dmgList);
+}
+
 void __fastcall IEngineHook::ShipExplosionHit(Ship* ship, void* edx, ExplosionDamageEvent* explosion, DamageList* dmgList)
 {
     CallPlugins(&Plugin::OnShipExplosionHit, ship, explosion, dmgList);
@@ -17,12 +27,20 @@ void __fastcall IEngineHook::ShipExplosionHit(Ship* ship, void* edx, ExplosionDa
     static_cast<IShipExplosionHitType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ProcessExplosionDamage)))(ship, explosion, dmgList);
 }
 
-void __fastcall IEngineHook::ShipShieldHit(Ship* ship, void* edx, CEShield* shield, float incDmg, DamageList* dmgList)
+void __fastcall IEngineHook::ShipShieldDmg(Ship* ship, void* edx, CEShield* shield, float incDmg, DamageList* dmgList)
 {
     CallPlugins(&Plugin::OnShipShieldDmg, ship, shield, incDmg, dmgList);
 
     using IShipShieldDmgType = void(__thiscall*)(Ship*, CEShield*, float, DamageList*);
     static_cast<IShipShieldDmgType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::DamageShield)))(ship, shield, incDmg, dmgList);
+}
+
+void __fastcall IEngineHook::ShipEnergyDmg(Ship* ship, void* edx, float incDmg, DamageList* dmgList)
+{
+    CallPlugins(&Plugin::OnShipEnergyDmg, ship, incDmg, dmgList);
+
+    using IShipEnergyDmgType = void(__thiscall*)(Ship*, float, DamageList*);
+    static_cast<IShipEnergyDmgType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::DamageEnergy)))(ship, incDmg, dmgList);
 }
 
 void __fastcall IEngineHook::GuidedExplosionHit(Guided* guided, void* edx, ExplosionDamageEvent* explosion, DamageList* dmgList)

@@ -102,9 +102,11 @@ class IEngineHook
 
         static void __fastcall GuidedExplosionHit(Guided* guided, void* edx, ExplosionDamageEvent* explosion, DamageList* dmgList);
         static void __fastcall SolarExplosionHit(Solar* guided, void* edx, ExplosionDamageEvent* explosion, DamageList* dmgList);
+        static void __fastcall ShipMunitionHit(Ship* ship, void* edx, MunitionImpactData* impact, DamageList* dmgList);
         static void __fastcall ShipExplosionHit(Ship* ship, void* edx, ExplosionDamageEvent* explosion, DamageList* dmgList);
 
-        static void __fastcall ShipShieldHit(Ship* iobj, void* edx, CEShield* shield, float incDmg, DamageList* dmg);
+        static void __fastcall ShipShieldDmg(Ship* iobj, void* edx, CEShield* shield, float incDmg, DamageList* dmg);
+        static void __fastcall ShipEnergyDmg(Ship* ship, void* edx, float incDmg, DamageList* dmgList);
 
         static void __fastcall CShipInit(CShip* ship, void* edx, CShip::CreateParms* creationParams);
         static void __fastcall CSolarInit(CSolar* solar, void* edx, CSolar::CreateParms* creationParams);

@@ -81,6 +81,16 @@ class Random
 
             return container[Uniform(0u, container.size() - 1u)];
         }
+
+        static Vector RandomVector(float minRange, float maxRange)
+        {
+            return { UniformFloat(minRange, maxRange), UniformFloat(minRange, maxRange), UniformFloat(minRange, maxRange) };
+        }
+
+        static Matrix RandomMatrix()
+        {
+            return EulerMatrix(RandomVector(-180.f, 180.f));
+        }
 };
 
 #undef Init

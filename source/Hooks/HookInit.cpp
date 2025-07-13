@@ -159,6 +159,9 @@ void FLHook::InitHookExports()
     ptr = &IEngineHook::CGuidedInit;
     IEngineHook::cGuidedVTable.Hook(VTablePtr(CGuidedVTable::InitCEquipObject), &ptr);
 
+    ptr = &IEngineHook::ShipMunitionHit;
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::ShieldMunitionHit), &ptr);
+
     ptr = &IEngineHook::ShipDestroy;
     IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::ObjectDestroyed), &ptr);
     ptr = &IEngineHook::SolarDestroy;
@@ -177,9 +180,11 @@ void FLHook::InitHookExports()
 
     ptr = &IEngineHook::SolarColGrpDestroy;
     IEngineHook::iSolarVTable.Hook(VTablePtr(ISolarInspectVTable::ColGrpDeath), &ptr);
-    
-    ptr = &IEngineHook::ShipShieldHit;
+
+    ptr = &IEngineHook::ShipShieldDmg;
     IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::DamageShield), &ptr);
+    ptr = &IEngineHook::ShipEnergyDmg;
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::DamageEnergy), &ptr);
 
     ptr = &IEngineHook::ShipExplosionHit;
     IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::ProcessExplosionDamage), &ptr);

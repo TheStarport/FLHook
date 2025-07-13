@@ -203,7 +203,7 @@ class DLL Plugin
 
         virtual void OnShipDropAllCargo(Ship* ship, const char* hardPoint, DamageList* dmgList) {}
 
-        virtual void OnShipMunitionHit(Ship* ship, MunitionImpactData* munition, DamageList* dmgList) {}
+        Aft(void, OnShipMunitionHit, (Ship* ship, MunitionImpactData* munition, DamageList* dmgList));
 
         virtual void OnShipHullDmg(Ship* ship, float& damage, DamageList* dmgList) {}
         virtual void OnSolarHullDmg(Solar* solar, float& damage, DamageList* dmgList) {}
@@ -217,6 +217,7 @@ class DLL Plugin
         virtual void OnSolarColGrpDestroy(Solar*, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmg) {}
 
         virtual void OnShipShieldDmg(Ship* ship, CEShield* shield, float& damage, DamageList* dmgList) {}
+        virtual void OnShipEnergyDmg(Ship* ship, float& damage, DamageList* dmgList) {}
 
         virtual void OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList) {}
         virtual void OnGuidedExplosionHit(Guided* guided, ExplosionDamageEvent* explosion, DamageList* dmgList){}

@@ -70,13 +70,6 @@ namespace Plugins
         if (explData && ceqobj->objectClass == CObject::CSHIP_OBJECT)
         {
             detonationDistance = explData->detDist;
-            weaponArmorPenValue = explData->armorPen;
-            weaponArmorPenArch = 0;
-        }
-        else
-        {
-            weaponArmorPenValue = 0;
-            weaponArmorPenArch = 0;
         }
 
         float threeThirds = explosion->explosionArchetype->radius - detonationDistance;

@@ -133,6 +133,7 @@ class DLL ResourceManager final
         static void SendSolarPacket(uint spaceId, pub::SpaceObj::SolarInfo& si);
 
         inline static std::unordered_map<uint, ClientId> npcToLastAttackingPlayerMap;
+        inline static std::unordered_map<Plugin*, std::vector<Id>> spawnedIdsPerPlugin;
     public:
 
         struct DLL SpaceObjectBuilder
@@ -372,7 +373,7 @@ class DLL ResourceManager final
             private:
                 NpcTemplate npcTemplate{};
                 std::optional<Costume> costumeOverride{};
-                std::optional<uint> voiceOverride{};
+                std::optional<Id> voiceOverride{};
                 std::optional<const pub::AI::Personality*> personalityOverride{};
                 std::optional<StateGraph> stateGraphOverride{};
                 std::optional<Matrix> rotation{};
@@ -484,7 +485,7 @@ class DLL ResourceManager final
                 float percentageHp = 1.0f;
         };
 
-        static ShipId CreateShipSimple (SystemId system, const Vector& pos, Matrix& rot );
-        static Id CreateSolarSimple(SolarSpawnStruct& solarSpawnData);
-        static Id CreateLootSimple(SystemId system, const Vector& pos, Id commodity, uint amount, ShipId owner, bool canAITractor);
+        static Id CreateShipSimple(SystemId system, const Vector& pos, Matrix& rot, Plugin* callingPlugin);
+        static Id CreateSolarSimple(SolarSpawnStruct& solarSpawnData, Plugin* callingPlugin);
+        static Id CreateLootSimple(SystemId system, const Vector& pos, Id commodity, uint amount, ShipId owner, bool canAITractor, Plugin* callingPlugin);
 };

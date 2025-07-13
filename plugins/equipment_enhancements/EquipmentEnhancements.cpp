@@ -25,7 +25,7 @@ namespace Plugins
 
     void EquipmentEnhancementsPlugin::MineSpin(CMine* mine, Vector& spinVec)
     {
-        auto mineInfo = mineInfoMap.find(mine->archetype->archId.GetValue());
+        auto mineInfo = mineInfoMap.find(mine->archetype->archId);
         if (mineInfo == mineInfoMap.end() || !mineInfo->second.stopSpin)
         {
             PhySys::AddToAngularVelocityOS(mine, spinVec);
@@ -34,7 +34,7 @@ namespace Plugins
 
     void EquipmentEnhancementsPlugin::MineImpulse(CMine* mine, Vector& launchVec)
     {
-        auto mineInfo = mineInfoMap.find(mine->archetype->archId.GetValue());
+        auto mineInfo = mineInfoMap.find(mine->archetype->archId);
         if (mineInfo != mineInfoMap.end() && mineInfo->second.dispersionAngle > 0.0f)
         {
             Vector randVecAxis = RandomVector(1.0f);
@@ -56,14 +56,14 @@ namespace Plugins
         PhySys::AddToVelocity(mine, launchVec);
     }
 
-    float __fastcall EquipmentEnhancementsPlugin::GetWeaponModifier(CEShield* shield, void* edx, uint& weaponType)
+    float __fastcall EquipmentEnhancementsPlugin::GetWeaponModifier(CEShield* shield, void* edx, Id& weaponType)
     {
         if (!weaponType || !shield || !shield->highestToughnessShieldGenArch)
         {
             return 1.0f;
         }
 
-        auto shieldResistIter = GameData::shieldResistMap.find(weaponType);
+        auto shieldResistIter = GameData::shieldResistMap.find(weaponType.GetValue());
         if (shieldResistIter == GameData::shieldResistMap.end() || !shieldResistIter.key())
         {
             return 1.0f;
@@ -120,7 +120,7 @@ namespace Plugins
 
         while (shield = eqManager->Traverse(tr))
         {
-            const auto& shieldData = shieldBoostMap.find(shield->archetype->archId.GetValue());
+            const auto& shieldData = shieldBoostMap.find(shield->archetype->archId);
             if (shieldData == shieldBoostMap.end())
             {
                 continue;
@@ -196,13 +196,13 @@ namespace Plugins
             }
         }
 
-        auto overrideMapIter = equipOverrideMap.find(goodId.GetHash().Value().GetValue());
+        auto overrideMapIter = equipOverrideMap.find(goodId.GetHash().Value());
         if (overrideMapIter == equipOverrideMap.end())
         {
             return;
         }
 
-        auto shipOverrideIter = overrideMapIter->second.find(client.GetShipArch().Unwrap().GetId().GetValue());
+        auto shipOverrideIter = overrideMapIter->second.find(client.GetShipArch().Unwrap().GetId());
         if (shipOverrideIter == overrideMapIter->second.end())
         {
             return;
@@ -273,7 +273,7 @@ namespace Plugins
                 continue;
             }
 
-            uint id = iter->first;
+            Id id = iter->first;
             Guided* guided = nullptr;
             StarSystem* starSystem;
             FLHook::GetObjInspect(id, reinterpret_cast<GameObject*&>(guided), starSystem);
@@ -364,10 +364,10 @@ namespace Plugins
 
             TriggerExplosionFunc(&starSystemIter->second, &expl);
 
-            if (boostData->explosionFuseId)
+            if (boostData->explosionFuse)
             {
-                ship->unlight_fuse_unk(boostData->explosionFuseId, 0, 0.0f);
-                ship->light_fuse(0, boostData->explosionFuseId, 0, 0.0f, -1.0f);
+                ship->unlight_fuse_unk(boostData->explosionFuse, 0, 0.0f);
+                ship->light_fuse(0, boostData->explosionFuse, 0, 0.0f, -1.0f);
             }
         }
 
@@ -391,7 +391,7 @@ namespace Plugins
 
         const auto& equip = client.GetEquipCargo().Handle();
 
-        const auto& shipHpDataIter = shipDataMap.find(client.GetShipArch().Handle().GetId().GetValue());
+        const auto& shipHpDataIter = shipDataMap.find(client.GetShipArch().Handle().GetId());
         if (shipHpDataIter == shipDataMap.end())
         {
             int counter = 0;
@@ -434,7 +434,7 @@ namespace Plugins
 
             mountedEngineCounter++;
 
-            auto engineType = engineData.find(cequip->archetype->archId.GetValue());
+            auto engineType = engineData.find(cequip->archetype->archId);
             if (engineType == engineData.end())
             {
                 return false;
@@ -514,13 +514,13 @@ namespace Plugins
         CELauncher* gun;
         while (gun = reinterpret_cast<CELauncher*>(ship->equipManager.Traverse(tr)))
         {
-            auto burstGunDataIter = burstGunData.find(gun->archetype->archId.GetValue());
+            auto burstGunDataIter = burstGunData.find(gun->archetype->archId);
             if (burstGunDataIter == burstGunData.end())
             {
                 continue;
             }
 
-            shipGunData[ship->id.GetValue()][gun->SubObjId] = { burstGunDataIter->second.magSize,
+            shipGunData[ship->id][gun->SubObjId] = { burstGunDataIter->second.magSize,
                                                                 burstGunDataIter->second.magSize,
                                                                 burstGunDataIter->second.reloadTime };
         }
@@ -533,7 +533,7 @@ namespace Plugins
             return;
         }
 
-        auto shipDataIter = shipGunData.find(launcher->owner->id.GetValue());
+        auto shipDataIter = shipGunData.find(launcher->owner->id);
         if (shipDataIter == shipGunData.end())
         {
             return;
@@ -552,16 +552,16 @@ namespace Plugins
         }
     }
 
-    void EquipmentEnhancementsPlugin::OnShipDespawn(Ship* ship) { shipGunData.erase(ship->get_id()); }
+    void EquipmentEnhancementsPlugin::OnShipDespawn(Ship* ship) { shipGunData.erase(Id(ship->get_id())); }
 
-    void EquipmentEnhancementsPlugin::OnShipDestroy(Ship* ship, DamageList* dmgList, ShipId killerId) { shipGunData.erase(ship->get_id()); }
+    void EquipmentEnhancementsPlugin::OnShipDestroy(Ship* ship, DamageList* dmgList, ShipId killerId) { shipGunData.erase(Id(ship->get_id())); }
 
     void EquipmentEnhancementsPlugin::OnMineDestroy(Mine* mine, DestroyType& destroyType, ShipId killerId)
     {
         CMine* cmine = reinterpret_cast<CMine*>(mine->cmine());
         auto mineArch = cmine->minearch();
 
-        auto mineInfo = mineInfoMap.find(mineArch->archId.GetValue());
+        auto mineInfo = mineInfoMap.find(mineArch->archId);
         if (mineInfo == mineInfoMap.end())
         {
             return;
@@ -581,9 +581,9 @@ namespace Plugins
 
     void EquipmentEnhancementsPlugin::OnGuidedDestroy(Guided* guided, DestroyType& destroyType, ShipId killerId)
     {
-        NewMissileForcedUpdatePacketMap.erase(guided->get_id());
+        NewMissileForcedUpdatePacketMap.erase(Id(guided->get_id()));
 
-        auto guidedInfo = guidedDataMap.find(guided->cobj->archetype->archId.GetValue());
+        auto guidedInfo = guidedDataMap.find(guided->cobj->archetype->archId);
         if (guidedInfo == guidedDataMap.end())
         {
             return;
@@ -598,6 +598,15 @@ namespace Plugins
             }
         }
     }
+
+    void EquipmentEnhancementsPlugin::OnShipMunitionHit(Ship* ship, MunitionImpactData* impact, DamageList* dmgList)
+    { 
+        FetchShipArmor(ship->cobj->archetype->archId);
+        FetchWeaponData(impact->munitionArch->archId);
+        armorEnabled = true;
+    }
+
+    void EquipmentEnhancementsPlugin::OnShipMunitionHitAfter(Ship* ship, MunitionImpactData* impact, DamageList* dmgList) { armorEnabled = false; }
 
     void EquipmentEnhancementsPlugin::OnShipEquipDmg(Ship* ship, CAttachedEquip* equip, float& incDmg, DamageList* dmg)
     {
@@ -644,6 +653,8 @@ namespace Plugins
 
     void EquipmentEnhancementsPlugin::OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList)
     {
+        FetchShipArmor(ship->cobj->archetype->archId);
+        FetchWeaponData(explosion->explosionArchetype->id);
         if (!config.hitRayMissileLogic)
         {
             return;
@@ -662,7 +673,43 @@ namespace Plugins
         EqObjExplosionHit(solar, explosion, dmgList);
     }
 
-    void EquipmentEnhancementsPlugin::FetchShipArmor(uint shipHash)
+    void EquipmentEnhancementsPlugin::OnShipShieldDmg(Ship* ship, CEShield* shield, float& incDmg, DamageList* dmgList)
+    {
+        if (armorEnabled && currMunitionData)
+        {
+            incDmg += currMunitionData->percentageShieldDmg * shield->maxShieldHitPoints;
+        }
+    }
+
+    void EquipmentEnhancementsPlugin::OnShipEnergyDmg(Ship* ship, float& incDmg, DamageList* dmgList)
+    {
+        if (armorEnabled && currMunitionData)
+        {
+            incDmg += currMunitionData->percentageEnergyDmg * ship->cship()->maxPower;
+        }
+    }
+
+    void EquipmentEnhancementsPlugin::FetchWeaponData(Id munitionArchId)
+    {
+        if (currMunitionArch == munitionArchId)
+        {
+            return;
+        }
+        currMunitionArch = munitionArchId;
+
+        auto weaponData = weaponDataMap.find(currMunitionArch);
+        if (weaponData == weaponDataMap.end())
+        {
+            currMunitionData = nullptr;
+        }
+        else
+        {
+            currMunitionData = &weaponData->second;
+        }
+
+    }
+
+    void EquipmentEnhancementsPlugin::FetchShipArmor(Id shipHash)
     {
         if (shipArmorArch == shipHash)
         {
@@ -685,11 +732,14 @@ namespace Plugins
     {
         if (armorEnabled)
         {
-            FetchShipArmor(ship->cobj->archetype->archId.GetValue());
-
-            if (shipArmorRating && (shipArmorRating > weaponArmorPenValue))
+            if (currMunitionData && currMunitionData->percentageHullDmg)
             {
-                incDmg *= armorReductionVector.at(shipArmorRating - weaponArmorPenValue);
+                incDmg += ship->cobj->archetype->hitPoints * currMunitionData->percentageHullDmg;
+            }
+
+            if (shipArmorRating && currMunitionData)
+            {
+                incDmg *= armorReductionVector.at(std::max(0, shipArmorRating - currMunitionData->armorPen));
             }
 
             armorEnabled = false;
@@ -718,7 +768,7 @@ namespace Plugins
 
     void EquipmentEnhancementsPlugin::OnCGuidedInitAfter(CGuided* guided)
     {
-        NewMissileForcedUpdatePacketMap[guided->id.GetValue()] = { 0 };
+        NewMissileForcedUpdatePacketMap[guided->id] = { 0 };
 
         // If missile target doesnt match with the ship target, remove tracking
         GameObject* owner = FLHook::GetObjInspect(guided->ownerId);
@@ -734,7 +784,7 @@ namespace Plugins
             }
         }
 
-        auto guidedData = guidedDataMap.find(guided->archetype->archId.GetValue());
+        auto guidedData = guidedDataMap.find(guided->archetype->archId);
         if (guidedData == guidedDataMap.end())
         {
             return;

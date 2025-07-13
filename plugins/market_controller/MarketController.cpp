@@ -541,7 +541,7 @@ namespace Plugins
             dropPos += (glm::vec<3, float, glm::packed_highp>)randomVector;
 
             ResourceManager::CreateLootSimple(
-                cship->system, dropPos, cargo->archetype->archId, std::min(cargo->count, amountToDrop), ShipId(cship->id.GetValue()), false);
+                cship->system, dropPos, cargo->archetype->archId, std::min(cargo->count, amountToDrop), ShipId(cship->id.GetValue()), false, this);
         }
 
         cship->clear_equip_and_cargo();

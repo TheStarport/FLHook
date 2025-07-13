@@ -55,7 +55,7 @@ namespace Plugins
                 continue;
             }
 
-            uint currNickname = 0;
+            Id currNickname;
             ushort currSID = 0;
             while (ini.read_header())
             {
@@ -66,7 +66,7 @@ namespace Plugins
                     {
                         if (ini.is_value("nickname"))
                         {
-                            currNickname = CreateID(ini.get_value_string());
+                            currNickname = Id(ini.get_value_string());
                         }
                         else if (ini.is_value("armor"))
                         {
@@ -128,8 +128,8 @@ namespace Plugins
                 continue;
             }
 
-            uint currNickname;
-            uint explosion_arch;
+            Id currNickname;
+            Id explosion_arch;
             while (ini.read_header())
             {
                 if (ini.is_header("Gun"))
@@ -138,11 +138,11 @@ namespace Plugins
                     {
                         if (ini.is_value("nickname"))
                         {
-                            currNickname = CreateID(ini.get_value_string(0));
+                            currNickname = Id(ini.get_value_string(0));
                         }
                         else if (ini.is_value("burst_fire"))
                         {
-                            float baseRefire = ((Archetype::Gun*)Archetype::GetEquipment(currNickname))->refireDelay;
+                            float baseRefire = ((Archetype::Gun*)Archetype::GetEquipment(currNickname.GetValue()))->refireDelay;
                             burstGunData[currNickname] = { ini.get_value_int(0), baseRefire - ini.get_value_float(1) };
                         }
                     }
@@ -153,7 +153,7 @@ namespace Plugins
                     {
                         if (ini.is_value("nickname"))
                         {
-                            currNickname = CreateID(ini.get_value_string());
+                            currNickname = Id(ini.get_value_string());
                         }
                         else if (ini.is_value("self_detonate"))
                         {
@@ -173,7 +173,7 @@ namespace Plugins
                         }
                         else if (ini.is_value("explosion_arch"))
                         {
-                            explosion_arch = CreateID(ini.get_value_string(0));
+                            explosion_arch = Id(ini.get_value_string(0));
                         }
                         else if (ini.is_value("detonation_dist"))
                         {
@@ -187,11 +187,23 @@ namespace Plugins
                     {
                         if (ini.is_value("nickname"))
                         {
-                            currNickname = CreateID(ini.get_value_string());
+                            currNickname = Id(ini.get_value_string());
                         }
                         else if (ini.is_value("armor_pen"))
                         {
-                            munitionArmorPenMap[currNickname] = ini.get_value_int(0);
+                            weaponDataMap[currNickname].armorPen = ini.get_value_int(0);
+                        }
+                        else if (ini.is_value("percentage_damage_hull"))
+                        {
+                            weaponDataMap[currNickname].percentageHullDmg = ini.get_value_float(0);
+                        }
+                        else if (ini.is_value("percentage_damage_shield"))
+                        {
+                            weaponDataMap[currNickname].percentageShieldDmg = ini.get_value_float(0);
+                        }
+                        else if (ini.is_value("percentage_damage_energy"))
+                        {
+                            weaponDataMap[currNickname].percentageEnergyDmg = ini.get_value_float(0);
                         }
                         else if (ini.is_value("arming_time"))
                         {
@@ -246,7 +258,7 @@ namespace Plugins
                         }
                         else if (ini.is_value("explosion_arch"))
                         {
-                            explosion_arch = CreateID(ini.get_value_string(0));
+                            explosion_arch = Id(ini.get_value_string(0));
                         }
                         else if (ini.is_value("detonation_dist"))
                         {
@@ -262,7 +274,7 @@ namespace Plugins
                     {
                         if (ini.is_value("nickname"))
                         {
-                            currNickname = CreateID(ini.get_value_string());
+                            currNickname = Id(ini.get_value_string());
                         }
                         else if (ini.is_value("disruptor_engine_kill") && !ini.get_value_bool(0))
                         {
@@ -294,7 +306,7 @@ namespace Plugins
                     {
                         if (ini.is_value("nickname"))
                         {
-                            currNickname = CreateID(ini.get_value_string());
+                            currNickname = Id(ini.get_value_string());
                         }
                         else if (ini.is_value("shield_boost"))
                         {
@@ -302,7 +314,7 @@ namespace Plugins
                             sb.minimumDuration = ini.get_value_float(1);
                             sb.maximumDuration = ini.get_value_float(2);
                             sb.damageReduction = ini.get_value_float(3);
-                            sb.fuseId = CreateID(ini.get_value_string(4));
+                            sb.fuseId = Id(ini.get_value_string(4));
                             FoundValue = true;
                         }
                         else if (ini.is_value("shield_boost_explosion"))
@@ -314,7 +326,7 @@ namespace Plugins
                             sb.energyReflectDamagePercentage = ini.get_value_float(4);
                             sb.energyDamageCap = ini.get_value_float(5);
                             sb.radius = ini.get_value_float(6);
-                            sb.explosionFuseId = CreateID(ini.get_value_string(7));
+                            sb.explosionFuse = Id(ini.get_value_string(7));
                         }
                     }
                     if (FoundValue)
@@ -330,11 +342,11 @@ namespace Plugins
                     {
                         if (ini.is_value("nickname"))
                         {
-                            currNickname = CreateID(ini.get_value_string());
+                            currNickname = Id(ini.get_value_string());
                         }
                         else if (ini.is_value("weapon_type"))
                         {
-                            damageType.weaponType = CreateID(ini.get_value_string(0));
+                            damageType.weaponType = Id(ini.get_value_string(0));
                             foundItem = true;
                         }
                         else if (ini.is_value("damage_solars"))
@@ -390,18 +402,18 @@ namespace Plugins
                 {
                     continue;
                 }
-                uint currNickname;
+                Id currNickname;
                 ExplosionDamageData damageType;
                 bool foundItem = false;
                 while (ini.read_value())
                 {
                     if (ini.is_value("nickname"))
                     {
-                        currNickname = CreateID(ini.get_value_string());
+                        currNickname = Id(ini.get_value_string());
                     }
                     else if (ini.is_value("weapon_type"))
                     {
-                        damageType.weaponType = CreateID(ini.get_value_string(0));
+                        damageType.weaponType = Id(ini.get_value_string(0));
                         foundItem = true;
                     }
                     else if (ini.is_value("damage_solars"))
@@ -466,15 +478,15 @@ namespace Plugins
                 std::unordered_set<std::string> shipEngineHPs;
                 while (ini.read_value())
                 {
-                    uint currNickname;
+                    Id currNickname;
                     if (ini.is_value("nickname"))
                     {
-                        currNickname = CreateID(ini.get_value_string(0));
+                        currNickname = Id(ini.get_value_string(0));
                         shipEngineHPs.clear();
                     }
                     else if (ini.is_value("equip_override"))
                     {
-                        equipOverrideMap[CreateID(ini.get_value_string(0))][currNickname] = GoodId(CreateID(ini.get_value_string(1)));
+                        equipOverrideMap[Id(ini.get_value_string(0))][currNickname] = GoodId(CreateID(ini.get_value_string(1)));
                     }
                     else if (ini.is_value("internal_engine"))
                     {

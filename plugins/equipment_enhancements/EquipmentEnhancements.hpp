@@ -33,7 +33,7 @@ namespace Plugins
 
             struct ExplosionDamageData
             {
-                    uint weaponType = 0;
+                    Id weaponType;
                     float percentageDamageHull = 0.0f;
                     float percentageDamageShield = 0.0f;
                     float percentageDamageEnergy = 0.0f;
@@ -101,7 +101,7 @@ namespace Plugins
                     float minimumDuration;
                     float maximumDuration;
                     float damageReduction;
-                    uint fuseId;
+                    Id fuseId;
 
                     float hullBaseDamage = 0.0f;
                     float hullReflectDamagePercentage = 0.0f;
@@ -110,7 +110,7 @@ namespace Plugins
                     float energyReflectDamagePercentage = 0.0f;
                     float energyDamageCap = 0.0f;
                     float radius = 0.0f;
-                    uint explosionFuseId = 0;
+                    Id explosionFuse;
             };
 
             struct ShieldBoostFuseInfo
@@ -161,6 +161,14 @@ namespace Plugins
                     uint checkCounter = 0;
             };
 
+            struct WeaponData
+            {
+                    int armorPen;
+                    float percentageHullDmg;
+                    float percentageShieldDmg;
+                    float percentageEnergyDmg;
+            };
+
             //! Configurable fields for this plugin
             struct Config final
             {
@@ -175,22 +183,22 @@ namespace Plugins
                     std::string shieldExplosionArch;
             };
 
-            std::unordered_map<uint, ExplosionDamageData> explosionTypeMap;
+            std::unordered_map<Id, ExplosionDamageData> explosionTypeMap;
             std::unordered_map<ClientId, ShieldBoostFuseInfo> shieldFuseMap;
-            std::unordered_map<uint, GuidedData> guidedDataMap;
-            std::unordered_map<uint, ShipData> shipDataMap;
-            inline static std::unordered_map<uint, MineInfo> mineInfoMap;
-            std::unordered_map<uint, EngineProperties> engineData;
-            std::unordered_map<uint, ShieldBoostData> shieldBoostMap;
-            std::unordered_map<uint, std::unordered_map<uint, GoodId>> equipOverrideMap;
+            std::unordered_map<Id, GuidedData> guidedDataMap;
+            std::unordered_map<Id, ShipData> shipDataMap;
+            inline static std::unordered_map<Id, MineInfo> mineInfoMap;
+            std::unordered_map<Id, EngineProperties> engineData;
+            std::unordered_map<Id, ShieldBoostData> shieldBoostMap;
+            std::unordered_map<Id, std::unordered_map<Id, GoodId>> equipOverrideMap;
 
-            std::unordered_map<uint, int> munitionArmorPenMap;
-            std::unordered_map<uint, std::unordered_map<ushort, int>> shipArmorMap;
-            std::unordered_map<uint, std::unordered_map<ushort, int>>::iterator shipArmorIter;
+            std::unordered_map<Id, WeaponData> weaponDataMap;
+            std::unordered_map<Id, std::unordered_map<ushort, int>> shipArmorMap;
+            std::unordered_map<Id, std::unordered_map<ushort, int>>::iterator shipArmorIter;
             std::vector<float> armorReductionVector;
-            std::unordered_map<uint, std::unordered_map<ushort, BurstFireGunData>> shipGunData;
-            std::unordered_map<uint, BurstFireData> burstGunData;
-            std::unordered_map<uint, uint> NewMissileForcedUpdatePacketMap;
+            std::unordered_map<Id, std::unordered_map<ushort, BurstFireGunData>> shipGunData;
+            std::unordered_map<Id, BurstFireData> burstGunData;
+            std::unordered_map<Id, uint> NewMissileForcedUpdatePacketMap;
 
             std::unordered_map<uint, InvulData> invulMap;
             std::array<ShieldState, MaxClientId + 1> playerShieldState;
@@ -203,10 +211,10 @@ namespace Plugins
             bool usedBatts;
 
             bool armorEnabled;
-            int weaponArmorPenValue;
-            uint weaponArmorPenArch;
+            WeaponData* currMunitionData;
+            Id currMunitionArch;
             int shipArmorRating;
-            uint shipArmorArch;
+            Id shipArmorArch;
 
             Config config;
 
@@ -225,11 +233,20 @@ namespace Plugins
             void OnMineDestroy(Mine * mine, DestroyType& destroyType, ShipId killerId) override;
             void OnGuidedDestroy(Guided * guided, DestroyType& destroyType, ShipId killerId) override;
 
+            void OnShipMunitionHit(Ship* ship, MunitionImpactData* impact, DamageList* dmgList) override;
+            void OnShipMunitionHitAfter(Ship* ship, MunitionImpactData* impact, DamageList* dmgList) override;
+
             void OnShipEquipDmg(Ship* ship, CAttachedEquip* equip, float& incDmg, DamageList* dmg) override;
             void OnShipEquipDestroy(Ship*, CEquip*, DamageEntry::SubObjFate, DamageList*) override;
 
             void OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList) override;
             void OnSolarExplosionHit(Solar* solar, ExplosionDamageEvent* explosion, DamageList* dmgList) override;
+
+            void OnShipShieldDmg(Ship* ship, CEShield* shield, float& incDmg, DamageList* dmgList) override;
+            void OnShipEnergyDmg(Ship* ship, float& incDmg, DamageList* dmgList) override;
+
+            void FetchWeaponData(Id munitionArchId);
+            void FetchShipArmor(Id shipHash);
 
             void OnShipHullDmg(Ship* ship, float& incDmg, DamageList* dmg) override;
 
@@ -242,14 +259,13 @@ namespace Plugins
                                                       ExplosionDamageData* explData);
             bool ShieldAndDistance(EqObj* iobj, ExplosionDamageEvent* explosion, DamageList* dmg, float& rootDistance, ExplosionDamageData* explData);
             void EnergyExplosionHit(EqObj* iobj, ExplosionDamageEvent* explosion, DamageList* dmg, const float rootDistance, ExplosionDamageData* explData);
-            void FetchShipArmor(uint shipHash);
             void EqObjExplosionHit(EqObj* iobj, ExplosionDamageEvent* explosion, DamageList* dmg);
 
             void ReadMunitionDataFromInis();
             static void MineSpin(CMine* mine, Vector& spinVec);
             static void MineImpulse(CMine* mine, Vector& launchVec);
 
-            static float __fastcall GetWeaponModifier(CEShield* shield, void* edx, uint& weaponType);
+            static float __fastcall GetWeaponModifier(CEShield* shield, void* edx, Id& weaponType);
 
             // clang-format on
 

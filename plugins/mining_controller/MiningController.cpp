@@ -23,7 +23,7 @@ namespace Plugins
         solarInfo.ori = EulerMatrix(eulerRotation);
         solarInfo.solarIds = ms.nodeIDS;
 
-        Id createdSolar = ResourceManager::CreateSolarSimple(solarInfo);
+        Id createdSolar = ResourceManager::CreateSolarSimple(solarInfo, this);
 
         if (createdSolar)
         {
@@ -170,14 +170,15 @@ namespace Plugins
         const auto& cd = mapMiningContainers[iter->second.deployedContainerId];
         if (cd.loot1Count)
         {
-            FLHook::GetResourceManager()->CreateLootSimple(cd.systemId, cd.jettisonPos, cd.loot1Id, cd.loot1Count, cd.clientId.GetShip().Unwrap(), false);
+            FLHook::GetResourceManager()->CreateLootSimple(
+                cd.systemId, cd.jettisonPos, cd.loot1Id, cd.loot1Count, cd.clientId.GetShip().Unwrap(), false, nullptr);
         }
         if (cd.loot2Count)
         {
-            FLHook::GetResourceManager()->CreateLootSimple(cd.systemId, cd.jettisonPos, cd.loot2Id, cd.loot2Count, cd.clientId.GetShip().Unwrap(), false);
+            FLHook::GetResourceManager()->CreateLootSimple(cd.systemId, cd.jettisonPos, cd.loot2Id, cd.loot2Count, cd.clientId.GetShip().Unwrap(), false, nullptr);
         }
         FLHook::GetResourceManager()->CreateLootSimple(
-            cd.systemId, cd.jettisonPos, config.deployableContainerCommodity, 1, cd.clientId.GetShip().Unwrap(), false);
+            cd.systemId, cd.jettisonPos, config.deployableContainerCommodity, 1, cd.clientId.GetShip().Unwrap(), false, nullptr);
 
         mapMiningContainers.erase(iter->second.deployedContainerId);
 
@@ -308,7 +309,7 @@ namespace Plugins
             {
                 return;
             }
-            ResourceManager::CreateLootSimple(solar->cobj->system, solar->cobj->position, node.itemArchId, minedAmount, killerPlayer.GetShip().Unwrap(), false);
+            ResourceManager::CreateLootSimple(solar->cobj->system, solar->cobj->position, node.itemArchId, minedAmount, killerPlayer.GetShip().Unwrap(), false, this);
         }
     }
 
@@ -467,7 +468,7 @@ namespace Plugins
                 if (*lootCount >= amountToJettison)
                 {
                     ResourceManager::CreateLootSimple(
-                        container.systemId, container.jettisonPos, lootId, amountToJettison, container.clientId.GetShip().Unwrap(), false);
+                        container.systemId, container.jettisonPos, lootId, amountToJettison, container.clientId.GetShip().Unwrap(), false, this);
                     *lootCount -= amountToJettison;
                 }
             }
@@ -558,7 +559,7 @@ namespace Plugins
             // PrintUserCmdText(iClientID, L"ERR Issue when handling jettison event, contact developers. Error code %u", jc.iSlot);
             WARN(L"Error: jettisoned item not found! {0} {1} {2}",
                  { L"slot", std::to_wstring(cargo.slot) },
-                 { L"ship", std::to_wstring(cargo.ship) },
+                 { L"ship", std::to_wstring(cargo.ship.GetValue()) },
                  { L"count", std::to_wstring(cargo.count) });
 
             return;
@@ -668,7 +669,7 @@ namespace Plugins
         solarInfo.solarIds = 540999 + client.GetValue();
         solarInfo.percentageHp = 1.0f;
 
-        Id createdSolar = ResourceManager::CreateSolarSimple(solarInfo);
+        Id createdSolar = ResourceManager::CreateSolarSimple(solarInfo, this);
         if (createdSolar)
         {
             CONTAINER_DATA cd;
@@ -720,7 +721,7 @@ namespace Plugins
 
         uint minedAmount = GetAsteroidMiningYield(node, ClientId(dmgList->inflictorPlayerId), true);
 
-        ResourceManager::CreateLootSimple(solar->cobj->system, colGrpCenter, node.itemArchId, minedAmount, ShipId(dmgList->inflictorId.GetValue()), false);
+        ResourceManager::CreateLootSimple(solar->cobj->system, colGrpCenter, node.itemArchId, minedAmount, ShipId(dmgList->inflictorId.GetValue()), false, nullptr);
     }
 
     MiningControllerPlugin::MiningControllerPlugin(const PluginInfo& info) : Plugin(info)
