@@ -956,27 +956,43 @@ concurrencpp::result<void> UserCommandProcessor::Value(const ClientId client)
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::Dice(ClientId client, const uint sidesOfDice)
+concurrencpp::result<void> UserCommandProcessor::Dice(const ClientId client, uint sidesOfDice)
 {
-    uint result;
-    if (!sidesOfDice)
+    // TODO: Support for more than 1 dice, e.g. 6d10
+ if (!sidesOfDice)
     {
-        result = Random::Uniform(1u, 6u);
-        client.MessageLocal(std::format(L"{} has rolled {} out of 6", client.GetCharacterName().Handle(), result));
+        sidesOfDice = 6;
+    }
+
+    uint result = Random::Uniform(1u, sidesOfDice);
+    const std::wstring msg = std::format(L"{} has rolled {} out of {}", client.GetCharacterName().Handle(), result, sidesOfDice);
+
+    if (client.IsDocked())
+    {
+        client.ToastMessage(std::format(L"1d{} Dice Roll", sidesOfDice), msg);
     }
     else
     {
-        result = Random::Uniform(1u, sidesOfDice);
-        client.MessageLocal(std::format(L"{} has rolled {} out of {}", client.GetCharacterName().Handle(), result, sidesOfDice));
+        client.MessageLocal(msg);
     }
 
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::Coin(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::Coin(const ClientId client)
 {
     const uint result = Random::Uniform(0u, 1u);
-    client.MessageLocal(std::format(L"{} tossed a coin, it landed on {}", client.GetCharacterName().Handle(), result ? L"heads" : L"tails"));
+
+    const auto msg = std::format(L"{} tossed a coin, it landed on {}", client.GetCharacterName().Handle(), result ? L"heads" : L"tails");
+
+    if (client.IsDocked())
+    {
+        client.ToastMessage(L"Coin Toss", msg);
+    }
+    else
+    {
+        client.MessageLocal(msg);
+    }
 
     co_return;
 }
