@@ -5,7 +5,7 @@
 #include "API/Utils/Logger.hpp"
 #include "Core/ClientServerInterface.hpp"
 
-// called when chat-text is being sent to a player, we reformat it(/set chatfont)
+// called when chat-text is being sent to a player, we reformat it (/setchatfont)
 
 void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uint size, void* rdl)
 {

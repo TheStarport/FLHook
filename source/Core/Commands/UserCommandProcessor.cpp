@@ -147,7 +147,7 @@ concurrencpp::result<void> UserCommandProcessor::SetDieMessageFontSize(ClientId 
 concurrencpp::result<void> UserCommandProcessor::SetChatFont(ClientId client, std::wstring_view fontSize, std::wstring_view fontType)
 {
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
-                                         L"Usage: /set chatfont <size> <style>\n"
+                                         L"Usage: /setchatfont <size> <style>\n"
                                          L"<size>: small, default or big\n"
                                          L"<style>: default, bold, italic or underline";
     ChatSize chatSize;
