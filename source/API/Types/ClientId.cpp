@@ -888,6 +888,11 @@ Action<void> ClientId::ToastMessage(std::wstring_view title, std::wstring_view m
 
     if (sendMessageIfNoFluf)
     {
+        if (type == ToastType::Error)
+        {
+            return MessageErr(message);
+        }
+
         return Message(message);
     }
 

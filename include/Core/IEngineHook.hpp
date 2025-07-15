@@ -96,7 +96,8 @@ class IEngineHook
         static void __fastcall ShipEquipDestroy(Ship* ship, void* edx, CEquip* equip, DamageEntry::SubObjFate fate, DamageList* dmgList);
 
         static void __fastcall ShipColGrpDmg(Ship*, void* edx, CArchGroup* colGrp, float incDmg, DamageList* dmg);
-        static void __fastcall ShipColGrpDestroy(Ship* ship, void* edx, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmgList, bool killLinkedElements);
+        static void __fastcall ShipColGrpDestroy(Ship* ship, void* edx, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmgList,
+                                                 bool killLinkedElements);
 
         static void __fastcall ShipDropAllCargo(Ship* ship, void* edx, const char* hardPoint, DamageList* dmgList);
 

@@ -14,8 +14,8 @@
 
 #include <Core/Commands/UserCommandProcessor.hpp>
 
-std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(ClientId triggeringClient, std::wstring_view clientStr,
-                                                                               std::wstring_view commandStr)
+std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(const ClientId triggeringClient, const std::wstring_view clientStr,
+                                                                               const std::wstring_view commandStr)
 {
     if (commandStr.length() < 2)
     {
@@ -54,7 +54,7 @@ std::optional<concurrencpp::result<void>> UserCommandProcessor::MatchCommand<0>(
     return std::nullopt;
 }
 
-std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(ClientId triggeringClient, const std::wstring_view fullCmdStr,
+std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(const ClientId triggeringClient, const std::wstring_view fullCmdStr,
                                                                                std::vector<std::wstring_view>& paramVector)
 {
     for (auto& cmdProcessor : PluginManager::i()->userCommands)
@@ -73,7 +73,7 @@ std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(C
     return MatchCommand<commands.size()>(this, triggeringClient, fullCmdStr, paramVector);
 }
 
-concurrencpp::result<void> UserCommandProcessor::SetDieMessage(ClientId client, std::wstring_view param)
+concurrencpp::result<void> UserCommandProcessor::SetDieMessage(const ClientId client, const std::wstring_view param)
 {
     DieMsgType dieMsg;
     if (param == L"all")
@@ -113,7 +113,7 @@ concurrencpp::result<void> UserCommandProcessor::SetDieMessage(ClientId client, 
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::SetDieMessageFontSize(ClientId client, std::wstring_view param)
+concurrencpp::result<void> UserCommandProcessor::SetDieMessageFontSize(const ClientId client, const std::wstring_view param)
 {
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /set diemsgsize <size>\n"
@@ -144,7 +144,7 @@ concurrencpp::result<void> UserCommandProcessor::SetDieMessageFontSize(ClientId 
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::SetChatFont(ClientId client, std::wstring_view fontSize, std::wstring_view fontType)
+concurrencpp::result<void> UserCommandProcessor::SetChatFont(const ClientId client, const std::wstring_view fontSize, const std::wstring_view fontType)
 {
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /setchatfont <size> <style>\n"
@@ -204,7 +204,7 @@ concurrencpp::result<void> UserCommandProcessor::SetChatFont(ClientId client, st
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::SetChatTime(ClientId client, std::wstring_view option)
+concurrencpp::result<void> UserCommandProcessor::SetChatTime(const ClientId client, const std::wstring_view option)
 {
     auto& info = client.GetData();
     if (option == L"on")
@@ -239,7 +239,7 @@ concurrencpp::result<void> UserCommandProcessor::SetChatTime(ClientId client, st
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::ShowLastSender(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::ShowLastSender(const ClientId client)
 {
     const auto& info = client.GetData();
     if (info.lastPMSender.IsValidClientId())
@@ -254,7 +254,7 @@ concurrencpp::result<void> UserCommandProcessor::ShowLastSender(ClientId client)
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::ReplyToLastMsg(ClientId client, std::wstring_view response)
+concurrencpp::result<void> UserCommandProcessor::ReplyToLastMsg(const ClientId client, const std::wstring_view response)
 {
     const auto& info = client.GetData();
     if (info.lastPMSender.IsValidClientId())
@@ -270,7 +270,7 @@ concurrencpp::result<void> UserCommandProcessor::ReplyToLastMsg(ClientId client,
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::MessageTarget(ClientId client, std::wstring_view text)
+concurrencpp::result<void> UserCommandProcessor::MessageTarget(const ClientId client, const std::wstring_view text)
 {
     const auto clientShip = client.GetShip().Handle();
     const auto target = clientShip.GetTarget().Handle();
@@ -288,7 +288,7 @@ concurrencpp::result<void> UserCommandProcessor::MessageTarget(ClientId client, 
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::MessageTag(ClientId client, std::wstring_view tag, std::wstring_view msg)
+concurrencpp::result<void> UserCommandProcessor::MessageTag(const ClientId client, const std::wstring_view tag, const std::wstring_view msg)
 {
     PlayerData* pd = nullptr;
     bool foundTaggedPlayer = false;
@@ -319,7 +319,7 @@ concurrencpp::result<void> UserCommandProcessor::MessageTag(ClientId client, std
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::SetSavedMsg(ClientId client, uint index, std::wstring_view msg)
+concurrencpp::result<void> UserCommandProcessor::SetSavedMsg(const ClientId client, const uint index, const std::wstring_view msg)
 {
     if (index > 9)
     {
@@ -333,7 +333,7 @@ concurrencpp::result<void> UserCommandProcessor::SetSavedMsg(ClientId client, ui
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::ShowSavedMsgs(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::ShowSavedMsgs(const ClientId client)
 {
     const auto& info = client.GetData();
     uint counter = 0;
@@ -346,7 +346,7 @@ concurrencpp::result<void> UserCommandProcessor::ShowSavedMsgs(ClientId client)
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::IgnoreUser(ClientId client, std::wstring_view ignoredUser, std::wstring_view flags)
+concurrencpp::result<void> UserCommandProcessor::IgnoreUser(const ClientId client, const std::wstring_view ignoredUser, const std::wstring_view flags)
 {
     static const std::wstring errorMsg =
         L"Error: Invalid parameters\n"
@@ -398,7 +398,7 @@ concurrencpp::result<void> UserCommandProcessor::IgnoreUser(ClientId client, std
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::IgnoreClientId(ClientId client, ClientId ignoredClient, std::wstring_view flags)
+concurrencpp::result<void> UserCommandProcessor::IgnoreClientId(const ClientId client, const ClientId ignoredClient, const std::wstring_view flags)
 {
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /ignoreid <id> [<flags>]\n"
@@ -439,7 +439,7 @@ concurrencpp::result<void> UserCommandProcessor::IgnoreClientId(ClientId client,
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::GetIgnoreList(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::GetIgnoreList(const ClientId client)
 {
     (void)client.Message(L"Id | Character Name | flags");
     int i = 1;
@@ -454,7 +454,7 @@ concurrencpp::result<void> UserCommandProcessor::GetIgnoreList(ClientId client)
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::RemoveFromIgnored(ClientId client, std::vector<std::wstring_view> charactersToRemove)
+concurrencpp::result<void> UserCommandProcessor::RemoveFromIgnored(const ClientId client, const std::vector<std::wstring_view> charactersToRemove)
 {
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /delignore <id> [<id2> <id3> ...]\n"
@@ -509,7 +509,7 @@ concurrencpp::result<void> UserCommandProcessor::RemoveFromIgnored(ClientId clie
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::GetClientIds(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::GetClientIds(const ClientId client)
 {
     for (auto& next : FLHook::Clients())
     {
@@ -527,9 +527,15 @@ concurrencpp::result<void> UserCommandProcessor::GetSelfClientId(ClientId client
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::Rename(ClientId client, std::wstring_view newName)
+concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, const std::wstring_view newName)
 {
     const auto& [renameCost, cooldown] = FLHook::GetConfig()->rename;
+
+    if (newName.empty() || newName == client.GetCharacterName().Unwrap())
+    {
+        client.ToastMessage(L"Bad Name", L"A new name, that is not your current one, must be provided.", ToastType::Error);
+        co_return;
+    }
 
     if (newName.find(L' ') != std::wstring_view::npos)
     {
@@ -601,17 +607,17 @@ concurrencpp::result<void> UserCommandProcessor::Rename(ClientId client, std::ws
     co_await FLHook::GetTaskScheduler()->Delay(5s);
     client.Kick();
     co_await FLHook::GetTaskScheduler()->Delay(0.5s);
-    co_await AccountManager::Rename(currName, std::wstring(newName));
+    co_await AccountManager::Rename(currName, newNameStr);
 }
 
-concurrencpp::result<void> UserCommandProcessor::InvitePlayer(ClientId client, ClientId otherClient)
+concurrencpp::result<void> UserCommandProcessor::InvitePlayer(const ClientId client, const ClientId otherClient)
 {
     client.InvitePlayer(otherClient);
 
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::LeaveGroup(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::LeaveGroup(const ClientId client)
 {
     auto group = client.GetGroup();
     if (group.HasError())
@@ -625,7 +631,7 @@ concurrencpp::result<void> UserCommandProcessor::LeaveGroup(ClientId client)
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::FactionInvite(ClientId client, std::wstring_view factionTag)
+concurrencpp::result<void> UserCommandProcessor::FactionInvite(const ClientId client, const std::wstring_view factionTag)
 {
 
     bool msgSent = false;
@@ -661,7 +667,7 @@ concurrencpp::result<void> UserCommandProcessor::FactionInvite(ClientId client, 
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::TransferCharacter(ClientId client, const std::wstring_view cmd, const std::wstring_view param1,
+concurrencpp::result<void> UserCommandProcessor::TransferCharacter(const ClientId client, const std::wstring_view cmd, const std::wstring_view param1,
                                                                    const std::wstring_view param2)
 {
     const auto db = FLHook::GetDbClient();
@@ -798,7 +804,7 @@ concurrencpp::result<void>UserCommandProcessor::ListMail(int pageNumber, std::ws
 }*/
 
 // TODO: Implement GiveCash Target and by ID
-concurrencpp::result<void> UserCommandProcessor::GiveCash(ClientId client, std::wstring_view characterName, std::wstring_view amount)
+concurrencpp::result<void> UserCommandProcessor::GiveCash(const ClientId client, const std::wstring_view characterName, const std::wstring_view amount)
 {
     // TODO: resolve sending money to offline people
     const auto cash = StringUtils::MultiplyUIntBySuffix(amount);
@@ -834,14 +840,14 @@ concurrencpp::result<void> UserCommandProcessor::GiveCash(ClientId client, std::
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-concurrencpp::result<void> UserCommandProcessor::Time(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::Time(const ClientId client)
 {
     (void)client.Message(std::format(L"{:%Y-%m-%d %X}", std::chrono::system_clock::now()));
 
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::Help(ClientId client, int page)
+concurrencpp::result<void> UserCommandProcessor::Help(const ClientId client, int page)
 {
     constexpr int itemsPerPage = 20;
     const auto& pm = PluginManager::i();
@@ -917,7 +923,7 @@ concurrencpp::result<void> UserCommandProcessor::Help(ClientId client, int page)
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::DropRep(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::DropRep(const ClientId client)
 {
     const auto& config = FLHook::GetConfig()->reputation;
 
@@ -943,7 +949,7 @@ concurrencpp::result<void> UserCommandProcessor::DropRep(ClientId client)
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::Value(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::Value(const ClientId client)
 {
     (void)client.Message(std::format(L"Your worth is ${} credits", client.GetValue()));
 
@@ -975,7 +981,7 @@ concurrencpp::result<void> UserCommandProcessor::Coin(ClientId client)
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::MarkTarget(ClientId client)
+concurrencpp::result<void> UserCommandProcessor::MarkTarget(const ClientId client)
 {
     const auto ship = client.GetShip().Handle();
     const auto group = client.GetGroup().Handle();
