@@ -21,7 +21,7 @@ The docs can be found [here](https://flhook.the-starport.com) or can be built lo
 **N.B. FLHOOK ONLY WORKS WITH THE 1.1 PATCH INSTALLED. USING IT WITH 1.0 WILL CRASH FLSERVER!**
 
 In order to use FLHook, a few dependencies are required:
-- [MongoDB Communty Server](https://www.mongodb.com/try/download/community)
+- [MongoDB Community Server](https://www.mongodb.com/try/download/community)
 - [Visual Studio Redistributables (x86)](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
 
 You can grab the latest FLHook release from [here](https://github.com/TheStarport/FLHook/releases/latest). 
@@ -86,13 +86,26 @@ python -m venv .venv
 
 ### Building the project and plugins
 
-The first build requires the following commands, but after that an IDE of choice can be used. This command will use our
-package manager Conan2 to download and build all needed dependencies and setup the cmake project for usage. Most IDEs
-can then load the folder and run the generated CMake configuration.
+Your first build from a fresh clone will require the below commands:
+```
+pip install -r requirements.txt
+python cli.py configure
+```
+If, whilst running the `pip install` command, you receive warnings about the Scripts directory (which pip will have
+written conan to) not being on your path, open the Start Menu and run `Edit environment variables for your account`,
+then proceed to the configure step.
+If, whilst running the `python cli.py configure` command, you receive `[ERROR:vcvars.bat] Toolset directory for version
+'14.4' was not found.`, you may need to update your copy of Visual Studio 2022.
+
+After that first build, an IDE of choice can be used. This command will use our package manager Conan2 to download and
+build all needed dependencies and setup the cmake project for usage. Most IDEs can then load the folder and run the
+generated CMake configuration.
 - JetBrains CLion can handle this all natively once the folder is open
 - VSCode requires two plugins, CMake and cmake-tools in order to use cmake probably.
-- Visual Studio supports it out of the box, when opening a project pick the option that is "Open CMake Project", and 
-select the FLHook directory you cloned.
+- Visual Studio supports it out of the box, via "File" -> "Open" -> "CMake...", and select the CMakeLists.txt file in
+  the FLHook directory you cloned.
+
+Alternatively, `python cli.py build` may be used.
 
 ### Building Docs
 
