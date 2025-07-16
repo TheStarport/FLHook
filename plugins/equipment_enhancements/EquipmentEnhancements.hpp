@@ -211,7 +211,7 @@ namespace Plugins
             bool usedBatts;
 
             bool armorEnabled;
-            WeaponData* currMunitionData;
+            WeaponData* currMunitionData = nullptr;
             Id currMunitionArch;
             int shipArmorRating;
             Id shipArmorArch;

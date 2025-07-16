@@ -11,6 +11,11 @@ std::wstring SetSizeToSmall(const std::wstring& dataFormat) { return dataFormat.
 // DmgList will be garbage if isKill is not true
 void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, DestroyType destroyType, Id killerId)
 {
+    if ((uint)dmgList == 1) // called from pub::SpaceObj::Destroy, no DamageList present
+    {
+        dmgList = nullptr;
+    }
+
     if (destroyType == DestroyType::Fuse)
     {
         auto killer = killerId.AsShip();
@@ -32,14 +37,14 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, Destro
 
     FLHook::GetResourceManager()->OnShipDestroyed(ship); // Remove if spawned ship
 
-    using IShipDestroyType = void(__thiscall*)(Ship*, DestroyType, uint);
+    using IShipDestroyType = void(__thiscall*)(Ship*, DestroyType, Id);
 
     // Only proceed if a player was killed
     ClientId victimClientId;
     if (destroyType == DestroyType::Vanish || !(victimClientId = ClientId(ship->cship()->GetOwnerPlayer())).IsValidClientId())
     {
         static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(
-            ship, destroyType, killerId.GetValue());
+            ship, destroyType, killerId);
         return;
     }
 
@@ -59,6 +64,14 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, Destro
 
     std::wstring_view victimName = victimClientId.GetCharacterName().Handle();
     // If killed by another player
+    if (!dmgList)
+    {
+        deathMessage = std::format(L"Death: {} has died.", victimName);
+        SendDeathMessage(deathMessage, SystemId(victimData.playerData->systemId), victimClientId, killerClientId);
+        static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(ship, destroyType, killerId);
+        return;
+    }
+
     if (auto cause = dmgList->damageCause; killerClientId)
     {
         std::wstring killType;
@@ -125,15 +138,15 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, Destro
     victimData.ship = {};
     victimData.shipId = {};
 
-    static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(ship, destroyType, killerId.GetValue());
+    static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(ship, destroyType, killerId);
 }
 
 void __fastcall IEngineHook::LootDestroy(Loot* loot, void* edx, DestroyType destroyType, Id killerId)
 {
     CallPlugins(&Plugin::OnLootDestroy, loot, destroyType, killerId.AsShip());
 
-    using ILootDestroyType = void(__thiscall*)(Loot*, DestroyType, uint);
-    static_cast<ILootDestroyType>(iLootVTable.GetOriginal(static_cast<ushort>(ILootInspectVTable::ObjectDestroyed)))(loot, destroyType, killerId.GetValue());
+    using ILootDestroyType = void(__thiscall*)(Loot*, DestroyType, Id);
+    static_cast<ILootDestroyType>(iLootVTable.GetOriginal(static_cast<ushort>(ILootInspectVTable::ObjectDestroyed)))(loot, destroyType, killerId);
 }
 
 void __fastcall IEngineHook::SolarDestroy(Solar* solar, void* edx, DestroyType destroyType, Id killerId)
@@ -142,25 +155,25 @@ void __fastcall IEngineHook::SolarDestroy(Solar* solar, void* edx, DestroyType d
 
     FLHook::GetResourceManager()->OnSolarDestroyed(solar);
 
-    using ISolarDestroyType = void(__thiscall*)(Solar*, DestroyType, uint);
-    static_cast<ISolarDestroyType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::ObjectDestroyed)))(solar, destroyType, killerId.GetValue());
+    using ISolarDestroyType = void(__thiscall*)(Solar*, DestroyType, Id);
+    static_cast<ISolarDestroyType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::ObjectDestroyed)))(solar, destroyType, killerId);
 }
 
 void __fastcall IEngineHook::MineDestroy(Mine* mine, void* edx, DestroyType destroyType, Id killerId)
 {
     CallPlugins(&Plugin::OnMineDestroy, mine, destroyType, killerId.AsShip());
 
-    using IMineDestroyType = void(__thiscall*)(Mine*, DestroyType, uint);
-    static_cast<IMineDestroyType>(iMineVTable.GetOriginal(static_cast<ushort>(IMineInspectVTable::ObjectDestroyed)))(mine, destroyType, killerId.GetValue());
+    using IMineDestroyType = void(__thiscall*)(Mine*, DestroyType, Id);
+    static_cast<IMineDestroyType>(iMineVTable.GetOriginal(static_cast<ushort>(IMineInspectVTable::ObjectDestroyed)))(mine, destroyType, killerId);
 }
 
 void __fastcall IEngineHook::GuidedDestroy(Guided* guided, void* edx, DestroyType destroyType, Id killerId)
 {
     CallPlugins(&Plugin::OnGuidedDestroy, guided, destroyType, killerId.AsShip());
 
-    using IGuidedDestroyType = void(__thiscall*)(Guided*, DestroyType, uint);
+    using IGuidedDestroyType = void(__thiscall*)(Guided*, DestroyType, Id);
     static_cast<IGuidedDestroyType>(iGuidedVTable.GetOriginal(static_cast<ushort>(IGuidedInspectVTable::ObjectDestroyed)))(
-        guided, destroyType, killerId.GetValue());
+        guided, destroyType, killerId);
 }
 
 void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, ClientId clientVictim, ClientId clientKiller)
