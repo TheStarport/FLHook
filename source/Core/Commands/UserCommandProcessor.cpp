@@ -31,7 +31,7 @@ std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(c
     {
         if (trimmedCmdStr.starts_with(disabledCommand))
         {
-            triggeringClient.Message(L"This command is currently disabled.");
+            triggeringClient.ToastMessage(L"Command Disabled", L"This command is currently disabled.", ToastType::Warning);
             return std::nullopt;
         }
     }
@@ -931,7 +931,7 @@ concurrencpp::result<void> UserCommandProcessor::DropRep(const ClientId client)
     {
         if (const uint cash = client.GetCash().Handle(); cash < config.creditCost)
         {
-            (void)client.Message(std::format(L"Not enough money, {} credits required", config.creditCost));
+            (void)client.ToastMessage(L"Cannot Afford", std::format(L"Not enough money, {} credits required", config.creditCost), ToastType::Error);
             co_return;
         }
         (void)client.RemoveCash(config.creditCost);
@@ -940,7 +940,7 @@ concurrencpp::result<void> UserCommandProcessor::DropRep(const ClientId client)
     const auto playerAffliation = playerRep.GetAffiliation().Handle();
     if (playerAffliation.GetValue() == -1)
     {
-        (void)client.Message(L"No affiliation, can't drop one");
+        (void)client.ToastMessage(L"Cannot drop!", L"No affiliation, can't drop one");
         co_return;
     }
 
@@ -951,7 +951,7 @@ concurrencpp::result<void> UserCommandProcessor::DropRep(const ClientId client)
 
 concurrencpp::result<void> UserCommandProcessor::Value(const ClientId client)
 {
-    (void)client.Message(std::format(L"Your worth is ${} credits", client.GetValue()));
+    (void)client.ToastMessage(L"Total Ship Value", std::format(L"Your worth is ${} credits", client.GetValue()));
 
     co_return;
 }
@@ -959,7 +959,7 @@ concurrencpp::result<void> UserCommandProcessor::Value(const ClientId client)
 concurrencpp::result<void> UserCommandProcessor::Dice(const ClientId client, uint sidesOfDice)
 {
     // TODO: Support for more than 1 dice, e.g. 6d10
- if (!sidesOfDice)
+    if (!sidesOfDice)
     {
         sidesOfDice = 6;
     }
