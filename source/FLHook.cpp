@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 
 #include "Core/FLHook.hpp"
+#include "Core/IEngineHook.hpp"
 
 #include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
@@ -402,4 +403,71 @@ void FLHook::ProcessPendingCommands()
 
         cmd = Logger::GetCommand();
     }
+}
+
+void FLHook::LoadZoneDamageData(const char* path)
+{
+    std::string pathStr = "..\\data\\universe\\" + std::string(path);
+
+    INI_Reader ini;
+    if (!ini.open(pathStr.c_str(), false))
+    {
+        return;
+    }
+
+    while (ini.read_header())
+    {
+        if (!ini.is_header("zone"))
+        {
+            continue;
+        }
+
+        Id nickname;
+        IEngineHook::ZoneSpecialData data;
+
+        while (ini.read_value())
+        {
+            if (ini.is_value("nickname"))
+            {
+                nickname = Id(ini.get_value_string());
+            }
+            else if (ini.is_value("damage"))
+            {
+                data.flatDamage = ini.get_value_float(0);
+                data.percentageDamage = ini.get_value_float(1) * 0.01f;
+                data.distanceScaling = ini.get_value_float(2);
+                data.logScale = ini.get_value_float(3);
+                data.dmgType = IEngineHook::ZoneDamageType::ZONEDMG_HULL;
+                std::string propertiesStr = ini.get_value_string(4);
+                if (propertiesStr.find("shield") != std::string::npos)
+                {
+                    data.dmgType |= IEngineHook::ZoneDamageType::ZONEDMG_SHIELD;
+                }
+                if (propertiesStr.find("cruise") != std::string::npos)
+                {
+                    data.dmgType |= IEngineHook::ZoneDamageType::ZONEDMG_CRUISE;
+                }
+                if (propertiesStr.find("energy") != std::string::npos)
+                {
+                    data.dmgType |= IEngineHook::ZoneDamageType::ZONEDMG_ENERGY;
+                }
+                if (propertiesStr.find("nohull") != std::string::npos)
+                {
+                    data.dmgType -= IEngineHook::ZoneDamageType::ZONEDMG_HULL;
+                }
+                if (data.logScale == 0)
+                {
+                    data.logScale = 1;
+                }
+
+                data.shieldMult = ini.get_value_float(5);
+                data.energyMult = ini.get_value_float(6);
+
+                IEngineHook::zoneSpecialData[nickname] = data;
+                break;
+            }
+        }
+    }
+
+    ini.close();
 }

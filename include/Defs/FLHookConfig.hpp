@@ -121,9 +121,6 @@ struct DLL FLHookConfig final
 
         struct GameFixes final
         {
-                //! If true, enables RayHit based explosion logic. Also prevents ships with rooted collision groups from taking extra damage from explosions.
-                bool enableExplosionFix = false;
-
                 //! Disable the cruise disrupting effects.
                 bool cruiseDisruptorRestartEngines = true;
 
@@ -135,6 +132,9 @@ struct DLL FLHookConfig final
 
                 //! The higher this value is the more aggressive the spin protection is
                 float spinImpulseMultiplier = -1.0f;
+
+                //! Change the radiation damage calculation to stop dilluting it among all sub-parts
+                bool enableAlternateRadiationDamage;
         };
 
         struct Logging final

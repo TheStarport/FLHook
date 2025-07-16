@@ -209,7 +209,26 @@ void FLHook::InitHookExports()
     ptr = &IEngineHook::CELauncherFireAfter;
     IEngineHook::ceLauncherVTable.Hook(VTablePtr(CELauncherVTable::Fire), &ptr);
 
+    if (GetConfig()->gameFixes.enableAlternateRadiationDamage)
+    {
+        // Radiation patch, stop the division math
+        BYTE patch[] = { 0x75, 0x2C, 0xE9, 0x3B, 0x01, 0x00, 0x00 };
+        MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::RadiationPatch1), patch, sizeof(patch));
+        BYTE patch23[] = { 0xBC };
+        MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::RadiationPatch2), patch23, sizeof(patch23));
+        MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::RadiationPatch3), patch23, sizeof(patch23));
 
+        BYTE patch4[] = { 0xEB, 0x15 };
+        MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::RadiationPatch4), patch4, sizeof(patch4));
+
+        BYTE patch5[] = { 0x8B, 0x07, 0xEB, 0x21 };
+        MemUtils::WriteProcMem(Offset(BinaryType::Server, AddressList::RadiationPatch5), patch5, sizeof(patch5));
+
+        // Override damage applying logic with our own
+        MemUtils::PatchCallAddr(Offset(BinaryType::Server, AddressList::Absolute), (DWORD)AddressList::RadiationPatch5, &IEngineHook::ShipRadiationDamage);
+
+        *((float*)Offset(BinaryType::Server, AddressList::RadiationPatch7)) = 0.2f;
+    }
 
     // Server.dll
 

@@ -61,6 +61,13 @@ enum class AddressList : uint
     SkipCSolarPacketSend = 0x2A62A,
     SkipCSolarPacket1 = 0x163F0,
     SkipCSolarPacket2 = 0x27950,
+    RadiationPatch1 = 0x2118A,
+    RadiationPatch2 = 0x211BE,
+    RadiationPatch3 = 0x211C4,
+    RadiationPatch4 = 0x211C8,
+    RadiationPatch5 = 0x211F0,
+    RadiationPatch6 = 0x21258,
+    RadiationPatch7 = 0x87088,
 
     // Common.dll Offsets
 
@@ -82,4 +89,6 @@ enum class AddressList : uint
     CommonVfTableEngine = 0x139AAC,
     CommonCObjDestructor = 0x4F45D,
     CommonCObjectAllocator = 0x4EE50,
+
+    CommonIZoneGetDistance = 0xD9B00,
 };

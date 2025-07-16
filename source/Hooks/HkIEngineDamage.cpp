@@ -137,6 +137,142 @@ void __fastcall IEngineHook::ShipDropAllCargo(Ship* ship, void* edx, const char*
     static_cast<IShipColGrpDmgType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::DropAllCargo)))(ship, hardPoint, dmgList);
 }
 
+void __fastcall IEngineHook::ShipRadiationDamage(Ship* ship, void* edx, float deltaTime, DamageList* dmgList)
+{
+    if (ship->cship()->hitPoints <= 0.0f || !ship->cship()->currentDamageZone)
+    {
+        return;
+    }
+
+    auto zoneDataIter = zoneSpecialData.find(ship->cship()->currentDamageZone->zoneId);
+    if (zoneDataIter == zoneSpecialData.end())
+    {
+        return;
+    }
+    const ZoneSpecialData& zd = zoneDataIter->second;
+    uint zoneType = zd.dmgType;
+
+    CShip* cship = ship->cship();
+
+    if (zoneType & ZONEDMG_CRUISE)
+    {
+        dmgList->damageCause = DamageCause::CruiseDisrupter;
+        dmgList->add_damage_entry(1, cship->hitPoints, DamageEntry::SubObjFate(0));
+        zoneType -= ZONEDMG_CRUISE;
+        if (!zoneType)
+        {
+            return;
+        }
+    }
+
+    float damage = zd.flatDamage;
+
+    if (damage <= 0.0f)
+    {
+        return;
+    }
+
+    float dmgMultiplier = 1.0f;
+
+    using IZoneGetDistanceFunc = float(__thiscall*)(Universe::IZone*, Vector& pos);
+    IZoneGetDistanceFunc GetZoneDistance = (IZoneGetDistanceFunc)FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonIZoneGetDistance);
+
+
+    if (zd.distanceScaling != 0.0f)
+    {
+        float edgeDistance = -GetZoneDistance(cship->currentDamageZone, cship->position);
+        if (edgeDistance < 0.0f)
+        {
+            return;
+        }
+        if (zd.distanceScaling > 0.0f)
+        {
+            if (edgeDistance <= zd.distanceScaling)
+            {
+                dmgMultiplier = powf(edgeDistance / zd.distanceScaling, zd.logScale);
+            }
+        }
+        else
+        {
+            if (edgeDistance <= -zd.distanceScaling)
+            {
+                dmgMultiplier = powf(1.0f - (edgeDistance / -zd.distanceScaling), zd.logScale);
+            }
+            else
+            {
+                return;
+            }
+        }
+    }
+
+    dmgMultiplier *= ship->pendingEnvironmentalDamage; // assembly hacked to instead store time spent in the zone.
+
+    if (zoneType & ZONEDMG_SHIELD)
+    {
+        CEShield* shield = reinterpret_cast<CEShield*>(cship->equipManager.FindFirst((uint)EquipmentClass::Shield));
+        if (shield)
+        {
+            float shielddamage = (damage + zd.percentageDamage * shield->maxShieldHitPoints) * dmgMultiplier * zd.shieldMult;
+            ship->damage_shield_direct(shield, shielddamage, dmgList);
+            zoneType -= ZONEDMG_SHIELD;
+            if (!zoneType)
+            {
+                return;
+            }
+        }
+    }
+
+    if (zoneType & ZONEDMG_ENERGY)
+    {
+        float energydamage = (damage + zd.percentageDamage * cship->maxPower) * dmgMultiplier * zd.energyMult;
+        ship->damage_energy(energydamage, dmgList);
+        zoneType -= ZONEDMG_ENERGY;
+        if (!zoneType)
+        {
+            return;
+        }
+    }
+
+    CArchGroupManager& carchMan = cship->archGroupManager;
+    CArchGrpTraverser tr2;
+
+    CArchGroup* carch = nullptr;
+    uint colGrpCount = 1;
+    while (carch = carchMan.Traverse(tr2))
+    {
+        if (carch->colGrp->hitPts < 100.f)
+        {
+            continue;
+        }
+        colGrpCount++;
+    }
+    tr2.Restart();
+
+    damage /= colGrpCount;
+
+    while (carch = carchMan.Traverse(tr2))
+    {
+        if (carch->colGrp->hitPts < 100)
+        {
+            continue;
+        }
+        float colGrpDamage = std::min(carch->hitPts, ((damage + (carch->colGrp->hitPts * zd.percentageDamage)) * dmgMultiplier) / colGrpCount);
+        if (colGrpDamage <= 0.0f)
+        {
+            continue;
+        }
+
+        ship->damage_col_grp(carch, colGrpDamage, dmgList);
+    }
+
+    float hulldamage = std::min(cship->hitPoints, dmgMultiplier * (damage + (zd.percentageDamage * ship->cobj->archetype->hitPoints)));
+
+    if (hulldamage > 0.0f)
+    {
+        ship->damage_hull(hulldamage, dmgList);
+    }
+}
+
 bool IEngineHook::AllowPlayerDamage(ClientId client, ClientId clientTarget)
 {
     auto [rval, skip] = CallPlugins<bool>(&Plugin::OnAllowPlayerDamage, client, clientTarget);

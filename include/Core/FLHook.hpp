@@ -68,6 +68,8 @@ class DLL FLHook final
         static void ProcessPendingCommands();
         static void ProcessPendingAsyncTasks();
 
+        static void LoadZoneDamageData(const char* path);
+
         // Timers
         static void TimerCheckKick();
         static void OneSecondTimer();

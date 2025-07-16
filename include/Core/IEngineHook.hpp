@@ -10,6 +10,28 @@ class IEngineHook
         using SendCommType = int (*)(uint sender, uint receiver, uint voiceId, const Costume* costume, uint infocardId, uint* lines, int lineCount,
                                      uint infocardId2, float radioSilenceTimerAfter, bool global);
 
+        enum ZoneDamageType
+        {
+            ZONEDMG_HULL = 1 << 0,
+            ZONEDMG_SHIELD = 1 << 1,
+            ZONEDMG_ENERGY = 1 << 2,
+            ZONEDMG_CRUISE = 1 << 3,
+        };
+
+        struct ZoneSpecialData
+        {
+                uint dmgType = ZONEDMG_HULL;
+                float percentageDamage;
+                float flatDamage;
+
+                float distanceScaling;
+                float logScale;
+                float shieldMult;
+                float energyMult;
+        };
+
+        inline static std::unordered_map<Id, ZoneSpecialData> zoneSpecialData;
+
         struct LoadRepData
         {
                 uint repId;
@@ -100,6 +122,8 @@ class IEngineHook
                                                  bool killLinkedElements);
 
         static void __fastcall ShipDropAllCargo(Ship* ship, void* edx, const char* hardPoint, DamageList* dmgList);
+
+        static void __fastcall ShipRadiationDamage(Ship* ship, void* edx, float deltaTime, DamageList* dmgList);
 
         static void __fastcall GuidedExplosionHit(Guided* guided, void* edx, ExplosionDamageEvent* explosion, DamageList* dmgList);
         static void __fastcall SolarExplosionHit(Solar* guided, void* edx, ExplosionDamageEvent* explosion, DamageList* dmgList);
