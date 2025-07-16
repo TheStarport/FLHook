@@ -136,7 +136,7 @@ class ClientList
             }
         }
 
-        inline static uint largestClientId = 0;
+        inline static uint largestClientId = 1;
         inline static uint smallestClientId = 1;
 
     public:

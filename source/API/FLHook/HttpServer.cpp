@@ -28,14 +28,18 @@ void HttpServer::RegisterRoutes()
                     std::scoped_lock lock(*this);
                     return GetOnlinePlayers(req, res);
                 });
-	server->Get("/ping", [&](const httplib::Request& req, httplib::Response& res)
-	{ std::scoped_lock lock(*this);
-	  return Ping();});
+
+    server->Get("/ping",
+                [&](const httplib::Request& req, httplib::Response& res)
+                {
+                    std::scoped_lock lock(*this);
+                    return Ping();
+                });
 
     CallPlugins(&Plugin::OnHttpServerRegister, server);
 
     // Start the server
-    INFO(L"Running http server {0}", {L"port", std::to_wstring(FLHook::GetConfig()->httpSettings.port)});
+    INFO(L"Running http server {0}", { L"port", std::to_wstring(FLHook::GetConfig()->httpSettings.port) });
     serverThread = std::jthread{ std::bind_front(&HttpServer::StartServer, this) };
     server->wait_until_ready();
     DEBUG(L"Http server started");
@@ -88,9 +92,7 @@ httplib::StatusCode HttpServer::GetOnlinePlayers(const httplib::Request& req, ht
     return httplib::StatusCode::OK_200;
 }
 
-httplib::StatusCode HttpServer::Ping(){
-  return httplib::StatusCode::OK_200;
-}
+httplib::StatusCode HttpServer::Ping() { return httplib::StatusCode::OK_200; }
 
 void HttpServer::lock() { mutex.lock(); }
 void HttpServer::unlock() { mutex.unlock(); }
