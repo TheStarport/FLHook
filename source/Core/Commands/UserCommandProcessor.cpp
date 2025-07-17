@@ -686,6 +686,11 @@ concurrencpp::result<void> UserCommandProcessor::TransferCharacter(const ClientI
     else if (cmd == L"setcode")
     {
         const std::wstring charName = client.GetCharacterName().Handle().data();
+        if (param1.size() == 0)
+        {
+            (void)client.Message(L"Usage: /transferchar setcode <code>");
+            co_return;
+        }
         const std::wstring newCharCode = param1.data();
         if (co_await AccountManager::SetCharacterTransferCode(charName, newCharCode))
         {
@@ -698,13 +703,20 @@ concurrencpp::result<void> UserCommandProcessor::TransferCharacter(const ClientI
     }
     else if (cmd == L"transfer")
     {
-        if (client.GetData().account->characters.size() >= 5)
+        if (client.GetData().account->characters.size() >= 5) // TODO: This number is WRONG
         {
             (void)client.Message(L"This account cannot hold more characters");
             co_return;
         }
 
+        if (param1.size() == 0 || param2.size() == 0)
+        {
+            (void)client.Message(L"Usage: /transferchar transfer <char> <code>");
+            co_return;
+        }
+
         const AccountId accountId = client.GetAccount().Handle();
+
         const std::wstring charName = param1.data();
         const std::wstring charCode = param2.data();
 
@@ -716,6 +728,10 @@ concurrencpp::result<void> UserCommandProcessor::TransferCharacter(const ClientI
         {
             (void)client.Kick(L"Transferring the character, you will be kicked.", 3);
         }
+    }
+    else
+    {
+        client.Message(L"Usage: /transferchar [setcode <code>|transfer <char> <code>|clearcode]");
     }
 
     co_return;

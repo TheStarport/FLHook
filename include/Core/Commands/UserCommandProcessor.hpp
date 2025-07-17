@@ -78,7 +78,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
                 AddCommand(UserCommandProcessor, Cmds( L"/coin"sv ), Coin, L"/coin", L"Tosses a coin, heads or tails."),
                 AddCommand(UserCommandProcessor, Cmds( L"/dice"sv ), Dice, L"/dice [numOfSides]", L"Rolls the dice with specified amount of sides, 6 if unspecified"),
                 AddCommand(UserCommandProcessor, Cmds( L"/droprep"sv ), DropRep, L"/droprep", L"Removes your affiliation if you have one"),
-                AddCommand(UserCommandProcessor, Cmds( L"/transferchar"sv ), TransferCharacter, L"/transferchar", L"Set the character move code, or use the previously set code to transfer said character into current account"),
+                AddCommand(UserCommandProcessor, Cmds( L"/transferchar"sv ), TransferCharacter, L"/transferchar [setcode <code>|transfer <char> <code>|clearcode]", L"Set the character move code, or use the previously set code to transfer said character into current account"),
                 AddCommand(UserCommandProcessor, Cmds( L"/help"sv, L"/h"sv, L"/?"sv), Help, L"/help [page]", L"Provides indepth help information")
             }
         };
