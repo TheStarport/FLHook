@@ -114,7 +114,7 @@ class ClientList
         {
             if (largestClientId == clientId)
             {
-                for (uint i = largestClientId - 1; i != smallestClientId; i--)
+                for (uint i = largestClientId - 1; i >= smallestClientId; i--)
                 {
                     if (clients[i].isValid == true)
                     {
@@ -125,7 +125,7 @@ class ClientList
             }
             if (smallestClientId == clientId)
             {
-                for (uint i = smallestClientId + 1; i != smallestClientId; i++)
+                for (uint i = smallestClientId + 1; i <= largestClientId; i++)
                 {
                     if (clients[i].isValid == true)
                     {
