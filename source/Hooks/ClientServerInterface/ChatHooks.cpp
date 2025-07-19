@@ -91,16 +91,16 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
             std::wstring clientIdStr = std::to_wstring(from.id);
             auto* processor = UserCommandProcessor::i();
             ClientId client{ from.id };
+
+            if (FLHook::GetConfig()->chatConfig.echoCommands)
+            {
+                const std::wstring xml = std::format(
+                    LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig()->chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(cmdString));
+                InternalApi::SendMessage(ClientId(from.id), xml, ClientId());
+            }
+
             if (auto task = processor->ProcessCommand(client, clientIdStr, std::wstring_view(cmdString)); task.has_value())
             {
-                if (FLHook::GetConfig()->chatConfig.echoCommands)
-                {
-                    const std::wstring xml = std::format(LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)",
-                                                         FLHook::GetConfig()->chatConfig.msgStyle.msgEchoStyle,
-                                                         StringUtils::XmlText(cmdString));
-                    InternalApi::SendMessage(ClientId(from.id), xml, ClientId());
-                }
-
                 FLHook::GetTaskScheduler()->StoreTaskHandle(std::make_shared<Task>(std::move(*task), client));
 
                 return false;
@@ -124,6 +124,11 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
                     to.id = static_cast<uint>(SpecialChatIds::Local);
                 }
             }
+
+            if (config->chatConfig.suppressInvalidCommands && !foundCommand)
+            {
+                return false;
+            }
         }
         else if (strBuffer[0] == '.')
         {
@@ -143,22 +148,6 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
                 FLHook::GetTaskScheduler()->StoreTaskHandle(std::make_shared<Task>(std::move(*task), client));
             }
             return false;
-        }
-
-        // check if chat should be suppressed for in-built command prefixes
-        if (strBuffer[0] == L'/')
-        {
-            if (FLHook::GetConfig()->chatConfig.echoCommands)
-            {
-                const std::wstring xml = std::format(
-                    LR"(<TRA data="{}" mask="-1"/><TEXT>{}</TEXT>)", FLHook::GetConfig()->chatConfig.msgStyle.msgEchoStyle, StringUtils::XmlText(strBuffer));
-                InternalApi::SendMessage(ClientId(from.id), xml, ClientId());
-            }
-
-            if (config->chatConfig.suppressInvalidCommands && !foundCommand)
-            {
-                return false;
-            }
         }
 
         if (foundCommand)
