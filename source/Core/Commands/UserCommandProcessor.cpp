@@ -319,7 +319,7 @@ concurrencpp::result<void> UserCommandProcessor::MessageTag(const ClientId clien
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::SetSavedMsg(const ClientId client, const uint index, const std::wstring_view msg)
+concurrencpp::result<void> UserCommandProcessor::SetSavedMsg(const ClientId client, const uint index, const StrToEnd msg)
 {
     if (index > 9)
     {
@@ -327,7 +327,7 @@ concurrencpp::result<void> UserCommandProcessor::SetSavedMsg(const ClientId clie
         co_return;
     }
 
-    auto& info = client.GetData().presetMsgs.at(index) = msg;
+    auto& info = client.GetData().presetMsgs.at(index) = msg.end;
     client.Message(L"Ok");
 
     co_return;
