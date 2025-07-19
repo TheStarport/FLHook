@@ -721,16 +721,16 @@ concurrencpp::result<void> UserCommandProcessor::TransferCharacter(const ClientI
 
         const AccountId accountId = client.GetAccount().Handle();
 
-        const std::wstring charName = param1.data();
-        const std::wstring charCode = param2.data();
+        const std::wstring charName = std::wstring(param1);
+        const std::wstring charCode = std::wstring(param2);
 
-        if (const auto err = co_await AccountManager::TransferCharacter(accountId, charName, charCode); err.empty())
+        if (const auto err = co_await AccountManager::TransferCharacter(accountId, charName, charCode); !err.empty())
         {
             (void)client.Message(err);
         }
         else
         {
-            (void)client.Kick(L"Transferring the character, you will be kicked.", 3);
+            (void)client.Kick(L"Transferring the character.", 3);
         }
     }
     else
