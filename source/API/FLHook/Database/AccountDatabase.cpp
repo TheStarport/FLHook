@@ -487,6 +487,8 @@ concurrencpp::result<std::wstring> AccountManager::TransferCharacter(const Accou
         {
             session.abort_transaction();
             err = L"Character or transfer code was incorrect";
+            THREAD_MAIN;
+            co_return err;
         }
 
         const auto transferCharacterOid = transferredCharacterDoc->find("_id")->get_oid();
