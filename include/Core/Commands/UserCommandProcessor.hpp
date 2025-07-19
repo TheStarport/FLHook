@@ -38,7 +38,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         concurrencpp::result<void> Help(ClientId client, int page);
 
         // clang-format off
-        inline static const std::array<CommandInfo<UserCommandProcessor>, 28> commands = {
+        inline static const std::array<CommandInfo<UserCommandProcessor>, 29> commands = {
             {
                 AddCommand(UserCommandProcessor, Cmds( L"/id"sv ), GetSelfClientId, L"/id", L"Prints your client id"),
                 AddCommand(UserCommandProcessor, Cmds( L"/ids"sv ), GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
@@ -60,7 +60,8 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
                     L"Sends the provided message back to the sender of the last received private message"),
                 AddCommand(UserCommandProcessor, Cmds( L"/setmsg"sv ), SetSavedMsg, L"/setmsg <0-9> <msg>", L"Saves provided message under the defined slot"),
                 AddCommand(UserCommandProcessor, Cmds( L"/showmsgs"sv ), ShowSavedMsgs, L"/showmsgs", L"Lists all currently saved messages"),
-                AddCommand(UserCommandProcessor, Cmds( L"/ignore"sv ), IgnoreUser, L"/ignore <name>", L"blocks any message sent by player specified"),
+                AddCommand(UserCommandProcessor, Cmds( L"/ignore"sv ), IgnoreUser, L"/ignore <name> [<flags>]", L"blocks any message sent by player specified. Run without parameters for flag info"),
+                AddCommand(UserCommandProcessor, Cmds( L"/ignoreid"sv ), IgnoreClientId, L"/ignoreid <id> [<flags>]", L"blocks any message sent by player specified by client ID. Run without parameters for flag info"),
                 AddCommand(UserCommandProcessor, Cmds( L"/getignorelist"sv ), GetIgnoreList, L"/getignorelist", L"prints the users you currently have ignored"),
                 AddCommand(UserCommandProcessor, Cmds( L"/unignore"sv ), RemoveFromIgnored, L"/unignore <name ...>",
                     L"removes specified names from ignore list, typing /unignore all removes ignore list entierly."),
