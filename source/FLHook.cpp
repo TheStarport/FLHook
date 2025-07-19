@@ -268,7 +268,7 @@ Action<void> FLHook::MessageUniverse(std::wstring_view message)
     constexpr CHAT_ID ci = { 0 };
     constexpr CHAT_ID ciClient = { 0x00010000 };
 
-    const std::wstring xml = std::format(L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>", StringUtils::XmlText(message));
+    const std::wstring xml = std::format(L"<TRA font=\"1\" color=\"#FFFFFF\"/><TEXT>{}</TEXT>", StringUtils::XmlText(message));
 
     uint retVal;
     static std::array<char, 1024> buffer;
