@@ -113,7 +113,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         {
             for (const auto& command = std::get<N - 1>(commands); auto& str : command.cmd)
             {
-                if (cmd.starts_with(str))
+                if (cmd.starts_with(std::wstring(str) + L' ') || cmd == str)
                 {
                     if (const auto validation = Validate(user, command.allowedContext, command.requiredRole); validation.has_error())
                     {
