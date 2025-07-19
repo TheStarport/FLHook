@@ -125,7 +125,7 @@ concept IsAdminCommandProcessor = std::is_base_of_v<AbstractAdminCommandProcesso
         const AdminCommandInfo<class>& command = std::get<N - 1>(class ::commandArray);                                                                      \
         for (auto& str : command.cmd)                                                                                                                        \
         {                                                                                                                                                    \
-            if (cmd.starts_with(str))                                                                                                                        \
+            if (cmd.starts_with(std::wstring(str) + L' ') || cmd == str)                                                                                     \
             {                                                                                                                                                \
                 paramVector.erase(paramVector.begin(), paramVector.begin() + (std::clamp(std::ranges::count(str, L' '), 1, 5)));                             \
                 return command.func(processor, paramVector);                                                                                                 \

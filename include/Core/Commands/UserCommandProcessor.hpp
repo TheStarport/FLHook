@@ -92,7 +92,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
             const CommandInfo<UserCommandProcessor>& command = std::get<N - 1>(commands);
             for (const auto str : command.cmd)
             {
-                if (cmd.starts_with(str))
+                if (cmd.starts_with(std::wstring(str) + L' ') || cmd == str)
                 {
                     const auto countVal = std::ranges::count(str, L' ');
                     paramVector.erase(paramVector.begin() + 1, paramVector.begin() + std::clamp(countVal + 2, 2, 6));
