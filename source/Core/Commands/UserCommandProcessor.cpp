@@ -631,7 +631,7 @@ concurrencpp::result<void> UserCommandProcessor::LeaveGroup(const ClientId clien
     }
 
     group.Value().RemoveMember(client);
-    client.Message(std::format(L"Group {} left", group.Value().GetValue()));
+    client.Message(std::format(L"Group {} left", group.Unwrap().GetValue()));
     co_return;
 }
 
@@ -1030,7 +1030,7 @@ concurrencpp::result<void> UserCommandProcessor::MarkTarget(const ClientId clien
         co_return;
     }
 
-    uint targetShip = target.GetId().Unwrap();
+    uint targetShip = target.GetId().Unwrap().GetValue();
 
     auto charName = client.GetCharacterName().Handle();
     auto targetName = otherPlayer.GetCharacterName().Handle();

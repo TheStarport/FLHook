@@ -11,6 +11,14 @@
         return { cpp::fail(Error::InvalidObject) }; \
     }
 
+#define IsEqObj                                         \
+    auto obj = value.lock();                            \
+    auto eqObj = std::static_pointer_cast<CEqObj>(obj); \
+    if (!eqObj)                                         \
+    {                                                   \
+        return { cpp::fail(Error::InvalidObject) };     \
+    }
+
 ObjectId::ObjectId(const uint val) { value = FLHook::GetResourceManager()->Get<CSimple>(val); }
 
 bool ObjectId::operator==(const ObjectId& next) const
@@ -24,11 +32,11 @@ ObjectId::operator bool() const { return !value.expired(); }
 
 std::weak_ptr<CSimple> ObjectId::GetValue() const { return value; }
 
-Action<uint> ObjectId::GetId() const
+Action<Id> ObjectId::GetId() const
 {
     IsValidObj;
 
-    return { obj->id.GetValue() };
+    return { obj->id };
 }
 
 Action<std::wstring> ObjectId::GetNickName() const
@@ -124,4 +132,23 @@ Action<void> ObjectId::SetInvincible(bool preventDamage, bool allowPlayerDamage,
 
     pub::SpaceObj::SetInvincible(obj->get_id(), preventDamage, allowPlayerDamage, maxHpLossPercentage);
     return { {} };
+}
+
+Action<void> ObjectId::DrainShields()
+{
+    IsEqObj;
+
+    pub::SpaceObj::DrainShields(eqObj->id.GetValue());
+    return { {} };
+}
+
+Action<bool> ObjectId::IsShieldActive()
+{
+    IsEqObj;
+    auto cequip = eqObj->equipManager.FindFirst((uint)EquipmentType::ShieldGen);
+    if (cequip && cequip->isActive)
+    {
+        return { true };
+    }
+    return { false };
 }

@@ -348,7 +348,7 @@ namespace Plugins
         if ((response == DOCK_HOST_RESPONSE::ProceedDock || response == DOCK_HOST_RESPONSE::Dock) && dockPortIndex != -1)
         {
             uint solarArchetypeID;
-            pub::SpaceObj::GetSolarArchetypeID(spaceId.GetId().Unwrap(), solarArchetypeID);
+            pub::SpaceObj::GetSolarArchetypeID(spaceId.GetId().Unwrap().GetValue(), solarArchetypeID);
 
             auto unstableJumpObjInfo = unstableJumpObjMap.find(solarArchetypeID);
             if (unstableJumpObjInfo != unstableJumpObjMap.end() && EquipDescCommodityVolume(client) > unstableJumpObjInfo->second)

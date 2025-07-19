@@ -47,10 +47,10 @@ bool IServerImplHook::GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId clien
         }
 
         BaseId base = client.GetCurrentBase().Unwrap();
-        auto iter = clientState[client].clientSales.find(good.GetHash().Value().GetValue());
+        auto iter = clientState[client].clientSales.find(good.GetHash().Unwrap().GetValue());
         if (iter == clientState[client].clientSales.end())
         {
-            clientState[client].clientSales[good.GetHash().Value().GetValue()] = gsi.count;
+            clientState[client].clientSales[good.GetHash().Unwrap().GetValue()] = gsi.count;
         }
         else
         {

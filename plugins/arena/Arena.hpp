@@ -71,10 +71,12 @@ namespace Plugins
             concurrencpp::result<void> UserCmdReturn(ClientId client);
 
             // clang-format off
-            inline static const std::array<CommandInfo<ArenaPlugin>, 2> commands = {
+            inline static const std::array<CommandInfo<ArenaPlugin>, 2> commands =
             {
-                AddCommand(ArenaPlugin, Cmds(L"/arena", L"/conn"), UserCmdArena, L"/arena", L" Sends you to the designated arena system."),
-                AddCommand(ArenaPlugin, Cmds(L"/return"), UserCmdReturn, L"/return", L" Returns you from the arena system to where you last docked.")}
+                {
+                    AddCommand(ArenaPlugin, Cmds(L"/arena", L"/conn"), UserCmdArena, L"/arena", L" Sends you to the designated arena system."),
+                    AddCommand(ArenaPlugin, Cmds(L"/return"), UserCmdReturn, L"/return", L" Returns you from the arena system to where you last docked.")
+                }
             };
             SetupUserCommandHandler(ArenaPlugin, commands);
             // clang-format on

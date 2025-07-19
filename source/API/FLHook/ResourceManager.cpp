@@ -1001,7 +1001,7 @@ Id ResourceManager::CreateLootSimple(SystemId system, const Vector& pos, Id comm
 
     pub::SpaceObj::LootInfo lootInfo;
     lootInfo.systemId = system;
-    lootInfo.ownerId = owner.GetId().Unwrap();
+    lootInfo.ownerId = owner.GetId().Unwrap().GetValue();
     lootInfo.equipmentArchId = commodity;
     lootInfo.itemCount = amount;
     lootInfo.pos = pos;

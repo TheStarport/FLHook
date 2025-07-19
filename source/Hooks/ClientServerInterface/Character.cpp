@@ -110,6 +110,8 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
     const auto& data = AccountManager::accounts[client.GetValue()].characters.at(cid.charFilename);
     FLHook::GetClient(client).characterName = data.wideCharacterName;
 
+    CallPlugins(&Plugin::OnClearClientInfo, client);
+
     std::wstring charName = StringUtils::stows(static_cast<const char*>(cid.charFilename));
     const auto skip = CallPlugins(&Plugin::OnCharacterSelect, client);
 

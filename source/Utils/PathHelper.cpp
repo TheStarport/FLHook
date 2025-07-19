@@ -19,7 +19,7 @@ void PathHelper::CreateObjectWaypoint(ClientId client, const ObjectId& object)
     objectPath.repId = client.GetReputation().Handle().GetValue();
     objectPath.waypointCount = 1;
     objectPath.noPathFound = false;
-    objectPath.pathEntries[0].objId = object.GetId().Handle();
+    objectPath.pathEntries[0].objId = object.GetId().Handle().GetValue();
 
     pub::Player::ReturnBestPath(client.GetValue(), reinterpret_cast<uchar*>(&objectPath), sizeof(objectPath));
 }

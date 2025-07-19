@@ -77,8 +77,8 @@ class DLL ShipId final : public ObjectId
             return { equipment };
         }
 
-        Action<void> IgniteFuse(uint fuseId, float id = 0.0f) const;
-        Action<void> ExtinguishFuse(uint fuseId, float id = 0.0f) const;
+        Action<void> IgniteFuse(Id fuseId, float id = 0.0f) const;
+        Action<void> ExtinguishFuse(Id fuseId, float id = 0.0f) const;
         [[nodiscard]]
         Action<CEquipManager*> GetEquipmentManager() const;
 };
@@ -93,5 +93,5 @@ struct std::formatter<ShipId, wchar_t>
 template <>
 struct std::hash<ShipId>
 {
-        std::size_t operator()(const ShipId& id) const noexcept { return std::hash<uint>()(id.GetId().Unwrap()); }
+        std::size_t operator()(const ShipId& id) const noexcept { return std::hash<uint>()(id.GetId().Unwrap().GetValue()); }
 };

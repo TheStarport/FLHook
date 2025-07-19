@@ -179,7 +179,7 @@ namespace Plugins
 
         for (auto& [group, instance] : activeQuests)
         {
-            if (instance->timeUntilCleanup != UINT_MAX && group == currentGroup.Value().GetValue() &&
+            if (instance->timeUntilCleanup != UINT_MAX && group == currentGroup.Unwrap().GetValue() &&
                 instance->questStarter == client.GetCharacterName().Handle())
             {
                 instance->timeUntilCleanup = 1; // Clean up now!

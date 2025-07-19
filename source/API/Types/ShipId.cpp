@@ -243,7 +243,7 @@ Action<void> ShipId::Relocate(const Vector& pos, const std::optional<Matrix>& or
     return { {} };
 }
 
-Action<void> ShipId::IgniteFuse(uint fuseId, float id) const
+Action<void> ShipId::IgniteFuse(Id fuseId, float id) const
 {
     IsValidShip;
 
@@ -283,7 +283,7 @@ Action<void> ShipId::IgniteFuse(uint fuseId, float id) const
     return { {} };
 }
 
-Action<void> ShipId::ExtinguishFuse(uint fuseId, float id) const
+Action<void> ShipId::ExtinguishFuse(Id fuseId, float id) const
 {
     IsValidShip;
 

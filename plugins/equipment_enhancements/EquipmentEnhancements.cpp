@@ -352,7 +352,7 @@ namespace Plugins
 
             auto starSystemIter = starSystemMap->find(shieldFuse.first.GetSystemId().Unwrap().GetValue());
             ExplosionDamageEvent expl;
-            expl.attackerId = shieldFuse.first.GetShip().Unwrap().GetId().Unwrap();
+            expl.attackerId = shieldFuse.first.GetShip().Unwrap().GetId().Unwrap().GetValue();
             expl.projectileId = expl.attackerId;
             expl.dmgCause = DamageCause::Mine;
             expl.explosionPosition = ship->cobj->position;

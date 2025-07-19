@@ -330,7 +330,7 @@ namespace Plugins
     void MiningControllerPlugin::OnSpMunitionCollision(ClientId client, const SSPMunitionCollisionInfo& info)
     {
         // If this is not a lootable rock, do no other processing.
-        if (info.projectileArchId != config.miningMunition || info.targetObjId != 0)
+        if (info.projectileArchId != config.miningMunition || info.targetObjId)
         {
             return;
         }

@@ -55,8 +55,8 @@ void __stdcall IServerImplHook::StopTradelane(ClientId client, Id shipId, Id tra
     TRACE(L"{0} {1} {2} {3}",
           { L"client", std::to_wstring(client.GetValue()) },
           { L"shipId", std::to_wstring(shipId.GetValue()) },
-          { L"tradelaneRing1", std::to_wstring(tradeLane1.GetId().Unwrap()) },
-          { L"tradelaneRing2", std::to_wstring(tradeLane2.GetId().Unwrap()) });
+          { L"tradelaneRing1", std::to_wstring(tradeLane1.GetId().Unwrap().GetValue()) },
+          { L"tradelaneRing2", std::to_wstring(tradeLane2.GetId().Unwrap().GetValue()) });
 
 
     const auto skip = CallPlugins(&Plugin::OnTradelaneStop, client, ship, tradeLane1, tradeLane2);

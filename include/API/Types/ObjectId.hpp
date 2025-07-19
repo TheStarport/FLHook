@@ -23,7 +23,7 @@ class DLL ObjectId
         std::weak_ptr<CSimple> GetValue() const;
 
         [[nodiscard]]
-        Action<uint> GetId() const;
+        Action<Id> GetId() const;
 
         [[nodiscard]]
         Action<std::wstring> GetNickName() const;
@@ -58,6 +58,10 @@ class DLL ObjectId
          * @param maxHpLossPercentage A value between 0 and 1. Will stop health from falling below the specified value
          */
         Action<void> SetInvincible(bool preventDamage, bool allowPlayerDamage, float maxHpLossPercentage = 0.0f) const;
+
+        Action<void> DrainShields();
+
+        Action<bool> IsShieldActive();
 };
 
 template <>
