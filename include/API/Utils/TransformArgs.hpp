@@ -18,11 +18,15 @@ template <typename T>
     requires std::is_arithmetic_v<T>
 T TransformArg(std::wstring_view s, size_t paramNumber)
 {
-    if (std::is_unsigned_v<T> && s.size() > 0 && s[0] == '-')
+    if constexpr (std::is_unsigned_v<T>)
     {
-        // trying to put a negative number into an unsigned type
-        throw InvalidParameterException(s, paramNumber);
+        if (s.size() > 0 && s[0] == '-')
+        {
+            // trying to put a negative number into an unsigned type
+            throw InvalidParameterException(s, paramNumber);
+        }
     }
+
     return StringUtils::Cast<T>(s);
 }
 
