@@ -381,8 +381,14 @@ concurrencpp::result<void> UserCommandProcessor::IgnoreUser(const ClientId clien
         }
     }
 
+    if (flags.find_first_of(L"i") == std::wstring::npos && !AccountId::GetAccountFromCharacterName(ignoredUser).has_value())
+    {
+        (void)client.Message(L"Target character not found");
+        co_return;
+    }
+
     auto& info = client.GetData();
-    if (info.ignoreInfoList.size() > FLHook::GetConfig()->userCommands.userCmdMaxIgnoreList)
+    if (info.ignoreInfoList.size() >= FLHook::GetConfig()->userCommands.userCmdMaxIgnoreList)
     {
         (void)client.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
         co_return;
@@ -403,7 +409,7 @@ concurrencpp::result<void> UserCommandProcessor::IgnoreClientId(const ClientId c
     static const std::wstring errorMsg = L"Error: Invalid parameters\n"
                                          L"Usage: /ignoreid <id> [<flags>]\n"
                                          L"<id>: client id of character which should be ignored\n"
-                                         L"<flags>: if \"p\"(without quotation marks) then only affect private chat";
+                                         L"<flags>: if \"p\" (without quotation marks) then only affect private chat";
 
     if (!ignoredClient || (!flags.empty() && flags != L"p"))
     {
@@ -411,8 +417,8 @@ concurrencpp::result<void> UserCommandProcessor::IgnoreClientId(const ClientId c
         co_return;
     }
 
-    const auto& data = client.GetData();
-    if (data.ignoreInfoList.size() > FLHook::GetConfig()->userCommands.userCmdMaxIgnoreList)
+    auto& data = client.GetData();
+    if (data.ignoreInfoList.size() >= FLHook::GetConfig()->userCommands.userCmdMaxIgnoreList)
     {
         (void)client.Message(L"Error: Too many entries in the ignore list, please delete an entry first!");
         co_return;
@@ -426,12 +432,10 @@ concurrencpp::result<void> UserCommandProcessor::IgnoreClientId(const ClientId c
 
     auto character = StringUtils::ToLower(ignoredClient.GetCharacterName().Handle());
 
-    auto& info = client.GetData();
-
     IgnoreInfo ii;
     ii.character = character;
     ii.flags = flags;
-    info.ignoreInfoList.push_back(ii);
+    data.ignoreInfoList.push_back(ii);
 
     client.SaveChar();
 
@@ -446,7 +450,7 @@ concurrencpp::result<void> UserCommandProcessor::GetIgnoreList(const ClientId cl
     auto& info = client.GetData();
     for (auto& ignore : info.ignoreInfoList)
     {
-        (void)client.Message(std::format(L"{} | %s | %s", i, ignore.character, ignore.flags));
+        (void)client.Message(std::format(L"{} | {} | {}", i, ignore.character, ignore.flags));
         i++;
     }
 
