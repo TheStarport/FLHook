@@ -11,7 +11,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         concurrencpp::result<void> SetChatTime(ClientId client, std::wstring_view option);
         concurrencpp::result<void> ShowLastSender(ClientId client);
         concurrencpp::result<void> ShowSavedMsgs(ClientId client);
-        concurrencpp::result<void> SetSavedMsg(ClientId client, uint index, std::wstring_view msg);
+        concurrencpp::result<void> SetSavedMsg(ClientId client, uint index, StrToEnd msg);
         concurrencpp::result<void> ReplyToLastMsg(ClientId client, std::wstring_view text);
         concurrencpp::result<void> MessageTarget(ClientId client, std::wstring_view text);
         concurrencpp::result<void> MessageTag(ClientId client, std::wstring_view tag, std::wstring_view msg);
