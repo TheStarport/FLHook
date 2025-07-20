@@ -42,7 +42,7 @@ void TaskScheduler::ProcessTasks()
                 }
                 else
                 {
-                    WARN(message);
+                    WARN("Exception thrown during coroutine: {{error}}", { "error", message });
                 }
             };
 
@@ -55,13 +55,11 @@ void TaskScheduler::ProcessTasks()
             {
                 auto client = task->client;
                 executor->post([ex, client] { informUser(client, std::wstring(ex.Msg())); });
-                WARN(std::wstring(ex.Trace()));
             }
             catch (GameException& ex)
             {
                 auto client = task->client;
                 executor->post([ex, client] { informUser(client, std::wstring(ex.Msg())); });
-                WARN(std::wstring(ex.Trace()));
             }
             catch (const StopProcessingException&)
             {
@@ -70,7 +68,7 @@ void TaskScheduler::ProcessTasks()
             catch (const std::exception& ex)
             {
                 // Anything else critically log
-                ERROR(StringUtils::stows(ex.what()));
+                ERROR("Exception thrown during coroutine: {{ex}}", { "ex", ex.what() });
             }
         }
 

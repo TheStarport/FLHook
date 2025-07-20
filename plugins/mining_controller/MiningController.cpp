@@ -175,7 +175,8 @@ namespace Plugins
         }
         if (cd.loot2Count)
         {
-            FLHook::GetResourceManager()->CreateLootSimple(cd.systemId, cd.jettisonPos, cd.loot2Id, cd.loot2Count, cd.clientId.GetShip().Unwrap(), false, nullptr);
+            FLHook::GetResourceManager()->CreateLootSimple(
+                cd.systemId, cd.jettisonPos, cd.loot2Id, cd.loot2Count, cd.clientId.GetShip().Unwrap(), false, nullptr);
         }
         FLHook::GetResourceManager()->CreateLootSimple(
             cd.systemId, cd.jettisonPos, config.deployableContainerCommodity, 1, cd.clientId.GetShip().Unwrap(), false, nullptr);
@@ -309,7 +310,8 @@ namespace Plugins
             {
                 return;
             }
-            ResourceManager::CreateLootSimple(solar->cobj->system, solar->cobj->position, node.itemArchId, minedAmount, killerPlayer.GetShip().Unwrap(), false, this);
+            ResourceManager::CreateLootSimple(
+                solar->cobj->system, solar->cobj->position, node.itemArchId, minedAmount, killerPlayer.GetShip().Unwrap(), false, this);
         }
     }
 
@@ -557,10 +559,7 @@ namespace Plugins
         {
 
             // PrintUserCmdText(iClientID, L"ERR Issue when handling jettison event, contact developers. Error code %u", jc.iSlot);
-            WARN(L"Error: jettisoned item not found! {0} {1} {2}",
-                 { L"slot", std::to_wstring(cargo.slot) },
-                 { L"ship", std::to_wstring(cargo.ship.GetValue()) },
-                 { L"count", std::to_wstring(cargo.count) });
+            WARN("Error: jettisoned item not found! {{slot}} {{ship}} {{count}}", { "slot", cargo.slot }, { "ship", cargo.ship }, { "count", cargo.count });
 
             return;
         }
@@ -721,7 +720,8 @@ namespace Plugins
 
         uint minedAmount = GetAsteroidMiningYield(node, ClientId(dmgList->inflictorPlayerId), true);
 
-        ResourceManager::CreateLootSimple(solar->cobj->system, colGrpCenter, node.itemArchId, minedAmount, ShipId(dmgList->inflictorId.GetValue()), false, nullptr);
+        ResourceManager::CreateLootSimple(
+            solar->cobj->system, colGrpCenter, node.itemArchId, minedAmount, ShipId(dmgList->inflictorId.GetValue()), false, nullptr);
     }
 
     MiningControllerPlugin::MiningControllerPlugin(const PluginInfo& info) : Plugin(info)

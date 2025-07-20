@@ -34,9 +34,7 @@ namespace Plugins
             {
                 instance->timeUntilCleanup = 1;
                 sol::error err = result;
-                ERROR(L"Unable to run should_change_stage {0}    {1}",
-                      { L"file", StringUtils::stows(instance->info->luaFile) },
-                      { L"error", StringUtils::stows(err.what()) });
+                ERROR("Unable to run should_change_stage {{file}}    {{error}}", { "file", instance->info->luaFile }, { "error", err.what() });
                 continue;
             }
 
@@ -50,7 +48,7 @@ namespace Plugins
             if (newStage == instance->stages.end())
             {
                 instance->timeUntilCleanup = 1;
-                ERROR(L"Unable to find {0} in quest", { L"stage", std::to_wstring(*newStageValue) });
+                ERROR("Unable to find {{stage}} in quest", { "stage", *newStageValue });
                 continue;
             }
 
@@ -61,9 +59,7 @@ namespace Plugins
                 {
                     instance->timeUntilCleanup = 1;
                     sol::error err = result;
-                    ERROR(L"Unable to run on_stage_begin {0}    {1}",
-                          { L"file", StringUtils::stows(instance->info->luaFile) },
-                          { L"error", StringUtils::stows(err.what()) });
+                    ERROR("Unable to run on_stage_begin {{file}}    {{error}}", { "file", instance->info->luaFile }, { "error", err.what() });
                     continue;
                 }
             }
@@ -99,7 +95,7 @@ namespace Plugins
         constexpr auto path = "../DATA/SCRIPTS/LUA/QUESTS"sv;
         if (!std::filesystem::exists(path))
         {
-            INFO(L"'../DATA/SCRIPTS/LUA/QUESTS' not found, unloading questing module");
+            INFO("'../DATA/SCRIPTS/LUA/QUESTS' not found, unloading questing module");
             return false;
         }
 
@@ -118,19 +114,19 @@ namespace Plugins
             if (auto loadRes = lua.do_file(dir.path().string()); !loadRes.valid())
             {
                 sol::error err = loadRes;
-                ERROR(L"Unable to load lua {0}    {1}", { L"file", dir.path().wstring() }, { L"error", StringUtils::stows(err.what()) });
+                ERROR("Unable to load lua {{file}}    {{error}}", { "file", dir.path().string() }, { "error", err.what() });
                 continue;
             }
 
             if (info.questName.empty())
             {
-                ERROR(L"Quest name was not specified in lua {0}", { L"file", dir.path().wstring() });
+                ERROR("Quest name was not specified in lua {{file}}", { "file", dir.path().string() });
                 continue;
             }
 
             if (const sol::optional<sol::table> stages = lua["stages"]; !stages || stages->empty() || !stages->operator[](0).valid())
             {
-                ERROR(L"{0} has no stages or no starting stage", { L"file", dir.path().wstring() });
+                ERROR("{{file}} has no stages or no starting stage", { "file", dir.path().string() });
                 continue;
             }
             else
@@ -139,19 +135,19 @@ namespace Plugins
                 {
                     if (stage.first.get_type() != sol::type::number)
                     {
-                        ERROR(L"{0} has a stage that does not have an integer key", { L"file", dir.path().wstring() });
+                        ERROR("{{file}} has a stage that does not have an integer key", { "file", dir.path().string() });
                         continue;
                     }
 
                     if (stage.first.as<int>() < 0)
                     {
-                        ERROR(L"{0} has a stage that has a negative integer key", { L"file", dir.path().wstring() });
+                        ERROR("{{file}} has a stage that has a negative integer key", { "file", dir.path().string() });
                         continue;
                     }
 
                     if (!stage.second.is<QuestStage>())
                     {
-                        ERROR(L"{0} has a stage value that is not of type QuestStage", { L"file", dir.path().wstring() });
+                        ERROR("{{file}} has a stage value that is not of type QuestStage", { "file", dir.path().string() });
                         continue;
                     }
                 }
@@ -225,7 +221,7 @@ namespace Plugins
         if (const auto result = instance->lua.do_file(quest->luaFile); !result.valid())
         {
             const sol::error err = result;
-            ERROR(L"Unable to load lua {0}    {1}", { L"file", StringUtils::stows(quest->luaFile) }, { L"error", StringUtils::stows(err.what()) });
+            ERROR("Unable to load lua {{file}}    {{error}}", { "file", quest->luaFile }, { "error", err.what() });
 
             client.Message(std::format(L"DEV ERROR: unable to start quest '{}', please report this to your server administrator.", quest->questName));
             instance->timeUntilCleanup = 0; // Cleanup immediately

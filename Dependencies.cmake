@@ -39,12 +39,13 @@ function(TARGET_DEPENDENCIES PROJ)
     find_PACKAGE(httplib CONFIG REQUIRED)
     find_package(magic_enum CONFIG REQUIRED)
     find_package(OpenSSL CONFIG REQUIRED)
+    find_package(spdlog CONFIG REQUIRED)
     find_package(stduuid CONFIG REQUIRED)
     find_package(xbyak CONFIG REQUIRED)
     find_package(zstd REQUIRED)
     target_link_libraries(${PROJ} PUBLIC concurrentqueue::concurrentqueue cpptrace::cpptrace croncpp::croncpp glm::glm httplib::httplib
-            magic_enum::magic_enum openssl::openssl stduuid::stduuid xbyak::xbyak zstd::libzstd_static)
-
+            magic_enum::magic_enum openssl::openssl spdlog::spdlog stduuid::stduuid xbyak::xbyak zstd::libzstd_static)
+    
     # Lua
     find_package(lua CONFIG REQUIRED)
     find_package(sol2 CONFIG REQUIRED)

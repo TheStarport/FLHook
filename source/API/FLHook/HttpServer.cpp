@@ -39,10 +39,10 @@ void HttpServer::RegisterRoutes()
     CallPlugins(&Plugin::OnHttpServerRegister, server);
 
     // Start the server
-    INFO(L"Running http server {0}", { L"port", std::to_wstring(FLHook::GetConfig()->httpSettings.port) });
+    INFO("Running http server {{port}}", { "port", FLHook::GetConfig()->httpSettings.port });
     serverThread = std::jthread{ std::bind_front(&HttpServer::StartServer, this) };
     server->wait_until_ready();
-    DEBUG(L"Http server started");
+    DEBUG("Http server started");
 }
 
 httplib::StatusCode HttpServer::GetOnlinePlayers(const httplib::Request& req, httplib::Response& res)

@@ -44,7 +44,12 @@ class CompressorRecipe(ConanFile):
             "shared": True
         })
         self.requires('sol2/3.5.0')
-        self.requires("spdlog/1.14.1")
+        self.requires("spdlog/1.15.3", options={
+            'shared': True,
+            'header_only': False,
+            'use_std_fmt': False,
+            'no_exceptions': False
+        })
         self.requires("stduuid/1.2.3")
         self.requires("xbyak/7.07")
         self.requires("zstd/1.5.7")

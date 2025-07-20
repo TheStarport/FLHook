@@ -25,29 +25,40 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
 
         if (!db.has_collection(config->database.charactersCollection))
         {
-            db.create_collection(config->database.charactersCollection);
-            auto characters = db[config->database.charactersCollection];
+            auto characters = db.create_collection(config->database.charactersCollection);
             characters.create_index(make_document(kvp("characterName", 1)), make_document(kvp("unique", 1)));
             characters.create_index(make_document(kvp("accountId", 1)));
         }
 
         if (!db.has_collection(config->database.accountsCollection))
         {
-            db.create_collection(config->database.accountsCollection);
-            auto accounts = db[config->database.accountsCollection];
+            auto accounts = db.create_collection(config->database.accountsCollection);
             accounts.create_index(make_document(kvp("username", 1)));
         }
 
         if (!db.has_collection(config->database.mailCollection))
         {
-            db.create_collection(config->database.mailCollection);
-            auto mail = db[config->database.mailCollection];
+            auto mail = db.create_collection(config->database.mailCollection);
             mail.create_index(make_document(kvp("recipients.target", 1), kvp("sentDate", -1)));
+        }
+
+        if (!db.has_collection(config->database.serverLogCollection))
+        {
+            auto serverLogs = db.create_collection(config->database.serverLogCollection);
+            serverLogs.create_index(make_document(kvp("properties", 1), kvp("utcTimestamp", -1)));
+            serverLogs.create_index(make_document(kvp("message", 1), kvp("utcTimestamp", -1)));
+        }
+
+        if (!db.has_collection(config->database.chatLogCollection))
+        {
+            auto chatLogs = db.create_collection(config->database.chatLogCollection);
+            chatLogs.create_index(make_document(kvp("sender", 1), kvp("timestamp", -1), kvp("system", 1), kvp("localRecipients", 1)));
+            chatLogs.create_index(make_document(kvp("groupMembers", 1), kvp("timestamp", -1)));
         }
     }
     catch (std::exception& err)
     {
-        ERROR(StringUtils::stows(std::string(err.what())));
+        ERROR("Exception thrown while constructing database, cannot continue: {{ex}}", { "ex", err.what() });
         MessageBoxA(nullptr, (std::string("Unable to connect to MongoDB. Cannot start FLHook.\n\n") + err.what()).c_str(), "MongoDB Connection Error", MB_OK);
         std::quick_exit(-1);
     }
@@ -89,6 +100,8 @@ std::string_view DatabaseQuery::CollectionToString(const DatabaseCollection coll
         case DatabaseCollection::Accounts: return config->database.accountsCollection;
         case DatabaseCollection::Character: return config->database.charactersCollection;
         case DatabaseCollection::Mail: return config->database.mailCollection;
+        case DatabaseCollection::ServerLog: return config->database.serverLogCollection;
+        case DatabaseCollection::ChatLog: return config->database.chatLogCollection;
         default: throw std::invalid_argument("Invalid collection");
     }
 }

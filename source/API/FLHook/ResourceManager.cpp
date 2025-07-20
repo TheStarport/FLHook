@@ -55,8 +55,7 @@ void ResourceManager::SendSolarPacket(uint spaceId, pub::SpaceObj::SolarInfo& si
         {
             if (client.playerData->systemId == si.systemId)
             {
-                GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(client.playerData->clientId,
-                                                                       reinterpret_cast<FLPACKET_CREATESOLAR&>(solarPacket));
+                GetClientInterface()->Send_FLPACKET_SERVER_CREATESOLAR(client.playerData->clientId, reinterpret_cast<FLPACKET_CREATESOLAR&>(solarPacket));
             }
         }
     }
@@ -104,7 +103,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithNp
 
     if (found == npcTemplates.end())
     {
-        WARN(L"invalid npc nickname: {0}", { L"npcName", npcNickname })
+        WARN("invalid npc nickname: {{npcName}}", { "npcName", npcNickname });
         return *this;
     }
 
@@ -153,7 +152,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithPe
     }
     else
     {
-        WARN(L"called with invalid personality {0}", { L"personality", personalityNickname })
+        WARN("called with invalid personality {{personality}}", { "personality", personalityNickname });
     }
 
     return *this;
@@ -201,7 +200,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithSy
     }
     else
     {
-        WARN(L"Called with invalid nickname");
+        WARN("Called with invalid nickname");
     }
 
     return *this;
@@ -215,7 +214,7 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithSy
     }
     else
     {
-        WARN(L"Called with invalid nickname");
+        WARN("Called with invalid nickname");
     }
 
     return *this;
@@ -281,12 +280,12 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithFu
 {
     if (fuse.lifetime < 0.0f)
     {
-        WARN(L"Called with negative lifetime.");
+        WARN("Called with negative lifetime.");
     }
 
     if (fuse.radius < 0.0f)
     {
-        WARN(L"Called with negative radius.");
+        WARN("Called with negative radius.");
     }
 
     this->fuse = fuse;
@@ -404,7 +403,7 @@ std::weak_ptr<CEqObj> ResourceManager::SpaceObjectBuilder::Spawn()
 {
     if (!ValidateSpawn())
     {
-        WARN(L"Attempting to spawn NPC/Solar with invalid data within the builder.");
+        WARN("Attempting to spawn NPC/Solar with invalid data within the builder.");
         return {};
     }
 
@@ -741,7 +740,7 @@ void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly
         if (const auto erased = std::erase_if(spawnedSolars, [&ptr](std::pair<std::shared_ptr<CSolar>, bool>& solar) { return ptr->id == solar.first->id; });
             !erased)
         {
-            DEBUG(L"Tried to dispose of CSolar that wasn't owned by resource manager");
+            DEBUG("Tried to dispose of CSolar that wasn't owned by resource manager");
             return;
         }
     }
@@ -751,7 +750,7 @@ void ResourceManager::Destroy(std::weak_ptr<CEqObj> object, const bool instantly
         if (const auto erased = std::erase_if(spawnedShips, [&ptr](std::pair<std::shared_ptr<CShip>, bool>& ship) { return ptr->id == ship.first->id; });
             !erased)
         {
-            DEBUG(L"Tried to dispose of CShip that wasn't owned by resource manager");
+            DEBUG("Tried to dispose of CShip that wasn't owned by resource manager");
             return;
         }
     }
@@ -891,17 +890,18 @@ void SpawnSolar(unsigned int& spaceID, const pub::SpaceObj::SolarInfo& solarInfo
     MemUtils::WriteProcMem(skipSolarPacket, &serverUnHack, 1);
 }
 
-Id ResourceManager::CreateShipSimple(SystemId system, const Vector& pos, Matrix& rot, Plugin* callingPlugin) { 
+Id ResourceManager::CreateShipSimple(SystemId system, const Vector& pos, Matrix& rot, Plugin* callingPlugin)
+{
 
     pub::SpaceObj::ShipInfo si;
     memset(&si, 0, sizeof(si));
-    
+
     si.flag = 4;
     si.system = system;
     si.pos = pos;
     si.orientation = rot;
 
-    //TODO: add the rest of crucial parameters;
+    // TODO: add the rest of crucial parameters;
 
     return Id();
 }
@@ -911,7 +911,7 @@ Id ResourceManager::CreateSolarSimple(SolarSpawnStruct& solarSpawnData, Plugin* 
     solarSpawnData.spaceObjId = Id(solarSpawnData.nickname);
     if (auto object = FLHook::GetObjInspect(solarSpawnData.spaceObjId); object)
     {
-        ERROR(L"Attempting to spawn an already existing object {}", { L"solarName", StringUtils::stows(solarSpawnData.nickname) })
+        ERROR("Attempting to spawn an already existing object {{solarName}}", { "solarName", solarSpawnData.nickname });
         return Id();
     }
 
@@ -983,15 +983,15 @@ Id ResourceManager::CreateSolarSimple(SolarSpawnStruct& solarSpawnData, Plugin* 
         spawnedIdsPerPlugin[plugin].emplace_back(spaceObjId);
     }
 
-    //TODO: Add Handling for gate objects
-    //TODO: Create a per-plugin list of solars to dispose of when unloading the plugin
+    // TODO: Add Handling for gate objects
+    // TODO: Create a per-plugin list of solars to dispose of when unloading the plugin
 
-    //uint type;
-    //pub::SpaceObj::GetType(spaceObjId, type);
-    //if (type & (ObjectType::JumpGate | ObjectType::JumpHole))
+    // uint type;
+    // pub::SpaceObj::GetType(spaceObjId, type);
+    // if (type & (ObjectType::JumpGate | ObjectType::JumpHole))
     //{
-    //    HyperJump::InitJumpHole(spaceObjId, solarSpawnData.destSystem, solarSpawnData.destObj);
-    //}
+    //     HyperJump::InitJumpHole(spaceObjId, solarSpawnData.destSystem, solarSpawnData.destObj);
+    // }
 
     return Id(spaceObjId);
 }

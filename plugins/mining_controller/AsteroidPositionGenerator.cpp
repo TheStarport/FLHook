@@ -67,14 +67,14 @@ namespace Plugins
         const Universe::IZone* iZone = Universe::get_zone(zoneHash.GetValue());
         if (!iZone)
         {
-            WARN(L"Zone Not Found\n");
+            WARN("Zone Not Found\n");
             return;
         }
 
         CmnAsteroid::CAsteroidSystem* asteroidSystem = CmnAsteroid::Find(iZone->systemId.GetValue());
         if (!asteroidSystem)
         {
-            WARN(L"Asteroid System Error\n");
+            WARN("Asteroid System Error\n");
             return;
         }
 
@@ -97,8 +97,6 @@ namespace Plugins
         uint lastCount = 0;
         Vector initialPos = field->closest_cube_pos(field->zone->position);
         ExploreZone(field, initialPos, field->zone->orientation, cubeSize, NoDir);
-
-        WARN(std::format(L"amount {}, {}\n", CObject::Count(CObject::CASTEROID_OBJECT), cubeSize));
 
         FILE* fLog = fopen("./Asteroids.log", "w");
 

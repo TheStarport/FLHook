@@ -221,12 +221,12 @@ namespace Plugins
 
     DeathPenaltyPlugin::DeathPenaltyPlugin(const PluginInfo& info) : Plugin(info) {}
 
-    concurrencpp::result<void>DeathPenaltyPlugin::UserCmdDeathPenalty(const ClientId client, const std::wstring_view param)
+    concurrencpp::result<void> DeathPenaltyPlugin::UserCmdDeathPenalty(const ClientId client, const std::wstring_view param)
     {
         // If there is no death penalty, no point in having death penalty commands
         if (std::abs(config.DeathPenaltyFraction) < 0.0001f)
         {
-            WARN(L"DP Plugin active, but no/too low death penalty fraction is set.");
+            WARN("DP Plugin active, but no/too low death penalty fraction is set.");
             co_return;
         }
 

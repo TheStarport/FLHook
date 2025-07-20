@@ -126,12 +126,12 @@ namespace Json
         std::ofstream stream(newPath);
         if (!stream.is_open())
         {
-            WARN(L"Unable to save JSON file.");
+            WARN("Unable to save JSON file.");
             return false;
         }
 
         rfl::json::write(obj, stream, rfl::json::pretty);
-        DEBUG(L"Successfully saved JSON file {0}", { L"path", StringUtils::stows(newPath) })
+        DEBUG("Successfully saved JSON file {{path}}", { "path", newPath });
 
         return true;
     }
@@ -175,7 +175,7 @@ namespace Json
         std::ifstream stream(newPath);
         if (!stream.is_open())
         {
-            WARN(L"Unable to read JSON file {0}", { L"path", StringUtils::stows(newPath) })
+            WARN("Unable to read JSON file {{path}}", { "path", newPath });
 
             return { LoadState::UnableToRead, std::nullopt };
         }
@@ -183,7 +183,7 @@ namespace Json
         auto result = rfl::json::read<T>(stream);
         if (!result)
         {
-            ERROR(L"Error while trying to serialize {0} {1}", { L"path", StringUtils::stows(path) }, { L"error", StringUtils::stows(result.error().what()) })
+            ERROR("Error while trying to serialize {{path}} {{error}}", { "path", path }, { "error", result.error().what() });
 
             return { LoadState::FailedToValidate, std::nullopt };
         }

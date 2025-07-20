@@ -3,6 +3,8 @@
 #include "Defs/Database/Account.hpp"
 #include "Utils/Detour.hpp"
 
+#include <concurrencpp/concurrencpp.h>
+
 struct Rumor
 {
         uint IDS;

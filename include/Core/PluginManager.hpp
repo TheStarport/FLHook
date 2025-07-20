@@ -8,7 +8,6 @@
 #ifdef FLHOOK
     #include "API/FLHook/HttpServer.hpp"
     #include "Commands/AdminCommandProcessor.hpp"
-    #include "Commands/ExternalCommandProcessor.hpp"
     #include "Commands/UserCommandProcessor.hpp"
     #include "Core/ExceptionHandler.hpp"
     #include "Utils/TemplateHelpers.hpp"
@@ -19,14 +18,12 @@ class DLL PluginManager final : public Singleton<PluginManager>
 #ifdef FLHOOK
         friend AdminCommandProcessor;
         friend UserCommandProcessor;
-        friend ExternalCommandProcessor;
         friend IServerImplHook;
         friend HttpServer;
 
         std::vector<std::shared_ptr<Plugin>> plugins;
         std::vector<std::weak_ptr<AbstractUserCommandProcessor>> userCommands;
         std::vector<std::weak_ptr<AbstractAdminCommandProcessor>> adminCommands;
-        std::vector<std::weak_ptr<AbstractExternalCommandProcessor>> externalCommands;
 
         void ClearData(bool free);
 
@@ -101,7 +98,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
                     }
                     CatchHook({
                         auto targetName = typeid(FuncPtr).name();
-                        ERROR(L"Exception in plugin {0} in {1}", { L"plugin", plugin->name }, { L"target", StringUtils::stows(targetName) });
+                        ERROR("Exception in plugin {{plugin}} in {{target}}", { "plugin", plugin->name }, { "target", targetName });
                     });
 
                     const auto code = plugin->returnCode;
@@ -117,7 +114,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
                     }
                 }
             }
-            CatchHook({ ERROR(L"Exception {}", { L"ex", StringUtils::stows(FUNCTION) }) });
+            CatchHook({ ERROR("Exception {{ex}}", { "ex", FUNCTION }); });
 
             if constexpr (!returnTypeIsVoid)
             {

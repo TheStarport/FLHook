@@ -75,26 +75,26 @@ FLHook::FLHook()
     // Load our settings before anything that might need access to debug mode
     LoadSettings();
 
-    DEBUG(L"Creating InfocardManager");
+    DEBUG("Creating InfocardManager");
     infocardManager = std::make_unique<InfocardManager>();
 
-    DEBUG(L"Creating ClientList");
+    DEBUG("Creating ClientList");
     clientList = std::make_shared<ClientList>();
 
-    DEBUG(L"Creating PersonalityHelper");
+    DEBUG("Creating PersonalityHelper");
     personalityHelper = std::make_shared<PersonalityHelper>();
 
-    DEBUG(L"Connecting to database at {0}", { L"uri", StringUtils::stows(flhookConfig->database.uri) })
+    DEBUG("Connecting to database at {{uri}}", { "uri", flhookConfig->database.uri });
 
     database = std::make_shared<Database>(flhookConfig->database.uri);
 
-    DEBUG(L"Creating AccountManager");
+    DEBUG("Creating AccountManager");
     accountManager = std::make_shared<AccountManager>();
 
-    DEBUG(L"Creating ResourceManager");
+    DEBUG("Creating ResourceManager");
     resourceManager = std::make_shared<ResourceManager>();
 
-    DEBUG(L"Creating TaskScheduler");
+    DEBUG("Creating TaskScheduler");
     taskScheduler = std::make_shared<TaskScheduler>();
 
     flProc = GetModuleHandle(nullptr);
@@ -112,7 +112,7 @@ FLHook::FLHook()
 
     if (config->httpSettings.enableHttpServer)
     {
-        DEBUG(L"Creating HttpServer");
+        DEBUG("Creating HttpServer");
         httpServer = std::make_shared<HttpServer>();
     }
 
@@ -136,9 +136,7 @@ FLHook::FLHook()
         }
         catch (std::filesystem::filesystem_error& error)
         {
-            ERROR(L"Failed to create directory {0} {1}",
-                  { L"path", StringUtils::stows(error.path1().generic_string()) },
-                  { L"error", StringUtils::stows(error.what()) })
+            ERROR("Failed to create directory {{path}} {{error}}", { "path", error.path1().generic_string() }, { "error", error.what() });
         }
     }
 
@@ -193,7 +191,7 @@ bool FLHook::IsReady() { return instance != nullptr && instance->flhookReady; }
 std::wstring_view FLHook::GetAccountPath() { return instance->accPath; }
 
 GameObject* FLHook::GetObjInspect(const uint& objId)
-{ 
+{
     StarSystem* starSystem;
     GameObject* inspect;
     getShipInspect(objId, reinterpret_cast<IObjInspectImpl*&>(inspect), starSystem);
@@ -206,10 +204,7 @@ bool FLHook::GetObjInspect(const uint& objId, GameObject*& inspect, StarSystem*&
     return getShipInspect(objId, reinterpret_cast<IObjInspectImpl*&>(inspect), starSystem);
 }
 
-bool FLHook::GetObjInspect(Id objId, GameObject*& inspect, StarSystem*& starSystem)
-{
-    return GetObjInspect(objId.GetValue(), inspect, starSystem);
-}
+bool FLHook::GetObjInspect(Id objId, GameObject*& inspect, StarSystem*& starSystem) { return GetObjInspect(objId.GetValue(), inspect, starSystem); }
 
 const std::unordered_map<ClientId, std::unordered_set<std::wstring>>& FLHook::GetAdmins() { return instance->credentialsMap; }
 ClientList& FLHook::Clients() { return *instance->clientList; }
@@ -309,7 +304,7 @@ bool FLHook::OnServerStart()
     {
         UnloadHookExports();
 
-        ERROR(L"{0}", { L"error", StringUtils::stows(err.what()) });
+        ERROR("{{ex}}", { "ex", err.what() });
         return false;
     }
 

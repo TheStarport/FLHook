@@ -89,6 +89,8 @@ struct DLL FLHookConfig final
                 std::string accountsCollection = "accounts";
                 std::string charactersCollection = "characters";
                 std::string mailCollection = "mail";
+                std::string serverLogCollection = "server_logs";
+                std::string chatLogCollection = "chat_logs";
         };
 
         struct General final

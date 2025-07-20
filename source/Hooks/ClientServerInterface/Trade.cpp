@@ -17,7 +17,7 @@ void InitiateTradeInner(const ClientId client1, const ClientId client2)
 
 void __stdcall IServerImplHook::InitiateTrade(ClientId client1, ClientId client2)
 {
-    TRACE(L"{0} {1}", { L"client1", std::to_wstring(client1.GetValue()) }, { L"client2", std::to_wstring(client2.GetValue()) });
+    TRACE("{{client1}} {{client2}}", { "client1", client1 }, { "client2", client2 });
 
     const auto skip = CallPlugins(&Plugin::OnInitiateTrade, client1, client2);
 
@@ -33,8 +33,6 @@ void __stdcall IServerImplHook::InitiateTrade(ClientId client1, ClientId client2
 }
 void __stdcall IServerImplHook::AcceptTrade(ClientId client, bool unk1)
 {
-    TRACE(L"{0} {1}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) });
-
     if (const auto skip = CallPlugins(&Plugin::OnAcceptTrade, client, unk1); !skip)
     {
         CallServerPreamble { Server.AcceptTrade(client.GetValue(), unk1); }
@@ -46,8 +44,6 @@ void __stdcall IServerImplHook::AcceptTrade(ClientId client, bool unk1)
 
 void __stdcall IServerImplHook::SetTradeMoney(ClientId client, ulong unk1)
 {
-    TRACE(L"{0} {1}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) });
-
     if (const auto skip = CallPlugins(&Plugin::OnSetTradeMoney, client, unk1); !skip)
     {
         CallServerPreamble { Server.SetTradeMoney(client.GetValue(), unk1); }
@@ -59,7 +55,7 @@ void __stdcall IServerImplHook::SetTradeMoney(ClientId client, ulong unk1)
 
 void __stdcall IServerImplHook::AddTradeEquip(ClientId client, const EquipDesc& ed)
 {
-    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
+    TRACE("{{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnAddTradeEquip, client, ed); !skip)
     {
@@ -72,7 +68,7 @@ void __stdcall IServerImplHook::AddTradeEquip(ClientId client, const EquipDesc& 
 
 void __stdcall IServerImplHook::DelTradeEquip(ClientId client, const EquipDesc& ed)
 {
-    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) })
+    TRACE("{{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnRemoveTradeEquip, client, ed); !skip)
     {
@@ -85,7 +81,7 @@ void __stdcall IServerImplHook::DelTradeEquip(ClientId client, const EquipDesc& 
 
 void __stdcall IServerImplHook::RequestTrade(ClientId client1, ClientId client2)
 {
-    TRACE(L"{0} {1}", { L"client1", std::to_wstring(client1.GetValue()) }, { L"client2", std::to_wstring(client2.GetValue()) });
+    TRACE("{{client1}} {{client2}}", { "client1", client1 }, { "client2", client2 });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestTrade, client1, client2); !skip)
     {
@@ -98,7 +94,7 @@ void __stdcall IServerImplHook::RequestTrade(ClientId client1, ClientId client2)
 
 void __stdcall IServerImplHook::StopTradeRequest(ClientId client)
 {
-    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) })
+    TRACE("{{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnStopTradeRequest, client); !skip)
     {
@@ -111,11 +107,6 @@ void __stdcall IServerImplHook::StopTradeRequest(ClientId client)
 
 void __stdcall IServerImplHook::TradeResponse(const unsigned char* unk1, int unk2, ClientId client)
 {
-    TRACE(L"{0} {1} {2}",
-          { L"unk1", StringUtils::stows(std::string(reinterpret_cast<const char*>(unk1))) },
-          { L"unk2", std::to_wstring(unk2) },
-          { L"client", std::to_wstring(client.GetValue()) })
-
     if (const auto skip = CallPlugins(&Plugin::OnTradeResponse, client, unk1, unk2); !skip)
     {
         CallServerPreamble { Server.TradeResponse(unk1, unk2, client.GetValue()); }
@@ -152,8 +143,6 @@ void IServerImplHook::TerminateTradeInnerAfter(ClientId client, const int accept
 
 void __stdcall IServerImplHook::TerminateTrade(ClientId client, int accepted)
 {
-    TRACE(L"{0} {1}", { L"client", std::to_wstring(client.GetValue()) }, { L"accepted", std::to_wstring(accepted) });
-
     const auto skip = CallPlugins(&Plugin::OnTerminateTrade, client, accepted);
 
     CheckForDisconnect;

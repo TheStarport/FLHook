@@ -158,9 +158,7 @@ namespace Plugins
         }
 
         document.append(kvp(
-            "autobuy",
-            bsoncxx::builder::basic::make_document(
-                kvp("cm", cm), kvp("bb", bb), kvp("repairs", repairs), kvp("mines", mines), kvp("ammo", ammo))));
+            "autobuy", bsoncxx::builder::basic::make_document(kvp("cm", cm), kvp("bb", bb), kvp("repairs", repairs), kvp("mines", mines), kvp("ammo", ammo))));
     }
 
     void AutobuyPlugin::OnBaseEnterAfter(const BaseId baseId, const ClientId client)
@@ -350,7 +348,7 @@ namespace Plugins
     // USER COMMANDS
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    concurrencpp::result<void>AutobuyPlugin::UserCmdAutobuy(const ClientId client, const std::wstring_view autobuyType, const std::wstring_view newState)
+    concurrencpp::result<void> AutobuyPlugin::UserCmdAutobuy(const ClientId client, const std::wstring_view autobuyType, const std::wstring_view newState)
     {
         if (autobuyType.empty())
         {
@@ -443,7 +441,7 @@ namespace Plugins
         std::vector<std::string> iniPaths;
         if (!ini.open("freelancer.ini", false) || !ini.find_header("Data"))
         {
-            ERROR(L"Unable to read freelancer.ini's Data header");
+            ERROR("Unable to read freelancer.ini's Data header");
             return false;
         }
 
@@ -463,7 +461,7 @@ namespace Plugins
         {
             if (!ini.open(iniPath.c_str(), false))
             {
-                ERROR(L"Was unable to read ammo limits from the {0}", { L"file", StringUtils::stows(iniPath) });
+                ERROR("Was unable to read ammo limits from the {{file}}", { "file", iniPath });
                 return false;
             }
 

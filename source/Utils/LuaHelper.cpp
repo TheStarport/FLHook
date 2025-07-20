@@ -13,28 +13,30 @@ void LuaHelper::LuaPrint(lua_State* lua, const std::wstring& text, const LogLeve
     lua_getinfo(lua, "nSl", &ar);
 
     std::wstring source = std::string_view(ar.short_src).starts_with("[string") ? L"MEMORY" : StringUtils::stows(std::string_view(ar.short_src));
-    const auto print = std::format(L"Lua File: {}, Line {} - {}", source, ar.currentline, text);
+#define LOG(x) x("Lua File: {{source}}, Line {{line}} - {{text}}", { "source", source }, { "line", ar.currentline }, { "text", text })
 
     if (level == LogLevel::Info)
     {
-        INFO(print);
+        LOG(INFO);
     }
     else if (level == LogLevel::Debug)
     {
-        DEBUG(print);
+        LOG(DEBUG);
     }
     else if (level == LogLevel::Error)
     {
-        ERROR(print);
+        LOG(ERROR);
     }
     else if (level == LogLevel::Warn)
     {
-        WARN(print);
+        LOG(WARN);
     }
     else if (level == LogLevel::Trace)
     {
-        TRACE(print);
+        LOG(TRACE);
     }
+
+#undef LOG
 }
 
 void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)

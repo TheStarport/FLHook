@@ -29,10 +29,9 @@ void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
                 auto result = credentials.insert(StringUtils::stows(role));
                 if (!result.second)
                 {
-
-                    WARN(L"Duplicate role found on character account{0}{1}",
-                         { L"character", StringUtils::stows(clientData.account->_id) },
-                         { L"roles", StringUtils::stows(role) })
+                    WARN("Duplicate role found on character account {{character}} - {{role}}",
+                         { "character", StringUtils::stows(clientData.account->_id) },
+                         { "role", role });
                 }
             }
         }
@@ -111,7 +110,7 @@ void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
         firstLogin = false;
     }
 
-    TRACE(L"{0}", { L"ClientId", std::to_wstring(client.GetValue()) })
+    TRACE("{{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip)
     {

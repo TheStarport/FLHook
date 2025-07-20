@@ -11,10 +11,12 @@ namespace Plugins
         if (const auto iter = std::ranges::find(config.itemsOfInterest, goodId); iter != config.itemsOfInterest.end())
         {
             const auto charName = client.GetCharacterName().Handle();
-            INFO(L"Item '{0}' found in cargo of {1} - {2}",
-                 { L"GoodID", std::to_wstring(goodId.GetValue()) },
-                 { L"CharName", std::wstring(charName) },
-                 { L"Detail", std::wstring(details) });
+            INFO("Item '{{goodId}}' found in cargo of {{characterName}} - {{details}}"),
+                JsonLogFormatter({
+                    {        "goodId",   goodId },
+                    { "characterName", charName },
+                    {       "details",  details }
+            });
         }
     }
 
@@ -83,9 +85,8 @@ namespace Plugins
             if (!CheckIdEquipRestrictions(client, info.goodId, false))
             {
                 const auto charName = client.GetCharacterName().Handle();
-                INFO(L"{0} attempting to buy {1} without correct Id",
-                     { L"Name", std::wstring(charName) },
-                     { L"GoodId", std::to_wstring(info.goodId.GetValue()) });
+                INFO("{{characterName}} attempting to buy {{goodId}} without correct Id", { "characterName", charName }, { "goodId", info.goodId });
+
                 if (config.enforceItemRestrictions)
                 {
                     client.Message(config.goodPurchaseDenied);
@@ -114,9 +115,8 @@ namespace Plugins
                 config.shipItemRestrictions.contains(shipGood.GetHash().Unwrap()) && !CheckIdEquipRestrictions(client, shipGood.GetHash().Unwrap(), true))
             {
                 const auto charName = client.GetCharacterName().Handle();
-                INFO(L"{0} attempting to buy {1} without correct Id",
-                     { L"Name", std::wstring(charName) },
-                     { L"ShipGood", std::to_wstring(hullInfo->shipGoodId) });
+                INFO(
+                    "{{characterName}} attempting to buy {{shipGood}} without correct Id", { "characterName", charName }, { "shipGood", hullInfo->shipGoodId });
                 if (config.enforceItemRestrictions)
                 {
                     client.Message(config.shipPurchaseDenied);

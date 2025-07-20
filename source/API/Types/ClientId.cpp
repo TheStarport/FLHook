@@ -539,7 +539,7 @@ Action<void> ClientId::Message(const std::wstring_view message, const MessageFor
 {
     if (value == 0)
     {
-        INFO(std::wstring(message));
+        Logger::MessageConsole(message);
         return { {} };
     }
 

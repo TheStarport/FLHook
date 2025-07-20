@@ -11,19 +11,19 @@
 template <class... Args>
 void LogInternal(const wchar_t* templateStr, Args&&... args)
 {
-    ERROR(std::vformat(templateStr, std::make_wformat_args(std::forward<Args&>(args)...)));
+    ERROR("{{ex}}", { "ex", std::vformat(templateStr, std::make_wformat_args(std::forward<Args&>(args)...)) });
 }
 
 template <class... Args>
 void LogInternal(const char* templateStr, Args&&... args)
 {
-    ERROR(StringUtils::stows(std::vformat(templateStr, std::make_format_args(std::forward<Args&>(args)...))));
+    ERROR("{{ex}}", { "ex", std::vformat(templateStr, std::make_format_args(std::forward<Args&>(args)...)) });
 }
 
 void __stdcall CrashCatcher::LogContent47bc4()
 {
-    ERROR(L"Exception/Crash in content.dll:0xCb_47bc4 - "
-                "probably missing formation in faction_props.ini/formations.ini - exiting");
+    ERROR("Exception/Crash in content.dll:0xCb_47bc4 - "
+          "probably missing formation in faction_props.ini/formations.ini - exiting");
     Sleep(1000);
     std::exit(-1);
 }
@@ -109,14 +109,14 @@ double CrashCatcher::TimingSeconds(int64& delta)
     double seconds = Timing::seconds(delta);
     if (seconds < 0 || seconds > 10.0)
     {
-        ERROR(L"Time delta invalid {0} {1}", { L"seconds", std::to_wstring(seconds) }, { L"delta", std::to_wstring(delta) });
+        ERROR("Time delta invalid {{seconds}} {{delta}}", { "seconds", seconds }, { "delta", delta });
         delta = 1000000;
         seconds = Timing::seconds(delta);
     }
     else if (seconds > 1.0)
     {
 
-        ERROR(L"Time lag detected {0} {1}", { L"seconds", std::to_wstring(seconds) }, { L"delta", std::to_wstring(delta) });
+        ERROR("Time lag detected {{seconds}} {{delta}}", { "seconds", seconds }, { "delta", delta });
     }
     return seconds;
 }
@@ -152,7 +152,7 @@ void CrashCatcher::CrashProc6F671A0(int arg1)
 {
     try
     {
-        DEBUG(L"{0}", { L"arg1", std::to_wstring(arg1) });
+        DEBUG("{{arg1}}", { "arg1", arg1 });
 
         __asm {
             pushad
@@ -164,7 +164,7 @@ void CrashCatcher::CrashProc6F671A0(int arg1)
     }
     catch (...)
     {
-        ERROR(L"Crash suppression {0}", { L"arg1", std::to_wstring(arg1) });
+        ERROR("Crash suppression {{arg1}}", { "arg1", arg1 });
     }
 }
 
@@ -176,7 +176,7 @@ CObject* CrashCatcher::GetRoot(CObject* child)
     }
     catch (...)
     {
-        ERROR(L"Crash suppression {0}", { L"archID", HEXIFY(child->get_archetype()->archId.GetValue()) });
+        ERROR("Crash suppression {{archId}}", { "archId", child->get_archetype()->archId });
         return child;
     }
 }
@@ -219,7 +219,7 @@ char __stdcall CrashCatcher::FixCommon6F8B330Detour(int arg1)
     int res = 0;
     try
     {
-        DEBUG(L"{0}", { L"arg1", std::to_wstring(arg1) });
+        DEBUG("{{arg1}}", { "arg1", arg1 });
         __asm
         {
             pushad
@@ -232,7 +232,7 @@ char __stdcall CrashCatcher::FixCommon6F8B330Detour(int arg1)
     }
     catch (...)
     {
-        ERROR(L"Crash suppression {0}", { L"arg1", std::to_wstring(arg1) });
+        ERROR("Crash suppression {{arg1}}", { "arg1", arg1 });
     }
 
     return static_cast<char>(res);
@@ -242,7 +242,7 @@ void __stdcall CrashCatcher::FixCommon6F78DD0Detour(int arg1, int arg2)
 {
     try
     {
-        DEBUG(L"{0} {1}", { L"arg1", std::to_wstring(arg1) }, { L"arg2", std::to_wstring(arg2) });
+        DEBUG("{{arg1}} {{arg2}}", { "arg1", arg1 }, { "arg2", arg2 });
 
         __asm
         {
@@ -256,7 +256,7 @@ void __stdcall CrashCatcher::FixCommon6F78DD0Detour(int arg1, int arg2)
     }
     catch (...)
     {
-        ERROR(L"Crash suppression {0} {1}", { L"arg1", std::to_wstring(arg1) }, { L"arg2", std::to_wstring(arg2) });
+        ERROR("Crash suppression {{arg1}} {{arg2}}", { "arg1", arg1 }, { "arg2", arg2 });
     }
 }
 
@@ -296,7 +296,7 @@ CrashCatcher::CrashCatcher()
     const auto engBaseModule = reinterpret_cast<DWORD>(GetModuleHandleA("engbase.dll"));
     contentModule = reinterpret_cast<DWORD>(GetModuleHandleA("content.dll"));
 
-    DEBUG(L"Installing patches into content.dll");
+    DEBUG("Installing patches into content.dll");
 
     // Patch for crash at content.dll + blarg
     MemUtils::PatchCallAddr(contentModule, 0xC608D, C4800Hook);
@@ -387,7 +387,7 @@ CrashCatcher::~CrashCatcher()
     // Unload the timing patches.
     MemUtils::WriteProcMem(flServerModule + 0x1B0A0, &oldTimingSeconds, 4);
 
-    DEBUG(L"Uninstalling patches from content.dll");
+    DEBUG("Uninstalling patches from content.dll");
 
     {
         const uchar patch[] = { 0xe8, 0x6e, 0xe7, 0xff, 0xff };

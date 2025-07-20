@@ -22,6 +22,7 @@ class CrashCatcher;
 class HttpServer;
 class ResourceManager;
 class AdminCommandProcessor;
+class FLHookConfig;
 
 static constexpr std::wstring_view ConsoleName = L"CONSOLE";
 

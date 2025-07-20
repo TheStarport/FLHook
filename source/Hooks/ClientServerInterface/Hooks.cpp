@@ -96,7 +96,7 @@ void IServerImplHook::StartupInner(SStartupInfo& si)
 
 void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
 {
-    DEBUG(L"Creating CrashCatcher");
+    DEBUG("Creating CrashCatcher");
     FLHook::instance->crashCatcher = std::make_shared<CrashCatcher>();
 
     // Patch to set maximum number of players to connect. This is normally less than MaxClientId
@@ -108,7 +108,7 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
 
     FLHook::instance->accountManager->LoadNewPlayerFLInfo();
 
-    INFO(L"FLHook Ready");
+    INFO("FLHook Ready");
 
     FLHook::instance->flhookReady = true;
 
@@ -119,7 +119,7 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
         if (auto p = plugin->get(); !p->OnLoadSettings())
         {
 
-            INFO(L"{0} LoadSettings failed. Unloading plugin", { L"pluginName", std::wstring(p->GetName()) });
+            INFO("{{pluginName}} LoadSettings failed. Unloading plugin", { "pluginName", p->GetName() });
             auto pCopy = p->dll;
             plugin->reset();
             plugin = pluginManager->plugins.erase(plugin);
@@ -167,7 +167,7 @@ int __stdcall IServerImplHook::Update()
 
 void __stdcall IServerImplHook::Shutdown()
 {
-    TRACE(L"Shutdown");
+    TRACE("Shutdown");
 
     if (const auto skip = CallPlugins(&Plugin::OnServerShutdown); !skip)
     {
@@ -191,7 +191,7 @@ bool __stdcall IServerImplHook::Startup(SStartupInfo& si)
     }
     StartupInnerAfter(si);
 
-    INFO(L"FLHook Ready");
+    INFO("FLHook Ready");
 
     return retVal;
 }

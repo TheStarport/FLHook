@@ -58,16 +58,14 @@ bool IServerImplHook::GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId clien
         }
     }
 
-    CatchHook({
-        TRACE(L"Exception {0} {1}", { L"client", std::to_wstring(client.GetValue()) }, { L"characterName", std::wstring(client.GetCharacterName().Unwrap()) });
-    })
+    CatchHook({ TRACE("Exception {{client}} {{characterName}}", { "client", client }, { "characterName", client.GetCharacterName().Unwrap() }); });
 
-        return true;
+    return true;
 }
 
 void __stdcall IServerImplHook::GFGoodSell(const SGFGoodSellInfo& unk1, ClientId client)
 {
-    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
+    TRACE("{{client}}", { "client", client });
 
     const auto skip = CallPlugins(&Plugin::OnGfGoodSell, client, unk1);
 
@@ -110,7 +108,7 @@ bool IServerImplHook::GFGoodBuyInner(const SGFGoodBuyInfo& gsi, ClientId client)
     auto baseData = BaseDataList_get()->get_base_data(gsi.baseId.GetValue());
     if (!baseData)
     {
-        return CheckBuybackCache(client,gsi);
+        return CheckBuybackCache(client, gsi);
     }
     auto iter = baseData->marketMap.find(Id(gsi.goodId));
     if (iter == baseData->marketMap.end())
@@ -127,12 +125,11 @@ bool IServerImplHook::GFGoodBuyInner(const SGFGoodBuyInfo& gsi, ClientId client)
 
 void __stdcall IServerImplHook::GFGoodBuy(const SGFGoodBuyInfo& unk1, ClientId client)
 {
-    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
+    TRACE("{{client}}", { "client", client });
 
-    
     if (const bool innerCheck = GFGoodBuyInner(unk1, client); !innerCheck)
     {
-        WARN(L"{0} has attempted an impossible purchase", { L"characterName", std::wstring(client.GetCharacterName().Unwrap()) });
+        WARN("{{characterName}} has attempted an impossible purchase", { "characterName", client.GetCharacterName().Unwrap() });
         client.Kick();
         return;
     }
@@ -148,7 +145,7 @@ void __stdcall IServerImplHook::GFGoodBuy(const SGFGoodBuyInfo& unk1, ClientId c
 
 void __stdcall IServerImplHook::GFGoodVaporized(const SGFGoodVaporizedInfo& gvi, ClientId client)
 {
-    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
+    TRACE("{{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnGfGoodVaporized, client, gvi); !skip)
     {

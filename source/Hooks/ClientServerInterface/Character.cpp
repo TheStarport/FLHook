@@ -105,7 +105,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
 
 void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientId client)
 {
-    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
+    TRACE("{{client}}", { "client", client });
 
     const auto& data = AccountManager::accounts[client.GetValue()].characters.at(cid.charFilename);
     FLHook::GetClient(client).characterName = data.wideCharacterName;
@@ -133,13 +133,13 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
 
 void __stdcall IServerImplHook::CreateNewCharacter(const SCreateCharacterInfo& createCharacterInfo, ClientId client)
 {
-    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
+    TRACE("{{client}}", { "client", client });
 
     // Ban any name that is numeric and might interfere with commands
     if (const auto numeric = StringUtils::Cast<uint>(std::wstring_view(createCharacterInfo.charname, wcslen(createCharacterInfo.charname)));
         numeric < 10000 && numeric != 0)
     {
-        DEBUG(L"Character name with only numerical values provided. Suppressing character creation.");
+        DEBUG("Character name with only numerical values provided. Suppressing character creation.");
         return;
     }
 
@@ -158,7 +158,7 @@ void IServerImplHook::DestroyCharacterCallback(const ClientId client, CHARACTER_
 
 void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, ClientId client)
 {
-    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) });
+    TRACE("{{client}}", { "client", client });
 
     const std::wstring charName = StringUtils::stows(static_cast<const char*>(cid.charFilename));
 
@@ -171,8 +171,6 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
 
 void __stdcall IServerImplHook::RequestRankLevel(ClientId client, uint unk1, int unk2)
 {
-    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
-
     if (const auto skip = CallPlugins(&Plugin::OnRequestRankLevel, client, unk1, unk2); !skip)
     {
         CallServerPreamble { Server.RequestRankLevel(client.GetValue(), (uchar*)unk1, unk2); }
@@ -184,7 +182,6 @@ void __stdcall IServerImplHook::RequestRankLevel(ClientId client, uint unk1, int
 
 void __stdcall IServerImplHook::RequestPlayerStats(ClientId client, uint unk1, int unk2)
 {
-    TRACE(L"{0} {1} {2}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) }, { L"unk2", std::to_wstring(unk2) });
     if (const auto skip = CallPlugins(&Plugin::OnRequestPlayerStats, client, unk1, unk2); !skip)
     {
         CallServerPreamble { Server.RequestPlayerStats(client.GetValue(), (uchar*)unk1, unk2); }
@@ -230,7 +227,7 @@ bool CharacterInfoReqCatch(ClientId client, bool)
 
 void __stdcall IServerImplHook::CharacterInfoReq(ClientId client, bool unk1)
 {
-    TRACE(L"{0} {1}", { L"client", std::to_wstring(client.GetValue()) }, { L"unk1", std::to_wstring(unk1) });
+    TRACE("{{client}} {{unk1}}", { "client", client }, { "unk1", unk1 });
 
     const auto skip = CallPlugins(&Plugin::OnCharacterInfoRequest, client, unk1);
 

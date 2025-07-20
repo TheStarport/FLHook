@@ -17,20 +17,18 @@ bool GoTradelaneCatch(ClientId client, const XGoTradelane& gtl)
 {
     uint system;
     pub::Player::GetSystem(client.GetValue(), system);
-    TRACE(L"{0} {1} {2} {3}",
-          { L"characterName", std::wstring(client.GetCharacterName().Unwrap()) },
-          { L"system", std::to_wstring(system) },
-          { L"tradelaneSpaceObj1", std::to_wstring(gtl.tradelaneSpaceObj1.GetValue()) },
-          { L"tradelaneSpaceObj2", std::to_wstring(gtl.tradelaneSpaceObj2.GetValue()) })
+    TRACE("{{characterName}} {{system}} {{tradelaneSpaceObj1}} {{tradelaneSpaceObj2}}",
+          { "characterName", std::wstring(client.GetCharacterName().Unwrap()) },
+          { "system", system },
+          { "tradelaneSpaceObj1", gtl.tradelaneSpaceObj1 },
+          { "tradelaneSpaceObj2", gtl.tradelaneSpaceObj2 });
 
     return true;
 }
 
 void __stdcall IServerImplHook::GoTradelane(ClientId client, const XGoTradelane& gt)
 {
-    TRACE(L"{0}", { L"client", std::to_wstring(client.GetValue()) })
-
-
+    TRACE("{{client}}", { "client", client });
 
     const auto skip = CallPlugins(&Plugin::OnTradelaneStart, client, gt);
 
@@ -51,13 +49,11 @@ void __stdcall IServerImplHook::StopTradelane(ClientId client, Id shipId, Id tra
     auto tradeLane1 = tradelaneRing1.AsObject();
     auto tradeLane2 = tradelaneRing2.AsObject();
 
-
-    TRACE(L"{0} {1} {2} {3}",
-          { L"client", std::to_wstring(client.GetValue()) },
-          { L"shipId", std::to_wstring(shipId.GetValue()) },
-          { L"tradelaneRing1", std::to_wstring(tradeLane1.GetId().Unwrap().GetValue()) },
-          { L"tradelaneRing2", std::to_wstring(tradeLane2.GetId().Unwrap().GetValue()) });
-
+    TRACE("{{client}} {{shipId}} {{tradelaneRing1}} {{tradelaneRing2}}",
+          { "client", client },
+          { "shipId", shipId },
+          { "tradelaneRing1", tradeLane1.GetId().Unwrap() },
+          { "tradelaneRing2", tradeLane2.GetId().Unwrap() });
 
     const auto skip = CallPlugins(&Plugin::OnTradelaneStop, client, ship, tradeLane1, tradeLane2);
 

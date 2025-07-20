@@ -192,7 +192,8 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
         {
             f.Message(msg);
         }
-        DEBUG(std::wstring(ex.Msg()));
+
+        DEBUG("{{ex}}", { "ex", ex.Msg() });
         return false;
     }
     catch ([[maybe_unused]] std::exception& exc) { return false; }
@@ -205,8 +206,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
 
 void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, char* rdlReader, CHAT_ID cidTo, int genArg1)
 {
-
-    TRACE(L"{0} {1} {2}", { L"cidFrom", std::to_wstring(cidFrom.id) }, { L"size", std::to_wstring(size) }, { L"cidTo", std::to_wstring(cidTo.id) });
+    TRACE("{{fromId}} {{size}} {{toId}}", { "fromId", cidFrom.id }, { "size", size }, { "toId", cidTo.id });
 
     if (const auto flufPayload = FlufPayload::FromPayload(rdlReader, size);
         cidTo.id == static_cast<uint>(SpecialChatIds::SpecialBase) && flufPayload.has_value())

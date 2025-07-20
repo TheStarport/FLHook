@@ -10,7 +10,7 @@ using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
 using bsoncxx::builder::basic::make_document;
 
-concurrencpp::result<void>MailManager::InformOnlineUsersOfNewMail(
+concurrencpp::result<void> MailManager::InformOnlineUsersOfNewMail(
     std::vector<rfl::Variant<bsoncxx::oid, std::string>> accountIdOrCharacterNames) // NOLINT(*-unnecessary-value-param)
 {
     THREAD_MAIN;
@@ -97,7 +97,7 @@ Action<std::vector<Mail>> MailManager::GetAccountMail(std::string accountId, int
             auto mailResult = rfl::bson::read<Mail>(result.data(), result.length());
             if (!mailResult)
             {
-                ERROR(L"Error while trying to read mail for character: {0}", { L"Character", StringUtils::stows(accountId) });
+                ERROR("Error while trying to read mail for character: {{character}}", { "character", accountId });
                 continue;
             }
 
@@ -116,7 +116,7 @@ Action<std::vector<Mail>> MailManager::GetAccountMail(std::string accountId, int
     }
     catch (mongocxx::exception& ex)
     {
-        ERROR(L"Unable to aggregate account mail query: {0}", { L"ex", StringUtils::stows(ex.what()) });
+        ERROR("Unable to aggregate account mail query: {{ex}}", { "ex", ex.what() });
         return { cpp::fail(Error::DatabaseError) };
     }
 }
@@ -166,8 +166,7 @@ Action<std::vector<Mail>> MailManager::GetCharacterMail(bsoncxx::oid characterId
             if (!mail)
             {
 
-                ERROR(L"Error while trying to read mail for character: {0}", { L"character", StringUtils::stows(characterId.to_string()) })
-
+                ERROR("Error while trying to read mail for character: {{character}}", { "character", characterId.to_string() });
                 continue;
             }
 
@@ -186,7 +185,7 @@ Action<std::vector<Mail>> MailManager::GetCharacterMail(bsoncxx::oid characterId
     }
     catch (mongocxx::exception& ex)
     {
-        ERROR(L"Unable to aggregate account mail query: {0}", { L"query", StringUtils::stows(ex.what()) });
+        ERROR("Unable to aggregate account mail query: {{ex}}", { "ex", ex.what() });
         return { cpp::fail(Error::DatabaseError) };
     }
 }
@@ -207,7 +206,7 @@ Action<void> MailManager::DeleteMail(const Mail& mail)
     }
     catch (mongocxx::exception& ex)
     {
-        ERROR(L"Unable to delete mail: {0}", { L"mail", StringUtils::stows(ex.what()) });
+        ERROR("Unable to delete mail: {{ex}}", { "ex", ex.what() });
     }
 
     return { cpp::fail(Error::DatabaseError) };
@@ -247,7 +246,7 @@ Action<void> MailManager::MarkMailAsRead(const Mail& mail, rfl::Variant<std::str
     }
     catch (mongocxx::exception& ex)
     {
-        ERROR(L"Unable to mark mail as read: {}", { L"what", StringUtils::stows(ex.what()) });
+        ERROR("Unable to mark mail as read: {{ex}}", { "ex", ex.what() });
     }
 
     return { cpp::fail(Error::DatabaseError) };
@@ -257,19 +256,19 @@ Action<void> MailManager::SendMail(Mail& mail)
 {
     if (mail._id.bytes() != nullptr)
     {
-        WARN(L"Sending mail that already has an ID is invalid!");
+        WARN("Sending mail that already has an ID is invalid!");
         return { cpp::fail(Error::DatabaseError) };
     }
 
     if (!mail.author.has_value() && !mail.origin.has_value())
     {
-        WARN(L"Cannot send mail that has no origin and no author!");
+        WARN("Cannot send mail that has no origin and no author!");
         return { cpp::fail(Error::DatabaseError) };
     }
 
     if (mail.recipients.empty())
     {
-        WARN(L"Cannot send mail with no designated recipients!");
+        WARN("Cannot send mail with no designated recipients!");
         return { cpp::fail(Error::DatabaseError) };
     }
 
@@ -296,7 +295,7 @@ Action<void> MailManager::SendMail(Mail& mail)
     }
     catch (const mongocxx::exception& ex)
     {
-        ERROR(L"Error while trying to send mail {0}", { L"error", StringUtils::stows(ex.what()) })
+        ERROR("Error while trying to send mail {{ex}}", { "ex", ex.what() });
     }
 
     FLHook::GetTaskScheduler()->ScheduleTask(InformOnlineUsersOfNewMail, mailTargets);

@@ -27,7 +27,7 @@ namespace Plugins
 
         if (lootTables.empty())
         {
-            WARN(L"No lootables loaded, plugin inactive")
+            WARN("No lootables loaded, plugin inactive");
             return false;
         }
 
@@ -110,7 +110,7 @@ namespace Plugins
         {
             for (const auto& error : errors)
             {
-                ERROR(error)
+                ERROR("{{error}}", { "error", error });
             };
 
             return false;
@@ -137,7 +137,7 @@ namespace Plugins
 
         std::vector<rfl::Ref<RollItem>> basket;
 
-        DEBUG(std::format(L"Lootable Selection: Points: {}, Rolls: {}", pointsBudget, rollsLeft));
+        DEBUG("Lootable Selection: Points: {{points}}, Rolls: {{rollsLeft}}", { "points", pointsBudget }, { "rollsLeft", rollsLeft });
 
         uint rollsWithoutAnItem = 0;
         while (pointsBudget > 0 && rollsLeft-- > 0 && rollsWithoutAnItem < table->maxRollsWithoutAnItem)
@@ -151,12 +151,17 @@ namespace Plugins
                 {
                     rollsWithoutAnItem++;
 
-                    DEBUG(std::format(L"Rolled an item costing {}, but points left was {}", item->cost.value(), pointsBudget));
-                    DEBUG(std::format(L"Rolls left: {}", std::clamp(rollsLeft, table->maxRollsWithoutAnItem - rollsWithoutAnItem, UINT_MAX)));
+                    DEBUG("Rolled an item costing {{value}}, but points left was {{budget}}", { "value", item->cost.value() }, { "budget", pointsBudget });
+                    DEBUG("Rolls left: {{rollsLeft}}", { "rollsLeft", std::clamp(rollsLeft, table->maxRollsWithoutAnItem - rollsWithoutAnItem, UINT_MAX) });
                     continue;
                 }
 
-                DEBUG(std::format(L"Consuming {} points, leaving {} left over", *item->cost, pointsBudget - *item->cost));
+                DEBUG("Consuming {{cost}} points, leaving {{budget}} left over",
+                      {
+                          "cost",
+                          *item->cost,
+                      },
+                      { "budget", pointsBudget - *item->cost });
                 pointsBudget -= *item->cost;
             }
 
@@ -196,25 +201,25 @@ namespace Plugins
     {
         if (killerId.IsNpc())
         {
-            TRACE(L"Ship destroyed by NPC, ignoring possible lootable")
+            TRACE("Ship destroyed by NPC, ignoring possible lootable");
             return;
         }
 
         auto* params = ResourceManager::LookupShipCreationInfo(ship->cship()->id.GetValue());
         if (!params)
         {
-            DEBUG(L"Destroyed ship had no creation params");
+            DEBUG("Destroyed ship had no creation params");
             return;
         }
 
         const auto lootTable = std::ranges::find_if(lootTables, [params](const auto& table) { return table.second->loadout.GetValue() == params->loadout; });
         if (lootTable == lootTables.end())
         {
-            DEBUG(L"Destroyed ship had no loot table associated with it");
+            DEBUG("Destroyed ship had no loot table associated with it");
             return;
         }
 
-        DEBUG(std::format(L"Lootable found for {}", Id(params->loadout)));
+        DEBUG("Lootable found for {{itemId}}", { "itemId", Id(params->loadout) });
         LootTableRoll(lootTable->second, killerId.GetPlayer().Handle());
     }
 
@@ -222,25 +227,25 @@ namespace Plugins
     {
         if (killerId.IsNpc())
         {
-            TRACE(L"Solar destroyed by NPC, ignoring possible lootable")
+            TRACE("Solar destroyed by NPC, ignoring possible lootable");
             return;
         }
 
         auto* params = ResourceManager::LookupSolarCreationInfo(solar->csolar()->id.GetValue());
         if (!params)
         {
-            DEBUG(L"Destroyed solar had no creation params");
+            DEBUG("Destroyed solar had no creation params");
             return;
         }
 
         const auto lootTable = std::ranges::find_if(lootTables, [params](const auto& table) { return table.second->loadout == params->loadoutId; });
         if (lootTable == lootTables.end())
         {
-            DEBUG(L"Destroyed solar had no loot table associated with it");
+            DEBUG("Destroyed solar had no loot table associated with it");
             return;
         }
 
-        DEBUG(std::format(L"Lootable found for {}", Id(params->loadoutId)));
+        DEBUG("Lootable found for {{item}}", { "item", Id(params->loadoutId) });
         LootTableRoll(lootTable->second, killerId.GetPlayer().Handle());
     }
 } // namespace Plugins

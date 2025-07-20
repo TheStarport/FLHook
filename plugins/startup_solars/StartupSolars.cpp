@@ -166,7 +166,7 @@ namespace Plugins
         {
             for (const auto& error : errors)
             {
-                ERROR(error)
+                ERROR("{{error}}", { "error", error });
             };
 
             return false;
@@ -183,7 +183,7 @@ namespace Plugins
         {
             if (group->spawnChance.has_value() && Random::UniformFloat(0.f, 1.f) > group->spawnChance.value())
             {
-                DEBUG(L"Skipped solar group spawn {0}", { L"name", StringUtils::stows(name) });
+                DEBUG("Skipped solar group spawn {{name}}", { "name", name });
                 continue;
             }
 
@@ -250,11 +250,11 @@ namespace Plugins
 
             if (solar->spawnedEntity.value().expired())
             {
-                DEBUG(L"Failed to spawn solar within formation");
+                DEBUG("Failed to spawn solar within formation");
                 continue;
             }
 
-            DEBUG(L"Spawned solar within formation");
+            DEBUG("Spawned solar within formation");
         }
     }
 

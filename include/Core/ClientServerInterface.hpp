@@ -206,7 +206,7 @@ class IServerImplHook
 #define CallServerPostamble(catchArgs, rval) \
     }                                        \
     CatchHook({                              \
-        ERROR(L"Exception in server call");  \
+        ERROR("Exception in server call");   \
         bool ret = catchArgs;                \
         if (!ret)                            \
         {                                    \
@@ -228,11 +228,11 @@ class IServerImplHook
     memcpy(&Client, &tmp, 4); \
     }
 
-#define CheckForDisconnect                                                                                 \
-    {                                                                                                      \
-        if (client.GetData().disconnected)                                                                 \
-        {                                                                                                  \
-            DEBUG(L"Ignoring disconnected client {0}", { L"client", std::to_wstring(client.GetValue()) }); \
-            return;                                                                                        \
-        };                                                                                                 \
+#define CheckForDisconnect                                                          \
+    {                                                                               \
+        if (client.GetData().disconnected)                                          \
+        {                                                                           \
+            DEBUG("Ignoring disconnected client {{client}}", { "client", client }); \
+            return;                                                                 \
+        };                                                                          \
     }

@@ -42,12 +42,7 @@
         e;                                                     \
     }                                                          \
     catch ([[maybe_unused]] const StopProcessingException&) {} \
-    catch (const GameException& ex)                            \
-    {                                                          \
-        INFO(std::wstring(ex.Msg()));                          \
-        WARN(std::wstring(ex.Trace()));                        \
-        e;                                                     \
-    }                                                          \
+    catch (const GameException& ex) {}                         \
     catch ([[maybe_unused]] std::exception & exc) { e; }       \
     catch (...) { e; }
 

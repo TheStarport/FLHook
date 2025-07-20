@@ -261,7 +261,10 @@ void ExceptionHandler::LogException(const SehException& ex)
             WCHAR moduleName[MAX_PATH];
             GetModuleBaseNameW(GetCurrentProcess(), module, moduleName, MAX_PATH);
 
-            ERROR(L"{0} {1} {2}", { L"code", std::to_wstring(code) }, { L"offset", std::to_wstring(offset) }, { L"moduleName", moduleName })
+            ERROR("Uncaught Exception: {{code}}\n {{offset}}\n {{moduleName}}",
+                  { "code", code },
+                  { "offset", offset },
+                  { "moduleName", std::wstring_view(moduleName) });
 
             if (code == 0xE06D7363 && exception->NumberParameters == 3) // C++ exception
             {
@@ -288,11 +291,11 @@ void ExceptionHandler::LogException(const SehException& ex)
                     GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)address, &module);
                     GetModuleBaseNameW(GetCurrentProcess(), module, moduleName, MAX_PATH);
                 }
-                ERROR(L"{0} {1} {2} {3}",
-                      { L"name", StringUtils::stows(szName) },
-                      { L"message", StringUtils::stows(szMessage) },
-                      { L"offset", std::to_wstring(offset) },
-                      { L"moduleName", wcsrchr(moduleName, L'\\') + 1 })
+                ERROR("{{name}}\n {{message}}\n {{offset}}\n {{moduleName}}",
+                      { "name", StringUtils::stows(szName) },
+                      { "message", StringUtils::stows(szMessage) },
+                      { "offset", std::to_wstring(offset) },
+                      { "moduleName", wcsrchr(moduleName, L'\\') + 1 });
             }
 
             void* callers[62];
@@ -305,28 +308,28 @@ void ExceptionHandler::LogException(const SehException& ex)
         }
         else
         {
-            ERROR(L"No exception information available");
+            ERROR("No exception information available");
         }
         if (reg)
         {
-            ERROR(L"{0} {1} {2} {3} {4} {5} {6} {7} {8}",
-                  { L"eax", std::to_wstring(reg->Eax) },
-                  { L"ebx", std::to_wstring(reg->Ebx) },
-                  { L"ecx", std::to_wstring(reg->Ecx) },
-                  { L"edx", std::to_wstring(reg->Edx) },
-                  { L"edi", std::to_wstring(reg->Edi) },
-                  { L"esi", std::to_wstring(reg->Esi) },
-                  { L"ebp", std::to_wstring(reg->Ebp) },
-                  { L"eip", std::to_wstring(reg->Eip) },
-                  { L"esp", std::to_wstring(reg->Esp) })
+            ERROR("EAX={{eax}} EBX={{ebx}} ECX={{ecx}} EDX={{edx}} EDI={{edi}} ESI={{esi}} EBP={{ebx}} EIP={{eip}} ESP={{esp}}",
+                  { "eax", reg->Eax },
+                  { "ebx", reg->Ebx },
+                  { "ecx", reg->Ecx },
+                  { "edx", reg->Edx },
+                  { "edi", reg->Edi },
+                  { "esi", reg->Esi },
+                  { "ebp", reg->Ebp },
+                  { "eip", reg->Eip },
+                  { "esp", reg->Esp });
         }
         else
         {
-            ERROR(L"No register information available");
+            ERROR("No register information available");
         }
     }
     catch (...)
     {
-        ERROR(L"Exception in AddExceptionInfoLog!");
+        ERROR("Exception in AddExceptionInfoLog!");
     }
 }

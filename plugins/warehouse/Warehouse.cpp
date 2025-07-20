@@ -11,15 +11,15 @@ namespace Plugins
     using bsoncxx::builder::basic::make_array;
     using bsoncxx::builder::basic::make_document;
 
-#define VALIDATE_ACCOUNT                                                                                        \
-    if (!account)                                                                                               \
-    {                                                                                                           \
-        ERROR(L"Error when accessing database: {0}", { L"Error", StringUtils::stows(account.error().what()) }); \
-        if (client && client.GetData().account->_id == accountId)                                               \
-        {                                                                                                       \
-            (void)client.Message(L"Something went wrong while accessing the data. Please try again.");          \
-        }                                                                                                       \
-        co_return;                                                                                              \
+#define VALIDATE_ACCOUNT                                                                               \
+    if (!account)                                                                                      \
+    {                                                                                                  \
+        ERROR("Error when accessing database: {{error}}", { "error", account.error().what() });        \
+        if (client && client.GetData().account->_id == accountId)                                      \
+        {                                                                                              \
+            (void)client.Message(L"Something went wrong while accessing the data. Please try again."); \
+        }                                                                                              \
+        co_return;                                                                                     \
     }
 
     WarehousePlugin::WarehousePlugin(const PluginInfo& info) : Plugin(info) {}

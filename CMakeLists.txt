@@ -54,7 +54,7 @@ file(GLOB_RECURSE SOURCE_FILES LIST_DIRECTORIES false
         "${VENDOR}/reflect-cpp/*.hpp"
 )
 
-find_package(msgpack)
+find_package(msgpack CONFIG REQUIRED)
 find_package(mongoc-1.0 CONFIG REQUIRED)
 
 set(REFLECTCPP_BUILD_SHARED OFF)

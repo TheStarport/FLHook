@@ -46,7 +46,7 @@ void ConvertCharacterToVanillaData(CharacterData* data, const Character& charact
 #define AddCargo(cargo, list)                               \
     EquipDesc equipDesc;                                    \
     equipDesc.id = data->equipIdEnumerator.CreateEquipID(); \
-    equipDesc.archId = Id(cargo.archId);                        \
+    equipDesc.archId = Id(cargo.archId);                    \
     equipDesc.mounted = false;                              \
     equipDesc.count = cargo.amount;                         \
     equipDesc.health = cargo.health;                        \
@@ -55,7 +55,7 @@ void ConvertCharacterToVanillaData(CharacterData* data, const Character& charact
 #define AddEquip(equip, list)                                                \
     EquipDesc equipDesc;                                                     \
     equipDesc.id = data->equipIdEnumerator.CreateEquipID();                  \
-    equipDesc.archId = Id(equip.archId);                                         \
+    equipDesc.archId = Id(equip.archId);                                     \
     equipDesc.health = equip.health;                                         \
     equipDesc.mounted = equip.mounted;                                       \
     equipDesc.count = equip.amount;                                          \
@@ -422,11 +422,11 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
 
 void AccountManager::LoadNewPlayerFLInfo()
 {
-    DEBUG(L"Loading new player information");
+    DEBUG("Loading new player information");
     INI_Reader ini;
     if (!ini.open("mpnewcharacter.fl", false) || !ini.find_header("Player"))
     {
-        ERROR(L"Unable to load [Player] from mpnewcharacter.fl");
+        ERROR("Unable to load [Player] from mpnewcharacter.fl");
         return;
     }
 
@@ -466,7 +466,7 @@ void AccountManager::LoadNewPlayerFLInfo()
             newPlayerTemplate.system = ini.get_value_string();
             if (newPlayerTemplate.system != "%%HOME_SYSTEM%%" && !Universe::get_system(CreateID(newPlayerTemplate.system.c_str())))
             {
-                ERROR(L"System referenced inside of newplayer.fl is not valid!");
+                ERROR("System referenced inside of newplayer.fl is not valid!");
             }
         }
         else if (key == "base")
@@ -474,7 +474,7 @@ void AccountManager::LoadNewPlayerFLInfo()
             newPlayerTemplate.base = ini.get_value_string();
             if (newPlayerTemplate.base != "%%HOME_BASE%%" && !Universe::get_base(CreateID(newPlayerTemplate.base.c_str())))
             {
-                ERROR(L"Base referenced inside of newplayer.fl is not valid!");
+                ERROR("Base referenced inside of newplayer.fl is not valid!");
             }
         }
         else if (key == "house")
@@ -490,7 +490,7 @@ void AccountManager::LoadNewPlayerFLInfo()
             newPlayerTemplate.ship = CreateID(ini.get_value_string());
             if (!Archetype::GetShip(newPlayerTemplate.ship))
             {
-                ERROR(L"Base referenced inside of newplayerfl is not valid!");
+                ERROR("Base referenced inside of newplayerfl is not valid!");
             }
         }
         else if (key == "%%PACKAGE%%")
@@ -501,8 +501,8 @@ void AccountManager::LoadNewPlayerFLInfo()
 
     if (!newPlayerTemplate.hasPackage)
     {
-        ERROR(L"Missing %%PACKAGE%% from mpnewplayer.fl. If the package is missing any data from a valid save file, "
-              L"new characters can cause server and client crashes.");
+        ERROR("Missing %%PACKAGE%% from mpnewplayer.fl. If the package is missing any data from a valid save file, "
+              "new characters can cause server and client crashes.");
     }
 }
 
@@ -661,17 +661,17 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     auto playerMapCache = pd->characterMap.find(client.playerData->charFile);
     if (playerMapCache == pd->characterMap.end())
     {
-        ERROR(std::format(L"Fetching Base Status failed for {}", client.characterName));
+        ERROR("Fetching Base Status failed for {{characterName}}", { "characterName", client.characterName });
         return true;
     }
 
     static DWORD contentModule = DWORD(GetModuleHandleA("content.dll")) + 0x130BBC;
-    static FlMap<uint, MPlayerDataSaveStruct*>* mdataBST = (FlMap<uint, MPlayerDataSaveStruct*>*)contentModule;
+    static auto mdataBST = reinterpret_cast<FlMap<uint, MPlayerDataSaveStruct*>*>(contentModule);
 
     auto mdataIter = mdataBST->find(pd->clientId);
     if (mdataIter == mdataBST->end())
     {
-        ERROR(std::format(L"Fetching mPlayer data failed for {}", client.characterName));
+        ERROR("Fetching mPlayer data failed for {{characterName}}", { "characterName", client.characterName });
         return true;
     }
 

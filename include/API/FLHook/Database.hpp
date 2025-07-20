@@ -20,7 +20,9 @@ enum class DatabaseCollection
 {
     Accounts,
     Character,
-    Mail
+    Mail,
+    ChatLog,
+    ServerLog
 };
 
 class DLL Database
@@ -67,9 +69,11 @@ class DLL DatabaseQuery
                                                                    const std::optional<bsoncxx::document::view>& projection = {}) const;
 
         bsoncxx::document::value FindAndUpdate(std::string_view collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
-                                               const std::optional<bsoncxx::document::view>& projection = {}, bool before = true, bool replace = false, bool upsert = false) const;
+                                               const std::optional<bsoncxx::document::view>& projection = {}, bool before = true, bool replace = false,
+                                               bool upsert = false) const;
         bsoncxx::document::value FindAndUpdate(DatabaseCollection collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
-                                               const std::optional<bsoncxx::document::view>& projection = {}, bool before = true, bool replace = false, bool upsert = false) const;
+                                               const std::optional<bsoncxx::document::view>& projection = {}, bool before = true, bool replace = false,
+                                               bool upsert = false) const;
 
         bsoncxx::document::value FindAndDelete(DatabaseCollection collectionName, bsoncxx::document::view filter,
                                                const std::optional<bsoncxx::document::view>& projection = {}) const;
