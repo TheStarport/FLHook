@@ -387,6 +387,14 @@ class DLL ClientId
         Action<void> MessageErr(std::wstring_view message) const;
 
         /**
+         * Gets a list of all clients within a specific distance of this client, including itself
+         * @param range the range in meters of which other players will be included
+         * @returns On success : List of client IDs nearby the client
+         * @returns On fail : InCharacterSelect.
+         */
+        Action<std::vector<ClientId>> GetLocalClients(const float range = 10'000.0f) const;
+
+        /**
          * sends a local message to the player and other players within a specified radius.
          * @param message the text you wish to send.
          * @param range the range in meters of which other players will receive the message
