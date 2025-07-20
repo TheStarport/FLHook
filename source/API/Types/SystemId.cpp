@@ -97,7 +97,7 @@ Action<std::vector<ClientId>> SystemId::GetPlayersInSystem(bool includeDocked) c
     std::vector<ClientId> clients;
     for (auto& client : FLHook::Clients())
     {
-        if (!client.shipId && !includeDocked)
+        if (!ClientId(client.id).GetShip().Unwrap() && !includeDocked)
         {
             continue;
         }

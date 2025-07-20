@@ -556,7 +556,7 @@ Action<void> ClientId::Message(const std::wstring_view message, const MessageFor
 }
 Action<void> ClientId::MessageErr(const std::wstring_view message) const { return Message(message, MessageFormat::Normal, MessageColor::Crimson); }
 
-Action<void> ClientId::MessageLocal(const std::wstring_view message, const float range, const MessageFormat format, const MessageColor color) const
+Action<std::vector<ClientId>> ClientId::GetLocalClients(const float range) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -569,18 +569,28 @@ Action<void> ClientId::MessageLocal(const std::wstring_view message, const float
 
     const auto system = ship->GetSystem().Unwrap();
     const auto [position, _] = ship->GetPositionAndOrientation().Unwrap();
-    for (auto& client : FLHook::Clients())
+    std::vector<ClientId> locals;
+    for (auto& client : system.GetPlayersInSystem().Unwrap())
     {
-        if (client.id == *this || !client.shipId || system != client.ship.GetSystem().Unwrap())
-        {
-            continue;
-        }
-
-        auto [otherPos, _] = client.ship.GetPositionAndOrientation().Unwrap();
+        auto [otherPos, _] = client.GetShip().Raw()->GetPositionAndOrientation().Unwrap();
         if (const auto distance = glm::abs(glm::distance<3, float, glm::packed_highp>(position, otherPos)); distance <= range)
         {
-            (void)Message(message, format, color);
+            locals.emplace_back(client);
         }
+    }
+
+    return { locals };
+}
+
+Action<void> ClientId::MessageLocal(const std::wstring_view message, const float range, const MessageFormat format, const MessageColor color) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    auto recipients = GetLocalClients(10'000.0f).Handle();
+    for (auto client : recipients)
+    {
+        (void)client.Message(message, format, color);
     }
 
     return { {} };
@@ -607,7 +617,7 @@ Action<void> ClientId::MessageCustomXml(const std::wstring_view rawXml) const
     std::fill_n(buffer.begin(), buffer.size(), '\0');
 
     uint ret;
-    if (const auto err = InternalApi::FMsgEncodeXml(StringUtils::XmlText(rawXml), buffer.data(), buffer.size(), ret).Raw(); err.has_error())
+    if (const auto err = InternalApi::FMsgEncodeXml(rawXml, buffer.data(), buffer.size(), ret).Raw(); err.has_error())
     {
         return { cpp::fail(err.error()) };
     }

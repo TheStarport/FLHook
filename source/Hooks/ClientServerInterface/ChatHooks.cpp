@@ -35,6 +35,116 @@ std::wstring ReplaceExclamationMarkWithClientId(std::wstring commandString, uint
     return commandString;
 }
 
+/*
+Replace #t and #c tags with current target name and current ship location.
+Return false if tags cannot be replaced.
+*/
+static bool ReplaceMessageTags(ClientId client, std::wstring& msg)
+{
+    if (msg.find(L"#t") != -1)
+    {
+        ShipId ourShip = client.GetShip().Unwrap();
+        if (!ourShip)
+        {
+            (void)client.MessageErr(L"Not in space, cannot use message containing #t");
+            return false;
+        }
+        ClientId targetClient = ourShip.GetTarget().Handle().GetPlayer().Unwrap();
+        if (!targetClient)
+        {
+            (void)client.MessageErr(L"No player targetted, cannot use message containing #t");
+            return false;
+        }
+
+        msg = StringUtils::ReplaceStr(msg, std::wstring_view(L"#t"), targetClient.GetCharacterName().Handle());
+    }
+
+    if (msg.find(L"#c") != -1)
+    {
+        SystemId system = client.GetSystemId().Handle();
+        auto ship = client.GetShip().Unwrap();
+        if (!ship)
+        {
+            (void)client.MessageErr(L"Not in space, cannot use message containing #c");
+            return false;
+        }
+
+        const auto [position, _] = ship.GetPositionAndOrientation().Unwrap();
+
+        msg = StringUtils::ReplaceStr(msg, std::wstring_view(L"#c"), std::wstring_view(system.PositionToSectorCoord(position).Handle()));
+    }
+
+    return true;
+}
+
+void SendClientSavedMsg(ClientId client, char destCode, uint msgIdx)
+{
+    auto& msg = client.GetData().presetMsgs[msgIdx];
+    if (msg.size() == 0)
+    {
+        (void)client.MessageErr(L"No message defined");
+        return;
+    }
+
+    if (!ReplaceMessageTags(client, msg))
+    {
+        return;
+    }
+
+    const auto& sender = client.GetCharacterName().Handle();
+    std::vector<ClientId> recipients;
+    std::wstring colour;
+    ShipId ourShip;
+    ClientId targetClient;
+    switch (destCode)
+    {
+        case 't':
+            ourShip = client.GetShip().Unwrap();
+            if (!ourShip)
+            {
+                (void)client.MessageErr(L"Not in space");
+                return;
+            }
+            targetClient = ourShip.GetTarget().Handle().GetPlayer().Unwrap();
+            if (!targetClient)
+            {
+                (void)client.MessageErr(L"No player targetted");
+                return;
+            }
+            recipients.emplace_back(client); // sender is a recipient of a targetted message
+            recipients.emplace_back(targetClient);
+            colour = L"19BD3A";
+            break;
+        case 'l':
+            recipients = client.GetLocalClients().Unwrap();
+            colour = L"FF8F40";
+            break;
+        case 's':
+            recipients = client.GetSystemId().Handle().GetPlayersInSystem(true).Unwrap();
+            colour = L"E6C684";
+            break;
+        case 'g':
+            GroupId group = client.GetGroup().Unwrap();
+            if (!group)
+            {
+                (void)client.MessageErr(L"Not in group");
+                return;
+            }
+            recipients = group.GetGroupMembers().Unwrap();
+            colour = L"FF7BFF";
+            break;
+    }
+    for (ClientId recipient : recipients)
+    {
+        recipient.MessageCustomXml(std::format(
+            L"<TRA data=\"0xFFFFFF00\" mask=\"-1\"/><TEXT>{}: </TEXT><TRA data=\"0x{}00\" mask=\"-1\" /><TEXT>{}</TEXT>",
+            StringUtils::XmlText(sender),
+            colour,
+            StringUtils::XmlText(msg)
+        ));
+    }
+}
+
 bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CHAT_ID& to, int)
 {
     TryHook
@@ -106,22 +216,39 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
                 return false;
             }
 
-            if (strBuffer.length() > 2 && strBuffer[2] == L' ')
+            if (strBuffer.length() == 2 && strBuffer[1] >= '0' && strBuffer[1] <= '9')
             {
-                if (strBuffer[1] == 'g')
+                SendClientSavedMsg(client, FLHook::GetConfig()->chatConfig.defaultLocalChat ? 'l' : 's', strBuffer[1] - '0');
+                return false;
+            }
+
+            if (strBuffer.length() > 2)
+            {
+                char destCode = strBuffer[1];
+                if (destCode == 'l' || destCode == 's' || destCode == 'g' || destCode == 't')
                 {
                     foundCommand = true;
-                    to.id = static_cast<uint>(SpecialChatIds::Group);
-                }
-                else if (strBuffer[1] == 's')
-                {
-                    foundCommand = true;
-                    to.id = static_cast<uint>(SpecialChatIds::System);
-                }
-                else if (strBuffer[1] == 'l')
-                {
-                    foundCommand = true;
-                    to.id = static_cast<uint>(SpecialChatIds::Local);
+
+                    if (strBuffer[2] == L' ')
+                    {
+                        if (destCode == 'g')
+                        {
+                            to.id = static_cast<uint>(SpecialChatIds::Group);
+                        }
+                        else if (destCode == 's')
+                        {
+                            to.id = static_cast<uint>(SpecialChatIds::System);
+                        }
+                        else if (destCode == 'l')
+                        {
+                            to.id = static_cast<uint>(SpecialChatIds::Local);
+                        }
+                    }
+                    else if (strBuffer.length() == 3 && strBuffer[2] >= '0' && strBuffer[2] <= '9')
+                    {
+                        SendClientSavedMsg(client, destCode, strBuffer[2] - '0');
+                        return false;
+                    }
                 }
             }
 
