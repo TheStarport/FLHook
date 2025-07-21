@@ -919,7 +919,7 @@ Id ResourceManager::CreateSolarSimple(SolarSpawnStruct& solarSpawnData, Plugin* 
     memset(&si, 0, sizeof(si));
     si.flag = 4;
     si.archId = solarSpawnData.solarArchetypeId;
-    si.loadoutId = solarSpawnData.loadoutArchetypeId;
+    si.loadoutId = solarSpawnData.solarLoadoutId;
 
     si.hitPointsLeft = -1;
     si.systemId = solarSpawnData.systemId;

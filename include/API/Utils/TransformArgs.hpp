@@ -1,6 +1,26 @@
 #pragma once
 #include "Exceptions/InvalidParameterException.hpp"
 
+#define OptionalTransformArg(x)                                            \
+    template <>                                                            \
+    std::optional<x> TransformArg(std::wstring_view s, size_t paramNumber) \
+    {                                                                      \
+        try                                                                \
+        {                                                                  \
+            return TransformArg<x>(s, paramNumber);                        \
+        }                                                                  \
+        catch (InvalidParameterException)                                  \
+        {                                                                  \
+            return {};                                                     \
+        }                                                                  \
+    }
+
+#define DefineTransformArg(x)\
+template <>\
+x TransformArg(std::wstring_view s, size_t paramNumber);\
+template <>\
+std::optional<x> TransformArg(std::wstring_view s, size_t paramNumber)
+
 // NOLINTBEGIN(*-identifier-length)
 template <typename Test, template <typename...> class Ref>
 struct IsSpecialization : std::false_type
@@ -35,35 +55,16 @@ struct StrToEnd
         std::wstring_view end;
 };
 
-template <>
-std::wstring_view TransformArg(std::wstring_view s, size_t paramNumber);
-
-template <>
-StrToEnd TransformArg(std::wstring_view s, size_t paramNumber);
-
-template <>
-bool TransformArg(std::wstring_view s, size_t paramNumber);
-
-template <>
-Archetype::Ship* TransformArg(std::wstring_view s, size_t paramNumber);
-
-template <>
-Archetype::Equipment* TransformArg(std::wstring_view s, size_t paramNumber);
-
-template <>
-ClientId TransformArg(std::wstring_view s, size_t paramNumber);
-
-template <>
-GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber);
-
-template <>
-BaseId TransformArg(std::wstring_view s, size_t paramNumber);
-
-template <>
-SystemId TransformArg(std::wstring_view s, size_t paramNumber);
-
-template <>
-RepGroupId TransformArg(std::wstring_view s, size_t paramNumber);
+DefineTransformArg(std::wstring_view);
+DefineTransformArg(StrToEnd);
+DefineTransformArg(bool);
+DefineTransformArg(Archetype::Ship*);
+DefineTransformArg(Archetype::Equipment*);
+DefineTransformArg(ClientId);
+DefineTransformArg(GoodInfo*);
+DefineTransformArg(BaseId);
+DefineTransformArg(SystemId);
+DefineTransformArg(RepGroupId);
 
 template <typename T>
     requires IsSpecialization<T, std::vector>::value

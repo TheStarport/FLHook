@@ -469,18 +469,18 @@ class DLL ResourceManager final
 
         struct SolarSpawnStruct
         {
-                std::string pluginName;
+                Id spaceObjId; // leave empty, return value of the spawned entity
                 Id solarArchetypeId;
-                Id loadoutArchetypeId;
+                Id solarLoadoutId;
                 std::string nickname;
                 uint solarIds;
                 std::wstring nameOverride;
                 Vector pos;
                 Matrix ori;
                 SystemId systemId;
-                Id spaceObjId;
                 SystemId destSystem;
                 Id destObj;
+                Id baseId;
                 Id affiliation;
                 float percentageHp = 1.0f;
         };

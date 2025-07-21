@@ -268,6 +268,12 @@ namespace Plugins
             co_return;
         }
 
+        if (IsClientJumping(client))
+        {
+            client.MessageErr(L"Unable to cloak while Jump Drive is engaged");
+            co_return;
+        }
+
         auto ship = client.GetShip().Handle();
         uint type = ship.GetArchetype().Handle()->archType;
 
@@ -459,6 +465,17 @@ namespace Plugins
         FLHook::GetPacketInterface()->Send_FLPACKET_COMMON_ACTIVATEEQUIP(packetReceivingClient.GetValue(), eq);
     }
 
+    bool CloakPlugin::IsClientJumping(ClientId client)
+    {
+        auto cloakPlugin = std::static_pointer_cast<CloakPlugin>(PluginManager::i()->GetPlugin(HyperjumpPlugin::pluginName).lock());
+        if (!cloakPlugin)
+        {
+            return false;
+        }
+
+        return cloakPlugin->IsClientCloaked(client);
+    }
+
     bool CloakPlugin::OnLoadSettings()
     {
         LoadJsonWithValidation(Config, config, "config/cloak.json");
@@ -495,7 +512,7 @@ namespace Plugins
             }
             cloak.second.usableClasses.set(value);
         }
-        AddTimer([this] {}, 1000);
+        AddTimer([this] { ProcessFuel(); }, 1000);
 
         return true;
     }
@@ -655,6 +672,18 @@ namespace Plugins
 
     CloakPlugin::CloakPlugin(const PluginInfo& info) : Plugin(info) {}
 
+    bool CloakPlugin::IsClientCloaked(ClientId client)
+    {
+        auto cloakIter = clientCloakData.find(client);
+        if (cloakIter == clientCloakData.end() 
+            || cloakIter->second.cloakState == CloakState::Off)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
 } // namespace Plugins
 
 using namespace Plugins;
@@ -666,7 +695,7 @@ constexpr auto getPi = []
 {
 	return PluginInfo{
 	    .name = L"Cloak",
-	    .shortName = L"cloak",
+	    .shortName = std::wstring(CloakPlugin::pluginName),
 	    .versionMajor = PluginMajorVersion::V05,
 	    .versionMinor = PluginMinorVersion::V00
 	};

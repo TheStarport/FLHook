@@ -3,6 +3,8 @@
 #include "Core/Commands/AbstractAdminCommandProcessor.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
+#include "../hyperjump/Hyperjump.hpp"
+
 namespace Plugins
 {
     /**
@@ -110,6 +112,9 @@ namespace Plugins
 
             concurrencpp::result<void> AdminCmdCloak(ClientId client);
 
+            bool ConsumeFuel(ClientId client);
+            void ProcessFuel();
+            void ProcessDisruptors();
             void CloakDisruptor(ShipId ship, float disruptRange, int64 disruptTime);
             void EnableFuelConsumption(ClientId client);
             void InitCloak(ClientId client, float range);
@@ -118,6 +123,7 @@ namespace Plugins
             void SetCloak(ClientId client, bool cloakState);
             void SetState(ClientId client, CloakState newState);
             void SendUncloakPacket(ClientId packetReceivingClient, Id uncloakingShipId, ushort cloakSId);
+            bool IsClientJumping(ClientId client);
 
             bool OnLoadSettings() override;
             void OnCreateShipPacketAfter(ClientId client, FLPACKET_CREATESHIP& ship) override;
@@ -150,8 +156,8 @@ namespace Plugins
 
         public:
             explicit CloakPlugin(const PluginInfo& info);
-            bool ConsumeFuel(ClientId client);
-            void ProcessFuel();
-            void ProcessDisruptors();
+
+            static constexpr std::wstring_view pluginName = L"cloak";
+            bool IsClientCloaked(ClientId client);
     };
 } // namespace Plugins

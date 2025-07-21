@@ -128,7 +128,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
 #endif
         // ReSharper disable once CppRedundantAccessSpecifier
     public:
-        std::optional<std::weak_ptr<Plugin>> GetPlugin(std::wstring_view shortName);
+        std::weak_ptr<Plugin> GetPlugin(std::wstring_view shortName);
 };
 
 #ifdef FLHOOK

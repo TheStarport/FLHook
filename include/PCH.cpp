@@ -58,7 +58,7 @@ Archetype::Ship* TransformArg(const std::wstring_view s, const size_t paramNumbe
     {
         throw InvalidParameterException(s, paramNumber);
     }
-    //TODO: find ship by IDSName
+    // TODO: find ship by IDSName
 
     return ship;
 }
@@ -150,7 +150,7 @@ SystemId TransformArg(std::wstring_view s, size_t paramNumber)
 
     if (system)
     {
-        return SystemId(system->id);
+        return system->id;
     }
 
     const auto& im = FLHook::GetInfocardManager();
@@ -160,7 +160,7 @@ SystemId TransformArg(std::wstring_view s, size_t paramNumber)
     {
         if (auto name = im->GetInfoName(system->idsName); wildcards::match(name, s))
         {
-            return SystemId(system->id);
+            return system->id;
         }
 
         system = Universe::GetNextSystem();

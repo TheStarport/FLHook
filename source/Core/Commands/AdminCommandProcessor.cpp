@@ -623,13 +623,13 @@ concurrencpp::result<void> AdminCommandProcessor::ReloadPlugin(ClientId client, 
     for (auto& pluginName : pluginNames)
     {
         const auto plugin = PluginManager::i()->GetPlugin(pluginName);
-        if (!plugin)
+        if (plugin.expired())
         {
             continue;
         }
 
         std::array<wchar_t, MAX_PATH> path{};
-        const auto size = GetModuleFileNameW(plugin->lock()->dll, path.data(), MAX_PATH);
+        const auto size = GetModuleFileNameW(plugin.lock()->dll, path.data(), MAX_PATH);
         if (!size)
         {
             continue;

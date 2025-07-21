@@ -144,7 +144,7 @@ bool IClientImpl::Startup(uint unk1, uint unk2)
     {
         if (!std::string(system->file).empty())
         {
-            pub::System::LoadSystem(system->id);
+            pub::System::LoadSystem(system->id.GetValue());
             if (FLHook::GetConfig()->gameFixes.enableAlternateRadiationDamage)
             {
                 FLHook::LoadZoneDamageData(system->file);

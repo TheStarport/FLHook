@@ -62,7 +62,7 @@ cpp::result<std::wstring, Error> PluginManager::Unload(std::wstring_view name)
     return unloadedPluginDll;
 }
 
-std::optional<std::weak_ptr<Plugin>> PluginManager::GetPlugin(std::wstring_view shortName)
+std::weak_ptr<Plugin> PluginManager::GetPlugin(std::wstring_view shortName)
 {
     for (const auto& plugin : plugins)
     {
@@ -73,7 +73,7 @@ std::optional<std::weak_ptr<Plugin>> PluginManager::GetPlugin(std::wstring_view 
         }
     }
 
-    return std::nullopt;
+    return {};
 }
 
 void PluginManager::UnloadAll() { ClearData(true); }
