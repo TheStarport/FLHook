@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../cloak/Cloak.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 #include <httplib.h>
@@ -82,7 +81,35 @@ namespace Plugins
                     uint blindJumpRange = 0;
             };
 
+            struct SystemJumpCoords2
+            {
+                    int dummy;
+                    SystemId system;
+                    std::wstring sector;
+                    Vector position;
+                    Matrix ori;
+            };
+            
+            struct SystemData2
+            {
+                    std::unordered_map<uint, std::vector<SystemId>> availableSystemsPerDepth;
+                    std::vector<SystemJumpCoords2> systemCoords;
+            };
+            struct Config2 final
+            {
+                    float jumpCargoRestriction = 100000;
+                    std::unordered_set<Id> jumpRestrictedShips;
+                    std::unordered_map<Id, JumpDriveData> jumpDriveMap;
+                    std::unordered_map<Id, BeaconData> beaconMap;
+                    std::unordered_map<SystemId, SystemData2> jumpSystemData;
+                    
+                    SystemId blindJumpOverrideSystem = SystemId();
+                    int64 beaconRequestTimeout = 15000;
+                    uint blindJumpRange = 0;
+            };
+
             Config config;
+            Config2 config2;
 
             struct HyperjumpClientData
             {
@@ -110,8 +137,18 @@ namespace Plugins
                     BeaconData* beaconInfo;
             };
 
+            struct JumpHoleData
+            {
+                    int shipLimit = -1;
+                    int jumpCapacity = -1;
+                    int64 lastUntil;
+                    std::unordered_set<Id> dockingQueue;
+            };
+
             std::unordered_map<ClientId, HyperjumpClientData> clientData;
             std::unordered_map<ClientId, BeaconClientData> beaconData;
+            std::unordered_map<Id, JumpHoleData> jumpObjData;
+            std::unordered_map<Id, ObjectId> shipToJumpObjData;
 
             std::unordered_map<ClientId, ClientId> pendingBeaconRequestMap;
 
@@ -149,8 +186,13 @@ namespace Plugins
             bool OnLoadSettings() override;
             void OnPlayerLaunchAfter(ClientId client, const ShipId& shipId) override;
             void OnClearClientInfo(ClientId client) override;
+            std::optional<DOCK_HOST_RESPONSE> OnDockCall(const ShipId& shipId, const ObjectId& spaceId, int dockPortIndex,
+                                                         DOCK_HOST_RESPONSE response) override;
+            void OnJumpInComplete(SystemId system, const ShipId& ship) override;
+            void OnRequestCancel(ClientId client, EventRequestType eventType, const ShipId& ship, const ObjectId& dockTarget, const uint unk1) override;
 
-
+            
+            #ifdef HYPERJUMP_PLUGIN
             // clang-format off
             inline static const std::array<CommandInfo<HyperjumpPlugin>, 10> commands =
             {
@@ -169,10 +211,12 @@ namespace Plugins
             };
             SetupUserCommandHandler(HyperjumpPlugin, commands);
             // clang-format on
+            #endif
 
         public:
             explicit HyperjumpPlugin(const PluginInfo& info);
-            bool IsPlayerJumping(ClientId client);
+
             static constexpr std::wstring_view pluginName = L"hyperjump";
+            virtual bool IsPlayerJumping(ClientId client);
     };
 } // namespace Plugins

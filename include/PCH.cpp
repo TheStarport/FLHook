@@ -47,6 +47,7 @@ ClientId TransformArg(const std::wstring_view s, const size_t paramNumber)
 
     throw InvalidParameterException(s, paramNumber);
 }
+OptionalTransformArg(ClientId);
 
 template <>
 Archetype::Ship* TransformArg(const std::wstring_view s, const size_t paramNumber)
@@ -62,6 +63,7 @@ Archetype::Ship* TransformArg(const std::wstring_view s, const size_t paramNumbe
 
     return ship;
 }
+OptionalTransformArg(Archetype::Ship*);
 
 template <>
 Archetype::Equipment* TransformArg(const std::wstring_view s, const size_t paramNumber)
@@ -78,6 +80,7 @@ Archetype::Equipment* TransformArg(const std::wstring_view s, const size_t param
 
     return equipment;
 }
+OptionalTransformArg(Archetype::Equipment*);
 
 template <>
 std::wstring_view TransformArg(const std::wstring_view s, size_t paramNumber)
@@ -85,12 +88,14 @@ std::wstring_view TransformArg(const std::wstring_view s, size_t paramNumber)
     // ReSharper disable once CppDFALocalValueEscapesFunction
     return s;
 }
+OptionalTransformArg(std::wstring_view);
 
 template <>
 StrToEnd TransformArg<StrToEnd>(const std::wstring_view s, size_t paramNumber)
 {
     return StrToEnd(s);
 }
+OptionalTransformArg(StrToEnd);
 
 template <>
 bool TransformArg(const std::wstring_view s, size_t paramNumber)
@@ -107,6 +112,7 @@ bool TransformArg(const std::wstring_view s, size_t paramNumber)
 
     throw InvalidParameterException(s, paramNumber);
 }
+OptionalTransformArg(bool);
 
 template <>
 GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber)
@@ -129,6 +135,7 @@ GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber)
     // Not Found
     throw InvalidParameterException(s, paramNumber);
 }
+OptionalTransformArg(GoodInfo*);
 
 template <>
 BaseId TransformArg(std::wstring_view s, size_t paramNumber)
@@ -141,6 +148,7 @@ BaseId TransformArg(std::wstring_view s, size_t paramNumber)
 
     return foundBase;
 }
+OptionalTransformArg(BaseId);
 
 template <>
 SystemId TransformArg(std::wstring_view s, size_t paramNumber)
@@ -169,6 +177,7 @@ SystemId TransformArg(std::wstring_view s, size_t paramNumber)
 
     throw InvalidParameterException(s, paramNumber);
 }
+OptionalTransformArg(SystemId);
 
 template <>
 RepGroupId TransformArg(std::wstring_view s, size_t paramNumber)
@@ -197,6 +206,7 @@ RepGroupId TransformArg(std::wstring_view s, size_t paramNumber)
 
     throw InvalidParameterException(s, paramNumber);
 }
+OptionalTransformArg(RepGroupId);
 
 // Include our JSON parser
 #include <yyjson.c> // NOLINT

@@ -297,8 +297,8 @@ class DLL Plugin
         Aft(void, OnSpScanCargo, (uint unk1, uint unk2, uint unk3));
         Aft(void, OnSpRequestUseItem, (ClientId client, const SSPUseItem& item));
         Aft(void, OnSpRequestInvincibility, (ClientId client, const ShipId& shipId, bool enable, InvincibilityReason reason));
-        Aft(void, OnRequestEvent, (ClientId client, int eventType, const ShipId& ship, const ObjectId& dockTarget, uint unk1, uint unk2));
-        Aft(void, OnRequestCancel, (ClientId client, int eventType, const ShipId& ship, const ObjectId& dockTarget, uint unk1));
+        Aft(void, OnRequestEvent, (ClientId client, EventRequestType eventType, const ShipId& ship, const ObjectId& dockTarget, uint unk1, uint unk2));
+        Aft(void, OnRequestCancel, (ClientId client, EventRequestType eventType, const ShipId& ship, const ObjectId& dockTarget, uint unk1));
         Aft(void, OnMineAsteroid, (ClientId client, SystemId system, const Vector& pos, Id crateId, Id lootId, uint count));
         Aft(void, OnRequestCreateShip, (ClientId client));
         Aft(void, OnSetManeuver, (ClientId client, const XSetManeuver& maneuver));

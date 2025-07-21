@@ -1,6 +1,7 @@
 ﻿#include "PCH.hpp"
 
 #include "Cloak.hpp"
+#include "../hyperjump/Hyperjump.hpp"
 
 namespace Plugins
 {
@@ -467,13 +468,14 @@ namespace Plugins
 
     bool CloakPlugin::IsClientJumping(ClientId client)
     {
-        auto cloakPlugin = std::static_pointer_cast<CloakPlugin>(PluginManager::i()->GetPlugin(HyperjumpPlugin::pluginName).lock());
-        if (!cloakPlugin)
+        auto hyperjumpPlugin = std::static_pointer_cast<HyperjumpPlugin>
+            (PluginManager::i()->GetPlugin(HyperjumpPlugin::pluginName).lock());
+        if (!hyperjumpPlugin)
         {
             return false;
         }
 
-        return cloakPlugin->IsClientCloaked(client);
+        return hyperjumpPlugin->IsPlayerJumping(client);
     }
 
     bool CloakPlugin::OnLoadSettings()

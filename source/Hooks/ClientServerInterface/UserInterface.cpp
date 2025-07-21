@@ -15,28 +15,28 @@ void __stdcall IServerImplHook::Hail(unsigned int unk1, unsigned int unk2, unsig
     CallPlugins(&Plugin::OnHail, unk1, unk2, unk3);
 }
 
-void __stdcall IServerImplHook::RequestEvent(int eventType, Id shipId, Id dockTarget, uint unk1, ulong unk2, ClientId client)
+void __stdcall IServerImplHook::RequestEvent(EventRequestType eventType, Id shipId, Id dockTarget, uint unk1, ulong unk2, ClientId client)
 {
     auto ship = shipId.AsShip();
     auto dockTargetObj = dockTarget.AsObject();
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestEvent, client, eventType, ship, dockTargetObj, unk1, unk2); !skip)
     {
-        CallServerPreamble { Server.RequestEvent(eventType, shipId.GetValue(), dockTarget.GetValue(), unk1, unk2, client.GetValue()); }
+        CallServerPreamble { Server.RequestEvent((int)eventType, shipId.GetValue(), dockTarget.GetValue(), unk1, unk2, client.GetValue()); }
         CallServerPostamble(true, );
     }
 
     CallPlugins(&Plugin::OnRequestEventAfter, client, eventType, ship, dockTargetObj, unk1, unk2);
 }
 
-void __stdcall IServerImplHook::RequestCancel(int eventType, Id shipId, Id dockTarget, ulong unk2, ClientId client)
+void __stdcall IServerImplHook::RequestCancel(EventRequestType eventType, Id shipId, Id dockTarget, ulong unk2, ClientId client)
 {
     auto ship = shipId.AsShip();
     auto dockTargetObj = dockTarget.AsObject();
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestCancel, client, eventType, ship, dockTargetObj, unk2); !skip)
     {
-        CallServerPreamble { Server.RequestCancel(eventType, shipId.GetValue(), dockTarget.GetValue(), unk2, client.GetValue()); }
+        CallServerPreamble { Server.RequestCancel((int)eventType, shipId.GetValue(), dockTarget.GetValue(), unk2, client.GetValue()); }
         CallServerPostamble(true, );
     }
 

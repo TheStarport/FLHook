@@ -170,8 +170,8 @@ class IServerImplHook
 
         // UserInterface.cpp
         static void __stdcall Hail(unsigned int unk1, unsigned int unk2, unsigned int unk3);
-        static void __stdcall RequestEvent(int eventType, Id shipId, Id dockTarget, uint unk1, ulong unk2, ClientId client);
-        static void __stdcall RequestCancel(int eventType, Id shipId, Id dockTarget, ulong unk2, ClientId client);
+        static void __stdcall RequestEvent(EventRequestType eventType, Id shipId, Id dockTarget, uint unk1, ulong unk2, ClientId client);
+        static void __stdcall RequestCancel(EventRequestType eventType, Id shipId, Id dockTarget, ulong unk2, ClientId client);
         static void __stdcall InterfaceItemUsed(uint unk1, uint unk2);
         static void __stdcall PopupDialog(ClientId client, PopupDialog buttonClicked);
         static void __stdcall SetInterfaceState(ClientId client, uint unk1, int unk2);

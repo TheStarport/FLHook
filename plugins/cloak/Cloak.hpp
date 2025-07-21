@@ -3,8 +3,6 @@
 #include "Core/Commands/AbstractAdminCommandProcessor.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
-#include "../hyperjump/Hyperjump.hpp"
-
 namespace Plugins
 {
     /**
@@ -31,7 +29,7 @@ namespace Plugins
      *
      * @note All player commands are prefixed with '/', all admin commands are prefixed with a '.'
      */
-    class CloakPlugin final : public Plugin, public AbstractUserCommandProcessor, public AbstractAdminCommandProcessor, public PacketInterface
+    class CloakPlugin : public Plugin, public AbstractUserCommandProcessor, public AbstractAdminCommandProcessor, public PacketInterface
     {
 
             enum class CloakState
@@ -132,6 +130,7 @@ namespace Plugins
             void OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList) override;
             void OnPlayerLaunch(ClientId client, const ShipId& ship) override;
 
+            #ifdef CLOAK_PLUGIN
             // clang-format off
             inline static const std::array<CommandInfo<CloakPlugin>, 2> commands =
             {
@@ -153,11 +152,11 @@ namespace Plugins
             // clang-format on
 
             SetupAdminCommandHandler(CloakPlugin, adminCommands);
-
+            #endif
         public:
             explicit CloakPlugin(const PluginInfo& info);
 
             static constexpr std::wstring_view pluginName = L"cloak";
-            bool IsClientCloaked(ClientId client);
+            virtual bool IsClientCloaked(ClientId client);
     };
 } // namespace Plugins

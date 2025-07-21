@@ -3,6 +3,7 @@
 #include "API/Utils/Random.hpp"
 #include "API/FLHook/ResourceManager.hpp"
 #include "Hyperjump.hpp"
+#include "../cloak/Cloak.hpp"
 
 namespace Plugins
 {
@@ -116,6 +117,8 @@ namespace Plugins
 
             return true;
         }
+
+        return false;
     }
 
     bool HyperjumpPlugin::TryFuelConsume(ClientId client, Id fuel, ushort amount)
@@ -135,6 +138,8 @@ namespace Plugins
             client.RemoveCargo(equip.id, amount);
             return true;
         }
+
+        return false;
     }
 
     bool HyperjumpPlugin::JumpDriveCheck(ClientId client)
@@ -241,7 +246,7 @@ namespace Plugins
         auto targetSystemData = config.jumpSystemData.find(targetSystem);
         if (targetSystemData == config.jumpSystemData.end())
         {
-            client.MessageErr(std::format(L"Target system of {} has no data defined, contact staff", targetSystem.GetName()));
+            client.MessageErr(std::format(L"Target system of {} has no data defined, contact staff", targetSystem.GetName().Handle()));
             return {};
         }
 
@@ -272,7 +277,8 @@ namespace Plugins
 
     bool HyperjumpPlugin::IsPlayerCloaked(ClientId client)
     {
-        auto cloakPlugin = std::static_pointer_cast<CloakPlugin>(PluginManager::i()->GetPlugin(CloakPlugin::pluginName).lock());
+        auto cloakPlugin = std::static_pointer_cast<CloakPlugin>
+            (PluginManager::i()->GetPlugin(CloakPlugin::pluginName).lock());
         if (!cloakPlugin)
         {
             return false;
@@ -477,7 +483,7 @@ namespace Plugins
         auto targetSystemData = config.jumpSystemData.find(targetSystem);
         if (targetSystemData == config.jumpSystemData.end())
         {
-            client.MessageErr(std::format(L"Can't jump to the target system: {}", targetSystemData->first.GetName()));
+            client.MessageErr(std::format(L"Can't jump to the target system: {}", targetSystemData->first.GetName().Handle()));
             co_return;
         }
 
@@ -546,11 +552,11 @@ namespace Plugins
 
         if (!jumpRange.has_value() || jumpRange.value() > jumpIter->second.jumpDriveInfo->jumpRange)
         {
-            client.MessageErr(std::format(L"You cannot jump to {}.", targetSystem.GetName()));
+            client.MessageErr(std::format(L"You cannot jump to {}.", targetSystem.GetName().Handle()));
             co_return;
         }
 
-        client.MessageErr(std::format(L"{} is in jump range, {} systems away.", targetSystem.GetName(), jumpRange.value()));
+        client.MessageErr(std::format(L"{} is in jump range, {} systems away.", targetSystem.GetName().Handle(), jumpRange.value()));
         co_return;
     }
 
@@ -573,7 +579,7 @@ namespace Plugins
 
         if (currClientGroup != targetClientGroup)
         {
-            client.MessageErr(std::format(L"You and {} are not in the same group!", targetClient.GetCharacterName()));
+            client.MessageErr(std::format(L"You and {} are not in the same group!", targetClient.GetCharacterName().Handle()));
             return false;
         }
 
@@ -582,7 +588,7 @@ namespace Plugins
 
         if (beaconIter == beaconData.end())
         {
-            client.MessageErr(std::format(L"{} has no beacon installed!", targetClient.GetCharacterName()));
+            client.MessageErr(std::format(L"{} has no beacon installed!", targetClient.GetCharacterName().Handle()));
             return false;
         }
 
@@ -656,7 +662,7 @@ namespace Plugins
         }
 
         targetClient.Message(std::format(L"{} is attempting a beacon jump. Accept the request by typing /jump accept within the next {} seconds.",
-                                         client.GetCharacterName(),
+                                         client.GetCharacterName().Handle(),
                                          config.beaconRequestTimeout / 1000));
 
         AddOneShotTimer([this, targetClient] { BeaconRequestTimeout(targetClient); }, config.beaconRequestTimeout);
@@ -752,7 +758,7 @@ namespace Plugins
 
     bool HyperjumpPlugin::OnLoadSettings()
     {
-        LoadJsonWithValidation(Config, config, "config/hyperjump.json");
+        LoadJsonWithValidation(Config2, config2, "config/hyperjump.json");
 
         AddTimer([this] { ProcessChargingJumpDrives(); }, 1000);
 
@@ -797,6 +803,80 @@ namespace Plugins
     {
         clientData.erase(client);
         beaconData.erase(client);
+    }
+
+    std::optional<DOCK_HOST_RESPONSE> HyperjumpPlugin::OnDockCall(const ShipId& shipId, const ObjectId& spaceId, int dockPortIndex, DOCK_HOST_RESPONSE response)
+    {
+        auto jumpObj = jumpObjData.find(spaceId.GetId().Handle());
+        if (jumpObj == jumpObjData.end())
+        {
+            return {};
+        }
+
+        auto client = shipId.GetPlayer();
+        if (client.HasError())
+        {
+            return {};
+        }
+
+        if (jumpObj->second.jumpCapacity == 0)
+        {
+            client.Handle().MessageErr(L"Jumphole exceeded its capacity, too unstable to proceed!");
+            return { DOCK_HOST_RESPONSE::DockDenied };
+        }
+
+        auto currTime = TimeUtils::UnixTime();
+        if (currTime - 1000 > jumpObj->second.lastUntil && jumpObj->second.dockingQueue.empty())
+        {
+            client.Handle().MessageErr(L"Jumphole is about to collapse, too unstable to proceed!");
+            return { DOCK_HOST_RESPONSE::DockDenied };
+        }
+
+        if (jumpObj->second.jumpCapacity != -1)
+        {
+            --jumpObj->second.jumpCapacity;
+        }
+
+        jumpObj->second.dockingQueue.insert(shipId.GetId().Handle());
+        shipToJumpObjData[shipId.GetId().Handle()] = spaceId;
+        return {};
+    }
+
+    void HyperjumpPlugin::OnJumpInComplete(SystemId system, const ShipId& ship)
+    {
+        Id shipId = ship.GetId().Handle();
+        auto iter = shipToJumpObjData.find(shipId);
+        if (iter == shipToJumpObjData.end())
+        {
+            return;
+        }
+        auto jumpObjIter = jumpObjData.find(iter->second.GetId().Handle());
+        if (jumpObjIter == jumpObjData.end())
+        {
+            return;
+        }
+        jumpObjIter->second.dockingQueue.erase(shipId);
+        shipToJumpObjData.erase(shipId);
+    }
+
+    void HyperjumpPlugin::OnRequestCancel(ClientId client, EventRequestType eventType, const ShipId& ship, const ObjectId& dockTarget, const uint unk1)
+    {
+        if (eventType != EventRequestType::StationJumpDock)
+        {
+            return;
+        }
+
+        Id shipId = ship.GetId().Handle();
+        auto iter = jumpObjData.find(dockTarget.GetId().Handle());
+        if (iter != jumpObjData.end())
+        {
+            if (iter->second.dockingQueue.count(shipId))
+            {
+                iter->second.dockingQueue.erase(shipId);
+                iter->second.jumpCapacity++;
+                shipToJumpObjData.erase(shipId);
+            }
+        }
     }
 
 } // namespace Plugins

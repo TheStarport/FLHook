@@ -152,8 +152,6 @@ void CrashCatcher::CrashProc6F671A0(int arg1)
 {
     try
     {
-        DEBUG("{{arg1}}", { "arg1", arg1 });
-
         __asm {
             pushad
             push arg1
@@ -219,7 +217,6 @@ char __stdcall CrashCatcher::FixCommon6F8B330Detour(int arg1)
     int res = 0;
     try
     {
-        DEBUG("{{arg1}}", { "arg1", arg1 });
         __asm
         {
             pushad
@@ -242,8 +239,6 @@ void __stdcall CrashCatcher::FixCommon6F78DD0Detour(int arg1, int arg2)
 {
     try
     {
-        DEBUG("{{arg1}} {{arg2}}", { "arg1", arg1 }, { "arg2", arg2 });
-
         __asm
         {
             pushad

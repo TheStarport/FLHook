@@ -17,7 +17,7 @@ namespace Plugins
         ResourceManager::SolarSpawnStruct solarInfo;
         solarInfo.nickname = ms.nicknamesVector.back();
         solarInfo.solarArchetypeId = ms.nodeArchetypes[selectedArchetypeIndex].archetype;
-        solarInfo.loadoutArchetypeId = ms.nodeArchetypes[selectedArchetypeIndex].loadout;
+        solarInfo.solarLoadoutId = ms.nodeArchetypes[selectedArchetypeIndex].loadout;
         solarInfo.systemId = ms.system;
         solarInfo.pos = ms.positions[selectedPositionIndex];
         solarInfo.ori = EulerMatrix(eulerRotation);
@@ -660,7 +660,7 @@ namespace Plugins
         ResourceManager::SolarSpawnStruct solarInfo;
         solarInfo.nickname = "player_mining_container_" + std::to_string(client.GetValue());
         solarInfo.solarArchetypeId = config.deployableContainerArchetype;
-        solarInfo.loadoutArchetypeId = config.deployableContainerLoadout;
+        solarInfo.solarLoadoutId = config.deployableContainerLoadout;
         solarInfo.nameOverride = fullContainerName;
         solarInfo.systemId = cship->system;
         solarInfo.pos = pos;

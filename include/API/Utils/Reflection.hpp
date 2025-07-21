@@ -32,6 +32,48 @@ namespace rfl::parsing
     struct Parser<ReaderType, WriterType, Vector, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, Vector, VectorImpl>
     {};
 
+    struct MatrixImpl
+    {
+            using ReflectionType = std::array<float, 9>;
+            std::array<float, 9> arr;
+
+            static MatrixImpl from_class(const Matrix& val) noexcept
+            {
+                return MatrixImpl{
+                    {
+                     val[0][0],
+                     val[0][1],
+                     val[0][2],
+                     val[1][0],
+                     val[1][1],
+                     val[1][2],
+                     val[2][0],
+                     val[2][1],
+                     val[2][2],
+                     }
+                };
+            }
+
+            [[nodiscard]]
+            Matrix to_class() const
+            {
+                if (arr[3] == 0.0f && arr[4] == 0.0f && arr[5] == 0.0f && arr[6] == 0.0f && arr[7] == 0.0f && arr[8] == 0.0f)
+                {
+                    return EulerMatrix({ arr[0], arr[1], arr[2] });
+                }
+
+                return Matrix{
+                    { arr[0], arr[1], arr[2] },
+                    { arr[3], arr[4], arr[5] },
+                    { arr[6], arr[7], arr[8] },
+                };
+            }
+    };
+
+    template <class ReaderType, class WriterType, class ProcessorsType>
+    struct Parser<ReaderType, WriterType, Matrix, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, Matrix, MatrixImpl>
+    {};
+
     struct BsonOidImpl
     {
             using ReflectionType = std::array<uint8_t, 12>;
@@ -134,9 +176,9 @@ namespace rfl::parsing
             std::string data;
             static GoodId_Impl from_class(const GoodId& hash) noexcept
             {
-                if(!hash.GetValue())
+                if (!hash.GetValue())
                 {
-                    return {"commodity_cardamine"};
+                    return { "commodity_cardamine" };
                 }
                 const auto lookup = InternalApi::HashLookup(hash.GetValue()->goodId);
                 return { lookup.empty() ? "commodity_cardamine" : lookup };
