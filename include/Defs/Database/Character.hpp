@@ -97,6 +97,7 @@ struct Character
 
     std::optional<int64> lastRenameTimestamp;
     std::optional<std::string> characterTransferCode;
+    std::array<std::string, 10> presetMsgs;
 
 	bsoncxx::document::value characterDocument = bsoncxx::builder::basic::make_document();
 

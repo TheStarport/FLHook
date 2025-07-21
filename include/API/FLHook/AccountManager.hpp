@@ -160,6 +160,7 @@ class AccountManager
         static void OnCreateNewCharacterCopy(PlayerData* data, SCreateCharacterInfo characterInfo);
         static concurrencpp::result<void> DeleteCharacter(ClientId client, std::wstring characterCode, CHARACTER_ID cid);
         static concurrencpp::result<void> Login(SLoginInfo li, ClientId client);
+        static concurrencpp::result<bool> SaveSavedMsgs(std::wstring charName, std::array<std::string, 10> presetMsgs);
         static concurrencpp::result<bool> ClearCharacterTransferCode(std::wstring charName);
         static concurrencpp::result<bool> SetCharacterTransferCode(std::wstring client, std::wstring transferCode);
         static concurrencpp::result<std::wstring> TransferCharacter(AccountId account, std::wstring charName, std::wstring characterCode);

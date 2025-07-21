@@ -327,7 +327,12 @@ concurrencpp::result<void> UserCommandProcessor::SetSavedMsg(const ClientId clie
         co_return;
     }
 
-    auto& info = client.GetData().presetMsgs.at(index) = msg.end;
+    auto c = client.GetData().characterData;
+    c->presetMsgs.at(index) = StringUtils::wstos(msg.end);
+    AccountManager::SaveSavedMsgs(
+        std::wstring(client.GetCharacterName().Handle()),
+        c->presetMsgs
+    );
     client.Message(L"Ok");
 
     co_return;
@@ -335,12 +340,12 @@ concurrencpp::result<void> UserCommandProcessor::SetSavedMsg(const ClientId clie
 
 concurrencpp::result<void> UserCommandProcessor::ShowSavedMsgs(const ClientId client)
 {
-    const auto& info = client.GetData();
-    uint counter = 0;
     (void)client.Message(L"Saved messages");
-    for (const auto& msg : info.presetMsgs)
+    std::array<std::string, 10> presetMsgs = client.GetData().characterData->presetMsgs;
+    for (uint counter = 0; counter < 10; counter++)
     {
-        (void)client.Message(std::format(L"{}: {}", counter++, msg));
+        std::wstring msg = StringUtils::stows(presetMsgs.at(counter));
+        (void)client.Message(StringUtils::stows(std::to_string(counter)) + L": " + msg);
     }
 
     co_return;

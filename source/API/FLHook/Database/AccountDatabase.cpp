@@ -449,6 +449,65 @@ concurrencpp::result<bool> AccountManager::SetCharacterTransferCode(std::wstring
     co_return result;
 }
 
+concurrencpp::result<bool> AccountManager::SaveSavedMsgs(std::wstring charName, std::array<std::string, 10> presetMsgs)
+{
+    THREAD_BACKGROUND;
+
+    using bsoncxx::builder::basic::kvp;
+    using bsoncxx::builder::basic::make_document;
+
+    const auto db = FLHook::GetDbClient();
+    auto session = db->start_session();
+    session.start_transaction();
+
+    bool result;
+    try
+    {
+        const auto config = FLHook::GetConfig();
+        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
+        const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(charName)));
+
+        if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
+        {
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
+                                            "Character doesn't exist when setting saved messages!!");
+        }
+
+        bsoncxx::builder::basic::array arr;
+        for (std::string msg : presetMsgs)
+        {
+            arr.append(msg);
+        }
+
+        const auto charUpdateDoc = make_document(
+            kvp("$set", make_document(kvp("characterName", StringUtils::wstos(charName)), kvp("presetMsgs", arr))));
+        if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
+            !updateResult.has_value() || updateResult.value().modified_count() == 0)
+        {
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
+                                            "Updating character during setting saved messages failed.");
+        }
+
+        session.commit_transaction();
+        result = true;
+    }
+    catch (bsoncxx::exception& ex)
+    {
+        ERROR("MongoDB Error setting saved messages for {{characterName}} {{ex}}", { "characterName", charName }, { "ex", ex.what() });
+        session.abort_transaction();
+        result = false;
+    }
+    catch (mongocxx::exception& ex)
+    {
+        ERROR("MongoDB Error setting saved messages for {{characterName}} {{ex}}", { "characterName", charName }, { "ex", ex.what() });
+        session.abort_transaction();
+        result = false;
+    }
+
+    THREAD_MAIN;
+    co_return result;
+}
+
 concurrencpp::result<std::wstring> AccountManager::TransferCharacter(const AccountId account, const std::wstring charName, const std::wstring characterCode)
 {
     THREAD_BACKGROUND;

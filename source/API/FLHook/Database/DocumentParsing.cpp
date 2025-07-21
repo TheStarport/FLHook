@@ -694,6 +694,17 @@ Character::Character(bsoncxx::document::view view)
                     characterTransferCode = element.get_string().value;
                     break;
                 }
+            case Hash("presetMsgs"):
+                {
+                    presetMsgs = std::array<std::string, 10>{};
+                    uint i = 0;
+                    for (auto& message : element.get_array().value)
+                    {
+                        presetMsgs.at(i) = message.get_string().value;
+                        i++;
+                    }
+                    break;
+                }
             default:
                 break;
         }
@@ -992,5 +1003,14 @@ void Character::ToBson(bsoncxx::builder::basic::document& document)
     if (characterTransferCode.has_value())
     {
         document.append(kvp("characterTransferCode", characterTransferCode.value()));
+    }
+
+    {
+        bsoncxx::builder::basic::array arr;
+        for (std::string msg : presetMsgs)
+        {
+            arr.append(msg);
+        }
+        document.append(kvp("presetMsgs", arr));
     }
 }
