@@ -61,9 +61,6 @@ struct ClientData
         // Chat info
         ClientId lastPMSender{};
 
-        // Presaved chat messages
-        std::array<std::wstring, 10> presetMsgs;
-
         // bans
         uint connects = 0; // incremented when player connects
 

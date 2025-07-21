@@ -79,7 +79,7 @@ static bool ReplaceMessageTags(ClientId client, std::wstring& msg)
 
 void SendClientSavedMsg(ClientId client, char destCode, uint msgIdx)
 {
-    auto& msg = client.GetData().presetMsgs[msgIdx];
+    auto msg = StringUtils::stows(client.GetData().characterData->presetMsgs[msgIdx]);
     if (msg.size() == 0)
     {
         (void)client.MessageErr(L"No message defined");
