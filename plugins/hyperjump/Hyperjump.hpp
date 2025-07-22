@@ -23,7 +23,7 @@ namespace Plugins
      *
      * @note All player commands are prefixed with '/', all admin commands are prefixed with a '.'
      */
-    class HyperjumpPlugin : public Plugin, public AbstractUserCommandProcessor
+    class HyperjumpPlugin : public Plugin, public AbstractUserCommandProcessor, public PacketInterface
     {
             struct SystemJumpCoords
             {
@@ -81,35 +81,7 @@ namespace Plugins
                     uint blindJumpRange = 0;
             };
 
-            struct SystemJumpCoords2
-            {
-                    int dummy;
-                    SystemId system;
-                    std::wstring sector;
-                    Vector position;
-                    Matrix ori;
-            };
-            
-            struct SystemData2
-            {
-                    std::unordered_map<uint, std::vector<SystemId>> availableSystemsPerDepth;
-                    std::vector<SystemJumpCoords2> systemCoords;
-            };
-            struct Config2 final
-            {
-                    float jumpCargoRestriction = 100000;
-                    std::unordered_set<Id> jumpRestrictedShips;
-                    std::unordered_map<Id, JumpDriveData> jumpDriveMap;
-                    std::unordered_map<Id, BeaconData> beaconMap;
-                    std::unordered_map<SystemId, SystemData2> jumpSystemData;
-                    
-                    SystemId blindJumpOverrideSystem = SystemId();
-                    int64 beaconRequestTimeout = 15000;
-                    uint blindJumpRange = 0;
-            };
-
             Config config;
-            Config2 config2;
 
             struct HyperjumpClientData
             {
@@ -143,6 +115,7 @@ namespace Plugins
                     int jumpCapacity = -1;
                     int64 lastUntil;
                     std::unordered_set<Id> dockingQueue;
+                    ObjectId pairedExit;
             };
 
             std::unordered_map<ClientId, HyperjumpClientData> clientData;
@@ -169,6 +142,8 @@ namespace Plugins
             bool CheckFuel(ClientId client, Id fuel, ushort amount);
             void SpawnJumpHole(ClientId client);
 
+            void ProcessExpiringJumpHoles();
+
             /**
              * @brief Used to return from the arena system.
              */
@@ -190,7 +165,8 @@ namespace Plugins
                                                          DOCK_HOST_RESPONSE response) override;
             void OnJumpInComplete(SystemId system, const ShipId& ship) override;
             void OnRequestCancel(ClientId client, EventRequestType eventType, const ShipId& ship, const ObjectId& dockTarget, const uint unk1) override;
-
+            void OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList) override;
+            void OnSystemSwitchOutPacketAfter(ClientId client, FLPACKET_SYSTEM_SWITCH_OUT& packet) override;
             
             #ifdef HYPERJUMP_PLUGIN
             // clang-format off

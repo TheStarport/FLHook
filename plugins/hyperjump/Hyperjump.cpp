@@ -17,7 +17,7 @@ namespace Plugins
             return;
         }
 
-        //TODO: Spawn the damn thing
+        // TODO: Spawn the damn thing
 
         auto& data = jd->second.jumpDriveInfo;
         auto currTime = TimeUtils::UnixTime();
@@ -61,10 +61,44 @@ namespace Plugins
             entryHoleSpawn.systemId = jd->second.targetSystem;
         }
 
-        //TODO: review
-        FLHook::GetResourceManager()->CreateSolarSimple(entryHoleSpawn, this);
-        FLHook::GetResourceManager()->CreateSolarSimple(exitHoleSpawn, this);
+        // TODO: review
+        auto resManager = FLHook::GetResourceManager();
+        resManager->CreateSolarSimple(entryHoleSpawn, this);
+        resManager->CreateSolarSimple(exitHoleSpawn, this);
         ShutdownJumpDrive(client, true);
+    }
+
+    void HyperjumpPlugin::ProcessExpiringJumpHoles()
+    {
+        auto currTime = TimeUtils::UnixTime();
+        for (auto jumpObj = jumpObjData.begin();jumpObj != jumpObjData.end();)
+        {
+            if (currTime < jumpObj->second.lastUntil)
+            {
+                jumpObj++;
+                continue;
+            }
+
+            if (jumpObj->second.dockingQueue.empty())
+            {
+                pub::SpaceObj::Destroy(jumpObj->second.pairedExit.GetId().Handle().GetValue(), DestroyType::Fuse);
+                pub::SpaceObj::Destroy(jumpObj->first.GetValue(), DestroyType::Fuse);
+                jumpObj = jumpObjData.erase(jumpObj);
+            }
+            else
+            {
+                for (auto ship = jumpObj->second.dockingQueue.begin();ship!= jumpObj->second.dockingQueue.end();)
+                {
+                    auto shipId = ShipId(ship->GetValue());
+                    if (!shipId)
+                    {
+                        ship = jumpObj->second.dockingQueue.erase(ship);
+                        continue;
+                    }
+                    ship++;
+                }
+            }
+        }
     }
 
     void HyperjumpPlugin::ProcessChargingJumpDrives()
@@ -93,7 +127,7 @@ namespace Plugins
                 jd++;
                 continue;
             }
-            //TODO: add charge fuses and jump fuses
+            // TODO: add charge fuses and jump fuses
 
             AddOneShotTimer([this, jd] { SpawnJumpHole(jd->first); }, jd->second.jumpDriveInfo->spawnDelay);
 
@@ -277,8 +311,7 @@ namespace Plugins
 
     bool HyperjumpPlugin::IsPlayerCloaked(ClientId client)
     {
-        auto cloakPlugin = std::static_pointer_cast<CloakPlugin>
-            (PluginManager::i()->GetPlugin(CloakPlugin::pluginName).lock());
+        auto cloakPlugin = std::static_pointer_cast<CloakPlugin>(PluginManager::i()->GetPlugin(CloakPlugin::pluginName).lock());
         if (!cloakPlugin)
         {
             return false;
@@ -758,9 +791,10 @@ namespace Plugins
 
     bool HyperjumpPlugin::OnLoadSettings()
     {
-        LoadJsonWithValidation(Config2, config2, "config/hyperjump.json");
+        LoadJsonWithValidation(Config, config, "config/hyperjump.json");
 
         AddTimer([this] { ProcessChargingJumpDrives(); }, 1000);
+        AddTimer([this] { ProcessExpiringJumpHoles(); }, 1000);
 
         return true;
     }
@@ -877,6 +911,46 @@ namespace Plugins
                 shipToJumpObjData.erase(shipId);
             }
         }
+    }
+
+    void HyperjumpPlugin::OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList)
+    {
+        if (dmgList->damageCause != DamageCause::CruiseDisrupter)
+        {
+            return;
+        }
+
+        ClientId client = ClientId(ship->cship()->ownerPlayer);
+        if (!client)
+        {
+            return;
+        }
+
+        auto jd = clientData.find(client);
+        if (jd == clientData.end() || !jd->second.isCharging || !jd->second.jumpDriveInfo->cdDisruptsCharge)
+        {
+            return;
+        }
+
+        client.MessageErr(L"Jump drive disrupted, charging failed");
+        ShutdownJumpDrive(client);
+    }
+
+    void HyperjumpPlugin::OnSystemSwitchOutPacketAfter(ClientId client, FLPACKET_SYSTEM_SWITCH_OUT& packet)
+    {
+        auto jd = clientData.find(client);
+        if (jd == clientData.end())
+        {
+            return;
+        }
+
+        if (!jd->second.isCharging)
+        {
+            return;
+        }
+
+        client.MessageErr(L"Entering a jump tunnel, discharging Jump Drive.");
+        ShutdownJumpDrive(client);
     }
 
 } // namespace Plugins
