@@ -38,6 +38,9 @@ class DLL ObjectId
         Action<Vector> GetAngularVelocity() const;
 
         [[nodiscard]]
+        Action<Vector> GetPosition() const;
+
+        [[nodiscard]]
         Action<std::pair<Vector, Matrix>> GetPositionAndOrientation() const;
 
         [[nodiscard]]

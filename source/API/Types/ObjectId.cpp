@@ -68,6 +68,13 @@ Action<Vector> ObjectId::GetAngularVelocity() const
     return { obj->get_angular_velocity() };
 }
 
+Action<Vector> ObjectId::GetPosition() const
+{
+    IsValidObj;
+
+    return { obj->position };
+}
+
 Action<std::pair<Vector, Matrix>> ObjectId::GetPositionAndOrientation() const
 {
     IsValidObj;

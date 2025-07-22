@@ -115,6 +115,42 @@ bool TransformArg(const std::wstring_view s, size_t paramNumber)
 OptionalTransformArg(bool);
 
 template <>
+int TransformArg(const std::wstring_view s, size_t paramNumber)
+{
+    if (s.empty())
+    {
+        throw InvalidParameterException(s, paramNumber);
+    }
+
+    if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }) && s.size() < 4)
+    {
+        const auto number = StringUtils::Cast<int>(s);
+        return number;
+    }
+
+    throw InvalidParameterException(s, paramNumber);
+}
+OptionalTransformArg(int);
+
+template <>
+uint TransformArg(const std::wstring_view s, size_t paramNumber)
+{
+    if (s.empty())
+    {
+        throw InvalidParameterException(s, paramNumber);
+    }
+
+    if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }) && s.size() < 4)
+    {
+        const auto number = StringUtils::Cast<uint>(s);
+        return number;
+    }
+
+    throw InvalidParameterException(s, paramNumber);
+}
+OptionalTransformArg(uint);
+
+template <>
 GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber)
 {
     if (const auto good = GoodList::find_by_nickname(StringUtils::wstos(std::wstring(s)).c_str()))

@@ -58,6 +58,8 @@ struct StrToEnd
 DefineTransformArg(std::wstring_view);
 DefineTransformArg(StrToEnd);
 DefineTransformArg(bool);
+DefineTransformArg(uint);
+DefineTransformArg(int);
 DefineTransformArg(Archetype::Ship*);
 DefineTransformArg(Archetype::Equipment*);
 DefineTransformArg(ClientId);

@@ -864,13 +864,13 @@ Action<Vector> ClientId::GetPosition() const
 Action<void> ClientId::SendBestPath(SystemId targetSystem, Vector targetPosition) const
 {
     static RequestPath<2> bpi;
-    bpi.pathEntries[0].systemId = GetSystemId().Unwrap().GetValue();
-    bpi.pathEntries[0].pos = GetPosition().Unwrap();
-    bpi.pathEntries[1].systemId = targetSystem.GetValue();
+    bpi.pathEntries[0].systemId = GetSystemId().Handle();
+    bpi.pathEntries[0].pos = GetPosition().Handle();
+    bpi.pathEntries[1].systemId = targetSystem;
     bpi.pathEntries[1].pos = targetPosition;
     bpi.waypointCount = 2;
     bpi.noPathFound = false;
-    bpi.repId = GetReputation().Handle().GetValue();
+    bpi.repId = GetReputation().Handle();
 
     // The original asm code sets 52 as size for the struct. So better hard code it instead of sizeof in case someone messes up the struct in a commit.
     Server.RequestBestPath(GetValue(), (uchar*)&bpi, 12 + (20 * 2));

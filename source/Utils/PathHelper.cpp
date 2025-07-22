@@ -6,7 +6,7 @@ void PathHelper::ClearWaypoints(ClientId client)
 {
 
     RequestPath<0> emptyPath;
-    emptyPath.repId = client.GetReputation().Handle().GetValue();
+    emptyPath.repId = client.GetReputation().Handle();
     emptyPath.waypointCount = 0;
     emptyPath.noPathFound = false;
 
@@ -16,10 +16,10 @@ void PathHelper::ClearWaypoints(ClientId client)
 void PathHelper::CreateObjectWaypoint(ClientId client, const ObjectId& object)
 {
     RequestPath<1> objectPath;
-    objectPath.repId = client.GetReputation().Handle().GetValue();
+    objectPath.repId = client.GetReputation().Handle();
     objectPath.waypointCount = 1;
     objectPath.noPathFound = false;
-    objectPath.pathEntries[0].objId = object.GetId().Handle().GetValue();
+    objectPath.pathEntries[0].objId = object.GetId().Handle();
 
     pub::Player::ReturnBestPath(client.GetValue(), reinterpret_cast<uchar*>(&objectPath), sizeof(objectPath));
 }
@@ -32,7 +32,7 @@ void PathHelper::CreateClearableWaypoints(ClientId client, const std::vector<Pat
     }
 
     RequestPath<50> objectPath;
-    objectPath.repId = client.GetReputation().Handle().GetValue();
+    objectPath.repId = client.GetReputation().Handle();
     objectPath.waypointCount = path.size();
     objectPath.noPathFound = false;
     objectPath.funny[0] = true;

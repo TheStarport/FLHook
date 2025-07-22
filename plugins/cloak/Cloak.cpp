@@ -601,13 +601,14 @@ namespace Plugins
 
     void CloakPlugin::OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList)
     {
-        ClientId client = ClientId(ship->cship()->ownerPlayer);
-        if (!ship->is_player())
+
+        if (dmgList->damageCause != DamageCause::CruiseDisrupter)
         {
             return;
         }
 
-        if (dmgList->get_cause() != DamageCause::CruiseDisrupter && dmgList->get_cause() != DamageCause::UnkDisrupter)
+        ClientId client = ClientId(ship->cship()->ownerPlayer);
+        if (!client)
         {
             return;
         }
