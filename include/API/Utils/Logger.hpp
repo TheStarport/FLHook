@@ -133,28 +133,6 @@ template <>
 struct fmt::formatter<JsonLogFormatter> : fmt::ostream_formatter
 {};
 
-template <typename Mutex>
-class DLL MongoSink final : public spdlog::sinks::base_sink<Mutex>
-{
-        static concurrencpp::result<void> SendToMongo(const spdlog::details::log_msg& msg)
-        {
-            auto document = bsoncxx::from_json({ msg.payload.data(), msg.payload.size() });
-            THREAD_BACKGROUND;
-
-            FLHook::GetDatabase()->BeginDatabaseQuery().InsertIntoCollection(DatabaseCollection::ServerLog, { document });
-        }
-
-        void sink_it_(const spdlog::details::log_msg& msg) override { SendToMongo(msg); }
-        void flush_() override {}
-};
-
-class DLL FlHookLogFormatFlag final : public spdlog::custom_flag_formatter
-{
-    public:
-        void format(const spdlog::details::log_msg& m, const std::tm& tm, spdlog::memory_buf_t& dest) override;
-        std::unique_ptr<custom_flag_formatter> clone() const override;
-};
-
 class FLHook;
 class DLL Logger final
 {

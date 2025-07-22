@@ -64,7 +64,6 @@ FLHook::FLHook()
     : damageToClientId(0), messagePrivate(false), messageSystem(false), messageUniverse(false), serverLoadInMs(0), playerCount(0), disableNpcs(false),
       flhookReady(false)
 {
-    Logger::Init();
     // Set module references
     commonDll = GetModuleHandle(L"common.dll");
     serverDll = GetModuleHandle(L"server.dll");
@@ -75,6 +74,14 @@ FLHook::FLHook()
     // Load our settings before anything that might need access to debug mode
     LoadSettings();
 
+    Logger::Init();
+
+    DEBUG("Creating TaskScheduler");
+    taskScheduler = std::make_shared<TaskScheduler>();
+
+    DEBUG("Connecting to database at {{uri}}", { "uri", flhookConfig->database.uri });
+    database = std::make_shared<Database>(flhookConfig->database.uri);
+
     DEBUG("Creating InfocardManager");
     infocardManager = std::make_unique<InfocardManager>();
 
@@ -84,18 +91,11 @@ FLHook::FLHook()
     DEBUG("Creating PersonalityHelper");
     personalityHelper = std::make_shared<PersonalityHelper>();
 
-    DEBUG("Connecting to database at {{uri}}", { "uri", flhookConfig->database.uri });
-
-    database = std::make_shared<Database>(flhookConfig->database.uri);
-
     DEBUG("Creating AccountManager");
     accountManager = std::make_shared<AccountManager>();
 
     DEBUG("Creating ResourceManager");
     resourceManager = std::make_shared<ResourceManager>();
-
-    DEBUG("Creating TaskScheduler");
-    taskScheduler = std::make_shared<TaskScheduler>();
 
     flProc = GetModuleHandle(nullptr);
 

@@ -4,50 +4,42 @@
 #include "Core/Commands/CommandLineParser.hpp"
 #include "Defs/FLHookConfig.hpp"
 
-#include "spdlog/details/null_mutex.h"
 #include <mutex>
 
-using MongoSinkMt = MongoSink<std::mutex>;
+using namespace std::chrono_literals;
 
-enum class ConsoleColor
+// Empty sink that does nothing, we use the format flag instead
+// A bit hacky, but it works
+class MongoSink final : public spdlog::sinks::base_sink<std::mutex>
 {
-    Blue = 0x0001,
-    Green = 0x0002,
-    Cyan = Blue | Green,
-    Red = 0x0004,
-    Purple = Red | Blue,
-    Yellow = Red | Green,
-    White = Red | Blue | Green,
+        void sink_it_(const spdlog::details::log_msg& msg) override
+        {
+            spdlog::memory_buf_t formatted;
+            formatter_->format(msg, formatted);
+        }
+        void flush_() override {}
+};
 
-    StrongBlue = 0x0008 | Blue,
-    StrongGreen = 0x0008 | Green,
-    StrongCyan = 0x0008 | Cyan,
-    StrongRed = 0x0008 | Red,
-    StrongPurple = 0x0008 | Purple,
-    StrongYellow = 0x0008 | Yellow,
-    StrongWhite = 0x0008 | White,
+class FLHookConsoleFormatFlag final : public spdlog::custom_flag_formatter
+{
+    public:
+        void format(const spdlog::details::log_msg& m, const std::tm& tm, spdlog::memory_buf_t& dest) override;
+        std::unique_ptr<custom_flag_formatter> clone() const override;
+};
+
+class FLHookMongoFormatFlag final : public spdlog::custom_flag_formatter
+{
+    public:
+        void format(const spdlog::details::log_msg& m, const std::tm& tm, spdlog::memory_buf_t& dest) override;
+        std::unique_ptr<custom_flag_formatter> clone() const override;
 };
 
 BOOL WINAPI ConsoleHandler(DWORD ctrlType) { return ctrlType == CTRL_CLOSE_EVENT; }
 
-using namespace std::chrono_literals;
-
-void FlHookLogFormatFlag::format(const spdlog::details::log_msg& m, const std::tm& tm, spdlog::memory_buf_t& dest)
+static std::string FormatMessageFromProperties(const std::string_view templateMsg, bsoncxx::document::view properties)
 {
-    auto entireMessageView = std::string_view(m.payload.data(), m.payload.size());
-    auto offset = entireMessageView.find(JsonLogFormatter::EoLMarker);
-    if (offset == std::string::npos)
-    {
-        return;
-    }
-
-    auto propertiesView = std::string_view(entireMessageView.data() + offset + JsonLogFormatter::EoLMarker.size(),
-                                           entireMessageView.size() - offset - JsonLogFormatter::EoLMarker.size());
-    auto messageView = std::string_view(entireMessageView.data(), offset);
-
-    auto doc = bsoncxx::from_json(propertiesView);
-    auto formatted = std::string(messageView);
-    for (auto prop : doc.view())
+    auto formatted = std::string(templateMsg);
+    for (auto prop : properties)
     {
         std::string value;
         if (prop.type() == bsoncxx::type::k_int32)
@@ -78,14 +70,69 @@ void FlHookLogFormatFlag::format(const spdlog::details::log_msg& m, const std::t
         formatted = StringUtils::ReplaceStr(formatted, std::string_view(std::format("{{{}}}", prop.key())), std::string_view(value));
     }
 
+    return formatted;
+}
+
+void FLHookConsoleFormatFlag::format(const spdlog::details::log_msg& m, const std::tm& tm, spdlog::memory_buf_t& dest)
+{
+    auto entireMessageView = std::string_view(m.payload.data(), m.payload.size());
+    const auto offset = entireMessageView.find(JsonLogFormatter::EoLMarker);
+    if (offset == std::string::npos)
+    {
+        return;
+    }
+
+    const auto propertiesView = std::string_view(entireMessageView.data() + offset + JsonLogFormatter::EoLMarker.size(),
+                                                 entireMessageView.size() - offset - JsonLogFormatter::EoLMarker.size());
+    const auto messageView = std::string_view(entireMessageView.data(), offset);
+    auto doc = bsoncxx::from_json(propertiesView);
+    auto message = FormatMessageFromProperties(messageView, doc.view());
+
     doc = bsoncxx::from_json(std::format("{}}}", std::string_view(dest.begin(), dest.end())));
     auto timestamp = doc["timestamp"].get_string().value;
     auto level = doc["level"].get_string().value;
 
     dest.clear();
-    dest.append(std::format("[{}] [{}] {}", timestamp, level, formatted));
+    dest.append(std::format("[{}] [{}] {}", timestamp, level, message));
 }
-std::unique_ptr<spdlog::custom_flag_formatter> FlHookLogFormatFlag::clone() const { return spdlog::details::make_unique<FlHookLogFormatFlag>(); }
+
+std::unique_ptr<spdlog::custom_flag_formatter> FLHookConsoleFormatFlag::clone() const { return spdlog::details::make_unique<FLHookConsoleFormatFlag>(); }
+
+// ReSharper disable once CppPassValueParameterByConstReference
+static concurrencpp::result<void> SendToMongo(const bsoncxx::document::value document)
+{
+    FLHook::GetDatabase()->BeginDatabaseQuery().InsertIntoCollection(DatabaseCollection::ServerLog, { document.view() });
+    co_return;
+}
+
+void FLHookMongoFormatFlag::format(const spdlog::details::log_msg& m, const std::tm& tm, spdlog::memory_buf_t& dest)
+{
+    auto entireMessageView = std::string_view(m.payload.data(), m.payload.size());
+    const auto offset = entireMessageView.find(JsonLogFormatter::EoLMarker);
+    if (offset == std::string::npos)
+    {
+        return;
+    }
+
+    const auto propertiesView = std::string_view(entireMessageView.data() + offset + JsonLogFormatter::EoLMarker.size(),
+                                                 entireMessageView.size() - offset - JsonLogFormatter::EoLMarker.size());
+    const auto messageView = std::string_view(entireMessageView.data(), offset);
+
+    const auto doc = bsoncxx::from_json(propertiesView);
+    auto message = FormatMessageFromProperties(messageView, doc.view());
+
+    using namespace bsoncxx::builder::basic;
+    FLHook::GetTaskScheduler()->ScheduleTask(
+        SendToMongo,
+        make_document(kvp("message", message),
+                      kvp("utcTimestamp", bsoncxx::types::b_date{ std::chrono::system_clock::from_time_t(std::mktime(const_cast<std::tm*>(&tm))) }),
+                      kvp("level", bsoncxx::from_json(std::format("{}}}", std::string_view(dest.begin(), dest.end())))["level"].get_string().value),
+                      kvp("properties", doc.view())));
+
+    dest.clear();
+}
+
+std::unique_ptr<spdlog::custom_flag_formatter> FLHookMongoFormatFlag::clone() const { return spdlog::details::make_unique<FLHookMongoFormatFlag>(); }
 
 void Logger::GetConsoleInput(std::stop_token st)
 {
@@ -105,13 +152,27 @@ void Logger::GetConsoleInput(std::stop_token st)
 
 void Logger::Init()
 {
+    const auto config = FLHook::GetConfig();
     logger = std::make_shared<spdlog::logger>("logger");
+    logger->set_level(static_cast<spdlog::level::level_enum>(config->logging.minLogLevel));
     logger->flush_on(spdlog::level::warn);
     spdlog::flush_every(std::chrono::milliseconds(250));
 
-    // auto& mongo = sinks.emplace_back(std::make_shared<MongoSinkMt>());
-    // mongo->set_pattern(R"({"timestamp":"%Y-%m-%dT%H:%M:%S.%e%z","level":"%l"%v})");
-    // logger->sinks().emplace_back(mongo);
+    if (config->logging.logServerLogsToDatabase)
+    {
+        auto formatter = std::make_unique<spdlog::pattern_formatter>();
+        formatter->add_flag<FLHookMongoFormatFlag>('#').set_pattern(R"({"level": "%l"%#)");
+
+        auto mongo = std::make_shared<MongoSink>();
+        mongo->set_formatter(std::move(formatter));
+        logger->sinks().emplace_back(mongo);
+
+        if (config->logging.minLogLevel <= LogLevel::Debug)
+        {
+            // Don't save debug logs in the db
+            mongo->set_level(spdlog::level::info);
+        }
+    }
 
     spdlog::set_default_logger(logger);
     if (const CommandLineParser cmd; cmd.CmdOptionExists(L"-noconsole"))
@@ -152,7 +213,7 @@ ______ _      _   _             _      _____  _____               _ _
     commandThread = std::jthread(std::bind_front(&Logger::GetConsoleInput));
 
     auto formatter = std::make_unique<spdlog::pattern_formatter>();
-    formatter->add_flag<FlHookLogFormatFlag>('#').set_pattern(R"({"level": "%l","timestamp":"%T"%#)");
+    formatter->add_flag<FLHookConsoleFormatFlag>('#').set_pattern(R"({"level": "%l","timestamp":"%T"%#)");
 
     consoleSink = logger->sinks().emplace_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
     consoleSink->set_formatter(std::move(formatter));
@@ -176,7 +237,7 @@ void Logger::MessageConsole(std::wstring_view message)
         return;
     }
 
-    std::string logMsg = StringUtils::wstos(message);
+    std::string logMsg = fmt::format("{}{}", StringUtils::wstos(message), JsonLogFormatter{});
     consoleSink->log({ "logger", spdlog::level::info, logMsg });
 }
 

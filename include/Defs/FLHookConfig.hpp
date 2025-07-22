@@ -146,6 +146,9 @@ struct DLL FLHookConfig final
 
                 //! If true, it logs performance of functions if they take too long to execute.
                 bool logPerformanceTimers = false;
+
+                //! If true, all logs of level info or higher will be stored in the server_logs mongo collection
+                bool logServerLogsToDatabase = false;
         };
 
         struct Npc
