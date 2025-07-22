@@ -642,8 +642,7 @@ concurrencpp::result<void> UserCommandProcessor::FactionInvite(const ClientId cl
 
     if (factionTag.size() < 3)
     {
-        (void)client.Message(L"ERR Invalid parameters");
-        (void)client.Message(L"Usage: /factioninvite <tag> or /fi ...");
+        (void)client.MessageErr(L"Invalid parameters. Usage: /factioninvite <tag> or /fi ...");
         co_return;
     }
 
@@ -665,7 +664,7 @@ concurrencpp::result<void> UserCommandProcessor::FactionInvite(const ClientId cl
 
     if (msgSent == false)
     {
-        (void)client.Message(L"ERR No chars found");
+        (void)client.MessageErr(L"No chars found");
     }
 
     co_return;
@@ -1026,7 +1025,7 @@ concurrencpp::result<void> UserCommandProcessor::MarkTarget(const ClientId clien
 
     if (!otherPlayer)
     {
-        (void)client.Message(L"ERR: Target not a player");
+        (void)client.MessageErr(L"Target not a player");
         co_return;
     }
 

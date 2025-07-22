@@ -300,7 +300,7 @@ namespace Plugins
                     }
                     else
                     {
-                        client.MessageErr(L"ERR Device must fully activate before deactivation.");
+                        client.MessageErr(L"Device must fully activate before deactivation.");
                     }
                     break;
                 }
@@ -343,7 +343,7 @@ namespace Plugins
 
             if (cargo->count < cd->second.disruptorInfo->ammoAmount)
             {
-                client.MessageErr(L"ERR Not enough batteries.");
+                client.MessageErr(L"Not enough batteries.");
                 co_return;
             }
 

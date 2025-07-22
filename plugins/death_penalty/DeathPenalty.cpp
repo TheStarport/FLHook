@@ -244,8 +244,7 @@ namespace Plugins
             }
             else
             {
-                (void)client.Message(L"ERR Invalid parameters");
-                (void)client.Message(L"/dp on | /dp off");
+                (void)client.MessageErr(L"Invalid parameters. Usage: /dp [on|off]");
             }
         }
         else

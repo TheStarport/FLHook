@@ -294,7 +294,7 @@ namespace Plugins
         auto tradeOffer = client.GetTradeOffer().Unwrap();
         if (newTradeAcceptState && tradeOffer && tradeOffer->equipOffer.equip.size() + Players[tradeOffer->targetClient].equipAndCargo.equip.size() >= 127)
         {
-            client.MessageErr(L"ERR Target player holds too many items, trade cannot proceed");
+            client.MessageErr(L"Target player holds too many items, trade cannot proceed");
             returnCode = ReturnCode::SkipAll;
         }
     }
@@ -354,7 +354,7 @@ namespace Plugins
             if (unstableJumpObjInfo != unstableJumpObjMap.end() && EquipDescCommodityVolume(client) > unstableJumpObjInfo->second)
             {
                 returnCode = ReturnCode::SkipPlugins;
-                client.MessageErr(std::format(L"ERR This jumphole is unstable, can't take more than {} cargo through!", unstableJumpObjInfo->second));
+                client.MessageErr(std::format(L"This jumphole is unstable, can't take more than {} cargo through!", unstableJumpObjInfo->second));
                 return { DOCK_HOST_RESPONSE::AccessDenied };
             }
         }

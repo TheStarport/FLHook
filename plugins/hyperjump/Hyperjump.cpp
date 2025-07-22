@@ -237,7 +237,7 @@ namespace Plugins
         auto systemData = config.jumpSystemData.find(system);
         if (systemData == config.jumpSystemData.end())
         {
-            client.MessageErr(L"ERR Jumping from this system is not possible");
+            client.MessageErr(L"Jumping from this system is not possible");
             return;
         }
 
@@ -399,7 +399,7 @@ namespace Plugins
 
         if (systemData == config.jumpSystemData.end())
         {
-            client.Message(L"ERR System not jumpable");
+            client.MessageErr(L"System not jumpable");
             co_return;
         }
 
@@ -537,11 +537,11 @@ namespace Plugins
     {
         if (!system.has_value())
         {
-            client.Message(L"ERR Incorrect input. Command usage:");
-            client.Message(L"/jump stop - terminates charging of the Jump Drive");
-            client.Message(L"/jump list - print systems currently in range of your Jump Drive.");
-            client.Message(L"/jump sectors <systemName> - print possible arrival points within selected system");
-            client.Message(L"/jump start <systemName> - initiate jump to target system");
+            client.MessageErr(L"Incorrect input. Command usage:");
+            client.MessageErr(L"/jump stop - terminates charging of the Jump Drive");
+            client.MessageErr(L"/jump list - print systems currently in range of your Jump Drive.");
+            client.MessageErr(L"/jump sectors <systemName> - print possible arrival points within selected system");
+            client.MessageErr(L"/jump start <systemName> - initiate jump to target system");
             co_return;
         }
 

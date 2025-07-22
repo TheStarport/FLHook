@@ -381,9 +381,8 @@ namespace Plugins
 
         if (newState.empty() || (newState != L"on" && newState != L"off"))
         {
-            (void)client.Message(L"ERR invalid parameters");
+            (void)client.MessageErr(L"Invalid parameters");
             co_return;
-            ;
         }
 
         const bool enable = newState == L"on";
@@ -423,7 +422,7 @@ namespace Plugins
         }
         else
         {
-            (void)client.Message(L"ERR invalid parameters");
+            (void)client.MessageErr(L"Invalid parameters");
             co_return;
             ;
         }

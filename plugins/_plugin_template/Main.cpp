@@ -41,7 +41,7 @@ namespace Plugins::Template
 		}
 		else
 		{
-			client.Message(L"ERR: You must provide a valid positive non-zero number.");
+			client.MessageErr(L"You must provide a valid positive non-zero number.");
 		}
 	}
 

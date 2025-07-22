@@ -497,7 +497,7 @@ namespace Plugins
         {
             client.Beam(client.GetLastDockedBase().Unwrap());
             UnmountEngines(client);
-            client.Kick(L"ERR Invalid engine(s) detected. You will be kicked to unmount the engines.", 5);
+            client.Kick(L"Invalid engine(s) detected. You will be kicked to unmount the engines.", 5);
         }
 
         equipUpdateVector.push_back({ client, 0 });

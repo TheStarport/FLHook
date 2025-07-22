@@ -246,7 +246,7 @@ namespace Plugins
 
         if (!targetClient)
         {
-            (void)client.Message(L"ERR: Target must be a player");
+            (void)client.MessageErr(L"Target must be a player");
             co_return;
         }
 

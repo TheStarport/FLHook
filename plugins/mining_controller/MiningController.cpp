@@ -573,7 +573,7 @@ namespace Plugins
         const auto& cd = mapClients.find(client);
         if (cd != mapClients.end() && cd->second.deployedContainerId)
         {
-            client.MessageErr(L"ERR A mining container is already deployed");
+            client.MessageErr(L"A mining container is already deployed");
             return;
         }
 
@@ -593,7 +593,7 @@ namespace Plugins
         CmnAsteroid::CAsteroidSystem* csys = CmnAsteroid::Find(cship->system.GetValue());
         if (!csys)
         {
-            client.MessageErr(L"ERR Not in a mineable field!");
+            client.MessageErr(L"Not in a mineable field!");
             return;
         }
 
@@ -643,7 +643,7 @@ namespace Plugins
 
         if (!loot1Id)
         {
-            client.MessageErr(L"ERR Not in a mineable field!");
+            client.MessageErr(L"Not in a mineable field!");
             return;
         }
 
