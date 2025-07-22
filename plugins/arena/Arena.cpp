@@ -183,7 +183,7 @@ namespace Plugins
         if (const SystemId system = client.GetSystemId().Unwrap();
             std::ranges::find(config.restrictedSystems, system) != config.restrictedSystems.end() || system == config.targetSystem)
         {
-            (void)client.Message(L"ERR Cannot use command in this system or base");
+            (void)client.MessageErr(L"Cannot use command in this system or base");
             co_return;
         }
 

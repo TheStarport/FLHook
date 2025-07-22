@@ -16,7 +16,7 @@ namespace Plugins
     {
         if (client.GetEquipCargo().Unwrap()->equip.size() >= 127)
         {
-            client.MessageErr(L"ERR Too many individual items in hold, aborting purchase to prevent character corruption");
+            client.MessageErr(L"Too many individual items in hold, aborting purchase to prevent character corruption");
             mapBuySuppression[client.GetValue()] = true;
             return false;
         }

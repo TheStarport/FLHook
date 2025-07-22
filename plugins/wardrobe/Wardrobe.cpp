@@ -37,7 +37,7 @@ namespace Plugins
     {
         if (type.empty() || costume.empty())
         {
-            (void)client.Message(L"ERR Invalid parameters");
+            (void)client.MessageErr(L"Invalid parameters");
             co_return;
         }
 
@@ -45,7 +45,7 @@ namespace Plugins
         {
             if (!config.heads.contains(StringUtils::wstos(costume)))
             {
-                (void)client.Message(L"ERR Head not found. Use \"/warehouse show head\" to get available heads.");
+                (void)client.MessageErr(L"Head not found. Use \"/warehouse show head\" to get available heads.");
                 co_return;
             }
             client.GetData().playerData->baseCostume.head = CreateID(config.heads[StringUtils::wstos(costume)].c_str());
@@ -54,14 +54,14 @@ namespace Plugins
         {
             if (!config.bodies.contains(StringUtils::wstos(costume)))
             {
-                (void)client.Message(L"ERR Body not found. Use \"/warehouse show body\" to get available bodies.");
+                (void)client.MessageErr(L"Body not found.Use \"/warehouse show body\" to get available bodies.");
                 co_return;
             }
             client.GetData().playerData->baseCostume.body = CreateID(config.bodies[StringUtils::wstos(costume)].c_str());
         }
         else
         {
-            (void)client.Message(L"ERR Invalid parameters");
+            (void)client.MessageErr(L"Invalid parameters");
             co_return;
         }
 
@@ -78,7 +78,7 @@ namespace Plugins
         // Check character is in base
         if (!client.IsDocked())
         {
-            (void)client.Message(L"ERR Not in base");
+            (void)client.MessageErr(L"Not in base");
             co_return;
         }
 
