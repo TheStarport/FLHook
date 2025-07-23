@@ -78,18 +78,29 @@ httplib::StatusCode HttpServer::GetOnlinePlayers(const httplib::Request& req, ht
 
     // clang-format on
 
-    if (const auto config = FLHook::GetConfig(); config->httpSettings.sendJsonInsteadOfBson)
+    WriteHttpResponse(req, payload, res);
+
+    return httplib::StatusCode::OK_200;
+}
+
+void HttpServer::WriteHttpResponse(const httplib::Request& request, bsoncxx::v_noabi::document::value payload, httplib::Response& response)
+{
+    std::vector<std::string> accepts;
+    for (auto accept = request.headers.find("Accept"); accept != request.headers.end(); accept++)
     {
-        std::string bytes = bsoncxx::to_json(payload.view());
-        res.set_content(bytes, "application/json");
+        accepts.emplace_back(accept->second);
+    }
+
+    if (std::ranges::find(accepts, "application/bson") != accepts.end())
+    {
+        const std::string bytes = { reinterpret_cast<const char*>(payload.data()), payload.length() };
+        response.set_content(bytes, "application/bson");
     }
     else
     {
-        const std::string bytes = { reinterpret_cast<const char*>(payload.data()), payload.length() };
-        res.set_content(bytes, "application/bson");
+        std::string bytes = bsoncxx::to_json(payload.view());
+        response.set_content(bytes, "application/json");
     }
-
-    return httplib::StatusCode::OK_200;
 }
 
 httplib::StatusCode HttpServer::Ping() { return httplib::StatusCode::OK_200; }

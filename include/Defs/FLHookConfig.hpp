@@ -215,9 +215,6 @@ struct DLL FLHookConfig final
 
                 //! The maximum content body that can be returned from a web request, defaults to 2MB which is the maximum size of a BSON document
                 int maxPayloadSize = 1024 * 1024 * 2; // Default 2MB
-
-                //! If true, requests will be returned as JSON payloads, rather than BSON documents.
-                bool sendJsonInsteadOfBson = false;
         };
 
         Logging logging;

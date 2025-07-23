@@ -22,4 +22,6 @@ class DLL HttpServer
         bool try_lock();
         ~HttpServer();
         HttpServer();
+
+        void static WriteHttpResponse(const httplib::Request& request, bsoncxx::v_noabi::document::value payload, httplib::Response& response);
 };

@@ -88,17 +88,7 @@ namespace Plugins
         }
 
         const auto payload = make_document(kvp("players", players));
-
-        if (const auto config = FLHook::GetConfig(); config->httpSettings.sendJsonInsteadOfBson)
-        {
-            std::string bytes = bsoncxx::to_json(payload.view());
-            response.set_content(bytes, "application/json");
-        }
-        else
-        {
-            const std::string bytes = { reinterpret_cast<const char*>(payload.data()), payload.length() };
-            response.set_content(bytes, "application/bson");
-        }
+        FLHook::GetHttpServer().get()->WriteHttpResponse(request, payload, response);
 
         return httplib::StatusCode::OK_200;
     }
