@@ -391,9 +391,16 @@ void FLHook::ProcessPendingCommands()
         }
 
         constexpr auto consoleId = L"0"sv;
-        if (auto task = AdminCommandProcessor::i()->ProcessCommand(ClientId(), AllowedContext::ConsoleOnly, consoleId, cmdStr))
+        try
         {
-            GetTaskScheduler()->StoreTaskHandle(std::make_shared<Task>(std::move(*task), ClientId()));
+            if (auto task = AdminCommandProcessor::i()->ProcessCommand(ClientId(), AllowedContext::ConsoleOnly, consoleId, cmdStr))
+            {
+                GetTaskScheduler()->StoreTaskHandle(std::make_shared<Task>(std::move(*task), ClientId()));
+            }
+        }
+        catch (InvalidParameterException& ex)
+        {
+            Logger::MessageConsole(ex.Msg());
         }
 
         cmd = Logger::GetCommand();
