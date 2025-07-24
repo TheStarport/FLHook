@@ -374,8 +374,9 @@ concurrencpp::result<void> AdminCommandProcessor::ListCargo(ClientId client, con
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::AddCargo(ClientId client, ClientId target, GoodInfo* good, uint count, const bool mission)
+concurrencpp::result<void> AdminCommandProcessor::AddCargo(ClientId client, ClientId target, GoodInfo* good, uint count, const std::optional<bool> optMission)
 {
+    bool mission = optMission.value_or(false);
     target.GetShip().Handle().AddCargo(good->goodId, count, mission).Handle();
 
     const auto& im = FLHook::GetInfocardManager();
