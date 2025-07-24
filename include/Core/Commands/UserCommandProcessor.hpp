@@ -35,7 +35,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         concurrencpp::result<void> Coin(ClientId client);
         concurrencpp::result<void> Value(ClientId client);
         concurrencpp::result<void> DropRep(ClientId client);
-        concurrencpp::result<void> Help(ClientId client, int page);
+        concurrencpp::result<void> Help(ClientId client, std::optional<int> page);
 
         // clang-format off
         inline static const std::array<CommandInfo<UserCommandProcessor>, 29> commands = {

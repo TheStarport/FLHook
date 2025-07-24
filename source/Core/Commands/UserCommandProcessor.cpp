@@ -871,7 +871,7 @@ concurrencpp::result<void> UserCommandProcessor::Time(const ClientId client)
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::Help(const ClientId client, int page)
+concurrencpp::result<void> UserCommandProcessor::Help(const ClientId client, std::optional<int> optPage)
 {
     constexpr int itemsPerPage = 20;
     const auto& pm = PluginManager::i();
@@ -907,6 +907,7 @@ concurrencpp::result<void> UserCommandProcessor::Help(const ClientId client, int
     // Divide the total commands against items per page, rounding up
     const auto div = std::div(totalCommands, itemsPerPage);
     const int totalPages = std::clamp(div.rem ? div.quot + 1 : div.quot, 1, 100);
+    int page = optPage.value_or(0);
     if (page > totalPages)
     {
         page = totalPages;
