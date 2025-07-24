@@ -786,7 +786,7 @@ concurrencpp::result<void> AdminCommandProcessor::Move(ClientId client, ClientId
 }
 
 #include <cpptrace/basic.hpp>
-concurrencpp::result<void> AdminCommandProcessor::Help(ClientId client, int page)
+concurrencpp::result<void> AdminCommandProcessor::Help(ClientId client, std::optional<int> optPage)
 {
     constexpr int itemsPerPage = 20;
     const auto& pm = PluginManager::i();
@@ -823,6 +823,7 @@ concurrencpp::result<void> AdminCommandProcessor::Help(ClientId client, int page
     // Divide the total commands against items per page, rounding up
     const auto div = std::div(totalCommands, itemsPerPage);
     const int totalPages = std::clamp(div.rem ? div.quot + 1 : div.quot, 1, 100);
+    int page = optPage.value_or(0);
     if (page > totalPages)
     {
         page = totalPages;
