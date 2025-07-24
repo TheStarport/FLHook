@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Commands/AbstractAdminCommandProcessor.hpp"
+#include "Core/FlufInfocardHelper.hpp"
 
 namespace Plugins
 {
@@ -11,7 +12,7 @@ namespace Plugins
      * This plugin controls economy related logic. With clienthook support allows for separated buy/sell prices.
      * It also overrides loot-dropping logic
      */
-    class MiningControllerPlugin final : public Plugin//, public AbstractAdminCommandProcessor
+    class MiningControllerPlugin final : public Plugin, public FlufInfocardHelper//, public AbstractAdminCommandProcessor
     {
 
             struct MiningNodeInfo
@@ -35,11 +36,12 @@ namespace Plugins
                     std::vector<Vector> positions;
                     std::vector<MiningArchetype> nodeArchetypes;
                     std::vector<std::string> nicknamesVector;
-                    uint nodeIDS;
+                    std::string nodeName;
                     uint respawnCD;
                     uint cdProgress = 0;
                     uint maxSpawnCount;
                     uint spawnedNodesCount = 0;
+                    rfl::Skip<uint> idsNumber;
             };
 
             struct NodeInfo

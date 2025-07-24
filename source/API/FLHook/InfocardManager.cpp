@@ -58,7 +58,7 @@ std::wstring_view InfocardManager::GetInfoName(const uint ids) const
 {
     if (const auto found = infoCardOverride.find(ids); found != infoCardOverride.end())
     {
-        return { found->second.data(), found->second.size() };
+        return StringUtils::stows(found->second);
     }
 
     wchar_t* destStr;
@@ -92,11 +92,11 @@ void InfocardManager::OverrideInfocard(const uint ids, const std::wstring& overr
 
     if (isName)
     {
-        infoNameOverride[ids] = override;
+        infoNameOverride[ids] = StringUtils::wstos(override);
     }
     else
     {
-        infoCardOverride[ids] = override;
+        infoCardOverride[ids] = StringUtils::wstos(override);
     }
 
     for (const auto& flufClient : FLHook::Clients())
@@ -126,14 +126,16 @@ void InfocardManager::OverrideInfocards(const InfocardPayload& payload, ClientId
 
     for (auto& [ids, override] : payload.infoNames)
     {
-        infoNameOverride[ids] = StringUtils::stows(override);
+        infoNameOverride[ids] = override;
     }
 
     for (auto& [ids, override] : payload.infoCards)
     {
-        infoCardOverride[ids] = StringUtils::stows(override);
+        infoCardOverride[ids] = override;
     }
 }
+
+void InfocardManager::SendAllOverrides(ClientId client) { OverrideInfocards({ infoCardOverride, infoNameOverride }, client); }
 
 void InfocardManager::ClearOverride(const uint ids, const bool all)
 {
@@ -147,4 +149,10 @@ void InfocardManager::ClearOverride(const uint ids, const bool all)
         infoNameOverride.erase(ids);
         infoCardOverride.erase(ids);
     }
+}
+
+uint InfocardManager::ReturnPluginInfocardRange()
+{
+    static uint registeredPluginsCount = 0;
+    return UINT_MAX - (USHRT_MAX * ++registeredPluginsCount);
 }

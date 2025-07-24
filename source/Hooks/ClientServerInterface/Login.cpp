@@ -1,6 +1,7 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/AccountManager.hpp"
+#include "API/FLHook/InfocardManager.hpp"
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
 #include "Core/ClientServerInterface.hpp"
@@ -98,6 +99,8 @@ void IServerImplHook::DelayedLogin(SLoginInfo li, ClientId client)
     LoginInnerAfter(li, client);
 
     CallPlugins(&Plugin::OnLoginAfter, client, li);
+
+    FLHook::GetInfocardManager()->SendAllOverrides(client);
 }
 
 void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)

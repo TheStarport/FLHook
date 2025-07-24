@@ -21,7 +21,7 @@ namespace Plugins
         solarInfo.systemId = ms.system;
         solarInfo.pos = ms.positions[selectedPositionIndex];
         solarInfo.ori = EulerMatrix(eulerRotation);
-        solarInfo.solarIds = ms.nodeIDS;
+        solarInfo.solarIds = ms.idsNumber();
 
         Id createdSolar = ResourceManager::CreateSolarSimple(solarInfo, this);
 
@@ -120,6 +120,13 @@ namespace Plugins
 
         LoadJsonWithValidation(Config, config, "config/mining_controller.json");
         LoadJsonWithValidation(MiningAreasConfig, miningAreasConfig, "config/mining_controller_nodes.json");
+
+        uint counter = MaxClientId; // each client Id infocard is reserved for the mining container
+        for (auto& miningArea : miningAreasConfig.miningAreas)
+        {
+            miningArea.idsNumber = ++counter;
+            OverrideFlufInfocard(counter, StringUtils::stows(miningArea.nodeName), true);
+        }
 
         // TODO: Save to database instead
 
@@ -665,7 +672,7 @@ namespace Plugins
         solarInfo.systemId = cship->system;
         solarInfo.pos = pos;
         solarInfo.ori = ori;
-        solarInfo.solarIds = 540999 + client.GetValue();
+        solarInfo.solarIds = GetGlobalInfocardIds(client.GetValue());
         solarInfo.percentageHp = 1.0f;
 
         Id createdSolar = ResourceManager::CreateSolarSimple(solarInfo, this);
@@ -724,7 +731,7 @@ namespace Plugins
             solar->cobj->system, colGrpCenter, node.itemArchId, minedAmount, ShipId(dmgList->inflictorId.GetValue()), false, nullptr);
     }
 
-    MiningControllerPlugin::MiningControllerPlugin(const PluginInfo& info) : Plugin(info)
+    MiningControllerPlugin::MiningControllerPlugin(const PluginInfo& info) : Plugin(info), FlufInfocardHelper()
     {
         AddTimer([this] { SaveZoneStatusToDb(); }, 120000);
         AddTimer([this] { DestroyPendingNodes(); }, 30000);

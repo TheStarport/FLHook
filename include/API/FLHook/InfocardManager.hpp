@@ -4,8 +4,8 @@ class FLHook;
 class DLL InfocardManager
 {
         friend FLHook;
-        std::unordered_map<uint, std::wstring> infoCardOverride;
-        std::unordered_map<uint, std::wstring> infoNameOverride;
+        std::unordered_map<uint, std::string> infoCardOverride;
+        std::unordered_map<uint, std::string> infoNameOverride;
         std::vector<HMODULE> loadedDlls;
         static constexpr std::string_view header = "infocard_override";
 
@@ -38,5 +38,8 @@ class DLL InfocardManager
         void OverrideInfocard(uint ids, const std::wstring& override, bool isName, ClientId client = {});
         void OverrideInfocards(const InfocardPayload& payload, ClientId client = {});
 
+        void SendAllOverrides(ClientId client = {});
         void ClearOverride(uint ids, bool all = false);
+
+        uint ReturnPluginInfocardRange();
 };
