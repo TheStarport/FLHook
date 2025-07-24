@@ -14,7 +14,7 @@ namespace Plugins
 
     bool MarketControllerPlugin::GFGoodBuyCL(SGFGoodBuyInfo const& gbi, ClientId client)
     {
-        if (client.GetEquipCargo().Unwrap()->equip.size() >= 127)
+        if (client.GetEquipCargo().Handle()->equip.size() >= 127)
         {
             client.MessageErr(L"Too many individual items in hold, aborting purchase to prevent character corruption");
             mapBuySuppression[client.GetValue()] = true;
@@ -41,7 +41,7 @@ namespace Plugins
             else
             {
                 // If the ID doesn't match, check for the tag
-                std::wstring_view charName = client.GetCharacterName().Unwrap();
+                std::wstring_view charName = client.GetCharacterName().Handle();
                 for (auto& tag : commodityRestriction->second.tagRestrictions)
                 {
                     if (charName.find(tag) == 0)

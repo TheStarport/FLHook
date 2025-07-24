@@ -14,7 +14,7 @@ namespace Plugins
         const auto view = client.GetData().characterData;
         if (auto autobuyDoc = view->characterDocument.find("autobuy"); autobuyDoc != view->characterDocument.end())
         {
-            for (const bsoncxx::document::view subDoc = autobuyDoc->get_document().view(); auto& item : subDoc)
+            for (const B_VIEW subDoc = autobuyDoc->get_document().view(); auto& item : subDoc)
             {
                 switch (Hash(item.key().data()))
                 {
@@ -147,9 +147,8 @@ namespace Plugins
 
     void AutobuyPlugin::OnCharacterSelectAfter(const ClientId client) { LoadPlayerAutobuy(client); }
 
-    void AutobuyPlugin::OnCharacterSave(const ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
+    void AutobuyPlugin::OnCharacterSave(const ClientId client, std::wstring_view charName, B_DOC& document)
     {
-        using bsoncxx::builder::basic::kvp;
         const auto& [updated, ammo, mines, cm, bb, repairs] = autobuyInfo[client.GetValue()];
 
         if (!updated)
@@ -157,8 +156,7 @@ namespace Plugins
             return;
         }
 
-        document.append(kvp(
-            "autobuy", bsoncxx::builder::basic::make_document(kvp("cm", cm), kvp("bb", bb), kvp("repairs", repairs), kvp("mines", mines), kvp("ammo", ammo))));
+        document.append(B_KVP("autobuy", B_MDOC(B_KVP("cm", cm), B_KVP("bb", bb), B_KVP("repairs", repairs), B_KVP("mines", mines), B_KVP("ammo", ammo))));
     }
 
     void AutobuyPlugin::OnBaseEnterAfter(const BaseId baseId, const ClientId client)

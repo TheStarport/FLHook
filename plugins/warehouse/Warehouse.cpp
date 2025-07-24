@@ -7,9 +7,6 @@
 
 namespace Plugins
 {
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_array;
-    using bsoncxx::builder::basic::make_document;
 
 #define VALIDATE_ACCOUNT                                                                               \
     if (!account)                                                                                      \
@@ -42,14 +39,14 @@ namespace Plugins
     {
         auto dbQuery = FLHook::GetDatabase()->BeginDatabaseQuery();
 
-        const auto filter = make_document(kvp("_id", accountId));
+        const auto filter = B_MDOC(B_KVP("_id", accountId));
         auto findResult = dbQuery.FindFromCollection(config.collectionName, filter.view());
         if (!findResult.has_value())
         {
             auto warehouse = PlayerWarehouse{ ._id = accountId };
 
             auto bsonWarehouse = rfl::bson::write(warehouse);
-            auto insertDoc = bsoncxx::document::view{ reinterpret_cast<const uint8_t*>(bsonWarehouse.data()), bsonWarehouse.size() };
+            auto insertDoc = B_VIEW{ reinterpret_cast<const uint8_t*>(bsonWarehouse.data()), bsonWarehouse.size() };
             auto insertResult = std::get<0>(dbQuery.InsertIntoCollection(config.collectionName, { insertDoc }));
             dbQuery.ConcludeQuery(true);
 
@@ -66,9 +63,9 @@ namespace Plugins
 
         auto dbQuery = FLHook::GetDatabase()->BeginDatabaseQuery();
 
-        const auto filterDoc = make_document(kvp("_id", warehouse._id));
+        const auto filterDoc = B_MDOC(B_KVP("_id", warehouse._id));
         auto warehouseRaw = rfl::bson::write(warehouse);
-        const auto warehouseDoc = bsoncxx::document::view{ reinterpret_cast<uint8_t*>(warehouseRaw.data()), warehouseRaw.size() };
+        const auto warehouseDoc = B_VIEW{ reinterpret_cast<uint8_t*>(warehouseRaw.data()), warehouseRaw.size() };
 
         dbQuery.FindAndUpdate(config.collectionName, filterDoc.view(), warehouseDoc, {}, true, true, true);
         dbQuery.ConcludeQuery(true);

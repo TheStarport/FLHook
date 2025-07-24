@@ -371,21 +371,24 @@ namespace Plugins
     {
         // TODO: Add monitoring for certain item sales, previously handled in MF
 
-        const GoodInfo* gi = GoodList_get()->find_by_id(info.archId.GetValue());
-        if (gi->type != GoodType::Commodity)
+        if (config.useSeparateBuySellPrices)
         {
-            return;
-        }
+            const GoodInfo* gi = GoodList_get()->find_by_id(info.archId.GetValue());
+            if (gi->type != GoodType::Commodity)
+            {
+                return;
+            }
 
-        BaseData* bd = BaseDataList_get()->get_base_data(client.GetCurrentBase().Unwrap().GetValue());
-        auto marketData = bd->marketMap.find(info.archId);
-        if (marketData == bd->marketMap.end())
-        {
-            return;
+            BaseData* bd = BaseDataList_get()->get_base_data(client.GetCurrentBase().Unwrap().GetValue());
+            auto marketData = bd->marketMap.find(info.archId);
+            if (marketData == bd->marketMap.end())
+            {
+                return;
+            }
+            int sellPrice = marketData->second.min;
+            int currPrice = static_cast<int>(marketData->second.price);
+            client.AddCash(info.count * (sellPrice - currPrice));
         }
-        int sellPrice = marketData->second.min;
-        int currPrice = static_cast<int>(marketData->second.price);
-        client.AddCash(info.count * (sellPrice - currPrice));
     }
 
     void MarketControllerPlugin::OnGfGoodBuy(ClientId client, const SGFGoodBuyInfo& info)

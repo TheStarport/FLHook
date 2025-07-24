@@ -6,9 +6,9 @@
 #include "API/FLHook/Database.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
 
-using bsoncxx::builder::basic::kvp;
-using bsoncxx::builder::basic::make_array;
-using bsoncxx::builder::basic::make_document;
+
+
+
 
 concurrencpp::result<void> MailManager::InformOnlineUsersOfNewMail(
     std::vector<rfl::Variant<bsoncxx::oid, std::string>> accountIdOrCharacterNames) // NOLINT(*-unnecessary-value-param)
@@ -62,24 +62,24 @@ Action<std::vector<Mail>> MailManager::GetAccountMail(std::string accountId, int
 
     // clang-format off
     pipeline
-        .lookup(make_document(
-            kvp("from", config->database.accountsCollection),
-            kvp("let", make_document(kvp("recipients", "$recipients"))),
-            kvp("pipeline", make_array(
-                make_document(kvp("$match", make_document(kvp("$expr",
+        .lookup(B_MDOC(
+            B_KVP("from", config->database.accountsCollection),
+            B_KVP("let", B_MDOC(B_KVP("recipients", "$recipients"))),
+            B_KVP("pipeline", B_MARR(
+                B_MDOC(B_KVP("$match", B_MDOC(B_KVP("$expr",
                     // Check that the mail we are looking for has a matching account id and the same character id
-                    make_document(kvp("$and", make_array(
-                        make_document(kvp("$eq", make_array("$accountId", accountId))),
-                        make_document(kvp("$in", make_array("$_id", "$$recipients.target")))
+                    B_MDOC(B_KVP("$and", B_MARR(
+                        B_MDOC(B_KVP("$eq", B_MARR("$accountId", accountId))),
+                        B_MDOC(B_KVP("$in", B_MARR("$_id", "$$recipients.target")))
                     )))
                 ))))
             )),
-            kvp("as", "mail")
+            B_KVP("as", "mail")
         ))
         // Remove results that didn't match
-        .match(make_document(kvp("mail.0", make_document(kvp("$exists", true)))))
+        .match(B_MDOC(B_KVP("mail.0", B_MDOC(B_KVP("$exists", true)))))
         // Paginate
-        .sort(make_document(kvp("sentDate", newestFirst ? -1 : 1)))
+        .sort(B_MDOC(B_KVP("sentDate", newestFirst ? -1 : 1)))
         .skip(count * page)
         .limit(count);
     // clang-format on
@@ -150,9 +150,9 @@ Action<std::vector<Mail>> MailManager::GetCharacterMail(bsoncxx::oid characterId
 
     // clang-format off
     pipeline
-        .match(make_document(kvp("$expr", make_document(kvp("$in", make_array(characterId, "$recipients.target"))))))
+        .match(B_MDOC(B_KVP("$expr", B_MDOC(B_KVP("$in", B_MARR(characterId, "$recipients.target"))))))
         // Paginate
-        .sort(make_document(kvp("sentDate", newestFirst ? -1 : 1)))
+        .sort(B_MDOC(B_KVP("sentDate", newestFirst ? -1 : 1)))
         .skip(count * page)
         .limit(count);
     // clang-format on
@@ -199,7 +199,7 @@ Action<void> MailManager::DeleteMail(const Mail& mail)
 
     try
     {
-        if (const auto result = mailCollection.delete_one(make_document(kvp("_id", mail._id))); result.has_value() && result.value().deleted_count())
+        if (const auto result = mailCollection.delete_one(B_MDOC(B_KVP("_id", mail._id))); result.has_value() && result.value().deleted_count())
         {
             return { {} };
         }
@@ -219,18 +219,18 @@ Action<void> MailManager::MarkMailAsRead(const Mail& mail, rfl::Variant<std::str
     const auto dbClient = FLHook::GetDbClient();
     auto mailCollection = dbClient->database(config->database.dbName).collection(config->database.mailCollection);
 
-    auto targetEq = characterOrAccount.index() ? make_document(kvp("$eq", rfl::get<bsoncxx::oid>(characterOrAccount)))
-                                               : make_document(kvp("$eq", rfl::get<std::string>(characterOrAccount)));
+    auto targetEq = characterOrAccount.index() ? B_MDOC(B_KVP("$eq", rfl::get<bsoncxx::oid>(characterOrAccount)))
+                                               : B_MDOC(B_KVP("$eq", rfl::get<std::string>(characterOrAccount)));
 
     try
     {
         // clang-format off
         // ReSharper disable once CppTooWideScopeInitStatement
         const auto result = mailCollection.update_one(
-            make_document(kvp("$and", make_array(
-                      make_document(kvp("_id", make_document(kvp("$eq", mail._id)))),
-                      make_document(kvp("recipients.target", targetEq))))),
-            make_document(kvp("$set", make_document(kvp("recipients.$.readDate",
+            B_MDOC(B_KVP("$and", B_MARR(
+                      B_MDOC(B_KVP("_id", B_MDOC(B_KVP("$eq", mail._id)))),
+                      B_MDOC(B_KVP("recipients.target", targetEq))))),
+            B_MDOC(B_KVP("$set", B_MDOC(B_KVP("recipients.$.readDate",
                 bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) })))));
         // clang-format on
 
@@ -279,7 +279,7 @@ Action<void> MailManager::SendMail(Mail& mail)
     mail.sentDate = TimeUtils::MakeUtcTm(std::chrono::system_clock::now());
 
     const auto mailRaw = rfl::bson::write(mail);
-    const auto mailDoc = bsoncxx::document::view(reinterpret_cast<const uint8_t*>(mailRaw.data()), mailRaw.size());
+    const auto mailDoc = B_VIEW(reinterpret_cast<const uint8_t*>(mailRaw.data()), mailRaw.size());
 
     std::vector<rfl::Variant<bsoncxx::oid, std::string>> mailTargets;
 

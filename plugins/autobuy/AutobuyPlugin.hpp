@@ -86,7 +86,7 @@ namespace Plugins
             /**
              * @brief Hook on CharacterSave. Saves the autobuy settings on character db entry.
              */
-            void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
+            void OnCharacterSave(ClientId client, std::wstring_view charName, B_DOC& document) override;
             /**
              * @brief Hook on ClearClientInfo. Resets the player data.
              */

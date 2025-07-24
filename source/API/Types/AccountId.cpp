@@ -4,6 +4,8 @@
 #include "API/FLHook/Database.hpp"
 #include "API/Types/AccountId.hpp"
 
+#include "API/FLHook/BsonHelper.hpp"
+
 AccountId::operator bool() const { return accountId.empty(); }
 
 ClientData* AccountId::IsOnline() const
@@ -18,10 +20,6 @@ ClientData* AccountId::IsOnline() const
 
     return nullptr;
 }
-
-using bsoncxx::builder::basic::kvp;
-using bsoncxx::builder::basic::make_array;
-using bsoncxx::builder::basic::make_document;
 
 std::optional<AccountId> AccountId::GetAccountFromClient(const ClientId client)
 {
@@ -57,10 +55,10 @@ std::optional<AccountId> AccountId::GetAccountFromCharacterName(const std::wstri
 
     const auto config = FLHook::GetConfig();
     auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-    const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(characterName)));
+    const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName)));
 
     mongocxx::options::find options;
-    options.projection(make_document(kvp("_id", 1)));
+    options.projection(B_MDOC(B_KVP("_id", 1)));
 
     const auto character = charactersCollection.find_one(findCharDoc.view(), options);
     if (!character.has_value())
@@ -90,10 +88,10 @@ std::optional<AccountId> AccountId::GetAccountFromAccountId(const std::wstring_v
 
     const auto config = FLHook::GetConfig();
     auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
-    const auto findAccDoc = make_document(kvp("_id", accountIdString));
+    const auto findAccDoc = B_MDOC(B_KVP("_id", accountIdString));
 
     mongocxx::options::find options;
-    options.projection(make_document(kvp("_id", 1)));
+    options.projection(B_MDOC(B_KVP("_id", 1)));
 
     const auto databaseAccount = accountsCollection.find_one(findAccDoc.view(), options);
     if (!databaseAccount.has_value())
@@ -119,10 +117,10 @@ bool AccountId::IsAdmin() const
 
     const auto config = FLHook::GetConfig();
     auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
-    auto findAccDoc = make_document(kvp("_id", accountId));
+    auto findAccDoc = B_MDOC(B_KVP("_id", accountId));
 
     mongocxx::pipeline pipeline{};
-    pipeline.match(make_document(kvp("_id", accountId)));
+    pipeline.match(B_MDOC(B_KVP("_id", accountId)));
     pipeline.count("gameRoles");
 
     for (auto cursor = accountsCollection.aggregate(pipeline, mongocxx::options::aggregate{}); const auto data : cursor)
@@ -139,8 +137,8 @@ Action<void> AccountId::UnBan() const
 
     const auto config = FLHook::GetConfig();
     auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
-    const auto findAccDoc = make_document(kvp("_id", accountId));
-    static auto updateDoc = make_document(kvp("$set", make_document(kvp("banned", false))), kvp("$unset", make_document(kvp("scheduledUnbanDate", ""))));
+    const auto findAccDoc = B_MDOC(B_KVP("_id", accountId));
+    static auto updateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("banned", false))), B_KVP("$unset", B_MDOC(B_KVP("scheduledUnbanDate", ""))));
 
     if (const auto responseDoc = accountsCollection.update_one(findAccDoc.view(), updateDoc.view()); responseDoc->modified_count() == 0)
     {
@@ -156,17 +154,17 @@ Action<void> AccountId::Ban(const uint tempBanDays) const
     const auto db = FLHook::GetDbClient();
     const auto config = FLHook::GetConfig();
     auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
-    const auto findAccDoc = make_document(kvp("_id", accountId));
+    const auto findAccDoc = B_MDOC(B_KVP("_id", accountId));
 
-    bsoncxx::document::view_or_value banUpdateDoc;
+    B_VOV banUpdateDoc;
     if (tempBanDays)
     {
         auto time = TimeUtils::UnixTime<std::chrono::seconds>() + static_cast<int64>(60 * 60 * 24 * tempBanDays);
-        banUpdateDoc = make_document(kvp("$set", make_document(kvp("banned", true), kvp("scheduledUnbanDate", time))));
+        banUpdateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("banned", true), B_KVP("scheduledUnbanDate", time))));
     }
     else
     {
-        static auto permaBanDoc = make_document(kvp("$set", make_document(kvp("banned", true))), kvp("$unset", make_document(kvp("scheduledUnbanDate", ""))));
+        static auto permaBanDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("banned", true))), B_KVP("$unset", B_MDOC(B_KVP("scheduledUnbanDate", ""))));
         banUpdateDoc = permaBanDoc.view();
     }
 
@@ -196,10 +194,10 @@ Action<void> AccountId::DeleteCharacter(const std::wstring_view name) const
     auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
     auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
 
-    const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(name)));
+    const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(name)));
 
     mongocxx::options::find_one_and_delete deleteOptions;
-    deleteOptions.projection(make_document(kvp("_id", 1)));
+    deleteOptions.projection(B_MDOC(B_KVP("_id", 1)));
 
     const auto foundCharDoc = charactersCollection.find_one_and_delete(findCharDoc.view(), deleteOptions);
     if (!foundCharDoc.has_value())
@@ -207,8 +205,8 @@ Action<void> AccountId::DeleteCharacter(const std::wstring_view name) const
         return { {} };
     }
 
-    const auto findAccDoc = make_document(kvp("_id", accountId));
-    const auto updateAccDoc = make_document(kvp("$pull", make_document(kvp("characters", foundCharDoc.value()["_id"].get_oid()))));
+    const auto findAccDoc = B_MDOC(B_KVP("_id", accountId));
+    const auto updateAccDoc = B_MDOC(B_KVP("$pull", B_MDOC(B_KVP("characters", foundCharDoc.value()["_id"].get_oid()))));
 
     if (const auto updateResponse = accountsCollection.update_one(findAccDoc.view(), updateAccDoc.view()); updateResponse->modified_count() == 0)
     {

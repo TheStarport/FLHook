@@ -2,7 +2,7 @@
 
 #include "Defs/Structs.hpp"
 
-#include <bsoncxx/builder/basic/document.hpp>
+#include "API/FLHook/BsonHelper.hpp"
 
 struct FlufPayload;
 constexpr auto CurrentMajorVersion = PluginMajorVersion::V05;
@@ -263,7 +263,7 @@ class DLL Plugin
         Aft(void, OnCharacterSelect, (ClientId client));
         Aft(void, OnCharacterCreation, (ClientId client, const SCreateCharacterInfo& info));
         Aft(void, OnCharacterDelete, (ClientId client, std::wstring_view charName));
-        virtual void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) {};
+        virtual void OnCharacterSave(ClientId client, std::wstring_view charName, B_DOC& document) {};
         Aft(void, OnRequestShipArch, (ClientId client, ArchId arch));
         Aft(void, OnRequestHullStatus, (ClientId client, float status));
         Aft(void, OnRequestCollisionGroups, (ClientId client, const st6::list<CollisionGroupDesc>& groups));

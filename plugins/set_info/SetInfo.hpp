@@ -43,7 +43,7 @@ namespace Plugins
 
             void OnClearClientInfo(ClientId client) override;
 
-            void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
+            void OnCharacterSave(ClientId client, std::wstring_view charName, B_DOC& document) override;
 
             /**
              * @brief Used to change the info of the triggering player

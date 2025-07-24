@@ -13,8 +13,8 @@
 // TODO: General, a lot of these functions are agnostic about whether or not the player is online and thus has a clientId, so along with the player database
 // rework a lot of these functions need to be reworked to account for that.
 
-using bsoncxx::builder::basic::kvp;
-using bsoncxx::builder::basic::make_document;
+
+
 
 std::optional<concurrencpp::result<void>> AdminCommandProcessor::ProcessCommand(ClientId user, const AllowedContext currentContext, std::wstring_view cmd,
                                                                                 std::vector<std::wstring_view>& paramVector)
@@ -84,8 +84,8 @@ concurrencpp::result<void> AdminCommandProcessor::SetCash(ClientId client, std::
         auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
 
         // They are offline, lets lookup the needed info
-        const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
-        const auto update = make_document(kvp("$set", make_document(kvp("money", static_cast<int>(amount)))));
+        const auto filter = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName)));
+        const auto update = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("money", static_cast<int>(amount)))));
 
         const auto result = charactersCollection.update_one(filter.view(), update.view());
 
@@ -147,8 +147,8 @@ concurrencpp::result<void> AdminCommandProcessor::GetCash(ClientId client, std::
         const auto db = FLHook::GetDbClient();
         auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
 
-        const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
-        const auto projection = make_document(kvp("money", 1));
+        const auto filter = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName)));
+        const auto projection = B_MDOC(B_KVP("money", 1));
 
         mongocxx::options::find options;
         options.projection(projection.view());
@@ -210,8 +210,8 @@ concurrencpp::result<void> AdminCommandProcessor::AddCash(ClientId client, std::
         auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
 
         // They are offline, lets lookup the needed info
-        const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
-        const auto update = make_document(kvp("$inc", make_document(kvp("money", amount))));
+        const auto filter = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName)));
+        const auto update = B_MDOC(B_KVP("$inc", B_MDOC(B_KVP("money", amount))));
 
         const auto result = charactersCollection.update_one(filter.view(), update.view());
 
@@ -415,7 +415,7 @@ concurrencpp::result<void> AdminCommandProcessor::DeleteChar(const ClientId clie
     transaction.start_transaction();
 
     // TODO: Handle soft delete
-    const auto filter = make_document(kvp("characterName", StringUtils::wstos(characterName)));
+    const auto filter = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName)));
 
     try
     {
@@ -424,8 +424,8 @@ concurrencpp::result<void> AdminCommandProcessor::DeleteChar(const ClientId clie
             bsoncxx::oid characterId = doc->find("_id")->get_oid().value;
             auto accountId = doc->find("accountId")->get_string().value;
 
-            const auto accountFilter = make_document(kvp("_id", accountId));
-            const auto deleteCharacter = make_document(kvp("$pull", make_document(kvp("characters", characterId))));
+            const auto accountFilter = B_MDOC(B_KVP("_id", accountId));
+            const auto deleteCharacter = B_MDOC(B_KVP("$pull", B_MDOC(B_KVP("characters", characterId))));
             accountCollection.update_one(accountFilter.view(), deleteCharacter.view());
 
             transaction.commit_transaction();
@@ -497,7 +497,7 @@ concurrencpp::result<void> AdminCommandProcessor::AddRoles(ClientId client, cons
     auto accountCollection = dbClient->database(config->database.dbName).collection(config->database.accountsCollection);
     auto charactersCollection = dbClient->database(config->database.dbName).collection(config->database.charactersCollection);
 
-    const auto findCharacterDoc = make_document(kvp("characterName", character));
+    const auto findCharacterDoc = B_MDOC(B_KVP("characterName", character));
 
     const auto characterResult = charactersCollection.find_one(findCharacterDoc.view());
     if (!characterResult.has_value())
@@ -507,14 +507,14 @@ concurrencpp::result<void> AdminCommandProcessor::AddRoles(ClientId client, cons
         co_return;
     }
 
-    bsoncxx::builder::basic::array roleArray;
+    B_ARR roleArray;
     for (auto role : stringRoles)
     {
         roleArray.append(role);
     }
 
-    const auto findAccountDoc = make_document(kvp("_id", characterResult->find("accountId")->get_string()));
-    const auto updateAccountDoc = make_document(kvp("$addToSet", make_document(kvp("gameRoles", make_document(kvp("$each", roleArray.view()))))));
+    const auto findAccountDoc = B_MDOC(B_KVP("_id", characterResult->find("accountId")->get_string()));
+    const auto updateAccountDoc = B_MDOC(B_KVP("$addToSet", B_MDOC(B_KVP("gameRoles", B_MDOC(B_KVP("$each", roleArray.view()))))));
     if (const auto updateResponse = accountCollection.update_one(findAccountDoc.view(), updateAccountDoc.view()); updateResponse->modified_count() != 1)
     {
         THREAD_MAIN;

@@ -36,7 +36,7 @@ class FLHookMongoFormatFlag final : public spdlog::custom_flag_formatter
 
 BOOL WINAPI ConsoleHandler(DWORD ctrlType) { return ctrlType == CTRL_CLOSE_EVENT; }
 
-static std::string FormatMessageFromProperties(const std::string_view templateMsg, bsoncxx::document::view properties)
+static std::string FormatMessageFromProperties(const std::string_view templateMsg, B_VIEW properties)
 {
     auto formatted = std::string(templateMsg);
     for (auto prop : properties)
@@ -99,7 +99,7 @@ void FLHookConsoleFormatFlag::format(const spdlog::details::log_msg& m, const st
 std::unique_ptr<spdlog::custom_flag_formatter> FLHookConsoleFormatFlag::clone() const { return spdlog::details::make_unique<FLHookConsoleFormatFlag>(); }
 
 // ReSharper disable once CppPassValueParameterByConstReference
-static concurrencpp::result<void> SendToMongo(const bsoncxx::document::value document)
+static concurrencpp::result<void> SendToMongo(const B_VAL document)
 {
     FLHook::GetDatabase()->BeginDatabaseQuery().InsertIntoCollection(DatabaseCollection::ServerLog, { document.view() });
     co_return;
@@ -124,10 +124,10 @@ void FLHookMongoFormatFlag::format(const spdlog::details::log_msg& m, const std:
     using namespace bsoncxx::builder::basic;
     FLHook::GetTaskScheduler()->ScheduleTask(
         SendToMongo,
-        make_document(kvp("message", message),
-                      kvp("utcTimestamp", bsoncxx::types::b_date{ std::chrono::system_clock::from_time_t(std::mktime(const_cast<std::tm*>(&tm))) }),
-                      kvp("level", bsoncxx::from_json(std::format("{}}}", std::string_view(dest.begin(), dest.end())))["level"].get_string().value),
-                      kvp("properties", doc.view())));
+        B_MDOC(B_KVP("message", message),
+                      B_KVP("utcTimestamp", bsoncxx::types::b_date{ std::chrono::system_clock::from_time_t(std::mktime(const_cast<std::tm*>(&tm))) }),
+                      B_KVP("level", bsoncxx::from_json(std::format("{}}}", std::string_view(dest.begin(), dest.end())))["level"].get_string().value),
+                      B_KVP("properties", doc.view())));
 
     dest.clear();
 }

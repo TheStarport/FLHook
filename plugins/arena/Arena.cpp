@@ -26,6 +26,23 @@ namespace Plugins
         return true;
     }
 
+    std::vector<EquipDesc> ArenaPlugin::GetCommodities(const ClientId client)
+    {
+        std::vector<EquipDesc> commodityList; 
+        for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : cargo->equip)
+        {
+            bool flag = false;
+            pub::IsCommodity(item.archId.GetValue(), flag);
+
+            if (flag)
+            {
+                commodityList.push_back(item);
+            }
+        }
+
+        return commodityList;
+    }
+
     bool ArenaPlugin::ValidateCargo(const ClientId client)
     {
         for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : cargo->equip)
@@ -56,10 +73,7 @@ namespace Plugins
 
     httplib::StatusCode ArenaPlugin::GetCurrentArenaUsers(const httplib::Request& request, httplib::Response& response)
     {
-        using bsoncxx::builder::basic::kvp;
-        using bsoncxx::builder::basic::make_document;
-
-        bsoncxx::builder::basic::array players;
+        B_ARR players;
         for (auto& client : FLHook::Clients())
         {
             auto system = client.id.GetSystemId().Unwrap();
@@ -77,17 +91,17 @@ namespace Plugins
             auto ship = shipRaw.value();
 
             // clang-format off
-            players.append(make_document(
-                kvp("clientId", static_cast<int>(client.id.GetValue())),
-                kvp("playerName", StringUtils::wstos(client.characterName)),
-                kvp("shipNick", ship->name), // TODO: Replace name which is a CMP with the actual nickname
-                kvp("shipName", StringUtils::wstos(FLHook::GetInfocardManager()->GetInfoName(ship->idsName)))
+            players.append(B_MDOC(
+                B_KVP("clientId", static_cast<int>(client.id.GetValue())),
+                B_KVP("playerName", StringUtils::wstos(client.characterName)),
+                B_KVP("shipNick", ship->name), // TODO: Replace name which is a CMP with the actual nickname
+                B_KVP("shipName", StringUtils::wstos(FLHook::GetInfocardManager()->GetInfoName(ship->idsName)))
             ));
 
             // clang-format on
         }
 
-        const auto payload = make_document(kvp("players", players));
+        const auto payload = B_MDOC(B_KVP("players", players));
         FLHook::GetHttpServer().get()->WriteHttpResponse(request, payload, response);
 
         return httplib::StatusCode::OK_200;
@@ -157,14 +171,20 @@ namespace Plugins
         }
     }
 
-    void ArenaPlugin::OnCharacterSave(const ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
+    void ArenaPlugin::OnCharacterSave(const ClientId client, std::wstring_view charName, B_DOC& document)
     {
         int value = 0;
         if (const auto data = clientData.find(client.GetValue()); data != clientData.end())
         {
             value = static_cast<int>(data->second.returnBase.GetValue());
         }
-        document.append(bsoncxx::builder::basic::kvp("arenaReturnBase", value));
+        B_ARR commodityArray;
+        for (auto& entry : GetCommodities(client))
+        {
+            commodityArray.append(FLCargo(entry).ToBson());
+        }
+
+        document.append(B_KVP("arena", B_MDOC(B_KVP("returnBase", value),B_KVP("cachedEquipment", commodityArray))));
     }
 
     concurrencpp::result<void> ArenaPlugin::UserCmdArena(const ClientId client)

@@ -8,10 +8,6 @@
 #include <mongocxx/exception/error_code.hpp>
 #include <mongocxx/exception/write_exception.hpp>
 
-using bsoncxx::builder::basic::kvp;
-using bsoncxx::builder::basic::make_array;
-using bsoncxx::builder::basic::make_document;
-
 Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongocxx::options::pool{})
 {
     try
@@ -20,40 +16,40 @@ Database::Database(const std::string_view uri) : pool(mongocxx::uri(uri), mongoc
         const auto client = pool.acquire();
         auto db = client->database(config->database.dbName);
 
-        const auto ping = make_document(kvp("ping", 1));
+        const auto ping = B_MDOC(B_KVP("ping", 1));
         db.run_command(ping.view());
 
         if (!db.has_collection(config->database.charactersCollection))
         {
             auto characters = db.create_collection(config->database.charactersCollection);
-            characters.create_index(make_document(kvp("characterName", 1)), make_document(kvp("unique", 1)));
-            characters.create_index(make_document(kvp("accountId", 1)));
+            characters.create_index(B_MDOC(B_KVP("characterName", 1)), B_MDOC(B_KVP("unique", 1)));
+            characters.create_index(B_MDOC(B_KVP("accountId", 1)));
         }
 
         if (!db.has_collection(config->database.accountsCollection))
         {
             auto accounts = db.create_collection(config->database.accountsCollection);
-            accounts.create_index(make_document(kvp("username", 1)));
+            accounts.create_index(B_MDOC(B_KVP("username", 1)));
         }
 
         if (!db.has_collection(config->database.mailCollection))
         {
             auto mail = db.create_collection(config->database.mailCollection);
-            mail.create_index(make_document(kvp("recipients.target", 1), kvp("sentDate", -1)));
+            mail.create_index(B_MDOC(B_KVP("recipients.target", 1), B_KVP("sentDate", -1)));
         }
 
         if (!db.has_collection(config->database.serverLogCollection))
         {
             auto serverLogs = db.create_collection(config->database.serverLogCollection);
-            serverLogs.create_index(make_document(kvp("properties", 1), kvp("utcTimestamp", -1)));
-            serverLogs.create_index(make_document(kvp("message", 1), kvp("utcTimestamp", -1)));
+            serverLogs.create_index(B_MDOC(B_KVP("properties", 1), B_KVP("utcTimestamp", -1)));
+            serverLogs.create_index(B_MDOC(B_KVP("message", 1), B_KVP("utcTimestamp", -1)));
         }
 
         if (!db.has_collection(config->database.chatLogCollection))
         {
             auto chatLogs = db.create_collection(config->database.chatLogCollection);
-            chatLogs.create_index(make_document(kvp("sender", 1), kvp("timestamp", -1), kvp("system", 1), kvp("localRecipients", 1)));
-            chatLogs.create_index(make_document(kvp("groupMembers", 1), kvp("timestamp", -1)));
+            chatLogs.create_index(B_MDOC(B_KVP("sender", 1), B_KVP("timestamp", -1), B_KVP("system", 1), B_KVP("localRecipients", 1)));
+            chatLogs.create_index(B_MDOC(B_KVP("groupMembers", 1), B_KVP("timestamp", -1)));
         }
     }
     catch (std::exception& err)
@@ -75,8 +71,8 @@ mongocxx::collection Database::GetCollection(const mongocxx::pool::entry& dbClie
 
 void Database::SaveValueOnAccount(const AccountId& accountId, std::string_view key, bsoncxx::types::bson_value::view_or_value value)
 {
-    auto findDoc = make_document(kvp("_id", accountId.GetValue()));
-    auto updateDoc = make_document(kvp("$set", make_document(kvp(key, value))));
+    auto findDoc = B_MDOC(B_KVP("_id", accountId.GetValue()));
+    auto updateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP(key, value))));
 
     FLHook::GetTaskScheduler()->ScheduleTask(
         [findDoc, updateDoc]
@@ -106,8 +102,8 @@ std::string_view DatabaseQuery::CollectionToString(const DatabaseCollection coll
     }
 }
 
-std::optional<bsoncxx::document::value> DatabaseQuery::FindFromCollection(const std::string_view collectionName, const bsoncxx::document::view filter,
-                                                                          const std::optional<bsoncxx::document::view>& projection) const
+std::optional<B_VAL> DatabaseQuery::FindFromCollection(const std::string_view collectionName, const B_VIEW filter,
+                                                                          const std::optional<B_VIEW>& projection) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
@@ -121,14 +117,14 @@ std::optional<bsoncxx::document::value> DatabaseQuery::FindFromCollection(const 
     return collection.find_one(filter);
 }
 
-std::optional<bsoncxx::document::value> DatabaseQuery::FindFromCollection(const DatabaseCollection collectionName, const bsoncxx::document::view filter,
-                                                                          const std::optional<bsoncxx::document::view>& projection) const
+std::optional<B_VAL> DatabaseQuery::FindFromCollection(const DatabaseCollection collectionName, const B_VIEW filter,
+                                                                          const std::optional<B_VIEW>& projection) const
 {
     return FindFromCollection(CollectionToString(collectionName), filter, projection);
 }
 
-bsoncxx::document::value DatabaseQuery::FindAndUpdate(const std::string_view collectionName, const bsoncxx::document::view filter,
-                                                      const bsoncxx::document::view update, const std::optional<bsoncxx::document::view>& projection,
+B_VAL DatabaseQuery::FindAndUpdate(const std::string_view collectionName, const B_VIEW filter,
+                                                      const B_VIEW update, const std::optional<B_VIEW>& projection,
                                                       const bool before, const bool replace, const bool upsert) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
@@ -152,15 +148,15 @@ bsoncxx::document::value DatabaseQuery::FindAndUpdate(const std::string_view col
     return result.value();
 }
 
-bsoncxx::document::value DatabaseQuery::FindAndUpdate(const DatabaseCollection collectionName, const bsoncxx::document::view filter,
-                                                      const bsoncxx::document::view update, const std::optional<bsoncxx::document::view>& projection,
+B_VAL DatabaseQuery::FindAndUpdate(const DatabaseCollection collectionName, const B_VIEW filter,
+                                                      const B_VIEW update, const std::optional<B_VIEW>& projection,
                                                       const bool before, const bool replace, const bool upsert) const
 {
     return FindAndUpdate(CollectionToString(collectionName), filter, update, projection, before, replace, upsert);
 }
 
-bsoncxx::document::value DatabaseQuery::FindAndDelete(const std::string_view collectionName, const bsoncxx::document::view filter,
-                                                      const std::optional<bsoncxx::document::view>& projection) const
+B_VAL DatabaseQuery::FindAndDelete(const std::string_view collectionName, const B_VIEW filter,
+                                                      const std::optional<B_VIEW>& projection) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
@@ -175,14 +171,14 @@ bsoncxx::document::value DatabaseQuery::FindAndDelete(const std::string_view col
     return result.value();
 }
 
-bsoncxx::document::value DatabaseQuery::FindAndDelete(const DatabaseCollection collectionName, const bsoncxx::document::view filter,
-                                                      const std::optional<bsoncxx::document::view>& projection) const
+B_VAL DatabaseQuery::FindAndDelete(const DatabaseCollection collectionName, const B_VIEW filter,
+                                                      const std::optional<B_VIEW>& projection) const
 {
     return FindAndDelete(CollectionToString(collectionName), filter, projection);
 }
 
-mongocxx::result::update DatabaseQuery::UpdateFromCollection(const std::string_view collectionName, const bsoncxx::document::view filter,
-                                                             const bsoncxx::document::view update, const bool many) const
+mongocxx::result::update DatabaseQuery::UpdateFromCollection(const std::string_view collectionName, const B_VIEW filter,
+                                                             const B_VIEW update, const bool many) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
@@ -191,13 +187,13 @@ mongocxx::result::update DatabaseQuery::UpdateFromCollection(const std::string_v
     return result.value();
 }
 
-mongocxx::result::update DatabaseQuery::UpdateFromCollection(const DatabaseCollection collectionName, const bsoncxx::document::view filter,
-                                                             const bsoncxx::document::view update, const bool many) const
+mongocxx::result::update DatabaseQuery::UpdateFromCollection(const DatabaseCollection collectionName, const B_VIEW filter,
+                                                             const B_VIEW update, const bool many) const
 {
     return UpdateFromCollection(CollectionToString(collectionName), filter, update, many);
 }
 
-mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const std::string_view collectionName, const bsoncxx::document::view filter,
+mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const std::string_view collectionName, const B_VIEW filter,
                                                                     const bool many) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
@@ -207,14 +203,14 @@ mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const std::s
     return result.value();
 }
 
-mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const DatabaseCollection collectionName, const bsoncxx::document::view filter,
+mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const DatabaseCollection collectionName, const B_VIEW filter,
                                                                     const bool many)
 {
     return DeleteFromCollection(CollectionToString(collectionName), filter, many);
 }
 
 std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> DatabaseQuery::InsertIntoCollection(
-    const std::string_view collectionName, const std::vector<bsoncxx::document::view>& newDocs)
+    const std::string_view collectionName, const std::vector<B_VIEW>& newDocs)
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
@@ -232,7 +228,7 @@ std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> Databa
 }
 
 std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> DatabaseQuery::InsertIntoCollection(
-    const DatabaseCollection collectionName, const std::vector<bsoncxx::document::view>& newDocs)
+    const DatabaseCollection collectionName, const std::vector<B_VIEW>& newDocs)
 {
     return InsertIntoCollection(CollectionToString(collectionName), newDocs);
 }
@@ -261,7 +257,7 @@ std::optional<Character> Database::GetCharacterById(bsoncxx::oid objId)
     const auto db = AcquireClient();
 
     auto accounts = db->database(config->database.dbName).collection(config->database.accountsCollection);
-    const auto charDocOpt = accounts.find_one(make_document(kvp("_id", objId)));
+    const auto charDocOpt = accounts.find_one(B_MDOC(B_KVP("_id", objId)));
     if (!charDocOpt.has_value())
     {
         return std::nullopt;

@@ -17,6 +17,6 @@ class AbstractExternalCommandProcessor
          * If success is false, and the document is a 'nullptr', it is assumed that no command was not found,
          * and another command handler should attempt processing.
          */
-        virtual std::pair<bool, std::shared_ptr<BsonWrapper>> ProcessCommand(std::string_view command, bsoncxx::document::view document) = 0;
+        virtual std::pair<bool, std::shared_ptr<BsonWrapper>> ProcessCommand(std::string_view command, B_VIEW document) = 0;
         virtual std::vector<std::wstring> GetCommands() = 0;
 };

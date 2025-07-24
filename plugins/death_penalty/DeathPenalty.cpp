@@ -130,9 +130,9 @@ namespace Plugins
             ClientInfo[client].displayDPOnLaunch = findResult->get_bool();
         }
     }
-    void DeathPenaltyPlugin::OnCharacterSave(const ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
+    void DeathPenaltyPlugin::OnCharacterSave(const ClientId client, std::wstring_view charName, B_DOC& document)
     {
-        document.append(bsoncxx::builder::basic::kvp("deathPenaltyDisplay", ClientInfo[client].displayDPOnLaunch));
+        document.append(B_KVP("deathPenaltyDisplay", ClientInfo[client].displayDPOnLaunch));
     }
     void DeathPenaltyPlugin::OnSendDeathMessageAfter(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg)
     {

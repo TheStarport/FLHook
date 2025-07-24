@@ -2,11 +2,11 @@
 
 #include "API/FLHook/AccountManager.hpp"
 
-using bsoncxx::builder::basic::kvp;
-using bsoncxx::builder::basic::make_array;
-using bsoncxx::builder::basic::make_document;
 
-Account::Account(const bsoncxx::document::view view)
+
+
+
+Account::Account(const B_VIEW view)
 {
     for (auto& element : view)
     {
@@ -83,69 +83,69 @@ Account::Account(const bsoncxx::document::view view)
     }
 }
 
-void Account::ToBson(bsoncxx::builder::basic::document& document) const
+void Account::ToBson(B_DOC& document) const
 {
-    document.append(kvp("_id", _id));
-    document.append(kvp("banned", banned));
-    document.append(kvp("cash", cash));
+    document.append(B_KVP("_id", _id));
+    document.append(B_KVP("banned", banned));
+    document.append(B_KVP("cash", cash));
 
     {
-        bsoncxx::builder::basic::array arr;
+        B_ARR arr;
         for (auto& character : characters)
         {
             arr.append(character);
         }
-        document.append(kvp("characters", arr));
+        document.append(B_KVP("characters", arr));
     }
 
     if (scheduledUnbanDate.has_value())
     {
-        document.append(kvp("scheduledUnbanDate", scheduledUnbanDate.value()));
+        document.append(B_KVP("scheduledUnbanDate", scheduledUnbanDate.value()));
     }
 
     if (gameRoles.has_value())
     {
-        bsoncxx::builder::basic::array arr;
+        B_ARR arr;
         for (auto& role : gameRoles.value())
         {
             arr.append(role);
         }
-        document.append(kvp("gameRoles", arr));
+        document.append(B_KVP("gameRoles", arr));
     }
 
     if (webRoles.has_value())
     {
-        bsoncxx::builder::basic::array arr;
+        B_ARR arr;
         for (auto& role : webRoles.value())
         {
             arr.append(role);
         }
-        document.append(kvp("webRoles", arr));
+        document.append(B_KVP("webRoles", arr));
     }
 
     if (hashedToken.has_value())
     {
-        document.append(kvp("hashedToken", hashedToken.value()));
+        document.append(B_KVP("hashedToken", hashedToken.value()));
     }
 
     if (username.has_value())
     {
-        document.append(kvp("username", username.value()));
+        document.append(B_KVP("username", username.value()));
     }
 
     if (passwordHash.has_value())
     {
-        document.append(kvp("passwordHash", passwordHash.value()));
+        document.append(B_KVP("passwordHash", passwordHash.value()));
     }
 
     if (salt.has_value())
     {
         bsoncxx::types::b_binary data{ bsoncxx::binary_sub_type::k_binary, salt->size(), salt->data() };
-        document.append(kvp("salt", data));
+        document.append(B_KVP("salt", data));
     }
 }
 
-Character::Character(bsoncxx::document::view view)
+Character::Character(B_VIEW view)
 {
     for (auto& element : view)
     {
@@ -727,72 +727,72 @@ void Character::HandleDeadCharacter()
     }
 }
 
-void Character::ToBson(bsoncxx::builder::basic::document& document)
+void Character::ToBson(B_DOC& document)
 {
     HandleDeadCharacter();
 
     if (_id.has_value())
     {
-        document.append(kvp("_id", _id.value()));
+        document.append(B_KVP("_id", _id.value()));
     }
 
-    document.append(kvp("accountId", accountId));
-    document.append(kvp("characterName", characterName));
-    document.append(kvp("money", money));
-    document.append(kvp("rank", rank));
-    document.append(kvp("affiliation", affiliation));
+    document.append(B_KVP("accountId", accountId));
+    document.append(B_KVP("characterName", characterName));
+    document.append(B_KVP("money", money));
+    document.append(B_KVP("rank", rank));
+    document.append(B_KVP("affiliation", affiliation));
 
     if (repGroup.has_value())
     {
-        document.append(kvp("repGroup", repGroup.value()));
+        document.append(B_KVP("repGroup", repGroup.value()));
     }
 
-    document.append(kvp("pos", make_array(pos.x, pos.y, pos.z)));
-    document.append(kvp("rot", make_array(rot.x, rot.y, rot.z)));
-    document.append(kvp("voice", voice));
-    document.append(kvp("interfaceState", interfaceState));
-    document.append(kvp("hullStatus", hullStatus));
-    document.append(kvp("baseHullStatus", baseHullStatus));
-    document.append(kvp("canDock", canDock));
-    document.append(kvp("canTradeLane", canTradeLane));
+    document.append(B_KVP("pos", B_MARR(pos.x, pos.y, pos.z)));
+    document.append(B_KVP("rot", B_MARR(rot.x, rot.y, rot.z)));
+    document.append(B_KVP("voice", voice));
+    document.append(B_KVP("interfaceState", interfaceState));
+    document.append(B_KVP("hullStatus", hullStatus));
+    document.append(B_KVP("baseHullStatus", baseHullStatus));
+    document.append(B_KVP("canDock", canDock));
+    document.append(B_KVP("canTradeLane", canTradeLane));
 
     if (tlExceptions.has_value())
     {
-        auto arr = bsoncxx::builder::basic::array{};
+        auto arr = B_ARR{};
         for (auto& [startRingId, nextRingId] : tlExceptions.value())
         {
-            arr.append(make_document(kvp("startRingId", startRingId), kvp("nextRingId", nextRingId)));
+            arr.append(B_MDOC(B_KVP("startRingId", startRingId), B_KVP("nextRingId", nextRingId)));
         }
-        document.append(kvp("tlExceptions", arr));
+        document.append(B_KVP("tlExceptions", arr));
     }
 
     if (dockExceptions.has_value())
     {
-        auto arr = bsoncxx::builder::basic::array{};
+        auto arr = B_ARR{};
         for (auto& base : dockExceptions.value())
         {
             arr.append(base);
         }
-        document.append(kvp("dockExceptions", arr));
+        document.append(B_KVP("dockExceptions", arr));
     }
-    document.append(kvp("lastDockedBase", lastDockedBase));
-    document.append(kvp("currentBase", currentBase));
-    document.append(kvp("currentRoom", currentRoom));
-    document.append(kvp("killCount", killCount));
-    document.append(kvp("missionFailureCount", missionFailureCount));
-    document.append(kvp("missionSuccessCount", missionSuccessCount));
-    document.append(kvp("shipHash", shipHash));
-    document.append(kvp("system", system));
-    document.append(kvp("totalTimePlayed", totalTimePlayed));
-    document.append(kvp("totalCashEarned", totalCashEarned));
+    document.append(B_KVP("lastDockedBase", lastDockedBase));
+    document.append(B_KVP("currentBase", currentBase));
+    document.append(B_KVP("currentRoom", currentRoom));
+    document.append(B_KVP("killCount", killCount));
+    document.append(B_KVP("missionFailureCount", missionFailureCount));
+    document.append(B_KVP("missionSuccessCount", missionSuccessCount));
+    document.append(B_KVP("shipHash", shipHash));
+    document.append(B_KVP("system", system));
+    document.append(B_KVP("totalTimePlayed", totalTimePlayed));
+    document.append(B_KVP("totalCashEarned", totalCashEarned));
     // clang-format off
-    document.append(kvp("baseCostume", make_document(
-        kvp("head", static_cast<int>(baseCostume.head)),
-        kvp("body", static_cast<int>(baseCostume.body)),
-        kvp("leftHand", static_cast<int>(baseCostume.leftHand)),
-        kvp("rightHand", static_cast<int>(baseCostume.rightHand)),
-        kvp("accessories", static_cast<int>(baseCostume.accessories)),
-        kvp("accessory", make_array(
+    document.append(B_KVP("baseCostume", B_MDOC(
+        B_KVP("head", static_cast<int>(baseCostume.head)),
+        B_KVP("body", static_cast<int>(baseCostume.body)),
+        B_KVP("leftHand", static_cast<int>(baseCostume.leftHand)),
+        B_KVP("rightHand", static_cast<int>(baseCostume.rightHand)),
+        B_KVP("accessories", static_cast<int>(baseCostume.accessories)),
+        B_KVP("accessory", B_MARR(
             static_cast<int>(baseCostume.accessory[0]),
             static_cast<int>(baseCostume.accessory[1]),
             static_cast<int>(baseCostume.accessory[2]),
@@ -804,13 +804,13 @@ void Character::ToBson(bsoncxx::builder::basic::document& document)
             ))
         )));
 
-    document.append(kvp("commCostume", make_document(
-        kvp("head", static_cast<int>(commCostume.head)),
-        kvp("body", static_cast<int>(commCostume.body)),
-        kvp("leftHand", static_cast<int>(commCostume.leftHand)),
-        kvp("rightHand", static_cast<int>(commCostume.rightHand)),
-        kvp("accessories", static_cast<int>(commCostume.accessories)),
-        kvp("accessory", make_array(
+    document.append(B_KVP("commCostume", B_MDOC(
+        B_KVP("head", static_cast<int>(commCostume.head)),
+        B_KVP("body", static_cast<int>(commCostume.body)),
+        B_KVP("leftHand", static_cast<int>(commCostume.leftHand)),
+        B_KVP("rightHand", static_cast<int>(commCostume.rightHand)),
+        B_KVP("accessories", static_cast<int>(commCostume.accessories)),
+        B_KVP("accessory", B_MARR(
             static_cast<int>(commCostume.accessory[0]),
             static_cast<int>(commCostume.accessory[1]),
             static_cast<int>(commCostume.accessory[2]),
@@ -824,193 +824,193 @@ void Character::ToBson(bsoncxx::builder::basic::document& document)
     // clang-format on
 
     {
-        bsoncxx::builder::basic::array arr;
-        for (const auto& [archId, amount, health, isMissionCargo] : cargo)
+        B_ARR arr;
+        for (auto& flcargo : cargo)
         {
-            arr.append(make_document(kvp("archId", archId), kvp("amount", amount), kvp("health", health), kvp("isMissionCargo", isMissionCargo)));
+            arr.append(flcargo.ToBson());
         }
-        document.append(kvp("cargo", arr));
+        document.append(B_KVP("cargo", arr));
     }
 
     {
-        bsoncxx::builder::basic::array arr;
+        B_ARR arr;
         for (const auto& [archId, amount, health, isMissionCargo] : baseCargo)
         {
-            arr.append(make_document(kvp("archId", archId), kvp("amount", amount), kvp("health", health), kvp("isMissionCargo", isMissionCargo)));
+            arr.append(B_MDOC(B_KVP("archId", archId), B_KVP("amount", amount), B_KVP("health", health), B_KVP("isMissionCargo", isMissionCargo)));
         }
-        document.append(kvp("baseCargo", arr));
+        document.append(B_KVP("baseCargo", arr));
     }
 
     {
-        bsoncxx::builder::basic::array arr;
+        B_ARR arr;
         for (const auto& [archId, hardPoint, health, amount, mounted] : equipment)
         {
             arr.append(
-                make_document(kvp("archId", archId), kvp("hardPoint", hardPoint), kvp("health", health), kvp("mounted", mounted), kvp("amount", amount)));
+                B_MDOC(B_KVP("archId", archId), B_KVP("hardPoint", hardPoint), B_KVP("health", health), B_KVP("mounted", mounted), B_KVP("amount", amount)));
         }
-        document.append(kvp("equipment", arr));
+        document.append(B_KVP("equipment", arr));
     }
 
     {
-        bsoncxx::builder::basic::array arr;
+        B_ARR arr;
         for (const auto& [archId, hardPoint, health, amount, mounted] : baseEquipment)
         {
             arr.append(
-                make_document(kvp("archId", archId), kvp("hardPoint", hardPoint), kvp("health", health), kvp("mounted", mounted), kvp("amount", amount)));
+                B_MDOC(B_KVP("archId", archId), B_KVP("hardPoint", hardPoint), B_KVP("health", health), B_KVP("mounted", mounted), B_KVP("amount", amount)));
         }
-        document.append(kvp("baseEquipment", arr));
+        document.append(B_KVP("baseEquipment", arr));
     }
 
     {
-        bsoncxx::builder::basic::document doc;
+        B_DOC doc;
         for (auto& [id, health] : collisionGroups)
         {
-            doc.append(kvp(id, health));
+            doc.append(B_KVP(id, health));
         }
-        document.append(kvp("collisionGroups", doc));
+        document.append(B_KVP("collisionGroups", doc));
     }
 
     {
-        bsoncxx::builder::basic::document doc;
+        B_DOC doc;
         for (auto& [id, health] : baseCollisionGroups)
         {
-            doc.append(kvp(id, health));
+            doc.append(B_KVP(id, health));
         }
-        document.append(kvp("baseCollisionGroups", doc));
+        document.append(B_KVP("baseCollisionGroups", doc));
     }
 
     {
-        bsoncxx::builder::basic::document doc;
+        B_DOC doc;
         for (auto& [faction, rep] : reputation)
         {
-            doc.append(kvp(faction, rep));
+            doc.append(B_KVP(faction, rep));
         }
-        document.append(kvp("reputation", doc));
+        document.append(B_KVP("reputation", doc));
     }
 
     {
-        bsoncxx::builder::basic::document doc;
+        B_DOC doc;
         for (auto& [shipArch, amount] : shipTypesKilled)
         {
-            doc.append(kvp(shipArch, amount));
+            doc.append(B_KVP(shipArch, amount));
         }
-        document.append(kvp("shipTypesKilled", doc));
+        document.append(B_KVP("shipTypesKilled", doc));
     }
 
     {
-        bsoncxx::builder::basic::document doc;
+        B_DOC doc;
         for (auto& [rank, amount] : randomMissionsCompleted)
         {
-            doc.append(kvp(rank, amount));
+            doc.append(B_KVP(rank, amount));
         }
-        document.append(kvp("randomMissionsCompleted", doc));
+        document.append(B_KVP("randomMissionsCompleted", doc));
     }
 
     {
-        bsoncxx::builder::basic::document doc;
+        B_DOC doc;
         for (auto& [rank, amount] : randomMissionsAborted)
         {
-            doc.append(kvp(rank, amount));
+            doc.append(B_KVP(rank, amount));
         }
-        document.append(kvp("randomMissionsAborted", doc));
+        document.append(B_KVP("randomMissionsAborted", doc));
     }
 
     {
-        bsoncxx::builder::basic::document doc;
+        B_DOC doc;
         for (auto& [rank, amount] : randomMissionsFailed)
         {
-            doc.append(kvp(rank, amount));
+            doc.append(B_KVP(rank, amount));
         }
-        document.append(kvp("randomMissionsFailed", doc));
+        document.append(B_KVP("randomMissionsFailed", doc));
     }
 
     {
-        bsoncxx::builder::basic::array arr;
+        B_ARR arr;
         for (auto& [spaceObj, visitFlag] : visits)
         {
-            arr.append(make_array(spaceObj, visitFlag));
+            arr.append(B_MARR(spaceObj, visitFlag));
         }
-        document.append(kvp("visits", arr));
+        document.append(B_KVP("visits", arr));
     }
 
     {
-        bsoncxx::builder::basic::array arr;
+        B_ARR arr;
         for (auto sysId : systemsVisited)
         {
             arr.append(sysId);
         }
-        document.append(kvp("systemsVisited", arr));
+        document.append(B_KVP("systemsVisited", arr));
     }
 
     {
-        bsoncxx::builder::basic::array arr;
+        B_ARR arr;
         for (auto baseId : basesVisited)
         {
             arr.append(baseId);
         }
-        document.append(kvp("basesVisited", arr));
+        document.append(B_KVP("basesVisited", arr));
     }
 
     {
-        bsoncxx::builder::basic::array arr;
+        B_ARR arr;
         for (const auto& [id, baseId, interactionCount, missionStatus] : npcVisits)
         {
-            arr.append(make_document(kvp("id", id), kvp("baseId", baseId), kvp("interactionCount", interactionCount), kvp("missionStatus", missionStatus)));
+            arr.append(B_MDOC(B_KVP("id", id), B_KVP("baseId", baseId), B_KVP("interactionCount", interactionCount), B_KVP("missionStatus", missionStatus)));
         }
 
-        document.append(kvp("npcVisits", arr));
+        document.append(B_KVP("npcVisits", arr));
     }
 
     {
-        auto arr = bsoncxx::builder::basic::array{};
+        auto arr = B_ARR{};
         for (auto jumpHole : jumpHolesVisited)
         {
             arr.append(jumpHole);
         }
 
-        document.append(kvp("jumpHolesVisited", arr));
+        document.append(B_KVP("jumpHolesVisited", arr));
     }
 
     {
-        auto arr = bsoncxx::builder::basic::array{};
+        auto arr = B_ARR{};
         for (auto& [rumorIds, priority] : rumorsReceived)
         {
-            arr.append(make_document(kvp("rumorIds", rumorIds), kvp("priority", priority)));
+            arr.append(B_MDOC(B_KVP("rumorIds", rumorIds), B_KVP("priority", priority)));
         }
 
-        document.append(kvp("rumorsReceived", arr));
+        document.append(B_KVP("rumorsReceived", arr));
     }
 
     {
-        bsoncxx::builder::basic::document doc;
+        B_DOC doc;
         for (auto& [key, wpnGrp] : weaponGroups)
         {
-            bsoncxx::builder::basic::array arr;
+            B_ARR arr;
             for (auto& wpnGroup : wpnGrp)
             {
                 arr.append(wpnGroup);
             }
-            doc.append(kvp(key, arr));
+            doc.append(B_KVP(key, arr));
         }
-        document.append(kvp("weaponGroups", doc));
+        document.append(B_KVP("weaponGroups", doc));
     }
 
     if (lastRenameTimestamp.has_value())
     {
-        document.append(kvp("lastRenameTimestamp", bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(lastRenameTimestamp.value()) }));
+        document.append(B_KVP("lastRenameTimestamp", bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(lastRenameTimestamp.value()) }));
     }
 
     if (characterTransferCode.has_value())
     {
-        document.append(kvp("characterTransferCode", characterTransferCode.value()));
+        document.append(B_KVP("characterTransferCode", characterTransferCode.value()));
     }
 
     {
-        bsoncxx::builder::basic::array arr;
+        B_ARR arr;
         for (std::string msg : presetMsgs)
         {
             arr.append(msg);
         }
-        document.append(kvp("presetMsgs", arr));
+        document.append(B_KVP("presetMsgs", arr));
     }
 }

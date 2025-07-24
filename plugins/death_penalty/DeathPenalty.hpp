@@ -69,7 +69,7 @@ namespace Plugins
             void OnClearClientInfo(ClientId client) override;
             void OnPlayerLaunchAfter(ClientId client, const ShipId& ship) override;
             void OnCharacterSelectAfter(ClientId client) override;
-            void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
+            void OnCharacterSave(ClientId client, std::wstring_view charName, B_DOC& document) override;
             void OnSendDeathMessageAfter(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg) override;
             void OnDisconnect(ClientId client, EFLConnection connection) override;
             void OnJumpInComplete(SystemId system, const ShipId& ship) override;

@@ -11,6 +11,7 @@
 #include <mongocxx/exception/exception.hpp>
 #include <mongocxx/instance.hpp>
 #include <mongocxx/pool.hpp>
+#include <API/FLHook/BsonHelper.hpp>
 
 class ClientList;
 class FLHook;
@@ -63,35 +64,35 @@ class DLL DatabaseQuery
     public:
         DatabaseQuery(const DatabaseQuery&) = delete;
         ~DatabaseQuery() = default;
-        std::optional<bsoncxx::document::value> FindFromCollection(std::string_view collectionName, bsoncxx::document::view filter,
-                                                                   const std::optional<bsoncxx::document::view>& projection = {}) const;
-        std::optional<bsoncxx::document::value> FindFromCollection(DatabaseCollection collectionName, bsoncxx::document::view filter,
-                                                                   const std::optional<bsoncxx::document::view>& projection = {}) const;
+        std::optional<B_VAL> FindFromCollection(std::string_view collectionName, B_VIEW filter,
+                                                                   const std::optional<B_VIEW>& projection = {}) const;
+        std::optional<B_VAL> FindFromCollection(DatabaseCollection collectionName, B_VIEW filter,
+                                                                   const std::optional<B_VIEW>& projection = {}) const;
 
-        bsoncxx::document::value FindAndUpdate(std::string_view collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
-                                               const std::optional<bsoncxx::document::view>& projection = {}, bool before = true, bool replace = false,
+        B_VAL FindAndUpdate(std::string_view collectionName, B_VIEW filter, B_VIEW update,
+                                               const std::optional<B_VIEW>& projection = {}, bool before = true, bool replace = false,
                                                bool upsert = false) const;
-        bsoncxx::document::value FindAndUpdate(DatabaseCollection collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
-                                               const std::optional<bsoncxx::document::view>& projection = {}, bool before = true, bool replace = false,
+        B_VAL FindAndUpdate(DatabaseCollection collectionName, B_VIEW filter, B_VIEW update,
+                                               const std::optional<B_VIEW>& projection = {}, bool before = true, bool replace = false,
                                                bool upsert = false) const;
 
-        bsoncxx::document::value FindAndDelete(DatabaseCollection collectionName, bsoncxx::document::view filter,
-                                               const std::optional<bsoncxx::document::view>& projection = {}) const;
-        bsoncxx::document::value FindAndDelete(std::string_view collectionName, bsoncxx::document::view filter,
-                                               const std::optional<bsoncxx::document::view>& projection = {}) const;
+        B_VAL FindAndDelete(DatabaseCollection collectionName, B_VIEW filter,
+                                               const std::optional<B_VIEW>& projection = {}) const;
+        B_VAL FindAndDelete(std::string_view collectionName, B_VIEW filter,
+                                               const std::optional<B_VIEW>& projection = {}) const;
 
-        mongocxx::result::update UpdateFromCollection(std::string_view collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
+        mongocxx::result::update UpdateFromCollection(std::string_view collectionName, B_VIEW filter, B_VIEW update,
                                                       bool many = false) const;
-        mongocxx::result::update UpdateFromCollection(DatabaseCollection collectionName, bsoncxx::document::view filter, bsoncxx::document::view update,
+        mongocxx::result::update UpdateFromCollection(DatabaseCollection collectionName, B_VIEW filter, B_VIEW update,
                                                       bool many = false) const;
 
-        mongocxx::result::delete_result DeleteFromCollection(std::string_view collectionName, bsoncxx::document::view filter, bool many = false) const;
-        mongocxx::result::delete_result DeleteFromCollection(DatabaseCollection collectionName, bsoncxx::document::view filter, bool many = false);
+        mongocxx::result::delete_result DeleteFromCollection(std::string_view collectionName, B_VIEW filter, bool many = false) const;
+        mongocxx::result::delete_result DeleteFromCollection(DatabaseCollection collectionName, B_VIEW filter, bool many = false);
 
         std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> InsertIntoCollection(DatabaseCollection collectionName,
-                                                                                                       const std::vector<bsoncxx::document::view>& newDocs);
+                                                                                                       const std::vector<B_VIEW>& newDocs);
         std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> InsertIntoCollection(std::string_view collectionName,
-                                                                                                       const std::vector<bsoncxx::document::view>& newDocs);
+                                                                                                       const std::vector<B_VIEW>& newDocs);
 
         void ConcludeQuery(bool commitChanges);
 };

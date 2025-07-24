@@ -16,9 +16,9 @@ struct Account
         std::optional<std::string> username;
         std::optional<std::string> passwordHash;
 
-        bsoncxx::document::value accountData = bsoncxx::builder::basic::make_document();
+        B_VAL accountData = B_MDOC();
 
         Account() = default;
-        explicit Account(bsoncxx::document::view view);
-        void ToBson(bsoncxx::builder::basic::document& document) const;
+        explicit Account(B_VIEW view);
+        void ToBson(B_DOC& document) const;
 };

@@ -29,6 +29,10 @@ namespace Plugins
 
                     //! Killing an NPC with higher rep than this will produce no loot
                     float maximumRepForLoot = 0.0f;
+
+                    //! If enabled, considers the iMin value on a commodity as the 'player sell price'
+                    //! Requires a clientside override enabled for the separated buy/sell prices to be visible ingame
+                    bool useSeparateBuySellPrices = false;
             };
             Config config;
 

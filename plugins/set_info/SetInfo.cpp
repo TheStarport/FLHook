@@ -116,10 +116,10 @@ namespace Plugins
 
     void SetInfoPlugin::OnClearClientInfo(ClientId client) {}
 
-    void SetInfoPlugin::OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document)
+    void SetInfoPlugin::OnCharacterSave(ClientId client, std::wstring_view charName, B_DOC& document)
     {
         auto& info = playersInfo[client.GetValue()];
-        document.append(bsoncxx::builder::basic::kvp(characterInfocardKey, info.infocard));
+        document.append(B_KVP(characterInfocardKey, info.infocard));
     }
 
 } // namespace Plugins

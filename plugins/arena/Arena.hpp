@@ -84,6 +84,8 @@ namespace Plugins
             void OnClearClientInfo(ClientId client) override;
             bool OnLoadSettings() override;
 
+            std::vector<EquipDesc> GetCommodities(const ClientId client);
+
             /**
              * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
              */
@@ -98,7 +100,7 @@ namespace Plugins
             /**
              * @brief Hook on OnCharacterSave. Adds the return base to the character's database document.
              */
-            void OnCharacterSave(ClientId client, std::wstring_view charName, bsoncxx::builder::basic::document& document) override;
+            void OnCharacterSave(ClientId client, std::wstring_view charName, B_DOC& document) override;
 
             /**
              * @brief This returns the return base id that is stored in the client's save file.

@@ -10,8 +10,8 @@
 
 bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, const bool isNewCharacter)
 {
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_document;
+    
+    
 
     const auto db = FLHook::GetDbClient();
     auto session = db->start_session();
@@ -21,7 +21,7 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
     {
         const auto config = FLHook::GetConfig();
         auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        auto findCharDoc = make_document(kvp("characterName", newCharacter.characterName));
+        auto findCharDoc = B_MDOC(B_KVP("characterName", newCharacter.characterName));
 
         if (isNewCharacter)
         {
@@ -33,7 +33,7 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
         }
 
         auto wideCharacterName = StringUtils::stows(newCharacter.characterName);
-        bsoncxx::builder::basic::document document;
+        B_DOC document;
         newCharacter.ToBson(document);
 
         CallPlugins(&Plugin::OnCharacterSave, client, wideCharacterName, document);
@@ -49,8 +49,8 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
             }
 
             newCharacter._id = insertedDoc->inserted_id().get_oid().value;
-            const auto findAccDoc = make_document(kvp("_id", newCharacter.accountId));
-            const auto charUpdateDoc = make_document(kvp("$push", make_document(kvp("characters", insertedDoc->inserted_id()))));
+            const auto findAccDoc = B_MDOC(B_KVP("_id", newCharacter.accountId));
+            const auto charUpdateDoc = B_MDOC(B_KVP("$push", B_MDOC(B_KVP("characters", insertedDoc->inserted_id()))));
 
             auto accountCollection = db->database(config->database.dbName)[config->database.accountsCollection];
             if (const auto updateResult = accountCollection.update_one(findAccDoc.view(), charUpdateDoc.view());
@@ -62,7 +62,7 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
         }
         else
         {
-            const auto updateDoc = make_document(kvp("$set", document.view()));
+            const auto updateDoc = B_MDOC(B_KVP("$set", document.view()));
             if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), updateDoc.view()); !updateResult.has_value())
             {
                 throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Updating character failed.");
@@ -124,13 +124,13 @@ concurrencpp::result<void> AccountManager::DeleteCharacter(const ClientId client
         auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
         auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
 
-        using bsoncxx::builder::basic::kvp;
-        using bsoncxx::builder::basic::make_document;
+        
+        
 
         mongocxx::options::find_one_and_delete deleteOptions;
-        deleteOptions.projection(make_document(kvp("accountId", 1)));
+        deleteOptions.projection(B_MDOC(B_KVP("accountId", 1)));
 
-        const auto findDoc = make_document(kvp("characterName", charName));
+        const auto findDoc = B_MDOC(B_KVP("characterName", charName));
         const auto ret = charactersCollection.find_one_and_delete(findDoc.view(), deleteOptions);
         if (!ret.has_value())
         {
@@ -138,8 +138,8 @@ concurrencpp::result<void> AccountManager::DeleteCharacter(const ClientId client
         }
 
         auto oid = ret->view()["_id"].get_oid();
-        const auto findAcc = make_document(kvp("_id", ret->view()["accountId"].get_string()));
-        const auto deleteCharacter = make_document(kvp("$pull", make_document(kvp("characters", oid))));
+        const auto findAcc = B_MDOC(B_KVP("_id", ret->view()["accountId"].get_string()));
+        const auto deleteCharacter = B_MDOC(B_KVP("$pull", B_MDOC(B_KVP("characters", oid))));
         if (auto deleteResult = accountsCollection.update_one(findAcc.view(), deleteCharacter.view());
             !deleteResult.has_value() || deleteResult.value().modified_count() == 0)
         {
@@ -180,10 +180,10 @@ concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId c
 
         std::string accId = StringUtils::wstos(wideAccountId);
 
-        using bsoncxx::builder::basic::kvp;
-        using bsoncxx::builder::basic::make_document;
+        
+        
 
-        const auto findDoc = make_document(kvp("_id", accId));
+        const auto findDoc = B_MDOC(B_KVP("_id", accId));
         const auto accountBson = accountsCollection.find_one(findDoc.view());
 
         Account& account = accounts[client.GetValue()].account;
@@ -194,7 +194,7 @@ concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId c
             account = {};
             account._id = accId;
 
-            bsoncxx::builder::basic::document document;
+            B_DOC document;
             account.ToBson(document);
 
             accountsCollection.insert_one(document.view());
@@ -209,14 +209,14 @@ concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId c
         }
 
         // Convert vector to bson array
-        auto idArr = bsoncxx::builder::basic::array{};
+        auto idArr = B_ARR{};
         for (auto& id : account.characters)
         {
             idArr.append(id);
         }
 
         // Get all documents that are in the provided array
-        const auto filter = make_document(kvp("_id", make_document(kvp("$in", idArr))));
+        const auto filter = B_MDOC(B_KVP("_id", B_MDOC(B_KVP("$in", idArr))));
 
         for (auto cursor = charactersCollection.find(filter.view()); const auto& doc : cursor)
         {
@@ -258,8 +258,8 @@ concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId c
 concurrencpp::result<std::wstring> AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newName)
 {
     THREAD_BACKGROUND;
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_document;
+    
+    
 
     std::wstring err;
     const auto db = FLHook::GetDbClient();
@@ -267,7 +267,7 @@ concurrencpp::result<std::wstring> AccountManager::CheckCharnameTaken(ClientId c
     {
         const auto config = FLHook::GetConfig();
         auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(newName)));
+        const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(newName)));
 
         if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); checkCharNameDoc.has_value())
         {
@@ -296,10 +296,6 @@ concurrencpp::result<void> AccountManager::Rename(std::wstring currName, std::ws
 {
     THREAD_BACKGROUND;
 
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_array;
-    using bsoncxx::builder::basic::make_document;
-
     const auto db = FLHook::GetDbClient();
     auto session = db->start_session();
     session.start_transaction();
@@ -308,17 +304,17 @@ concurrencpp::result<void> AccountManager::Rename(std::wstring currName, std::ws
     {
         const auto config = FLHook::GetConfig();
         auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(currName)));
+        const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(currName)));
 
         if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
         {
             throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Character doesn't exist when renaming!");
         }
 
-        const auto charUpdateDoc = make_document(
-            kvp("$set",
-                make_document(kvp("characterName", StringUtils::wstos(newName)),
-                              kvp("lastRenameTimestamp",
+        const auto charUpdateDoc = B_MDOC(
+            B_KVP("$set",
+                B_MDOC(B_KVP("characterName", StringUtils::wstos(newName)),
+                              B_KVP("lastRenameTimestamp",
                                   bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }))));
         if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
             !updateResult.has_value() || updateResult.value().modified_count() == 0)
@@ -346,8 +342,8 @@ concurrencpp::result<bool> AccountManager::ClearCharacterTransferCode(std::wstri
 {
     THREAD_BACKGROUND;
 
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_document;
+    
+    
 
     const auto db = FLHook::GetDbClient();
     auto session = db->start_session();
@@ -358,7 +354,7 @@ concurrencpp::result<bool> AccountManager::ClearCharacterTransferCode(std::wstri
     {
         const auto config = FLHook::GetConfig();
         auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(charName)));
+        const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(charName)));
 
         if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
         {
@@ -366,7 +362,7 @@ concurrencpp::result<bool> AccountManager::ClearCharacterTransferCode(std::wstri
                                             "Character doesn't exist when clearing character transfer code!");
         }
 
-        const auto charUpdateDoc = make_document(kvp("$unset", make_document(kvp("characterTransferCode", ""))));
+        const auto charUpdateDoc = B_MDOC(B_KVP("$unset", B_MDOC(B_KVP("characterTransferCode", ""))));
         if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
             !updateResult.has_value() || updateResult.value().modified_count() == 0)
         {
@@ -400,8 +396,8 @@ concurrencpp::result<bool> AccountManager::SetCharacterTransferCode(std::wstring
 {
     THREAD_BACKGROUND;
 
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_document;
+    
+    
 
     const auto db = FLHook::GetDbClient();
     auto session = db->start_session();
@@ -412,7 +408,7 @@ concurrencpp::result<bool> AccountManager::SetCharacterTransferCode(std::wstring
     {
         const auto config = FLHook::GetConfig();
         auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(charName)));
+        const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(charName)));
 
         if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
         {
@@ -420,8 +416,8 @@ concurrencpp::result<bool> AccountManager::SetCharacterTransferCode(std::wstring
                                             "Character doesn't exist when setting character transfer code!");
         }
 
-        const auto charUpdateDoc = make_document(
-            kvp("$set", make_document(kvp("characterName", StringUtils::wstos(charName)), kvp("characterTransferCode", StringUtils::wstos(transferCode)))));
+        const auto charUpdateDoc = B_MDOC(
+            B_KVP("$set", B_MDOC(B_KVP("characterName", StringUtils::wstos(charName)), B_KVP("characterTransferCode", StringUtils::wstos(transferCode)))));
         if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
             !updateResult.has_value() || updateResult.value().modified_count() == 0)
         {
@@ -453,9 +449,6 @@ concurrencpp::result<bool> AccountManager::SaveSavedMsgs(std::wstring charName, 
 {
     THREAD_BACKGROUND;
 
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_document;
-
     const auto db = FLHook::GetDbClient();
     auto session = db->start_session();
     session.start_transaction();
@@ -465,7 +458,7 @@ concurrencpp::result<bool> AccountManager::SaveSavedMsgs(std::wstring charName, 
     {
         const auto config = FLHook::GetConfig();
         auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        const auto findCharDoc = make_document(kvp("characterName", StringUtils::wstos(charName)));
+        const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(charName)));
 
         if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
         {
@@ -473,14 +466,14 @@ concurrencpp::result<bool> AccountManager::SaveSavedMsgs(std::wstring charName, 
                                             "Character doesn't exist when setting saved messages!!");
         }
 
-        bsoncxx::builder::basic::array arr;
+        B_ARR arr;
         for (std::string msg : presetMsgs)
         {
             arr.append(msg);
         }
 
-        const auto charUpdateDoc = make_document(
-            kvp("$set", make_document(kvp("characterName", StringUtils::wstos(charName)), kvp("presetMsgs", arr))));
+        const auto charUpdateDoc = B_MDOC(
+            B_KVP("$set", B_MDOC(B_KVP("characterName", StringUtils::wstos(charName)), B_KVP("presetMsgs", arr))));
         if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
             !updateResult.has_value() || updateResult.value().modified_count() == 0)
         {
@@ -512,10 +505,6 @@ concurrencpp::result<std::wstring> AccountManager::TransferCharacter(const Accou
 {
     THREAD_BACKGROUND;
 
-    using bsoncxx::builder::basic::kvp;
-    using bsoncxx::builder::basic::make_array;
-    using bsoncxx::builder::basic::make_document;
-
     const auto db = FLHook::GetDbClient();
     auto session = db->start_session();
     session.start_transaction();
@@ -531,11 +520,11 @@ concurrencpp::result<std::wstring> AccountManager::TransferCharacter(const Accou
         const auto config = FLHook::GetConfig();
         auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
         auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-            const auto findTransferCharacterDoc = make_document(
-                kvp("$and",
-                    make_array(
-                        make_document(kvp("characterName", StringUtils::wstos(charName))),
-                        make_document(kvp("characterTransferCode", StringUtils::wstos(characterCode)))
+            const auto findTransferCharacterDoc = B_MDOC(
+                B_KVP("$and",
+                    B_MARR(
+                        B_MDOC(B_KVP("characterName", StringUtils::wstos(charName))),
+                        B_MDOC(B_KVP("characterTransferCode", StringUtils::wstos(characterCode)))
                     )
                 )
             );
@@ -551,19 +540,19 @@ concurrencpp::result<std::wstring> AccountManager::TransferCharacter(const Accou
 
         const auto transferCharacterOid = transferredCharacterDoc->find("_id")->get_oid();
 
-        const auto findNewAccountDoc = make_document(kvp("_id", account.GetValue()));
+        const auto findNewAccountDoc = B_MDOC(B_KVP("_id", account.GetValue()));
 
-        const auto updateNewAccountDoc = make_document(kvp("$push",
-            make_document(kvp("characters", transferCharacterOid))));
+        const auto updateNewAccountDoc = B_MDOC(B_KVP("$push",
+            B_MDOC(B_KVP("characters", transferCharacterOid))));
 
-        const auto updateOldAccountDoc = make_document(kvp("$pull",
-             make_document(kvp("characters", transferCharacterOid))));
+        const auto updateOldAccountDoc = B_MDOC(B_KVP("$pull",
+             B_MDOC(B_KVP("characters", transferCharacterOid))));
 
         const auto oldAccountId = transferredCharacterDoc->find("accountId")->get_string().value;
-        const auto findOldAccountDoc = make_document(kvp("_id", oldAccountId));
+        const auto findOldAccountDoc = B_MDOC(B_KVP("_id", oldAccountId));
 
-        const auto findTransferredCharacterDoc = make_document(kvp("_id", transferCharacterOid));
-        const auto clearCharacterTransferCodeDoc = make_document(kvp("$unset", make_document(kvp("characterTransferCode", ""))));
+        const auto findTransferredCharacterDoc = B_MDOC(B_KVP("_id", transferCharacterOid));
+        const auto clearCharacterTransferCodeDoc = B_MDOC(B_KVP("$unset", B_MDOC(B_KVP("characterTransferCode", ""))));
 
         // clang-format on
         if (auto updatedDocs = accountsCollection.update_one(findNewAccountDoc.view(), updateNewAccountDoc.view()); !updatedDocs->modified_count())

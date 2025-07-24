@@ -3,6 +3,7 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/PersonalityHelper.hpp"
 #include "API/FLHook/ResourceManager.hpp"
+#include "API/FLHook/InfocardManager.hpp"
 
 #include "API/InternalApi.hpp"
 #include "API/Utils/Random.hpp"
@@ -938,15 +939,7 @@ Id ResourceManager::CreateSolarSimple(SolarSpawnStruct& solarSpawnData, Plugin* 
 
     if (solarSpawnData.solarIds && !solarSpawnData.nameOverride.empty())
     {
-        struct PlayerData* pd = nullptr;
-        while (pd = Players.traverse_active(pd))
-        {
-            if (pd->systemId == solarSpawnData.systemId)
-            {
-                // TODO: Send infocard override
-                // HkChangeIDSString(pd->onlineId, solarSpawnData.solarIds, solarSpawnData.nameOverride);
-            }
-        }
+        FLHook::GetInfocardManager()->OverrideInfocard(solarSpawnData.solarIds, solarSpawnData.nameOverride, true);
     }
     // Set the base name
     FmtStr infoname(solarSpawnData.solarIds, 0);

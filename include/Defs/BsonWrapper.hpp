@@ -1,8 +1,7 @@
 #pragma once
 #include <bson/bson.h>
-#include <bsoncxx/builder/basic/array.hpp>
-#include <bsoncxx/builder/basic/document.hpp>
-#include <bsoncxx/document/view.hpp>
+
+#include <API/FLHook/BsonHelper.hpp>
 
 class BsonWrapper
 {
@@ -34,7 +33,7 @@ class BsonWrapper
             AssembleBson(bsonBuffer, bsonSize);
         }
 
-        explicit BsonWrapper(const bsoncxx::document::view bsonView)
+        explicit BsonWrapper(const B_VIEW bsonView)
         {
             auto* bsonData = const_cast<uint8_t*>(bsonView.data());
             const auto bsonSize = bsonView.length();
@@ -52,13 +51,13 @@ class BsonWrapper
         }
 
         [[nodiscard]]
-        std::optional<bsoncxx::document::view> GetValue() const
+        std::optional<B_VIEW> GetValue() const
         {
             if (!bson)
             {
                 return std::nullopt;
             }
-            return { bsoncxx::document::view(bson_get_data(bson), bson->len) };
+            return { B_VIEW(bson_get_data(bson), bson->len) };
         }
 
         [[nodiscard]]
@@ -73,15 +72,12 @@ class BsonWrapper
 
         static std::shared_ptr<BsonWrapper> CreateErrorDocument(const std::vector<std::string>& errors)
         {
-            using bsoncxx::builder::basic::make_document;
-            using bsoncxx::builder::basic::kvp;
-
-            auto builder = bsoncxx::builder::basic::array{};
+            auto builder = B_ARR{};
             for (const auto& error : errors) {
                 builder.append(error);
             }
 
-            auto document = make_document(kvp("errors", builder.view()));
+            auto document = B_MDOC(B_KVP("errors", builder.view()));
             return std::make_shared<BsonWrapper>(document);
         }
 };
