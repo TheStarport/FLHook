@@ -374,9 +374,8 @@ concurrencpp::result<void> AdminCommandProcessor::ListCargo(ClientId client, con
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::AddCargo(ClientId client, ClientId target, GoodInfo* good, uint count, const std::optional<bool> optMission)
+concurrencpp::result<void> AdminCommandProcessor::AddCargo(ClientId client, ClientId target, GoodInfo* good, uint count, bool mission)
 {
-    bool mission = optMission.value_or(false);
     target.GetShip().Handle().AddCargo(good->goodId, count, mission).Handle();
 
     const auto& im = FLHook::GetInfocardManager();
@@ -787,7 +786,7 @@ concurrencpp::result<void> AdminCommandProcessor::Move(ClientId client, ClientId
 }
 
 #include <cpptrace/basic.hpp>
-concurrencpp::result<void> AdminCommandProcessor::Help(ClientId client, std::optional<int> optPage)
+concurrencpp::result<void> AdminCommandProcessor::Help(ClientId client, int page)
 {
     constexpr int itemsPerPage = 20;
     const auto& pm = PluginManager::i();
@@ -824,7 +823,6 @@ concurrencpp::result<void> AdminCommandProcessor::Help(ClientId client, std::opt
     // Divide the total commands against items per page, rounding up
     const auto div = std::div(totalCommands, itemsPerPage);
     const int totalPages = std::clamp(div.rem ? div.quot + 1 : div.quot, 1, 100);
-    int page = optPage.value_or(0);
     if (page > totalPages)
     {
         page = totalPages;
