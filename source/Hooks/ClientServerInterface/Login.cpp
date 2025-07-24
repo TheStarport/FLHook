@@ -19,8 +19,17 @@ void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
             return; // DisconnectDelay bug
         }
 
-        // Copy over admin information, if applicable
         auto& clientData = client.GetData();
+
+        if (!clientData.account)
+        {
+            // This can happen if a player tries to log into an account which
+            // is already in use - we need to protect ourselves before
+            // following the clientData.account pointer below
+            return;
+        }
+
+        // Copy over admin information, if applicable
         auto& credentials = FLHook::instance->credentialsMap[client] = {};
         if (const auto& roles = clientData.account->gameRoles; roles.has_value())
         {

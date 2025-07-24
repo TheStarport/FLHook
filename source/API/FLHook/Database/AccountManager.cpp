@@ -1067,6 +1067,15 @@ AccountManager::AccountManager()
 void AccountManager::ClearClientInfo(ClientId client)
 {
     auto& account = accounts.at(client.GetValue());
+    for (auto& next : FLHook::Clients())
+    {
+        if (next.id != client && account.account._id == next.account->_id)
+        {
+            // If there's another player logged into this account, don't erase anything.
+            // We ironically need to keep the loggedInAccounts data here to detect and *prevent* duplicate account login scenarios.
+            return;
+        }
+    }
     loggedInAccounts.erase(account.account._id);
     account.characters.clear();
 }
