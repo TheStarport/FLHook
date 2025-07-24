@@ -43,7 +43,7 @@ T TransformArg(std::wstring_view s, size_t paramNumber)
         if (s.size() > 0 && s[0] == '-')
         {
             // trying to put a negative number into an unsigned type
-            throw InvalidParameterException(s, paramNumber);
+            throw InvalidParameterException(s, paramNumber, L"non-negative number");
         }
     }
 

@@ -12,7 +12,7 @@ ClientId TransformArg(const std::wstring_view s, const size_t paramNumber)
 {
     if (s.empty())
     {
-        throw InvalidParameterException(s, paramNumber);
+        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"non-empty online character name/ID"));
     }
 
     // Explicitly allow the the number '0' to mean CONSOLE
@@ -26,7 +26,7 @@ ClientId TransformArg(const std::wstring_view s, const size_t paramNumber)
         const auto number = StringUtils::Cast<size_t>(s);
         if (number == 0 || number > MaxClientId)
         {
-            throw InvalidParameterException(s, paramNumber);
+            throw InvalidParameterException(s, paramNumber, std::wstring_view(std::format(L"valid client ID (between 0 and {}", MaxClientId)));
         }
 
         if (FLHook::Clients()[number].isValid)
@@ -34,7 +34,7 @@ ClientId TransformArg(const std::wstring_view s, const size_t paramNumber)
             return ClientId(number);
         }
 
-        throw InvalidParameterException(s, paramNumber);
+        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"client ID to match an online player"));
     }
 
     for (auto& client : FLHook::Clients())
@@ -45,7 +45,7 @@ ClientId TransformArg(const std::wstring_view s, const size_t paramNumber)
         }
     }
 
-    throw InvalidParameterException(s, paramNumber);
+    throw InvalidParameterException(s, paramNumber, std::wstring_view(L"online character name/ID"));
 }
 OptionalTransformArg(ClientId);
 
@@ -57,7 +57,7 @@ Archetype::Ship* TransformArg(const std::wstring_view s, const size_t paramNumbe
 
     if (!ship)
     {
-        throw InvalidParameterException(s, paramNumber);
+        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"ship nickname"));
     }
     // TODO: find ship by IDSName
 
@@ -73,7 +73,7 @@ Archetype::Equipment* TransformArg(const std::wstring_view s, const size_t param
 
     if (!equipment)
     {
-        throw InvalidParameterException(s, paramNumber);
+        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"equipment nickname"));
     }
 
     // TODO: find ship by IDSName
@@ -110,7 +110,7 @@ bool TransformArg(const std::wstring_view s, size_t paramNumber)
         return false;
     }
 
-    throw InvalidParameterException(s, paramNumber);
+    throw InvalidParameterException(s, paramNumber, std::wstring_view(L"boolean true/false"));
 }
 OptionalTransformArg(bool);
 
@@ -119,7 +119,7 @@ int TransformArg(const std::wstring_view s, size_t paramNumber)
 {
     if (s.empty())
     {
-        throw InvalidParameterException(s, paramNumber);
+        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"numeric string up to 3 characters"));
     }
 
     if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }) && s.size() < 4)
@@ -128,7 +128,7 @@ int TransformArg(const std::wstring_view s, size_t paramNumber)
         return number;
     }
 
-    throw InvalidParameterException(s, paramNumber);
+    throw InvalidParameterException(s, paramNumber, std::wstring_view(L"fully numeric string up to 3 characters"));
 }
 OptionalTransformArg(int);
 
@@ -137,7 +137,7 @@ uint TransformArg(const std::wstring_view s, size_t paramNumber)
 {
     if (s.empty())
     {
-        throw InvalidParameterException(s, paramNumber);
+        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"non-negative numeric string up to 3 characters"));
     }
 
     if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }) && s.size() < 4)
@@ -146,7 +146,7 @@ uint TransformArg(const std::wstring_view s, size_t paramNumber)
         return number;
     }
 
-    throw InvalidParameterException(s, paramNumber);
+    throw InvalidParameterException(s, paramNumber, std::wstring_view(L"non-negative fully numeric string up to 3 characters"));
 }
 OptionalTransformArg(uint);
 
@@ -169,7 +169,7 @@ GoodInfo* TransformArg(std::wstring_view s, size_t paramNumber)
     }
 
     // Not Found
-    throw InvalidParameterException(s, paramNumber);
+    throw InvalidParameterException(s, paramNumber, std::wstring_view(L"good display name (potentially including wildcards) or good nickname"));
 }
 OptionalTransformArg(GoodInfo*);
 
@@ -179,7 +179,7 @@ BaseId TransformArg(std::wstring_view s, size_t paramNumber)
     const auto foundBase = BaseId(s, true);
     if (!foundBase)
     {
-        throw InvalidParameterException(s, paramNumber);
+        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"base display name (potentially including wilcards) or base nickname"));
     }
 
     return foundBase;
@@ -211,7 +211,7 @@ SystemId TransformArg(std::wstring_view s, size_t paramNumber)
     }
     while (system);
 
-    throw InvalidParameterException(s, paramNumber);
+    throw InvalidParameterException(s, paramNumber, std::wstring_view(L"system display name (potentially including wildcards) or system nickname"));
 }
 OptionalTransformArg(SystemId);
 
@@ -240,7 +240,8 @@ RepGroupId TransformArg(std::wstring_view s, size_t paramNumber)
         }
     }
 
-    throw InvalidParameterException(s, paramNumber);
+    throw InvalidParameterException(
+        s, paramNumber, std::wstring_view(L"faction (optionally short) display name (potentially including wildcards) or faction nickname"));
 }
 OptionalTransformArg(RepGroupId);
 
