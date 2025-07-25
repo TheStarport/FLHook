@@ -13,7 +13,6 @@ class IServerImplHook
         };
 
         inline static SubmitData chatData;
-        inline static std::wstring charBefore;
 
         // The maximum number of players we can support is MaxClientId
         // Add one to the maximum number to allow renames

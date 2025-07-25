@@ -9,26 +9,6 @@
 #include "Core/ClientServerInterface.hpp"
 #include "Core/IEngineHook.hpp"
 
-bool IServerImplHook::CharacterSelectInner(const CHARACTER_ID& cid, const ClientId client)
-{
-    try
-    {
-        auto& info = client.GetData();
-        const auto charName = client.GetCharacterName().Unwrap();
-        charBefore = !charName.empty() ? charName : L"";
-        info.lastExitedBaseId = {};
-        info.tradePartner = ClientId();
-        info.groupId = Players.GetGroupID(client.GetValue());
-    }
-    catch (...)
-    {
-        (void)client.Kick();
-        return false;
-    }
-
-    return true;
-}
-
 void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER_ID& charId, ClientId client)
 {
     TryHook
@@ -36,69 +16,57 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
         IEngineHook::OnCharacterSelectAfter(client);
         auto& info = client.GetData();
 
-        if (const auto charName = client.GetCharacterName().Handle(); charBefore != charName)
+        // If help command is not disabled, alert people they can use it
+        if (const auto& cmds = FLHook::GetConfig()->userCommands.disabledCommands; std::ranges::find(cmds, L"help") == cmds.end())
         {
-            // If help command is not disabled, alert people they can use it
-            if (const auto& cmds = FLHook::GetConfig()->userCommands.disabledCommands; std::ranges::find(cmds, L"help") == cmds.end())
+            auto& credentials = FLHook::instance->credentialsMap[client];
+            (void)client.Message(L"To get a list of available commands, type '/help [page]' in chat.");
+            if (!credentials.empty())
             {
-                auto& credentials = FLHook::instance->credentialsMap[client];
-                (void)client.Message(L"To get a list of available commands, type '/help [page]' in chat.");
-                if (!credentials.empty())
-                {
-                    client.Message(L"To get a list of available admin commands, type '.help [page]' in chat.");
-                }
+                client.Message(L"To get a list of available admin commands, type '.help [page]' in chat.");
             }
+        }
 
-            auto cargoList = client.GetEquipCargo().Raw();
-            if (cargoList.has_error())
+        auto cargoList = client.GetEquipCargo().Raw();
+        if (cargoList.has_error())
+        {
+            (void)client.Kick();
+            return;
+        }
+
+        for (const auto& cargo : cargoList.value()->equip)
+        {
+            if (cargo.count < 0)
             {
+                // AddCheaterLog(charName, "Negative good-count, likely to have cheated in the past");
+
+                FLHook::MessageUniverse(std::format(L"Possible cheating detected: {}", client.GetCharacterName().Handle()));
                 (void)client.Kick();
+                (void)client.GetAccount().Unwrap().Ban();
                 return;
             }
-
-            for (const auto& cargo : cargoList.value()->equip)
-            {
-                if (cargo.count < 0)
-                {
-                    // AddCheaterLog(charName, "Negative good-count, likely to have cheated in the past");
-
-                    FLHook::MessageUniverse(std::format(L"Possible cheating detected: {}", charName));
-                    (void)client.Kick();
-                    (void)client.GetAccount().Unwrap().Ban();
-                    return;
-                }
-            }
-
-            if (FLHook::GetConfig()->general.persistGroup && info.groupId)
-            {
-                GroupId(info.groupId).AddMember(client);
-            }
-            else
-            {
-                info.groupId = 0;
-            }
-
-            // Assign their random formation id.
-            // Numbers are between 0-20 (inclusive)
-            // Formations are between 1-29 (inclusive)
-            static std::random_device dev;
-            static std::mt19937 rng(dev());
-            std::uniform_int_distribution<std::mt19937::result_type> distNum(1, 20);
-            const auto config = FLHook::GetConfig();
-            std::uniform_int_distribution<std::mt19937::result_type> distForm(0, config->callsign.allowedFormations.size() - 1);
-
-            if (config->callsign.allowedFormations.empty())
-            {
-                info.formationTag = AllowedFormation::Alpha;
-            }
-            else
-            {
-                info.formationTag = config->callsign.allowedFormations[distForm(rng)];
-            }
-
-            info.formationNumber1 = distNum(rng);
-            info.formationNumber2 = distNum(rng);
         }
+
+        // Assign their random formation id.
+        // Numbers are between 0-20 (inclusive)
+        // Formations are between 1-29 (inclusive)
+        static std::random_device dev;
+        static std::mt19937 rng(dev());
+        std::uniform_int_distribution<std::mt19937::result_type> distNum(1, 20);
+        const auto config = FLHook::GetConfig();
+        std::uniform_int_distribution<std::mt19937::result_type> distForm(0, config->callsign.allowedFormations.size() - 1);
+
+        if (config->callsign.allowedFormations.empty())
+        {
+            info.formationTag = AllowedFormation::Alpha;
+        }
+        else
+        {
+            info.formationTag = config->callsign.allowedFormations[distForm(rng)];
+        }
+
+        info.formationNumber1 = distNum(rng);
+        info.formationNumber2 = distNum(rng);
     }
     CatchHook({})
 }
@@ -107,28 +75,46 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
 {
     TRACE("{{client}}", { "client", client });
 
+    auto prevCharName = std::wstring(FLHook::GetClient(client).characterName);
+
     const auto& data = AccountManager::accounts[client.GetValue()].characters.at(cid.charFilename);
     FLHook::GetClient(client).characterName = data.wideCharacterName;
 
-    CallPlugins(&Plugin::OnClearClientInfo, client);
-
     std::wstring charName = StringUtils::stows(static_cast<const char*>(cid.charFilename));
-    const auto skip = CallPlugins(&Plugin::OnCharacterSelect, client);
+    bool skip = false;
+
+    auto& info = client.GetData();
+    if (charName != prevCharName)
+    {
+        Server.AbortMission(client.GetValue(), 0);
+        info.playerData->missionId = 0;
+        info.playerData->missionSetBy = 0;
+
+        auto groupId = Players.GetGroupID(client.GetValue());
+        CallPlugins(&Plugin::OnClearClientInfo, client);
+        skip = CallPlugins(&Plugin::OnCharacterSelect, client);
+        if (FLHook::GetConfig()->general.persistGroup)
+        {
+            GroupId(groupId).AddMember(client);
+        }
+    }
+
+    info.lastExitedBaseId = {};
+    info.tradePartner = {};
 
     CheckForDisconnect;
 
-    if (const bool innerCheck = CharacterSelectInner(cid, client); !innerCheck)
-    {
-        return;
-    }
     if (!skip)
     {
         CallServerPreamble { Server.CharacterSelect(cid, client.GetValue()); }
         CallServerPostamble(true, );
     }
-    CharacterSelectInnerAfter(cid, client);
 
-    CallPlugins(&Plugin::OnCharacterSelectAfter, client);
+    if (charName != prevCharName)
+    {
+        CharacterSelectInnerAfter(cid, client);
+        CallPlugins(&Plugin::OnCharacterSelectAfter, client);
+    }
 }
 
 void __stdcall IServerImplHook::CreateNewCharacter(const SCreateCharacterInfo& createCharacterInfo, ClientId client)

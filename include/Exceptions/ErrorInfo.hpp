@@ -31,6 +31,7 @@ enum class Error
     PluginNotFound = 26,
     PlayerNoTradeActive = 27,
     NoFlufClientHook = 28,
+    ObjectHasNoTarget = 29,
 };
 
 class DLL ErrorInfo
@@ -66,6 +67,7 @@ class DLL ErrorInfo
              { Error::PluginNotFound, L"Plugin not found / not loaded. This is a developer issue, contact support." },
              { Error::PlayerNoTradeActive, L"Player has no trade window open." },
              { Error::NoFlufClientHook, L"Client has no FLUF clienthook active." },
+             { Error::ObjectHasNoTarget, L"No target selected." },
              }
         };
 

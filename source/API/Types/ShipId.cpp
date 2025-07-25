@@ -56,6 +56,19 @@ Action<ClientId> ShipId::GetPlayer() const
     return { ClientId(ship->ownerPlayer) };
 }
 
+Action<GroupId> ShipId::GetGroup() const
+{
+    IsValidShip;
+
+    // Returns IObjectRW*, whatever that is.
+    if (ship->groupId)
+    {
+        return { GroupId(ship->groupId) };
+    }
+
+    return { cpp::fail(Error::PlayerNotInGroup) };
+}
+
 Action<ObjectId> ShipId::GetTarget() const
 {
     IsValidShip;
@@ -67,7 +80,7 @@ Action<ObjectId> ShipId::GetTarget() const
         return { ObjectId(target->get_id()) };
     }
 
-    return { {} };
+    return { cpp::fail(Error::ObjectHasNoTarget) };
 }
 
 Action<RepId> ShipId::GetReputation() const

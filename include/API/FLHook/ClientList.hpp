@@ -64,9 +64,6 @@ struct ClientData
         // bans
         uint connects = 0; // incremented when player connects
 
-        // Group
-        uint groupId = 0;
-
         // other
         std::wstring hostname{};
 

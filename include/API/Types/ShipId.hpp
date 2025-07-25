@@ -3,6 +3,7 @@
 #include "API/Utils/Action.hpp"
 #include "FLCore/FLCoreServer.h"
 #include "ObjectId.hpp"
+#include "API/Types/GroupId.hpp"
 #include "RepId.hpp"
 
 class DLL ShipId final : public ObjectId
@@ -27,6 +28,9 @@ class DLL ShipId final : public ObjectId
 
         [[nodiscard]]
         Action<ClientId> GetPlayer() const;
+
+        [[nodiscard]]
+        Action<GroupId> GetGroup() const;
 
         [[nodiscard]]
         Action<ObjectId> GetTarget() const;

@@ -65,7 +65,6 @@ void FLHook::ClearClientInfo(ClientId client)
     info.engineKilled = false;
     info.thrusterActivated = false;
     info.inTradelane = false;
-    info.groupId = 0;
 
     info.spawnProtected = false;
 

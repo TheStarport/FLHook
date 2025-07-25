@@ -63,6 +63,7 @@ DefineTransformArg(int);
 DefineTransformArg(Archetype::Ship*);
 DefineTransformArg(Archetype::Equipment*);
 DefineTransformArg(ClientId);
+DefineTransformArg(GroupId);
 DefineTransformArg(GoodInfo*);
 DefineTransformArg(BaseId);
 DefineTransformArg(SystemId);

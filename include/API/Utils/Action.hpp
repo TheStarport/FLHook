@@ -31,11 +31,18 @@ class Action
          *  @exception GameException A game exception is raised when Handle is called without a parameter and the called function errors.
          *  false.
          */
-        Ret Handle()
+        Ret Handle(std::wstring_view customErrMsg = L"")
         {
             if (result.has_error())
             {
-                throw GameException(L"An error has occurred.", result.error());
+                if (customErrMsg.empty())
+                {
+                    throw GameException(L"An error has occurred.", result.error());
+                }
+                else
+                {
+                    throw GameException(std::wstring(customErrMsg));
+                }
             }
 
             return result.value();
