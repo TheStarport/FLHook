@@ -20,7 +20,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         concurrencpp::result<void> SendSystemMessage(ClientId client, SystemId system, const std::wstring_view text);
         concurrencpp::result<void> SendUniverseMessage(ClientId client, std::wstring_view text);
         concurrencpp::result<void> ListCargo(ClientId client, const ClientId target);
-        concurrencpp::result<void> AddCargo(ClientId client, ClientId target, GoodInfo* good, uint count = 1, bool mission = false);
+        concurrencpp::result<void> AddCargo(ClientId client, ClientId target, GoodInfo* good, std::optional<uint> count, std::optional<bool> mission);
         concurrencpp::result<void> RenameChar(ClientId client, ClientId target, std::wstring_view newName);
         concurrencpp::result<void> DeleteChar(ClientId client, std::wstring_view characterName);
         concurrencpp::result<void> GetPlayerInfo(ClientId client, const ClientId target);
@@ -36,7 +36,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         concurrencpp::result<void> Pull(ClientId client, ClientId target);
         concurrencpp::result<void> SetDamageType(ClientId client, std::wstring_view newDamageType);
         concurrencpp::result<void> Move(ClientId client, ClientId target, float x, float y, float z);
-        concurrencpp::result<void> Help(ClientId client, int page = 0);
+        concurrencpp::result<void> Help(ClientId client, std::optional<int> page);
 
         const inline static std::array<AdminCommandInfo<AdminCommandProcessor>, 32> commands = {
             { AddAdminCommand(AdminCommandProcessor, Cmds(L".getcash"), GetCash, GameAndConsole, Cash, L".getcash <charname> <cash>",
