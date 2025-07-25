@@ -43,6 +43,8 @@ enum class LogLevel
 #define WARN(message, ...)  spdlog::warn(message "{}", JsonLogFormatter({ __VA_ARGS__ }))
 #define ERROR(message, ...) spdlog::error(message "{}", JsonLogFormatter({ __VA_ARGS__ }))
 
+#define LOG_CAT(category)   { "category", category }
+
 // ReSharper disable once CppUnnamedNamespaceInHeaderFile
 namespace
 {
@@ -61,8 +63,8 @@ struct JsonLogFormatter
 {
         static constexpr std::string_view EoLMarker = "\x18\x19"sv;
         using jsonVal = std::variant<std::int64_t, int, uint, std::uint64_t, DWORD, short, ushort, byte, char, double, float, bool, ClientId, SystemId, BaseId,
-                                     ObjectId, RepGroupId, RepId, GoodId, Id, std::string, std::wstring, std::string_view, std::wstring_view, const char*,
-                                     const wchar_t*, char*, wchar_t*>;
+                                     ShipId, ObjectId, RepGroupId, RepId, GoodId, Id, std::string, std::wstring, std::string_view, std::wstring_view,
+                                     const char*, const wchar_t*, char*, wchar_t*, Vector>;
         std::unordered_map<std::string, jsonVal> members;
 
         JsonLogFormatter(const std::initializer_list<std::pair<const std::string, jsonVal>> il) : members{ il } {}
@@ -75,7 +77,7 @@ struct JsonLogFormatter
                 auto name = InternalApi::HashLookup(id);
                 if (name.empty())
                 {
-                    return std::format("\"{}\"", std::to_string(id));
+                    return std::to_string(id);
                 }
 
                 return name;
@@ -93,35 +95,41 @@ struct JsonLogFormatter
                 first = false;
                 os << std::quoted(key) << ":";
                 std::visit(
-                    overloaded{ [&](std::int64_t arg) { os << arg; },
-                                [&](int arg) { os << arg; },
-                                [&](uint arg) { os << arg; },
-                                [&](std::uint64_t arg) { os << arg; },
-                                [&](DWORD arg) { os << arg; },
-                                [&](double arg) { os << arg; },
-                                [&](float arg) { os << arg; },
-                                [&](short arg) { os << arg; },
-                                [&](ushort arg) { os << arg; },
-                                [&](byte arg) { os << "\"" << std::hex << "0x" << arg << "\"" << std::dec; },
-                                [&](char arg) { os << std::quoted(std::string(1, arg)); },
-                                [&](char* arg) { os << std::quoted(arg); },
-                                [&](const char* arg) { os << std::quoted(arg); },
-                                [&](wchar_t* arg) { os << std::quoted(StringUtils::wstos(arg)); },
-                                [&](const wchar_t* arg) { os << std::quoted(StringUtils::wstos(arg)); },
-                                [&](const Id arg) { os << getNickname(arg.GetValue()); },
-                                [&](const ClientId arg) { os << getNickname(arg.GetValue()); },
-                                [&](const SystemId arg) { os << getNickname(arg.GetValue()); },
-                                [&](const BaseId arg) { os << getNickname(arg.GetValue()); },
-                                [&](const ObjectId arg)
-                                { os << arg.GetArchetype().HasValue() ? getNickname(arg.GetArchetype().Value()->archId.GetValue()) : std::string("null"); },
-                                [&](const RepGroupId arg) { os << getNickname(arg.GetValue()); },
-                                [&](const RepId arg) { os << getNickname(arg.GetValue()); },
-                                [&](const GoodId arg) { os << getNickname(arg.GetHash().Unwrap().GetValue()); },
-                                [&](const std::string& arg) { os << std::quoted(arg); },
-                                [&](const std::string_view arg) { os << std::quoted(arg); },
-                                [&](const std::wstring& arg) { os << std::quoted(StringUtils::wstos(arg)); },
-                                [&](const std::wstring_view arg) { os << std::quoted(StringUtils::wstos(arg)); },
-                                [&](const bool arg) { os << (arg ? "true" : "false"); } },
+                    overloaded{
+                        [&](std::int64_t arg) { os << arg; },
+                        [&](int arg) { os << arg; },
+                        [&](uint arg) { os << arg; },
+                        [&](std::uint64_t arg) { os << arg; },
+                        [&](DWORD arg) { os << arg; },
+                        [&](double arg) { os << arg; },
+                        [&](float arg) { os << arg; },
+                        [&](short arg) { os << arg; },
+                        [&](ushort arg) { os << arg; },
+                        [&](byte arg) { os << "\"" << std::hex << "0x" << arg << "\"" << std::dec; },
+                        [&](char arg) { os << std::quoted(std::string(1, arg)); },
+                        [&](char* arg) { os << std::quoted(arg); },
+                        [&](const char* arg) { os << std::quoted(arg); },
+                        [&](wchar_t* arg) { os << std::quoted(StringUtils::wstos(arg)); },
+                        [&](const wchar_t* arg) { os << std::quoted(StringUtils::wstos(arg)); },
+                        [&](const Id arg) { os << std::quoted(getNickname(arg.GetValue())); },
+                        [&](const ClientId arg) { os << std::quoted(StringUtils::wstos(arg.GetCharacterName().Unwrap())); },
+                        [&](const SystemId arg) { os << std::quoted(getNickname(arg.GetValue())); },
+                        [&](const BaseId arg) { os << std::quoted(getNickname(arg.GetValue())); },
+                        [&](const ShipId arg) { os << std::quoted(StringUtils::wstos(arg.GetNickName().Unwrap())); },
+                        [&](const ObjectId arg)
+                        {
+                            os << std::quoted(arg.GetArchetype().HasValue() ? getNickname(arg.GetArchetype().Value()->archId.GetValue()) : std::string("null"));
+                        },
+                        [&](const RepGroupId arg) { os << std::quoted(getNickname(arg.GetValue())); },
+                        [&](const RepId arg) { os << std::quoted(getNickname(arg.GetValue())); },
+                        [&](const GoodId arg) { os << std::quoted(getNickname(arg.GetHash().Unwrap().GetValue())); },
+                        [&](const std::string& arg) { os << std::quoted(arg); },
+                        [&](const std::string_view arg) { os << std::quoted(arg); },
+                        [&](const std::wstring& arg) { os << std::quoted(StringUtils::wstos(arg)); },
+                        [&](const std::wstring_view arg) { os << std::quoted(StringUtils::wstos(arg)); },
+                        [&](const bool arg) { os << (arg ? "true" : "false"); },
+                        [&](const Vector arg) { os << std::setprecision(0) << "[" << arg.x << "," << arg.y << "," << arg.z << "]" << std::setprecision(6); },
+                    },
                     value);
             }
             os << "}";

@@ -27,6 +27,8 @@ namespace Plugins
     {
             struct Config final
             {
+                    bool logPlayerDeaths = false;
+                    bool logPlayerWhoShotFirst = false;
                     uint numberOfListedKillers = 3;
                     float deathBroadcastRange = 15000;
                     float minimumAssistancePercentage = 5;
@@ -39,6 +41,7 @@ namespace Plugins
             {
                     float currDamage = 0.0f;
                     float lastUndockDamage = 0.0f;
+                    bool hasAttacked = false;
             };
 
             Config config;
@@ -51,12 +54,15 @@ namespace Plugins
             void OnDisconnectAfter(ClientId client, EFLConnection connection) override;
             void OnClearClientInfo(ClientId client) override;
             void OnShipHullDmg(Ship* ship, float& damage, DamageList* dmgList) override;
+            void OnShipShieldDmg(Ship* ship, CEShield* shield, float& damage, DamageList* dmgList) override;
             static float GetDamageDone(const DamageDone& damageDone);
             std::wstring SelectRandomDeathMessage(ClientId client);
             /// @brief Suppresses the core FLHook death message and prints its own which shows the damage contribution percentages.
             void OnSendDeathMessage(ClientId& killer, ClientId victim, SystemId system, std::wstring_view msg) override;
             /// @brief Reset damage taken/dealt upon launch
             void OnPlayerLaunchAfter(ClientId client, const ShipId& ship) override;
+
+            void LogFirstStrike(Ship* ship, DamageList* dmgList);
 
         public:
             explicit KillTrackerPlugin(const PluginInfo& info);

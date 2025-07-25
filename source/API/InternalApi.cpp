@@ -142,3 +142,13 @@ std::string InternalApi::HashLookup(const uint hash)
     const auto findResult = nicknameMap.find(hash);
     return findResult == nicknameMap.end() ? "" : findResult->second;
 }
+
+bool InternalApi::IsCommodity(uint hash)
+{
+    auto gi = GoodList_get()->find_by_id(hash);
+    if (gi && gi->type == GoodType::Commodity)
+    {
+        return true;
+    }
+    return false;
+}

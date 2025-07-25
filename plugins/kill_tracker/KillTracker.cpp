@@ -14,7 +14,7 @@ namespace Plugins
     {
         for (int i = 1; i <= MaxClientId; i++)
         {
-            auto& [currDamage, lastUndockDamage] = damageArray[i][client.GetValue()];
+            auto& [currDamage, lastUndockDamage, hasAttacked] = damageArray[i][client.GetValue()];
             if (fullReset)
             {
                 lastUndockDamage = 0.0f;
@@ -54,16 +54,73 @@ namespace Plugins
         ClearDamageDone(client, false);
     }
 
+    void KillTrackerPlugin::LogFirstStrike(Ship* ship, DamageList* dmgList)
+    {
+        uint targetClient = ship->cship()->ownerPlayer;
+
+        damageArray[targetClient][dmgList->inflictorPlayerId].hasAttacked = true;
+
+        std::wstring equipEntries;
+        bool firstEntry = true;
+        for (auto& equip : ClientId(targetClient).GetEquipCargo().Handle()->equip)
+        {
+            if (equip.mounted || InternalApi::IsCommodity(equip.archId.GetValue()))
+            {
+                continue;
+            }
+
+            if (!firstEntry)
+            {
+                equipEntries += L", ";
+            }
+            else
+            {
+                firstEntry = false;
+            }
+            auto name = InternalApi::HashLookup(equip.archId.GetValue());
+            equipEntries += StringUtils::stows(name);
+        }
+
+        INFO("{{attacker}} has attacked {{victim}} in {{sysName}}, {{pos}}",
+             { "attacker", ClientId(dmgList->inflictorPlayerId) },
+             { "victim", ClientId(targetClient) },
+             { "sysName", ship->cship()->system.GetName().Handle() },
+             { "pos", ship->get_position() },
+             { "victim_cargo", equipEntries },
+             LOG_CAT("first_strike"));
+    }
+
     void KillTrackerPlugin::OnShipHullDmg(Ship* ship, float& damage, DamageList* dmgList)
     {
-        if (!dmgList->inflictorPlayerId)
+        uint targetClient = ship->cship()->ownerPlayer;
+        if (!targetClient || !dmgList->inflictorPlayerId || targetClient == dmgList->inflictorPlayerId || damage <= 0.0f ||
+            (Players[targetClient].playerGroup && Players[targetClient].playerGroup == Players[dmgList->inflictorPlayerId].playerGroup))
         {
             return;
         }
 
-        if (const auto shipOwnerPlayer = ship->cship()->ownerPlayer; shipOwnerPlayer && shipOwnerPlayer != dmgList->inflictorPlayerId && damage > 0.0f)
+        damageArray[targetClient][dmgList->inflictorPlayerId].currDamage += damage;
+
+        if (config.logPlayerWhoShotFirst && dmgList->damageCause != DamageCause::Collision && dmgList->damageCause != DamageCause::CruiseDisrupter)
         {
-            damageArray[shipOwnerPlayer][dmgList->inflictorPlayerId].currDamage += damage;
+            LogFirstStrike(ship, dmgList);
+        }
+    }
+
+    void KillTrackerPlugin::OnShipShieldDmg(Ship* ship, CEShield* shield, float& damage, DamageList* dmgList)
+    {
+        uint targetClient = ship->cship()->ownerPlayer;
+        if (!targetClient || !dmgList->inflictorPlayerId || targetClient == dmgList->inflictorPlayerId || damage <= 0.0f ||
+            (Players[targetClient].playerGroup && Players[targetClient].playerGroup == Players[dmgList->inflictorPlayerId].playerGroup))
+        {
+            return;
+        }
+
+        damageArray[targetClient][dmgList->inflictorPlayerId].currDamage += damage;
+
+        if (config.logPlayerWhoShotFirst && dmgList->damageCause != DamageCause::Collision && dmgList->damageCause != DamageCause::CruiseDisrupter)
+        {
+            LogFirstStrike(ship, dmgList);
         }
     }
 
@@ -304,6 +361,16 @@ namespace Plugins
         {
             ProcessDeath(victim, StringUtils::XmlText(deathMessage), StringUtils::XmlText(assistMessage), system, true, involvedGroups, involvedPlayers);
         }
+
+        if (config.logPlayerDeaths)
+        {
+            INFO("{{killer}} killed {{victim}} in {{sysName}} {{pos}}. {{fullMsg}}",
+                 { "killer", killer },
+                 { "victim", victim },
+                 { "sysName", system },
+                 { "fullMsg", deathMessage });
+        }
+
         ClearDamageTaken(victim);
     }
 
