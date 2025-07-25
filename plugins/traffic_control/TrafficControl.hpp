@@ -15,7 +15,6 @@ inline Permissions operator|(Permissions p1, Permissions p2) { return static_cas
 
 namespace Plugins
 {
-
     class TrafficControlPlugin final : public Plugin, public AbstractUserCommandProcessor, public PacketInterface
     {
             using NetworkId = uint;
@@ -50,6 +49,9 @@ namespace Plugins
                     // TODO: Handle player tags
                     std::unordered_map<std::wstring, std::pair<Permissions, Network*>> tagsAccesses;
                     std::unordered_map<SystemId, std::unordered_set<Network*>> systemToNetworkMap;
+
+                    Id policeFuse;
+                    std::unordered_set<Id> equipmentForPoliceFuse;
             };
 
             struct SettingLoad
@@ -71,6 +73,7 @@ namespace Plugins
             ConfigLoad configLoad;
             Config config;
             std::array<NetworkData, MaxClientId + 1> clientInfo;
+            std::unordered_set<ClientId> activePoliceSirens;
 
             void ActivateNetwork(ClientId client, NetworkId networkId, const Permissions& permissions);
 
@@ -84,19 +87,21 @@ namespace Plugins
                                                          DOCK_HOST_RESPONSE response) override;
             bool OnLoadSettings() override;
 
-            concurrencpp::result<void>UserCmdNetSwitch(ClientId client, std::wstring_view networkName);
-            concurrencpp::result<void>UserCmdNetList(ClientId client);
-            concurrencpp::result<void>UserCmdNet(ClientId client, std::wstring_view setting, bool newState);
-            concurrencpp::result<void>UserCmdNodockInfo(ClientId client);
-            concurrencpp::result<void>UserCmdNodock(ClientId client);
+            concurrencpp::result<void> UserCmdNetSwitch(ClientId client, std::wstring_view networkName);
+            concurrencpp::result<void> UserCmdNetList(ClientId client);
+            concurrencpp::result<void> UserCmdNet(ClientId client, std::wstring_view setting, bool newState);
+            concurrencpp::result<void> UserCmdNodockInfo(ClientId client);
+            concurrencpp::result<void> UserCmdNodock(ClientId client);
+            concurrencpp::result<void> UserCmdPoliceSiren(ClientId client);
 
-            const inline static std::array<CommandInfo<TrafficControlPlugin>, 5> commands = {
+            const inline static std::array<CommandInfo<TrafficControlPlugin>, 6> commands = {
                 {
                  AddCommand(TrafficControlPlugin, Cmds(L"/net switch"), UserCmdNetSwitch, L"/net switch [networkName]", L""),
                  AddCommand(TrafficControlPlugin, Cmds(L"/net list"), UserCmdNetList, L"/net list", L""),
                  AddCommand(TrafficControlPlugin, Cmds(L"/net"), UserCmdNet, L"/net <setting> <on|off>", L""),
                  AddCommand(TrafficControlPlugin, Cmds(L"/nodock info"), UserCmdNodockInfo, L"/nodock info", L""),
                  AddCommand(TrafficControlPlugin, Cmds(L"/nodock"), UserCmdNodock, L"/nodock", L""),
+                 AddCommand(TrafficControlPlugin, Cmds(L"/police"), UserCmdPoliceSiren, L"/police", L"Activate a police siren on your ship"),
                  }
             }; // namespace Plugins
 

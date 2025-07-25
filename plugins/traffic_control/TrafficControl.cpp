@@ -36,6 +36,7 @@
 #include "TrafficControl.hpp"
 
 #include "API/FLHook/InfocardManager.hpp"
+#include "API/FLHook/ResourceManager.hpp"
 
 using namespace Plugins;
 using namespace magic_enum::bitwise_operators;
@@ -61,20 +62,21 @@ void TrafficControlPlugin::ActivateNetwork(const ClientId client, const NetworkI
 
 bool TrafficControlPlugin::OnSystemSwitchOutPacket(const ClientId client, FLPACKET_SYSTEM_SWITCH_OUT& packet)
 {
-    if (const auto activeNetwork = clientInfo[client.GetValue()].activeNetwork; activeNetwork)
+    if (const auto* activeNetwork = clientInfo[client.GetValue()].activeNetwork; activeNetwork)
     {
-        // TODO: Fix once optimizer is embedded into core
-        // TODO: Remove Find
-        auto* jumpObj = reinterpret_cast<CSolar*>(CObject::Find(packet.jumpObjectId, CObject::CSOLAR_OBJECT));
-        jumpObj->Release();
+        const auto solar = FLHook::GetResourceManager()->Get<CSolar>(packet.jumpObjectId);
+        if (solar.expired())
+        {
+            return true;
+        }
 
-        const auto targetSystem = SystemId(jumpObj->jumpDestSystem);
+        const auto targetSystem = SystemId(solar.lock()->jumpDestSystem);
         if (activeNetwork->networkSystems.contains(targetSystem))
         {
             return true;
         }
 
-        client.Message(std::format(L"You have left the are of {} monitoring network", activeNetwork->networkName));
+        client.ToastMessage(L"Leaving Network", std::format(L"You have left the are of {} monitoring network", activeNetwork->networkName));
 
         for (const auto& availableNetworks = clientInfo[client.GetValue()].availableNetworks;
              const auto [permissions, network] : availableNetworks | std::views::values)
@@ -176,6 +178,8 @@ void TrafficControlPlugin::OnClearClientInfo(const ClientId client)
     auto clientData = clientInfo[client.GetValue()];
     clientData.availableNetworks.clear();
     clientData.activeNetwork = nullptr;
+
+    activePoliceSirens.erase(client);
 }
 
 std::optional<DOCK_HOST_RESPONSE> TrafficControlPlugin::OnDockCall(const ShipId& shipId, const ObjectId& spaceId, int dockPortIndex,
@@ -242,7 +246,7 @@ bool TrafficControlPlugin::OnLoadSettings()
     return true;
 }
 
-concurrencpp::result<void>TrafficControlPlugin::UserCmdNetSwitch(ClientId client, std::wstring_view networkName)
+concurrencpp::result<void> TrafficControlPlugin::UserCmdNetSwitch(ClientId client, std::wstring_view networkName)
 {
     auto clientData = clientInfo[client.GetValue()];
     if (clientData.availableNetworks.empty())
@@ -267,7 +271,7 @@ concurrencpp::result<void>TrafficControlPlugin::UserCmdNetSwitch(ClientId client
     co_return;
 }
 
-concurrencpp::result<void>TrafficControlPlugin::UserCmdNetList(ClientId client)
+concurrencpp::result<void> TrafficControlPlugin::UserCmdNetList(ClientId client)
 {
     auto clientData = clientInfo[client.GetValue()];
     if (clientData.availableNetworks.empty())
@@ -291,7 +295,7 @@ concurrencpp::result<void>TrafficControlPlugin::UserCmdNetList(ClientId client)
     co_return;
 }
 
-concurrencpp::result<void>TrafficControlPlugin::UserCmdNet(ClientId client, const std::wstring_view setting, const bool newState)
+concurrencpp::result<void> TrafficControlPlugin::UserCmdNet(ClientId client, const std::wstring_view setting, const bool newState)
 {
     auto clientData = clientInfo[client.GetValue()];
     if (!clientData.activeNetwork)
@@ -342,7 +346,7 @@ concurrencpp::result<void>TrafficControlPlugin::UserCmdNet(ClientId client, cons
     co_return;
 }
 
-concurrencpp::result<void>TrafficControlPlugin::UserCmdNodockInfo(ClientId client)
+concurrencpp::result<void> TrafficControlPlugin::UserCmdNodockInfo(ClientId client)
 {
     const auto network = clientInfo[client.GetValue()].activeNetwork;
     if (!network)
@@ -366,7 +370,7 @@ concurrencpp::result<void>TrafficControlPlugin::UserCmdNodockInfo(ClientId clien
     co_return;
 }
 
-concurrencpp::result<void>TrafficControlPlugin::UserCmdNodock(ClientId client)
+concurrencpp::result<void> TrafficControlPlugin::UserCmdNodock(ClientId client)
 {
     const auto data = clientInfo[client.GetValue()];
 
@@ -398,6 +402,42 @@ concurrencpp::result<void>TrafficControlPlugin::UserCmdNodock(ClientId client)
     co_return;
 }
 
+concurrencpp::result<void> TrafficControlPlugin::UserCmdPoliceSiren(ClientId client)
+{
+    if (!config.policeFuse)
+    {
+        client.MessageErr(L"Traffic Control plugin not fully setup. Cannot activate siren.");
+        co_return;
+    }
+
+    const auto ship = client.GetShip().Handle();
+    if (activePoliceSirens.contains(client))
+    {
+        ship.ExtinguishFuse(config.policeFuse);
+        activePoliceSirens.erase(client);
+        client.ToastMessage(L"Siren Off", L"Police system successfully deactivated");
+        co_return;
+    }
+
+    auto* shipEqManager = ship.GetEquipmentManager().Handle();
+    CEquipTraverser tr;
+    CEquip* equip;
+    while ((equip = shipEqManager->Traverse(tr)))
+    {
+        if (!config.equipmentForPoliceFuse.contains(equip->EquipArch()->archId))
+        {
+            continue;
+        }
+
+        activePoliceSirens.insert(client);
+        ship.IgniteFuse(config.policeFuse);
+        client.ToastMessage(L"Siren On", L"Police system successfully activated");
+        break;
+    }
+
+    co_return;
+}
+
 TrafficControlPlugin::TrafficControlPlugin(const PluginInfo& info) : Plugin(info) {}
 TrafficControlPlugin::~TrafficControlPlugin() = default;
 
@@ -407,8 +447,8 @@ DefaultDllMain();
 constexpr auto getPi = []
 {
 	return PluginInfo{
-	    .name = L"TrafficControl",
-	    .shortName = L"trafficcontrol",
+	    .name = L"Traffic Control",
+	    .shortName = L"traffic_control",
 	    .versionMajor = PluginMajorVersion::V05,
 	    .versionMinor = PluginMinorVersion::V00
 	};
