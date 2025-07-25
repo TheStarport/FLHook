@@ -28,7 +28,7 @@ namespace Plugins
 
     std::vector<EquipDesc> ArenaPlugin::GetCommodities(const ClientId client)
     {
-        std::vector<EquipDesc> commodityList; 
+        std::vector<EquipDesc> commodityList;
         for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : cargo->equip)
         {
             bool flag = false;
@@ -94,7 +94,7 @@ namespace Plugins
             players.append(B_MDOC(
                 B_KVP("clientId", static_cast<int>(client.id.GetValue())),
                 B_KVP("playerName", StringUtils::wstos(client.characterName)),
-                B_KVP("shipNick", ship->name), // TODO: Replace name which is a CMP with the actual nickname
+                B_KVP("shipNick", InternalApi::HashLookup(ship->archId.GetValue())),
                 B_KVP("shipName", StringUtils::wstos(FLHook::GetInfocardManager()->GetInfoName(ship->idsName)))
             ));
 
@@ -184,7 +184,7 @@ namespace Plugins
             commodityArray.append(FLCargo(entry).ToBson());
         }
 
-        document.append(B_KVP("arena", B_MDOC(B_KVP("returnBase", value),B_KVP("cachedEquipment", commodityArray))));
+        document.append(B_KVP("arena", B_MDOC(B_KVP("returnBase", value), B_KVP("cachedEquipment", commodityArray))));
     }
 
     concurrencpp::result<void> ArenaPlugin::UserCmdArena(const ClientId client)

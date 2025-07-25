@@ -180,7 +180,7 @@ namespace Json
             return { LoadState::UnableToRead, std::nullopt };
         }
 
-        auto result = rfl::json::read<T>(stream);
+        auto result = rfl::json::read<T, rfl::DefaultIfMissing>(stream);
         if (!result)
         {
             ERROR("Error while trying to serialize {{path}} {{error}}", { "path", path }, { "error", result.error().what() });

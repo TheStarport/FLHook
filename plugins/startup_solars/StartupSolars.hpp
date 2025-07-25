@@ -44,21 +44,21 @@ namespace Plugins
 
             struct Group
             {
-                    RepGroupId repGroup;
-                    std::vector<rfl::Ref<Location>> locations;
-                    std::optional<float> spawnChance;
-                    std::optional<int> respawnTime;
-                    std::optional<int> hullRegenTime;
-                    std::optional<float> hullRegen;
-                    std::vector<int> spawnCount;
-                    rfl::Rename<"formations", std::unordered_map<std::string, uint>> possibleFormationsRaw;
-                    rfl::Skip<std::vector<uint>> possibleFormationWeights;
-                    rfl::Skip<std::vector<Formation>> possibleFormations;
+                    RepGroupId repGroup{};
+                    std::vector<rfl::Ref<Location>> locations{};
+                    std::optional<float> spawnChance{};
+                    std::optional<int> respawnTime{};
+                    std::optional<int> hullRegenTime{};
+                    std::optional<float> hullRegen{};
+                    std::vector<int> spawnCount{};
+                    rfl::Rename<"formations", std::unordered_map<std::string, uint>> possibleFormationsRaw{};
+                    rfl::Skip<std::vector<uint>> possibleFormationWeights{};
+                    rfl::Skip<std::vector<Formation>> possibleFormations{};
 
                     rfl::Skip<int64> timeSinceLastHeal = 0;
-                    rfl::Skip<std::vector<int64>> timeWhenLastSpawned;
-                    rfl::Skip<std::vector<Formation>> spawnedFormations;
-                    rfl::Skip<std::vector<int>> spawnedLocations;
+                    rfl::Skip<std::vector<int64>> timeWhenLastSpawned{};
+                    rfl::Skip<std::vector<Formation>> spawnedFormations{};
+                    rfl::Skip<std::vector<int>> spawnedLocations{};
             };
 
             struct Config
