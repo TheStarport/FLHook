@@ -20,7 +20,7 @@ void __stdcall IServerImplHook::ReqSetCash(int cash, ClientId client)
 
 void __stdcall IServerImplHook::ReqChangeCash(int cashAdd, ClientId client)
 {
-    TRACE("{{cashAdd}} {{client}}", { "cash added", cashAdd }, { "client", client });
+    TRACE("{{cashAdd}} {{client}}", { "cashAdd", cashAdd }, { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestChangeCash, client, cashAdd); !skip)
     {
