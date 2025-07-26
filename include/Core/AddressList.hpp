@@ -96,4 +96,5 @@ enum class AddressList : uint
     CommonGetAmmoCapacityHash1 = 0x535E7,
     CommonGetAmmoCapacityHash2 = 0x535F8,
     CommonHullRepairFactor = 0x4A28,
+    CommonCShipGetAmmoCapacity = 0x53220,
 };

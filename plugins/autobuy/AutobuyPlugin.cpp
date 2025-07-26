@@ -31,6 +31,48 @@ namespace Plugins
 
     void AutobuyPlugin::OnClearClientInfo(const ClientId client) { autobuyInfo[client.GetValue()] = {}; }
 
+    int AutobuyPlugin::OnGetAmmoCapacity(CShip* cship, Id ammoArch)
+    {
+        ClientId clientId = ClientId(cship->ownerPlayer);
+        uint launcherCount = 1;
+        uint ammoPerLauncher = MAX_PLAYER_AMMO;
+        uint currCount = 0;
+
+        CEquipTraverser tr((uint)EquipmentClass::Cargo);
+        CECargo* cargo;
+        while (cargo = reinterpret_cast<CECargo*>(cship->equipManager.Traverse(tr)))
+        {
+            if (cargo->archetype->archId == ammoArch)
+            {
+                currCount = cargo->count;
+                break;
+            }
+        }
+
+        auto ammoLimits = playerAmmoLimits.find(clientId);
+        if (ammoLimits != playerAmmoLimits.end())
+        {
+            auto currAmmoLimit = ammoLimits->second.find(ammoArch);
+            if (currAmmoLimit != ammoLimits->second.end())
+            {
+                launcherCount = std::max(1, currAmmoLimit->second.launcherCount);
+            }
+        }
+
+        auto ammoIter = ammoLimits->second.find(ammoArch);
+        if (ammoIter != ammoLimits->second.end())
+        {
+            ammoPerLauncher = ammoIter->second.ammoLimit;
+        }
+
+        int remainingCapacity = (ammoPerLauncher * launcherCount) - currCount;
+
+        remainingCapacity = std::max(remainingCapacity, 0);
+
+        returnCode = ReturnCode::SkipAll;
+        return remainingCapacity;
+    }
+
     int PlayerGetAmmoCount(const EquipDescList* cargoList, Id itemArchId)
     {
         for (auto& cargo : cargoList->equip)
@@ -511,51 +553,6 @@ namespace Plugins
         co_return;
     }
 
-    int __fastcall AutobuyPlugin::GetAmmoCapacityDetourHash(CShip* cship, void* edx, Id ammoArch)
-    {
-        ClientId clientId = ClientId(cship->ownerPlayer);
-        uint launcherCount = 1;
-        uint ammoPerLauncher = MAX_PLAYER_AMMO;
-        uint currCount = 0;
-
-        CEquipTraverser tr((uint)EquipmentClass::Cargo);
-        CECargo* cargo;
-        while (cargo = reinterpret_cast<CECargo*>(cship->equipManager.Traverse(tr)))
-        {
-            if (cargo->archetype->archId == ammoArch)
-            {
-                currCount = cargo->count;
-                break;
-            }
-        }
-
-        auto ammoLimits = playerAmmoLimits.find(clientId);
-        if (ammoLimits != playerAmmoLimits.end())
-        {
-            auto currAmmoLimit = ammoLimits->second.find(ammoArch);
-            if (currAmmoLimit != ammoLimits->second.end())
-            {
-                launcherCount = std::max(1, currAmmoLimit->second.launcherCount);
-            }
-        }
-
-        auto ammoIter = ammoLimits->second.find(ammoArch);
-        if (ammoIter != ammoLimits->second.end())
-        {
-            ammoPerLauncher = ammoIter->second.ammoLimit;
-        }
-
-        int remainingCapacity = (ammoPerLauncher * launcherCount) - currCount;
-
-        remainingCapacity = std::max(remainingCapacity, 0);
-        return remainingCapacity;
-    }
-
-    int __fastcall AutobuyPlugin::GetAmmoCapacityDetourEq(CShip* cship, void* edx, Archetype::Equipment* ammoType)
-    {
-        return GetAmmoCapacityDetourHash(cship, edx, ammoType->archId);
-    }
-
     bool AutobuyPlugin::OnLoadSettings()
     {
         LoadJsonWithValidation(Config, config, "config/autobuy.json");
@@ -620,9 +617,6 @@ namespace Plugins
         }
 
         DWORD commonAddr = FLHook::Offset(FLHook::BinaryType::Common, AddressList::Absolute);
-        MemUtils::PatchCallAddr(commonAddr, (DWORD)AddressList::CommonGetAmmoCapacityEq, GetAmmoCapacityDetourEq);
-        MemUtils::PatchCallAddr(commonAddr, (DWORD)AddressList::CommonGetAmmoCapacityHash1, GetAmmoCapacityDetourHash);
-        MemUtils::PatchCallAddr(commonAddr, (DWORD)AddressList::CommonGetAmmoCapacityHash2, GetAmmoCapacityDetourHash);
         // pull the repair factors directly from where the game uses it
         hullRepairFactor = *(PFLOAT(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonHullRepairFactor)));
         equipmentRepairFactor = *(PFLOAT(FLHook::Offset(FLHook::BinaryType::Server, AddressList::ServerEquipRepairFactor)));

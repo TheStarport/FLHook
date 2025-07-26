@@ -114,6 +114,8 @@ namespace Plugins
              * @brief Hook on ClearClientInfo. Resets the player data.
              */
             void OnClearClientInfo(ClientId client) override;
+            int OnGetAmmoCapacity(CShip* cship, Id ammoArch) override;
+
             void CheckforStackables(ClientId client);
             void LoadPlayerAutobuy(ClientId client);
             std::unordered_map<Id, PlayerAmmoData> GetAmmoLimits(ClientId client);

@@ -188,6 +188,24 @@ void __fastcall IEngineHook::CGuidedInit(CGuided* guided, void* edx, CGuided::Cr
     CallPlugins(&Plugin::OnCGuidedInitAfter, guided);
 }
 
+int __fastcall IEngineHook::GetAmmoCapacityDetourHash(CShip* cship, void* edx, Id ammoArch)
+{
+    using CShipGetAmmoCapacityType = int(__thiscall*)(CShip*, Id);
+    int origCallVal =
+        reinterpret_cast<CShipGetAmmoCapacityType>(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonCShipGetAmmoCapacity))(cship, ammoArch);
+
+    if (auto [retVal, skip] = CallPlugins<int>(&Plugin::OnGetAmmoCapacity, cship, ammoArch); skip)
+    {
+        return retVal;
+    }
+    return origCallVal;
+}
+
+int __fastcall IEngineHook::GetAmmoCapacityDetourEq(CShip* cship, void* edx, Archetype::Equipment* ammoType)
+{
+    return GetAmmoCapacityDetourHash(cship, edx, ammoType->archId);
+}
+
 FireResult __fastcall IEngineHook::CELauncherFireAfter(CELauncher* launcher, void* edx, const Vector& pos)
 {
     using CELauncherFireType = FireResult(__thiscall*)(CELauncher*, const Vector&);

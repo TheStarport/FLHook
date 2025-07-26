@@ -136,7 +136,9 @@ struct DLL FLHookConfig final
                 float spinImpulseMultiplier = -1.0f;
 
                 //! Change the radiation damage calculation to stop dilluting it among all sub-parts
-                bool enableAlternateRadiationDamage;
+                bool enableAlternateRadiationDamage = false;
+
+                float alternateRadiationDamageFrequency = 0.2f;
         };
 
         struct Logging final

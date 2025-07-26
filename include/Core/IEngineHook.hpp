@@ -140,6 +140,9 @@ class IEngineHook
 
         static void __fastcall ShipFuse(Ship* ship, void* edx, uint fuseCause, uint& fuseId, ushort sId, float radius, float lifetime);
 
+        static int __fastcall GetAmmoCapacityDetourHash(CShip* cship, void* edx, Id ammoArch);
+        static int __fastcall GetAmmoCapacityDetourEq(CShip* cship, void* edx, Archetype::Equipment* ammoType);
+
         static FireResult __fastcall CELauncherFireAfter(CELauncher* launcher, void* edx, const Vector& pos);
 
         struct CallAndRet final : Xbyak::CodeGenerator
