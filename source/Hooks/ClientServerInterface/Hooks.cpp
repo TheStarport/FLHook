@@ -135,6 +135,8 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
     {
         FLHook::instance->httpServer->RegisterRoutes();
     }
+
+    INFO("Plugins and HTTP server ready");
 }
 
 int __stdcall IServerImplHook::Update()
@@ -190,8 +192,6 @@ bool __stdcall IServerImplHook::Startup(SStartupInfo& si)
         CallServerPostamble(true, bool());
     }
     StartupInnerAfter(si);
-
-    INFO("FLHook Ready");
 
     return retVal;
 }
