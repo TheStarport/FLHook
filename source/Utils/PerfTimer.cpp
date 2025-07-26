@@ -14,13 +14,13 @@ int64 PerfTimer::Stop()
     {
         if (timeDelta > max && timeDelta > warning)
         {
-            INFO("Spent {{timeDelta}} μs in {{function}}, longest so far. ", { "timeDelta", timeDelta }, { "function", function });
+            DEBUG("Spent {{timeDelta}} μs in {{function}}, longest so far. ", { "timeDelta", timeDelta }, { "function", function });
 
             max = timeDelta;
         }
         else if (timeDelta > 100)
         {
-            INFO("Spent {{timeDelta}} μs in {{function}}", { "timeDelta", timeDelta }, { "function", function });
+            DEBUG("Spent {{timeDelta}} μs in {{function}}", { "timeDelta", timeDelta }, { "function", function });
         }
     }
     return timeDelta;
