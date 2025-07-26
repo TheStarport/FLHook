@@ -328,12 +328,17 @@ concurrencpp::result<void> UserCommandProcessor::SetSavedMsg(const ClientId clie
     }
 
     auto c = client.GetData().characterData;
+    auto orig = c->presetMsgs.at(index);
     c->presetMsgs.at(index) = StringUtils::wstos(msg.end);
-    AccountManager::SaveSavedMsgs(
-        std::wstring(client.GetCharacterName().Handle()),
-        c->presetMsgs
-    );
-    client.Message(L"Ok");
+    if (AccountManager::SaveSavedMsgs(std::wstring(client.GetCharacterName().Handle()), c->presetMsgs))
+    {
+        client.Message(L"Ok");
+    }
+    else
+    {
+        c->presetMsgs.at(index) = orig;
+        client.MessageErr(L"Error saving to database - change rolled back");
+    }
 
     co_return;
 }
