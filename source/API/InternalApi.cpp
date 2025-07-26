@@ -143,9 +143,9 @@ std::string InternalApi::HashLookup(const uint hash)
     return findResult == nicknameMap.end() ? "" : findResult->second;
 }
 
-bool InternalApi::IsCommodity(uint hash)
+bool InternalApi::IsCommodity(Id hash)
 {
-    auto gi = GoodList_get()->find_by_id(hash);
+    auto gi = GoodList_get()->find_by_id(hash.GetValue());
     if (gi && gi->type == GoodType::Commodity)
     {
         return true;

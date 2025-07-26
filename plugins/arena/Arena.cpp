@@ -13,9 +13,10 @@ namespace Plugins
     /// Clear client info when a client connects.
     void ArenaPlugin::OnClearClientInfo(const ClientId client)
     {
-        auto& [flag, returnBase] = clientData[client.GetValue()];
+        auto& [flag, returnBase, cargo] = clientData[client];
         flag = TransferFlag::None;
         returnBase = BaseId(0);
+        cargo.clear();
     }
 
     /// Load the configuration
@@ -26,38 +27,61 @@ namespace Plugins
         return true;
     }
 
-    std::vector<EquipDesc> ArenaPlugin::GetCommodities(const ClientId client)
+    void ArenaPlugin::RestoreCargo(const ClientId client)
     {
-        std::vector<EquipDesc> commodityList;
+        std::vector<EquipDesc> itemsToSell;
+        uint creditsToReimburse = 0;
         for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : cargo->equip)
         {
-            bool flag = false;
-            pub::IsCommodity(item.archId.GetValue(), flag);
-
-            if (flag)
+            // Some commodity present.
+            if (item.mounted || !InternalApi::IsCommodity(item.archId))
             {
-                commodityList.push_back(item);
+                continue;
             }
+            auto good = GoodId(Arch2Good(item.archId.GetValue()));
+            creditsToReimburse += static_cast<uint>(good.GetPrice().Unwrap());
         }
 
-        return commodityList;
+        client.AddCash(creditsToReimburse);
+        auto& cd = clientData[client];
+        for (const auto& cargo : cd.storedCargo)
+        {
+            client.AddCargo(Id(cargo.archId), cargo.amount);
+        }
+
+        if (!cd.storedCargo.empty())
+        {
+            client.Message(std::format(L"Restoring {} items", cd.storedCargo.size()));
+        }
+
+        cd.storedCargo.clear();
     }
 
-    bool ArenaPlugin::ValidateCargo(const ClientId client)
+    void ArenaPlugin::StoreCargo(const ClientId client)
     {
+        auto& cd = clientData[client];
+        cd.storedCargo.clear();
+        std::vector<EquipDesc> itemsToClear;
         for (const auto cargo = client.GetEquipCargo().Handle(); const auto& item : cargo->equip)
         {
-            bool flag = false;
-            pub::IsCommodity(item.archId.GetValue(), flag);
-
-            // Some commodity present.
-            if (flag)
+            if (item.mounted || !InternalApi::IsCommodity(item.archId))
             {
-                return false;
+                continue;
             }
+            cd.storedCargo.push_back(item);
+            itemsToClear.push_back(item);
         }
 
-        return true;
+        for (auto& item : itemsToClear)
+        {
+            client.RemoveCargo(item.id, item.count);
+        }
+
+        client.Message(std::format(L"Beaming you to the arena system"));
+        if (!itemsToClear.empty())
+        {
+            client.Message(std::format(L"{} commodity/ammo items were stored and will be returned upon returning from the arena system", itemsToClear.size()));
+        }
     }
 
     void ArenaPlugin::OnHttpServerRegister(const std::shared_ptr<httplib::Server> httpServer)
@@ -107,81 +131,68 @@ namespace Plugins
         return httplib::StatusCode::OK_200;
     }
 
-    BaseId ArenaPlugin::ReadReturnPointForClient(const ClientId client)
-    {
-        const auto view = client.GetData().characterData->characterDocument;
-        if (auto returnBase = view.find("arenaReturnBase"); returnBase != view.end())
-        {
-            return BaseId{ static_cast<uint>(returnBase->get_int32()) };
-        }
-
-        return {};
-    }
-
     void ArenaPlugin::OnCharacterSelectAfter(const ClientId client)
     {
-        auto& [flag, returnBase] = clientData[client.GetValue()];
+        auto& [flag, returnBase, cargo] = clientData[client];
 
         flag = TransferFlag::None;
 
         const auto view = client.GetData().characterData->characterDocument;
         if (auto findResult = view.find("arenaReturnBase"); findResult != view.end())
         {
-            returnBase = BaseId(findResult->get_int32());
-        }
-        else
-        {
-            returnBase = BaseId(0);
+            auto doc = findResult->get_document().view();
+            returnBase = BaseId(doc.find("returnBase")->get_int32());
+            for (auto& item : doc.find("cachedEquipment")->get_array().value)
+            {
+                auto itemDoc = item.get_document().view();
+                cargo.push_back({ itemDoc.find("archId")->get_int32().value,
+                                  static_cast<ushort>(itemDoc.find("amount")->get_int32().value),
+                                  static_cast<float>(itemDoc.find("health")->get_double().value),
+                                  itemDoc.find("isMissionCargo")->get_bool().value });
+            }
         }
     }
 
     void ArenaPlugin::OnPlayerLaunchAfter(const ClientId client, const ShipId& ship)
     {
-        const auto state = clientData[client.GetValue()].flag;
+        const auto state = clientData[client].flag;
         if (state == TransferFlag::Transfer)
         {
-            if (!ValidateCargo(client))
-            {
-                (void)client.Message(cargoErrorText);
-                return;
-            }
+            StoreCargo(client);
 
-            clientData[client.GetValue()].flag = TransferFlag::None;
-            (void)client.Beam(config.targetBase);
+            clientData[client].flag = TransferFlag::None;
+            client.Beam(config.targetBase);
             return;
         }
 
         if (state == TransferFlag::Return)
         {
-            if (!ValidateCargo(client))
-            {
-                (void)client.Message(cargoErrorText);
-                return;
-            }
+            clientData[client].flag = TransferFlag::None;
 
-            clientData[client.GetValue()].flag = TransferFlag::None;
-            const BaseId returnPoint = ReadReturnPointForClient(client);
-
-            if (!returnPoint)
+            if (!clientData[client].returnBase)
             {
                 return;
             }
 
-            (void)client.Beam(returnPoint);
+            RestoreCargo(client);
+
+            client.Beam(clientData[client].returnBase);
         }
     }
 
     void ArenaPlugin::OnCharacterSave(const ClientId client, std::wstring_view charName, B_DOC& document)
     {
-        int value = 0;
-        if (const auto data = clientData.find(client.GetValue()); data != clientData.end())
+        const auto data = clientData.find(client);
+        if (data == clientData.end())
         {
-            value = static_cast<int>(data->second.returnBase.GetValue());
+            return;
         }
+        
+        int value = static_cast<int>(data->second.returnBase.GetValue());
         B_ARR commodityArray;
-        for (auto& entry : GetCommodities(client))
+        for (auto& entry : data->second.storedCargo)
         {
-            commodityArray.append(FLCargo(entry).ToBson());
+            commodityArray.append(entry.ToBson());
         }
 
         document.append(B_KVP("arena", B_MDOC(B_KVP("returnBase", value), B_KVP("cachedEquipment", commodityArray))));
@@ -193,25 +204,19 @@ namespace Plugins
         if (const SystemId system = client.GetSystemId().Unwrap();
             std::ranges::find(config.restrictedSystems, system) != config.restrictedSystems.end() || system == config.targetSystem)
         {
-            (void)client.MessageErr(L"Cannot use command in this system or base");
+            client.MessageErr(L"Cannot use command in this system or base");
             co_return;
         }
 
         const BaseId currBase = client.GetCurrentBase().Unwrap();
         if (!currBase)
         {
-            (void)client.Message(dockErrorText);
+            client.Message(dockErrorText);
             co_return;
         }
 
-        if (!ValidateCargo(client))
-        {
-            (void)client.Message(cargoErrorText);
-            co_return;
-        }
-
-        (void)client.Message(L"Redirecting undock to Arena.");
-        auto& [flag, returnBase] = clientData[client.GetValue()];
+        client.Message(L"Redirecting undock to Arena.");
+        auto& [flag, returnBase, _] = clientData[client];
         flag = TransferFlag::Transfer;
         returnBase = currBase;
 
@@ -220,32 +225,26 @@ namespace Plugins
 
     concurrencpp::result<void> ArenaPlugin::UserCmdReturn(const ClientId client)
     {
-        if (!ReadReturnPointForClient(client))
+        if (!clientData[client].returnBase)
         {
-            (void)client.Message(L"No return possible");
+            client.Message(L"No return possible");
             co_return;
         }
 
         if (!client.IsDocked())
         {
-            (void)client.Message(dockErrorText);
+            client.Message(dockErrorText);
             co_return;
         }
 
         if (client.GetCurrentBase().Unwrap() != config.targetBase)
         {
-            (void)client.Message(L"Not in correct base");
+            client.Message(L"Not in correct base");
             co_return;
         }
 
-        if (!ValidateCargo(client))
-        {
-            (void)client.Message(cargoErrorText);
-            co_return;
-        }
-
-        (void)client.Message(L"Redirecting undock to previous base");
-        clientData[client.GetValue()].flag = TransferFlag::Return;
+        client.Message(L"Redirecting undock to previous base");
+        clientData[client].flag = TransferFlag::Return;
 
         co_return;
     }

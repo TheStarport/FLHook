@@ -10,6 +10,13 @@
 DLL struct FLCargo
 {
         FLCargo() = default;
+        FLCargo(int i, ushort u, float f, bool b)
+        {
+            archId = i;
+            amount = u;
+            health = f;
+            isMissionCargo = b;
+        };
         FLCargo(const EquipDesc& desc)
         {
             archId = desc.archId.GetValue();

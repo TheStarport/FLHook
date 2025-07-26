@@ -56,9 +56,10 @@ namespace Plugins
             {
                     TransferFlag flag;
                     BaseId returnBase;
+                    std::vector<FLCargo> storedCargo;
             };
 
-            std::unordered_map<uint, ArenaClientData> clientData;
+            std::unordered_map<ClientId, ArenaClientData> clientData;
 
             /**
              * @brief Used to switch to the arena system
@@ -84,7 +85,8 @@ namespace Plugins
             void OnClearClientInfo(ClientId client) override;
             bool OnLoadSettings() override;
 
-            std::vector<EquipDesc> GetCommodities(const ClientId client);
+            void RestoreCargo(const ClientId client);
+            void StoreCargo(const ClientId client);
 
             /**
              * @brief Hook on CharacterSelect. Sets their transfer flag to "None".
@@ -105,13 +107,7 @@ namespace Plugins
             /**
              * @brief This returns the return base id that is stored in the client's save file.
              */
-            static BaseId ReadReturnPointForClient(ClientId client);
-
-            /**
-             * @brief Returns true if the client doesn't hold any commodities, returns false otherwise. This is to prevent people using the arena system as a
-             * trade shortcut.
-             */
-            static bool ValidateCargo(ClientId client);
+            static BaseId ReadArenaDataForClient(ClientId client);
 
             /**
              * @brief Hook on HttpServerRegister. If enabled, registers the following routes:

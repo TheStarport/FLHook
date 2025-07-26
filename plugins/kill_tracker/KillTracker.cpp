@@ -64,7 +64,7 @@ namespace Plugins
         bool firstEntry = true;
         for (auto& equip : ClientId(targetClient).GetEquipCargo().Handle()->equip)
         {
-            if (equip.mounted || InternalApi::IsCommodity(equip.archId.GetValue()))
+            if (equip.mounted || !InternalApi::IsCommodity(equip.archId))
             {
                 continue;
             }

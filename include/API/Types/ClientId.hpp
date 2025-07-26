@@ -427,7 +427,7 @@ class DLL ClientId
 
         Action<void> AddEquip(Id goodId, const std::wstring& hardpoint) const;
 
-        Action<void> AddCargo(Id goodId, uint count, bool isMission) const;
+        Action<void> AddCargo(Id goodId, uint count, bool isMission = false) const;
 
         Action<void> RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const;
 

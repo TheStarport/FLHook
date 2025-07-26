@@ -49,5 +49,5 @@ class DLL InternalApi
         static void ToggleNpcSpawns(bool on);
         static bool NpcsEnabled();
         static std::string HashLookup(uint hash);
-        static bool IsCommodity(uint hash);
+        static bool IsCommodity(Id hash);
 };
