@@ -30,6 +30,9 @@
 #include "API/FLHook/ResourceManager.hpp"
 #include "Core/CrashCatcher.hpp"
 
+#include <cpptrace/basic.hpp>
+#include "API/Utils/PerfTimer.hpp"
+
 // ReSharper disable CppClangTidyClangDiagnosticCastFunctionTypeStrict
 const st6_malloc_t st6_malloc = reinterpret_cast<const st6_malloc_t>(GetProcAddress(GetModuleHandleA("msvcrt.dll"), "malloc"));
 const st6_free_t st6_free = reinterpret_cast<const st6_free_t>(GetProcAddress(GetModuleHandleA("msvcrt.dll"), "free"));
@@ -143,6 +146,14 @@ FLHook::FLHook()
     Timer::Add(std::bind_front(&TaskScheduler::ProcessTasks, taskScheduler), 1);
 
     PatchClientImpl();
+
+    // cpptrace::generate_trace call so the first GameException is not slow as shit
+    DEBUG("cpptrace::generate_trace warming up");
+    PerfTimer testTimer = PerfTimer(FUNCTION_W, 2000000);
+    testTimer.Start();
+    cpptrace::generate_trace();
+    testTimer.Stop();
+    DEBUG("cpptrace::generate_trace warm up complete");
 }
 
 void FLHook::SetupEventLoop()
