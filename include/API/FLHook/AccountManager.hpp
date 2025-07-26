@@ -151,6 +151,9 @@ class AccountManager
         PlayerDbLoadUserDataAssembly loadUserDataAssembly;
 
     public:
+        static concurrencpp::result<bool> UpdateCharacter(std::wstring charName, bsoncxx::v_noabi::document::value charUpdateDoc,
+                                                          std::string logDescription);
+
         AccountManager();
         AccountManager(const AccountManager&) = delete;
         AccountManager& operator=(const AccountManager&) = delete;

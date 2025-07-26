@@ -10,9 +10,6 @@
 
 bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, const bool isNewCharacter)
 {
-    
-    
-
     const auto db = FLHook::GetDbClient();
     auto session = db->start_session();
     session.start_transaction();
@@ -124,9 +121,6 @@ concurrencpp::result<void> AccountManager::DeleteCharacter(const ClientId client
         auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
         auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
 
-        
-        
-
         mongocxx::options::find_one_and_delete deleteOptions;
         deleteOptions.projection(B_MDOC(B_KVP("accountId", 1)));
 
@@ -179,9 +173,6 @@ concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId c
         auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
 
         std::string accId = StringUtils::wstos(wideAccountId);
-
-        
-        
 
         const auto findDoc = B_MDOC(B_KVP("_id", accId));
         const auto accountBson = accountsCollection.find_one(findDoc.view());
@@ -258,8 +249,6 @@ concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId c
 concurrencpp::result<std::wstring> AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newName)
 {
     THREAD_BACKGROUND;
-    
-    
 
     std::wstring err;
     const auto db = FLHook::GetDbClient();
@@ -292,58 +281,9 @@ concurrencpp::result<std::wstring> AccountManager::CheckCharnameTaken(ClientId c
     co_return err;
 }
 
-concurrencpp::result<void> AccountManager::Rename(std::wstring currName, std::wstring newName)
+concurrencpp::result<bool> AccountManager::UpdateCharacter(std::wstring charName, bsoncxx::v_noabi::document::value charUpdateDoc, std::string logDescription)
 {
     THREAD_BACKGROUND;
-
-    const auto db = FLHook::GetDbClient();
-    auto session = db->start_session();
-    session.start_transaction();
-
-    try
-    {
-        const auto config = FLHook::GetConfig();
-        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(currName)));
-
-        if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
-        {
-            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Character doesn't exist when renaming!");
-        }
-
-        const auto charUpdateDoc = B_MDOC(
-            B_KVP("$set",
-                B_MDOC(B_KVP("characterName", StringUtils::wstos(newName)),
-                              B_KVP("lastRenameTimestamp",
-                                  bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }))));
-        if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
-            !updateResult.has_value() || updateResult.value().modified_count() == 0)
-        {
-            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Updating character during rename failed.");
-        }
-
-        session.commit_transaction();
-    }
-    catch (bsoncxx::exception& ex)
-    {
-        ERROR("BSON error renaming {{currentName}} {{ex}}", { "currentName", currName }, { "ex", ex.what() });
-        session.abort_transaction();
-    }
-    catch (mongocxx::exception& ex)
-    {
-        ERROR("BSON error renaming {{currentName}} {{ex}}", { "currentName", currName }, { "ex", ex.what() });
-        session.abort_transaction();
-    }
-
-    THREAD_MAIN;
-}
-
-concurrencpp::result<bool> AccountManager::ClearCharacterTransferCode(std::wstring charName)
-{
-    THREAD_BACKGROUND;
-
-    
-    
 
     const auto db = FLHook::GetDbClient();
     auto session = db->start_session();
@@ -358,16 +298,20 @@ concurrencpp::result<bool> AccountManager::ClearCharacterTransferCode(std::wstri
 
         if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
         {
-            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
-                                            "Character doesn't exist when clearing character transfer code!");
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), std::format("Character doesn't exist when {}:", logDescription));
         }
 
-        const auto charUpdateDoc = B_MDOC(B_KVP("$unset", B_MDOC(B_KVP("characterTransferCode", ""))));
-        if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
-            !updateResult.has_value() || updateResult.value().modified_count() == 0)
+        const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());   
+        if (!updateResult.has_value())
+        {
+            throw mongocxx::write_exception(
+                make_error_code(mongocxx::error_code::k_server_response_malformed), std::format("Updating character during {} failed due to lack of update result value:", logDescription));
+        }
+
+        if (updateResult.value().modified_count() == 0)
         {
             throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
-                                            "Updating character during clearing character transfer code failed.");
+                                            std::format("Updating character during {} failed due to no rows being modified:", logDescription));
         }
 
         session.commit_transaction();
@@ -375,130 +319,59 @@ concurrencpp::result<bool> AccountManager::ClearCharacterTransferCode(std::wstri
     }
     catch (bsoncxx::exception& ex)
     {
-
-        ERROR("BSON Error clearing character transfer code {{characterName}} {{ex}}", { "characterName", charName }, { "ex", ex.what() });
-
+        ERROR("BSON error during {{logDescription}}: {{charName}} {{ex}}",
+              { "charName", charName },
+              { "ex", ex.what() },
+              { "logDescription", logDescription });
         session.abort_transaction();
-        result = false;
     }
     catch (mongocxx::exception& ex)
     {
-        ERROR("BSON Error clearing character transfer code {{characterName}} {{ex}}", { "characterName", charName }, { "ex", ex.what() });
+        ERROR("MongoDB error during {{logDescription}}: {{charName}} {{ex}}",
+              { "charName", charName },
+              { "ex", ex.what() },
+              { "logDescription", logDescription });
         session.abort_transaction();
-        result = false;
     }
 
     THREAD_MAIN;
     co_return result;
+}
+
+concurrencpp::result<void> AccountManager::Rename(std::wstring currName, std::wstring newName)
+{
+    const auto charUpdateDoc = B_MDOC(
+        B_KVP("$set",
+            B_MDOC(B_KVP("characterName", StringUtils::wstos(newName)),
+                   B_KVP("lastRenameTimestamp",
+                         bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }))));
+    AccountManager::UpdateCharacter(currName, charUpdateDoc, "renaming character");
+    co_return;
+}
+
+concurrencpp::result<bool> AccountManager::ClearCharacterTransferCode(std::wstring charName)
+{
+    const auto charUpdateDoc = B_MDOC(B_KVP("$unset", B_MDOC(B_KVP("characterTransferCode", ""))));
+    co_return AccountManager::UpdateCharacter(charName, charUpdateDoc, "clearing character transfer code");
 }
 
 concurrencpp::result<bool> AccountManager::SetCharacterTransferCode(std::wstring charName, std::wstring transferCode)
 {
-    THREAD_BACKGROUND;
-
-    
-    
-
-    const auto db = FLHook::GetDbClient();
-    auto session = db->start_session();
-    session.start_transaction();
-
-    bool result;
-    try
-    {
-        const auto config = FLHook::GetConfig();
-        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(charName)));
-
-        if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
-        {
-            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
-                                            "Character doesn't exist when setting character transfer code!");
-        }
-
-        const auto charUpdateDoc = B_MDOC(
-            B_KVP("$set", B_MDOC(B_KVP("characterName", StringUtils::wstos(charName)), B_KVP("characterTransferCode", StringUtils::wstos(transferCode)))));
-        if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
-            !updateResult.has_value() || updateResult.value().modified_count() == 0)
-        {
-            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
-                                            "Updating character during setting character transfer code failed.");
-        }
-
-        session.commit_transaction();
-        result = true;
-    }
-    catch (bsoncxx::exception& ex)
-    {
-        ERROR("MongoDB Error setting character transfer code {{characterName}} {{ex}}", { "characterName", charName }, { "ex", ex.what() });
-        session.abort_transaction();
-        result = false;
-    }
-    catch (mongocxx::exception& ex)
-    {
-        ERROR("MongoDB Error setting character transfer code {{characterName}} {{ex}}", { "characterName", charName }, { "ex", ex.what() });
-        session.abort_transaction();
-        result = false;
-    }
-
-    THREAD_MAIN;
-    co_return result;
+    const auto charUpdateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("characterTransferCode", StringUtils::wstos(transferCode)))));
+    co_return AccountManager::UpdateCharacter(charName, charUpdateDoc, "setting character transfer code");
 }
 
 concurrencpp::result<bool> AccountManager::SaveSavedMsgs(std::wstring charName, std::array<std::string, 10> presetMsgs)
 {
-    THREAD_BACKGROUND;
-
-    const auto db = FLHook::GetDbClient();
-    auto session = db->start_session();
-    session.start_transaction();
-
-    bool result;
-    try
+    B_ARR arr;
+    for (std::string msg : presetMsgs)
     {
-        const auto config = FLHook::GetConfig();
-        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(charName)));
-
-        if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
-        {
-            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
-                                            "Character doesn't exist when setting saved messages!!");
-        }
-
-        B_ARR arr;
-        for (std::string msg : presetMsgs)
-        {
-            arr.append(msg);
-        }
-
-        const auto charUpdateDoc = B_MDOC(
-            B_KVP("$set", B_MDOC(B_KVP("characterName", StringUtils::wstos(charName)), B_KVP("presetMsgs", arr))));
-        if (const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
-            !updateResult.has_value() || updateResult.value().modified_count() == 0)
-        {
-            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
-                                            "Updating character during setting saved messages failed.");
-        }
-
-        session.commit_transaction();
-        result = true;
-    }
-    catch (bsoncxx::exception& ex)
-    {
-        ERROR("MongoDB Error setting saved messages for {{characterName}} {{ex}}", { "characterName", charName }, { "ex", ex.what() });
-        session.abort_transaction();
-        result = false;
-    }
-    catch (mongocxx::exception& ex)
-    {
-        ERROR("MongoDB Error setting saved messages for {{characterName}} {{ex}}", { "characterName", charName }, { "ex", ex.what() });
-        session.abort_transaction();
-        result = false;
+        arr.append(msg);
     }
 
-    THREAD_MAIN;
-    co_return result;
+    const auto charUpdateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("presetMsgs", arr))));
+
+    co_return AccountManager::UpdateCharacter(charName, charUpdateDoc, "setting preset messages list");
 }
 
 concurrencpp::result<std::wstring> AccountManager::TransferCharacter(const AccountId account, const std::wstring charName, const std::wstring characterCode)
