@@ -204,7 +204,6 @@ class DLL ClientId
          * @returns On success : Sets health percentage as a float between 0 and 1.
          * @returns On fail : InCharacterSelect, NotDocked
          */
-        [[nodiscard]]
         Action<void> SetRelativeHealth(float setHealth) const;
 
         /**

@@ -9,7 +9,7 @@ namespace Plugins
 
     void AutobuyPlugin::LoadPlayerAutobuy(const ClientId client)
     {
-        auto& [updated, ammo, mines, cm, bb, repairs] = autobuyInfo[client.GetValue()];
+        auto& [updated, ammo, mines, cm, bb, repairs, cloak, jumpdrive] = autobuyInfo[client.GetValue()];
 
         const auto view = client.GetData().characterData;
         if (auto autobuyDoc = view->characterDocument.find("autobuy"); autobuyDoc != view->characterDocument.end())
@@ -23,6 +23,8 @@ namespace Plugins
                     case Hash("cm"): cm = item.get_bool(); break;
                     case Hash("mines"): mines = item.get_bool(); break;
                     case Hash("ammo"): ammo = item.get_bool(); break;
+                    case Hash("cloak"): cloak = item.get_bool(); break;
+                    case Hash("jumpdrive"): jumpdrive = item.get_bool(); break;
                     default:;
                 }
             }
@@ -191,14 +193,14 @@ namespace Plugins
 
         if (const uint playerCash = client.GetCash().Unwrap(); playerCash < repairCost)
         {
-            (void)client.Message(L"Insufficient Cash");
+            client.Message(L"Insufficient Cash");
             return;
         }
 
         if (repairCost)
         {
             client.Message(std::format(L"Auto-Buy: Ship repair costed {}$", repairCost));
-            (void)client.RemoveCash(repairCost);
+            client.RemoveCash(repairCost);
         }
 
         if (!eqToFix.empty())
@@ -246,7 +248,7 @@ namespace Plugins
 
         if (client.GetRelativeHealth().Unwrap() < 1.0f)
         {
-            (void)client.SetRelativeHealth(1.0f);
+            client.SetRelativeHealth(1.0f);
             FLHook::GetPacketInterface()->Send_FLPACKET_SERVER_SETHULLSTATUS(client.GetValue(), 1.0f);
         }
     }
@@ -254,6 +256,23 @@ namespace Plugins
     void AutobuyPlugin::AddEquipToCart(const Archetype::Launcher* launcher, const EquipDescList* cargo, std::map<Id, AutobuyCartItem>& cart,
                                        AutobuyCartItem& item, const std::wstring_view& desc)
     {
+        item.description = desc;
+
+        if (config.useAdvancedEquipmentAutobuy)
+        {
+            auto ammo = ammoSpecial.find(item.archId);
+            if (ammo != ammoSpecial.end())
+            {
+                item.archId = ammo->second.ammoId;
+                item.count = ammo->second.ammoLimit - PlayerGetAmmoCount(cargo, item.archId);
+                if (item.count)
+                {
+                    cart[item.archId] = item;
+                }
+                return;
+            }
+        }
+
         item.archId = launcher->projectileArchId;
         Id itemId = Id(Arch2Good(item.archId.GetValue()));
         auto ammoIter = ammoLimits.find(itemId);
@@ -265,21 +284,40 @@ namespace Plugins
         {
             item.count = MAX_PLAYER_AMMO - PlayerGetAmmoCount(cargo, item.archId);
         }
-        cart[item.archId] = item;
+
+        if (item.count)
+        {
+            cart[item.archId] = item;
+        }
     }
 
     void AutobuyPlugin::OnCharacterSelectAfter(const ClientId client) { LoadPlayerAutobuy(client); }
 
     void AutobuyPlugin::OnCharacterSave(const ClientId client, std::wstring_view charName, B_DOC& document)
     {
-        const auto& [updated, ammo, mines, cm, bb, repairs] = autobuyInfo[client.GetValue()];
+        const auto& [updated, ammo, mines, cm, bb, repairs, cloak, jumpdrive] = autobuyInfo[client.GetValue()];
 
         if (!updated)
         {
             return;
         }
 
-        document.append(B_KVP("autobuy", B_MDOC(B_KVP("cm", cm), B_KVP("bb", bb), B_KVP("repairs", repairs), B_KVP("mines", mines), B_KVP("ammo", ammo))));
+        if (config.useAdvancedEquipmentAutobuy)
+        {
+            document.append(B_KVP("autobuy", B_MDOC(B_KVP("cm", cm), B_KVP("bb", bb), B_KVP("repairs", repairs), B_KVP("mines", mines), B_KVP("ammo", ammo))));
+        }
+        else
+        {
+            document.append(
+                B_KVP("autobuy",
+                                  B_MDOC(B_KVP("cm", cm),
+                                         B_KVP("bb", bb),
+                                         B_KVP("repairs", repairs),
+                                         B_KVP("mines", mines),
+                                         B_KVP("ammo", ammo),
+                                         B_KVP("cloak", cloak),
+                                         B_KVP("jumpdrive", jumpdrive))));
+        }
     }
 
     void AutobuyPlugin::OnBaseEnterAfter(const BaseId baseId, const ClientId client)
@@ -293,7 +331,7 @@ namespace Plugins
         // shopping cart
         std::map<Id, AutobuyCartItem> cartMap;
 
-        const auto& [updated, ammo, mines, cm, bb, repairs] = autobuyInfo[client.GetValue()];
+        const auto& [updated, ammo, mines, cm, bb, repairs, cloak, jumpdrive] = autobuyInfo[client.GetValue()];
         if (bb)
         {
             // shield bats & nanobots
@@ -390,6 +428,42 @@ namespace Plugins
             }
         }
 
+        if (config.useAdvancedEquipmentAutobuy && (cloak || jumpdrive))
+        {
+            // check mounted equip
+            for (const auto& equip : equipCargo->equip)
+            {
+                if (!equip.mounted)
+                {
+                    continue;
+                }
+                AutobuyCartItem aci;
+
+                switch (Archetype::Equipment* eq = Archetype::GetEquipment(equip.archId.GetValue()); EquipmentId(eq->archId).GetType().Unwrap())
+                {
+                    case EquipmentType::CloakingDevice:
+                        {
+                            if (cloak)
+                            {
+                                AddEquipToCart(dynamic_cast<Archetype::Launcher*>(eq), equipCargo, cartMap, aci, L"Cloak Batteries");
+                            }
+
+                            break;
+                        }
+                    case EquipmentType::ShieldGen:
+                        {
+                            if (jumpdrive)
+                            {
+                                AddEquipToCart(dynamic_cast<Archetype::Launcher*>(eq), equipCargo, cartMap, aci, L"Jump Drive Batteries");
+                            }
+
+                            break;
+                        }
+                    default: break;
+                }
+            }
+        }
+
         if (repairs)
         {
             HandleRepairs(client);
@@ -452,17 +526,17 @@ namespace Plugins
             }
             else
             {
-                (void)client.RemoveCash(uCost);
+                client.RemoveCash(uCost);
                 remHoldSize -= eq->volume * static_cast<float>(amountToBuy);
 
                 // add the item, dont use addcargo for performance/bug reasons
                 // assume we only mount multicount goods (missiles, ammo, bots
-                (void)client.AddCargo(value.archId, amountToBuy, false);
+                client.AddCargo(value.archId, amountToBuy, false);
 
                 client.Message(std::format(L"Auto-Buy({}): Bought {} unit(s), cost: {}$", value.description, amountToBuy, StringUtils::ToMoneyStr(uCost)));
             }
         }
-        (void)client.SaveChar();
+        client.SaveChar();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -473,36 +547,47 @@ namespace Plugins
     {
         if (autobuyType.empty())
         {
-            (void)client.Message(L"Error: Invalid parameters");
-            (void)client.Message(L"Usage: /autobuy <param> [<on/off>]");
-            (void)client.Message(L"<Param>:");
-            (void)client.Message(L"|  info - display current autobuy-settings");
-            (void)client.Message(L"|  ammo - enable/disable autobuy for ammo");
-            (void)client.Message(L"|  mines - enable/disable autobuy for mines");
-            (void)client.Message(L"|  cm - enable/disable autobuy for countermeasures");
-            (void)client.Message(L"|  bb - enable/disable autobuy for nanobots/shield batteries");
-            (void)client.Message(L"|  repairs - enable/disable automatic repair of ship and equipment");
-            (void)client.Message(L"|  all: enable/disable autobuy for all of the above");
-            (void)client.Message(L"Examples:");
-            (void)client.Message(L"|  \"/autobuy ammo on\" enable autobuy of ammunition");
-            (void)client.Message(L"|  \"/autobuy all off\" completely disable autobuy");
-            (void)client.Message(L"|  \"/autobuy info\" show autobuy info");
+            client.Message(L"Error: Invalid parameters");
+            client.Message(L"Usage: /autobuy <param> [<on/off>]");
+            client.Message(L"<Param>:");
+            client.Message(L"|  info - display current autobuy-settings");
+            client.Message(L"|  ammo - enable/disable autobuy for ammo");
+            client.Message(L"|  mines - enable/disable autobuy for mines");
+            client.Message(L"|  cm - enable/disable autobuy for countermeasures");
+            client.Message(L"|  bb - enable/disable autobuy for nanobots/shield batteries");
+            client.Message(L"|  repairs - enable/disable automatic repair of ship and equipment");
+            if (config.useAdvancedEquipmentAutobuy)
+            {
+                client.Message(L"|  cloak - enable/disable autobuy for cloaks");
+                client.Message(L"|  jd - enable/disable autobuy for jump drives");
+                client.Message(L"|  jm - enable/disable autobuy for jump matrixes");
+            }
+            client.Message(L"|  all: enable/disable autobuy for all of the above");
+            client.Message(L"Examples:");
+            client.Message(L"|  \"/autobuy ammo on\" enable autobuy of ammunition");
+            client.Message(L"|  \"/autobuy all off\" completely disable autobuy");
+            client.Message(L"|  \"/autobuy info\" show autobuy info");
         }
 
-        auto& [updated, ammo, mines, cm, bb, repairs] = autobuyInfo[client.GetValue()];
+        auto& [updated, ammo, mines, cm, bb, repairs, cloak, jumpdrive] = autobuyInfo[client.GetValue()];
         if (autobuyType == L"info")
         {
-            (void)client.Message(std::format(L"Ammo: {}", ammo ? L"On" : L"Off"));
-            (void)client.Message(std::format(L"Mines: {}", mines ? L"On" : L"Off"));
-            (void)client.Message(std::format(L"Countermeasures: {}", cm ? L"On" : L"Off"));
-            (void)client.Message(std::format(L"Nanobots/Shield Batteries: {}", bb ? L"On" : L"Off"));
-            (void)client.Message(std::format(L"Repairs: {}", repairs ? L"On" : L"Off"));
+            client.Message(std::format(L"Ammo: {}", ammo ? L"On" : L"Off"));
+            client.Message(std::format(L"Mines: {}", mines ? L"On" : L"Off"));
+            client.Message(std::format(L"Countermeasures: {}", cm ? L"On" : L"Off"));
+            client.Message(std::format(L"Nanobots/Shield Batteries: {}", bb ? L"On" : L"Off"));
+            client.Message(std::format(L"Repairs: {}", repairs ? L"On" : L"Off"));
+            if (config.useAdvancedEquipmentAutobuy)
+            {
+                client.Message(std::format(L"Cloak Batteries: {}", cloak ? L"On" : L"Off"));
+                client.Message(std::format(L"Jump Drive Batteries: {}", jumpdrive ? L"On" : L"Off"));
+            }
             co_return;
         }
 
         if (newState.empty() || (newState != L"on" && newState != L"off"))
         {
-            (void)client.MessageErr(L"Invalid parameters");
+            client.MessageErr(L"Invalid parameters");
             co_return;
         }
 
@@ -541,14 +626,24 @@ namespace Plugins
             updated = true;
             repairs = enable;
         }
+        else if (autobuyType == L"cloak")
+        {
+            updated = true;
+            cloak = enable;
+        }
+        else if (autobuyType == L"jd")
+        {
+            updated = true;
+            jumpdrive = enable;
+        }
         else
         {
-            (void)client.MessageErr(L"Invalid parameters");
+            client.MessageErr(L"Invalid parameters");
             co_return;
             ;
         }
 
-        (void)client.Message(L"OK");
+        client.Message(L"OK");
 
         co_return;
     }
@@ -587,13 +682,30 @@ namespace Plugins
 
             while (ini.read_header())
             {
+                Id itemname;
                 if (!ini.is_header("Munition") && !ini.is_header("Mine") && !ini.is_header("CounterMeasure"))
                 {
+                    if (!ini.is_header("ShieldGenerator") && !ini.is_header("CloakingDevice"))
+                    {
+                        continue;
+                    }
+
+                    while (ini.read_value())
+                    {
+                        if (ini.is_value("nickname"))
+                        {
+                            itemname = Id(ini.get_value_string(0));
+                        }
+                        else if (ini.is_value("ammo_special"))
+                        {
+                            ammoSpecial[itemname] =
+                                AmmoDataSpecial(Id(ini.get_value_string(0)), ini.get_value_int(1), ini.get_value_int(2) );
+                        }
+                        break;
+                    }
                     continue;
                 }
 
-                Id itemname;
-                AmmoData ammo;
 
                 while (ini.read_value())
                 {
@@ -603,6 +715,7 @@ namespace Plugins
                     }
                     else if (ini.is_value("ammo_limit"))
                     {
+                        AmmoData ammo;
                         ammo.ammoLimit = ini.get_value_int(0);
                         ammo.launcherStackingLimit = ini.get_value_int(1);
                         if (!ammo.launcherStackingLimit)

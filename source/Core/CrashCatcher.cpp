@@ -148,6 +148,7 @@ CrashCatcher::FixContent6F78DD0::FixContent6F78DD0()
     jmp(CrashCatcher::FixCommon6F78DD0Detour);
 }
 
+#pragma warning(disable : 4731)
 void CrashCatcher::CrashProc6F671A0(int arg1)
 {
     try

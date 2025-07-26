@@ -16,6 +16,7 @@ namespace Archetype
     struct CounterMeasureDropper;
     struct RepairKit;
     struct ShieldBattery;
+    struct CloakingDevice;
 } // namespace Archetype
 // TODO: Allow assigning to uint variables without the need to extract GetValue explicitly
 class Id;
@@ -133,9 +134,16 @@ class DLL EquipmentId
             }
             if constexpr (std::is_same_v<T, Archetype::ShieldBattery>)
             {
-                if(type.value() == EquipmentType::ShieldBattery)
+                if (type.value() == EquipmentType::ShieldBattery)
                 {
-                    return {reinterpret_cast<T*>(value)};
+                    return { reinterpret_cast<T*>(value) };
+                }
+            }
+            if constexpr (std::is_same_v<T, Archetype::CloakingDevice>)
+            {
+                if (type.value() == EquipmentType::CloakingDevice)
+                {
+                    return { reinterpret_cast<T*>(value) };
                 }
             }
 

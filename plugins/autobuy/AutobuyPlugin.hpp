@@ -13,6 +13,9 @@ namespace Plugins
             bool cm;
             bool bb;
             bool repairs;
+
+            bool cloak;
+            bool jumpdrive;
     };
 
     /**
@@ -65,18 +68,24 @@ namespace Plugins
                     int launcherStackingLimit;
             };
 
+
+            struct AmmoDataSpecial
+            {
+                    Id ammoId;
+                    int ammoLimit;
+                    int launcherStackingLimit;
+            };
+
             struct Config final
             {
                     // Reflectable fields
                     EquipmentId nanobot;
                     EquipmentId shieldBattery;
+
+                    bool useAdvancedEquipmentAutobuy = false;
             };
 
             concurrencpp::result<void> UserCmdAutobuy(ClientId client, std::wstring_view autobuyType, std::wstring_view newState);
-
-            int __fastcall GetAmmoCapacityDetourHash(CShip* cship, void* edx, Id ammoArch);
-
-            int __fastcall GetAmmoCapacityDetourEq(CShip* cship, void* edx, Archetype::Equipment* ammoType);
 
             // clang-format off
             const inline static std::array<CommandInfo<AutobuyPlugin>, 1> commands =
@@ -96,6 +105,7 @@ namespace Plugins
 
             std::array<AutobuyInfo, MaxClientId + 1> autobuyInfo;
             std::unordered_map<ClientId, std::unordered_map<Id, PlayerAmmoData>> playerAmmoLimits;
+            std::unordered_map<Id, AmmoDataSpecial> ammoSpecial;
             std::unordered_map<Id, AmmoData> ammoLimits;
             bool OnLoadSettings() override;
             /**
