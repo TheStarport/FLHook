@@ -34,7 +34,7 @@ std::optional<concurrencpp::result<void>> AdminCommandProcessor::ProcessCommand(
         return std::move(result);
     }
 
-    user.Message(std::format(L"ERR: Command not found. ({})", cmd));
+    user.MessageErr(std::format(L"Command not found. ({})", cmd));
     return std::nullopt;
 }
 
@@ -102,7 +102,7 @@ concurrencpp::result<void> AdminCommandProcessor::SetCash(ClientId client, std::
     }
     catch (const mongocxx::exception& ex)
     {
-        message = std::format(L"ERR: {}", StringUtils::stows(ex.what()));
+        message = StringUtils::stows(ex.what());
     }
 
     THREAD_MAIN;
@@ -115,7 +115,7 @@ concurrencpp::result<void> AdminCommandProcessor::SetCash(ClientId client, std::
 
     switch (success)
     {
-        case MongoResult::Failure: client.MessageErr(std::format(L"ERR: character {} was not found", characterName)); break;
+        case MongoResult::Failure: client.MessageErr(std::format(L"Character {} was not found", characterName)); break;
         case MongoResult::MatchButNoChange: client.Message(std::format(L"{} already has {} cash!", characterName, amount)); break;
         case MongoResult::Success: client.Message(std::format(L"{} cash set to {} credits", characterName, amount));
     }
@@ -159,12 +159,12 @@ concurrencpp::result<void> AdminCommandProcessor::GetCash(ClientId client, std::
         }
         else
         {
-            err = std::format(L"ERR: character {} was not found", characterName);
+            err = std::format(L"Character {} was not found", characterName);
         }
     }
     catch (const mongocxx::exception& ex)
     {
-        err = std::format(L"ERR: {}", StringUtils::stows(ex.what()));
+        err = StringUtils::stows(ex.what());
     }
 
     THREAD_MAIN;
@@ -228,7 +228,7 @@ concurrencpp::result<void> AdminCommandProcessor::AddCash(ClientId client, std::
     }
     catch (const mongocxx::exception& ex)
     {
-        message = std::format(L"ERR: {}", StringUtils::stows(ex.what()));
+        message = StringUtils::stows(ex.what());
     }
 
     THREAD_MAIN;
@@ -241,8 +241,8 @@ concurrencpp::result<void> AdminCommandProcessor::AddCash(ClientId client, std::
 
     switch (success)
     {
-        case MongoResult::Failure: client.MessageErr(std::format(L"ERR: character {} was not found", characterName)); break;
-        case MongoResult::MatchButNoChange: client.Message(std::format(L"ERR: Can't add {} credits to {}!", amount, characterName)); break;
+        case MongoResult::Failure: client.MessageErr(std::format(L"Character {} was not found", characterName)); break;
+        case MongoResult::MatchButNoChange: client.MessageErr(std::format(L"Can't add {} credits to {}!", amount, characterName)); break;
         case MongoResult::Success: client.Message(std::format(L"{} given {} credits", characterName, amount));
     }
 
@@ -447,7 +447,7 @@ concurrencpp::result<void> AdminCommandProcessor::DeleteChar(const ClientId clie
         {
             // Not found
             THREAD_MAIN;
-            client.Message(L"ERR: Character name not found.");
+            client.MessageErr(L"Character name not found.");
         }
     }
     catch (const mongocxx::exception& ex)
@@ -475,13 +475,13 @@ concurrencpp::result<void> AdminCommandProcessor::AddRoles(ClientId client, cons
 {
     if (target.empty())
     {
-        client.Message(L"ERR: Character name not provided.");
+        client.MessageErr(L"Character name not provided.");
         co_return;
     }
 
     if (roles.empty())
     {
-        client.Message(L"ERR: No roles provided.");
+        client.MessageErr(L"No roles provided.");
         co_return;
     }
 
@@ -504,7 +504,7 @@ concurrencpp::result<void> AdminCommandProcessor::AddRoles(ClientId client, cons
     if (!characterResult.has_value())
     {
         THREAD_MAIN;
-        client.Message(L"ERR: Provided character name not found");
+        client.MessageErr(L"Provided character name not found");
         co_return;
     }
 
@@ -519,7 +519,7 @@ concurrencpp::result<void> AdminCommandProcessor::AddRoles(ClientId client, cons
     if (const auto updateResponse = accountCollection.update_one(findAccountDoc.view(), updateAccountDoc.view()); updateResponse->modified_count() != 1)
     {
         THREAD_MAIN;
-        client.Message(L"ERR: Unable to add any role. Account was either invalid or already contained role(s).");
+        client.MessageErr(L"Unable to add any role. Account was either invalid or already contained role(s).");
         co_return;
     }
 

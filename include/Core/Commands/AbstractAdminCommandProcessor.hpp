@@ -48,8 +48,8 @@ class AbstractAdminCommandProcessor
         cpp::result<void, std::wstring> Validate(ClientId client, const AllowedContext context, std::wstring_view requiredRole) const
         {
             using namespace magic_enum::bitwise_operators;
-            const static std::wstring invalidPerms = L"ERR: No permission.";
-            const static std::wstring invalidCommand = L"ERR: Command not found or invalid context.";
+            const static std::wstring invalidPerms = L"No permission.";
+            const static std::wstring invalidCommand = L"Command not found or invalid context.";
             static constexpr std::wstring_view superAdminRole = magic_enum::enum_name(DefaultRoles::SuperAdmin);
 
             // If the current context does not allow command

@@ -51,7 +51,7 @@ namespace Plugins
         auto raceObjIter = config.raceObjMap.find(target.GetId().Handle());
         if (raceObjIter == config.raceObjMap.end())
         {
-            client.MessageErr(L"ERR Invalid start point object selected!");
+            client.MessageErr(L"Invalid start point object selected!");
             co_return;
         }
 
@@ -310,26 +310,26 @@ namespace Plugins
         auto regIter = racersMap.find(client);
         if (regIter == racersMap.end())
         {
-            client.MessageErr(L"ERR: Not registered to a race!");
+            client.MessageErr(L"Not registered to a race!");
             co_return;
         }
 
         auto& race = regIter->second->race;
         if (race->hostId != client)
         {
-            client.MessageErr(L"ERR You're not hosting a race!");
+            client.MessageErr(L"You're not hosting a race!");
             co_return;
         }
 
         if (!race->raceArch->loopable)
         {
-            client.MessageErr(L"ERR This race is not a loop, it cannot have laps set!");
+            client.MessageErr(L"This race is not a loop, it cannot have laps set!");
             co_return;
         }
 
         if (newLapCount <= 0)
         {
-            client.MessageErr(L"ERR Invalid input!");
+            client.MessageErr(L"Invalid input!");
             co_return;
         }
 
@@ -365,21 +365,21 @@ namespace Plugins
         auto target = ship.GetTarget().Unwrap();
         if (!target)
         {
-            client.MessageErr(L"ERR No target!");
+            client.MessageErr(L"No target!");
             co_return;
         }
 
         ClientId targetClientId = target.GetPlayer().Unwrap();
         if (!targetClientId)
         {
-            client.MessageErr(L"ERR Target not a player!");
+            client.MessageErr(L"Target not a player!");
             co_return;
         }
 
         auto raceData = racersMap.find(targetClientId);
         if (raceData == racersMap.end())
         {
-            client.MessageErr(L"ERR Target not in a race!");
+            client.MessageErr(L"Target not in a race!");
             co_return;
         }
 
@@ -447,7 +447,7 @@ namespace Plugins
             }
             else
             {
-                client.MessageErr(L"ERR Invalid race number for selected start! Available races:");
+                client.MessageErr(L"Invalid race number for selected start! Available races:");
                 for (auto& race : raceObjIter->second)
                 {
                     client.Message(std::format(L"{} - {}", race.second.raceNum, race.second.raceName));
@@ -460,7 +460,7 @@ namespace Plugins
         {
             if (raceIter->second.loopable)
             {
-                client.MessageErr(L"ERR Invalid loop count!");
+                client.MessageErr(L"Invalid loop count!");
                 client.MessageErr(L"Usage: /race solo <lapCount> [raceNum]");
                 co_return;
             }
@@ -469,7 +469,7 @@ namespace Plugins
 
         if (racersMap.count(client))
         {
-            client.MessageErr(L"ERR Already in a race!");
+            client.MessageErr(L"Already in a race!");
             co_return;
         }
 
@@ -700,12 +700,12 @@ namespace Plugins
             ClientId player = participant.first;
             if (player.GetSystemId().Handle() != race->raceArch->startingSystem)
             {
-                player.Message(L"ERR You're in the wrong system! Unable to beam you into position");
+                player.MessageErr(L"You're in the wrong system! Unable to beam you into position");
                 continue;
             }
             if (race->raceArch->startingPositions.size() == positionIndex)
             {
-                player.Message(L"ERR Unable to find a starting position for you, contact admins/developers!");
+                player.MessageErr(L"Unable to find a starting position for you, contact admins/developers!");
                 continue;
             }
             auto& startPos = race->raceArch->startingPositions.at(positionIndex++);
@@ -731,7 +731,7 @@ namespace Plugins
     {
         if (race->started && !spectator)
         {
-            client.Message(L"ERR this race is already underway, you can join as a spectator");
+            client.MessageErr(L"This race is already underway, you can join as a spectator");
             return nullptr;
         }
 
@@ -739,7 +739,7 @@ namespace Plugins
 
         if (racersMap.count(client))
         {
-            client.Message(L"ERR You are already registered to a race");
+            client.MessageErr(L"You are already registered to a race");
             return nullptr;
         }
 
@@ -747,7 +747,7 @@ namespace Plugins
         {
             if (client.GetCash().Handle() < initialPool)
             {
-                client.Message(L"ERR You don't have that much cash!");
+                client.MessageErr(L"You don't have that much cash!");
                 return nullptr;
             }
 

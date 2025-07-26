@@ -117,7 +117,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
                 {
                     if (const auto validation = Validate(user, command.allowedContext, command.requiredRole); validation.has_error())
                     {
-                        user.Message(validation.error());
+                        user.MessageErr(validation.error());
                         return Task::NullOp();
                     }
 
