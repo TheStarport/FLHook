@@ -345,8 +345,7 @@ concurrencpp::result<void> AccountManager::Rename(std::wstring currName, std::ws
             B_MDOC(B_KVP("characterName", StringUtils::wstos(newName)),
                    B_KVP("lastRenameTimestamp",
                          bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }))));
-    AccountManager::UpdateCharacter(currName, charUpdateDoc, "renaming character");
-    co_return;
+    co_await AccountManager::UpdateCharacter(currName, charUpdateDoc, "renaming character");
 }
 
 concurrencpp::result<bool> AccountManager::ClearCharacterTransferCode(std::wstring charName)
