@@ -6,9 +6,8 @@
 
 namespace Plugins
 {
-    void MarketControllerPlugin::ProcessNpcDrops()
+    void MarketControllerPlugin::ProcessPendingLootDrops()
     {
-
         for (auto& item : dropMap)
         {
             uint shipId = item.first;
@@ -32,7 +31,7 @@ namespace Plugins
                 continue;
             }
 
-            std::unordered_map<uint, float>* overrideMap = nullptr;
+            std::unordered_map<Id, float>* overrideMap = nullptr;
             auto volumeOverrideIter = cargoVolumeOverrideMap.find(cship->shiparch()->shipClass);
             if (volumeOverrideIter != cargoVolumeOverrideMap.end())
             {
@@ -49,7 +48,7 @@ namespace Plugins
 
                 if (overrideMap)
                 {
-                    auto overrideIter = overrideMap->find(cargo->archetype->archId.GetValue());
+                    auto overrideIter = overrideMap->find(cargo->archetype->archId);
                     if (overrideIter != overrideMap->end())
                     {
                         volume = overrideIter->second;
@@ -83,7 +82,7 @@ namespace Plugins
 
     MarketControllerPlugin::MarketControllerPlugin(const PluginInfo& info) : Plugin(info)
     {
-        AddTimer([this] { ProcessNpcDrops(); }, 1000);
+        AddTimer([this] { ProcessPendingLootDrops(); }, 1000);
     }
 
     void MarketControllerPlugin::LoadGameData()
@@ -143,7 +142,7 @@ namespace Plugins
                 continue;
             }
 
-            uint currNickname = 0;
+            Id currNickname;
             ushort currSID = 3;
             float totalColGrpCapacity = 0.0f;
             while (ini.read_header())
@@ -154,7 +153,7 @@ namespace Plugins
                     {
                         if (ini.is_value("nickname"))
                         {
-                            currNickname = CreateID(ini.get_value_string());
+                            currNickname = Id(ini.get_value_string());
                             currSID = 3;
                             totalColGrpCapacity = 0.0f;
                             break;
@@ -188,7 +187,7 @@ namespace Plugins
                 continue;
             }
 
-            uint currNickname = 0;
+            Id currNickname;
 
             while (ini.read_header())
             {
@@ -198,7 +197,7 @@ namespace Plugins
                 {
                     if (ini.is_value("nickname"))
                     {
-                        currNickname = CreateID(ini.get_value_string());
+                        currNickname = Id(ini.get_value_string());
                     }
                     else if (ini.is_value("max_drop_npc"))
                     {
@@ -408,7 +407,7 @@ namespace Plugins
         }
 
         auto cargoVolumeOverrideIter = cargoVolumeOverrideMap.find(ship->shipClass);
-        std::unordered_map<uint, float>* cargoOverrideMap = nullptr;
+        std::unordered_map<Id, float>* cargoOverrideMap = nullptr;
         if (cargoVolumeOverrideIter != cargoVolumeOverrideMap.end())
         {
             cargoOverrideMap = &cargoVolumeOverrideIter->second;
@@ -423,7 +422,7 @@ namespace Plugins
             }
             if (cargoOverrideMap)
             {
-                auto cargoData = cargoOverrideMap->find(eq.archId.GetValue());
+                auto cargoData = cargoOverrideMap->find(eq.archId);
                 if (cargoData != cargoOverrideMap->end())
                 {
                     cargoUsed += eq.count * cargoData->second;
@@ -439,7 +438,7 @@ namespace Plugins
 
     float MarketControllerPlugin::EquipDescCommodityVolume(ClientId clientId)
     {
-        return EquipDescCommodityVolume(clientId, clientId.GetShipArch().Unwrap().GetId());
+        return EquipDescCommodityVolume(clientId, clientId.GetShipArch().Handle().GetId());
     }
 
     void MarketControllerPlugin::OnGfGoodBuyAfter(ClientId client, const SGFGoodBuyInfo& info)
@@ -511,7 +510,7 @@ namespace Plugins
         CECargo* cargo = nullptr;
         while (cargo = reinterpret_cast<CECargo*>(cship->equipManager.Traverse(tr)))
         {
-            auto lootIter = lootData.find(cargo->archetype->archId.GetValue());
+            auto lootIter = lootData.find(cargo->archetype->archId);
 
             const LootData& ld = lootIter == lootData.end() ? LootData() : lootIter->second;
 
@@ -553,7 +552,7 @@ namespace Plugins
     void MarketControllerPlugin::OnShipColGrpDestroy(Ship* ship, CArchGroup* colGrp, DamageEntry::SubObjFate, DamageList*)
     {
         CShip* cship = ship->cship();
-        const auto shipColGrpInfo = colGrpCargoMap.find(cship->archetype->archId.GetValue());
+        const auto shipColGrpInfo = colGrpCargoMap.find(cship->archetype->archId);
         if (shipColGrpInfo == colGrpCargoMap.end())
         {
             return;
@@ -590,6 +589,146 @@ namespace Plugins
         {
             returnCode = ReturnCode::SkipFunctionCall;
         }
+    }
+
+    
+    TractorFailureCode MarketControllerPlugin::OnTractorVerifyTarget(CETractor* tractor, CLoot* loot, TractorFailureCode originalValue)
+    {
+        returnCode = ReturnCode::SkipAll;
+        if (originalValue == TractorFailureCode::InsufficientCargoSpaceFailure)
+        {
+            CEqObj* owner = tractor->owner;
+            if (owner->objectClass != CObject::CSHIP_OBJECT)
+            {
+                return originalValue;
+            }
+
+            CShip* cship = reinterpret_cast<CShip*>(owner);
+            uint shipClass = cship->shiparch()->shipClass;
+            auto cargoOverrideEntry = cargoVolumeOverrideMap.find(shipClass);
+            if (cargoOverrideEntry == cargoVolumeOverrideMap.end())
+            {
+                return originalValue;
+            }
+
+            auto volumeOverride = cargoOverrideEntry->second.find(loot->contents_arch()->archId);
+            if (volumeOverride == cargoOverrideEntry->second.end())
+            {
+                return originalValue;
+            }
+
+            float remainingHold = cship->get_cargo_hold_remaining();
+            returnCode = ReturnCode::SkipAll;
+            if (remainingHold >= volumeOverride->second * loot->get_units())
+            {
+                return TractorFailureCode::Success;
+            }
+        }
+        else if (originalValue == TractorFailureCode::Success)
+        {
+            ClientId client = ClientId(tractor->owner->ownerPlayer);
+            if (client && client.GetEquipCargo().Handle()->equip.size() >= 120)
+            {
+                client.MessageErr(L"Tractor cannot proceed, too many items in hold");
+                return TractorFailureCode::InsufficientCargoSpaceFailure;
+            }
+        }
+
+        return originalValue;
+    }
+
+    int MarketControllerPlugin::OnGetSpaceForCargoType(CShip* ship, Archetype::Equipment* cargoArch)
+    {
+        if (cargoArch->volume <= 0.0f || cargoArch->get_class_type() != Archetype::ClassType::Commodity)
+        {
+            return 0;
+        }
+
+        float volume = cargoArch->volume;
+
+        auto iter = cargoVolumeOverrideMap.find(ship->shiparch()->shipClass);
+        if (iter != cargoVolumeOverrideMap.end())
+        {
+            auto iter2 = iter->second.find(cargoArch->archId);
+            if (iter2 != iter->second.end())
+            {
+                volume = iter2->second;
+            }
+        }
+
+        if (volume == 0.0f)
+        {
+            return INT_MAX;
+        }
+
+        float freeSpace = OnGetCargoRemaining(ship);
+        returnCode = ReturnCode::SkipAll;
+        return static_cast<int>(floor(freeSpace / volume));
+    }
+
+    float MarketControllerPlugin::OnGetCargoRemaining(CShip* ship)
+    {
+        float usedCargo = 0.0f;
+        CEquipTraverser tr((uint)EquipmentClass::Cargo | (uint)EquipmentClass::InternalEquipment | (uint)EquipmentClass::ExternalEquipment);
+        CEquip* equip;
+        std::unordered_map<Id, float>* overrideMap = nullptr;
+
+        auto shipClassOverrideIter = cargoVolumeOverrideMap.find(ship->shiparch()->shipClass);
+        if (shipClassOverrideIter != cargoVolumeOverrideMap.end())
+        {
+            overrideMap = &shipClassOverrideIter->second;
+        }
+
+        while (equip = ship->equipManager.Traverse(tr))
+        {
+            if (equip->CEquipType == EquipmentClass::Cargo)
+            {
+                float volume = equip->archetype->volume;
+                if (overrideMap)
+                {
+                    auto cargoVolumeOverride = overrideMap->find(equip->archetype->archId);
+                    if (cargoVolumeOverride != overrideMap->end())
+                    {
+                        volume = cargoVolumeOverride->second;
+                    }
+                }
+
+                usedCargo += reinterpret_cast<CECargo*>(equip)->count * volume;
+            }
+            else
+            {
+                usedCargo += equip->archetype->volume;
+            }
+        }
+
+        float cargoCapacity = ship->shiparch()->holdSize;
+        auto shipColGrpData = colGrpCargoMap.find(ship->archetype->archId);
+        if (shipColGrpData != colGrpCargoMap.end())
+        {
+            float totalColGrpCapacity = shipColGrpData->second.first;
+            cargoCapacity -= totalColGrpCapacity;
+
+            auto& capacityPerColGrp = shipColGrpData->second.second;
+            CArchGrpTraverser ctr;
+            CArchGroup* colGrp;
+            while (colGrp = ship->archGroupManager.Traverse(ctr))
+            {
+                if (colGrp->hitPts <= 0.0f)
+                {
+                    continue;
+                }
+                auto colGrpData = capacityPerColGrp.find(colGrp->colGrp->id);
+                if (colGrpData != capacityPerColGrp.end())
+                {
+                    cargoCapacity += colGrpData->second;
+                }
+            }
+        }
+
+        float finalCapacity = cargoCapacity - usedCargo;
+
+        returnCode = ReturnCode::SkipAll;
+        return std::max(0.0f, finalCapacity);
     }
 
     concurrencpp::result<void> MarketControllerPlugin::AdminCmdReloadPrices(const ClientId client)

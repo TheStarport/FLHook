@@ -227,6 +227,10 @@ class DLL Plugin
 
         virtual void OnCELauncherFireAfter(CELauncher* launcher, const Vector& pos, FireResult) {}
         virtual int OnGetAmmoCapacity(CShip* ship, Id ammoArch) { return 0; }
+        virtual float OnGetCargoRemaining(CShip* ship) { return 0.0f; }
+        virtual int OnGetSpaceForCargoType(CShip* ship, Archetype::Equipment* cargo) { return 0; }
+
+        virtual TractorFailureCode OnTractorVerifyTarget(CETractor* tractor, TractorFailureCode originalReturnValue) { return TractorFailureCode::Success; }
 
         /**
          * @brief Hook call for when a player attempts to dock with a station.

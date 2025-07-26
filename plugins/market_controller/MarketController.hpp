@@ -43,7 +43,7 @@ namespace Plugins
                     float dropChanceUnmounted = 1.0f;
                     float dropChanceMounted = 0.0f;
             };
-            std::unordered_map<uint, LootData> lootData;
+            std::unordered_map<Id, LootData> lootData;
 
             struct CommodityLimitStruct
             {
@@ -58,8 +58,8 @@ namespace Plugins
             ConfigCL configCl;
 
             std::array<bool, MaxClientId + 1> mapBuySuppression;
-            std::unordered_map<uint, std::pair<float, std::unordered_map<ushort, float>>> colGrpCargoMap;
-            std::unordered_map<uint, std::unordered_map<uint, float>> cargoVolumeOverrideMap;
+            std::unordered_map<Id, std::pair<float, std::unordered_map<ushort, float>>> colGrpCargoMap;
+            std::unordered_map<uint, std::unordered_map<Id, float>> cargoVolumeOverrideMap;
             std::unordered_map<uint, float> unstableJumpObjMap;
             std::unordered_map<uint, float> dropMap;
 
@@ -74,7 +74,7 @@ namespace Plugins
                                                          DOCK_HOST_RESPONSE response) override;
             void OnLogin(ClientId client, const SLoginInfo& li) override;
 
-            void ProcessNpcDrops();
+            void ProcessPendingLootDrops();
 
             void OnGfGoodSell(ClientId client, const SGFGoodSellInfo& info) override;
             void OnGfGoodBuy(ClientId client, const SGFGoodBuyInfo& info) override;
@@ -87,6 +87,10 @@ namespace Plugins
             void OnShipDestroy(Ship* ship, DamageList* dmgList, ShipId killerId) override;
             void OnShipColGrpDestroy(Ship*, CArchGroup*, DamageEntry::SubObjFate, DamageList*) override;
             void OnShipDropAllCargo(Ship* ship, const char* hardPoint, DamageList* dmgList) override;
+
+            TractorFailureCode OnTractorVerifyTarget(CETractor* tractor, CLoot* loot, TractorFailureCode originalValue);
+            int OnGetSpaceForCargoType(CShip* ship, Archetype::Equipment* cargo) override;
+            float OnGetCargoRemaining(CShip* ship) override;
 
             concurrencpp::result<void> AdminCmdReloadPrices(const ClientId client);
 

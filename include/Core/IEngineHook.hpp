@@ -142,6 +142,10 @@ class IEngineHook
 
         static int __fastcall GetAmmoCapacityDetourHash(CShip* cship, void* edx, Id ammoArch);
         static int __fastcall GetAmmoCapacityDetourEq(CShip* cship, void* edx, Archetype::Equipment* ammoType);
+        static float __fastcall GetCargoRemaining(CShip* cship);
+        static int __fastcall GetSpaceForCargoType(CShip* cship, void* edx, Archetype::Equipment* archEquip);
+
+        static TractorFailureCode __fastcall CETractorVerifyTarget(CETractor* tractor, void* edx, CLoot* target);
 
         static FireResult __fastcall CELauncherFireAfter(CELauncher* launcher, void* edx, const Vector& pos);
 

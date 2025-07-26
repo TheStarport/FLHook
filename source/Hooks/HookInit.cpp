@@ -208,9 +208,14 @@ void FLHook::InitHookExports()
     ptr = &IEngineHook::CELauncherFireAfter;
     IEngineHook::ceLauncherVTable.Hook(VTablePtr(CELauncherVTable::Fire), &ptr);
 
-    MemUtils::PatchCallAddr(Offset(BinaryType::Common, AddressList::Absolute), (DWORD)AddressList::CommonGetAmmoCapacityEq, IEngineHook::GetAmmoCapacityDetourEq);
-    MemUtils::PatchCallAddr(Offset(BinaryType::Common, AddressList::Absolute), (DWORD)AddressList::CommonGetAmmoCapacityHash1, IEngineHook::GetAmmoCapacityDetourHash);
-    MemUtils::PatchCallAddr(Offset(BinaryType::Common, AddressList::Absolute), (DWORD)AddressList::CommonGetAmmoCapacityHash2, IEngineHook::GetAmmoCapacityDetourHash);
+    MemUtils::PatchCallAddr(Offset(BinaryType::Common, AddressList::Absolute), (DWORD)AddressList::CommonGetAmmoCapacityCallEq, IEngineHook::GetAmmoCapacityDetourEq);
+    MemUtils::PatchCallAddr(Offset(BinaryType::Common, AddressList::Absolute), (DWORD)AddressList::CommonGetAmmoCapacityHashCall1, IEngineHook::GetAmmoCapacityDetourHash);
+    MemUtils::PatchCallAddr(Offset(BinaryType::Common, AddressList::Absolute), (DWORD)AddressList::CommonGetAmmoCapacityHashCall2, IEngineHook::GetAmmoCapacityDetourHash);
+
+	MemUtils::PatchCallAddr(Offset(BinaryType::Common, AddressList::Absolute),
+                                (DWORD)AddressList::CommonCETractorVerifyTargetCall1, IEngineHook::CETractorVerifyTarget);
+	MemUtils::PatchCallAddr(Offset(BinaryType::Common, AddressList::Absolute),
+                                (DWORD)AddressList::CommonCETractorVerifyTargetCall2, IEngineHook::CETractorVerifyTarget);
 
     if (GetConfig()->gameFixes.enableAlternateRadiationDamage)
     {

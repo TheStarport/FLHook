@@ -190,20 +190,63 @@ void __fastcall IEngineHook::CGuidedInit(CGuided* guided, void* edx, CGuided::Cr
 
 int __fastcall IEngineHook::GetAmmoCapacityDetourHash(CShip* cship, void* edx, Id ammoArch)
 {
-    using CShipGetAmmoCapacityType = int(__thiscall*)(CShip*, Id);
-    int origCallVal =
-        reinterpret_cast<CShipGetAmmoCapacityType>(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonCShipGetAmmoCapacity))(cship, ammoArch);
-
     if (auto [retVal, skip] = CallPlugins<int>(&Plugin::OnGetAmmoCapacity, cship, ammoArch); skip)
     {
         return retVal;
     }
+
+    using CShipGetAmmoCapacityType = int(__thiscall*)(CShip*, Id);
+    int origCallVal =
+        reinterpret_cast<CShipGetAmmoCapacityType>(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonCShipGetAmmoCapacity))(cship, ammoArch);
+
     return origCallVal;
 }
 
 int __fastcall IEngineHook::GetAmmoCapacityDetourEq(CShip* cship, void* edx, Archetype::Equipment* ammoType)
 {
     return GetAmmoCapacityDetourHash(cship, edx, ammoType->archId);
+}
+
+TractorFailureCode __fastcall IEngineHook::CETractorVerifyTarget(CETractor* tractor, void* edx, CLoot* target)
+{
+    using CETractorVerifyTargetType = TractorFailureCode(__thiscall*)(CETractor*);
+    TractorFailureCode origCallVal =
+        reinterpret_cast<CETractorVerifyTargetType>(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonCETractorVerifyTarget))(tractor);
+
+    if (auto [retVal, skip] = CallPlugins<TractorFailureCode>(&Plugin::OnTractorVerifyTarget, tractor, origCallVal); skip)
+    {
+        return retVal;
+    }
+
+    return origCallVal;
+}
+
+float __fastcall IEngineHook::GetCargoRemaining(CShip* cship)
+{
+    if (auto [retVal, skip] = CallPlugins<float>(&Plugin::OnGetCargoRemaining, cship); skip)
+    {
+        return retVal;
+    }
+    
+    using CShipGetCargoRemainingType = float(__thiscall*)(CShip*);
+    int origCallVal =
+        reinterpret_cast<CShipGetCargoRemainingType>(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonCShipGetAmmoCapacity))(cship);
+
+    return origCallVal;
+}
+
+int __fastcall IEngineHook::GetSpaceForCargoType(CShip* cship, void* edx, Archetype::Equipment* archEquip)
+{
+    if (auto [retVal, skip] = CallPlugins<float>(&Plugin::OnGetSpaceForCargoType, cship, archEquip); skip)
+    {
+        return retVal;
+    }
+
+    using CShipGetSpaceForCargoType = int(__thiscall*)(CShip*, Archetype::Equipment*);
+    int origCallVal =
+        reinterpret_cast<CShipGetSpaceForCargoType>(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonCShipGetSpaceForCargoType))(cship, archEquip);
+
+    return origCallVal;
 }
 
 FireResult __fastcall IEngineHook::CELauncherFireAfter(CELauncher* launcher, void* edx, const Vector& pos)

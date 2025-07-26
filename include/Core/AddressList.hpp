@@ -92,9 +92,15 @@ enum class AddressList : uint
     CommonCObjectAllocator = 0x4EE50,
 
     CommonIZoneGetDistance = 0xD9B00,
-    CommonGetAmmoCapacityEq = 0x3E60D,
-    CommonGetAmmoCapacityHash1 = 0x535E7,
-    CommonGetAmmoCapacityHash2 = 0x535F8,
+    CommonGetAmmoCapacityCallEq = 0x3E60D,
+    CommonGetAmmoCapacityHashCall1 = 0x535E7,
+    CommonGetAmmoCapacityHashCall2 = 0x535F8,
     CommonHullRepairFactor = 0x4A28,
     CommonCShipGetAmmoCapacity = 0x53220,
+
+    CommonCShipGetSpaceForCargoType = 0x532E0,
+
+    CommonCETractorVerifyTarget = 0x3E4A0,
+    CommonCETractorVerifyTargetCall1 = 0x3E292,
+    CommonCETractorVerifyTargetCall2 = 0x3DC6C,
 };
