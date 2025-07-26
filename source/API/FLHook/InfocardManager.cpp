@@ -35,7 +35,7 @@ InfocardManager::InfocardManager()
         if (hDll)
         {
 
-            DEBUG("Loaded Resource DLL: {{debug}}", { "dll", StringUtils::stows(dll) });
+            DEBUG("Loaded Resource DLL: {{dll}}", { "dll", StringUtils::stows(dll) });
             loadedDlls.push_back(hDll);
         }
     }

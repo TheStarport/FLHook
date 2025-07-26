@@ -41,7 +41,7 @@ void IServerImplHook::BaseEnterInnerAfter([[maybe_unused]] BaseId baseId, Client
 
 void __stdcall IServerImplHook::BaseEnter(BaseId baseId, ClientId client)
 {
-    TRACE("{{charName}} {{value}}", { "baseId", baseId }, { "clientId", client });
+    TRACE("{{baseId}} {{clientId}}", { "baseId", baseId }, { "clientId", client });
 
     const auto skip = CallPlugins(&Plugin::OnBaseEnter, BaseId(baseId), ClientId(client));
 

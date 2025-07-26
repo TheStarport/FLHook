@@ -284,7 +284,7 @@ concurrencpp::result<std::wstring> AccountManager::CheckCharnameTaken(ClientId c
     }
     catch (mongocxx::exception& ex)
     {
-        ERROR("Error checking for taken name {{accountId}} {{ex}}", { "accountId", client.GetCharacterName().Unwrap() }, { "error", ex.what() });
+        ERROR("Error checking for taken name {{accountId}} {{ex}}", { "accountId", client.GetCharacterName().Unwrap() }, { "ex", ex.what() });
         err = L"Error while contacting database, contact staff!";
     }
 
