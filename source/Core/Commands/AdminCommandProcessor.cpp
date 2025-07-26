@@ -350,7 +350,7 @@ concurrencpp::result<void> AdminCommandProcessor::SendSystemMessage(ClientId cli
 concurrencpp::result<void> AdminCommandProcessor::SendUniverseMessage(ClientId client, const std::wstring_view text)
 {
     FLHook::MessageUniverse(text).Handle();
-    client.Message(std::format(L"Message Sent to Server."));
+    client.Message(std::format(L"Message sent to server."));
     co_return;
 }
 
