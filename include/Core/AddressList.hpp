@@ -68,6 +68,7 @@ enum class AddressList : uint
     RadiationPatch5 = 0x211F0,
     RadiationPatch6 = 0x21258,
     RadiationPatch7 = 0x87088,
+    ServerEquipRepairFactor = 0x8AE7C,
 
     // Common.dll Offsets
 
@@ -91,4 +92,8 @@ enum class AddressList : uint
     CommonCObjectAllocator = 0x4EE50,
 
     CommonIZoneGetDistance = 0xD9B00,
+    CommonGetAmmoCapacityEq = 0x3E60D,
+    CommonGetAmmoCapacityHash1 = 0x535E7,
+    CommonGetAmmoCapacityHash2 = 0x535F8,
+    CommonHullRepairFactor = 0x4A28,
 };

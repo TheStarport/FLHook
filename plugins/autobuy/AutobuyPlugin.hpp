@@ -50,6 +50,21 @@ namespace Plugins
                     std::wstring description;
             };
 
+            struct PlayerAmmoData
+            {
+                    int ammoAdjustment;
+                    int ammoCount;
+                    ushort sid;
+                    int launcherCount;
+                    int ammoLimit;
+            };
+
+            struct AmmoData
+            {
+                    int ammoLimit;
+                    int launcherStackingLimit;
+            };
+
             struct Config final
             {
                     // Reflectable fields
@@ -57,7 +72,11 @@ namespace Plugins
                     EquipmentId shieldBattery;
             };
 
-            concurrencpp::result<void>UserCmdAutobuy(ClientId client, std::wstring_view autobuyType, std::wstring_view newState);
+            concurrencpp::result<void> UserCmdAutobuy(ClientId client, std::wstring_view autobuyType, std::wstring_view newState);
+
+            int __fastcall GetAmmoCapacityDetourHash(CShip* cship, void* edx, Id ammoArch);
+
+            int __fastcall GetAmmoCapacityDetourEq(CShip* cship, void* edx, Archetype::Equipment* ammoType);
 
             // clang-format off
             const inline static std::array<CommandInfo<AutobuyPlugin>, 1> commands =
@@ -72,8 +91,12 @@ namespace Plugins
             SetupUserCommandHandler(AutobuyPlugin, commands);
 
             Config config;
+            float hullRepairFactor;
+            float equipmentRepairFactor;
+
             std::array<AutobuyInfo, MaxClientId + 1> autobuyInfo;
-            std::unordered_map<Id, int> ammoLimits;
+            std::unordered_map<ClientId, std::unordered_map<Id, PlayerAmmoData>> playerAmmoLimits;
+            std::unordered_map<Id, AmmoData> ammoLimits;
             bool OnLoadSettings() override;
             /**
              * @brief Hook on BaseEnter. Triggers the autobuy/repair.
@@ -91,7 +114,9 @@ namespace Plugins
              * @brief Hook on ClearClientInfo. Resets the player data.
              */
             void OnClearClientInfo(ClientId client) override;
+            void CheckforStackables(ClientId client);
             void LoadPlayerAutobuy(ClientId client);
+            std::unordered_map<Id, PlayerAmmoData> GetAmmoLimits(ClientId client);
             void AddEquipToCart(const Archetype::Launcher* launcher, const EquipDescList* cargo, std::map<Id, AutobuyCartItem>& cart,
                                 AutobuyCartItem& item, const std::wstring_view& desc);
 

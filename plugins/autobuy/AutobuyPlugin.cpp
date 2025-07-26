@@ -43,6 +43,87 @@ namespace Plugins
         return 0;
     }
 
+    std::unordered_map<Id, AutobuyPlugin::PlayerAmmoData> AutobuyPlugin::GetAmmoLimits(ClientId client)
+    {
+        std::unordered_map<Id, PlayerAmmoData> returnMap;
+
+        // now that we have identified the stackables, retrieve the current ammo count for stackables
+        for (auto& equip : client.GetEquipCargo().Handle()->equip)
+        {
+            if (InternalApi::IsCommodity(equip.archId))
+            {
+                continue;
+            }
+
+            Archetype::Equipment* eq = Archetype::GetEquipment(equip.archId.GetValue());
+            auto type = eq->get_class_type();
+
+            if (!equip.mounted || equip.is_internal())
+            {
+                continue;
+            }
+
+            using namespace Archetype;
+            if (type != ClassType::Gun && type != ClassType::Mine && type != ClassType::Munition && type != ClassType::CounterMeasure)
+            {
+                continue;
+            }
+
+            Id ammo = ((Archetype::Launcher*)eq)->projectileArchId;
+
+            auto ammoLimit = ammoLimits.find(ammo);
+            if (ammoLimit == ammoLimits.end())
+            {
+                continue;
+            }
+
+            if (ammoLimit->second.launcherStackingLimit > returnMap[ammo].launcherCount)
+            {
+                returnMap[ammo].launcherCount++;
+            }
+        }
+
+        for (auto& eq : client.GetEquipCargo().Handle()->equip)
+        {
+            auto ammo = returnMap.find(eq.archId);
+            if (ammo != returnMap.end())
+            {
+                ammo->second.ammoCount = eq.count;
+                ammo->second.sid = eq.id;
+                continue;
+            }
+        }
+
+        for (auto& ammo : returnMap)
+        {
+            auto ammoIter = ammoLimits.find(ammo.first);
+            if (ammoIter != ammoLimits.end())
+            {
+                ammo.second.ammoLimit = std::max(1, ammo.second.launcherCount) * ammoIter->second.ammoLimit;
+            }
+            else
+            {
+                ammo.second.ammoLimit = MAX_PLAYER_AMMO;
+            }
+            ammo.second.ammoAdjustment = ammo.second.ammoLimit - ammo.second.ammoCount;
+        }
+
+        return returnMap;
+    }
+
+    void AutobuyPlugin::CheckforStackables(ClientId client)
+    {
+        std::unordered_map<Id, PlayerAmmoData> ammoLauncherCount = GetAmmoLimits(client);
+        playerAmmoLimits[client] = ammoLauncherCount;
+        for (auto& ammo : ammoLauncherCount)
+        {
+            if (ammo.second.ammoAdjustment < 0)
+            {
+                client.RemoveCargo(ammo.second.sid, -ammo.second.ammoAdjustment);
+            }
+        }
+    }
+
     void HandleRepairs(const ClientId client)
     {
         auto repairCost = static_cast<uint>(client.GetShipArch().Unwrap().GetValue()->hitPoints * (1 - client.GetRelativeHealth().Unwrap()) / 3);
@@ -131,12 +212,12 @@ namespace Plugins
     void AutobuyPlugin::AddEquipToCart(const Archetype::Launcher* launcher, const EquipDescList* cargo, std::map<Id, AutobuyCartItem>& cart,
                                        AutobuyCartItem& item, const std::wstring_view& desc)
     {
-        // TODO: Update to per-weapon ammo limits once implemented
         item.archId = launcher->projectileArchId;
         Id itemId = Id(Arch2Good(item.archId.GetValue()));
-        if (ammoLimits.contains(itemId))
+        auto ammoIter = ammoLimits.find(itemId);
+        if (ammoIter != ammoLimits.end())
         {
-            item.count = ammoLimits[itemId] - PlayerGetAmmoCount(cargo, item.archId);
+            item.count = ammoIter->second.ammoLimit - PlayerGetAmmoCount(cargo, item.archId);
         }
         else
         {
@@ -430,6 +511,51 @@ namespace Plugins
         co_return;
     }
 
+    int __fastcall AutobuyPlugin::GetAmmoCapacityDetourHash(CShip* cship, void* edx, Id ammoArch)
+    {
+        ClientId clientId = ClientId(cship->ownerPlayer);
+        uint launcherCount = 1;
+        uint ammoPerLauncher = MAX_PLAYER_AMMO;
+        uint currCount = 0;
+
+        CEquipTraverser tr((uint)EquipmentClass::Cargo);
+        CECargo* cargo;
+        while (cargo = reinterpret_cast<CECargo*>(cship->equipManager.Traverse(tr)))
+        {
+            if (cargo->archetype->archId == ammoArch)
+            {
+                currCount = cargo->count;
+                break;
+            }
+        }
+
+        auto ammoLimits = playerAmmoLimits.find(clientId);
+        if (ammoLimits != playerAmmoLimits.end())
+        {
+            auto currAmmoLimit = ammoLimits->second.find(ammoArch);
+            if (currAmmoLimit != ammoLimits->second.end())
+            {
+                launcherCount = std::max(1, currAmmoLimit->second.launcherCount);
+            }
+        }
+
+        auto ammoIter = ammoLimits->second.find(ammoArch);
+        if (ammoIter != ammoLimits->second.end())
+        {
+            ammoPerLauncher = ammoIter->second.ammoLimit;
+        }
+
+        int remainingCapacity = (ammoPerLauncher * launcherCount) - currCount;
+
+        remainingCapacity = std::max(remainingCapacity, 0);
+        return remainingCapacity;
+    }
+
+    int __fastcall AutobuyPlugin::GetAmmoCapacityDetourEq(CShip* cship, void* edx, Archetype::Equipment* ammoType)
+    {
+        return GetAmmoCapacityDetourHash(cship, edx, ammoType->archId);
+    }
+
     bool AutobuyPlugin::OnLoadSettings()
     {
         LoadJsonWithValidation(Config, config, "config/autobuy.json");
@@ -464,32 +590,42 @@ namespace Plugins
 
             while (ini.read_header())
             {
-                if (ini.is_header("Munition"))
+                if (!ini.is_header("Munition") && !ini.is_header("Mine") && !ini.is_header("CounterMeasure"))
                 {
-                    uint itemname = 0;
-                    int itemlimit = 0;
-                    bool valid = false;
+                    continue;
+                }
 
-                    while (ini.read_value())
+                Id itemname;
+                AmmoData ammo;
+
+                while (ini.read_value())
+                {
+                    if (ini.is_value("nickname"))
                     {
-                        if (ini.is_value("nickname"))
-                        {
-                            itemname = CreateID(ini.get_value_string(0));
-                        }
-                        else if (ini.is_value("ammo_limit"))
-                        {
-                            valid = true;
-                            itemlimit = ini.get_value_int(0);
-                        }
+                        itemname = Id(ini.get_value_string(0));
                     }
-
-                    if (valid)
+                    else if (ini.is_value("ammo_limit"))
                     {
-                        ammoLimits[Id(itemname)] = itemlimit;
+                        ammo.ammoLimit = ini.get_value_int(0);
+                        ammo.launcherStackingLimit = ini.get_value_int(1);
+                        if (!ammo.launcherStackingLimit)
+                        {
+                            ammo.launcherStackingLimit = 1;
+                        }
+                        ammoLimits[itemname] = ammo;
                     }
                 }
             }
+            ini.close();
         }
+
+        DWORD commonAddr = FLHook::Offset(FLHook::BinaryType::Common, AddressList::Absolute);
+        MemUtils::PatchCallAddr(commonAddr, (DWORD)AddressList::CommonGetAmmoCapacityEq, GetAmmoCapacityDetourEq);
+        MemUtils::PatchCallAddr(commonAddr, (DWORD)AddressList::CommonGetAmmoCapacityHash1, GetAmmoCapacityDetourHash);
+        MemUtils::PatchCallAddr(commonAddr, (DWORD)AddressList::CommonGetAmmoCapacityHash2, GetAmmoCapacityDetourHash);
+        // pull the repair factors directly from where the game uses it
+        hullRepairFactor = *(PFLOAT(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonHullRepairFactor)));
+        equipmentRepairFactor = *(PFLOAT(FLHook::Offset(FLHook::BinaryType::Server, AddressList::ServerEquipRepairFactor)));
 
         return true;
     }
