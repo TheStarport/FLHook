@@ -24,8 +24,17 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
             std::erase(buffer, '\0');
 
             const std::wstring sender = chatData.characterName;
-            const int spaceAfterColonOffset = buffer[sender.length() + 1] == ' ' ? sender.length() + 2 : 0;
-            const std::wstring text = buffer.substr(spaceAfterColonOffset, buffer.length() - spaceAfterColonOffset);
+            std::wstring text;
+            if (buffer.starts_with(sender))
+            {
+                const int spaceAfterColonOffset = buffer[sender.length() + 1] == ' ' ? sender.length() + 2 : 0;
+                text = buffer.substr(spaceAfterColonOffset, buffer.length() - spaceAfterColonOffset);
+            }
+            else
+            {
+                // this case can occur if someone uses the FLServer /echo command
+                text = buffer;
+            }
 
             auto& data = client.GetData();
             if ((clientTo.GetValue() & 0xFFFF) != 0)

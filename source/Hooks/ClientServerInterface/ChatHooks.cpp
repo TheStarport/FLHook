@@ -216,7 +216,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
                 return false;
             }
 
-            if (strBuffer.starts_with(L"/i ") || strBuffer.starts_with(L"/j ") || strBuffer.starts_with(L"/join "))
+            if (strBuffer.starts_with(L"/i ") || strBuffer.starts_with(L"/j ") || strBuffer.starts_with(L"/join ") || strBuffer.starts_with(L"/echo "))
             {
                 // Allow some of FLServer's built-in commands that we might otherwise suppress
                 return true;
