@@ -317,12 +317,13 @@ concurrencpp::result<void> AdminCommandProcessor::UnBanPlayer(ClientId client, s
         client.Message(std::format(L"Unable to find account from character: {}", characterName));
         co_return;
     }
+    std::wstring stackAllocatedCharacterName = std::wstring(characterName);
 
     THREAD_BACKGROUND;
     (void)account->UnBan();
     THREAD_MAIN;
 
-    client.Message(std::format(L"{} has been successfully unbanned.", characterName));
+    client.Message(std::format(L"{} has been successfully unbanned.", stackAllocatedCharacterName));
     co_return;
 }
 

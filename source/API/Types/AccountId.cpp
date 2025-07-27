@@ -58,7 +58,7 @@ std::optional<AccountId> AccountId::GetAccountFromCharacterName(const std::wstri
     const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName)));
 
     mongocxx::options::find options;
-    options.projection(B_MDOC(B_KVP("_id", 1)));
+    options.projection(B_MDOC(B_KVP("accountId", 1)));
 
     const auto character = charactersCollection.find_one(findCharDoc.view(), options);
     if (!character.has_value())
