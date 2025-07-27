@@ -119,16 +119,22 @@ int TransformArg(const std::wstring_view s, size_t paramNumber)
 {
     if (s.empty())
     {
-        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"numeric string up to 3 characters"));
+        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"numeric string"));
     }
 
-    if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }) && s.size() < 4)
+    std::wstring sToValidate = std::wstring(s);
+    if (s[0] == L'-')
+    {
+        sToValidate = sToValidate.substr(1);
+    }
+
+    if (std::ranges::all_of(sToValidate, [](const wchar_t c) { return iswdigit(c); }))
     {
         const auto number = StringUtils::Cast<int>(s);
         return number;
     }
 
-    throw InvalidParameterException(s, paramNumber, std::wstring_view(L"fully numeric string up to 3 characters"));
+    throw InvalidParameterException(s, paramNumber, std::wstring_view(L"fully numeric string"));
 }
 OptionalTransformArg(int);
 
@@ -140,7 +146,7 @@ GroupId TransformArg(const std::wstring_view s, size_t paramNumber)
         throw InvalidParameterException(s, paramNumber, std::wstring_view(L"numeric string up to 3 characters"));
     }
 
-    if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }) && s.size() < 4)
+    if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }))
     {
         const auto number = StringUtils::Cast<uint>(s);
         return GroupId(number);
@@ -155,7 +161,7 @@ uint TransformArg(const std::wstring_view s, size_t paramNumber)
 {
     if (s.empty())
     {
-        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"non-negative numeric string up to 3 characters"));
+        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"non-negative numeric string"));
     }
 
     if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }) && s.size() < 4)
@@ -164,7 +170,7 @@ uint TransformArg(const std::wstring_view s, size_t paramNumber)
         return number;
     }
 
-    throw InvalidParameterException(s, paramNumber, std::wstring_view(L"non-negative fully numeric string up to 3 characters"));
+    throw InvalidParameterException(s, paramNumber, std::wstring_view(L"non-negative fully numeric string"));
 }
 OptionalTransformArg(uint);
 
