@@ -211,7 +211,31 @@ concurrencpp::result<void> AdminCommandProcessor::AddCash(ClientId client, std::
 
         // They are offline, lets lookup the needed info
         const auto filter = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName)));
-        const auto update = B_MDOC(B_KVP("$inc", B_MDOC(B_KVP("money", amount))));
+
+        // We get the current value and do the calculation ourselves, to enforce a minimum of $0 cash - remember the
+        // amount could be negative! - and use longs to ensure we can't overflow an integer.
+
+        const auto characterResult = charactersCollection.find_one(filter.view());
+        if (!characterResult.has_value())
+        {
+            THREAD_MAIN;
+            client.MessageErr(L"Provided character name not found");
+            co_return;
+        }
+
+        int currMoney = characterResult->find("money")->get_int32().value;
+        long long newMoney = ((long long)currMoney) + amount;
+
+        if (newMoney < 0)
+        {
+            newMoney = 0;
+        }
+        else if (newMoney >= pow(2, 31))
+        {
+            newMoney = pow(2, 31) - 1;
+        }
+
+        const auto update = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("money", (int32_t)newMoney))));
 
         const auto result = charactersCollection.update_one(filter.view(), update.view());
 
