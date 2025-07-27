@@ -1034,3 +1034,70 @@ concurrencpp::result<void> AdminCommandProcessor::Help(ClientId client, std::opt
     client.Message(response);
     co_return;
 }
+
+concurrencpp::result<void> AdminCommandProcessor::SetAccTransferCode(ClientId client, std::wstring_view characterNameView, std::wstring_view code)
+{
+    if (code.length() == 0)
+    {
+        (void)client.MessageErr(L"Code too small, set to none to clear.");
+        co_return;
+    }
+
+    std::string stackAllocatedCharacterName = StringUtils::wstos(characterNameView);
+    std::wstring stackAllocatedCode = std::wstring(code);
+
+    THREAD_BACKGROUND;
+
+    const auto config = FLHook::GetConfig();
+    const auto dbClient = FLHook::GetDbClient();
+    auto charactersCollection = dbClient->database(config->database.dbName).collection(config->database.charactersCollection);
+
+    const auto findCharacterDoc = B_MDOC(B_KVP("characterName", stackAllocatedCharacterName));
+
+    const auto characterResult = charactersCollection.find_one(findCharacterDoc.view());
+    if (!characterResult.has_value())
+    {
+        THREAD_MAIN;
+        client.MessageErr(L"Provided character name not found");
+        co_return;
+    }
+
+    const auto findCharactersDoc = B_MDOC(B_KVP("accountId", characterResult->find("accountId")->get_string()));
+
+    for (auto cursor = charactersCollection.find(findCharactersDoc.view()); const auto& doc : cursor)
+    {
+        std::string targetCharacter = std::string(doc.find("characterName")->get_string().value);
+        if (targetCharacter.empty())
+        {
+            continue;
+        }
+
+        std::wstring targetWideCharacter = StringUtils::stows(targetCharacter);
+
+        if (stackAllocatedCode == L"none")
+        {
+            if (AccountManager::ClearCharacterTransferCode(targetWideCharacter))
+            {
+                (void)client.Message(std::format(L"OK Transferchar code cleared on {}", targetWideCharacter));
+            }
+            else
+            {
+                (void)client.MessageErr(std::format(L"Database error encountered whilst clearing transferchar code on {}", targetWideCharacter));
+            }
+        }
+        else
+        {
+            if (AccountManager::SetCharacterTransferCode(targetWideCharacter, stackAllocatedCode))
+            {
+                (void)client.Message(std::format(L"OK Transferchar code set to {} on {}", stackAllocatedCode, targetWideCharacter));
+            }
+            else
+            {
+                (void)client.MessageErr(std::format(L"Database error encountered whilst setting transferchar code on {}", targetWideCharacter));
+            }
+        }
+    }
+
+    THREAD_MAIN;
+    co_return;
+}

@@ -38,8 +38,9 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         concurrencpp::result<void> SetDamageType(ClientId client, std::wstring_view newDamageType);
         concurrencpp::result<void> Move(ClientId client, ClientId target, float x, float y, float z);
         concurrencpp::result<void> Help(ClientId client, std::optional<int> page);
+        concurrencpp::result<void> SetAccTransferCode(ClientId client, std::wstring_view characterNameView, std::wstring_view code);
 
-        const inline static std::array<AdminCommandInfo<AdminCommandProcessor>, 33> commands = {
+        const inline static std::array<AdminCommandInfo<AdminCommandProcessor>, 34> commands = {
             { AddAdminCommand(AdminCommandProcessor, Cmds(L".getcash"), GetCash, GameAndConsole, Cash, L".getcash <charname>",
              L"Gets the cash of the target character"),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".setcash"), SetCash, GameAndConsole, Cash, L".setcash <charname> <cash>",
@@ -104,6 +105,8 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
              L"Sets the source of allowed damage on the server."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".move"), Move, GameOnly, Movement, L".move <target> <x> <y> <z>",
              L"Moves the target to the destination location in space."),
+             AddAdminCommand(AdminCommandProcessor, Cmds(L".setacctransfercode"), SetAccTransferCode, GameAndConsole, Character, L".setacctransfercode <char name> <code>",
+             L"Sets the specified character transfer code on all characters on the account containing the specified character"),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".help", L".?", L".h"), Help, GameAndConsole, Any, L".help [page]",
              L"Provides indepth help information") }
         };
