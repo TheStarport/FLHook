@@ -880,7 +880,10 @@ concurrencpp::result<void> AdminCommandProcessor::Pull(ClientId client, ClientId
     pos.y += 400;
     target.GetShip().Handle().Relocate(pos, orientation);
 
-    client.Message(std::format(L"player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}", target.GetCharacterName().Handle(), client, pos.x, pos.y, pos.z));
+    client.Message(std::format(
+        L"Player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}",
+        target.GetCharacterName().Handle(), client.GetCharacterName().Handle(),
+        pos.x, pos.y, pos.z));
     co_return;
 }
 
