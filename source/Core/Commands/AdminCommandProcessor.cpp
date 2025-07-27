@@ -362,14 +362,14 @@ concurrencpp::result<void> AdminCommandProcessor::GetRep(ClientId client, Client
 concurrencpp::result<void> AdminCommandProcessor::MessagePlayer(ClientId client, ClientId target, const std::wstring_view text)
 {
     target.Message(text).Handle();
-    client.Message(std::format(L"Message sent to {} successfully sent. Contents: {}", target, text));
+    client.Message(std::format(L"Message sent to {} successfully. Contents: {}", target.GetCharacterName().Handle(), text));
     co_return;
 }
 
 concurrencpp::result<void> AdminCommandProcessor::SendSystemMessage(ClientId client, SystemId system, const std::wstring_view text)
 {
     system.Message(text).Handle();
-    client.Message(std::format(L"Message successfully sent to {}", system));
+    client.Message(std::format(L"Message successfully sent to {}", system.GetName().Handle()));
     co_return;
 }
 
