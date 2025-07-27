@@ -1015,6 +1015,23 @@ void __fastcall AccountManager::CreateAccountInitFromFolderBypass(CAccount* acco
     }
 }
 
+CAccount* __fastcall AccountManager::PlayerDbGetCAccountByCharacterName(PlayerDB* playerDb, void* edx, st6::wstring& charName)
+{
+    char charNameBuffer[50];
+
+    getFlName(charNameBuffer, (const wchar_t*)charName.data());
+    PlayerData* db = nullptr;
+    while (db = Players.traverse_active(db))
+    {
+        if (strcmp(charNameBuffer, db->charFile.charFilename) == 0)
+        {
+            return db->account;
+        }
+    }
+
+    return nullptr;
+}
+
 AccountManager::AccountManager()
 {
     instance = this;
@@ -1059,6 +1076,10 @@ AccountManager::AccountManager()
     MemUtils::NopAddress(serverOffset + 0x725A6, 0x6D525FE - 0x6D525A6);
 
     MemUtils::PatchCallAddr(serverOffset, 0x72697, CreateAccountInitFromFolderBypass);
+
+    playerDbGetAccountByCharNameDetour =
+        std::make_unique<FunctionDetour<PlayerDbGetAccountByCharNameType>>(reinterpret_cast<PlayerDbGetAccountByCharNameType>(serverOffset + 0x72B60));
+    playerDbGetAccountByCharNameDetour->Detour(PlayerDbGetCAccountByCharacterName);
 
     // Patch out IO in InitFromFolder
     MemUtils::PatchAssembly(serverOffset + 0x76955, InitFromFolderIoBypass);

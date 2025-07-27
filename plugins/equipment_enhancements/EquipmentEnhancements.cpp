@@ -716,7 +716,7 @@ namespace Plugins
             return;
         }
 
-        shipArmorIter = shipArmorMap.find(shipHash);
+        auto shipArmorIter = shipArmorMap.find(shipHash);
         shipArmorArch = shipHash;
         if (shipArmorIter == shipArmorMap.end())
         {

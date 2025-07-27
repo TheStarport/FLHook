@@ -134,6 +134,7 @@ class AccountManager
         using DbInitType = void(__fastcall*)(PlayerDB* db, void* edx, uint unk, bool unk2);
         using LoadMDataType = void(__fastcall*)(MPlayerDataSaveStruct* mdata, void* edx, struct INI_Reader* ini);
         using OnPlayerSaveType = bool(__fastcall*)(PlayerData* data);
+        using PlayerDbGetAccountByCharNameType = CAccount*(__fastcall*)(PlayerDB* data, void* edx, st6::wstring& charName);
         using OnCreateNewCharacterType = bool(__fastcall*)(PlayerData* data, void* edx, SCreateCharacterInfo* character);
         using FlMapVisitErase = uint*(__thiscall*)(FlMap<uint, char>&, FlMap<uint, char>::Node*&, FlMap<uint, char>::Node*, FlMap<uint, char>::Node*);
         using FlMapVisitInsert = FlMap<uint, char>::Node*(__thiscall*)(FlMap<uint, char>& visitMap, FlMap<uint, char>::Node* node, const uint& key);
@@ -141,11 +142,15 @@ class AccountManager
         inline static std::unique_ptr<FunctionDetour<DbInitType>> dbInitDetour;
         inline static std::unique_ptr<FunctionDetour<LoadMDataType>> loadPlayerMDataDetour;
         inline static std::unique_ptr<FunctionDetour<OnPlayerSaveType>> onPlayerSaveDetour;
+        inline static std::unique_ptr<FunctionDetour<PlayerDbGetAccountByCharNameType>> playerDbGetAccountByCharNameDetour;
         inline static std::unique_ptr<FunctionDetour<OnCreateNewCharacterType>> onCreateNewCharacterDetour;
         bool static __fastcall OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCharacterInfo* characterInfo);
         bool static __fastcall OnPlayerSave(PlayerData* pd);
         void static __fastcall PlayerDbInitDetour(PlayerDB* db, void* edx, uint unk, bool unk2);
         void static __fastcall CreateAccountInitFromFolderBypass(CAccount* account, void* edx, char* dir);
+
+        static CAccount* __fastcall PlayerDbGetCAccountByCharacterName(PlayerDB* playerDb, void* edx, st6::wstring& charName);
+
         inline static GetFLNameT getFlName;
 
         PlayerDbLoadUserDataAssembly loadUserDataAssembly;

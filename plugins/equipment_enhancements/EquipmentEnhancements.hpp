@@ -194,7 +194,6 @@ namespace Plugins
 
             std::unordered_map<Id, WeaponData> weaponDataMap;
             std::unordered_map<Id, std::unordered_map<ushort, int>> shipArmorMap;
-            std::unordered_map<Id, std::unordered_map<ushort, int>>::iterator shipArmorIter;
             std::vector<float> armorReductionVector;
             std::unordered_map<Id, std::unordered_map<ushort, BurstFireGunData>> shipGunData;
             std::unordered_map<Id, BurstFireData> burstGunData;
