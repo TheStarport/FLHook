@@ -159,7 +159,7 @@ void FLHook::InitHookExports()
     IEngineHook::cGuidedVTable.Hook(VTablePtr(CGuidedVTable::InitCEquipObject), &ptr);
 
     ptr = &IEngineHook::ShipMunitionHit;
-    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::ShieldMunitionHit), &ptr);
+    IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::MunitionImpact), &ptr);
 
     ptr = &IEngineHook::ShipDestroy;
     IEngineHook::iShipVTable.Hook(VTablePtr(IShipInspectVTable::ObjectDestroyed), &ptr);
