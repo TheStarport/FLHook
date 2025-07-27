@@ -251,6 +251,7 @@ concurrencpp::result<void> AdminCommandProcessor::AddCash(ClientId client, std::
 
 concurrencpp::result<void> AdminCommandProcessor::KickPlayer(ClientId client, ClientId target, std::wstring_view reason)
 {
+    std::wstring targetCharName = std::wstring(target.GetCharacterName().Handle());
     if (reason.empty())
     {
         target.Kick().Handle();
@@ -260,7 +261,7 @@ concurrencpp::result<void> AdminCommandProcessor::KickPlayer(ClientId client, Cl
         target.Kick(reason).Handle();
     }
 
-    client.Message(std::format(L"{} has been successfully kicked. Reason: {}", target, reason));
+    client.Message(std::format(L"{} has been successfully kicked. Reason: {}", targetCharName, reason));
     co_return;
 }
 
