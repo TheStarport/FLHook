@@ -826,7 +826,7 @@ concurrencpp::result<void> AdminCommandProcessor::ListPlugins(ClientId client)
         plugins += std::format(L"{} ({})\n", p->GetName(), p->GetShortName());
     }
 
-    client.Message(plugins);
+    client.Message(plugins.substr(0, plugins.length() - 1));
     co_return;
 }
 
