@@ -733,7 +733,7 @@ concurrencpp::result<void> AdminCommandProcessor::LoadPlugin(ClientId client, st
         if (p == L"all")
         {
             PluginManager::i()->LoadAll(false);
-            res = L"Loaded all possible plugins. See console for details.";
+            res = L"Loaded all possible plugins. See console for details.\n";
             break;
         }
 
@@ -747,7 +747,7 @@ concurrencpp::result<void> AdminCommandProcessor::LoadPlugin(ClientId client, st
         }
     }
 
-    client.Message(res);
+    client.Message(res.substr(0, res.length() - 1));
 
     co_return;
 }
