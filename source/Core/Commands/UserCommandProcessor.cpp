@@ -986,6 +986,15 @@ concurrencpp::result<void> UserCommandProcessor::Value(const ClientId client)
     co_return;
 }
 
+concurrencpp::result<void> UserCommandProcessor::Pos(const ClientId client)
+{
+    const auto clientShip = client.GetShip().Handle();
+    auto [pos, orientation] = clientShip.GetPositionAndOrientation().Handle();
+    Vector erot = orientation.ToEuler(true);
+    (void)client.Message(std::format(L"Position {:0.0f} {:0.0f} {:0.0f} Orient {:0.0f} {:0.0f} {:0.0f}", pos.x, pos.y, pos.z, erot.x, erot.y, erot.z));
+    co_return;
+}
+
 concurrencpp::result<void> UserCommandProcessor::Dice(const ClientId client, uint sidesOfDice)
 {
     // TODO: Support for more than 1 dice, e.g. 6d10

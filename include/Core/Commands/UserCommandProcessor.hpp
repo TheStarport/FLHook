@@ -34,11 +34,12 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         concurrencpp::result<void> Dice(ClientId client, uint sidesOfDice);
         concurrencpp::result<void> Coin(ClientId client);
         concurrencpp::result<void> Value(ClientId client);
+        concurrencpp::result<void> Pos(ClientId client);
         concurrencpp::result<void> DropRep(ClientId client);
         concurrencpp::result<void> Help(ClientId client, std::optional<int> page);
 
         // clang-format off
-        inline static const std::array<CommandInfo<UserCommandProcessor>, 29> commands = {
+        inline static const std::array<CommandInfo<UserCommandProcessor>, 30> commands = {
             {
                 AddCommand(UserCommandProcessor, Cmds( L"/id"sv ), GetSelfClientId, L"/id", L"Prints your client id"),
                 AddCommand(UserCommandProcessor, Cmds( L"/ids"sv ), GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
@@ -76,6 +77,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
                 AddCommand(UserCommandProcessor, Cmds( L"/time"sv ), Time, L"/time", L"Prints current time"),
                 AddCommand(UserCommandProcessor, Cmds( L"/rename"sv ), Rename, L"/rename <newName>", L"Renames the character. Kicks you upon completion."),
                 AddCommand(UserCommandProcessor, Cmds( L"/value"sv ), Value, L"/value", L"Prints the current total worth of the character"),
+                AddCommand(UserCommandProcessor, Cmds( L"/pos"sv ), Pos, L"/pos", L"Prints your current position and orientation in space"),
                 AddCommand(UserCommandProcessor, Cmds( L"/coin"sv ), Coin, L"/coin", L"Tosses a coin, heads or tails."),
                 AddCommand(UserCommandProcessor, Cmds( L"/dice"sv ), Dice, L"/dice [numOfSides]", L"Rolls the dice with specified amount of sides, 6 if unspecified"),
                 AddCommand(UserCommandProcessor, Cmds( L"/droprep"sv ), DropRep, L"/droprep", L"Removes your affiliation if you have one"),
