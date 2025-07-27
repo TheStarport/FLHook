@@ -21,6 +21,11 @@ std::optional<concurrencpp::result<void>> AdminCommandProcessor::ProcessCommand(
 {
     for (auto& admin : PluginManager::i()->adminCommands)
     {
+        if (admin.expired())
+        {
+            continue;
+        }
+
         const auto ptr = admin.lock();
         if (auto res = ptr->ProcessCommand(user, currentContext, cmd, paramVector); res.has_value())
         {
