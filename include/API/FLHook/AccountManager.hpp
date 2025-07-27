@@ -153,6 +153,8 @@ class AccountManager
     public:
         static concurrencpp::result<bool> UpdateCharacter(std::wstring charName, bsoncxx::v_noabi::document::value charUpdateDoc,
                                                           std::string logDescription);
+        static concurrencpp::result<cpp::result<void, std::wstring>> UpdateAccount(std::wstring charName, bsoncxx::v_noabi::document::value accountUpdateDoc,
+                                                          std::string logDescription);
 
         AccountManager();
         AccountManager(const AccountManager&) = delete;

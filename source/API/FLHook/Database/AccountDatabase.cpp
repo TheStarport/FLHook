@@ -338,6 +338,60 @@ concurrencpp::result<bool> AccountManager::UpdateCharacter(std::wstring charName
     co_return result;
 }
 
+concurrencpp::result<cpp::result<void, std::wstring>> AccountManager::UpdateAccount(std::wstring charName, bsoncxx::v_noabi::document::value updateAccountDoc,
+                                                                                    std::string logDescription)
+{
+    THREAD_BACKGROUND;
+
+    const auto dbClient = FLHook::GetDbClient();
+    auto session = dbClient->start_session();
+    session.start_transaction();
+
+    try
+    {
+        const auto config = FLHook::GetConfig();
+        auto accountCollection = dbClient->database(config->database.dbName).collection(config->database.accountsCollection);
+        auto charactersCollection = dbClient->database(config->database.dbName).collection(config->database.charactersCollection);
+
+        const auto findCharacterDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(charName)));
+
+        const auto characterResult = charactersCollection.find_one(findCharacterDoc.view());
+        if (!characterResult.has_value())
+        {
+            THREAD_MAIN;
+            co_return cpp::fail(L"Provided character name not found");
+        }
+
+        const auto findAccountDoc = B_MDOC(B_KVP("_id", characterResult->find("accountId")->get_string()));
+        const auto updateResponse = accountCollection.update_one(findAccountDoc.view(), updateAccountDoc.view());
+        if (updateResponse->modified_count() == 0)
+        {
+            THREAD_MAIN;
+            co_return cpp::fail(L"Failed to update account. Account was either invalid or already contained/did not contain role(s).");
+        }
+    }
+    catch (bsoncxx::exception& ex)
+    {
+        ERROR("BSON error during {{logDescription}}: {{charName}} {{ex}}",
+            { "charName", charName },
+            { "ex", ex.what() },
+            { "logDescription", logDescription });
+        session.abort_transaction();
+    }
+    catch (mongocxx::exception& ex)
+    {
+        ERROR("MongoDB error during {{logDescription}}: {{charName}} {{ex}}",
+              { "charName", charName },
+              { "ex", ex.what() },
+              { "logDescription", logDescription });
+        session.abort_transaction();
+    }
+
+    THREAD_MAIN;
+    cpp::result<void, std::wstring> ret; // success object - usually we would `return {};` for this, but concurrencpp...
+    co_return ret;
+}
+
 concurrencpp::result<void> AccountManager::Rename(std::wstring currName, std::wstring newName)
 {
     const auto charUpdateDoc = B_MDOC(

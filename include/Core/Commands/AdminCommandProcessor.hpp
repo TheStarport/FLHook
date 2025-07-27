@@ -27,6 +27,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         concurrencpp::result<void> AddRoles(ClientId client, const std::wstring_view target, std::vector<std::wstring_view> roles);
         concurrencpp::result<void> DeleteRoles(ClientId client, std::wstring_view characterName, std::vector<std::wstring_view> roles);
         concurrencpp::result<void> SetRoles(ClientId client, std::wstring_view characterName, std::vector<std::wstring_view> roles);
+        concurrencpp::result<void> GetRoles(ClientId client, std::wstring_view characterName);
         concurrencpp::result<void> LoadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames);
         concurrencpp::result<void> UnloadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames);
         concurrencpp::result<void> ReloadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames);
@@ -38,7 +39,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         concurrencpp::result<void> Move(ClientId client, ClientId target, float x, float y, float z);
         concurrencpp::result<void> Help(ClientId client, std::optional<int> page);
 
-        const inline static std::array<AdminCommandInfo<AdminCommandProcessor>, 32> commands = {
+        const inline static std::array<AdminCommandInfo<AdminCommandProcessor>, 33> commands = {
             { AddAdminCommand(AdminCommandProcessor, Cmds(L".getcash"), GetCash, GameAndConsole, Cash, L".getcash <charname> <cash>",
              L"Gets the cash of the target character"),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".setcash"), SetCash, GameAndConsole, Cash, L".setcash <charname> <cash>",
@@ -83,6 +84,8 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
              L"Removes the specified admin roles from the user."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".setroles"), SetRoles, GameAndConsole, SuperAdmin, L".setroles <charname> [roles...]",
              L"Replaces the existing roles with the new specified roles. Providing none will clear the roles."),
+             AddAdminCommand(AdminCommandProcessor, Cmds(L".getroles"), GetRoles, GameAndConsole, Any, L".getroles <charname>",
+             L"Gets the roles a specified admin user has."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".loadplugin"), LoadPlugin, GameAndConsole, Plugin, L".loadplugin <dllname>",
              L"Attempt to load the specified DLL from the plugins folder. Providing 'all' loads all plugins."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".unloadplugin"), UnloadPlugin, GameAndConsole, Plugin, L".unloadplugin <plugin_shortname>",

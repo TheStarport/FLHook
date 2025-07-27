@@ -471,7 +471,7 @@ concurrencpp::result<void> AdminCommandProcessor::GetPlayerInfo(ClientId client,
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view target, std::vector<std::wstring_view> roles)
+concurrencpp::result<void> AdminCommandProcessor::GetRoles(ClientId client, std::wstring_view target)
 {
     if (target.empty())
     {
@@ -479,17 +479,9 @@ concurrencpp::result<void> AdminCommandProcessor::AddRoles(ClientId client, cons
         co_return;
     }
 
-    if (roles.empty())
-    {
-        client.MessageErr(L"No roles provided.");
-        co_return;
-    }
-
     auto character = StringUtils::wstos(target);
     auto stackAllocatedCharacter = std::wstring(target);
     std::vector<std::string> stringRoles;
-    std::ranges::transform(
-        roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::ToLower(StringUtils::wstos(role)); });
 
     THREAD_BACKGROUND;
 
@@ -508,22 +500,80 @@ concurrencpp::result<void> AdminCommandProcessor::AddRoles(ClientId client, cons
         co_return;
     }
 
+    const auto findAccountDoc = B_MDOC(B_KVP("_id", characterResult->find("accountId")->get_string()));
+
+    const auto accountResult = accountCollection.find_one(findAccountDoc.view());
+    if (!accountResult.has_value())
+    {
+        THREAD_MAIN;
+        client.MessageErr(L"Character was found but account was not!");
+        co_return;
+    }
+
+    auto gameRoles = accountResult->find("gameRoles");
+    if (gameRoles == accountResult->end())
+    {
+        THREAD_MAIN;
+        // this case is hit when someone has never had any roles, i.e. they have no gameRoles field set on their account
+        client.MessageErr(std::format(L"Player {} has no admin roles.", stackAllocatedCharacter));
+        co_return;
+    }
+
+    for (auto role : gameRoles->get_array().value)
+    {
+        stringRoles.emplace_back(role.get_string().value);
+    }
+
+    THREAD_MAIN;
+
+    if (stringRoles.size() == 0)
+    {
+        // this case can be hit when someone has an empty gameRoles list, e.g. because they used to have roles
+        client.MessageErr(std::format(L"Player {} has no admin roles.", stackAllocatedCharacter));
+        co_return;
+    }
+
+    (void)client.Message(std::format(L"Player {} has the following admin roles:", stackAllocatedCharacter));
+    for (std::string role : stringRoles)
+    {
+        (void)client.Message(std::format(L"- {}", StringUtils::stows(role)));
+    }
+    co_return;
+}
+
+concurrencpp::result<void> AdminCommandProcessor::AddRoles(ClientId client, const std::wstring_view target, std::vector<std::wstring_view> roles)
+{
+    if (target.empty())
+    {
+        client.MessageErr(L"Character name not provided.");
+        co_return;
+    }
+
+    if (roles.empty())
+    {
+        client.MessageErr(L"No roles provided.");
+        co_return;
+    }
+
+    auto stackAllocatedCharacter = std::wstring(target);
+    std::vector<std::string> stringRoles;
+    std::ranges::transform(
+        roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::ToLower(StringUtils::wstos(role)); });
+
     B_ARR roleArray;
     for (auto role : stringRoles)
     {
         roleArray.append(role);
     }
 
-    const auto findAccountDoc = B_MDOC(B_KVP("_id", characterResult->find("accountId")->get_string()));
     const auto updateAccountDoc = B_MDOC(B_KVP("$addToSet", B_MDOC(B_KVP("gameRoles", B_MDOC(B_KVP("$each", roleArray.view()))))));
-    if (const auto updateResponse = accountCollection.update_one(findAccountDoc.view(), updateAccountDoc.view()); updateResponse->modified_count() != 1)
+
+    auto result = co_await AccountManager::UpdateAccount(stackAllocatedCharacter, updateAccountDoc, "adding roles");
+    if (result.has_error())
     {
-        THREAD_MAIN;
-        client.MessageErr(L"Unable to add any role. Account was either invalid or already contained role(s).");
+        client.MessageErr(result.error());
         co_return;
     }
-
-    THREAD_MAIN;
 
     // Success, lets add roles to the credential map for this character, if they are online
     if (auto targetClient = FLHook::GetClientByName(stackAllocatedCharacter))
@@ -541,14 +591,97 @@ concurrencpp::result<void> AdminCommandProcessor::AddRoles(ClientId client, cons
 
 concurrencpp::result<void> AdminCommandProcessor::SetRoles(ClientId client, std::wstring_view target, std::vector<std::wstring_view> roles)
 {
-    // TODO: pending Character Database rework
-    client.Message(L"Successfully set roles. {} roles");
+    if (target.empty())
+    {
+        client.MessageErr(L"Character name not provided.");
+        co_return;
+    }
+
+    if (roles.empty())
+    {
+        client.MessageErr(L"No roles provided.");
+        co_return;
+    }
+
+    auto stackAllocatedCharacter = std::wstring(target);
+    std::vector<std::string> stringRoles;
+    std::ranges::transform(
+        roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::ToLower(StringUtils::wstos(role)); });
+
+    B_ARR roleArray;
+    for (auto role : stringRoles)
+    {
+        roleArray.append(role);
+    }
+
+    const auto updateAccountDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("gameRoles", roleArray.view()))));
+
+    auto result = co_await AccountManager::UpdateAccount(stackAllocatedCharacter, updateAccountDoc, "adding roles");
+    if (result.has_error())
+    {
+        client.MessageErr(result.error());
+        co_return;
+    }
+
+    // Success, lets set roles in the credential map for this character, if they are online
+    if (auto targetClient = FLHook::GetClientByName(stackAllocatedCharacter))
+    {
+        std::unordered_set<std::wstring> roleSet;
+        for (std::string_view role : stringRoles)
+        {
+            roleSet.insert(StringUtils::stows(role));
+        }
+        FLHook::instance->credentialsMap[targetClient->id] = roleSet;
+    }
+
+    client.Message(L"Successfully set role(s) on the account");
     co_return;
 }
 
 concurrencpp::result<void> AdminCommandProcessor::DeleteRoles(ClientId client, std::wstring_view target, std::vector<std::wstring_view> roles)
 {
-    // TODO: pending Character Database rework
+    if (target.empty())
+    {
+        client.MessageErr(L"Character name not provided.");
+        co_return;
+    }
+
+    if (roles.empty())
+    {
+        client.MessageErr(L"No roles provided.");
+        co_return;
+    }
+
+    auto stackAllocatedCharacter = std::wstring(target);
+    std::vector<std::string> stringRoles;
+    std::ranges::transform(
+        roles, std::back_inserter(stringRoles), [](const std::wstring_view& role) { return StringUtils::ToLower(StringUtils::wstos(role)); });
+
+    B_ARR roleArray;
+    for (auto role : stringRoles)
+    {
+        roleArray.append(role);
+    }
+
+    const auto updateAccountDoc = B_MDOC(B_KVP("$pull", B_MDOC(B_KVP("gameRoles", B_MDOC(B_KVP("$in", roleArray.view()))))));
+
+    auto result = co_await AccountManager::UpdateAccount(stackAllocatedCharacter, updateAccountDoc, "adding roles");
+    if (result.has_error())
+    {
+        client.MessageErr(result.error());
+        co_return;
+    }
+
+    // Success, lets remove roles from the credential map for this character, if they are online
+    if (auto targetClient = FLHook::GetClientByName(stackAllocatedCharacter))
+    {
+        auto& credentials = FLHook::instance->credentialsMap[targetClient->id];
+        for (std::string_view role : stringRoles)
+        {
+            credentials.erase(StringUtils::stows(role));
+        }
+    }
+
     client.Message(L"Successfully removed roles.");
     co_return;
 }
