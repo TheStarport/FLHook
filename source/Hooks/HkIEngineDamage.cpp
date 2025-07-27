@@ -88,11 +88,11 @@ void __fastcall IEngineHook::SolarHullDamage(Solar* solar, void* edx, float dama
     static_cast<ISolarHullDmgType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::DamageHull)))(solar, damage, dmgList);
 }
 
-void __fastcall IEngineHook::SolarColGrpDestroy(Solar* solar, void* edx, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmgList)
+void __fastcall IEngineHook::SolarColGrpDestroy(Solar* solar, void* edx, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmgList, bool killParent)
 {
-    CallPlugins(&Plugin::OnSolarColGrpDestroy, solar, colGrp, fate, dmgList);
-    using ISolarColGrpDestroyType = void(__thiscall*)(Solar*, CArchGroup*, DamageEntry::SubObjFate, DamageList*);
-    static_cast<ISolarColGrpDestroyType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::ColGrpDeath)))(solar, colGrp, fate, dmgList);
+    CallPlugins(&Plugin::OnSolarColGrpDestroy, solar, colGrp, fate, dmgList, killParent);
+    using ISolarColGrpDestroyType = void(__thiscall*)(Solar*, CArchGroup*, DamageEntry::SubObjFate, DamageList*, bool);
+    static_cast<ISolarColGrpDestroyType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::ColGrpDeath)))(solar, colGrp, fate, dmgList, killParent);
 }
 
 void __fastcall IEngineHook::ShipEquipDmg(Ship* ship, void* edx, CAttachedEquip* equip, float damage, DamageList* dmgList)

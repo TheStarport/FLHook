@@ -214,7 +214,7 @@ class DLL Plugin
         virtual void OnShipColGrpDmg(Ship* ship, CArchGroup* colGrp, float& incDmg, DamageList* dmg) {}
         virtual void OnShipColGrpDestroy(Ship* ship, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmg) {}
 
-        virtual void OnSolarColGrpDestroy(Solar*, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmg) {}
+        virtual void OnSolarColGrpDestroy(Solar*, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmg, bool killParented) {}
 
         virtual void OnShipShieldDmg(Ship* ship, CEShield* shield, float& damage, DamageList* dmgList) {}
         virtual void OnShipEnergyDmg(Ship* ship, float& damage, DamageList* dmgList) {}

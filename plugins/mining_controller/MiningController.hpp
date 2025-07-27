@@ -196,7 +196,7 @@ namespace Plugins
             void OnMineAsteroid(ClientId client, SystemId system, const Vector& pos, Id crateId, Id lootId, uint count) override;
             void OnSpMunitionCollision(ClientId client, const SSPMunitionCollisionInfo& info) override;
             void OnCargoJettison(ClientId client, const XJettisonCargo& cargo) override;
-            void OnSolarColGrpDestroy(Solar* solar, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmgList) override;
+            void OnSolarColGrpDestroy(Solar* solar, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmgList, bool killParented) override;
 
 
             // clang-format off

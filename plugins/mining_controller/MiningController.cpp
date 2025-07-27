@@ -698,7 +698,7 @@ namespace Plugins
         }
     }
 
-    void MiningControllerPlugin::OnSolarColGrpDestroy(Solar* solar, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmgList)
+    void MiningControllerPlugin::OnSolarColGrpDestroy(Solar* solar, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmgList, bool killParented)
     {
         if (!dmgList->inflictorPlayerId)
         {
