@@ -949,7 +949,7 @@ concurrencpp::result<void> AdminCommandProcessor::Move(ClientId client, ClientId
     }
 
     shipId.Relocate({ x, y, z });
-    client.Message(std::format(L"Moving target to location: {:0f}, {:0f}, {:0f}", x, y, z));
+    client.Message(std::format(L"Moving target to location: {:0.0f}, {:0.0f}, {:0.0f}", x, y, z));
     co_return;
 }
 
