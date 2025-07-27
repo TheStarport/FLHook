@@ -46,7 +46,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
              L"Sets the cash of the target character"),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".addcash"), AddCash, GameAndConsole, Cash, L".addcash <charname> <cash>",
              L"Adds cash to the target character"),
-             AddAdminCommand(AdminCommandProcessor, Cmds(L".kick"), KickPlayer, GameAndConsole, Expel, L".kick <charname>",
+             AddAdminCommand(AdminCommandProcessor, Cmds(L".kick"), KickPlayer, GameAndConsole, Expel, L".kick <charname> [reason]",
              L"Kick the specified character from the server."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".ban"), BanPlayer, GameAndConsole, Expel, L".ban <charname>",
              L"Ban the specified character from the server."),
