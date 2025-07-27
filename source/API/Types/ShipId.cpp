@@ -239,7 +239,7 @@ Action<void> ShipId::AddCargo(uint good, uint count, bool mission)
     return { {} };
 }
 
-Action<void> ShipId::Relocate(const Vector& pos, const std::optional<Matrix>& orientation) const
+Action<void> ShipId::Relocate(std::optional<Vector> pos, const std::optional<Matrix>& orientation) const
 {
     IsValidShip;
 
@@ -247,12 +247,49 @@ Action<void> ShipId::Relocate(const Vector& pos, const std::optional<Matrix>& or
 
     if (const auto player = GetPlayer().Raw(); player.has_value())
     {
-        // We tell the client to adjust its position via a launch packet
-        // TODO: This currently doesn't work, figure out how to make it work. We have successfully told clients to undock like this before...
-        player->Undock(pos, orientation).Handle();
+        if (!pos.has_value())
+        {
+            auto target = GetTarget().Handle().GetValue().lock();
+            auto targetRadius = target->radius;
+            auto selfRadius = GetValue().lock()->radius;
+
+            if (target->objectClass == CObject::CSOLAR_OBJECT)
+            {
+                targetRadius = std::max(targetRadius, std::static_pointer_cast<CSolar>(target)->get_atmosphere_range());
+            }
+
+            targetRadius *= 1.1f;
+
+            auto currPos = GetPosition().Handle();
+            float distance = Vector::Distance(target->position, currPos);
+
+            Vector targetPos = target->position;
+            targetPos.x -= currPos.x;
+            targetPos.y -= currPos.y;
+            targetPos.z -= currPos.z;
+            targetPos.Resize(distance - (targetRadius + selfRadius));
+
+            targetPos.x += currPos.x;
+            targetPos.y += currPos.y;
+            targetPos.z += currPos.z;
+            pos = {targetPos};
+        }
+
+        FLPACKET_LAUNCH launch;
+        launch.ship = GetId().Handle().GetValue();
+        launch.base = 0;
+        launch.pos = pos.value();
+        launch.rotate = Quaternion(orientation.value_or(GetPositionAndOrientation().Handle().second));
+        launch.state = -1;
+
+        FLHook::GetPacketInterface()->Send_FLPACKET_SERVER_LAUNCH(player.value().GetValue(), launch);
+    }
+    else if (!pos.has_value())
+    {
+        return { {} };
     }
 
-    pub::SpaceObj::Relocate(ship->id.GetValue(), system.GetValue(), pos, orientation.value_or(Matrix::Identity()));
+    pub::SpaceObj::Relocate(ship->id.GetValue(), system.GetValue(), pos.value(), orientation.value_or(Matrix::Identity()));
     return { {} };
 }
 

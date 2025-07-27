@@ -54,7 +54,7 @@ class DLL ShipId final : public ObjectId
         Action<void> Destroy(DestroyType type = DestroyType::Fuse);
         Action<void> SetHealth(float amount, bool percentage = false);
         Action<void> AddCargo(uint good, uint count, bool mission);
-        Action<void> Relocate(const Vector& pos, const std::optional<Matrix>& orientation = std::nullopt) const;
+        Action<void> Relocate(std::optional<Vector> pos, const std::optional<Matrix>& orientation = std::nullopt) const;
 
         template <typename EquipType = CEquip>
             requires std::is_base_of_v<CEquip, EquipType>

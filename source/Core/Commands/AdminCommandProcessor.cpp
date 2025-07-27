@@ -13,9 +13,6 @@
 // TODO: General, a lot of these functions are agnostic about whether or not the player is online and thus has a clientId, so along with the player database
 // rework a lot of these functions need to be reworked to account for that.
 
-
-
-
 std::optional<concurrencpp::result<void>> AdminCommandProcessor::ProcessCommand(ClientId user, const AllowedContext currentContext, std::wstring_view cmd,
                                                                                 std::vector<std::wstring_view>& paramVector)
 {
@@ -405,7 +402,8 @@ concurrencpp::result<void> AdminCommandProcessor::ListCargo(ClientId client, con
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::AddCargo(ClientId client, ClientId target, GoodInfo* good, std::optional<uint> optCount, std::optional<bool> optMission)
+concurrencpp::result<void> AdminCommandProcessor::AddCargo(ClientId client, ClientId target, GoodInfo* good, std::optional<uint> optCount,
+                                                           std::optional<bool> optMission)
 {
     bool mission = optMission.value_or(false);
     bool count = optCount.value_or(1);
@@ -938,12 +936,6 @@ concurrencpp::result<void> AdminCommandProcessor::SetDamageType(ClientId client,
 
 concurrencpp::result<void> AdminCommandProcessor::Move(ClientId client, ClientId target, const float x, const float y, const float z)
 {
-    if (x == 0.0f || z == 0.0f)
-    {
-        client.Message(L"X or Z coordinates were 0. Suppressing to prevent accidental sun-teleporting. If this was intentional, try '0.1 0 0.1' instead.");
-        co_return;
-    }
-
     const auto shipId = target.GetShip().Unwrap();
     if (!shipId)
     {
@@ -951,7 +943,14 @@ concurrencpp::result<void> AdminCommandProcessor::Move(ClientId client, ClientId
         co_return;
     }
 
-    shipId.Relocate({ x, y, z });
+    if (x == 0.0f && y == 0.0f && z == 0.0f)
+    {
+        shipId.Relocate({});
+    }
+    else
+    {
+        shipId.Relocate({{ x, y, z }});
+    }
     client.Message(std::format(L"Moving target to location: {:0.0f}, {:0.0f}, {:0.0f}", x, y, z));
     co_return;
 }
