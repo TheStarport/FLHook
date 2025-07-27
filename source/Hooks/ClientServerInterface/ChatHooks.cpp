@@ -216,6 +216,12 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
                 return false;
             }
 
+            if (strBuffer.starts_with(L"/i ") || strBuffer.starts_with(L"/j ") || strBuffer.starts_with(L"/join "))
+            {
+                // Allow some of FLServer's built-in commands that we might otherwise suppress
+                return true;
+            }
+
             if (strBuffer.length() == 2 && strBuffer[1] >= '0' && strBuffer[1] <= '9')
             {
                 SendClientSavedMsg(client, FLHook::GetConfig()->chatConfig.defaultLocalChat ? 'l' : 's', strBuffer[1] - '0');
