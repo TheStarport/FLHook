@@ -234,7 +234,7 @@ ClientData* FLHook::GetClientByName(std::wstring_view characterName)
 {
     for (auto& client : Clients())
     {
-        if (StringUtils::CompareCaseInsensitive(client.characterName, characterName))
+        if (client.isValid && StringUtils::CompareCaseInsensitive(client.characterName, characterName))
         {
             return &client;
         }
