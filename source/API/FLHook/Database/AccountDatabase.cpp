@@ -446,14 +446,14 @@ concurrencpp::result<std::wstring> AccountManager::TransferCharacter(const Accou
         const auto config = FLHook::GetConfig();
         auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
         auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-            const auto findTransferCharacterDoc = B_MDOC(
-                B_KVP("$and",
-                    B_MARR(
-                        B_MDOC(B_KVP("characterName", StringUtils::wstos(charName))),
-                        B_MDOC(B_KVP("characterTransferCode", StringUtils::wstos(characterCode)))
-                    )
+        const auto findTransferCharacterDoc = B_MDOC(
+            B_KVP("$and",
+                B_MARR(
+                    B_MDOC(B_KVP("characterName", StringUtils::wstos(charName))),
+                    B_MDOC(B_KVP("characterTransferCode", StringUtils::wstos(characterCode)))
                 )
-            );
+            )
+        );
 
         const auto transferredCharacterDoc = charactersCollection.find_one(findTransferCharacterDoc.view());
         if (!transferredCharacterDoc.has_value())
@@ -478,7 +478,10 @@ concurrencpp::result<std::wstring> AccountManager::TransferCharacter(const Accou
         const auto findOldAccountDoc = B_MDOC(B_KVP("_id", oldAccountId));
 
         const auto findTransferredCharacterDoc = B_MDOC(B_KVP("_id", transferCharacterOid));
-        const auto clearCharacterTransferCodeDoc = B_MDOC(B_KVP("$unset", B_MDOC(B_KVP("characterTransferCode", ""))));
+        const auto clearCharacterTransferCodeDoc = B_MDOC(
+            B_KVP("$unset", B_MDOC(B_KVP("characterTransferCode", ""))),
+            B_KVP("$set", B_MDOC(B_KVP("accountId", account.GetValue())))
+        );
 
         // clang-format on
         if (auto updatedDocs = accountsCollection.update_one(findNewAccountDoc.view(), updateNewAccountDoc.view()); !updatedDocs->modified_count())
@@ -495,7 +498,7 @@ concurrencpp::result<std::wstring> AccountManager::TransferCharacter(const Accou
         else if (updatedDocs = accountsCollection.update_one(findOldAccountDoc.view(), updateOldAccountDoc.view()); !updatedDocs->modified_count())
         {
             session.abort_transaction();
-            err = L"Character transfer failed on updating of target account!";
+            err = L"Character transfer failed on updating of old account!";
         }
         else
         {

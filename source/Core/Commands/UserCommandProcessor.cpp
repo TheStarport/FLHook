@@ -735,7 +735,7 @@ concurrencpp::result<void> UserCommandProcessor::TransferCharacter(const ClientI
 
         if (const auto err = co_await AccountManager::TransferCharacter(accountId, charName, charCode); !err.empty())
         {
-            (void)client.Message(err);
+            (void)client.MessageErr(err);
         }
         else
         {
