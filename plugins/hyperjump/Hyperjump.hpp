@@ -173,16 +173,16 @@ namespace Plugins
             inline static const std::array<CommandInfo<HyperjumpPlugin>, 10> commands =
             {
                 {
-                    AddCommand(HyperjumpPlugin, Cmds(L"/jump"), UserCmdJump, L"/jump", L" Sends you to the designated arena system."),
-                    AddCommand(HyperjumpPlugin, Cmds(L"/jump list"), UserCmdJumpList, L"/jump stop", L" Sends you to the designated arena system."),
-                    AddCommand(HyperjumpPlugin, Cmds(L"/jump stop"), UserCmdJumpStop, L"/jump stop", L" Sends you to the designated arena system."),
-                    AddCommand(HyperjumpPlugin, Cmds(L"/jump sectors"), UserCmdJumpSectors, L"/jump sectors", L" Sends you to the designated arena system."),
-                    AddCommand(HyperjumpPlugin, Cmds(L"/jump blind"), UserCmdJumpBlind, L"/jump blind", L" Jumps to a random valid system."),
-                    AddCommand(HyperjumpPlugin, Cmds(L"/canjump"), UserCmdCanJump, L"/canjump <systemName>", L" Tells you if selected system is in your jump range."),
-                    AddCommand(HyperjumpPlugin, Cmds(L"/canbeacon"), UserCmdCanBeacon, L"/canbeacon <playerName/Id>", L" Tells you if you can perform a beacon jump to target player."),
-                    AddCommand(HyperjumpPlugin, Cmds(L"/jumpbeacon"), UserCmdJumpBeacon, L"/canjump <systemName>", L" Sends a beacon jump request to the target player."),
-                    AddCommand(HyperjumpPlugin, Cmds(L"/acceptbeacon"), UserCmdAcceptBeacon, L"/acceptbeacon <playerName/Id>", L" Accepts selected beacon jump request."),
-                    AddCommand(HyperjumpPlugin, Cmds(L"/setsector"), UserCmdSetSector, L"/setsector <index>", L" Sets the jump sector within the system to the selected one."),
+                    AddCommand(HyperjumpPlugin, Cmds(L"/jump"), UserCmdJump, L"/jump", L"TODO"),
+                    AddCommand(HyperjumpPlugin, Cmds(L"/jump list"), UserCmdJumpList, L"/jump stop", L"TODO"),
+                    AddCommand(HyperjumpPlugin, Cmds(L"/jump stop"), UserCmdJumpStop, L"/jump stop", L"TODO"),
+                    AddCommand(HyperjumpPlugin, Cmds(L"/jump sectors"), UserCmdJumpSectors, L"/jump sectors", L"TODO"),
+                    AddCommand(HyperjumpPlugin, Cmds(L"/jump blind"), UserCmdJumpBlind, L"/jump blind", L"Jumps to a random valid system."),
+                    AddCommand(HyperjumpPlugin, Cmds(L"/canjump"), UserCmdCanJump, L"/canjump <systemName>", L"Tells you if selected system is in your jump range."),
+                    AddCommand(HyperjumpPlugin, Cmds(L"/canbeacon"), UserCmdCanBeacon, L"/canbeacon <playerName/Id>", L"Tells you if you can perform a beacon jump to target player."),
+                    AddCommand(HyperjumpPlugin, Cmds(L"/jumpbeacon"), UserCmdJumpBeacon, L"/canjump <systemName>", L"Sends a beacon jump request to the target player."),
+                    AddCommand(HyperjumpPlugin, Cmds(L"/acceptbeacon"), UserCmdAcceptBeacon, L"/acceptbeacon <playerName/Id>", L"Accepts selected beacon jump request."),
+                    AddCommand(HyperjumpPlugin, Cmds(L"/setsector"), UserCmdSetSector, L"/setsector <index>", L"Sets the jump sector within the system to the selected one."),
                 }
             };
             SetupUserCommandHandler(HyperjumpPlugin, commands);

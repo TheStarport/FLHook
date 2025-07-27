@@ -88,7 +88,7 @@ namespace Plugins
             inline static const std::array<CommandInfo<DeathPenaltyPlugin>, 1> commands =
             {
                 {
-                    AddCommand(DeathPenaltyPlugin, Cmds(L"/dp"), UserCmdDeathPenalty, L"/dp", L""),
+                    AddCommand(DeathPenaltyPlugin, Cmds(L"/dp"), UserCmdDeathPenalty, L"/dp [on|off]", L"Toggles death penalty notices on/off"),
                 }
             };
             // clang-format on

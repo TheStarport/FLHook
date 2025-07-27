@@ -113,8 +113,8 @@ namespace Plugins
             inline static const std::array<CommandInfo<ConnectionDataPlugin>, 2> commands =
             {
                 {
-                    AddCommand(ConnectionDataPlugin, Cmds(L"/ping"), UserCmdPing, L"/ping", L""),
-                    AddCommand(ConnectionDataPlugin, Cmds(L"/pingtarget"), UserCmdPingTarget, L"/pingtarget", L""),
+                    AddCommand(ConnectionDataPlugin, Cmds(L"/ping"), UserCmdPing, L"/ping", L"Shows your connection stats"),
+                    AddCommand(ConnectionDataPlugin, Cmds(L"/pingtarget"), UserCmdPingTarget, L"/pingtarget", L"Shows the connection stats of the targeted player"),
                 }
             };
 

@@ -53,8 +53,8 @@ In order to expose functions to user command processing a plugin must define a a
 ```
 inline static const std::array<CommandInfo<Plugin>, N> commands =
 {
-    AddCommand(Plugin, Cmds(L"/foo", L"/foo2"), Foo, L"/foo", L" Insert description of your function for help command here."),
-    AddCommand(Plugin, Cmds(L"/bar"), Bar, L"/bar <parameter1> <parameter2>", L" Insert description of your function for help command here."),
+    AddCommand(Plugin, Cmds(L"/foo", L"/foo2"), Foo, L"/foo", L"Insert description of your function for help command here."),
+    AddCommand(Plugin, Cmds(L"/bar"), Bar, L"/bar <parameter1> <parameter2>", L"Insert description of your function for help command here."),
     ....
 }
 ```
