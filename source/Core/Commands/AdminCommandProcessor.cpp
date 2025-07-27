@@ -761,7 +761,7 @@ concurrencpp::result<void> AdminCommandProcessor::UnloadPlugin(ClientId client, 
         if (p == L"all")
         {
             PluginManager::i()->UnloadAll();
-            res = L"Unloaded all possible plugins. See console for details.";
+            res = L"Unloaded all possible plugins. See console for details.\n";
             break;
         }
 
@@ -775,7 +775,7 @@ concurrencpp::result<void> AdminCommandProcessor::UnloadPlugin(ClientId client, 
         }
     }
 
-    client.Message(res);
+    client.Message(res.substr(0, res.length() - 1));
 
     co_return;
 }
