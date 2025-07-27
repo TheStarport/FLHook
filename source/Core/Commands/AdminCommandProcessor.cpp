@@ -353,7 +353,7 @@ concurrencpp::result<void> AdminCommandProcessor::SetRep(ClientId client, Client
 concurrencpp::result<void> AdminCommandProcessor::GetRep(ClientId client, ClientId target, RepGroupId repGroup)
 {
     const auto charRepId = target.GetReputation().Handle();
-    const auto rep = repGroup.GetAttitudeTowardsRepId(charRepId).Handle();
+    const auto rep = charRepId.GetAttitudeTowardsFaction(repGroup).Handle();
 
     client.Message(std::format(L"{}'s reputation to {} is {}", target.GetCharacterName().Handle(), repGroup.GetName().Handle(), rep));
     co_return;
