@@ -146,7 +146,7 @@ GroupId TransformArg(const std::wstring_view s, size_t paramNumber)
         throw InvalidParameterException(s, paramNumber, std::wstring_view(L"numeric string up to 3 characters"));
     }
 
-    if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }))
+    if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }) && s.size() < 4)
     {
         const auto number = StringUtils::Cast<uint>(s);
         return GroupId(number);
@@ -164,7 +164,7 @@ uint TransformArg(const std::wstring_view s, size_t paramNumber)
         throw InvalidParameterException(s, paramNumber, std::wstring_view(L"non-negative numeric string"));
     }
 
-    if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }) && s.size() < 4)
+    if (std::ranges::all_of(s, [](const wchar_t c) { return iswdigit(c); }))
     {
         const auto number = StringUtils::Cast<uint>(s);
         return number;
