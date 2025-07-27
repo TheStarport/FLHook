@@ -616,7 +616,7 @@ concurrencpp::result<void> AdminCommandProcessor::SetRoles(ClientId client, std:
 
     const auto updateAccountDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("gameRoles", roleArray.view()))));
 
-    auto result = co_await AccountManager::UpdateAccount(stackAllocatedCharacter, updateAccountDoc, "adding roles");
+    auto result = co_await AccountManager::UpdateAccount(stackAllocatedCharacter, updateAccountDoc, "setting roles");
     if (result.has_error())
     {
         client.MessageErr(result.error());
@@ -665,7 +665,7 @@ concurrencpp::result<void> AdminCommandProcessor::DeleteRoles(ClientId client, s
 
     const auto updateAccountDoc = B_MDOC(B_KVP("$pull", B_MDOC(B_KVP("gameRoles", B_MDOC(B_KVP("$in", roleArray.view()))))));
 
-    auto result = co_await AccountManager::UpdateAccount(stackAllocatedCharacter, updateAccountDoc, "adding roles");
+    auto result = co_await AccountManager::UpdateAccount(stackAllocatedCharacter, updateAccountDoc, "deleting roles");
     if (result.has_error())
     {
         client.MessageErr(result.error());
