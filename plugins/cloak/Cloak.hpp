@@ -143,10 +143,10 @@ namespace Plugins
             // clang-format on
 
             // clang-format off
-            inline static const std::array<AdminCommandInfo<CloakPlugin>, 2> adminCommands =
+            inline static const std::array<AdminCommandInfo<CloakPlugin>, 1> adminCommands =
             {
                 {
-                    AddAdminCommand(CloakPlugin, Cmds(L".cloak"), AdminCmdCloak, GameOnly, Any, L".cloak", L"Toggles you cloak state on/off, impossible to forcefully detect, uses no fuel."),
+                    AddAdminCommand(CloakPlugin, Cmds(L".cloak"), AdminCmdCloak, GameOnly, Any, L".cloak", L"Toggles your cloak state on/off, impossible to forcefully detect, uses no fuel."),
                 }
             };
             // clang-format on

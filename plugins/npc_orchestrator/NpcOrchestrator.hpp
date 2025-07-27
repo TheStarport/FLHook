@@ -36,11 +36,11 @@ namespace Plugins
             // npc_spawn [group] [npc_class] [?count] [?system] [?coordinates] [?rank] [?delay] [?message]
 
             // clang-format off
-            inline static const std::array<AdminCommandInfo<NpcOrchestratorPlugin>, 2> commands =
+            inline static const std::array<AdminCommandInfo<NpcOrchestratorPlugin>, 1> commands =
             {
                 {
                     AddAdminCommand(NpcOrchestratorPlugin, Cmds(L".npc_create"), AdminCmdCreateNpc, GameOnly, Any, L".npc_create", L"Spawns NPCs and takes the following parameters: [group] [npc_class] [?count] [?system] [?coordinates] [?rank]"),
-                 }
+                }
             };
             // clang-format on
 

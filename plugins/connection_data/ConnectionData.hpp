@@ -121,7 +121,7 @@ namespace Plugins
             inline static const std::array<AdminCommandInfo<ConnectionDataPlugin>, 1> adminCommands =
             {
                 {
-                    AddAdminCommand(ConnectionDataPlugin, Cmds(L".getstats"), AdminCmdGetStats, GameAndConsole, SuperAdmin, L".getstats", L""),
+                    AddAdminCommand(ConnectionDataPlugin, Cmds(L".getstats"), AdminCmdGetStats, GameAndConsole, SuperAdmin, L".getstats", L"Gets connection statistics for each online player"),
                 }
             };
             // clang-format on
