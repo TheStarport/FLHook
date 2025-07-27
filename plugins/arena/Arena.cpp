@@ -39,7 +39,21 @@ namespace Plugins
                 continue;
             }
             auto good = GoodId(Arch2Good(item.archId.GetValue()));
-            creditsToReimburse += static_cast<uint>(good.GetPrice().Unwrap());
+            auto baseData = BaseDataList_get()->get_base_data(client.GetCurrentBase().Handle().GetValue());
+            bool found = false;
+            if (baseData)
+            {
+                auto iter = baseData->marketMap.find(item.archId);
+                if (iter != baseData->marketMap.end())
+                {
+                    found = true;
+                    creditsToReimburse += iter->second.price;
+                }
+            }
+            if (!found)
+            {
+                creditsToReimburse += static_cast<uint>(good.GetPrice().Unwrap());
+            }
         }
 
         client.AddCash(creditsToReimburse);
@@ -138,7 +152,7 @@ namespace Plugins
         flag = TransferFlag::None;
 
         const auto view = client.GetData().characterData->characterDocument;
-        if (auto findResult = view.find("arenaReturnBase"); findResult != view.end())
+        if (auto findResult = view.find("arena"); findResult != view.end())
         {
             auto doc = findResult->get_document().view();
             returnBase = BaseId(doc.find("returnBase")->get_int32());
