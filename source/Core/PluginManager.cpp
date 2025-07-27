@@ -186,6 +186,14 @@ bool PluginManager::Load(std::wstring_view fileName, bool startup)
         return false;
     }
 
+    if (!plugin->OnLoadSettings())
+    {
+        ERROR("could not load plugin {{dllName}}: load settings failed validation", { "dllName", dllName });
+        plugin = nullptr;
+        FreeLibrary(dll);
+        return false;
+    }
+
     plugins.emplace_back(plugin);
 
     const std::weak_ptr weakRef = plugins.back();
@@ -216,6 +224,7 @@ void PluginManager::LoadAll(bool startup)
     {
         if (findPluginsHandle == INVALID_HANDLE_VALUE)
         {
+            FindClose(findPluginsHandle);
             break;
         }
 

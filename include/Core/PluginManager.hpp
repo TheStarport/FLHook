@@ -31,7 +31,7 @@ class DLL PluginManager final : public Singleton<PluginManager>
         PluginManager();
         ~PluginManager();
 
-        void LoadAll(bool);
+        void LoadAll(bool startup);
         void UnloadAll();
 
         bool Load(std::wstring_view fileName, bool);

@@ -112,22 +112,21 @@ void IServerImplHook::StartupInnerAfter(SStartupInfo& si)
 
     FLHook::instance->flhookReady = true;
 
+    INFO("Loading Plugins");
+
     // Manually iterate over plugins, if any return false unload plugin
     auto pluginManager = PluginManager::i();
-    for (auto plugin = pluginManager->begin(); plugin != pluginManager->end();)
-    {
-        if (auto p = plugin->get(); !p->OnLoadSettings())
-        {
+    const auto config = FLHook::GetConfig();
 
-            INFO("{{pluginName}} LoadSettings failed. Unloading plugin", { "pluginName", p->GetName() });
-            auto pCopy = p->dll;
-            plugin->reset();
-            plugin = pluginManager->plugins.erase(plugin);
-            FreeLibrary(pCopy);
-        }
-        else
+    if (config->plugins.loadAllPlugins)
+    {
+        pluginManager->LoadAll(true);
+    }
+    else
+    {
+        for (auto& plugin : config->plugins.plugins)
         {
-            ++plugin;
+            pluginManager->Load(plugin, true);
         }
     }
 

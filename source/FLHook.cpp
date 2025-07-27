@@ -119,18 +119,6 @@ FLHook::FLHook()
         httpServer = std::make_shared<HttpServer>();
     }
 
-    if (config->plugins.loadAllPlugins)
-    {
-        PluginManager::i()->LoadAll(true);
-    }
-    else
-    {
-        for (auto& plugin : config->plugins.plugins)
-        {
-            PluginManager::i()->Load(plugin, true);
-        }
-    }
-
     if (!std::filesystem::exists(L"config"))
     {
         try
