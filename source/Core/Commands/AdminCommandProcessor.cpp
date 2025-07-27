@@ -431,6 +431,8 @@ concurrencpp::result<void> AdminCommandProcessor::DeleteChar(const ClientId clie
         }
     }
 
+    std::wstring stackAllocatedCharacterName = std::wstring(characterName);
+
     THREAD_BACKGROUND;
 
     const auto config = FLHook::GetConfig();
@@ -442,7 +444,7 @@ concurrencpp::result<void> AdminCommandProcessor::DeleteChar(const ClientId clie
     transaction.start_transaction();
 
     // TODO: Handle soft delete
-    const auto filter = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName)));
+    const auto filter = B_MDOC(B_KVP("characterName", StringUtils::wstos(stackAllocatedCharacterName)));
 
     try
     {
