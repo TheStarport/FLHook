@@ -417,8 +417,53 @@ concurrencpp::result<void> AdminCommandProcessor::AddCargo(ClientId client, Clie
 
 concurrencpp::result<void> AdminCommandProcessor::RenameChar(ClientId client, ClientId target, std::wstring_view newName)
 {
-    // TODO: Rename is to be reimplemented
-    client.Message(std::format(L"{} has been renamed to {}", target.GetCharacterName().Handle(), newName));
+    std::wstring newNameStr = newName.data();
+    if (newNameStr.empty() || newNameStr == target.GetCharacterName().Unwrap())
+    {
+        (void)client.MessageErr(L"A new name, that is not the current one, must be provided.");
+        co_return;
+    }
+
+    if (newNameStr.find(L' ') != std::wstring_view::npos)
+    {
+        (void)client.MessageErr(L"No whitespaces allowed.");
+        co_return;
+    }
+
+    if (newNameStr.length() > 23)
+    {
+        (void)client.MessageErr(L"Name too long, max 23 characters allowed");
+        co_return;
+    }
+
+    // Ban any name that is numeric and might interfere with commands
+    if (const auto numeric = StringUtils::Cast<uint>(newNameStr); numeric < 10000 && numeric != 0)
+    {
+        (void)client.MessageErr(L"Names that are strictly numerical must be at least 5 digits.");
+        co_return;
+    }
+
+    std::wstring currName = target.GetCharacterName().Handle().data();
+
+    THREAD_BACKGROUND;
+
+    auto errMsg = co_await AccountManager::CheckCharnameTaken(target, newNameStr);
+    if (!errMsg.empty())
+    {
+        THREAD_MAIN;
+        (void)client.MessageErr(errMsg);
+        co_return;
+    }
+
+    target.Message(L"Renaming, you will be kicked.");
+    co_await FLHook::GetTaskScheduler()->Delay(5s);
+    target.Kick();
+    co_await FLHook::GetTaskScheduler()->Delay(0.5s);
+    co_await AccountManager::Rename(currName, newNameStr);
+
+    THREAD_MAIN;
+
+    client.Message(std::format(L"{} has been renamed to {}", currName, newNameStr));
     co_return;
 }
 

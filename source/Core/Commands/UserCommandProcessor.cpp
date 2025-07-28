@@ -553,20 +553,20 @@ concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, c
 
     if (newName.find(L' ') != std::wstring_view::npos)
     {
-        (void)client.Message(L"No whitespaces allowed.");
+        (void)client.MessageErr(L"No whitespaces allowed.");
         co_return;
     }
 
     if (newName.length() > 23)
     {
-        (void)client.Message(L"Name too long, max 23 characters allowed");
+        (void)client.MessageErr(L"Name too long, max 23 characters allowed");
         co_return;
     }
 
     // Ban any name that is numeric and might interfere with commands
     if (const auto numeric = StringUtils::Cast<uint>(newName); numeric < 10000 && numeric != 0)
     {
-        (void)client.Message(L"Names that are strictly numerical must be at least 5 digits.");
+        (void)client.MessageErr(L"Names that are strictly numerical must be at least 5 digits.");
         co_return;
     }
 
@@ -574,7 +574,7 @@ concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, c
     {
         if (client.GetCash().Unwrap() < renameCost)
         {
-            (void)client.Message(L"Insufficient money!");
+            (void)client.MessageErr(L"Insufficient money!");
             co_return;
         }
     }
@@ -589,8 +589,8 @@ concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, c
                     lastRename->get_date().value + std::chrono::duration_cast<std::chrono::milliseconds>(cooldownAsDays);
                 endOfCooldown.count() > TimeUtils::UnixTime<std::chrono::milliseconds>())
             {
-                (void)client.Message(std::format(L"Rename cooldown not elapsed yet, end of cooldown: {}",
-                                                 TimeUtils::AsDate(std::chrono::duration_cast<std::chrono::seconds>(endOfCooldown))));
+                (void)client.MessageErr(std::format(L"Rename cooldown not elapsed yet, end of cooldown: {}",
+                                                    TimeUtils::AsDate(std::chrono::duration_cast<std::chrono::seconds>(endOfCooldown))));
                 co_return;
             }
         }
@@ -601,7 +601,7 @@ concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, c
     auto errMsg = co_await AccountManager::CheckCharnameTaken(client, newNameStr);
     if (!errMsg.empty())
     {
-        (void)client.Message(errMsg);
+        (void)client.MessageErr(errMsg);
         co_return;
     }
     std::wstring currName = client.GetCharacterName().Handle().data();
@@ -610,7 +610,7 @@ concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, c
     {
         if (client.GetCash().Handle() < renameCost)
         {
-            (void)client.Message(L"Insufficient money!");
+            (void)client.MessageErr(L"Insufficient money!");
             co_return;
         }
 
