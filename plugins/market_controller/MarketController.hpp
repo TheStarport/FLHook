@@ -105,7 +105,7 @@ namespace Plugins
             inline static const std::array<AdminCommandInfo<MarketControllerPlugin>, 1> commands =
             {
                 {
-                    AddAdminCommand(MarketControllerPlugin, Cmds(L".reloadPrices"), AdminCmdReloadPrices, ConsoleOnly, Any, L".reloadPrices", L"Reloads price overrides from config file"),
+                    AddAdminCommand(MarketControllerPlugin, Cmds(L".reloadPrices"), AdminCmdReloadPrices, GameAndConsole, Any, L".reloadPrices", L"Reloads price overrides from config file"),
                 }
             };
             // clang-format on

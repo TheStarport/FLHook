@@ -203,7 +203,7 @@ namespace Plugins
             //inline static const std::array<AdminCommandInfo<MiningControllerPlugin>, 1> commands =
             //{
             //    {
-            //        AddAdminCommand(MiningControllerPlugin, Cmds(L".reloadMining"), AdminCmdReloadConfig, ConsoleOnly, Any, L".reloadMining", L"Reloads mining plugin config from the json file"),
+            //        AddAdminCommand(MiningControllerPlugin, Cmds(L".reloadMining"), AdminCmdReloadConfig, GameAndConsole, Any, L".reloadMining", L"Reloads mining plugin config from the json file"),
             //    }
             //};
             // clang-format on

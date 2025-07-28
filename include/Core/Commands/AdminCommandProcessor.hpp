@@ -103,7 +103,7 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
              L"Pulls the specified character to your location. Does not traverse systems."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".damagemode"), SetDamageType, GameAndConsole, SuperAdmin, L".damagemode <all/none/pvp/pve>",
              L"Sets the source of allowed damage on the server."),
-             AddAdminCommand(AdminCommandProcessor, Cmds(L".move"), Move, GameOnly, Movement, L".move <target> <x> <y> <z>",
+             AddAdminCommand(AdminCommandProcessor, Cmds(L".move"), Move, GameAndConsole, Movement, L".move <target> <x> <y> <z>",
              L"Moves the target to the destination location in space."),
              AddAdminCommand(AdminCommandProcessor, Cmds(L".setacctransfercode"), SetAccTransferCode, GameAndConsole, Character, L".setacctransfercode <char name> <code>",
              L"Sets the specified character transfer code on all characters on the account containing the specified character"),
