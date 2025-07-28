@@ -296,7 +296,7 @@ concurrencpp::result<void> AdminCommandProcessor::BanPlayer(ClientId client, std
     const auto account = AccountId::GetAccountFromCharacterName(characterName);
     if (!account.has_value())
     {
-        client.Message(std::format(L"Unable to find account from character: {}", characterName));
+        client.MessageErr(std::format(L"Unable to find account from character: {}", characterName));
         co_return;
     }
 
@@ -307,7 +307,15 @@ concurrencpp::result<void> AdminCommandProcessor::BanPlayer(ClientId client, std
 
 concurrencpp::result<void> AdminCommandProcessor::TempbanPlayer(ClientId client, std::wstring_view characterName, uint durationInDays)
 {
-    client.Message(L"This command currently does nothing.");
+    const auto account = AccountId::GetAccountFromCharacterName(characterName);
+    if (!account.has_value())
+    {
+        client.MessageErr(std::format(L"Unable to find account from character: {}", characterName));
+        co_return;
+    }
+
+    (void)account->Ban(durationInDays);
+    client.Message(std::format(L"{} has been successfully banned for {} days.", characterName, durationInDays));
     co_return;
 }
 
