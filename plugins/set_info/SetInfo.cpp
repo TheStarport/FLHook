@@ -114,7 +114,10 @@ namespace Plugins
         PropagatePlayerInfo(client);
     }
 
-    void SetInfoPlugin::OnClearClientInfo(ClientId client) {}
+    void SetInfoPlugin::OnClearClientInfo(ClientId client) {
+        playersInfo[client.GetValue()].initialised = false;
+        playersInfo[client.GetValue()].infocard = "";
+    }
 
     void SetInfoPlugin::OnCharacterSave(ClientId client, std::wstring_view charName, B_DOC& document)
     {
