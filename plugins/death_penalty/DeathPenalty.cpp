@@ -227,6 +227,7 @@ namespace Plugins
         if (std::abs(config.DeathPenaltyFraction) < 0.0001f)
         {
             WARN("DP Plugin active, but no/too low death penalty fraction is set.");
+            (void)client.MessageErr(L"Server configuration issue - report to server staff");
             co_return;
         }
 
