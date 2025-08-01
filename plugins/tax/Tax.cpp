@@ -102,24 +102,27 @@ concurrencpp::result<void>TaxPlugin::UserCmdPay(const ClientId client)
             co_return;
         }
 
+        // we'll still need to use this even after removing this entry from the list
+        auto initiatingClient = it.initiatorId;
+
         if (const auto cash = client.GetCash().Unwrap(); cash < it.cash)
         {
             client.Message(L"You have not enough money to pay the tax.");
-            it.initiatorId.Message(L"The player does not have enough money to pay the tax.");
+            initiatingClient.Message(L"The player does not have enough money to pay the tax.");
             co_return;
         }
 
         client.RemoveCash(it.cash).Handle();
-        it.initiatorId.AddCash(it.cash).Handle();
+        initiatingClient.AddCash(it.cash).Handle();
         client.Message(L"You paid the tax.");
 
         const auto characterName = client.GetCharacterName().Handle();
-        it.initiatorId.Message(std::format(L"{} paid the tax!", characterName));
+        initiatingClient.Message(std::format(L"{} paid the tax!", characterName));
         RemoveTax(it);
 
         // Queue up some saves
         client.SaveChar();
-        it.initiatorId.SaveChar();
+        initiatingClient.SaveChar();
         co_return;
     }
 
