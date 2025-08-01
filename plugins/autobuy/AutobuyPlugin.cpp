@@ -213,6 +213,10 @@ namespace Plugins
                 {
                     item.health = 1.0f;
                     ++currEq;
+                    if (currEq == eqToFix.end())
+                    {
+                        break;
+                    }
                 }
             }
 
