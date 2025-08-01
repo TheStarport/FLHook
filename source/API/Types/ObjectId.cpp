@@ -120,7 +120,7 @@ Action<ClientId> ObjectId::GetPlayer() const
 {
     IsValidObj;
 
-    if (auto ship = std::dynamic_pointer_cast<CShip>(obj); obj)
+    if (auto ship = std::dynamic_pointer_cast<CShip>(obj); ship)
     {
         if (!ship->ownerPlayer)
         {
