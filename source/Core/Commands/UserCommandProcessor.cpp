@@ -655,10 +655,11 @@ concurrencpp::result<void> UserCommandProcessor::FactionInvite(const ClientId cl
         (void)client.MessageErr(L"Invalid parameters. Usage: /factioninvite <tag> or /fi ...");
         co_return;
     }
+    std::wstring factionTagLower = StringUtils::ToLower(std::wstring(factionTag));
 
     for (const auto& player : FLHook::Clients())
     {
-        if (StringUtils::ToLower(player.characterName).find(factionTag) == std::wstring::npos)
+        if (StringUtils::ToLower(player.characterName).find(factionTagLower) == std::wstring::npos)
         {
             continue;
         }
