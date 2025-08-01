@@ -19,7 +19,7 @@ EquipmentId::EquipmentId(const uint val)
     }
 }
 
-EquipmentId::EquipmentId(const Id val) { EquipmentId(val.GetValue()); }
+EquipmentId::EquipmentId(const Id val) { value = EquipmentId(val.GetValue()).GetValue(); }
 
 bool EquipmentId::operator<(const EquipmentId& right) const { return value && value->archId < right.value->archId; }
 
