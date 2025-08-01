@@ -133,7 +133,7 @@ void TaxPlugin::FiveSecondTimer()
     auto currentTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
     for (auto& data : FLHook::Clients())
     {
-        if (data.timeDisconnect)
+        if (!data.timeDisconnect)
         {
             continue;
         }
