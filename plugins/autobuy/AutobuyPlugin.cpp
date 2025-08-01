@@ -340,7 +340,7 @@ namespace Plugins
             bool shieldBattsFound = false;
             for (auto& item : equipCargo->equip)
             {
-                if (item.archId == config.nanobot.GetId())
+                if (item.archId == config.nanobot.GetId() && config.nanobot.GetId())
                 {
                     AutobuyCartItem aci;
                     aci.archId = config.nanobot.GetId();
@@ -349,7 +349,7 @@ namespace Plugins
                     cartMap[aci.archId] = aci;
                     nanobotsFound = true;
                 }
-                else if (item.archId == config.shieldBattery.GetId())
+                else if (item.archId == config.shieldBattery.GetId() && config.shieldBattery.GetId())
                 {
                     AutobuyCartItem aci;
                     aci.archId = config.shieldBattery.GetId();
@@ -360,7 +360,7 @@ namespace Plugins
                 }
             }
 
-            if (!nanobotsFound)
+            if (!nanobotsFound && config.nanobot.GetId())
             { // no nanos found -> add all
                 AutobuyCartItem aci;
                 aci.archId = config.nanobot.GetId();
@@ -369,7 +369,7 @@ namespace Plugins
                 cartMap[aci.archId] = aci;
             }
 
-            if (!shieldBattsFound)
+            if (!shieldBattsFound && config.shieldBattery.GetId())
             { // no batts found -> add all
                 AutobuyCartItem aci;
                 aci.archId = config.shieldBattery.GetId();
