@@ -113,6 +113,7 @@ void SendClientSavedMsg(ClientId client, char destCode, uint msgIdx)
             }
             recipients.emplace_back(client); // sender is a recipient of a targetted message
             recipients.emplace_back(targetClient);
+            targetClient.GetData().lastPMSender = client;
             colour = L"19BD3A";
             break;
         case 'l':
@@ -300,6 +301,11 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
                     return false;
                 }
             }
+        }
+
+        if (to.id >= static_cast<uint>(SpecialChatIds::PlayerMin) && to.id <= static_cast<uint>(SpecialChatIds::PlayerMax))
+        {
+            ClientId(to.id).GetData().lastPMSender = ClientId(from.id);
         }
     }
     // clang-format off

@@ -261,6 +261,7 @@ concurrencpp::result<void> UserCommandProcessor::ReplyToLastMsg(const ClientId c
     {
         (void)client.MessageFrom(client, response.end);
         (void)info.lastPMSender.MessageFrom(client, response.end);
+        info.lastPMSender.GetData().lastPMSender = client;
     }
     else
     {
@@ -284,6 +285,8 @@ concurrencpp::result<void> UserCommandProcessor::MessageTarget(const ClientId cl
 
     client.MessageFrom(client, text.end);
     targetPlayer.MessageFrom(client, text.end);
+
+    targetPlayer.GetData().lastPMSender = client;
 
     co_return;
 }
