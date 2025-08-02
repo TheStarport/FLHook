@@ -606,8 +606,12 @@ Action<void> ClientId::MessageFrom(const ClientId destinationClient, const std::
         return { cpp::fail(Error::InvalidClientId) };
     }
 
-    // TODO: validate color
-    (void)destinationClient.Message(message);
+    (void)MessageCustomXml(std::format(
+        L"<TRA data=\"0xFFFFFF00\" mask=\"-1\"/><TEXT>{}: </TEXT><TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>{}</TEXT>",
+        StringUtils::XmlText(destinationClient.GetCharacterName().Handle()),
+        StringUtils::XmlText(message)
+    ));
+
     return { {} };
 }
 

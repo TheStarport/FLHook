@@ -313,7 +313,7 @@ concurrencpp::result<void> UserCommandProcessor::MessageTag(const ClientId clien
     }
     else
     {
-        (void)client.Message(L"No players with matching tag found");
+        (void)client.MessageErr(L"No players with matching tag found");
     }
 
     co_return;
