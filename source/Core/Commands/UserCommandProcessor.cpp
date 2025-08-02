@@ -254,13 +254,13 @@ concurrencpp::result<void> UserCommandProcessor::ShowLastSender(const ClientId c
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::ReplyToLastMsg(const ClientId client, const std::wstring_view response)
+concurrencpp::result<void> UserCommandProcessor::ReplyToLastMsg(const ClientId client, StrToEnd response)
 {
     const auto& info = client.GetData();
     if (info.lastPMSender.IsValidClientId())
     {
-        (void)client.MessageFrom(client, response);
-        (void)info.lastPMSender.MessageFrom(client, response);
+        (void)client.MessageFrom(client, response.end);
+        (void)info.lastPMSender.MessageFrom(client, response.end);
     }
     else
     {
