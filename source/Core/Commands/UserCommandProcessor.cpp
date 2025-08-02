@@ -270,7 +270,7 @@ concurrencpp::result<void> UserCommandProcessor::ReplyToLastMsg(const ClientId c
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::MessageTarget(const ClientId client, const std::wstring_view text)
+concurrencpp::result<void> UserCommandProcessor::MessageTarget(const ClientId client, StrToEnd text)
 {
     const auto clientShip = client.GetShip().Handle();
     const auto target = clientShip.GetTarget().Handle();
@@ -282,8 +282,8 @@ concurrencpp::result<void> UserCommandProcessor::MessageTarget(const ClientId cl
         co_return;
     }
 
-    client.MessageFrom(client, text);
-    targetPlayer.MessageFrom(client, text);
+    client.MessageFrom(client, text.end);
+    targetPlayer.MessageFrom(client, text.end);
 
     co_return;
 }
