@@ -6,7 +6,7 @@
 
 void __stdcall IServerImplHook::AbortMission(ClientId client, uint unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::AbortMission client={{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnAbortMission, client, unk1); !skip)
     {

@@ -122,7 +122,7 @@ void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
         firstLogin = false;
     }
 
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::Login client={{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip)
     {

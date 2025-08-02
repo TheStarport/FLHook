@@ -65,7 +65,7 @@ bool IServerImplHook::GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId clien
 
 void __stdcall IServerImplHook::GFGoodSell(const SGFGoodSellInfo& unk1, ClientId client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::GFGoodSell client={{client}}", { "client", client });
 
     const auto skip = CallPlugins(&Plugin::OnGfGoodSell, client, unk1);
 
@@ -125,7 +125,7 @@ bool IServerImplHook::GFGoodBuyInner(const SGFGoodBuyInfo& gsi, ClientId client)
 
 void __stdcall IServerImplHook::GFGoodBuy(const SGFGoodBuyInfo& unk1, ClientId client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::GFGoodBuy client={{client}}", { "client", client });
 
     if (const bool innerCheck = GFGoodBuyInner(unk1, client); !innerCheck)
     {
@@ -145,7 +145,7 @@ void __stdcall IServerImplHook::GFGoodBuy(const SGFGoodBuyInfo& unk1, ClientId c
 
 void __stdcall IServerImplHook::GFGoodVaporized(const SGFGoodVaporizedInfo& gvi, ClientId client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::GFGoodVaporized client={{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnGfGoodVaporized, client, gvi); !skip)
     {

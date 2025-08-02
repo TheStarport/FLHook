@@ -7,7 +7,7 @@
 
 void __stdcall IServerImplHook::SpMunitionCollision(const SSPMunitionCollisionInfo& mci, ClientId client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::SpMunitionCollision client={{client}}", { "client", client });
 
     const auto skip = CallPlugins(&Plugin::OnSpMunitionCollision, client, mci);
 

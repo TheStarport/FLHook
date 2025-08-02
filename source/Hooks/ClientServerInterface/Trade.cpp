@@ -17,7 +17,7 @@ void InitiateTradeInner(const ClientId client1, const ClientId client2)
 
 void __stdcall IServerImplHook::InitiateTrade(ClientId client1, ClientId client2)
 {
-    TRACE("{{client1}} {{client2}}", { "client1", client1 }, { "client2", client2 });
+    TRACE("IServerImplHook::InitiateTrade client1={{client1}} client2={{client2}}", { "client1", client1 }, { "client2", client2 });
 
     const auto skip = CallPlugins(&Plugin::OnInitiateTrade, client1, client2);
 
@@ -55,7 +55,7 @@ void __stdcall IServerImplHook::SetTradeMoney(ClientId client, ulong unk1)
 
 void __stdcall IServerImplHook::AddTradeEquip(ClientId client, const EquipDesc& ed)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::AddTradeEquip client={{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnAddTradeEquip, client, ed); !skip)
     {
@@ -68,7 +68,7 @@ void __stdcall IServerImplHook::AddTradeEquip(ClientId client, const EquipDesc& 
 
 void __stdcall IServerImplHook::DelTradeEquip(ClientId client, const EquipDesc& ed)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::DelTradeEquip client={{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnRemoveTradeEquip, client, ed); !skip)
     {
@@ -81,7 +81,7 @@ void __stdcall IServerImplHook::DelTradeEquip(ClientId client, const EquipDesc& 
 
 void __stdcall IServerImplHook::RequestTrade(ClientId client1, ClientId client2)
 {
-    TRACE("{{client1}} {{client2}}", { "client1", client1 }, { "client2", client2 });
+    TRACE("IServerImplHook::RequestTrade client1={{client1}} client2={{client2}}", { "client1", client1 }, { "client2", client2 });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestTrade, client1, client2); !skip)
     {
@@ -94,7 +94,7 @@ void __stdcall IServerImplHook::RequestTrade(ClientId client1, ClientId client2)
 
 void __stdcall IServerImplHook::StopTradeRequest(ClientId client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::StopTradeRequest client={{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnStopTradeRequest, client); !skip)
     {

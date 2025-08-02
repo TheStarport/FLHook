@@ -21,7 +21,7 @@ void DisConnectInner(ClientId client, EFLConnection)
 
 void __stdcall IServerImplHook::DisConnect(ClientId client, EFLConnection conn)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::DisConnect client={{client}}", { "client", client });
 
     const auto skip = CallPlugins(&Plugin::OnDisconnect, client, conn);
 

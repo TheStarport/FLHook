@@ -30,7 +30,7 @@ void IServerImplHook::LaunchCompleteInner(BaseId, const ShipId& shipId)
 
 void __stdcall IServerImplHook::LaunchComplete(BaseId baseId, Id shipId)
 {
-    TRACE("{{baseId}} {{shipId}}", { "baseId", baseId }, { "shipId", shipId });
+    TRACE("IServerImplHook::LaunchComplete baseId={{baseId}} shipId={{shipId}}", { "baseId", baseId }, { "shipId", shipId });
 
     auto ship = shipId.AsShip();
 

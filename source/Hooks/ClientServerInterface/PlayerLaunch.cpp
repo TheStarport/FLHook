@@ -39,7 +39,7 @@ void __stdcall IServerImplHook::PlayerLaunch(Id shipId, ClientId client)
 {
     auto ship = shipId.AsShip();
 
-    TRACE("{{shipId}} {{client}}", { "shipId", shipId }, { "client", client });
+    TRACE("IServerImplHook::PlayerLaunch shipId={{shipId}} client={{client}}", { "shipId", shipId }, { "client", client });
 
     IServerImplHook::clientState.erase(client);
     IEngineHook::OnPlayerLaunch(client);

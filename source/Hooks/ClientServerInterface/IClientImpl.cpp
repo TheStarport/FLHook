@@ -6,7 +6,7 @@
 
 bool IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint client, XFireWeaponInfo& fwi)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnFireWeaponPacket, ClientId(client), fwi);
 
@@ -23,7 +23,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint client, XFireWeaponInfo& 
 
 bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(uint client, XActivateEquip& aq)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnActivateEquipPacket, ClientId(client), aq);
 
@@ -40,7 +40,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATEEQUIP(uint client, XActivateEquip
 
 bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(uint client, XActivateCruise& aq)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnActivateCruisePacket, ClientId(client), aq);
 
@@ -57,7 +57,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATECRUISE(uint client, XActivateCrui
 
 bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(uint client, XActivateThrusters& aq)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnActivateThrusterPacket, ClientId(client), aq);
 
@@ -74,7 +74,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_ACTIVATETHRUSTERS(uint client, XActivateT
 
 bool IClientImpl::Send_FLPACKET_COMMON_SETTARGET(uint client, XSetTarget& st)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_COMMON_SETTARGET client={{client}}", { "client", client });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_SETTARGET(client, st); }
@@ -85,7 +85,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SETTARGET(uint client, XSetTarget& st)
 
 void IClientImpl::unknown_6(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::unknown_6 client={{client}}", { "client", client });
 
     CallClientPreamble { unknown_6(client, unk1); }
     CallClientPostamble;
@@ -93,7 +93,7 @@ void IClientImpl::unknown_6(uint client, FLPACKET_UNKNOWN* unk1)
 
 bool IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(uint client, XGoTradelane& tl)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE client={{client}}", { "client", client });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_GOTRADELANE(client, tl); }
@@ -104,7 +104,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(uint client, XGoTradelane& tl
 
 bool IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(uint client, uint shipId, uint archTradelane1, uint archTradelane2)
 {
-    TRACE("{{client}} {{shipId}} {{archTradeLane1}} {{archTradeLane2}}",
+    TRACE("IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE client={{client}} shipId={{shipId}} archTradeLane1={{archTradeLane1}} archTradeLane2={{archTradeLane2}}",
           { "client", client },
           { "shipId", shipId },
           { "archTradeLane1", archTradelane1 },
@@ -119,7 +119,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(uint client, uint shipId, u
 
 bool IClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO(uint client, XJettisonCargo& jc)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_COMMON_JETTISONCARGO client={{client}}", { "client", client });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_JETTISONCARGO(client, jc); }
@@ -172,7 +172,7 @@ void IClientImpl::nullsub(uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE client={{client}}", { "client", client });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_LOGINRESPONSE(client, unk1); }
@@ -183,7 +183,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LOGINRESPONSE(uint client, FLPACKET_UNKNO
 
 bool IClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO client={{client}}", { "client", client });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_CHARACTERINFO(client, unk1); }
@@ -194,7 +194,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CHARACTERINFO(uint client, FLPACKET_UNKNO
 
 bool IClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_CHARSELECTVERIFIED client={{client}}", { "client", client });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_CHARSELECTVERIFIED(client, unk1); }
@@ -211,7 +211,7 @@ void IClientImpl::Shutdown()
 
 bool IClientImpl::CDPClientProxyDisconnect(uint client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::CDPClientProxyDisconnect client={{client}}", { "client", client });
 
     bool retVal;
     CallClientPreamble { retVal = CDPClientProxyDisconnect(client); }
@@ -222,7 +222,7 @@ bool IClientImpl::CDPClientProxyDisconnect(uint client)
 
 uint IClientImpl::CDPClientProxyGetSendQSize(uint client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::CDPClientProxyGetSendQSize client={{client}}", { "client", client });
 
     uint retVal;
     CallClientPreamble { retVal = CDPClientProxyGetSendQSize(client); }
@@ -233,7 +233,7 @@ uint IClientImpl::CDPClientProxyGetSendQSize(uint client)
 
 uint IClientImpl::CDPClientProxyGetSendQBytes(uint client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::CDPClientProxyGetSendQBytes client={{client}}", { "client", client });
 
     uint retVal;
     CallClientPreamble { retVal = CDPClientProxyGetSendQBytes(client); }
@@ -252,7 +252,7 @@ double IClientImpl::CDPClientProxyGetLinkSaturation(uint client)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(uint client, uint shipArch)
 {
-    TRACE("{{client}} {{shipArch}}", { "client", client }, { "shipArch", shipArch });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH client={{client}} shipArch={{shipArch}}", { "client", client }, { "shipArch", shipArch });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetShipArchPacket, ClientId(client), shipArch);
 
@@ -269,7 +269,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETSHIPARCH(uint client, uint shipArch)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(uint client, float status)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetHullStatusPacket, ClientId(client), status);
 
@@ -286,7 +286,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETHULLSTATUS(uint client, float status)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(uint client, st6::list<CollisionGroupDesc>& collisionGroupList)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetCollisionGroupsPacket, ClientId(client), collisionGroupList);
 
@@ -303,7 +303,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETCOLLISIONGROUPS(uint client, st6::list
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT(uint client, st6::vector<EquipDesc>& equipmentVector)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_SETEQUIPMENT client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetEquipmentPacket, ClientId(client), equipmentVector);
 
@@ -326,7 +326,7 @@ void IClientImpl::unknown_26(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETADDITEM(uint client, FLPACKET_UNKNOWN* unk1, FLPACKET_UNKNOWN* unk2)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_SETADDITEM client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetAddItemPacket, ClientId(client), unk1, unk2);
 
@@ -508,7 +508,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST(uint client, 
 
 bool IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(uint client, FLPACKET_CREATESOLAR& solar)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateSolarPacket, ClientId(client), solar);
 
@@ -525,7 +525,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATESOLAR(uint client, FLPACKET_CREATES
 
 bool IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(uint client, FLPACKET_CREATESHIP& ship)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_CREATESHIP client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateShipPacket, ClientId(client), ship);
 
@@ -542,7 +542,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATESHIP(uint client, FLPACKET_CREATESH
 
 bool IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_CREATELOOT client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateLootPacket, ClientId(client), unk1);
 
@@ -559,7 +559,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATELOOT(uint client, FLPACKET_UNKNOWN*
 
 bool IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_CREATEMINE client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateMinePacket, ClientId(client), unk1);
 
@@ -576,7 +576,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEMINE(uint client, FLPACKET_UNKNOWN*
 
 bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(uint& client, FLPACKET_CREATEGUIDED& guided)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateGuidedPacket, ClientId(client), guided);
 
@@ -593,7 +593,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATEGUIDED(uint& client, FLPACKET_CREAT
 
 bool IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnCreateCounterPacket, ClientId(client), unk1);
 
@@ -610,7 +610,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(uint client, FLPACKET_UNKNO
 
 void IClientImpl::unknown_53(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::unknown_53 client={{client}}", { "client", client });
 
     CallClientPreamble { unknown_53(client, unk1); }
     CallClientPostamble;
@@ -640,7 +640,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_UPDATEOBJECT(uint client, SSPObjUpdateInf
 
 bool IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(uint client, FLPACKET_DESTROYOBJECT& destroy)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnDestroyObjectPacket, ClientId(client), destroy);
 
@@ -657,7 +657,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_DESTROYOBJECT(uint client, FLPACKET_DESTR
 
 bool IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(uint client, XActivateEquip& aq)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnActivateObjectPacket, ClientId(client), aq);
 
@@ -674,7 +674,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_ACTIVATEOBJECT(uint client, XActivateEqui
 
 bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(uint client, FLPACKET_SYSTEM_SWITCH_OUT& systemSwitchOut)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT client={{client}}", { "client", client });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(client, systemSwitchOut); }
@@ -687,7 +687,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_OUT(uint client, FLPACKET_S
 
 bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(uint client, FLPACKET_SYSTEM_SWITCH_IN& systemSwitchIn)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN client={{client}}", { "client", client });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(client, systemSwitchIn); }
@@ -698,7 +698,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SYSTEM_SWITCH_IN(uint client, FLPACKET_SY
 
 bool IClientImpl::Send_FLPACKET_SERVER_LAND(uint client, FLPACKET_LAND& land)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_LAND client={{client}}", { "client", client });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_SERVER_LAND(client, land); }
@@ -709,7 +709,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LAND(uint client, FLPACKET_LAND& land)
 
 bool IClientImpl::Send_FLPACKET_SERVER_LAUNCH(uint client, FLPACKET_LAUNCH& launch)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_LAUNCH client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnLaunchPacket, ClientId(client), launch);
 
@@ -726,7 +726,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_LAUNCH(uint client, FLPACKET_LAUNCH& laun
 
 bool IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint client, bool response, uint shipId)
 {
-    TRACE("{{client}} {{response}} {{shipId}}", { "client", client }, { "response", response }, { "shipId", shipId });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP client={{client}} response={{response}} shipId={{shipId}}", { "client", client }, { "response", response }, { "shipId", shipId });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnRequestCreateShipResponsePacket, ClientId(client), response, ShipId(shipId));
 
@@ -743,7 +743,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint client, bool r
 
 void IClientImpl::unknown_63(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::unknown_63 client={{client}}", { "client", client });
 
     CallClientPreamble { unknown_63(client, unk1); }
     CallClientPostamble;
@@ -784,7 +784,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_USE_ITEM(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(uint client, FLPACKET_SETREPUTATION& rep)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetReputationPacket, ClientId(client), rep);
 
@@ -801,7 +801,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(uint client, FLPACKET_SETRE
 
 void IClientImpl::unknown_68(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::unknown_68 client={{client}}", { "client", client });
 
     CallClientPreamble { unknown_68(client, unk1); }
     CallClientPostamble;
@@ -849,7 +849,7 @@ void IClientImpl::unknown_70(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetMissionMessagePacket, ClientId(client), unk1);
 
@@ -866,7 +866,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(uint client, FLPACKET
 
 void IClientImpl::unknown_72(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::unknown_72 client={{client}}", { "client", client });
 
     CallClientPreamble { unknown_72(client, unk1); }
     CallClientPostamble;
@@ -889,7 +889,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(uint client, uint un
 
 void IClientImpl::unknown_74(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::unknown_74 client={{client}}", { "client", client });
 
     CallClientPreamble { unknown_74(client, unk1); }
     CallClientPostamble;
@@ -918,7 +918,7 @@ void IClientImpl::unknown_77(uint client, uint unk1)
 
 bool IClientImpl::Send_FLPACKET_SERVER_SETCASH(uint client, uint cash)
 {
-    TRACE("{{client}} {{cash}}", { "client", client }, { "cash", cash });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_SETCASH client={{client}} cash={{cash}}", { "client", client }, { "cash", cash });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnSetCashPacket, ClientId(client), cash);
 
@@ -974,7 +974,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(uint& client, uint shipI
 
 void IClientImpl::unknown_85(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::unknown_85 client={{client}}", { "client", client });
 
     CallClientPreamble { unknown_85(client, unk1); }
     CallClientPostamble;
@@ -997,7 +997,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_OBJECTCARGOUPDATE(SObjectCargoUpdate& car
 
 bool IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(uint client, FLPACKET_BURNFUSE& burnFuse)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_BURNFUSE client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnBurnFusePacket, ClientId(client), burnFuse);
 
@@ -1014,7 +1014,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(uint client, FLPACKET_BURNFUSE& 
 
 void IClientImpl::unknown_89(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::unknown_89 client={{client}}", { "client", client });
     ;
 
     CallClientPreamble { unknown_89(client, unk1); }
@@ -1023,7 +1023,7 @@ void IClientImpl::unknown_89(uint client, FLPACKET_UNKNOWN* unk1)
 
 void IClientImpl::unknown_90(uint client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::unknown_90 client={{client}}", { "client", client });
 
     CallClientPreamble { unknown_90(client); }
     CallClientPostamble;
@@ -1046,7 +1046,7 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(uint client, uint unk1, 
 
 bool IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(uint client, uint objHash, int state)
 {
-    TRACE("{{client}} {{objHash}} {{state}}", { "client", client }, { "objHash", objHash }, { "state", state });
+    TRACE("IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE client={{client}} objHash={{objHash}} state={{state}}", { "client", client }, { "objHash", objHash }, { "state", state });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_SET_VISITED_STATE(client, objHash, state); }
@@ -1120,7 +1120,7 @@ void IClientImpl::unknown_101(uint& client, FLPACKET_UNKNOWN* unk1)
 
 void IClientImpl::PlayerInitiateTrade(uint client, uint targetShip)
 {
-    TRACE("{{client}} {{targetShip}}", { "client", client }, { "targetShip", targetShip });
+    TRACE("IClientImpl::PlayerInitiateTrade client={{client}} targetShip={{targetShip}}", { "client", client }, { "targetShip", targetShip });
 
     CallClientPreamble { PlayerInitiateTrade(client, targetShip); }
     CallClientPostamble;
@@ -1128,7 +1128,7 @@ void IClientImpl::PlayerInitiateTrade(uint client, uint targetShip)
 
 void IClientImpl::PlayerTradeTarget(uint client, uint targetShip)
 {
-    TRACE("{{client}} {{targetShip}}", { "client", client }, { "targetShip", targetShip });
+    TRACE("IClientImpl::PlayerTradeTarget client={{client}} targetShip={{targetShip}}", { "client", client }, { "targetShip", targetShip });
 
     CallClientPreamble { PlayerTradeTarget(client, targetShip); }
     CallClientPostamble;
@@ -1211,7 +1211,7 @@ void IClientImpl::PlayerIsLeavingServer(uint onlineClient, uint leavingClient)
 
 bool IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2(uint client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_PLAYERLIST_2 client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnPlayerList2Packet, ClientId(client));
 
@@ -1258,7 +1258,7 @@ bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE_7(uint client, uint unk1, u
 
 bool IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_MISCOBJUPDATE client={{client}}", { "client", client });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnMiscObjectUpdatePacket, ClientId(client), unk1);
 
@@ -1356,7 +1356,7 @@ void IClientImpl::unknown_123(uint client, uint unk1, uint unk2, uint unk3, uint
 
 void IClientImpl::unknown_124(uint client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IClientImpl::unknown_124 client={{client}}", { "client", client });
 
     CallClientPreamble { unknown_124(client); }
     CallClientPostamble;

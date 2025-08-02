@@ -345,7 +345,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
 
 void __stdcall IServerImplHook::SubmitChat(CHAT_ID cidFrom, ulong size, char* rdlReader, CHAT_ID cidTo, int genArg1)
 {
-    TRACE("{{fromId}} {{size}} {{toId}}", { "fromId", cidFrom.id }, { "size", size }, { "toId", cidTo.id });
+    TRACE("IServerImplHook::SubmitChat fromId={{fromId}} size={{size}} toId={{toId}}", { "fromId", cidFrom.id }, { "size", size }, { "toId", cidTo.id });
 
     if (const auto flufPayload = FlufPayload::FromPayload(rdlReader, size);
         cidTo.id == static_cast<uint>(SpecialChatIds::SpecialBase) && flufPayload.has_value())

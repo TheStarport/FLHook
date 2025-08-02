@@ -48,7 +48,7 @@ void IServerImplHook::NpcSpinProtection(const SSPObjCollisionInfo& oci, ClientId
 
 void __stdcall IServerImplHook::SpObjCollision(const SSPObjCollisionInfo& oci, ClientId client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::SpObjCollision client={{client}}", { "client", client });
 
     if (FLHook::GetConfig()->gameFixes.enableNpcSpinProtection && oci.colliderObjectId)
     {

@@ -17,7 +17,7 @@ bool GoTradelaneCatch(ClientId client, const XGoTradelane& gtl)
 {
     uint system;
     pub::Player::GetSystem(client.GetValue(), system);
-    TRACE("{{characterName}} {{system}} {{tradelaneSpaceObj1}} {{tradelaneSpaceObj2}}",
+    TRACE("GoTradelaneCatch characterName={{characterName}} system={{system}} tradelaneSpaceObj1={{tradelaneSpaceObj1}} tradelaneSpaceObj2={{tradelaneSpaceObj2}}",
           { "characterName", std::wstring(client.GetCharacterName().Unwrap()) },
           { "system", system },
           { "tradelaneSpaceObj1", gtl.tradelaneSpaceObj1 },
@@ -28,7 +28,7 @@ bool GoTradelaneCatch(ClientId client, const XGoTradelane& gtl)
 
 void __stdcall IServerImplHook::GoTradelane(ClientId client, const XGoTradelane& gt)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::GoTradelane client={{client}}", { "client", client });
 
     const auto skip = CallPlugins(&Plugin::OnTradelaneStart, client, gt);
 
@@ -49,7 +49,7 @@ void __stdcall IServerImplHook::StopTradelane(ClientId client, Id shipId, Id tra
     auto tradeLane1 = tradelaneRing1.AsObject();
     auto tradeLane2 = tradelaneRing2.AsObject();
 
-    TRACE("{{client}} {{shipId}} {{tradelaneRing1}} {{tradelaneRing2}}",
+    TRACE("IServerImplHook::StopTradelane client={{client}} shipId={{shipId}} tradelaneRing1={{tradelaneRing1}} tradelaneRing2={{tradelaneRing2}}",
           { "client", client },
           { "shipId", shipId },
           { "tradelaneRing1", tradeLane1.GetId().Unwrap() },

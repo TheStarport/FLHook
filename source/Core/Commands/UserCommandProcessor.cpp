@@ -38,7 +38,7 @@ std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(c
 
     const auto character = triggeringClient.GetCharacterName().Unwrap();
 
-    TRACE("{{character}} {{command}}", { "character", character }, { "command", commandStr });
+    TRACE("UserCommandProcessor::ProcessCommand character={{character}} command={{command}}", { "character", character }, { "command", commandStr });
 
     std::vector paramsFiltered(params.begin(), params.end());
     paramsFiltered.insert(paramsFiltered.begin(), clientStr);

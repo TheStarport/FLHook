@@ -6,7 +6,7 @@
 
 void __stdcall IServerImplHook::JumpInComplete(SystemId systemId, Id shipId)
 {
-    TRACE("{{systemId}} {{shipId}}", { "systemId", systemId }, { "shipId", shipId });
+    TRACE("IServerImplHook::JumpInComplete systemId={{systemId}} shipId={{shipId}}", { "systemId", systemId }, { "shipId", shipId });
 
     auto ship = shipId.AsShip();
     if (const auto skip = CallPlugins(&Plugin::OnJumpInComplete, systemId, ship); !skip)

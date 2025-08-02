@@ -6,7 +6,7 @@
 
 void __stdcall IServerImplHook::SetManeuver(ClientId client, const XSetManeuver& sm)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::SetManeuver client={{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnSetManeuver, client, sm); !skip)
     {

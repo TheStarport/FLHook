@@ -89,7 +89,7 @@ void __stdcall IServerImplHook::RequestGroupPositions(ClientId client, uint unk1
 
 void __stdcall IServerImplHook::SetTarget(ClientId client, const XSetTarget& st)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::SetTarget client={{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnSetTarget, client, st); !skip)
     {

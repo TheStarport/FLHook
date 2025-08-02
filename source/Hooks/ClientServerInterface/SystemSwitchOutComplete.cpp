@@ -8,7 +8,7 @@ void __stdcall IServerImplHook::SystemSwitchOutComplete(Id shipId, ClientId clie
 {
     auto ship = shipId.AsShip();
 
-    TRACE("{{shipId}} {{client}}", { "shipId", shipId }, { "client", client });
+    TRACE("IServerImplHook::SystemSwitchOutComplete shipId={{shipId}} client={{client}}", { "shipId", shipId }, { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnSystemSwitchOutComplete, client, ship); !skip)
     {

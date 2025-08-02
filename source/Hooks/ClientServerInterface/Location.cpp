@@ -6,7 +6,7 @@
 
 void __stdcall IServerImplHook::SetVisitedState(ClientId client, uint objHash, int state)
 {
-    TRACE("{{clientId}} {{objHash}} {{state}}", { "clientId", client }, { "objHash", std::to_wstring(objHash) }, { "state", std::to_wstring(state) });
+    TRACE("IServerImplHook::SetVisitedState clientId={{clientId}} objHash={{objHash}} state={{state}}", { "clientId", client }, { "objHash", std::to_wstring(objHash) }, { "state", std::to_wstring(state) });
 
     if (const auto skip = CallPlugins(&Plugin::OnSetVisitedState, client, objHash, state); !skip)
     {

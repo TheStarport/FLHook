@@ -49,7 +49,7 @@ bool IServerImplHook::OnConnectInner(ClientId client)
 
 void __stdcall IServerImplHook::OnConnect(ClientId client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::OnConnect client={{client}}", { "client", client });
 
     const auto skip = CallPlugins(&Plugin::OnConnect, client);
 

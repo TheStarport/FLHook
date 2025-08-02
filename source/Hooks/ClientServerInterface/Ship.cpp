@@ -6,7 +6,7 @@
 
 void __stdcall IServerImplHook::RequestCreateShip(ClientId client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::RequestCreateShip client={{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestCreateShip, client); !skip)
     {
@@ -19,7 +19,7 @@ void __stdcall IServerImplHook::RequestCreateShip(ClientId client)
 
 void __stdcall IServerImplHook::ReqCollisionGroups(const st6::list<CollisionGroupDesc>& collisionGroups, ClientId client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::ReqCollisionGroups client={{client}}", { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestCollisionGroups, client, collisionGroups); !skip)
     {
@@ -32,7 +32,7 @@ void __stdcall IServerImplHook::ReqCollisionGroups(const st6::list<CollisionGrou
 
 void __stdcall IServerImplHook::ReqShipArch(ArchId archId, ClientId client)
 {
-    TRACE("{{archId}} {{client}}", { "archId", archId }, { "client", client });
+    TRACE("IServerImplHook::ReqShipArch archId={{archId}} client={{client}}", { "archId", archId }, { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestShipArch, client, archId); !skip)
     {
@@ -45,7 +45,7 @@ void __stdcall IServerImplHook::ReqShipArch(ArchId archId, ClientId client)
 
 void __stdcall IServerImplHook::ReqHullStatus(float status, ClientId client)
 {
-    TRACE("{{status}} {{client}}", { "status", status }, { "client", client });
+    TRACE("IServerImplHook::ReqHullStatus status={{status}} client={{client}}", { "status", status }, { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestHullStatus, client, status); !skip)
     {
@@ -60,7 +60,7 @@ void __stdcall IServerImplHook::SpRequestInvincibility(Id shipId, bool enable, I
 {
     auto ship = shipId.AsShip();
 
-    TRACE("{{shipId}} {{enable}} {{reason}} {{client}}",
+    TRACE("IServerImplHook::SpRequestInvincibility shipId={{shipId}} enable={{enable}} reason={{reason}} client={{client}}",
           { "shipId", shipId },
           { "enable", enable },
           { "reason", static_cast<int>(reason) },

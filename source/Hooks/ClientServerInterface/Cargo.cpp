@@ -19,7 +19,7 @@ void __stdcall IServerImplHook::SpScanCargo(const uint& unk1, const uint& unk2, 
 void __stdcall IServerImplHook::ReqAddItem(uint goodId, const char* hardpoint, int count, float status, bool mounted, ClientId client)
 {
     const std::wstring hp = StringUtils::stows(hardpoint);
-    TRACE("{{goodId}},{{hardpoint}},{{count}},{{status}},{{mounted}},{{client}}",
+    TRACE("IServerImplHook::ReqAddItem goodId={{goodId}},hardpoint={{hardpoint}},count={{count}},status={{status}},mounted={{mounted}},client={{client}}",
           { "goodId", goodId },
           { "hardpoint", hardpoint },
           { "count", count },
@@ -40,7 +40,7 @@ void __stdcall IServerImplHook::ReqAddItem(uint goodId, const char* hardpoint, i
 
 void __stdcall IServerImplHook::ReqRemoveItem(ushort slotId, int count, ClientId client)
 {
-    TRACE("{{slotId}},{{count}},{{clientId}}", { "slotId", slotId }, { "count", count }, { "clientId", client });
+    TRACE("IServerImplHook::ReqRemoveItem slotId={{slotId}},count={{count}},clientId={{clientId}}", { "slotId", slotId }, { "count", count }, { "clientId", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestRemoveItem, client, slotId, count); !skip)
     {
@@ -55,7 +55,7 @@ void __stdcall IServerImplHook::ReqModifyItem(ushort slotId, const char* hardpoi
 {
     std::wstring hp = StringUtils::stows(hardpoint);
 
-    TRACE("{{goodId}}, {{hardpoint}}, {{count}}, {{status}}, {{mounted}}, {{client}}",
+    TRACE("IServerImplHook::ReqModifyItem goodId={{goodId}}, hardpoint={{hardpoint}}, count={{count}}, status={{status}}, mounted={{mounted}}, client={{client}}",
           { "goodId", slotId },
           { "hardpoint", hardpoint },
           { "count", count },
@@ -74,7 +74,7 @@ void __stdcall IServerImplHook::ReqModifyItem(ushort slotId, const char* hardpoi
 
 void __stdcall IServerImplHook::JettisonCargo(ClientId client, const XJettisonCargo& jc)
 {
-    TRACE("{{clientId}}", { "clientId", client });
+    TRACE("IServerImplHook::JettisonCargo client={{clientId}}", { "clientId", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnCargoJettison, client, jc); !skip)
     {
@@ -98,7 +98,7 @@ void __stdcall IServerImplHook::JettisonCargo(ClientId client, const XJettisonCa
 
 void __stdcall IServerImplHook::TractorObjects(ClientId client, const XTractorObjects& to)
 {
-    TRACE("{{clientId}}", { "clientId", client });
+    TRACE("IServerImplHook::TractorObjects clientId={{clientId}}", { "clientId", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnTractorObjects, client, to); !skip)
     {

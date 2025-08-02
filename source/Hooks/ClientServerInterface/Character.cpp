@@ -73,7 +73,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
 
 void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientId client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::CharacterSelect client={{client}}", { "client", client });
 
     auto prevCharName = std::wstring(FLHook::GetClient(client).characterName);
 
@@ -119,7 +119,7 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
 
 void __stdcall IServerImplHook::CreateNewCharacter(const SCreateCharacterInfo& createCharacterInfo, ClientId client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::CreateNewCharacter client={{client}}", { "client", client });
 
     // Ban any name that is numeric and might interfere with commands
     if (const auto numeric = StringUtils::Cast<uint>(std::wstring_view(createCharacterInfo.charname, wcslen(createCharacterInfo.charname)));
@@ -144,7 +144,7 @@ void IServerImplHook::DestroyCharacterCallback(const ClientId client, CHARACTER_
 
 void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, ClientId client)
 {
-    TRACE("{{client}}", { "client", client });
+    TRACE("IServerImplHook::DestroyCharacter client={{client}}", { "client", client });
 
     const std::wstring charName = StringUtils::stows(static_cast<const char*>(cid.charFilename));
 
@@ -213,7 +213,7 @@ bool CharacterInfoReqCatch(ClientId client, bool)
 
 void __stdcall IServerImplHook::CharacterInfoReq(ClientId client, bool unk1)
 {
-    TRACE("{{client}} {{unk1}}", { "client", client }, { "unk1", unk1 });
+    TRACE("IServerImplHook::CharacterInfoReq client={{client}} unk1={{unk1}}", { "client", client }, { "unk1", unk1 });
 
     const auto skip = CallPlugins(&Plugin::OnCharacterInfoRequest, client, unk1);
 
