@@ -409,10 +409,11 @@ class DLL ClientId
          * sends a private message to a specified client as if this client sent it.
          * @param destinationClient the client you wish to send the message to.
          * @param message the text you wish to send.
+         * @param colour BBGGRR hex string to be used as the colour of the text sent
          * @returns On success : void
          * @returns On fail : InCharacterSelect.
          */
-        Action<void> MessageFrom(ClientId destinationClient, std::wstring_view message) const;
+        Action<void> MessageFrom(ClientId destinationClient, std::wstring_view message, std::wstring_view colour = L"19BD3A") const;
 
         Action<void> MessageCustomXml(std::wstring_view rawXml) const;
 

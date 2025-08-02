@@ -596,7 +596,7 @@ Action<void> ClientId::MessageLocal(const std::wstring_view message, const float
     return { {} };
 }
 
-Action<void> ClientId::MessageFrom(const ClientId destinationClient, const std::wstring_view message) const
+Action<void> ClientId::MessageFrom(const ClientId destinationClient, const std::wstring_view message, std::wstring_view colour) const
 {
     ClientCheck;
     CharSelectCheck;
@@ -607,8 +607,9 @@ Action<void> ClientId::MessageFrom(const ClientId destinationClient, const std::
     }
 
     (void)MessageCustomXml(std::format(
-        L"<TRA data=\"0xFFFFFF00\" mask=\"-1\"/><TEXT>{}: </TEXT><TRA data=\"0x19BD3A00\" mask=\"-1\"/><TEXT>{}</TEXT>",
+        L"<TRA data=\"0xFFFFFF00\" mask=\"-1\"/><TEXT>{}: </TEXT><TRA data=\"0x{}00\" mask=\"-1\"/><TEXT>{}</TEXT>",
         StringUtils::XmlText(destinationClient.GetCharacterName().Handle()),
+        colour,
         StringUtils::XmlText(message)
     ));
 

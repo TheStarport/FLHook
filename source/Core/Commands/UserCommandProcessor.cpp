@@ -303,13 +303,13 @@ concurrencpp::result<void> UserCommandProcessor::MessageTag(const ClientId clien
         if (next.GetCharacterName().Handle().find(tag) != std::wstring_view::npos)
         {
             foundTaggedPlayer = true;
-            (void)next.MessageFrom(client, msg);
+            (void)next.MessageFrom(client, msg, L"00CCFF");
         }
     }
 
     if (foundTaggedPlayer)
     {
-        (void)client.MessageFrom(client, msg);
+        (void)client.MessageFrom(client, msg, L"00CCFF");
     }
     else
     {
