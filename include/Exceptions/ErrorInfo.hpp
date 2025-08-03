@@ -32,6 +32,7 @@ enum class Error
     PlayerNoTradeActive = 27,
     NoFlufClientHook = 28,
     ObjectHasNoTarget = 29,
+    CharacterNameNotFound = 30,
 };
 
 class DLL ErrorInfo
@@ -68,6 +69,7 @@ class DLL ErrorInfo
              { Error::PlayerNoTradeActive, L"Player has no trade window open." },
              { Error::NoFlufClientHook, L"Client has no FLUF clienthook active." },
              { Error::ObjectHasNoTarget, L"No target selected." },
+             { Error::CharacterNameNotFound, L"Character could not be found." },
              }
         };
 
