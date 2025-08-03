@@ -397,8 +397,8 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
         ConvertCharacterToVanillaData(loadData, character.second, clientId);
     }
 
-    auto& internalAccount = accounts[clientId];
-    internalAccount.internalAccount->numberOfCharacters = account.characters.size();
+    account.internalAccount->numberOfCharacters = account.characters.size();
+    account.internalAccount->clientId = clientId;
 
     data->systemId = SystemId();
     data->shipId = 0;
@@ -409,9 +409,8 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
     data->createdShipId = 0;
     data->baseRoomId = 0;
 
-    data->account = internalAccount.internalAccount;
-    data->account->clientId = clientId;
-    wcscpy_s(data->accId, internalAccount.internalAccount->accId);
+    data->account = account.internalAccount;
+    wcscpy_s(data->accId, account.internalAccount->accId);
     data->clientId = clientId;
     data->exitedBase = BaseId();
 

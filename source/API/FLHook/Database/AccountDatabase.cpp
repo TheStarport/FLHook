@@ -177,7 +177,10 @@ concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId c
         const auto findDoc = B_MDOC(B_KVP("_id", accId));
         const auto accountBson = accountsCollection.find_one(findDoc.view());
 
+        accounts[client.GetValue()].characters = std::unordered_map<std::string, Character>{}; // reset account characters list
+
         Account& account = accounts[client.GetValue()].account;
+
         // If account does not exist
         if (!accountBson.has_value())
         {
@@ -224,7 +227,7 @@ concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId c
             auto& charRef = accounts[client.GetValue()].characters[charFileName] = character;
 
             charRef.characterDocument = doc;
-            client.GetData().characterData = &charRef;
+            client.GetData().characterData = &charRef; // TODO this seems questionable - can't the user select any of them?
         }
         session.commit_transaction();
         accounts[client.GetValue()].loginSuccess = true;
