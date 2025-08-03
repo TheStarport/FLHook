@@ -831,9 +831,14 @@ concurrencpp::result<void> AdminCommandProcessor::UnloadPlugin(ClientId client, 
         }
     }
 
-    client.Message(res.substr(0, res.length() - 1));
-
-    co_return;
+    if (res.empty())
+    {
+        client.Message(L"No plugins found with the specified names");
+    }
+    else
+    {
+        client.Message(res);
+    }
 }
 
 concurrencpp::result<void> AdminCommandProcessor::ReloadPlugin(ClientId client, std::vector<std::wstring_view> pluginNames)
@@ -932,9 +937,7 @@ concurrencpp::result<void> AdminCommandProcessor::Pull(ClientId client, ClientId
     target.GetShip().Handle().Relocate(pos, orientation);
 
     client.Message(std::format(
-        L"Player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}",
-        target.GetCharacterName().Handle(), client.GetCharacterName().Handle(),
-        pos.x, pos.y, pos.z));
+        L"Player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}", target.GetCharacterName().Handle(), client.GetCharacterName().Handle(), pos.x, pos.y, pos.z));
     co_return;
 }
 
@@ -1002,7 +1005,9 @@ concurrencpp::result<void> AdminCommandProcessor::Move(ClientId client, ClientId
     }
     else
     {
-        shipId.Relocate({{ x, y, z }});
+        shipId.Relocate({
+            { x, y, z }
+        });
     }
     client.Message(std::format(L"Moving target to location: {:0.0f}, {:0.0f}, {:0.0f}", x, y, z));
     co_return;
