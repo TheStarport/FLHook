@@ -34,16 +34,10 @@ void TaskScheduler::ProcessTasks()
         if (task->result.status() == concurrencpp::result_status::exception)
         {
             // ReSharper disable once CppPassValueParameterByConstReference
-            static auto informUser = [](const ClientId client, const std::wstring message)
+            static auto informUser = [](const ClientId client, const std::wstring message) -> concurrencpp::result<void>
             {
-                if (client)
-                {
-                    client.MessageErr(message);
-                }
-                else
-                {
-                    WARN("Exception thrown during coroutine: {{error}}", { "error", message });
-                }
+                client.MessageErr(message);
+                co_return;
             };
 
             try
@@ -54,12 +48,12 @@ void TaskScheduler::ProcessTasks()
             catch (const InvalidParameterException& ex)
             {
                 auto client = task->client;
-                executor->post([ex, client] { informUser(client, std::wstring(ex.Msg())); });
+                executor->submit(informUser, client, std::wstring(ex.Msg()));
             }
             catch (GameException& ex)
             {
                 auto client = task->client;
-                executor->post([ex, client] { informUser(client, std::wstring(ex.Msg())); });
+                executor->submit(informUser, client, std::wstring(ex.Msg()));
             }
             catch (const StopProcessingException&)
             {
