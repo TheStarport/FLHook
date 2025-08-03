@@ -313,7 +313,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
     catch (InvalidParameterException& ex)
     {
         const auto msg = ex.Msg();
-        (void)ClientId(from.id).Message(msg);
+        (void)ClientId(from.id).MessageErr(msg);
         return false;
     }
     catch ([[maybe_unused]] SehException& exc)

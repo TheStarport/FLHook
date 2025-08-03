@@ -95,19 +95,19 @@ void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uin
                 traDataSenderColor = L"00FF00";
                 traDataColor = L"FFFFFF"; // universe chat color
             }
-            else if (clientTo.GetValue() == 0x10000)
+            else if (clientTo.GetValue() == (uint)SpecialChatIds::Universe)
             {
                 traDataColor = L"FFFFFF"; // universe chat color
             }
-            else if (clientTo.GetValue() == 0x10003)
+            else if (clientTo.GetValue() == (uint)SpecialChatIds::Group)
             {
                 traDataColor = L"FF7BFF"; // group chat
             }
-            else if (clientTo.GetValue() == 0x10002)
+            else if (clientTo.GetValue() == (uint)SpecialChatIds::Local)
             {
                 traDataColor = L"FF8F40"; // local chat color
             }
-            else if (clientTo.GetValue() & 0x10001)
+            else if (clientTo.GetValue() == (uint)SpecialChatIds::System)
             {
                 traDataColor = L"E6C684"; // system chat color
             }
