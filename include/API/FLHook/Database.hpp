@@ -2,7 +2,7 @@
 
 #include "API/FLHook/AccountManager.hpp"
 #include "API/Types/AccountId.hpp"
-#include "Defs/Database/Account.hpp"
+#include "Defs/Database/DbAccount.hpp"
 #include <bsoncxx/builder/basic/document.hpp>
 #include <bsoncxx/exception/exception.hpp>
 #include <bsoncxx/json.hpp>

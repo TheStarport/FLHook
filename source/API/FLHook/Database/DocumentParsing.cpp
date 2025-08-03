@@ -6,7 +6,7 @@
 
 
 
-Account::Account(const B_VIEW view)
+DbAccount::DbAccount(const B_VIEW view)
 {
     for (auto& element : view)
     {
@@ -83,7 +83,7 @@ Account::Account(const B_VIEW view)
     }
 }
 
-void Account::ToBson(B_DOC& document) const
+void DbAccount::ToBson(B_DOC& document) const
 {
     document.append(B_KVP("_id", _id));
     document.append(B_KVP("banned", banned));

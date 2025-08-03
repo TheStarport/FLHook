@@ -4,7 +4,7 @@
 #include "PCH.hpp"
 
 #include <API/FLHook/AccountManager.hpp>
-#include <Defs/Database/Account.hpp>
+#include <Defs/Database/DbAccount.hpp>
 #include <mongocxx/exception/error_code.hpp>
 #include <mongocxx/exception/write_exception.hpp>
 
@@ -179,7 +179,7 @@ concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId c
 
         accounts[client.GetValue()].characters = std::unordered_map<std::string, Character>{}; // reset account characters list
 
-        Account& account = accounts[client.GetValue()].account;
+        DbAccount& account = accounts[client.GetValue()].account;
 
         // If account does not exist
         if (!accountBson.has_value())
@@ -198,7 +198,7 @@ concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId c
         else
         {
             const auto accountData = accountBson.value();
-            account = Account{ accountData.view() };
+            account = DbAccount{ accountData.view() };
             account.accountData = accountData;
         }
 
@@ -301,14 +301,15 @@ concurrencpp::result<bool> AccountManager::UpdateCharacter(std::wstring charName
 
         if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); !checkCharNameDoc.has_value())
         {
-            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), std::format("Character doesn't exist when {}:", logDescription));
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
+                                            std::format("Character doesn't exist when {}:", logDescription));
         }
 
-        const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());   
+        const auto updateResult = charactersCollection.update_one(findCharDoc.view(), charUpdateDoc.view());
         if (!updateResult.has_value())
         {
-            throw mongocxx::write_exception(
-                make_error_code(mongocxx::error_code::k_server_response_malformed), std::format("Updating character during {} failed due to lack of update result value:", logDescription));
+            throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed),
+                                            std::format("Updating character during {} failed due to lack of update result value:", logDescription));
         }
 
         if (updateResult.value().modified_count() == 0)
@@ -322,10 +323,7 @@ concurrencpp::result<bool> AccountManager::UpdateCharacter(std::wstring charName
     }
     catch (bsoncxx::exception& ex)
     {
-        ERROR("BSON error during {{logDescription}}: {{charName}} {{ex}}",
-              { "charName", charName },
-              { "ex", ex.what() },
-              { "logDescription", logDescription });
+        ERROR("BSON error during {{logDescription}}: {{charName}} {{ex}}", { "charName", charName }, { "ex", ex.what() }, { "logDescription", logDescription });
         session.abort_transaction();
     }
     catch (mongocxx::exception& ex)
@@ -375,10 +373,7 @@ concurrencpp::result<cpp::result<void, std::wstring>> AccountManager::UpdateAcco
     }
     catch (bsoncxx::exception& ex)
     {
-        ERROR("BSON error during {{logDescription}}: {{charName}} {{ex}}",
-            { "charName", charName },
-            { "ex", ex.what() },
-            { "logDescription", logDescription });
+        ERROR("BSON error during {{logDescription}}: {{charName}} {{ex}}", { "charName", charName }, { "ex", ex.what() }, { "logDescription", logDescription });
         session.abort_transaction();
     }
     catch (mongocxx::exception& ex)
@@ -397,11 +392,11 @@ concurrencpp::result<cpp::result<void, std::wstring>> AccountManager::UpdateAcco
 
 concurrencpp::result<void> AccountManager::Rename(std::wstring currName, std::wstring newName)
 {
-    const auto charUpdateDoc = B_MDOC(
-        B_KVP("$set",
-            B_MDOC(B_KVP("characterName", StringUtils::wstos(newName)),
-                   B_KVP("lastRenameTimestamp",
-                         bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }))));
+    const auto charUpdateDoc =
+        B_MDOC(B_KVP("$set",
+                     B_MDOC(B_KVP("characterName", StringUtils::wstos(newName)),
+                            B_KVP("lastRenameTimestamp",
+                                  bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }))));
     co_await AccountManager::UpdateCharacter(currName, charUpdateDoc, "renaming character");
 }
 

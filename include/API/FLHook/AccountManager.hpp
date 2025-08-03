@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Defs/Database/Account.hpp"
+#include "Defs/Database/DbAccount.hpp"
 #include "Utils/Detour.hpp"
 
 #include <concurrencpp/concurrencpp.h>
@@ -93,7 +93,7 @@ struct NewPlayerTemplate
 struct AccountData
 {
         CAccount* internalAccount;
-        Account account;
+        DbAccount account;
         std::unordered_map<std::string, Character> characters;
         bool loginSuccess;
 };
@@ -101,9 +101,6 @@ struct AccountData
 struct PlayerDbLoadUserDataAssembly final : Xbyak::CodeGenerator
 {
         PlayerDbLoadUserDataAssembly();
-
-    private:
-        static void* GetInternalCall();
 };
 
 class AccountManager
@@ -116,7 +113,7 @@ class AccountManager
 
         inline static NewPlayerTemplate newPlayerTemplate;
 
-        inline static std::array<AccountData, 256> accounts;
+        inline static std::array<AccountData, MaxClientId + 1> accounts;
         inline static std::unordered_set<std::string, StringHash> loggedInAccounts;
 
         enum class LoginReturnCode
@@ -156,10 +153,9 @@ class AccountManager
         PlayerDbLoadUserDataAssembly loadUserDataAssembly;
 
     public:
-        static concurrencpp::result<bool> UpdateCharacter(std::wstring charName, bsoncxx::v_noabi::document::value charUpdateDoc,
-                                                          std::string logDescription);
+        static concurrencpp::result<bool> UpdateCharacter(std::wstring charName, bsoncxx::v_noabi::document::value charUpdateDoc, std::string logDescription);
         static concurrencpp::result<cpp::result<void, std::wstring>> UpdateAccount(std::wstring charName, bsoncxx::v_noabi::document::value accountUpdateDoc,
-                                                          std::string logDescription);
+                                                                                   std::string logDescription);
 
         AccountManager();
         AccountManager(const AccountManager&) = delete;

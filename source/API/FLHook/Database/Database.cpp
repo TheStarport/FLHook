@@ -3,7 +3,7 @@
 #include "API/FLHook/Database.hpp"
 
 #include "API/FLHook/TaskScheduler.hpp"
-#include "Defs/Database/Account.hpp"
+#include "Defs/Database/DbAccount.hpp"
 
 #include <mongocxx/exception/error_code.hpp>
 #include <mongocxx/exception/write_exception.hpp>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Defs/Database/Account.hpp"
+#include "Defs/Database/DbAccount.hpp"
 
 struct ClientData
 {
@@ -8,7 +8,7 @@ struct ClientData
 
         Character* characterData = nullptr;
         ClientId id;
-        Account* account = nullptr;
+        DbAccount* account = nullptr;
         std::wstring_view characterName{};
         PlayerData* playerData = nullptr;
         bool isValid = false;

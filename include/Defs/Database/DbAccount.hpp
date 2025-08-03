@@ -2,7 +2,7 @@
 
 #include "Character.hpp"
 
-struct Account
+struct DbAccount
 {
         std::string _id;
         std::vector<bsoncxx::oid> characters;
@@ -18,7 +18,7 @@ struct Account
 
         B_VAL accountData = B_MDOC();
 
-        Account() = default;
-        explicit Account(B_VIEW view);
+        DbAccount() = default;
+        explicit DbAccount(B_VIEW view);
         void ToBson(B_DOC& document) const;
 };
