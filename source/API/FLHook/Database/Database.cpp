@@ -103,7 +103,7 @@ std::string_view DatabaseQuery::CollectionToString(const DatabaseCollection coll
 }
 
 std::optional<B_VAL> DatabaseQuery::FindFromCollection(const std::string_view collectionName, const B_VIEW filter,
-                                                                          const std::optional<B_VIEW>& projection) const
+                                                       const std::optional<B_VIEW>& projection) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
@@ -118,14 +118,13 @@ std::optional<B_VAL> DatabaseQuery::FindFromCollection(const std::string_view co
 }
 
 std::optional<B_VAL> DatabaseQuery::FindFromCollection(const DatabaseCollection collectionName, const B_VIEW filter,
-                                                                          const std::optional<B_VIEW>& projection) const
+                                                       const std::optional<B_VIEW>& projection) const
 {
     return FindFromCollection(CollectionToString(collectionName), filter, projection);
 }
 
-B_VAL DatabaseQuery::FindAndUpdate(const std::string_view collectionName, const B_VIEW filter,
-                                                      const B_VIEW update, const std::optional<B_VIEW>& projection,
-                                                      const bool before, const bool replace, const bool upsert) const
+B_VAL DatabaseQuery::FindAndUpdate(const std::string_view collectionName, const B_VIEW filter, const B_VIEW update, const std::optional<B_VIEW>& projection,
+                                   const bool before, const bool replace, const bool upsert) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
@@ -148,15 +147,13 @@ B_VAL DatabaseQuery::FindAndUpdate(const std::string_view collectionName, const 
     return result.value();
 }
 
-B_VAL DatabaseQuery::FindAndUpdate(const DatabaseCollection collectionName, const B_VIEW filter,
-                                                      const B_VIEW update, const std::optional<B_VIEW>& projection,
-                                                      const bool before, const bool replace, const bool upsert) const
+B_VAL DatabaseQuery::FindAndUpdate(const DatabaseCollection collectionName, const B_VIEW filter, const B_VIEW update, const std::optional<B_VIEW>& projection,
+                                   const bool before, const bool replace, const bool upsert) const
 {
     return FindAndUpdate(CollectionToString(collectionName), filter, update, projection, before, replace, upsert);
 }
 
-B_VAL DatabaseQuery::FindAndDelete(const std::string_view collectionName, const B_VIEW filter,
-                                                      const std::optional<B_VIEW>& projection) const
+B_VAL DatabaseQuery::FindAndDelete(const std::string_view collectionName, const B_VIEW filter, const std::optional<B_VIEW>& projection) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
@@ -166,19 +163,16 @@ B_VAL DatabaseQuery::FindAndDelete(const std::string_view collectionName, const 
         find.projection(projection.value());
     }
 
-    auto result = collection.find_one_and_delete(filter, find);
-    assert(result.has_value());
-    return result.value();
+    return collection.find_one_and_delete(filter, find).value_or(B_MDOC());
 }
 
-B_VAL DatabaseQuery::FindAndDelete(const DatabaseCollection collectionName, const B_VIEW filter,
-                                                      const std::optional<B_VIEW>& projection) const
+B_VAL DatabaseQuery::FindAndDelete(const DatabaseCollection collectionName, const B_VIEW filter, const std::optional<B_VIEW>& projection) const
 {
     return FindAndDelete(CollectionToString(collectionName), filter, projection);
 }
 
-mongocxx::result::update DatabaseQuery::UpdateFromCollection(const std::string_view collectionName, const B_VIEW filter,
-                                                             const B_VIEW update, const bool many) const
+mongocxx::result::update DatabaseQuery::UpdateFromCollection(const std::string_view collectionName, const B_VIEW filter, const B_VIEW update,
+                                                             const bool many) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
@@ -187,14 +181,13 @@ mongocxx::result::update DatabaseQuery::UpdateFromCollection(const std::string_v
     return result.value();
 }
 
-mongocxx::result::update DatabaseQuery::UpdateFromCollection(const DatabaseCollection collectionName, const B_VIEW filter,
-                                                             const B_VIEW update, const bool many) const
+mongocxx::result::update DatabaseQuery::UpdateFromCollection(const DatabaseCollection collectionName, const B_VIEW filter, const B_VIEW update,
+                                                             const bool many) const
 {
     return UpdateFromCollection(CollectionToString(collectionName), filter, update, many);
 }
 
-mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const std::string_view collectionName, const B_VIEW filter,
-                                                                    const bool many) const
+mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const std::string_view collectionName, const B_VIEW filter, const bool many) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
@@ -203,14 +196,13 @@ mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const std::s
     return result.value();
 }
 
-mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const DatabaseCollection collectionName, const B_VIEW filter,
-                                                                    const bool many)
+mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const DatabaseCollection collectionName, const B_VIEW filter, const bool many)
 {
     return DeleteFromCollection(CollectionToString(collectionName), filter, many);
 }
 
-std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> DatabaseQuery::InsertIntoCollection(
-    const std::string_view collectionName, const std::vector<B_VIEW>& newDocs)
+std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> DatabaseQuery::InsertIntoCollection(const std::string_view collectionName,
+                                                                                                              const std::vector<B_VIEW>& newDocs)
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
@@ -227,8 +219,8 @@ std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> Databa
     return result.value();
 }
 
-std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> DatabaseQuery::InsertIntoCollection(
-    const DatabaseCollection collectionName, const std::vector<B_VIEW>& newDocs)
+std::variant<mongocxx::result::insert_one, mongocxx::result::insert_many> DatabaseQuery::InsertIntoCollection(const DatabaseCollection collectionName,
+                                                                                                              const std::vector<B_VIEW>& newDocs)
 {
     return InsertIntoCollection(CollectionToString(collectionName), newDocs);
 }

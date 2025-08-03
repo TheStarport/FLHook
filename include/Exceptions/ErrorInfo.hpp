@@ -33,6 +33,7 @@ enum class Error
     NoFlufClientHook = 28,
     ObjectHasNoTarget = 29,
     CharacterNameNotFound = 30,
+    CharacterAlreadyExists = 31,
 };
 
 class DLL ErrorInfo
@@ -70,6 +71,7 @@ class DLL ErrorInfo
              { Error::NoFlufClientHook, L"Client has no FLUF clienthook active." },
              { Error::ObjectHasNoTarget, L"No target selected." },
              { Error::CharacterNameNotFound, L"Character could not be found." },
+             { Error::CharacterAlreadyExists, L"The character name provided is already in use." },
              }
         };
 

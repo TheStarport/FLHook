@@ -5,6 +5,7 @@ class DLL CharacterId final
         std::wstring characterName;
 
         static Action<bsoncxx::document::value> GetCharacterDocument(std::string_view name);
+        static Action<void> UpdateCharacterDocument(std::string_view name, bsoncxx::document::view updateDoc);
 
     public:
         explicit CharacterId(std::wstring_view characterName);
@@ -12,6 +13,8 @@ class DLL CharacterId final
 
         bool operator==(const CharacterId& acc) const { return acc.characterName == characterName; }
         explicit operator bool() const;
+
+        static concurrencpp::result<bool> CharacterExists(std::wstring_view characterName);
 
         [[nodiscard]]
         std::wstring_view GetValue() const;
@@ -22,6 +25,7 @@ class DLL CharacterId final
         concurrencpp::result<Action<void>> Delete() const;
         concurrencpp::result<Action<void>> Transfer(const AccountId& account) const;
         concurrencpp::result<Action<void>> SetTransferCode(std::wstring_view code) const;
+        concurrencpp::result<Action<void>> ClearTransferCode() const;
         concurrencpp::result<Action<void>> Rename(std::wstring_view name) const;
         concurrencpp::result<Action<void>> AdjustCash(int cash) const;
         concurrencpp::result<Action<void>> AddCash(int cash) const;
