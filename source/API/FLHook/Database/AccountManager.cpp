@@ -368,6 +368,13 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
         return LoginReturnCode::InvalidUsernamePassword;
     }
 
+    if (account.account.banned && account.account.scheduledUnbanDate &&
+        account.account.scheduledUnbanDate <= TimeUtils::UnixTime<std::chrono::seconds>())
+    {
+        account.account.banned = false;
+        AccountId::GetAccountFromAccountId(StringUtils::stows(account.account._id)).value().UnBan();
+    }
+
     if (account.account.banned)
     {
         return LoginReturnCode::Banned;
