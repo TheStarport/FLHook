@@ -123,8 +123,9 @@ std::optional<B_VAL> DatabaseQuery::FindFromCollection(const DatabaseCollection 
     return FindFromCollection(CollectionToString(collectionName), filter, projection);
 }
 
-B_VAL DatabaseQuery::FindAndUpdate(const std::string_view collectionName, const B_VIEW filter, const B_VIEW update, const std::optional<B_VIEW>& projection,
-                                   const bool before, const bool replace, const bool upsert) const
+std::optional<bsoncxx::document::value> DatabaseQuery::FindAndUpdate(const std::string_view collectionName, const B_VIEW filter, const B_VIEW update,
+                                                                     const std::optional<B_VIEW>& projection, const bool before, const bool replace,
+                                                                     const bool upsert) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
@@ -142,13 +143,12 @@ B_VAL DatabaseQuery::FindAndUpdate(const std::string_view collectionName, const 
     find.upsert(upsert);
     replaceOption.upsert(upsert);
 
-    auto result = replace ? collection.find_one_and_replace(filter, update, replaceOption) : collection.find_one_and_update(filter, update, find);
-    assert(result.has_value());
-    return result.value();
+    return replace ? collection.find_one_and_replace(filter, update, replaceOption) : collection.find_one_and_update(filter, update, find);
 }
 
-B_VAL DatabaseQuery::FindAndUpdate(const DatabaseCollection collectionName, const B_VIEW filter, const B_VIEW update, const std::optional<B_VIEW>& projection,
-                                   const bool before, const bool replace, const bool upsert) const
+std::optional<bsoncxx::document::value> DatabaseQuery::FindAndUpdate(const DatabaseCollection collectionName, const B_VIEW filter, const B_VIEW update,
+                                                                     const std::optional<B_VIEW>& projection, const bool before, const bool replace,
+                                                                     const bool upsert) const
 {
     return FindAndUpdate(CollectionToString(collectionName), filter, update, projection, before, replace, upsert);
 }
@@ -179,7 +179,7 @@ mongocxx::result::update DatabaseQuery::UpdateFromCollection(const std::string_v
     mongocxx::options::update options;
     if (!arrayFilters.empty())
     {
-        options.array_filters(arrayFilters.);
+        options.array_filters(arrayFilters);
     }
 
     auto result = many ? collection.update_many(filter, update, options) : collection.update_one(filter, update, options);

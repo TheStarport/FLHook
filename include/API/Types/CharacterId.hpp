@@ -5,7 +5,6 @@ class DLL CharacterId final
         std::wstring characterName;
 
         static Action<bsoncxx::document::value> GetCharacterDocument(std::string_view name);
-        static Action<void> UpdateCharacterDocument(std::string_view name, bsoncxx::document::view updateDoc);
 
     public:
         explicit CharacterId(std::wstring_view characterName);
@@ -14,8 +13,6 @@ class DLL CharacterId final
         bool operator==(const CharacterId& acc) const { return acc.characterName == characterName; }
         explicit operator bool() const;
 
-        static concurrencpp::result<bool> CharacterExists(std::wstring_view characterName);
-
         [[nodiscard]]
         std::wstring_view GetValue() const;
 
@@ -23,7 +20,7 @@ class DLL CharacterId final
         ClientData* GetOnlineData() const;
 
         concurrencpp::result<Action<void>> Delete() const;
-        concurrencpp::result<Action<void>> Transfer(const AccountId& account) const;
+        concurrencpp::result<Action<void>> Transfer(AccountId targetAccount, std::wstring_view transferCode) const;
         concurrencpp::result<Action<void>> SetTransferCode(std::wstring_view code) const;
         concurrencpp::result<Action<void>> ClearTransferCode() const;
         concurrencpp::result<Action<void>> Rename(std::wstring_view name) const;
@@ -35,10 +32,29 @@ class DLL CharacterId final
         concurrencpp::result<Action<void>> SetPosition(Vector pos) const;
         concurrencpp::result<Action<void>> SetSystem(SystemId system) const;
         concurrencpp::result<Action<void>> Undock(Vector pos, SystemId system = {}, Matrix orient = Matrix::Identity()) const;
-        concurrencpp::result<Action<void>> SetCharacterValue(std::string_view key, bsoncxx::document::value value) const;
         concurrencpp::result<Action<int>> GetCash() const;
         concurrencpp::result<Action<SystemId>> GetSystem() const;
         concurrencpp::result<Action<RepGroupId>> GetAffiliation() const;
         concurrencpp::result<Action<Vector>> GetPosition() const;
         concurrencpp::result<Action<bsoncxx::document::value>> GetCharacterData() const;
+
+        static concurrencpp::result<bool> CharacterExists(std::wstring_view characterName);
+
+        /**
+         * @param name The character that you wish to update
+         * @param updateDoc A view of the desired update to be made to the character
+         * @note This function does not change the thread it is being executed on. Ensure that you are running with THREAD_BACKGROUND before calling
+         * @code{.cpp}
+         * THREAD_BACKGROUND;
+         * // Change Jeff's current system to New York
+         * const auto updateDoc = B_MDOC(B_KVP("$set",
+         *      B_MDOC(
+         *          B_KVP("system", static_cast<int>(CreateID("li01"))))
+         *      ));
+         * CharacterId::UpdateCharacterDocument("Jeff", updateDoc.view()).Handle();
+         * @endcode
+         * @returns On success : void
+         * @returns On fail : Error code of CharacterNameNotFound
+         */
+        static Action<void> UpdateCharacterDocument(std::string_view name, bsoncxx::document::view updateDoc);
 };

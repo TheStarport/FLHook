@@ -138,6 +138,111 @@ concurrencpp::result<Action<void>> CharacterId::Delete() const
     }
 }
 
+concurrencpp::result<Action<void>> CharacterId::Transfer(AccountId targetAccount, std::wstring_view code) const
+{
+    const std::string characterNameStr = StringUtils::wstos(characterName);
+    const std::string transferCode = StringUtils::wstos(code);
+
+    THREAD_BACKGROUND;
+
+    auto query = FLHook::GetDatabase()->BeginDatabaseQuery();
+
+    // Extract and preemptively remove the transfer code and update the account id (if invalid we won't commit the change)
+    const auto findCharDoc = B_MDOC(B_KVP("characterName", characterNameStr));
+    auto updateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("accountId", targetAccount.GetValue()))), B_KVP("$unset", B_MDOC(B_KVP("transferCode", ""))));
+    auto projection = B_MDOC(B_KVP("_id", 1), B_KVP("accountId", 1), B_KVP("transferCode", 1));
+    const auto charDoc = query.FindAndUpdate(DatabaseCollection::Character, findCharDoc.view(), updateDoc, projection.view());
+
+    if (!charDoc.has_value())
+    {
+        query.ConcludeQuery(false);
+        co_return Action<void>{ cpp::fail(Error::CharacterNameNotFound) };
+    }
+
+    // Check that we both have a transfer code and that it is valid
+    if (auto currentTransferCode = charDoc->find("transferCode"); currentTransferCode == charDoc->end())
+    {
+        query.ConcludeQuery(false);
+        co_return Action<void>{ cpp::fail(Error::CharacterHasNoTransferCode) };
+    }
+    else if (currentTransferCode->get_string().value != transferCode)
+    {
+        query.ConcludeQuery(false);
+        co_return Action<void>{ cpp::fail(Error::CharacterHasAnInvalidTransferCode) };
+    }
+
+    const std::string_view currentAccountId = charDoc->find("accountId")->get_string().value;
+    const auto charOid = charDoc->find("_id")->get_oid().value;
+
+    // We have verified the code is good and are ready to transfer the character
+    // But first we need to ensure that both accounts have no one using them
+    THREAD_MAIN;
+
+    bool shouldWait = false;
+
+    for (auto& client : FLHook::Clients())
+    {
+        if (client.account && client.account->_id == targetAccount.GetValue() || client.account->_id == currentAccountId)
+        {
+            client.id.Kick(L"Attempting character transfer", 5);
+            shouldWait = true;
+        }
+    }
+
+    if (shouldWait)
+    {
+        co_await FLHook::GetTaskScheduler()->Delay(5s, true);
+    }
+
+    THREAD_BACKGROUND;
+
+    // Remove this character from the current account's char array
+
+    auto findAccountDoc = B_MDOC(B_KVP("_id", currentAccountId));
+    updateDoc = B_MDOC(B_KVP("$pull", B_MDOC(B_KVP("characters", charOid))));
+    auto updateResult = query.UpdateFromCollection(DatabaseCollection::Accounts, findAccountDoc.view(), updateDoc.view());
+
+    if (updateResult.matched_count() != 1)
+    {
+        query.ConcludeQuery(false);
+        co_return Action<void>{ cpp::fail(Error::AccountNotFound) };
+    }
+
+    if (updateResult.modified_count() != 1)
+    {
+        query.ConcludeQuery(false);
+        co_return Action<void>{ cpp::fail(Error::DatabaseError) };
+    }
+
+    // Now we add it to the new account
+    findAccountDoc = B_MDOC(B_KVP("_id", targetAccount.GetValue()));
+    updateDoc = B_MDOC(B_KVP("$push", B_MDOC(B_KVP("characters", charOid))));
+    projection = B_MDOC(B_KVP("characters", 1));
+    auto newAccountDoc = query.FindAndUpdate(DatabaseCollection::Accounts, findAccountDoc.view(), updateDoc.view(), projection.view());
+
+    if (!newAccountDoc.has_value())
+    {
+        query.ConcludeQuery(false);
+        co_return Action<void>{ cpp::fail(Error::AccountNotFound) };
+    }
+
+    // TODO: Unhardcode maximum character count!
+    if (newAccountDoc->find("characters")->get_array().value.length() >= 5)
+    {
+        query.ConcludeQuery(false);
+        co_return Action<void>{ cpp::fail(Error::AccountHasTooManyCharacters) };
+    }
+
+    if (updateResult.modified_count() != 1)
+    {
+        query.ConcludeQuery(false);
+        co_return Action<void>{ cpp::fail(Error::DatabaseError) };
+    }
+
+    query.ConcludeQuery(true);
+    RET_VOID;
+}
+
 concurrencpp::result<Action<void>> CharacterId::SetTransferCode(std::wstring_view code) const
 {
     const std::string characterNameStr = StringUtils::wstos(characterName);
@@ -199,8 +304,8 @@ concurrencpp::result<Action<void>> CharacterId::AdjustCash(int cash) const
     co_return UpdateCharacterDocument(characterNameStr, updateDoc);
 }
 
-concurrencpp::result<Action<void>> CharacterId::AddCash(const int cash) const { co_return AdjustCash(std::abs(cash)); }
-concurrencpp::result<Action<void>> CharacterId::RemoveCash(const int cash) const { co_return AdjustCash(-std::abs(cash)); }
+concurrencpp::result<Action<void>> CharacterId::AddCash(const int cash) const { co_return co_await AdjustCash(std::abs(cash)); }
+concurrencpp::result<Action<void>> CharacterId::RemoveCash(const int cash) const { co_return co_await AdjustCash(-std::abs(cash)); }
 
 concurrencpp::result<Action<void>> CharacterId::AddCargo(GoodId good, uint count, float health, bool mission) const
 {
@@ -257,6 +362,11 @@ concurrencpp::result<Action<void>> CharacterId::AddCargo(GoodId good, uint count
 
 concurrencpp::result<Action<void>> CharacterId::RemoveCargo(GoodId good, uint count) const
 {
+    if (!good)
+    {
+        co_return Action<void>{ cpp::fail(Error::InvalidGood) };
+    }
+
     const std::string characterNameStr = StringUtils::wstos(characterName);
     const auto goodId = good.GetHash().Unwrap().GetValue();
 
@@ -311,6 +421,90 @@ concurrencpp::result<Action<void>> CharacterId::RemoveCargo(GoodId good, uint co
     query.UpdateFromCollection(DatabaseCollection::Character, findCharDoc.view(), updateDoc.view());
     query.ConcludeQuery(true);
     RET_VOID;
+}
+
+concurrencpp::result<Action<void>> CharacterId::SetPosition(Vector pos) const
+{
+    const std::string characterNameStr = StringUtils::wstos(characterName);
+
+    THREAD_MAIN;
+
+    if (const auto* data = GetOnlineData())
+    {
+        if (data->baseId)
+        {
+            RET_VOID;
+        }
+
+        pub::SpaceObj::Relocate(data->id.GetValue(), data->playerData->systemId.GetValue(), pos, Matrix::Identity());
+        RET_VOID;
+    }
+
+    THREAD_BACKGROUND;
+
+    const auto updateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("pos", B_MARR(pos.x, pos.y, pos.z)))));
+    co_return UpdateCharacterDocument(characterNameStr, updateDoc);
+}
+
+concurrencpp::result<Action<void>> CharacterId::SetSystem(SystemId system) const
+{
+    if (!system)
+    {
+        co_return Action<void>{ cpp::fail(Error::InvalidSystem) };
+    }
+
+    const std::string characterNameStr = StringUtils::wstos(characterName);
+
+    THREAD_MAIN;
+
+    if (const auto* data = GetOnlineData())
+    {
+        if (data->baseId)
+        {
+            const auto basePos = data->baseId.GetSpaceId().Handle().GetPosition().Handle();
+            co_return co_await Undock(basePos, system);
+        }
+
+        // TODO: Implement system change with fluf client hook
+        RET_VOID;
+    }
+
+    THREAD_BACKGROUND;
+
+    const auto updateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("system", static_cast<int>(system.GetValue())))));
+    co_return UpdateCharacterDocument(characterNameStr, updateDoc);
+}
+
+concurrencpp::result<Action<void>> CharacterId::Undock(Vector pos, const SystemId system, const Matrix orient) const
+{
+    if (!system)
+    {
+        co_return Action<void>{ cpp::fail(Error::InvalidSystem) };
+    }
+
+    const std::string characterNameStr = StringUtils::wstos(characterName);
+
+    THREAD_MAIN;
+    if (const auto* data = GetOnlineData())
+    {
+        if (!data->baseId)
+        {
+            co_return Action<void>{ cpp::fail(Error::PlayerNotDocked) };
+        }
+
+        // TODO: Implement undock with fluf client hook
+        RET_VOID;
+    }
+
+    THREAD_BACKGROUND;
+
+    auto euler = orient.ToEuler(true);
+    const auto updateDoc = B_MDOC(B_KVP("$set",
+                                        B_MDOC(B_KVP("system", static_cast<int>(system.GetValue())),
+                                               B_KVP("pos", B_MARR(pos.x, pos.y, pos.z)),
+                                               B_KVP("rot", B_MARR(euler.x, euler.y, euler.z)))));
+
+    co_return UpdateCharacterDocument(characterNameStr, updateDoc);
 }
 
 concurrencpp::result<Action<int>> CharacterId::GetCash() const

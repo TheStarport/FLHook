@@ -34,6 +34,10 @@ enum class Error
     ObjectHasNoTarget = 29,
     CharacterNameNotFound = 30,
     CharacterAlreadyExists = 31,
+    CharacterHasNoTransferCode = 32,
+    CharacterHasAnInvalidTransferCode = 33,
+    AccountNotFound = 34,
+    AccountHasTooManyCharacters = 35,
 };
 
 class DLL ErrorInfo
@@ -72,6 +76,10 @@ class DLL ErrorInfo
              { Error::ObjectHasNoTarget, L"No target selected." },
              { Error::CharacterNameNotFound, L"Character could not be found." },
              { Error::CharacterAlreadyExists, L"The character name provided is already in use." },
+             { Error::CharacterHasNoTransferCode, L"The character name provided does not have a transfer code set." },
+             { Error::CharacterHasAnInvalidTransferCode, L"The transfer code provided does not match the one present on the character." },
+             { Error::AccountNotFound, L"The specified account was not found." },
+             { Error::AccountNotFound, L"The specified account already has already reached the character limit." },
              }
         };
 

@@ -12,10 +12,10 @@ class DLL RepGroupId final
 
         explicit RepGroupId() = default;
         ~RepGroupId() = default;
-        RepGroupId(const RepGroupId& value) : value(value.value) {}
 
         explicit operator uint() const noexcept { return value; }
         bool operator==(const RepGroupId& next) const { return value == next.value; }
+        bool operator<(const RepGroupId& next) const { return value < next.value; }
         explicit operator bool() const;
 
         uint GetValue() const { return value; }
