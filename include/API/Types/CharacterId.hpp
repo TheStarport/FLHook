@@ -30,7 +30,7 @@ class DLL CharacterId final
         concurrencpp::result<Action<void>> AdjustCash(int cash) const;
         concurrencpp::result<Action<void>> AddCash(int cash) const;
         concurrencpp::result<Action<void>> RemoveCash(int cash) const;
-        concurrencpp::result<Action<void>> AddCargo(GoodId good, uint count = 1) const;
+        concurrencpp::result<Action<void>> AddCargo(GoodId good, uint count = 1, float health = 1.0f, bool mission = true) const;
         concurrencpp::result<Action<void>> RemoveCargo(GoodId good, uint count = 1) const;
         concurrencpp::result<Action<void>> SetPosition(Vector pos) const;
         concurrencpp::result<Action<void>> SetSystem(SystemId system) const;

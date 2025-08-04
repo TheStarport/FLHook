@@ -172,19 +172,25 @@ B_VAL DatabaseQuery::FindAndDelete(const DatabaseCollection collectionName, cons
 }
 
 mongocxx::result::update DatabaseQuery::UpdateFromCollection(const std::string_view collectionName, const B_VIEW filter, const B_VIEW update,
-                                                             const bool many) const
+                                                             bsoncxx::array::view arrayFilters, const bool many) const
 {
     auto collection = Database::GetCollection(entry, collectionName);
 
-    auto result = many ? collection.update_many(filter, update) : collection.update_one(filter, update);
+    mongocxx::options::update options;
+    if (!arrayFilters.empty())
+    {
+        options.array_filters(arrayFilters.);
+    }
+
+    auto result = many ? collection.update_many(filter, update, options) : collection.update_one(filter, update, options);
     assert(result.has_value());
     return result.value();
 }
 
 mongocxx::result::update DatabaseQuery::UpdateFromCollection(const DatabaseCollection collectionName, const B_VIEW filter, const B_VIEW update,
-                                                             const bool many) const
+                                                             bsoncxx::array::view arrayFilters, const bool many) const
 {
-    return UpdateFromCollection(CollectionToString(collectionName), filter, update, many);
+    return UpdateFromCollection(CollectionToString(collectionName), filter, update, arrayFilters, many);
 }
 
 mongocxx::result::delete_result DatabaseQuery::DeleteFromCollection(const std::string_view collectionName, const B_VIEW filter, const bool many) const

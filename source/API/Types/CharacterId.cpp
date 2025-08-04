@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "PCH.hpp"
 
 #include "API/FLHook/ClientList.hpp"
@@ -109,7 +111,7 @@ concurrencpp::result<Action<void>> CharacterId::Delete() const
 
     try
     {
-        auto charDoc = query.FindAndDelete(DatabaseCollection::Character, findCharDoc, B_MDOC(B_KVP("_id", 1), B_KVP("accountId", 1)));
+        const auto charDoc = query.FindAndDelete(DatabaseCollection::Character, findCharDoc, B_MDOC(B_KVP("_id", 1), B_KVP("accountId", 1)));
         if (charDoc.empty())
         {
             query.ConcludeQuery(false);
@@ -169,6 +171,7 @@ concurrencpp::result<Action<void>> CharacterId::Rename(std::wstring_view name) c
         co_await FLHook::GetTaskScheduler()->Delay(5s, true);
     }
 
+    // This puts us on the background thread
     if (co_await CharacterExists(oldCharNameWide))
     {
         co_return Action<void>{ cpp::fail(Error::CharacterAlreadyExists) };
@@ -180,16 +183,16 @@ concurrencpp::result<Action<void>> CharacterId::Rename(std::wstring_view name) c
 
 concurrencpp::result<Action<void>> CharacterId::AdjustCash(int cash) const
 {
+    const std::string characterNameStr = StringUtils::wstos(characterName);
+
     THREAD_MAIN;
 
     if (const auto* data = GetOnlineData())
     {
         pub::Player::AdjustCash(data->id.GetValue(), cash);
-        data->id.SaveChar();
-        RET_VOID;
+        co_return data->id.SaveChar();
     }
 
-    const std::string characterNameStr = StringUtils::wstos(characterName);
     THREAD_BACKGROUND;
 
     const auto updateDoc = B_MDOC(B_KVP("$inc", B_MDOC(B_KVP("money", cash))));
@@ -199,8 +202,121 @@ concurrencpp::result<Action<void>> CharacterId::AdjustCash(int cash) const
 concurrencpp::result<Action<void>> CharacterId::AddCash(const int cash) const { co_return AdjustCash(std::abs(cash)); }
 concurrencpp::result<Action<void>> CharacterId::RemoveCash(const int cash) const { co_return AdjustCash(-std::abs(cash)); }
 
+concurrencpp::result<Action<void>> CharacterId::AddCargo(GoodId good, uint count, float health, bool mission) const
+{
+    const std::string characterNameStr = StringUtils::wstos(characterName);
+    auto goodId = good.GetHash().Unwrap().GetValue();
+
+    THREAD_MAIN;
+
+    if (health < 0.f || health > 1.f)
+    {
+        health = 1.f;
+    }
+
+    if (const auto* data = GetOnlineData())
+    {
+        // Returns 0 on success
+        if (pub::Player::AddCargo(data->id.GetValue(), goodId, count, health, mission) == 0)
+        {
+            co_return data->id.SaveChar();
+        }
+
+        co_return Action<void>{ cpp::fail(Error::InvalidGood) };
+    }
+
+    THREAD_BACKGROUND;
+
+    FLCargo cargo{ static_cast<int>(goodId), static_cast<ushort>(count), health, mission };
+
+    // We start up by assuming the cargo being added does not currently exist, if this fails we then look for existing cargo to add to
+    auto findCharDoc = B_MDOC(B_KVP("characterName", characterNameStr), B_KVP("cargo.archId", B_MDOC(B_KVP("$ne", cargo.archId))));
+    const auto insertDoc = B_MDOC(B_KVP("$addToSet", B_MDOC(B_KVP("cargo", cargo.ToBson()))));
+    auto query = FLHook::GetDatabase()->BeginDatabaseQuery();
+    auto update = query.UpdateFromCollection(DatabaseCollection::Character, findCharDoc, insertDoc);
+
+    if (update.modified_count() == 1)
+    {
+        query.ConcludeQuery(true);
+        RET_VOID;
+    }
+
+    findCharDoc = B_MDOC(B_KVP("characterName", characterNameStr));
+    const auto updateDoc = B_MDOC(B_KVP("$inc", B_MDOC(B_KVP("cargo.$[elem].amount", std::abs(static_cast<int>(count))))));
+    const auto arrayFilter = B_MARR(B_MDOC(B_KVP("elem.archId", static_cast<int>(goodId))));
+    update = query.UpdateFromCollection(DatabaseCollection::Character, findCharDoc.view(), updateDoc.view(), arrayFilter.view());
+    if (!update.matched_count())
+    {
+        query.ConcludeQuery(false);
+        co_return Action<void>{ cpp::fail(Error::CharacterNameNotFound) };
+    }
+
+    query.ConcludeQuery(true);
+    RET_VOID;
+}
+
+concurrencpp::result<Action<void>> CharacterId::RemoveCargo(GoodId good, uint count) const
+{
+    const std::string characterNameStr = StringUtils::wstos(characterName);
+    const auto goodId = good.GetHash().Unwrap().GetValue();
+
+    THREAD_MAIN;
+
+    if (const auto* data = GetOnlineData())
+    {
+        ushort equipId = 0;
+        for (auto& eq : data->playerData->equipAndCargo.equip)
+        {
+            if (eq.archId.GetValue() == goodId)
+            {
+                count = std::min<uint>(eq.count, count);
+                equipId = eq.id;
+            }
+        }
+
+        if (!equipId)
+        {
+            co_return Action<void>{ cpp::fail(Error::InvalidGood) };
+        }
+
+        pub::Player::RemoveCargo(data->id.GetValue(), equipId, count);
+        co_return data->id.SaveChar();
+    }
+
+    THREAD_BACKGROUND;
+
+    const auto findCharDoc = B_MDOC(B_KVP("characterName", characterNameStr));
+    auto query = FLHook::GetDatabase()->BeginDatabaseQuery();
+    auto updateDoc = B_MDOC(B_KVP("$inc", B_MDOC(B_KVP("cargo.$[elem].amount", -std::abs(static_cast<int>(count))))));
+    const auto arrayFilter = B_MARR(B_MDOC(B_KVP("elem.archId", static_cast<int>(goodId))));
+    const auto update = query.UpdateFromCollection(DatabaseCollection::Character, findCharDoc.view(), updateDoc.view(), arrayFilter.view());
+
+    // If we didn't match, invalid char name
+    if (!update.matched_count())
+    {
+        query.ConcludeQuery(false);
+        co_return Action<void>{ cpp::fail(Error::CharacterNameNotFound) };
+    }
+
+    // If we didn't modify, invalid good or character didn't have good
+    if (!update.modified_count())
+    {
+        query.ConcludeQuery(false);
+        co_return Action<void>{ cpp::fail(Error::InvalidGood) };
+    }
+
+    // So we successfully modified! Let's clean up any goods on the character that have zero or negative amounts
+    // TODO: Move this to a generic account manager function
+    updateDoc = B_MDOC(B_KVP("$pull", B_MDOC(B_KVP("cargo.$.amount", B_MDOC(B_KVP("$lte", 0))))));
+    query.UpdateFromCollection(DatabaseCollection::Character, findCharDoc.view(), updateDoc.view());
+    query.ConcludeQuery(true);
+    RET_VOID;
+}
+
 concurrencpp::result<Action<int>> CharacterId::GetCash() const
 {
+    const std::string characterNameStr = StringUtils::wstos(characterName);
+
     THREAD_MAIN;
 
     if (const auto* data = GetOnlineData())
@@ -208,7 +324,6 @@ concurrencpp::result<Action<int>> CharacterId::GetCash() const
         co_return Action<int>{ data->playerData->money };
     }
 
-    const std::string characterNameStr = StringUtils::wstos(characterName);
     THREAD_BACKGROUND;
 
     const auto character = GetCharacterDocument(characterNameStr).Handle();
@@ -218,6 +333,7 @@ concurrencpp::result<Action<int>> CharacterId::GetCash() const
 
 concurrencpp::result<Action<SystemId>> CharacterId::GetSystem() const
 {
+    const std::string characterNameStr = StringUtils::wstos(characterName);
     THREAD_MAIN;
 
     if (const auto* data = GetOnlineData())
@@ -225,7 +341,6 @@ concurrencpp::result<Action<SystemId>> CharacterId::GetSystem() const
         co_return Action<SystemId>{ data->playerData->systemId };
     }
 
-    const std::string characterNameStr = StringUtils::wstos(characterName);
     THREAD_BACKGROUND;
 
     const auto character = GetCharacterDocument(characterNameStr).Handle();
@@ -235,6 +350,8 @@ concurrencpp::result<Action<SystemId>> CharacterId::GetSystem() const
 
 concurrencpp::result<Action<RepGroupId>> CharacterId::GetAffiliation() const
 {
+    const std::string characterNameStr = StringUtils::wstos(characterName);
+
     THREAD_MAIN;
 
     if (const auto* data = GetOnlineData())
@@ -243,7 +360,6 @@ concurrencpp::result<Action<RepGroupId>> CharacterId::GetAffiliation() const
         co_return rep.GetAffiliation();
     }
 
-    const std::string characterNameStr = StringUtils::wstos(characterName);
     THREAD_BACKGROUND;
 
     const auto character = GetCharacterDocument(characterNameStr).Handle();
@@ -258,6 +374,8 @@ concurrencpp::result<Action<RepGroupId>> CharacterId::GetAffiliation() const
 
 concurrencpp::result<Action<Vector>> CharacterId::GetPosition() const
 {
+    const std::string characterNameStr = StringUtils::wstos(characterName);
+
     THREAD_MAIN;
 
     if (const auto* data = GetOnlineData())
@@ -270,7 +388,6 @@ concurrencpp::result<Action<Vector>> CharacterId::GetPosition() const
         co_return Action<Vector>{ data->ship.GetPosition().Handle() };
     }
 
-    const std::string characterNameStr = StringUtils::wstos(characterName);
     THREAD_BACKGROUND;
 
     const auto character = GetCharacterDocument(characterNameStr).Handle();

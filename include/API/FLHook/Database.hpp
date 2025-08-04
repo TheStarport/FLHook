@@ -64,26 +64,20 @@ class DLL DatabaseQuery
     public:
         DatabaseQuery(const DatabaseQuery&) = delete;
         ~DatabaseQuery() = default;
-        std::optional<B_VAL> FindFromCollection(std::string_view collectionName, B_VIEW filter,
-                                                                   const std::optional<B_VIEW>& projection = {}) const;
-        std::optional<B_VAL> FindFromCollection(DatabaseCollection collectionName, B_VIEW filter,
-                                                                   const std::optional<B_VIEW>& projection = {}) const;
+        std::optional<B_VAL> FindFromCollection(std::string_view collectionName, B_VIEW filter, const std::optional<B_VIEW>& projection = {}) const;
+        std::optional<B_VAL> FindFromCollection(DatabaseCollection collectionName, B_VIEW filter, const std::optional<B_VIEW>& projection = {}) const;
 
-        B_VAL FindAndUpdate(std::string_view collectionName, B_VIEW filter, B_VIEW update,
-                                               const std::optional<B_VIEW>& projection = {}, bool before = true, bool replace = false,
-                                               bool upsert = false) const;
-        B_VAL FindAndUpdate(DatabaseCollection collectionName, B_VIEW filter, B_VIEW update,
-                                               const std::optional<B_VIEW>& projection = {}, bool before = true, bool replace = false,
-                                               bool upsert = false) const;
+        B_VAL FindAndUpdate(std::string_view collectionName, B_VIEW filter, B_VIEW update, const std::optional<B_VIEW>& projection = {}, bool before = true,
+                            bool replace = false, bool upsert = false) const;
+        B_VAL FindAndUpdate(DatabaseCollection collectionName, B_VIEW filter, B_VIEW update, const std::optional<B_VIEW>& projection = {}, bool before = true,
+                            bool replace = false, bool upsert = false) const;
 
-        B_VAL FindAndDelete(DatabaseCollection collectionName, B_VIEW filter,
-                                               const std::optional<B_VIEW>& projection = {}) const;
-        B_VAL FindAndDelete(std::string_view collectionName, B_VIEW filter,
-                                               const std::optional<B_VIEW>& projection = {}) const;
+        B_VAL FindAndDelete(DatabaseCollection collectionName, B_VIEW filter, const std::optional<B_VIEW>& projection = {}) const;
+        B_VAL FindAndDelete(std::string_view collectionName, B_VIEW filter, const std::optional<B_VIEW>& projection = {}) const;
 
-        mongocxx::result::update UpdateFromCollection(std::string_view collectionName, B_VIEW filter, B_VIEW update,
+        mongocxx::result::update UpdateFromCollection(std::string_view collectionName, B_VIEW filter, B_VIEW update, bsoncxx::array::view arrayFilters = {},
                                                       bool many = false) const;
-        mongocxx::result::update UpdateFromCollection(DatabaseCollection collectionName, B_VIEW filter, B_VIEW update,
+        mongocxx::result::update UpdateFromCollection(DatabaseCollection collectionName, B_VIEW filter, B_VIEW update, bsoncxx::array::view arrayFilters = {},
                                                       bool many = false) const;
 
         mongocxx::result::delete_result DeleteFromCollection(std::string_view collectionName, B_VIEW filter, bool many = false) const;
