@@ -84,6 +84,8 @@ using namespace std::chrono_literals;
 #include "API/Types/ObjectId.hpp"
 #include "API/Types/EquipmentId.hpp"
 
+#include "API/Types/CharacterId.hpp"
+
 #include "API/Utils/Reflection.hpp" // For reflectiong custom types with rfl
 #include "FLCore/Common.hpp"
 #include "FLCore/FLCoreDALib.h"

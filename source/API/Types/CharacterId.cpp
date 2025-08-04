@@ -6,13 +6,8 @@
 #include "API/FLHook/Database.hpp"
 #include "API/Types/CharacterId.hpp"
 
-#include "API/FLHook/BsonHelper.hpp"
-
-#define RET_VOID           \
-    co_return Action<void> \
-    {                      \
-        {}                 \
-    }
+#define RET_SUCCESS \
+    co_return Action<MongoResult> { MongoResult::Success }
 
 Action<bsoncxx::document::value> CharacterId::GetCharacterDocument(std::string_view name)
 {
@@ -37,7 +32,7 @@ Action<bsoncxx::document::value> CharacterId::GetCharacterDocument(std::string_v
     }
 }
 
-Action<void> CharacterId::UpdateCharacterDocument(std::string_view name, bsoncxx::document::view updateDoc)
+Action<MongoResult> CharacterId::UpdateCharacterDocument(std::string_view name, const bsoncxx::document::view updateDoc)
 {
     const auto db = FLHook::GetDbClient();
     const auto config = FLHook::GetConfig();
@@ -48,9 +43,23 @@ Action<void> CharacterId::UpdateCharacterDocument(std::string_view name, bsoncxx
 
     try
     {
-        query.UpdateFromCollection(DatabaseCollection::Character, findCharDoc, updateDoc);
+        const auto update = query.UpdateFromCollection(DatabaseCollection::Character, findCharDoc, updateDoc);
+        auto e = update.matched_count();
+        auto ee = update.modified_count();
+
         query.ConcludeQuery(true);
-        return { {} };
+
+        if (update.matched_count() == 0)
+        {
+            return { cpp::fail(Error::CharacterNameNotFound) };
+        }
+
+        if (update.modified_count() == 0)
+        {
+            return { MongoResult::MatchButNoChange };
+        }
+
+        return { MongoResult::Success };
     }
     catch (mongocxx::exception& ex)
     {
@@ -97,7 +106,7 @@ ClientData* CharacterId::GetOnlineData() const
     return nullptr;
 }
 
-concurrencpp::result<Action<void>> CharacterId::Delete() const
+concurrencpp::result<Action<MongoResult>> CharacterId::Delete() const
 {
     const std::string characterNameStr = StringUtils::wstos(characterName);
     THREAD_BACKGROUND;
@@ -115,7 +124,7 @@ concurrencpp::result<Action<void>> CharacterId::Delete() const
         if (charDoc.empty())
         {
             query.ConcludeQuery(false);
-            co_return Action<void>{ cpp::fail(Error::CharacterNameNotFound) };
+            co_return Action<MongoResult>{ cpp::fail(Error::CharacterNameNotFound) };
         }
 
         const auto findAccDoc = B_MDOC(B_KVP("_id", charDoc.view()["accountId"].get_string().value));
@@ -125,20 +134,20 @@ concurrencpp::result<Action<void>> CharacterId::Delete() const
         if (updateResult.modified_count() != 1)
         {
             query.ConcludeQuery(false);
-            co_return Action<void>{ cpp::fail(Error::DatabaseError) };
+            co_return Action<MongoResult>{ cpp::fail(Error::DatabaseError) };
         }
 
         query.ConcludeQuery(true);
-        RET_VOID;
+        RET_SUCCESS;
     }
     catch (mongocxx::exception& ex)
     {
         query.ConcludeQuery(false);
-        co_return Action<void>{ cpp::fail(Error::DatabaseError) };
+        co_return Action<MongoResult>{ cpp::fail(Error::DatabaseError) };
     }
 }
 
-concurrencpp::result<Action<void>> CharacterId::Transfer(AccountId targetAccount, std::wstring_view code) const
+concurrencpp::result<Action<MongoResult>> CharacterId::Transfer(AccountId targetAccount, std::wstring_view code) const
 {
     const std::string characterNameStr = StringUtils::wstos(characterName);
     const std::string transferCode = StringUtils::wstos(code);
@@ -156,19 +165,19 @@ concurrencpp::result<Action<void>> CharacterId::Transfer(AccountId targetAccount
     if (!charDoc.has_value())
     {
         query.ConcludeQuery(false);
-        co_return Action<void>{ cpp::fail(Error::CharacterNameNotFound) };
+        co_return Action<MongoResult>{ cpp::fail(Error::CharacterNameNotFound) };
     }
 
     // Check that we both have a transfer code and that it is valid
     if (auto currentTransferCode = charDoc->find("transferCode"); currentTransferCode == charDoc->end())
     {
         query.ConcludeQuery(false);
-        co_return Action<void>{ cpp::fail(Error::CharacterHasNoTransferCode) };
+        co_return Action<MongoResult>{ cpp::fail(Error::CharacterHasNoTransferCode) };
     }
     else if (currentTransferCode->get_string().value != transferCode)
     {
         query.ConcludeQuery(false);
-        co_return Action<void>{ cpp::fail(Error::CharacterHasAnInvalidTransferCode) };
+        co_return Action<MongoResult>{ cpp::fail(Error::CharacterHasAnInvalidTransferCode) };
     }
 
     const std::string_view currentAccountId = charDoc->find("accountId")->get_string().value;
@@ -205,13 +214,13 @@ concurrencpp::result<Action<void>> CharacterId::Transfer(AccountId targetAccount
     if (updateResult.matched_count() != 1)
     {
         query.ConcludeQuery(false);
-        co_return Action<void>{ cpp::fail(Error::AccountNotFound) };
+        co_return Action<MongoResult>{ cpp::fail(Error::AccountNotFound) };
     }
 
     if (updateResult.modified_count() != 1)
     {
         query.ConcludeQuery(false);
-        co_return Action<void>{ cpp::fail(Error::DatabaseError) };
+        co_return Action<MongoResult>{ cpp::fail(Error::DatabaseError) };
     }
 
     // Now we add it to the new account
@@ -223,27 +232,27 @@ concurrencpp::result<Action<void>> CharacterId::Transfer(AccountId targetAccount
     if (!newAccountDoc.has_value())
     {
         query.ConcludeQuery(false);
-        co_return Action<void>{ cpp::fail(Error::AccountNotFound) };
+        co_return Action<MongoResult>{ cpp::fail(Error::AccountNotFound) };
     }
 
     // TODO: Unhardcode maximum character count!
     if (newAccountDoc->find("characters")->get_array().value.length() >= 5)
     {
         query.ConcludeQuery(false);
-        co_return Action<void>{ cpp::fail(Error::AccountHasTooManyCharacters) };
+        co_return Action<MongoResult>{ cpp::fail(Error::AccountHasTooManyCharacters) };
     }
 
     if (updateResult.modified_count() != 1)
     {
         query.ConcludeQuery(false);
-        co_return Action<void>{ cpp::fail(Error::DatabaseError) };
+        co_return Action<MongoResult>{ cpp::fail(Error::DatabaseError) };
     }
 
     query.ConcludeQuery(true);
-    RET_VOID;
+    RET_SUCCESS;
 }
 
-concurrencpp::result<Action<void>> CharacterId::SetTransferCode(std::wstring_view code) const
+concurrencpp::result<Action<MongoResult>> CharacterId::SetTransferCode(std::wstring_view code) const
 {
     const std::string characterNameStr = StringUtils::wstos(characterName);
     const std::string transferCode = StringUtils::wstos(code);
@@ -253,7 +262,7 @@ concurrencpp::result<Action<void>> CharacterId::SetTransferCode(std::wstring_vie
     co_return UpdateCharacterDocument(characterNameStr, updateDoc);
 }
 
-concurrencpp::result<Action<void>> CharacterId::ClearTransferCode() const
+concurrencpp::result<Action<MongoResult>> CharacterId::ClearTransferCode() const
 {
     const std::string characterNameStr = StringUtils::wstos(characterName);
     THREAD_BACKGROUND;
@@ -262,7 +271,7 @@ concurrencpp::result<Action<void>> CharacterId::ClearTransferCode() const
     co_return UpdateCharacterDocument(characterNameStr, updateDoc);
 }
 
-concurrencpp::result<Action<void>> CharacterId::Rename(std::wstring_view name) const
+concurrencpp::result<Action<MongoResult>> CharacterId::Rename(std::wstring_view name) const
 {
     const auto oldCharNameWide = std::wstring{ name };
     const std::string oldCharName = StringUtils::wstos(characterName);
@@ -279,14 +288,14 @@ concurrencpp::result<Action<void>> CharacterId::Rename(std::wstring_view name) c
     // This puts us on the background thread
     if (co_await CharacterExists(oldCharNameWide))
     {
-        co_return Action<void>{ cpp::fail(Error::CharacterAlreadyExists) };
+        co_return Action<MongoResult>{ cpp::fail(Error::CharacterAlreadyExists) };
     }
 
     const auto updateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("characterName", newCharName))));
     co_return UpdateCharacterDocument(oldCharName, updateDoc);
 }
 
-concurrencpp::result<Action<void>> CharacterId::AdjustCash(int cash) const
+concurrencpp::result<Action<MongoResult>> CharacterId::AdjustCash(int cash) const
 {
     const std::string characterNameStr = StringUtils::wstos(characterName);
 
@@ -295,7 +304,8 @@ concurrencpp::result<Action<void>> CharacterId::AdjustCash(int cash) const
     if (const auto* data = GetOnlineData())
     {
         pub::Player::AdjustCash(data->id.GetValue(), cash);
-        co_return data->id.SaveChar();
+        data->id.SaveChar();
+        co_return Action<MongoResult>{ MongoResult::PerformedSynchronously };
     }
 
     THREAD_BACKGROUND;
@@ -304,10 +314,33 @@ concurrencpp::result<Action<void>> CharacterId::AdjustCash(int cash) const
     co_return UpdateCharacterDocument(characterNameStr, updateDoc);
 }
 
-concurrencpp::result<Action<void>> CharacterId::AddCash(const int cash) const { co_return co_await AdjustCash(std::abs(cash)); }
-concurrencpp::result<Action<void>> CharacterId::RemoveCash(const int cash) const { co_return co_await AdjustCash(-std::abs(cash)); }
+concurrencpp::result<Action<MongoResult>> CharacterId::AddCash(const int cash) const { co_return co_await AdjustCash(cash); }
+concurrencpp::result<Action<MongoResult>> CharacterId::RemoveCash(const int cash) const { co_return co_await AdjustCash(-std::abs(cash)); }
 
-concurrencpp::result<Action<void>> CharacterId::AddCargo(GoodId good, uint count, float health, bool mission) const
+concurrencpp::result<Action<MongoResult>> CharacterId::SetCash(int cash) const
+{
+    const std::string characterNameStr = StringUtils::wstos(characterName);
+
+    cash = std::clamp(cash, 0, 1'900'000'000);
+
+    THREAD_MAIN;
+
+    if (const auto* data = GetOnlineData())
+    {
+        int currentMoney{};
+        pub::Player::InspectCash(data->id.GetValue(), currentMoney);
+        pub::Player::AdjustCash(data->id.GetValue(), cash);
+        data->id.SaveChar();
+        co_return Action<MongoResult>{ MongoResult::PerformedSynchronously };
+    }
+
+    THREAD_BACKGROUND;
+
+    const auto updateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("money", cash))));
+    co_return UpdateCharacterDocument(characterNameStr, updateDoc);
+}
+
+concurrencpp::result<Action<MongoResult>> CharacterId::AddCargo(GoodId good, uint count, float health, bool mission) const
 {
     const std::string characterNameStr = StringUtils::wstos(characterName);
     auto goodId = good.GetHash().Unwrap().GetValue();
@@ -324,10 +357,11 @@ concurrencpp::result<Action<void>> CharacterId::AddCargo(GoodId good, uint count
         // Returns 0 on success
         if (pub::Player::AddCargo(data->id.GetValue(), goodId, count, health, mission) == 0)
         {
-            co_return data->id.SaveChar();
+            data->id.SaveChar();
+            co_return Action<MongoResult>{ MongoResult::PerformedSynchronously };
         }
 
-        co_return Action<void>{ cpp::fail(Error::InvalidGood) };
+        co_return Action<MongoResult>{ cpp::fail(Error::InvalidGood) };
     }
 
     THREAD_BACKGROUND;
@@ -343,7 +377,7 @@ concurrencpp::result<Action<void>> CharacterId::AddCargo(GoodId good, uint count
     if (update.modified_count() == 1)
     {
         query.ConcludeQuery(true);
-        RET_VOID;
+        RET_SUCCESS;
     }
 
     findCharDoc = B_MDOC(B_KVP("characterName", characterNameStr));
@@ -353,18 +387,18 @@ concurrencpp::result<Action<void>> CharacterId::AddCargo(GoodId good, uint count
     if (!update.matched_count())
     {
         query.ConcludeQuery(false);
-        co_return Action<void>{ cpp::fail(Error::CharacterNameNotFound) };
+        co_return Action<MongoResult>{ cpp::fail(Error::CharacterNameNotFound) };
     }
 
     query.ConcludeQuery(true);
-    RET_VOID;
+    RET_SUCCESS;
 }
 
-concurrencpp::result<Action<void>> CharacterId::RemoveCargo(GoodId good, uint count) const
+concurrencpp::result<Action<MongoResult>> CharacterId::RemoveCargo(GoodId good, uint count) const
 {
     if (!good)
     {
-        co_return Action<void>{ cpp::fail(Error::InvalidGood) };
+        co_return Action<MongoResult>{ cpp::fail(Error::InvalidGood) };
     }
 
     const std::string characterNameStr = StringUtils::wstos(characterName);
@@ -386,11 +420,12 @@ concurrencpp::result<Action<void>> CharacterId::RemoveCargo(GoodId good, uint co
 
         if (!equipId)
         {
-            co_return Action<void>{ cpp::fail(Error::InvalidGood) };
+            co_return Action<MongoResult>{ cpp::fail(Error::InvalidGood) };
         }
 
         pub::Player::RemoveCargo(data->id.GetValue(), equipId, count);
-        co_return data->id.SaveChar();
+        data->id.SaveChar();
+        co_return Action<MongoResult>{ MongoResult::PerformedSynchronously };
     }
 
     THREAD_BACKGROUND;
@@ -405,14 +440,14 @@ concurrencpp::result<Action<void>> CharacterId::RemoveCargo(GoodId good, uint co
     if (!update.matched_count())
     {
         query.ConcludeQuery(false);
-        co_return Action<void>{ cpp::fail(Error::CharacterNameNotFound) };
+        co_return Action<MongoResult>{ cpp::fail(Error::CharacterNameNotFound) };
     }
 
     // If we didn't modify, invalid good or character didn't have good
     if (!update.modified_count())
     {
         query.ConcludeQuery(false);
-        co_return Action<void>{ cpp::fail(Error::InvalidGood) };
+        co_return Action<MongoResult>{ cpp::fail(Error::InvalidGood) };
     }
 
     // So we successfully modified! Let's clean up any goods on the character that have zero or negative amounts
@@ -420,10 +455,10 @@ concurrencpp::result<Action<void>> CharacterId::RemoveCargo(GoodId good, uint co
     updateDoc = B_MDOC(B_KVP("$pull", B_MDOC(B_KVP("cargo.$.amount", B_MDOC(B_KVP("$lte", 0))))));
     query.UpdateFromCollection(DatabaseCollection::Character, findCharDoc.view(), updateDoc.view());
     query.ConcludeQuery(true);
-    RET_VOID;
+    RET_SUCCESS;
 }
 
-concurrencpp::result<Action<void>> CharacterId::SetPosition(Vector pos) const
+concurrencpp::result<Action<MongoResult>> CharacterId::SetPosition(Vector pos) const
 {
     const std::string characterNameStr = StringUtils::wstos(characterName);
 
@@ -433,11 +468,12 @@ concurrencpp::result<Action<void>> CharacterId::SetPosition(Vector pos) const
     {
         if (data->baseId)
         {
-            RET_VOID;
+            // TODO: Undock with fluf
+            co_return Action<MongoResult>{ MongoResult::PerformedSynchronously };
         }
 
         pub::SpaceObj::Relocate(data->id.GetValue(), data->playerData->systemId.GetValue(), pos, Matrix::Identity());
-        RET_VOID;
+        co_return Action<MongoResult>{ MongoResult::PerformedSynchronously };
     }
 
     THREAD_BACKGROUND;
@@ -446,11 +482,11 @@ concurrencpp::result<Action<void>> CharacterId::SetPosition(Vector pos) const
     co_return UpdateCharacterDocument(characterNameStr, updateDoc);
 }
 
-concurrencpp::result<Action<void>> CharacterId::SetSystem(SystemId system) const
+concurrencpp::result<Action<MongoResult>> CharacterId::SetSystem(SystemId system) const
 {
     if (!system)
     {
-        co_return Action<void>{ cpp::fail(Error::InvalidSystem) };
+        co_return Action<MongoResult>{ cpp::fail(Error::InvalidSystem) };
     }
 
     const std::string characterNameStr = StringUtils::wstos(characterName);
@@ -466,7 +502,7 @@ concurrencpp::result<Action<void>> CharacterId::SetSystem(SystemId system) const
         }
 
         // TODO: Implement system change with fluf client hook
-        RET_VOID;
+        co_return Action<MongoResult>{ MongoResult::PerformedSynchronously };
     }
 
     THREAD_BACKGROUND;
@@ -475,11 +511,11 @@ concurrencpp::result<Action<void>> CharacterId::SetSystem(SystemId system) const
     co_return UpdateCharacterDocument(characterNameStr, updateDoc);
 }
 
-concurrencpp::result<Action<void>> CharacterId::Undock(Vector pos, const SystemId system, const Matrix orient) const
+concurrencpp::result<Action<MongoResult>> CharacterId::Undock(Vector pos, const SystemId system, const Matrix orient) const
 {
     if (!system)
     {
-        co_return Action<void>{ cpp::fail(Error::InvalidSystem) };
+        co_return Action<MongoResult>{ cpp::fail(Error::InvalidSystem) };
     }
 
     const std::string characterNameStr = StringUtils::wstos(characterName);
@@ -489,11 +525,12 @@ concurrencpp::result<Action<void>> CharacterId::Undock(Vector pos, const SystemI
     {
         if (!data->baseId)
         {
-            co_return Action<void>{ cpp::fail(Error::PlayerNotDocked) };
+            co_return Action<MongoResult>{ cpp::fail(Error::PlayerNotDocked) };
         }
 
         // TODO: Implement undock with fluf client hook
-        RET_VOID;
+        co_return Action<MongoResult>{ MongoResult::PerformedSynchronously };
+        ;
     }
 
     THREAD_BACKGROUND;

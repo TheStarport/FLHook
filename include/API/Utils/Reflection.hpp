@@ -212,4 +212,22 @@ namespace rfl::parsing
     struct Parser<ReaderType, WriterType, Id, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, Id, Id_Impl>
     {};
 
+    struct CharacterId_Impl
+    {
+            using ReflectionType = std::string;
+            std::string data;
+
+            static CharacterId_Impl from_class(const CharacterId& character) noexcept { return { StringUtils::wstos(character.GetValue()) }; }
+
+            [[nodiscard]]
+            CharacterId to_class() const
+            {
+                return CharacterId{ StringUtils::stows(data) };
+            }
+    };
+
+    template <class ReaderType, class WriterType, class ProcessorsType>
+    struct Parser<ReaderType, WriterType, CharacterId, ProcessorsType> : CustomParser<ReaderType, WriterType, ProcessorsType, CharacterId, CharacterId_Impl>
+    {};
+
 } // namespace rfl::parsing

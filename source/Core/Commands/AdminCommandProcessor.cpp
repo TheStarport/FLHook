@@ -57,69 +57,17 @@ std::optional<concurrencpp::result<void>> AdminCommandProcessor::ProcessCommand(
     return ProcessCommand(client, currentContext, commandString, paramsFiltered);
 }
 
-concurrencpp::result<void> AdminCommandProcessor::SetCash(ClientId client, std::wstring_view characterNameView, uint amount)
+concurrencpp::result<void> AdminCommandProcessor::SetCash(ClientId client, CharacterId character, uint amount)
 {
-    // If true, they are online and that makes this easy for us
-    std::wstring characterName{ characterNameView };
-    if (const auto* targetClient = FLHook::GetClientByName(characterName))
-    {
-        targetClient->id.SetCash(amount).Handle();
-        targetClient->id.SaveChar().Handle();
-        client.Message(std::format(L"{} cash set to {} credits", characterName, amount));
-
-        if (targetClient->id != client)
-        {
-            targetClient->id.Message(std::format(L"Your credits have been set to {}.", amount));
-        }
-
-        co_return;
-    }
-
-    THREAD_BACKGROUND;
-
-    auto success = MongoResult::Failure;
-    std::wstring message;
-    try
-    {
-        const auto config = FLHook::GetConfig();
-        const auto db = FLHook::GetDbClient();
-        auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
-
-        // They are offline, lets lookup the needed info
-        const auto filter = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName)));
-        const auto update = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("money", static_cast<int>(amount)))));
-
-        const auto result = charactersCollection.update_one(filter.view(), update.view());
-
-        assert(result.has_value());
-
-        if (result->modified_count() == 1)
-        {
-            success = MongoResult::Success;
-        }
-        else if (result->matched_count() == 1)
-        {
-            success = MongoResult::MatchButNoChange;
-        }
-    }
-    catch (const mongocxx::exception& ex)
-    {
-        message = StringUtils::stows(ex.what());
-    }
+    const auto result = (co_await character.SetCash(static_cast<int>(amount))).Handle();
 
     THREAD_MAIN;
 
-    if (!message.empty())
+    switch (result)
     {
-        client.MessageErr(message).Handle();
-        co_return;
-    }
-
-    switch (success)
-    {
-        case MongoResult::Failure: client.MessageErr(std::format(L"Character {} was not found", characterName)); break;
-        case MongoResult::MatchButNoChange: client.Message(std::format(L"{} already has {} cash!", characterName, amount)); break;
-        case MongoResult::Success: client.Message(std::format(L"{} cash set to {} credits", characterName, amount));
+        case MongoResult::MatchButNoChange: client.Message(std::format(L"{} already has {} cash!", character.GetValue(), amount)); break;
+        case MongoResult::Success: client.Message(std::format(L"{} cash set to {} credits", character.GetValue(), amount)); break;
+        default: break;
     }
 
     co_return;
@@ -203,7 +151,7 @@ concurrencpp::result<void> AdminCommandProcessor::AddCash(ClientId client, std::
     std::wstring characterName{ characterNameView };
     THREAD_BACKGROUND;
 
-    auto success = MongoResult::Failure;
+    auto success = MongoResult::UnknownFailure;
     std::wstring message;
     try
     {
@@ -267,7 +215,7 @@ concurrencpp::result<void> AdminCommandProcessor::AddCash(ClientId client, std::
 
     switch (success)
     {
-        case MongoResult::Failure: client.MessageErr(std::format(L"Character {} was not found", characterName)); break;
+        case MongoResult::UnknownFailure: client.MessageErr(std::format(L"Character {} was not found", characterName)); break;
         case MongoResult::MatchButNoChange: client.MessageErr(std::format(L"Can't add {} credits to {}!", amount, characterName)); break;
         case MongoResult::Success: client.Message(std::format(L"{} given {} credits", characterName, amount));
     }

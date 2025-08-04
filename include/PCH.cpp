@@ -269,5 +269,18 @@ RepGroupId TransformArg(std::wstring_view s, size_t paramNumber)
 }
 OptionalTransformArg(RepGroupId);
 
+template <>
+CharacterId TransformArg(std::wstring_view s, size_t paramNumber)
+{
+    if (s.empty())
+    {
+        throw InvalidParameterException(s, paramNumber, L"No character name was provided."sv);
+    }
+
+    // We have no way to validate whether the character name exists without a db call
+    return CharacterId(s);
+}
+OptionalTransformArg(CharacterId);
+
 // Include our JSON parser
 #include <yyjson.c> // NOLINT

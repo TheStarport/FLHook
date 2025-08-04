@@ -95,7 +95,9 @@ class DLL DatabaseQuery
 
 enum class MongoResult
 {
-    Failure,
+    UnknownFailure,
+    FindFailure,
     MatchButNoChange,
     Success,
+    PerformedSynchronously,
 };

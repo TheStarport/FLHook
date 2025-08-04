@@ -1,5 +1,12 @@
 #pragma once
 
+#include "API/FLHook/Database.hpp"
+
+#include "API/Utils/Action.hpp"
+
+#include <concurrencpp/concurrencpp.h>
+#include <API/FLHook/BsonHelper.hpp>
+
 class DLL CharacterId final
 {
         std::wstring characterName;
@@ -19,19 +26,20 @@ class DLL CharacterId final
         [[nodiscard]]
         ClientData* GetOnlineData() const;
 
-        concurrencpp::result<Action<void>> Delete() const;
-        concurrencpp::result<Action<void>> Transfer(AccountId targetAccount, std::wstring_view transferCode) const;
-        concurrencpp::result<Action<void>> SetTransferCode(std::wstring_view code) const;
-        concurrencpp::result<Action<void>> ClearTransferCode() const;
-        concurrencpp::result<Action<void>> Rename(std::wstring_view name) const;
-        concurrencpp::result<Action<void>> AdjustCash(int cash) const;
-        concurrencpp::result<Action<void>> AddCash(int cash) const;
-        concurrencpp::result<Action<void>> RemoveCash(int cash) const;
-        concurrencpp::result<Action<void>> AddCargo(GoodId good, uint count = 1, float health = 1.0f, bool mission = true) const;
-        concurrencpp::result<Action<void>> RemoveCargo(GoodId good, uint count = 1) const;
-        concurrencpp::result<Action<void>> SetPosition(Vector pos) const;
-        concurrencpp::result<Action<void>> SetSystem(SystemId system) const;
-        concurrencpp::result<Action<void>> Undock(Vector pos, SystemId system = {}, Matrix orient = Matrix::Identity()) const;
+        concurrencpp::result<Action<MongoResult>> Delete() const;
+        concurrencpp::result<Action<MongoResult>> Transfer(AccountId targetAccount, std::wstring_view transferCode) const;
+        concurrencpp::result<Action<MongoResult>> SetTransferCode(std::wstring_view code) const;
+        concurrencpp::result<Action<MongoResult>> ClearTransferCode() const;
+        concurrencpp::result<Action<MongoResult>> Rename(std::wstring_view name) const;
+        concurrencpp::result<Action<MongoResult>> AdjustCash(int cash) const;
+        concurrencpp::result<Action<MongoResult>> AddCash(int cash) const;
+        concurrencpp::result<Action<MongoResult>> RemoveCash(int cash) const;
+        concurrencpp::result<Action<MongoResult>> SetCash(int cash) const;
+        concurrencpp::result<Action<MongoResult>> AddCargo(GoodId good, uint count = 1, float health = 1.0f, bool mission = true) const;
+        concurrencpp::result<Action<MongoResult>> RemoveCargo(GoodId good, uint count = 1) const;
+        concurrencpp::result<Action<MongoResult>> SetPosition(Vector pos) const;
+        concurrencpp::result<Action<MongoResult>> SetSystem(SystemId system) const;
+        concurrencpp::result<Action<MongoResult>> Undock(Vector pos, SystemId system = {}, Matrix orient = Matrix::Identity()) const;
         concurrencpp::result<Action<int>> GetCash() const;
         concurrencpp::result<Action<SystemId>> GetSystem() const;
         concurrencpp::result<Action<RepGroupId>> GetAffiliation() const;
@@ -56,5 +64,5 @@ class DLL CharacterId final
          * @returns On success : void
          * @returns On fail : Error code of CharacterNameNotFound
          */
-        static Action<void> UpdateCharacterDocument(std::string_view name, bsoncxx::document::view updateDoc);
+        static Action<MongoResult> UpdateCharacterDocument(std::string_view name, bsoncxx::document::view updateDoc);
 };

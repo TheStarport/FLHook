@@ -15,11 +15,11 @@
         }                                                                  \
     }
 
-#define DefineTransformArg(x)\
-template <>\
-x TransformArg(std::wstring_view s, size_t paramNumber);\
-template <>\
-std::optional<x> TransformArg(std::wstring_view s, size_t paramNumber)
+#define DefineTransformArg(x)                                \
+    template <>                                              \
+    x TransformArg(std::wstring_view s, size_t paramNumber); \
+    template <>                                              \
+    std::optional<x> TransformArg(std::wstring_view s, size_t paramNumber)
 
 // NOLINTBEGIN(*-identifier-length)
 template <typename Test, template <typename...> class Ref>
@@ -68,6 +68,7 @@ DefineTransformArg(GoodInfo*);
 DefineTransformArg(BaseId);
 DefineTransformArg(SystemId);
 DefineTransformArg(RepGroupId);
+DefineTransformArg(CharacterId);
 
 template <typename T>
     requires IsSpecialization<T, std::vector>::value

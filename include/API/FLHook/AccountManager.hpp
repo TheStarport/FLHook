@@ -103,6 +103,8 @@ struct PlayerDbLoadUserDataAssembly final : Xbyak::CodeGenerator
         PlayerDbLoadUserDataAssembly();
 };
 
+class Database;
+class IServerImplHook;
 class AccountManager
 {
         friend PlayerDbLoadUserDataAssembly;

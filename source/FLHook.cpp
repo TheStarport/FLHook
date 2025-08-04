@@ -108,9 +108,6 @@ FLHook::FLHook()
     // Setup needed debug tools
     InternalApi::Init();
 
-    // Initialize the Database before everything as other systems rely on it
-    // database = new Database(FLHook::GetConfig().databaseConfig.uri);
-
     const auto config = GetConfig();
 
     if (config->httpSettings.enableHttpServer)

@@ -4,7 +4,7 @@
 
 class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, public AbstractAdminCommandProcessor
 {
-        concurrencpp::result<void> SetCash(ClientId client, std::wstring_view characterName, uint amount);
+        concurrencpp::result<void> SetCash(ClientId client, CharacterId character, uint amount);
         concurrencpp::result<void> GetCash(ClientId client, std::wstring_view characterName);
         concurrencpp::result<void> AddCash(ClientId client, std::wstring_view characterName, int amount);
         concurrencpp::result<void> KickPlayer(ClientId client, ClientId target, std::wstring_view reason);
