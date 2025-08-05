@@ -40,7 +40,7 @@ void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER
             {
                 // AddCheaterLog(charName, "Negative good-count, likely to have cheated in the past");
 
-                FLHook::MessageUniverse(std::format(L"Possible cheating detected: {}", client.GetCharacterName().Handle()));
+                FLHook::MessageUniverse(std::format(L"Possible cheating detected: {}", client.GetCharacterId().Handle()));
                 (void)client.Kick();
                 (void)client.GetAccount().Unwrap().Ban();
                 return;
@@ -75,13 +75,13 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
 {
     TRACE("IServerImplHook::CharacterSelect client={{client}}", { "client", client });
 
-    auto prevCharName = std::wstring(FLHook::GetClient(client).characterName);
+    auto prevCharName = FLHook::GetClient(client).characterId;
 
     const auto& data = AccountManager::accounts[client.GetValue()].characters.at(cid.charFilename);
     // TODO what if the client tries to pick a character that isn't on this account
-    FLHook::GetClient(client).characterName = data.wideCharacterName;
+    FLHook::GetClient(client).characterId = CharacterId{ data.wideCharacterName };
 
-    std::wstring charName = StringUtils::stows(static_cast<const char*>(cid.charFilename));
+    auto charName = CharacterId{ StringUtils::stows(static_cast<const char*>(cid.charFilename)) };
     bool skip = false;
 
     auto& info = client.GetData();

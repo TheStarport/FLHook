@@ -404,7 +404,7 @@ namespace Plugins
             auto saturation = static_cast<int>(cdpClient->GetLinkSaturation() * 100);
             int txqueue = cdpClient->GetSendQSize();
             admin.Message(std::format(L"charname={} clientid={} loss={} lag={} pingfluct={} saturation={} txqueue={}\n",
-                                      client.GetCharacterName().Handle(),
+                                      client.GetCharacterId().Handle(),
                                       client,
                                       con.averageLoss,
                                       con.lags,

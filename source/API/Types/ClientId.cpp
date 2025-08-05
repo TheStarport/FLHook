@@ -39,12 +39,12 @@ bool ClientId::IsValidClientId() const
     return FLHook::Clients()[value].isValid;
 }
 
-ClientId ClientId::GetClientIdFromCharacterName(const std::wstring_view name)
+ClientId ClientId::GetClientIdFromCharacterName(const CharacterId name)
 {
 
     for (auto& client : FLHook::Clients())
     {
-        if (client.characterName == name)
+        if (client.characterId == name)
         {
             return client.id;
         }
@@ -52,6 +52,7 @@ ClientId ClientId::GetClientIdFromCharacterName(const std::wstring_view name)
 
     return ClientId(0);
 }
+ClientId::ClientId(const std::wstring_view str) : value(GetClientIdFromCharacterName(CharacterId{ str })) {}
 
 ClientId::operator bool() const
 {
@@ -210,14 +211,6 @@ Action<int> ClientId::GetPvpKills() const
     return { Players[value].numKills };
 }
 
-Action<uint> ClientId::GetCash() const
-{
-    ClientCheck;
-    CharSelectCheck;
-
-    return { Players[value].money };
-}
-
 Action<float> ClientId::GetRelativeHealth() const
 {
     ClientCheck;
@@ -240,16 +233,16 @@ Action<void> ClientId::SetRelativeHealth(const float setHealth) const
     return { {} };
 }
 
-Action<std::wstring_view> ClientId::GetCharacterName() const
+Action<CharacterId> ClientId::GetCharacterId() const
 {
     if (value == 0)
     {
-        return { L"CONSOLE"sv };
+        return { CharacterId{ L"CONSOLE"sv } };
     }
 
     CharSelectCheck;
 
-    return { GetData().characterName };
+    return { GetData().characterId };
 }
 
 bool ClientId::InSpace() const
@@ -454,19 +447,6 @@ Action<void> ClientId::SetPvpKills(const uint killAmount) const
     return { {} };
 }
 
-Action<void> ClientId::SetCash(const uint amount) const
-{
-    ClientCheck;
-    CharSelectCheck;
-
-    const int currCash = Players[value].money;
-    pub::Player::AdjustCash(value, static_cast<int>(amount) - currCash);
-    return { {} };
-}
-
-Action<void> ClientId::AddCash(const uint amount) const { return AdjustCash(static_cast<int>(amount)); }
-Action<void> ClientId::RemoveCash(const uint amount) const { return AdjustCash(-static_cast<int>(amount)); }
-
 // TODO: This should more accessible throughout the plugin and configurable
 const std::array BannedBases = {
     CreateID("br_m_beryllium_miner"),  CreateID("[br_m_hydrocarbon_miner]"),
@@ -513,7 +493,7 @@ Action<void> ClientId::Beam(const BaseId base) const
         Server.BaseEnter(base.GetValue(), value);
         Server.BaseExit(base.GetValue(), value);
 
-        const std::wstring newFile = std::format(L"{}.fl", GetCharacterName().Unwrap());
+        const std::wstring newFile = std::format(L"{}.fl", GetCharacterId().Unwrap());
         CHARACTER_ID charId;
         strcpy_s(charId.charFilename, StringUtils::wstos(newFile.substr(0, 14)).c_str());
         Server.CharacterSelect(charId, value);
@@ -606,12 +586,10 @@ Action<void> ClientId::MessageFrom(const ClientId destinationClient, const std::
         return { cpp::fail(Error::InvalidClientId) };
     }
 
-    (void)MessageCustomXml(std::format(
-        L"<TRA data=\"0xFFFFFF00\" mask=\"-1\"/><TEXT>{}: </TEXT><TRA data=\"0x{}00\" mask=\"-1\"/><TEXT>{}</TEXT>",
-        StringUtils::XmlText(destinationClient.GetCharacterName().Handle()),
-        colour,
-        StringUtils::XmlText(message)
-    ));
+    (void)MessageCustomXml(std::format(L"<TRA data=\"0xFFFFFF00\" mask=\"-1\"/><TEXT>{}: </TEXT><TRA data=\"0x{}00\" mask=\"-1\"/><TEXT>{}</TEXT>",
+                                       StringUtils::XmlText(destinationClient.GetCharacterId().Handle().GetValue()),
+                                       colour,
+                                       StringUtils::XmlText(message)));
 
     return { {} };
 }
@@ -724,63 +702,6 @@ Action<void> ClientId::AddEquip(const Id goodId, const std::wstring& hardpoint) 
     return { {} };
 }
 
-Action<void> ClientId::AddCargo(const Id goodId, const uint count, const bool isMission) const
-{
-    ClientCheck;
-    CharSelectCheck;
-
-    pub::Player::AddCargo(value, goodId.GetValue(), count, 1.0, isMission);
-    return { {} };
-}
-Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const
-{
-    switch (goodId.index())
-    {
-        case 0:
-            {
-                goodId = EquipmentId(Arch2Good(rfl::get<GoodId>(goodId).GetHash().Handle().GetValue()));
-            }
-        case 1:
-            {
-                const EquipmentId& eqId = rfl::get<EquipmentId>(goodId);
-                bool foundItem = false;
-                for (auto& equip : Players[value].equipAndCargo.equip)
-                {
-                    if (equip.archId == eqId.GetValue()->archId)
-                    {
-                        goodId = equip.id;
-                        foundItem = true;
-                        if (equip.count < count)
-                        {
-                            count = equip.count;
-                        }
-                        break;
-                    }
-                }
-
-                if (!foundItem)
-                {
-                    return { cpp::fail(Error::InvalidEquipment) };
-                }
-            }
-        case 2:
-            {
-                if (const int result = pub::Player::RemoveCargo(value, rfl::get<ushort>(goodId), count); result == -2)
-                {
-                    return { cpp::fail(Error::InvalidGood) };
-                }
-            }
-        default: return { cpp::fail(Error::UnknownError) };
-    }
-}
-
-Action<void> ClientId::Undock(Vector pos, std::optional<Matrix> orientation) const
-{
-    // TODO: Doesn't work, fix with FLUF clienthook
-
-    return { {} };
-}
-
 Action<void> ClientId::PlayMusic(const pub::Audio::Tryptich& info) const
 {
     ClientCheck;
@@ -837,7 +758,7 @@ Action<void> ClientId::InvitePlayer(ClientId otherClient) const
         return { cpp::fail(Error::InvalidClientId) };
     }
 
-    const std::wstring XML = L"<TEXT>/i " + StringUtils::XmlText(otherClient.GetCharacterName().Handle()) + L"</TEXT>";
+    const std::wstring XML = L"<TEXT>/i " + StringUtils::XmlText(otherClient.GetCharacterId().Handle().GetValue()) + L"</TEXT>";
 
     // Allocates a stack-sized std::array once per run-time and clear every invocation.
     static std::array<char, USHRT_MAX> buf{};
@@ -892,11 +813,11 @@ Action<void> ClientId::ToastMessage(std::wstring_view title, std::wstring_view m
 
     if (HasFluf())
     {
-        ToastPayload payload{ .title = StringUtils::wstos(title),
-                              .content = StringUtils::wstos(message),
-                              .toastType = type,
-                              .timeUntilDismiss = timeOut,
-                              .addSeparator = withSeperator };
+        const ToastPayload payload{ .title = StringUtils::wstos(title),
+                                    .content = StringUtils::wstos(message),
+                                    .toastType = type,
+                                    .timeUntilDismiss = timeOut,
+                                    .addSeparator = withSeperator };
 
         return SendFlufPayload<ToastPayload>("toast", payload);
     }
@@ -912,4 +833,76 @@ Action<void> ClientId::ToastMessage(std::wstring_view title, std::wstring_view m
     }
 
     return { {} };
+}
+
+Action<void> ClientId::SetCash(const uint amount) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    const int currCash = Players[value].money;
+    pub::Player::AdjustCash(value, static_cast<int>(amount) - currCash);
+    return { {} };
+}
+
+Action<void> ClientId::AddCash(const uint amount) const { return AdjustCash(static_cast<int>(amount)); }
+
+Action<void> ClientId::RemoveCash(const uint amount) const { return AdjustCash(-static_cast<int>(amount)); }
+
+Action<void> ClientId::AddCargo(const Id goodId, const uint count, const bool isMission) const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    pub::Player::AddCargo(value, goodId.GetValue(), count, 1.0, isMission);
+    return { {} };
+}
+Action<void> ClientId::RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const
+{
+    switch (goodId.index())
+    {
+        case 0:
+            {
+                goodId = EquipmentId(Arch2Good(rfl::get<GoodId>(goodId).GetHash().Handle().GetValue()));
+            }
+        case 1:
+            {
+                const EquipmentId& eqId = rfl::get<EquipmentId>(goodId);
+                bool foundItem = false;
+                for (auto& equip : Players[value].equipAndCargo.equip)
+                {
+                    if (equip.archId == eqId.GetValue()->archId)
+                    {
+                        goodId = equip.id;
+                        foundItem = true;
+                        if (equip.count < count)
+                        {
+                            count = equip.count;
+                        }
+                        break;
+                    }
+                }
+
+                if (!foundItem)
+                {
+                    return { cpp::fail(Error::InvalidEquipment) };
+                }
+            }
+        case 2:
+            {
+                if (const int result = pub::Player::RemoveCargo(value, rfl::get<ushort>(goodId), count); result == -2)
+                {
+                    return { cpp::fail(Error::InvalidGood) };
+                }
+            }
+        default: return { cpp::fail(Error::UnknownError) };
+    }
+}
+
+Action<uint> ClientId::GetCash() const
+{
+    ClientCheck;
+    CharSelectCheck;
+
+    return { Players[value].money };
 }

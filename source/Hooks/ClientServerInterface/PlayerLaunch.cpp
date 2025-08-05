@@ -21,12 +21,12 @@ void IServerImplHook::PlayerLaunchInner(const ShipId& shipId, ClientId client)
         data.inTradelane = false;
 
         // adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
-        const std::wstring charName = StringUtils::ToLower(client.GetCharacterName().Handle());
+        const auto charName = client.GetCharacterId().Handle();
         for (const auto& i : data.moneyFix)
         {
-            if (i.character == charName)
+            if (i.character == charName.GetValue())
             {
-                (void)client.AddCash(i.amount);
+                pub::Player::AdjustCash(client.GetValue(), i.amount);
                 data.moneyFix.remove(i);
                 break;
             }

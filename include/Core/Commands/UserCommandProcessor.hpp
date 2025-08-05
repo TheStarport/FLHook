@@ -29,7 +29,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         // concurrencpp::result<void>DeleteMail(std::wstring_view mailID, std::wstring_view readOnlyDel);
         // concurrencpp::result<void>ReadMail(uint mailId);
         // concurrencpp::result<void>ListMail(int pageNumber, std::wstring_view unread);
-        concurrencpp::result<void> GiveCash(ClientId client, std::wstring_view characterName, std::wstring_view amount);
+        concurrencpp::result<void> GiveCash(ClientId client, CharacterId targetCharacter, std::wstring_view amount);
         concurrencpp::result<void> Time(ClientId client);
         concurrencpp::result<void> Dice(ClientId client, uint sidesOfDice);
         concurrencpp::result<void> Coin(ClientId client);

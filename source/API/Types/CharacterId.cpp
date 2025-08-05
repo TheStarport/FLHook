@@ -97,7 +97,7 @@ ClientData* CharacterId::GetOnlineData() const
 {
     for (auto& client : FLHook::Clients())
     {
-        if (client.characterName == characterName)
+        if (client.characterId == *this)
         {
             return &client;
         }

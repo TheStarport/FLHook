@@ -178,7 +178,7 @@ namespace Plugins
                 // Reward the killer, print message to them
                 (void)killerId.AddCash(killerReward);
                 killerId.Message(std::format(
-                    L"Death penalty: given {} credits from {}'s death penalty.", StringUtils::ToMoneyStr(killerReward), client.GetCharacterName().Handle()));
+                    L"Death penalty: given {} credits from {}'s death penalty.", StringUtils::ToMoneyStr(killerReward), client.GetCharacterId().Handle()));
             }
         }
 

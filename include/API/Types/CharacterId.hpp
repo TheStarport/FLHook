@@ -1,12 +1,13 @@
 #pragma once
 
 #include "API/FLHook/Database.hpp"
-
 #include "API/Utils/Action.hpp"
 
 #include <concurrencpp/concurrencpp.h>
 #include <API/FLHook/BsonHelper.hpp>
 
+class AccountId;
+struct ClientData;
 class DLL CharacterId final
 {
         std::wstring characterName;
@@ -65,4 +66,17 @@ class DLL CharacterId final
          * @returns On fail : Error code of CharacterNameNotFound
          */
         static Action<MongoResult> UpdateCharacterDocument(std::string_view name, bsoncxx::document::view updateDoc);
+};
+
+template <>
+struct std::formatter<CharacterId, wchar_t>
+{
+        constexpr auto parse(std::wformat_parse_context& ctx) const { return ctx.begin(); }
+        auto format(const CharacterId& name, std::wformat_context& ctx) const { return std::format_to(ctx.out(), L"{}", name.GetValue()); }
+};
+
+template <>
+struct std::hash<CharacterId>
+{
+        std::size_t operator()(const CharacterId& id) const noexcept { return std::hash<std::wstring>()(std::wstring(id.GetValue())); }
 };

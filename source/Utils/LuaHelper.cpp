@@ -165,7 +165,7 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     NEW_TYPE(TYPE(), TYPE(uint), TYPE(std::wstring));
     ClsFunc(IsValidClientId);
     ClsFunc(GetValue);
-    ClsFunc(GetCharacterName);
+    ClsFunc(GetCharacterId);
     ClsFunc(GetCurrentBase);
     ClsFunc(GetSystemId);
     ClsFunc(GetShipArch);
@@ -190,9 +190,6 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     ClsFunc(Kick);
     ClsFunc(SaveChar);
     ClsFunc(SetPvpKills);
-    ClsFunc(SetCash);
-    ClsFunc(AddCash);
-    ClsFunc(RemoveCash);
     ClsFunc(Beam);
     // ClsFunc(Rename); TODO Implement Lua rename
     // ClsFunc(MarkObject);
@@ -203,9 +200,6 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     ClsFunc(MessageCustomXml);
     // ClsFunc(SetEquip);
     ClsFunc(AddEquip);
-    ClsFunc(AddCargo);
-    ClsFunc(RemoveCargo);
-    ClsFunc(Undock);
     ClsFunc(PlaySound);
     ClsFunc(DisplayMissionObjective);
     ClsFunc(InvitePlayer);

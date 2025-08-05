@@ -10,7 +10,7 @@ namespace Plugins
     {
         if (const auto iter = std::ranges::find(config.itemsOfInterest, goodId); iter != config.itemsOfInterest.end())
         {
-            const auto charName = client.GetCharacterName().Handle();
+            const auto charName = client.GetCharacterId().Handle();
             INFO("Item '{{goodId}}' found in cargo of {{characterName}} - {{details}}"),
                 JsonLogFormatter({
                     {        "goodId",   goodId },
@@ -84,7 +84,7 @@ namespace Plugins
         {
             if (!CheckIdEquipRestrictions(client, info.goodId, false))
             {
-                const auto charName = client.GetCharacterName().Handle();
+                const auto charName = client.GetCharacterId().Handle();
                 INFO("{{characterName}} attempting to buy {{goodId}} without correct Id", { "characterName", charName }, { "goodId", info.goodId });
 
                 if (config.enforceItemRestrictions)
@@ -114,7 +114,7 @@ namespace Plugins
             if (const auto shipGood = GoodId(hullInfo->shipGoodId);
                 config.shipItemRestrictions.contains(shipGood.GetHash().Unwrap()) && !CheckIdEquipRestrictions(client, shipGood.GetHash().Unwrap(), true))
             {
-                const auto charName = client.GetCharacterName().Handle();
+                const auto charName = client.GetCharacterId().Handle();
                 INFO(
                     "{{characterName}} attempting to buy {{shipGood}} without correct Id", { "characterName", charName }, { "shipGood", hullInfo->shipGoodId });
                 if (config.enforceItemRestrictions)

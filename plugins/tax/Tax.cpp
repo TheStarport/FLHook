@@ -12,7 +12,7 @@ void TaxPlugin::RemoveTax(const Tax& toRemove)
     taxes.erase(taxToRemove);
 }
 
-concurrencpp::result<void>TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
+concurrencpp::result<void> TaxPlugin::UserCmdTax(ClientId client, const std::wstring_view taxAmount)
 {
     const auto& noPvpSystems = FLHook::GetConfig()->general.noPvPSystems;
     // no-pvp check
@@ -29,7 +29,7 @@ concurrencpp::result<void>TaxPlugin::UserCmdTax(ClientId client, const std::wstr
         co_return;
     }
 
-    const uint taxValue = StringUtils::MultiplyUIntBySuffix(taxAmount);
+    const uint taxValue = StringUtils::MultiplyBySuffix<uint>(taxAmount);
 
     if (taxValue > config.maxTax)
     {
@@ -61,7 +61,7 @@ concurrencpp::result<void>TaxPlugin::UserCmdTax(ClientId client, const std::wstr
     tax.cash = taxValue;
     taxes.push_back(tax);
 
-    const auto characterName = client.GetCharacterName().Handle();
+    const auto characterName = client.GetCharacterId().Handle();
 
     if (taxValue == 0)
     {
@@ -72,7 +72,7 @@ concurrencpp::result<void>TaxPlugin::UserCmdTax(ClientId client, const std::wstr
         player.Message(std::vformat(config.taxRequestReceived, std::make_wformat_args(taxValue, characterName)), config.customFormat, config.customColor);
     }
 
-    const auto targetCharacterName = player.GetCharacterName().Handle();
+    const auto targetCharacterName = player.GetCharacterId().Handle();
 
     // send confirmation msg
     if (taxValue > 0)
@@ -87,7 +87,7 @@ concurrencpp::result<void>TaxPlugin::UserCmdTax(ClientId client, const std::wstr
     co_return;
 }
 
-concurrencpp::result<void>TaxPlugin::UserCmdPay(const ClientId client)
+concurrencpp::result<void> TaxPlugin::UserCmdPay(const ClientId client)
 {
     for (auto& it : taxes)
     {
@@ -116,7 +116,7 @@ concurrencpp::result<void>TaxPlugin::UserCmdPay(const ClientId client)
         initiatingClient.AddCash(it.cash).Handle();
         client.Message(L"You paid the tax.");
 
-        const auto characterName = client.GetCharacterName().Handle();
+        const auto characterName = client.GetCharacterId().Handle();
         initiatingClient.Message(std::format(L"{} paid the tax!", characterName));
         RemoveTax(it);
 
@@ -158,7 +158,7 @@ void TaxPlugin::FiveSecondTimer()
                 data.ship.Destroy(DestroyType::Fuse);
             }
 
-            const auto characterName = it.targetId.GetCharacterName().Handle();
+            const auto characterName = it.targetId.GetCharacterId().Handle();
             it.initiatorId.Message(std::format(L"Target disconnected. Tax request to {} aborted.", characterName));
             RemoveTax(it);
             break;

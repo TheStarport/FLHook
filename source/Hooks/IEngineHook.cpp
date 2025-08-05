@@ -128,7 +128,7 @@ int IEngineHook::DockCall(const uint& shipId, const uint& spaceId, int dockPortI
             if (const auto client = ShipId(shipId).GetPlayer().Unwrap())
             {
                 std::wstring msg = L"Traffic control alert: %player has docked.";
-                msg = StringUtils::ReplaceStr(msg, std::wstring_view(L"%player"), client.GetCharacterName().Unwrap());
+                msg = StringUtils::ReplaceStr(msg, std::wstring_view(L"%player"), client.GetCharacterId().Unwrap().GetValue());
                 (void)client.MessageLocal(msg, 15000.0f);
             }
         }
@@ -227,10 +227,9 @@ float __fastcall IEngineHook::GetCargoRemaining(CShip* cship)
     {
         return retVal;
     }
-    
+
     using CShipGetCargoRemainingType = float(__thiscall*)(CShip*);
-    int origCallVal =
-        reinterpret_cast<CShipGetCargoRemainingType>(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonCShipGetAmmoCapacity))(cship);
+    int origCallVal = reinterpret_cast<CShipGetCargoRemainingType>(FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonCShipGetAmmoCapacity))(cship);
 
     return origCallVal;
 }

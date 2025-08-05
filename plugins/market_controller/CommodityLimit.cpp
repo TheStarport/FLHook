@@ -12,7 +12,7 @@ namespace Plugins
         return true;
     }
 
-    bool MarketControllerPlugin::GFGoodBuyCL(SGFGoodBuyInfo const& gbi, ClientId client)
+    bool MarketControllerPlugin::GFGoodBuyCL(const SGFGoodBuyInfo& gbi, ClientId client)
     {
         if (client.GetEquipCargo().Handle()->equip.size() >= 127)
         {
@@ -41,7 +41,7 @@ namespace Plugins
             else
             {
                 // If the ID doesn't match, check for the tag
-                std::wstring_view charName = client.GetCharacterName().Handle();
+                std::wstring_view charName = client.GetCharacterId().Handle().GetValue();
                 for (auto& tag : commodityRestriction->second.tagRestrictions)
                 {
                     if (charName.find(tag) == 0)
@@ -82,4 +82,4 @@ namespace Plugins
         }
         return true;
     }
-} // namespace CommodityLimit
+} // namespace Plugins

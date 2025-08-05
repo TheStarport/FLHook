@@ -73,151 +73,29 @@ concurrencpp::result<void> AdminCommandProcessor::SetCash(ClientId client, Chara
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::GetCash(ClientId client, std::wstring_view characterNameView)
+concurrencpp::result<void> AdminCommandProcessor::GetCash(ClientId client, CharacterId characterName)
 {
-    // If true, they are online and that makes this easy for us
-    if (const auto* targetClient = FLHook::GetClientByName(characterNameView))
-    {
-        auto cash = targetClient->id.GetCash().Handle();
-        client.Message(std::format(L"{} has {} credits", characterNameView, cash));
-
-        co_return;
-    }
-
-    // They are offline, lets lookup the needed info
-
-    std::wstring characterName{ characterNameView };
-    THREAD_BACKGROUND;
-
-    std::wstring err;
-    int credits;
-    try
-    {
-        const auto config = FLHook::GetConfig();
-        const auto db = FLHook::GetDbClient();
-        auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
-
-        const auto filter = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName)));
-        const auto projection = B_MDOC(B_KVP("money", 1));
-
-        mongocxx::options::find options;
-        options.projection(projection.view());
-
-        if (const auto result = charactersCollection.find_one(filter.view(), options); result.has_value())
-        {
-            credits = result->find("money")->get_int32();
-        }
-        else
-        {
-            err = std::format(L"Character {} was not found", characterName);
-        }
-    }
-    catch (const mongocxx::exception& ex)
-    {
-        err = StringUtils::stows(ex.what());
-    }
-
+    auto cash = (co_await characterName.GetCash()).Handle();
     THREAD_MAIN;
 
-    if (!err.empty())
-    {
-        client.MessageErr(err);
-    }
-    else
-    {
-        client.Message(std::format(L"{} has {} credits", characterName, credits));
-    }
-
-    co_return;
+    client.ToastMessage(L"Cash", std::format(L"{} has {} credits", characterName, cash));
 }
 
-concurrencpp::result<void> AdminCommandProcessor::AddCash(ClientId client, std::wstring_view characterNameView, int amount)
+concurrencpp::result<void> AdminCommandProcessor::AddCash(const ClientId client, CharacterId characterName, int amount)
 {
     if (amount == 0)
     {
-        client.Message(L"Invalid cash amount provided");
+        client.ToastMessage(L"Invalid Input", L"Invalid cash amount provided");
         co_return;
     }
 
-    // If true, they are online and that makes this easy for us
-    if (const auto* targetClient = FLHook::GetClientByName(characterNameView))
-    {
-        targetClient->id.AddCash(amount);
-        client.Message(std::format(L"{} now has {} credits", characterNameView, targetClient->id.GetCash().Handle()));
-
-        co_return;
-    }
-
-    std::wstring characterName{ characterNameView };
-    THREAD_BACKGROUND;
-
-    auto success = MongoResult::UnknownFailure;
-    std::wstring message;
-    try
-    {
-        const auto config = FLHook::GetConfig();
-        const auto db = FLHook::GetDbClient();
-        auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
-
-        // They are offline, lets lookup the needed info
-        const auto filter = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName)));
-
-        // We get the current value and do the calculation ourselves, to enforce a minimum of $0 cash - remember the
-        // amount could be negative! - and use longs to ensure we can't overflow an integer.
-
-        const auto characterResult = charactersCollection.find_one(filter.view());
-        if (!characterResult.has_value())
-        {
-            THREAD_MAIN;
-            client.MessageErr(L"Provided character name not found");
-            co_return;
-        }
-
-        int currMoney = characterResult->find("money")->get_int32().value;
-        long long newMoney = ((long long)currMoney) + amount;
-
-        if (newMoney < 0)
-        {
-            newMoney = 0;
-        }
-        else if (newMoney >= pow(2, 31))
-        {
-            newMoney = pow(2, 31) - 1;
-        }
-
-        const auto update = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("money", (int32_t)newMoney))));
-
-        const auto result = charactersCollection.update_one(filter.view(), update.view());
-
-        assert(result.has_value());
-
-        if (result->modified_count() == 1)
-        {
-            success = MongoResult::Success;
-        }
-        else if (result->matched_count() == 1)
-        {
-            success = MongoResult::MatchButNoChange;
-        }
-    }
-    catch (const mongocxx::exception& ex)
-    {
-        message = StringUtils::stows(ex.what());
-    }
-
+    auto result = (co_await characterName.AddCash(amount)).Handle();
     THREAD_MAIN;
-
-    if (!message.empty())
+    switch (result)
     {
-        client.MessageErr(message).Handle();
-        co_return;
-    }
-
-    switch (success)
-    {
-        case MongoResult::UnknownFailure: client.MessageErr(std::format(L"Character {} was not found", characterName)); break;
-        case MongoResult::MatchButNoChange: client.MessageErr(std::format(L"Can't add {} credits to {}!", amount, characterName)); break;
-        case MongoResult::Success: client.Message(std::format(L"{} given {} credits", characterName, amount));
+        case MongoResult::PerformedSynchronously:
+        case MongoResult::Success: client.ToastMessage(L"Cash Added", std::format(L"{} given {} credits", characterName, amount)); break;
+        default: break;
     }
 
     co_return;
@@ -225,7 +103,7 @@ concurrencpp::result<void> AdminCommandProcessor::AddCash(ClientId client, std::
 
 concurrencpp::result<void> AdminCommandProcessor::KickPlayer(ClientId client, ClientId target, std::wstring_view reason)
 {
-    std::wstring targetCharName = std::wstring(target.GetCharacterName().Handle());
+    auto targetCharName = target.GetCharacterId().Handle().GetValue();
     if (reason.empty())
     {
         target.Kick().Handle();
@@ -235,11 +113,11 @@ concurrencpp::result<void> AdminCommandProcessor::KickPlayer(ClientId client, Cl
         target.Kick(reason).Handle();
     }
 
-    client.Message(std::format(L"{} has been successfully kicked. Reason: {}", targetCharName, reason));
+    client.ToastMessage(L"Player Kicked", std::format(L"{} has been successfully kicked. Reason: {}", targetCharName, reason));
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::BanPlayer(ClientId client, std::wstring_view characterName)
+concurrencpp::result<void> AdminCommandProcessor::BanPlayer(ClientId client, CharacterId characterName)
 {
     const auto account = AccountId::GetAccountFromCharacterName(characterName);
     if (!account.has_value())
@@ -253,7 +131,7 @@ concurrencpp::result<void> AdminCommandProcessor::BanPlayer(ClientId client, std
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::TempbanPlayer(ClientId client, std::wstring_view characterName, uint durationInDays)
+concurrencpp::result<void> AdminCommandProcessor::TempbanPlayer(ClientId client, CharacterId characterName, uint durationInDays)
 {
     const auto account = AccountId::GetAccountFromCharacterName(characterName);
     if (!account.has_value())
@@ -262,12 +140,12 @@ concurrencpp::result<void> AdminCommandProcessor::TempbanPlayer(ClientId client,
         co_return;
     }
 
-    (void)account->Ban(durationInDays);
+    account->Ban(durationInDays);
     client.Message(std::format(L"{} has been successfully banned for {} days.", characterName, durationInDays));
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::UnBanPlayer(ClientId client, std::wstring_view characterName)
+concurrencpp::result<void> AdminCommandProcessor::UnBanPlayer(ClientId client, CharacterId characterName)
 {
     const auto account = AccountId::GetAccountFromCharacterName(characterName);
     if (!account.has_value())
@@ -275,13 +153,12 @@ concurrencpp::result<void> AdminCommandProcessor::UnBanPlayer(ClientId client, s
         client.Message(std::format(L"Unable to find account from character: {}", characterName));
         co_return;
     }
-    std::wstring stackAllocatedCharacterName = std::wstring(characterName);
 
     THREAD_BACKGROUND;
     (void)account->UnBan();
     THREAD_MAIN;
 
-    client.Message(std::format(L"{} has been successfully unbanned.", stackAllocatedCharacterName));
+    client.Message(std::format(L"{} has been successfully unbanned.", characterName));
     co_return;
 }
 
@@ -304,7 +181,7 @@ concurrencpp::result<void> AdminCommandProcessor::SetRep(ClientId client, Client
     const auto repId = target.GetReputation().Handle();
     repId.SetAttitudeTowardsRepGroupId(repGroup, value).Handle();
 
-    client.Message(std::format(L"{}'s reputation with {} set to {}", target.GetCharacterName().Handle(), repGroup.GetName().Handle(), value));
+    client.Message(std::format(L"{}'s reputation with {} set to {}", target.GetCharacterId().Handle(), repGroup.GetName().Handle(), value));
     co_return;
 }
 
@@ -313,14 +190,14 @@ concurrencpp::result<void> AdminCommandProcessor::GetRep(ClientId client, Client
     const auto charRepId = target.GetReputation().Handle();
     const auto rep = charRepId.GetAttitudeTowardsFaction(repGroup).Handle();
 
-    client.Message(std::format(L"{}'s reputation to {} is {}", target.GetCharacterName().Handle(), repGroup.GetName().Handle(), rep));
+    client.Message(std::format(L"{}'s reputation to {} is {}", target.GetCharacterId().Handle(), repGroup.GetName().Handle(), rep));
     co_return;
 }
 
 concurrencpp::result<void> AdminCommandProcessor::MessagePlayer(ClientId client, ClientId target, const std::wstring_view text)
 {
     target.Message(text).Handle();
-    client.Message(std::format(L"Message sent to {} successfully. Contents: {}", target.GetCharacterName().Handle(), text));
+    client.Message(std::format(L"Message sent to {} successfully. Contents: {}", target.GetCharacterId().Handle(), text));
     co_return;
 }
 
@@ -366,23 +243,17 @@ concurrencpp::result<void> AdminCommandProcessor::AddCargo(ClientId client, Clie
     target.GetShip().Handle().AddCargo(good->goodId, count, mission).Handle();
 
     const auto& im = FLHook::GetInfocardManager();
-    client.Message(std::format(L"{} units of {} has been added to {}'s cargo", count, im->GetInfoName(good->idsName), target.GetCharacterName().Handle()));
+    client.Message(std::format(L"{} units of {} has been added to {}'s cargo", count, im->GetInfoName(good->idsName), target.GetCharacterId().Handle()));
 
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::RenameChar(ClientId client, ClientId target, std::wstring_view newName)
+concurrencpp::result<void> AdminCommandProcessor::RenameChar(ClientId client, CharacterId targetCharacter, const std::wstring_view newName)
 {
-    std::wstring newNameStr = newName.data();
-    if (newNameStr.empty() || newNameStr == target.GetCharacterName().Unwrap())
+    const std::wstring newNameStr = newName.data();
+    if (newNameStr.empty() || newNameStr == targetCharacter.GetValue())
     {
         (void)client.MessageErr(L"A new name, that is not the current one, must be provided.");
-        co_return;
-    }
-
-    if (newNameStr.find(L' ') != std::wstring_view::npos)
-    {
-        (void)client.MessageErr(L"No whitespaces allowed.");
         co_return;
     }
 
@@ -399,101 +270,45 @@ concurrencpp::result<void> AdminCommandProcessor::RenameChar(ClientId client, Cl
         co_return;
     }
 
-    std::wstring currName = target.GetCharacterName().Handle().data();
-
-    THREAD_BACKGROUND;
-
-    auto errMsg = co_await AccountManager::CheckCharnameTaken(target, newNameStr);
-    if (!errMsg.empty())
+    if (co_await CharacterId::CharacterExists(newNameStr))
     {
         THREAD_MAIN;
-        (void)client.MessageErr(errMsg);
+        client.MessageErr(L"Character already exists.");
         co_return;
     }
 
-    target.Message(L"Renaming, you will be kicked.");
-    co_await FLHook::GetTaskScheduler()->Delay(5s);
-    target.Kick();
-    co_await FLHook::GetTaskScheduler()->Delay(0.5s);
-    co_await AccountManager::Rename(currName, newNameStr);
-
+    (co_await targetCharacter.Rename(newNameStr)).Handle();
     THREAD_MAIN;
-
-    client.Message(std::format(L"{} has been renamed to {}", currName, newNameStr));
-    co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::DeleteChar(const ClientId client, const std::wstring_view characterName)
+concurrencpp::result<void> AdminCommandProcessor::DeleteChar(const ClientId client, const CharacterId characterName)
 {
     // Kick the player if they are currently online
     for (auto& player : FLHook::Clients())
     {
-        if (player.characterName == characterName)
+        if (player.characterId == characterName)
         {
             player.id.Kick();
             break;
         }
     }
 
-    std::wstring stackAllocatedCharacterName = std::wstring(characterName);
+    auto result = (co_await characterName.Delete()).Handle();
+    THREAD_MAIN;
 
-    THREAD_BACKGROUND;
-
-    const auto config = FLHook::GetConfig();
-    auto db = FLHook::GetDbClient();
-    auto accountCollection = Database::GetCollection(db, config->database.accountsCollection);
-    auto charactersCollection = Database::GetCollection(db, config->database.charactersCollection);
-
-    auto transaction = db->start_session();
-    transaction.start_transaction();
-
-    // TODO: Handle soft delete
-    const auto filter = B_MDOC(B_KVP("characterName", StringUtils::wstos(stackAllocatedCharacterName)));
-
-    try
+    if (result == MongoResult::Success)
     {
-        if (const auto doc = charactersCollection.find_one_and_delete(filter.view()); doc.has_value())
-        {
-            bsoncxx::oid characterId = doc->find("_id")->get_oid().value;
-            auto accountId = doc->find("accountId")->get_string().value;
-
-            const auto accountFilter = B_MDOC(B_KVP("_id", accountId));
-            const auto deleteCharacter = B_MDOC(B_KVP("$pull", B_MDOC(B_KVP("characters", characterId))));
-            accountCollection.update_one(accountFilter.view(), deleteCharacter.view());
-
-            transaction.commit_transaction();
-
-            THREAD_MAIN;
-
-            for (const auto& player : FLHook::Clients())
-            {
-                if (auto found = std::ranges::find(player.account->characters, characterId); found != player.account->characters.end())
-                {
-                    player.account->characters.erase(found);
-                }
-            }
-
-            client.Message(L"OK");
-        }
-        else
-        {
-            // Not found
-            THREAD_MAIN;
-            client.MessageErr(L"Character name not found.");
-        }
-    }
-    catch (const mongocxx::exception& ex)
-    {
-        transaction.abort_transaction();
+        client.Message(std::format(L"{} has been successfully deleted", characterName));
+        co_return;
     }
 
-    co_return;
+    client.Message(L"Failed to delete character");
 }
 
 concurrencpp::result<void> AdminCommandProcessor::GetPlayerInfo(ClientId client, const ClientId target)
 {
     client.Message(std::format(L"Name: {}, Id: {}, IP: {}, Ping: {}, Base: {}, System: {}\n",
-                               target.GetCharacterName().Unwrap(),
+                               target.GetCharacterId().Unwrap(),
                                target.GetValue(),
                                target.GetPlayerIp().Unwrap(),
                                target.GetLatency().Unwrap(),
@@ -859,7 +674,7 @@ concurrencpp::result<void> AdminCommandProcessor::Chase(ClientId client, const C
 concurrencpp::result<void> AdminCommandProcessor::Beam(ClientId client, ClientId target, BaseId base)
 {
     target.Beam(base).Handle();
-    client.Message(std::format(L"{} beamed to {}", target.GetCharacterName().Handle(), base.GetName().Handle()));
+    client.Message(std::format(L"{} beamed to {}", target.GetCharacterId().Handle(), base.GetName().Handle()));
     co_return;
 }
 
@@ -885,7 +700,7 @@ concurrencpp::result<void> AdminCommandProcessor::Pull(ClientId client, ClientId
     target.GetShip().Handle().Relocate(pos, orientation);
 
     client.Message(std::format(
-        L"Player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}", target.GetCharacterName().Handle(), client.GetCharacterName().Handle(), pos.x, pos.y, pos.z));
+        L"Player {} pulled to {} at x={:.0f} y={:.0f} z={:.0f}", target.GetCharacterId().Handle(), client.GetCharacterId().Handle(), pos.x, pos.y, pos.z));
     co_return;
 }
 

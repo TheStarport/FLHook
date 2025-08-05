@@ -69,23 +69,6 @@ mongocxx::collection Database::GetCollection(const mongocxx::pool::entry& dbClie
     return dbClient->database(FLHook::GetConfig()->database.dbName).collection(collectionName);
 }
 
-void Database::SaveValueOnAccount(const AccountId& accountId, std::string_view key, bsoncxx::types::bson_value::view_or_value value)
-{
-    auto findDoc = B_MDOC(B_KVP("_id", accountId.GetValue()));
-    auto updateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP(key, value))));
-
-    FLHook::GetTaskScheduler()->ScheduleTask(
-        [findDoc, updateDoc]
-        {
-            const auto config = FLHook::GetConfig()->database;
-            const auto db = FLHook::GetDbClient();
-
-            auto accountsCollection = db->database(config.dbName)[config.accountsCollection];
-
-            accountsCollection.update_one(findDoc.view(), updateDoc.view());
-        });
-}
-
 DatabaseQuery::DatabaseQuery(mongocxx::pool::entry entry) : entry(std::move(entry)), session(this->entry->start_session()) { session.start_transaction(); }
 
 std::string_view DatabaseQuery::CollectionToString(const DatabaseCollection collection)

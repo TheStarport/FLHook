@@ -5,6 +5,13 @@
 
 #include <concurrencpp/concurrencpp.h>
 
+#include "BaseId.hpp"
+#include "SystemId.hpp"
+
+#include <FLCore/Common/Packets.hpp>
+#include <FLCore/Server.hpp>
+#include <FLCore/FLCoreServer.h>
+
 struct Rumor
 {
         uint IDS;
@@ -171,7 +178,6 @@ class AccountManager
         static concurrencpp::result<bool> SaveSavedMsgs(std::wstring charName, std::array<std::string, 10> presetMsgs);
         static concurrencpp::result<bool> ClearCharacterTransferCode(std::wstring charName);
         static concurrencpp::result<bool> SetCharacterTransferCode(std::wstring client, std::wstring transferCode);
-        static concurrencpp::result<std::wstring> TransferCharacter(AccountId account, std::wstring charName, std::wstring characterCode);
         static concurrencpp::result<std::wstring> CheckCharnameTaken(ClientId client, std::wstring newName);
         static concurrencpp::result<void> Rename(std::wstring currName, std::wstring newName);
         static void ClearClientInfo(ClientId clientId);

@@ -276,7 +276,7 @@ concurrencpp::result<std::wstring> AccountManager::CheckCharnameTaken(ClientId c
     }
     catch (mongocxx::exception& ex)
     {
-        ERROR("Error checking for taken name {{accountId}} {{ex}}", { "accountId", client.GetCharacterName().Unwrap() }, { "ex", ex.what() });
+        ERROR("Error checking for taken name {{character}} {{ex}}", { "character", client.GetCharacterId().Unwrap() }, { "ex", ex.what() });
         err = L"Error while contacting database, contact staff!";
     }
 
@@ -423,101 +423,4 @@ concurrencpp::result<bool> AccountManager::SaveSavedMsgs(std::wstring charName, 
     const auto charUpdateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("presetMsgs", arr))));
 
     co_return AccountManager::UpdateCharacter(charName, charUpdateDoc, "setting preset messages list");
-}
-
-concurrencpp::result<std::wstring> AccountManager::TransferCharacter(const AccountId account, const std::wstring charName, const std::wstring characterCode)
-{
-    THREAD_BACKGROUND;
-
-    const auto db = FLHook::GetDbClient();
-    auto session = db->start_session();
-    session.start_transaction();
-
-    std::wstring err;
-    try
-    {
-        // check if character exists
-        // check if character code matches
-        // check if current account has capacity for another character
-
-        // clang-format off
-        const auto config = FLHook::GetConfig();
-        auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
-        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        const auto findTransferCharacterDoc = B_MDOC(
-            B_KVP("$and",
-                B_MARR(
-                    B_MDOC(B_KVP("characterName", StringUtils::wstos(charName))),
-                    B_MDOC(B_KVP("characterTransferCode", StringUtils::wstos(characterCode)))
-                )
-            )
-        );
-
-        const auto transferredCharacterDoc = charactersCollection.find_one(findTransferCharacterDoc.view());
-        if (!transferredCharacterDoc.has_value())
-        {
-            session.abort_transaction();
-            err = L"Character or transfer code was incorrect";
-            THREAD_MAIN;
-            co_return err;
-        }
-
-        const auto transferCharacterOid = transferredCharacterDoc->find("_id")->get_oid();
-
-        const auto findNewAccountDoc = B_MDOC(B_KVP("_id", account.GetValue()));
-
-        const auto updateNewAccountDoc = B_MDOC(B_KVP("$push",
-            B_MDOC(B_KVP("characters", transferCharacterOid))));
-
-        const auto updateOldAccountDoc = B_MDOC(B_KVP("$pull",
-             B_MDOC(B_KVP("characters", transferCharacterOid))));
-
-        const auto oldAccountId = transferredCharacterDoc->find("accountId")->get_string().value;
-        const auto findOldAccountDoc = B_MDOC(B_KVP("_id", oldAccountId));
-
-        const auto findTransferredCharacterDoc = B_MDOC(B_KVP("_id", transferCharacterOid));
-        const auto clearCharacterTransferCodeDoc = B_MDOC(
-            B_KVP("$unset", B_MDOC(B_KVP("characterTransferCode", ""))),
-            B_KVP("$set", B_MDOC(B_KVP("accountId", account.GetValue())))
-        );
-
-        // clang-format on
-        if (auto updatedDocs = accountsCollection.update_one(findNewAccountDoc.view(), updateNewAccountDoc.view()); !updatedDocs->modified_count())
-        {
-            session.abort_transaction();
-            err = L"Character transfer failed on updating of target account!";
-        }
-        else if (updatedDocs = charactersCollection.update_one(findTransferredCharacterDoc.view(), clearCharacterTransferCodeDoc.view());
-                 !updatedDocs->modified_count())
-        {
-            session.abort_transaction();
-            err = L"Character transfer failed on updating of the character!";
-        }
-        else if (updatedDocs = accountsCollection.update_one(findOldAccountDoc.view(), updateOldAccountDoc.view()); !updatedDocs->modified_count())
-        {
-            session.abort_transaction();
-            err = L"Character transfer failed on updating of old account!";
-        }
-        else
-        {
-            session.commit_transaction();
-        }
-    }
-    catch (bsoncxx::exception& ex)
-    {
-        ERROR("BSON Error setting character transfer code {{characterName}} {{ex}}", { "characterName", charName }, { "ex", ex.what() });
-
-        err = L"Database error, report to server staff";
-        session.abort_transaction();
-    }
-    catch (mongocxx::exception& ex)
-    {
-        ERROR("MongoDB Error setting character transfer code {{characterName}} {{ex}}", { "characterName", charName }, { "ex", ex.what() });
-
-        err = L"Database error, report to server staff";
-        session.abort_transaction();
-    }
-
-    THREAD_MAIN;
-    co_return err;
 }

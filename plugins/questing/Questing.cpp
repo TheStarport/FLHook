@@ -176,7 +176,7 @@ namespace Plugins
         for (auto& [group, instance] : activeQuests)
         {
             if (instance->timeUntilCleanup != UINT_MAX && group == currentGroup.Unwrap().GetValue() &&
-                instance->questStarter == client.GetCharacterName().Handle())
+                instance->questStarter == client.GetCharacterId().Handle().GetValue())
             {
                 instance->timeUntilCleanup = 1; // Clean up now!
                 return;
@@ -228,7 +228,7 @@ namespace Plugins
             co_return;
         }
 
-        instance->questStarter = std::wstring(client.GetCharacterName().Handle());
+        instance->questStarter = std::wstring(client.GetCharacterId().Handle().GetValue());
 
         for (auto [key, value] : instance->lua["stages"].get<sol::table>())
         {

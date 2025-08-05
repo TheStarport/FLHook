@@ -39,11 +39,11 @@ std::optional<AccountId> AccountId::GetAccountFromClient(const ClientId client)
     return acc;
 }
 
-std::optional<AccountId> AccountId::GetAccountFromCharacterName(const std::wstring_view characterName)
+std::optional<AccountId> AccountId::GetAccountFromCharacterName(const CharacterId& characterName)
 {
     for (const auto& client : FLHook::Clients())
     {
-        if (client.characterName == characterName && client.account)
+        if (client.characterId == characterName && client.account)
         {
             AccountId acc;
             acc.accountId = client.account->_id;
@@ -55,7 +55,7 @@ std::optional<AccountId> AccountId::GetAccountFromCharacterName(const std::wstri
 
     const auto config = FLHook::GetConfig();
     auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-    const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName)));
+    const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName.GetValue())));
 
     mongocxx::options::find options;
     options.projection(B_MDOC(B_KVP("accountId", 1)));

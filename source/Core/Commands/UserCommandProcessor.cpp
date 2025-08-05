@@ -36,7 +36,7 @@ std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(c
         }
     }
 
-    const auto character = triggeringClient.GetCharacterName().Unwrap();
+    const auto character = triggeringClient.GetCharacterId().Unwrap();
 
     TRACE("UserCommandProcessor::ProcessCommand character={{character}} command={{command}}", { "character", character }, { "command", commandStr });
 
@@ -101,7 +101,7 @@ concurrencpp::result<void> UserCommandProcessor::SetDieMessage(const ClientId cl
     }
 
     auto dieMsgVal = StringUtils::wstos(magic_enum::enum_name(dieMsg));
-    Database::SaveValueOnAccount(client.GetAccount().Handle(), "dieMsg", { dieMsgVal });
+    // TODO REIMPLEMENT ACCOUNT SAVING Database::SaveValueOnAccount(client.GetAccount().Handle(), "dieMsg", { dieMsgVal });
 
     auto& info = client.GetData();
     info.dieMsg = dieMsg;
@@ -244,7 +244,7 @@ concurrencpp::result<void> UserCommandProcessor::ShowLastSender(const ClientId c
     const auto& info = client.GetData();
     if (info.lastPMSender.IsValidClientId())
     {
-        (void)client.Message(std::format(L"Last PM sender is {}", info.lastPMSender.GetCharacterName().Handle()));
+        (void)client.Message(std::format(L"Last PM sender is {}", info.lastPMSender.GetCharacterId().Handle()));
     }
     else
     {
@@ -303,7 +303,7 @@ concurrencpp::result<void> UserCommandProcessor::MessageTag(const ClientId clien
             continue;
         }
 
-        if (next.GetCharacterName().Handle().find(tag) != std::wstring_view::npos)
+        if (next.GetCharacterId().Handle().GetValue().find(tag) != std::wstring_view::npos)
         {
             foundTaggedPlayer = true;
             (void)next.MessageFrom(client, msg, L"00CCFF");
@@ -333,7 +333,7 @@ concurrencpp::result<void> UserCommandProcessor::SetSavedMsg(const ClientId clie
     auto c = client.GetData().characterData;
     auto orig = c->presetMsgs.at(index);
     c->presetMsgs.at(index) = StringUtils::wstos(msg.end);
-    if (AccountManager::SaveSavedMsgs(std::wstring(client.GetCharacterName().Handle()), c->presetMsgs))
+    if (AccountManager::SaveSavedMsgs(std::wstring(client.GetCharacterId().Handle().GetValue()), c->presetMsgs))
     {
         client.Message(L"Ok");
     }
@@ -394,7 +394,7 @@ concurrencpp::result<void> UserCommandProcessor::IgnoreUser(const ClientId clien
         }
     }
 
-    if (flags.find_first_of(L"i") == std::wstring::npos && !AccountId::GetAccountFromCharacterName(ignoredUser).has_value())
+    if (flags.find_first_of(L"i") == std::wstring::npos && !AccountId::GetAccountFromCharacterName(CharacterId{ ignoredUser }).has_value())
     {
         (void)client.Message(L"Target character not found");
         co_return;
@@ -443,7 +443,7 @@ concurrencpp::result<void> UserCommandProcessor::IgnoreClientId(const ClientId c
         co_return;
     }
 
-    auto character = StringUtils::ToLower(ignoredClient.GetCharacterName().Handle());
+    auto character = StringUtils::ToLower(ignoredClient.GetCharacterId().Handle().GetValue());
 
     IgnoreInfo ii;
     ii.character = character;
@@ -530,7 +530,7 @@ concurrencpp::result<void> UserCommandProcessor::GetClientIds(const ClientId cli
 {
     for (auto& next : FLHook::Clients())
     {
-        client.Message(std::format(L"| {} = {}", next.characterName, next.id));
+        client.Message(std::format(L"| {} = {}", next.characterId, next.id));
     }
 
     (void)client.Message(L"OK");
@@ -548,7 +548,7 @@ concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, c
 {
     const auto& [renameCost, cooldown] = FLHook::GetConfig()->rename;
 
-    if (newName.empty() || newName == client.GetCharacterName().Unwrap())
+    if (newName.empty() || newName == client.GetCharacterId().Unwrap().GetValue())
     {
         client.ToastMessage(L"Bad Name", L"A new name, that is not your current one, must be provided.", ToastType::Error);
         co_return;
@@ -575,9 +575,12 @@ concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, c
 
     if (renameCost)
     {
-        if (client.GetCash().Unwrap() < renameCost)
+        const auto currentCash = (co_await client.GetCharacterId().Handle().GetCash()).Handle();
+        THREAD_MAIN;
+
+        if (currentCash < renameCost)
         {
-            (void)client.MessageErr(L"Insufficient money!");
+            client.ToastMessage(L"Insufficient money!", L"You don't have enough money.", ToastType::Error);
             co_return;
         }
     }
@@ -607,24 +610,30 @@ concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, c
         (void)client.MessageErr(errMsg);
         co_return;
     }
-    std::wstring currName = client.GetCharacterName().Handle().data();
+
+    auto currCharacter = client.GetCharacterId().Handle();
 
     if (renameCost)
     {
-        if (client.GetCash().Handle() < renameCost)
+        const auto currentCash = (co_await client.GetCharacterId().Handle().GetCash()).Handle();
+
+        if (currentCash < renameCost)
         {
-            (void)client.MessageErr(L"Insufficient money!");
+            THREAD_MAIN;
+            client.ToastMessage(L"Insufficient money!", L"You don't have enough money.", ToastType::Error);
             co_return;
         }
 
-        (void)client.RemoveCash(renameCost);
+        (co_await currCharacter.RemoveCash(renameCost)).Handle();
     }
+
+    THREAD_MAIN;
 
     client.Message(L"Renaming, you will be kicked.");
     co_await FLHook::GetTaskScheduler()->Delay(5s);
     client.Kick();
     co_await FLHook::GetTaskScheduler()->Delay(0.5s);
-    co_await AccountManager::Rename(currName, newNameStr);
+    (co_await currCharacter.Rename(newNameStr)).Handle();
 }
 
 concurrencpp::result<void> UserCommandProcessor::InvitePlayer(const ClientId client, const ClientId otherClient)
@@ -662,7 +671,7 @@ concurrencpp::result<void> UserCommandProcessor::FactionInvite(const ClientId cl
 
     for (const auto& player : FLHook::Clients())
     {
-        if (StringUtils::ToLower(player.characterName).find(factionTagLower) == std::wstring::npos)
+        if (StringUtils::ToLower(player.characterId.GetValue()).find(factionTagLower) == std::wstring::npos)
         {
             continue;
         }
@@ -690,7 +699,7 @@ concurrencpp::result<void> UserCommandProcessor::TransferCharacter(const ClientI
     const auto db = FLHook::GetDbClient();
     if (cmd == L"clearcode")
     {
-        const std::wstring charName = client.GetCharacterName().Handle().data();
+        const std::wstring charName = client.GetCharacterId().Handle().GetValue().data();
         if (co_await AccountManager::ClearCharacterTransferCode(charName))
         {
             (void)client.Message(L"Character transfer code cleared");
@@ -702,7 +711,7 @@ concurrencpp::result<void> UserCommandProcessor::TransferCharacter(const ClientI
     }
     else if (cmd == L"setcode")
     {
-        const std::wstring charName = client.GetCharacterName().Handle().data();
+        const std::wstring charName = client.GetCharacterId().Handle().GetValue().data();
         if (param1.size() == 0)
         {
             (void)client.Message(L"Usage: /transferchar setcode <code>");
@@ -737,14 +746,15 @@ concurrencpp::result<void> UserCommandProcessor::TransferCharacter(const ClientI
         const std::wstring charName = std::wstring(param1);
         const std::wstring charCode = std::wstring(param2);
 
-        if (const auto err = co_await AccountManager::TransferCharacter(accountId, charName, charCode); !err.empty())
+        // TODO REIMPLEMENT USING CHARACTER ID
+        /*if (const auto err = co_await AccountManager::TransferCharacter(accountId, charName, charCode); !err.empty())
         {
             (void)client.MessageErr(err);
         }
         else
         {
             (void)client.Kick(L"Transferring the character.", 3);
-        }
+        }*/
     }
     else
     {
@@ -836,39 +846,42 @@ concurrencpp::result<void>UserCommandProcessor::ListMail(int pageNumber, std::ws
     }
 }*/
 
-// TODO: Implement GiveCash Target and by ID
-concurrencpp::result<void> UserCommandProcessor::GiveCash(const ClientId client, const std::wstring_view characterName, const std::wstring_view amount)
+concurrencpp::result<void> UserCommandProcessor::GiveCash(const ClientId client, const CharacterId targetCharacter, const std::wstring_view amount)
 {
-    // TODO: resolve sending money to offline people
-    const auto cash = StringUtils::MultiplyUIntBySuffix(amount);
-    const auto targetPlayer = ClientId(characterName);
-    const auto clientCash = client.GetCash().Unwrap();
+    const auto cash = StringUtils::MultiplyBySuffix<int>(amount);
+    const auto clientCharacter = client.GetCharacterId().Handle();
+    const auto clientCash = (co_await clientCharacter.GetCash()).Handle();
 
-    if (client == targetPlayer)
+    THREAD_MAIN;
+
+    if (clientCharacter == targetCharacter)
     {
-        (void)client.Message(L"Not sure this really accomplishes much... (Don't give cash to yourself.)");
+        client.ToastMessage(L"That Doesn't Make Sense", L"Not sure this really accomplishes much... (Don't give cash to yourself.)", ToastType::Warning);
         co_return;
     }
 
     if (cash == 0)
     {
-        (void)client.Message(std::format(L"Err: Invalid cash amount."));
+        client.ToastMessage(L"Invalid Input", L"Invalid cash amount", ToastType::Error);
         co_return;
     }
 
     if (clientCash < cash)
     {
-        (void)client.Message(std::format(L"Err: You do not have enough cash, you only have {}, and are trying to give {}.", clientCash, cash));
+        client.ToastMessage(L"Insufficient Money",
+                            std::format(L"Err: You do not have enough cash, you only have {}, and are trying to give {}.", clientCash, cash),
+                            ToastType::Error);
         co_return;
     }
 
-    client.RemoveCash(cash).Handle();
-    targetPlayer.AddCash(cash).Handle();
+    (co_await targetCharacter.AddCash(cash)).Handle();
+    (co_await clientCharacter.RemoveCash(cash)).Handle();
+
+    THREAD_MAIN;
 
     client.SaveChar().Handle();
-    targetPlayer.SaveChar().Handle();
 
-    co_return;
+    client.ToastMessage(L"Cash Sent", std::format(L"Cash sent to {} successfully", clientCharacter));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -963,12 +976,17 @@ concurrencpp::result<void> UserCommandProcessor::DropRep(const ClientId client)
 
     if (config.creditCost)
     {
-        if (const uint cash = client.GetCash().Handle(); cash < config.creditCost)
+        const auto character = client.GetCharacterId().Handle();
+
+        if (const uint cash = (co_await character.GetCash()).Handle(); cash < config.creditCost)
         {
+            THREAD_MAIN;
             (void)client.ToastMessage(L"Cannot Afford", std::format(L"Not enough money, {} credits required", config.creditCost), ToastType::Error);
             co_return;
         }
-        (void)client.RemoveCash(config.creditCost);
+
+        (co_await character.RemoveCash(config.creditCost)).Handle();
+        THREAD_MAIN;
     }
     const auto playerRep = client.GetReputation().Handle();
     const auto playerAffliation = playerRep.GetAffiliation().Handle();
@@ -1008,7 +1026,7 @@ concurrencpp::result<void> UserCommandProcessor::Dice(const ClientId client, uin
     }
 
     uint result = Random::Uniform(1u, sidesOfDice);
-    const std::wstring msg = std::format(L"{} has rolled {} out of {}", client.GetCharacterName().Handle(), result, sidesOfDice);
+    const std::wstring msg = std::format(L"{} has rolled {} out of {}", client.GetCharacterId().Handle(), result, sidesOfDice);
 
     if (client.IsDocked())
     {
@@ -1026,7 +1044,7 @@ concurrencpp::result<void> UserCommandProcessor::Coin(const ClientId client)
 {
     const uint result = Random::Uniform(0u, 1u);
 
-    const auto msg = std::format(L"{} tossed a coin, it landed on {}", client.GetCharacterName().Handle(), result ? L"heads" : L"tails");
+    const auto msg = std::format(L"{} tossed a coin, it landed on {}", client.GetCharacterId().Handle(), result ? L"heads" : L"tails");
 
     if (client.IsDocked())
     {
@@ -1055,8 +1073,8 @@ concurrencpp::result<void> UserCommandProcessor::MarkTarget(const ClientId clien
 
     uint targetShip = target.GetId().Unwrap().GetValue();
 
-    auto charName = client.GetCharacterName().Handle();
-    auto targetName = otherPlayer.GetCharacterName().Handle();
+    auto charName = client.GetCharacterId().Handle();
+    auto targetName = otherPlayer.GetCharacterId().Handle();
 
     // std::wstring message1 = std::format(L"Target: {}", targetName);
     const std::wstring message2 = std::format(L"{} has set {} as group target.", charName, targetName);

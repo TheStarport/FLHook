@@ -17,8 +17,9 @@ bool GoTradelaneCatch(ClientId client, const XGoTradelane& gtl)
 {
     uint system;
     pub::Player::GetSystem(client.GetValue(), system);
-    TRACE("GoTradelaneCatch characterName={{characterName}} system={{system}} tradelaneSpaceObj1={{tradelaneSpaceObj1}} tradelaneSpaceObj2={{tradelaneSpaceObj2}}",
-          { "characterName", std::wstring(client.GetCharacterName().Unwrap()) },
+    TRACE("GoTradelaneCatch characterName={{characterName}} system={{system}} tradelaneSpaceObj1={{tradelaneSpaceObj1}} "
+          "tradelaneSpaceObj2={{tradelaneSpaceObj2}}",
+          { "characterName", client.GetCharacterId().Unwrap().GetValue() },
           { "system", system },
           { "tradelaneSpaceObj1", gtl.tradelaneSpaceObj1 },
           { "tradelaneSpaceObj2", gtl.tradelaneSpaceObj2 });

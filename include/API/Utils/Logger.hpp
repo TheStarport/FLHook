@@ -63,8 +63,8 @@ struct JsonLogFormatter
 {
         static constexpr std::string_view EoLMarker = "\x18\x19"sv;
         using jsonVal = std::variant<std::int64_t, int, uint, std::uint64_t, DWORD, short, ushort, byte, char, double, float, bool, ClientId, SystemId, BaseId,
-                                     ShipId, ObjectId, RepGroupId, RepId, GoodId, Id, std::string, std::wstring, std::string_view, std::wstring_view,
-                                     const char*, const wchar_t*, char*, wchar_t*, Vector>;
+                                     ShipId, ObjectId, RepGroupId, RepId, GoodId, Id, CharacterId, std::string, std::wstring, std::string_view,
+                                     std::wstring_view, const char*, const wchar_t*, char*, wchar_t*, Vector>;
         std::unordered_map<std::string, jsonVal> members;
 
         JsonLogFormatter(const std::initializer_list<std::pair<const std::string, jsonVal>> il) : members{ il } {}
@@ -112,7 +112,7 @@ struct JsonLogFormatter
                         [&](wchar_t* arg) { os << std::quoted(StringUtils::wstos(arg)); },
                         [&](const wchar_t* arg) { os << std::quoted(StringUtils::wstos(arg)); },
                         [&](const Id arg) { os << std::quoted(getNickname(arg.GetValue())); },
-                        [&](const ClientId arg) { os << std::quoted(StringUtils::wstos(arg.GetCharacterName().Unwrap())); },
+                        [&](const ClientId arg) { os << std::quoted(StringUtils::wstos(arg.GetCharacterId().Unwrap().GetValue())); },
                         [&](const SystemId arg) { os << std::quoted(getNickname(arg.GetValue())); },
                         [&](const BaseId arg) { os << std::quoted(getNickname(arg.GetValue())); },
                         [&](const ShipId arg) { os << std::quoted(StringUtils::wstos(arg.GetNickName().Unwrap())); },
@@ -123,6 +123,7 @@ struct JsonLogFormatter
                         [&](const RepGroupId arg) { os << std::quoted(getNickname(arg.GetValue())); },
                         [&](const RepId arg) { os << std::quoted(getNickname(arg.GetValue())); },
                         [&](const GoodId arg) { os << std::quoted(getNickname(arg.GetHash().Unwrap().GetValue())); },
+                        [&](const CharacterId& arg) { os << std::quoted(StringUtils::wstos(arg.GetValue())); },
                         [&](const std::string& arg) { os << std::quoted(arg); },
                         [&](const std::string_view arg) { os << std::quoted(arg); },
                         [&](const std::wstring& arg) { os << std::quoted(StringUtils::wstos(arg)); },

@@ -217,7 +217,7 @@ namespace Plugins
                                             message2);
         }
 
-        for(const auto& clientData : FLHook::Clients())
+        for (const auto& clientData : FLHook::Clients())
         {
             const auto client = clientData.id;
             const bool isInvolved = involvedGroups.contains(client.GetGroup().Unwrap().GetValue()) || involvedPlayers.contains(client);
@@ -279,7 +279,7 @@ namespace Plugins
         std::set<ClientId> involvedPlayers;
 
         float totalDamageTaken = 0.0f;
-        for(const auto& clientData : FLHook::Clients())
+        for (const auto& clientData : FLHook::Clients())
         {
             const auto client = clientData.id;
             auto& damageData = damageArray[victim.GetValue()][client.GetValue()];
@@ -316,7 +316,7 @@ namespace Plugins
             return;
         }
 
-        auto victimName = victim.GetCharacterName().Handle();
+        auto victimName = victim.GetCharacterId().Handle();
 
         std::wstring deathMessage = SelectRandomDeathMessage(victim);
         std::wstring assistMessage;
@@ -337,7 +337,7 @@ namespace Plugins
 
             contributionPercentage *= 100;
 
-            std::wstring_view inflictorName = ClientId(i->second).GetCharacterName().Handle();
+            std::wstring_view inflictorName = ClientId(i->second).GetCharacterId().Handle().GetValue();
             if (killerCounter == 0)
             {
                 deathMessage = std::vformat(deathMessage, std::make_wformat_args(victimName, inflictorName, contributionPercentage));

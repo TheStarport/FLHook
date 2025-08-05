@@ -5,12 +5,12 @@
 class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, public AbstractAdminCommandProcessor
 {
         concurrencpp::result<void> SetCash(ClientId client, CharacterId character, uint amount);
-        concurrencpp::result<void> GetCash(ClientId client, std::wstring_view characterName);
-        concurrencpp::result<void> AddCash(ClientId client, std::wstring_view characterName, int amount);
+        concurrencpp::result<void> GetCash(ClientId client, CharacterId characterName);
+        concurrencpp::result<void> AddCash(ClientId client, CharacterId characterName, int amount);
         concurrencpp::result<void> KickPlayer(ClientId client, ClientId target, std::wstring_view reason);
-        concurrencpp::result<void> BanPlayer(ClientId client, std::wstring_view characterName);
-        concurrencpp::result<void> TempbanPlayer(ClientId client, std::wstring_view characterName, uint durationInDays);
-        concurrencpp::result<void> UnBanPlayer(ClientId client, std::wstring_view characterName);
+        concurrencpp::result<void> BanPlayer(ClientId client, CharacterId characterName);
+        concurrencpp::result<void> TempbanPlayer(ClientId client, CharacterId characterName, uint durationInDays);
+        concurrencpp::result<void> UnBanPlayer(ClientId client, CharacterId characterName);
         concurrencpp::result<void> GetClientId(ClientId client, ClientId target);
         concurrencpp::result<void> KillPlayer(ClientId client, ClientId target);
         concurrencpp::result<void> SetRep(ClientId client, ClientId target, RepGroupId repGroup, float value);
@@ -21,8 +21,8 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         concurrencpp::result<void> SendUniverseMessage(ClientId client, std::wstring_view text);
         concurrencpp::result<void> ListCargo(ClientId client, const ClientId target);
         concurrencpp::result<void> AddCargo(ClientId client, ClientId target, GoodInfo* good, std::optional<uint> count, std::optional<bool> mission);
-        concurrencpp::result<void> RenameChar(ClientId client, ClientId target, std::wstring_view newName);
-        concurrencpp::result<void> DeleteChar(ClientId client, std::wstring_view characterName);
+        concurrencpp::result<void> RenameChar(ClientId client, CharacterId targetCharacter, std::wstring_view newName);
+        concurrencpp::result<void> DeleteChar(ClientId client, CharacterId characterName);
         concurrencpp::result<void> GetPlayerInfo(ClientId client, const ClientId target);
         concurrencpp::result<void> AddRoles(ClientId client, const std::wstring_view target, std::vector<std::wstring_view> roles);
         concurrencpp::result<void> DeleteRoles(ClientId client, std::wstring_view characterName, std::vector<std::wstring_view> roles);

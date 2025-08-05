@@ -345,7 +345,7 @@ namespace Plugins
 
         if (data.targetClient && !graceful)
         {
-            data.targetClient.MessageErr(std::format(L"{} has aborted jump drive charge-up", client.GetCharacterName().Handle()));
+            data.targetClient.MessageErr(std::format(L"{} has aborted jump drive charge-up", client.GetCharacterId().Handle()));
             beaconData.find(data.targetClient)->second.incomingClients.erase(client);
         }
 
@@ -606,13 +606,13 @@ namespace Plugins
         if (!targetClientGroup)
         {
             client.MessageErr(
-                std::format(L"{} is not in a group! You and beacon jump target must be in the same group!", targetClient.GetCharacterName().Handle()));
+                std::format(L"{} is not in a group! You and beacon jump target must be in the same group!", targetClient.GetCharacterId().Handle()));
             return false;
         }
 
         if (currClientGroup != targetClientGroup)
         {
-            client.MessageErr(std::format(L"You and {} are not in the same group!", targetClient.GetCharacterName().Handle()));
+            client.MessageErr(std::format(L"You and {} are not in the same group!", targetClient.GetCharacterId().Handle()));
             return false;
         }
 
@@ -621,7 +621,7 @@ namespace Plugins
 
         if (beaconIter == beaconData.end())
         {
-            client.MessageErr(std::format(L"{} has no beacon installed!", targetClient.GetCharacterName().Handle()));
+            client.MessageErr(std::format(L"{} has no beacon installed!", targetClient.GetCharacterId().Handle()));
             return false;
         }
 
@@ -630,7 +630,7 @@ namespace Plugins
 
         if (!jumpRange.has_value() || jumpRange.value() > (jumpIter->second.jumpDriveInfo->jumpRange + beaconIter->second.beaconInfo->jumpRangeExtension))
         {
-            client.MessageErr(std::format(L"You cannot jump to {}.", targetClient.GetCharacterName().Handle()));
+            client.MessageErr(std::format(L"You cannot jump to {}.", targetClient.GetCharacterId().Handle()));
             return false;
         }
 
@@ -646,7 +646,7 @@ namespace Plugins
 
         if (CanBeaconJump(client, targetClient))
         {
-            client.Message(std::format(L"You can jump to {}.", targetClient.GetCharacterName().Handle()));
+            client.Message(std::format(L"You can jump to {}.", targetClient.GetCharacterId().Handle()));
         }
     }
 
@@ -656,8 +656,8 @@ namespace Plugins
 
         if (iter != pendingBeaconRequestMap.end())
         {
-            iter->second.MessageErr(std::format(L"Your beacon request to {} timed out", targetClient.GetCharacterName().Handle()));
-            targetClient.MessageErr(std::format(L"Beacon request from {} timed out", iter->second.GetCharacterName().Handle()));
+            iter->second.MessageErr(std::format(L"Your beacon request to {} timed out", targetClient.GetCharacterId().Handle()));
+            targetClient.MessageErr(std::format(L"Beacon request from {} timed out", iter->second.GetCharacterId().Handle()));
             pendingBeaconRequestMap.erase(iter);
         }
     }
@@ -676,8 +676,8 @@ namespace Plugins
 
         if (IsPlayerCloaked(targetClient))
         {
-            client.MessageErr(std::format(L"{} is cloaked, beacon is inoperable", targetClient.GetCharacterName().Handle()));
-            targetClient.MessageErr(std::format(L"{} attempted to request a beacon jump, but you're cloaked!", client.GetCharacterName().Handle()));
+            client.MessageErr(std::format(L"{} is cloaked, beacon is inoperable", targetClient.GetCharacterId().Handle()));
+            targetClient.MessageErr(std::format(L"{} attempted to request a beacon jump, but you're cloaked!", client.GetCharacterId().Handle()));
             co_return;
         }
 
@@ -690,12 +690,12 @@ namespace Plugins
                 co_return;
             }
 
-            client.MessageErr(std::format(L"Target client already has a pending beacon request from {}!", pendingRequest->second.GetCharacterName().Handle()));
+            client.MessageErr(std::format(L"Target client already has a pending beacon request from {}!", pendingRequest->second.GetCharacterId().Handle()));
             co_return;
         }
 
         targetClient.Message(std::format(L"{} is attempting a beacon jump. Accept the request by typing /jump accept within the next {} seconds.",
-                                         client.GetCharacterName().Handle(),
+                                         client.GetCharacterId().Handle(),
                                          config.beaconRequestTimeout / 1000));
 
         AddOneShotTimer([this, targetClient] { BeaconRequestTimeout(targetClient); }, config.beaconRequestTimeout);
@@ -719,8 +719,8 @@ namespace Plugins
 
         if (!CanBeaconJump(requestIter->second, client))
         {
-            client.MessageErr(std::format(L"You and {} are now of range for the beacon jump, aborting!", requestIter->second.GetCharacterName().Handle()));
-            requestIter->second.MessageErr(std::format(L"You and {} are now of range for the beacon jump, aborting!", client.GetCharacterName().Handle()));
+            client.MessageErr(std::format(L"You and {} are now of range for the beacon jump, aborting!", requestIter->second.GetCharacterId().Handle()));
+            requestIter->second.MessageErr(std::format(L"You and {} are now of range for the beacon jump, aborting!", client.GetCharacterId().Handle()));
             co_return;
         }
 
@@ -734,7 +734,7 @@ namespace Plugins
         if (!CheckFuel(client, beaconIter->second.beaconInfo->fuel, beaconIter->second.beaconInfo->fuelAmount))
         {
             client.MessageErr(L"You don't have enough fuel to accept the beacon request!");
-            requestIter->second.MessageErr(std::format(L"{} doesn't have enough fuel to accept the beacon request!", client.GetCharacterName().Handle()));
+            requestIter->second.MessageErr(std::format(L"{} doesn't have enough fuel to accept the beacon request!", client.GetCharacterId().Handle()));
             co_return;
         }
 

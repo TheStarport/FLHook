@@ -526,8 +526,8 @@ namespace Plugins
             {
                 if (client != sendToClientID)
                 {
-                    sendToClientID.Message(std::format(L"{} is mining into your cargo hold, but your ship is full!", client.GetCharacterName().Unwrap()));
-                    client.Message(std::format(L"{}'s cargo is now full.", sendToClientID.GetCharacterName().Unwrap()));
+                    sendToClientID.Message(std::format(L"{} is mining into your cargo hold, but your ship is full!", client.GetCharacterId().Unwrap()));
+                    client.Message(std::format(L"{}'s cargo is now full.", sendToClientID.GetCharacterId().Unwrap()));
                     pub::Player::SendNNMessage(client.GetValue(), config.insufficientCargoSound.GetValue());
                 }
                 else

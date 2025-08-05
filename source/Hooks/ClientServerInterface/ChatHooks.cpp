@@ -56,7 +56,7 @@ static bool ReplaceMessageTags(ClientId client, std::wstring& msg)
             return false;
         }
 
-        msg = StringUtils::ReplaceStr(msg, std::wstring_view(L"#t"), targetClient.GetCharacterName().Handle());
+        msg = StringUtils::ReplaceStr(msg, std::wstring_view(L"#t"), targetClient.GetCharacterId().Handle().GetValue());
     }
 
     if (msg.find(L"#c") != -1)
@@ -91,7 +91,7 @@ void SendClientSavedMsg(ClientId client, char destCode, uint msgIdx)
         return;
     }
 
-    const auto& sender = client.GetCharacterName().Handle();
+    const auto& sender = client.GetCharacterId().Handle();
     std::vector<ClientId> recipients;
     std::wstring colour;
     ShipId ourShip;
@@ -137,12 +137,10 @@ void SendClientSavedMsg(ClientId client, char destCode, uint msgIdx)
     }
     for (ClientId recipient : recipients)
     {
-        recipient.MessageCustomXml(std::format(
-            L"<TRA data=\"0xFFFFFF00\" mask=\"-1\"/><TEXT>{}: </TEXT><TRA data=\"0x{}00\" mask=\"-1\" /><TEXT>{}</TEXT>",
-            StringUtils::XmlText(sender),
-            colour,
-            StringUtils::XmlText(msg)
-        ));
+        recipient.MessageCustomXml(std::format(L"<TRA data=\"0xFFFFFF00\" mask=\"-1\"/><TEXT>{}: </TEXT><TRA data=\"0x{}00\" mask=\"-1\" /><TEXT>{}</TEXT>",
+                                               StringUtils::XmlText(sender.GetValue()),
+                                               colour,
+                                               StringUtils::XmlText(msg)));
     }
 }
 
@@ -171,7 +169,7 @@ bool IServerImplHook::SubmitChatInner(CHAT_ID from, ulong size, char* buffer, CH
         }
         else if (from.id)
         {
-            chatData.characterName = ClientId(from.id).GetCharacterName().Unwrap();
+            chatData.characterName = ClientId(from.id).GetCharacterId().Unwrap().GetValue();
         }
         else
         {

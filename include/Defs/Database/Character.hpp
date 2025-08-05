@@ -6,6 +6,10 @@
 #include <bsoncxx/builder/basic/document.hpp>
 #include <API/FLHook/BsonHelper.hpp>
 
+#include "SystemId.hpp"
+#include <FLCore/Common/EquipDesc.hpp>
+#include <FLCore/Common/MiscStructs.hpp>
+
 // Cargo is a namespace in Freelancer, appended with FL to avoid name conflicts
 DLL struct FLCargo
 {
@@ -17,6 +21,7 @@ DLL struct FLCargo
             health = f;
             isMissionCargo = b;
         };
+
         FLCargo(const EquipDesc& desc)
         {
             archId = desc.archId.GetValue();
@@ -25,10 +30,7 @@ DLL struct FLCargo
             amount = desc.count;
         }
 
-        B_VAL ToBson()
-        {
-            return B_MDOC(B_KVP("archId", archId), B_KVP("amount", amount), B_KVP("health", health), B_KVP("isMissionCargo", isMissionCargo));
-        }
+        B_VAL ToBson() { return B_MDOC(B_KVP("archId", archId), B_KVP("amount", amount), B_KVP("health", health), B_KVP("isMissionCargo", isMissionCargo)); }
 
         int archId;
         ushort amount;

@@ -34,7 +34,7 @@ std::shared_ptr<Timer> Timer::AddCron(const std::function<void()>& function, con
 
 std::shared_ptr<Timer> Timer::Add(const std::function<void()>& function, const uint intervalInMs)
 {
-    //TODO: Use chrono:: instead of uint
+    // TODO: Use chrono:: instead of uint
     auto ptr = std::make_shared<Timer>();
     ptr->func = function;
     ptr->interval = intervalInMs;
@@ -95,7 +95,7 @@ void FLHook::TimerCheckKick()
             if (config->autoKicks.antiCharMenuIdle)
             {
                 // anti charmenu-idle check
-                if (!client.characterName.empty())
+                if (client.characterId)
                 {
                     if (!client.charMenuEnterTime)
                     {

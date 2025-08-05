@@ -7,10 +7,6 @@
 #include <Psapi.h>
 #include <bsoncxx/json.hpp>
 
-
-
-
-
 void HttpServer::StartServer() const
 {
     const auto& config = FLHook::GetConfig();
@@ -53,7 +49,7 @@ httplib::StatusCode HttpServer::GetOnlinePlayers(const httplib::Request& req, ht
     B_ARR players;
     for (auto& client : FLHook::Clients())
     {
-        if (client.characterName.empty())
+        if (!client.characterId)
         {
             continue;
         }
@@ -63,7 +59,7 @@ httplib::StatusCode HttpServer::GetOnlinePlayers(const httplib::Request& req, ht
         // clang-format off
         players.append(B_MDOC(
             B_KVP("clientId", static_cast<int>(client.id.GetValue())),
-            B_KVP("playerName", StringUtils::wstos(client.characterName)),
+            B_KVP("playerName", StringUtils::wstos(client.characterId.GetValue())),
             B_KVP("systemName", system.GetValue() ? StringUtils::wstos(system.GetName().Unwrap()) : ""),
             B_KVP("systemNick", system.GetValue() ? StringUtils::wstos(system.GetNickName().Unwrap()) : ""),
             B_KVP("ipAddress", StringUtils::wstos(client.id.GetPlayerIp().Unwrap()))

@@ -22,7 +22,7 @@ bool IServerImplHook::GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId clien
             legalSell = true;
             if (abs(gsi.count) > cargo.count)
             {
-                auto charName = client.GetCharacterName().Handle();
+                auto charName = client.GetCharacterId().Handle();
                 // AddCheaterLog(charName, std::format(L"Sold more good than possible item={} count={}", gsi.archId, gsi.count));
 
                 FLHook::MessageUniverse(std::format(L"Possible cheating detected ({})", charName));
@@ -58,7 +58,7 @@ bool IServerImplHook::GFGoodSellInner(const SGFGoodSellInfo& gsi, ClientId clien
         }
     }
 
-    CatchHook({ TRACE("Exception {{client}} {{characterName}}", { "client", client }, { "characterName", client.GetCharacterName().Unwrap() }); });
+    CatchHook({ TRACE("Exception {{client}} {{characterName}}", { "client", client }, { "characterName", client.GetCharacterId().Unwrap() }); });
 
     return true;
 }
@@ -129,7 +129,7 @@ void __stdcall IServerImplHook::GFGoodBuy(const SGFGoodBuyInfo& unk1, ClientId c
 
     if (const bool innerCheck = GFGoodBuyInner(unk1, client); !innerCheck)
     {
-        WARN("{{characterName}} has attempted an impossible purchase", { "characterName", client.GetCharacterName().Unwrap() });
+        WARN("{{characterName}} has attempted an impossible purchase", { "characterName", client.GetCharacterId().Unwrap() });
         client.Kick();
         return;
     }

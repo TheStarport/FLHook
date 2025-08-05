@@ -30,7 +30,7 @@ Action<void> InternalApi::SendMessage(const ClientId to, const std::wstring_view
 {
     if (from)
     {
-        const auto fromName = StringUtils::ToLower(from.GetCharacterName().Unwrap());
+        const auto fromName = StringUtils::ToLower(from.GetCharacterId().Unwrap().GetValue());
         for (const auto& ignore : from.GetData().ignoreInfoList)
         {
             if (ignore.flags.find(L'p') != std::wstring::npos || (ignore.flags.find(L'i') && fromName.find(ignore.character)))

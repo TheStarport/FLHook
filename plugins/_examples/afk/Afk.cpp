@@ -10,7 +10,7 @@ namespace Plugins
     concurrencpp::result<void> AfkPlugin::UserCmdAfk(const ClientId client)
     {
         awayClients.emplace_back(client);
-        const auto playerName = client.GetCharacterName().Handle();
+        const auto playerName = client.GetCharacterId().Handle();
         const auto message = std::format(L"{} is now away from keyboard.", playerName);
 
         const auto system = client.GetSystemId().Handle();
@@ -28,7 +28,7 @@ namespace Plugins
 
             awayClients.erase(it);
 
-            auto playerName = client.GetCharacterName().Handle();
+            auto playerName = client.GetCharacterId().Handle();
 
             system.Message(std::format(L"{} has returned.", playerName), MessageColor::Red);
         }

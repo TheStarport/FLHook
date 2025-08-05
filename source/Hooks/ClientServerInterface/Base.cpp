@@ -14,12 +14,12 @@ void IServerImplHook::BaseEnterInnerAfter([[maybe_unused]] BaseId baseId, Client
 
         data.ship = {};
         // adjust cash, this is necessary when cash was added while use was in charmenu/had other char selected
-        const std::wstring charName = StringUtils::ToLower(client.GetCharacterName().Unwrap());
+        const std::wstring charName = StringUtils::ToLower(client.GetCharacterId().Unwrap().GetValue());
         for (const auto& i : data.moneyFix)
         {
             if (i.character == charName)
             {
-                client.AddCash(i.amount);
+                pub::Player::AdjustCash(client.GetValue(), i.amount);
                 data.moneyFix.remove(i);
                 break;
             }

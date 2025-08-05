@@ -13,6 +13,7 @@
 #include <string>
 
 class ShipId;
+class CharacterId;
 struct ClientData;
 class GroupId;
 
@@ -43,12 +44,12 @@ class DLL ClientId
         Action<void> AdjustCash(int amount) const;
 
         [[nodiscard]]
-        static ClientId GetClientIdFromCharacterName(std::wstring_view name);
+        static ClientId GetClientIdFromCharacterName(CharacterId name);
 
     public:
         explicit ClientId(const uint val) : value(val) {}
         explicit ClientId(const SpecialChatIds id) { value = static_cast<const uint>(id); }
-        explicit ClientId(const std::wstring_view str) : value(GetClientIdFromCharacterName(str)) {}
+        explicit ClientId(const std::wstring_view str);
         ClientId() = default;
         ClientId(const ClientId& client) = default;
 
@@ -79,7 +80,7 @@ class DLL ClientId
          * @returns On fail : Will return error code of character not selected if in character select.
          */
         [[nodiscard]]
-        Action<std::wstring_view> GetCharacterName() const;
+        Action<CharacterId> GetCharacterId() const;
 
         /**
          * @brief Gets the BaseId of the base the client is docked on if they are.
@@ -182,14 +183,6 @@ class DLL ClientId
          */
         [[nodiscard]]
         Action<int> GetPvpKills() const;
-
-        /**
-         * @brief Gets the cash of the character the player is logged in as.
-         * @returns On success : Returns cash as an unsigned int.
-         * @returns On fail : InCharacterSelect
-         */
-        [[nodiscard]]
-        Action<uint> GetCash() const;
 
         /**
          * @brief Gets the percentage of the ship health. Not guaranteed to be up to date when player is in space.
@@ -321,24 +314,6 @@ class DLL ClientId
          */
         Action<void> SetPvpKills(uint killAmount) const;
 
-        Action<void> SetCash(uint amount) const;
-
-        /**
-         * Adds specified amount of cash to the character the client is logged in as.
-         * @param amount the amount of cash you wish to add to the character.
-         * @returns On success : void
-         * @returns On fail : InCharacterSelect
-         */
-        Action<void> AddCash(uint amount) const;
-
-        /**
-         * Removes specified amount of cash to the character the client is logged in as.
-         * @param amount the amount of cash you wish to remove from the character.
-         * @returns On success : void
-         * @returns On fail : InCharacterSelect
-         */
-        Action<void> RemoveCash(uint amount) const;
-
         /**
          * Beams the character the client is logged on to a specified base, will fail if they are docked.
          * @param base either the BaseId or name of the base you wish to beam the client to.
@@ -346,15 +321,6 @@ class DLL ClientId
          * @returns On fail : InCharacterSelect or PlayerNotInSpace
          */
         Action<void> Beam(BaseId base) const;
-
-        /**
-         * Renames and kicks the character the player is logged in as.
-         * @param name the name you wish to rename the character to.
-         * @returns On success : void
-         * @returns On fail : InCharacterSelect.
-         */
-        // TODO: Implement Rename
-        Action<void> Rename(std::wstring_view name) const;
 
         /**
          * Marks a specific object to make it easier to notice among other targets.
@@ -427,12 +393,6 @@ class DLL ClientId
 
         Action<void> AddEquip(Id goodId, const std::wstring& hardpoint) const;
 
-        Action<void> AddCargo(Id goodId, uint count, bool isMission = false) const;
-
-        Action<void> RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const;
-
-        Action<void> Undock(Vector pos, std::optional<Matrix> orientation = std::nullopt) const;
-
         Action<void> PlayMusic(const pub::Audio::Tryptich& info) const;
 
         Action<void> PlaySound(Id hash) const;
@@ -470,6 +430,36 @@ class DLL ClientId
 
         Action<void> ToastMessage(std::wstring_view title, std::wstring_view message, ToastType type = ToastType::Info, int timeOut = 10000,
                                   bool withSeperator = true, bool sendMessageIfNoFluf = true) const;
+
+        Action<void> SetCash(uint amount) const;
+
+        /**
+         * Adds specified amount of cash to the character the client is logged in as.
+         * @param amount the amount of cash you wish to add to the character.
+         * @returns On success : void
+         * @returns On fail : InCharacterSelect
+         */
+        Action<void> AddCash(uint amount) const;
+
+        /**
+         * Removes specified amount of cash to the character the client is logged in as.
+         * @param amount the amount of cash you wish to remove from the character.
+         * @returns On success : void
+         * @returns On fail : InCharacterSelect
+         */
+        Action<void> RemoveCash(uint amount) const;
+
+        Action<void> AddCargo(Id goodId, uint count, bool isMission = false) const;
+
+        Action<void> RemoveCargo(rfl::Variant<GoodId, EquipmentId, ushort> goodId, uint count) const;
+
+        /**
+         * @brief Gets the cash of the character the player is logged in as.
+         * @returns On success : Returns cash as an unsigned int.
+         * @returns On fail : InCharacterSelect
+         */
+        [[nodiscard]]
+        Action<uint> GetCash() const;
 };
 
 template <>

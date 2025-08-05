@@ -22,7 +22,7 @@ namespace Plugins
             if (contestants.contains(client))
             {
                 contestants[client].loser = true;
-                (void)client.MessageLocal(std::format(L"{} has been knocked out the FFA.", client.GetCharacterName().Handle()), 100000);
+                (void)client.MessageLocal(std::format(L"{} has been knocked out the FFA.", client.GetCharacterId().Handle()), 100000);
             }
 
             // Is the FreeForAll over?
@@ -47,7 +47,7 @@ namespace Plugins
             {
                 // Announce and pay winner
                 (void)contestantId.AddCash(pot);
-                contestantId.MessageLocal(std::format(L"{} has won the FFA and receives {} credits", contestantId.GetCharacterName().Handle(), pot), 100000);
+                contestantId.MessageLocal(std::format(L"{} has won the FFA and receives {} credits", contestantId.GetCharacterId().Handle(), pot), 100000);
             }
             else
             {
@@ -121,7 +121,7 @@ namespace Plugins
             {
                 contestants[client2].accepted = false;
                 (void)client2.Message(std::format(L"{} has started a Free-For-All tournament. Cost to enter is {} credits. Type \"/acceptffa\" to enter.",
-                                                  client2.GetCharacterName().Handle(),
+                                                  client2.GetCharacterId().Handle(),
                                                   amount));
             }
         }
@@ -178,7 +178,7 @@ namespace Plugins
             loser = false;
             pot = pot + entryAmount;
             client.Message(std::format(L"{} credits have been deducted from your Neural Net account.", entryAmount));
-            client.MessageLocal(std::format(L"{} has joined the FFA. Pot is now at {}", client.GetCharacterName().Handle(), pot), 100000);
+            client.MessageLocal(std::format(L"{} has joined the FFA. Pot is now at {}", client.GetCharacterId().Handle(), pot), 100000);
 
             // Deduct cash
             (void)client.RemoveCash(entryAmount);
@@ -220,7 +220,7 @@ namespace Plugins
             {
                 // Prepare and send message
                 clientKiller.MessageLocal(
-                    std::format(L"{} has won a duel against {}", clientKiller.GetCharacterName().Handle(), client.GetCharacterName().Handle()), 10000);
+                    std::format(L"{} has won a duel against {}", clientKiller.GetCharacterId().Handle(), client.GetCharacterId().Handle()), 10000);
 
                 // Change cash
                 clientKiller.AddCash(duel->betAmount);
@@ -292,7 +292,7 @@ namespace Plugins
 
         // Message players
         client.MessageLocal(
-            std::format(L"{} has challenged {} to a duel for {} credits", client.GetCharacterName().Handle(), targetClient.GetCharacterName().Handle(), amount),
+            std::format(L"{} has challenged {} to a duel for {} credits", client.GetCharacterId().Handle(), targetClient.GetCharacterId().Handle(), amount),
             10000);
         targetClient.Message(L"Type \"/acceptduel\" to accept.");
     }
@@ -334,7 +334,7 @@ namespace Plugins
             accepted = true;
             (void)client.MessageLocal(
                 std::format(
-                    L"{} has accepted the duel with {} for {} credits.", client.GetCharacterName().Handle(), client1.GetCharacterName().Handle(), betAmount),
+                    L"{} has accepted the duel with {} for {} credits.", client.GetCharacterId().Handle(), client1.GetCharacterId().Handle(), betAmount),
                 10000);
             co_return;
         }

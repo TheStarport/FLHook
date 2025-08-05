@@ -14,10 +14,7 @@ namespace Plugins
     }
     void RacingPlugin::UnfreezePlayer(ClientId client) {}
     void RacingPlugin::FreezePlayer(ClientId client, float time, bool instantStop) {}
-    void RacingPlugin::SaveScoreboard()
-    {
-        Json::Save(scoreboard, scoreboardPath);
-    }
+    void RacingPlugin::SaveScoreboard() { Json::Save(scoreboard, scoreboardPath); }
 
     concurrencpp::result<void> RacingPlugin::UserCmdRaceHelp(ClientId client)
     {
@@ -124,7 +121,7 @@ namespace Plugins
         }
 
         auto& race = regIter->second->race;
-        client.Message(std::format(L"Host: {}", client.GetCharacterName().Handle()));
+        client.Message(std::format(L"Host: {}", client.GetCharacterId().Handle()));
 
         client.Message(std::format(L"Track: {}", race->raceArch->raceName));
         client.Message(std::format(L"Laps: {}", race->loopCount));
@@ -184,14 +181,13 @@ namespace Plugins
             race->cashPool -= racer->pool;
             client.Message(L"Withdrawn from the race, credits refunded");
 
-            NotifyPlayers(race,
-                          client,
-                          std::format(L"{} has withdrawn from the race, race credit pool reduced to {}", client.GetCharacterName().Handle(), race->cashPool));
+            NotifyPlayers(
+                race, client, std::format(L"{} has withdrawn from the race, race credit pool reduced to {}", client.GetCharacterId().Handle(), race->cashPool));
         }
         else
         {
             client.Message(L"Withdrawn from the race");
-            NotifyPlayers(race, client, std::format(L"{} has withdrawn from the race", client.GetCharacterName().Handle()));
+            NotifyPlayers(race, client, std::format(L"{} has withdrawn from the race", client.GetCharacterId().Handle()));
         }
 
         if (racer->participantType == Participant::Racer)
@@ -294,7 +290,7 @@ namespace Plugins
 
         CreateRace(client, raceIter->second, 0, 1, spectate);
 
-        raceIter->second.startingSystem.Message(std::format(L"New race: {} started by {}!", raceIter->second.raceName, client.GetCharacterName().Handle()));
+        raceIter->second.startingSystem.Message(std::format(L"New race: {} started by {}!", raceIter->second.raceName, client.GetCharacterId().Handle()));
 
         co_return;
     }
@@ -649,11 +645,8 @@ namespace Plugins
 
         auto distance = std::distance(trackScoreboard.begin(), trackScoreboard.find(time));
 
-        ClientId().Message(std::format(L"{} has scored a new highscore on {} leaderboard: #{} - {:.3f}s",
-                                       racer->racerName,
-                                       racer->race->raceArch->raceName,
-                                       distance + 1,
-                                       time));
+        ClientId().Message(std::format(
+            L"{} has scored a new highscore on {} leaderboard: #{} - {:.3f}s", racer->racerName, racer->race->raceArch->raceName, distance + 1, time));
     }
 
     void RacingPlugin::ProcessWinner(std::shared_ptr<Racer> racer, bool isWinner, mstime currTime)
@@ -760,7 +753,7 @@ namespace Plugins
         racer->participantType = spectator ? Participant::Spectator : Participant::Racer;
         racer->pool = initialPool;
         race->cashPool += initialPool;
-        racer->racerName = client.GetCharacterName().Handle();
+        racer->racerName = client.GetCharacterId().Handle().GetValue();
         racer->race = race;
 
         race->participants[client] = racer;

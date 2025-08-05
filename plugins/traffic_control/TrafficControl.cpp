@@ -124,7 +124,7 @@ void TrafficControlPlugin::AddShipCargoSnapshot(ClientId client)
     auto ship = client.GetShip().Handle();
 
     clientData.scanCache.clear();
-    clientData.scanCache.emplace_back(std::format(L"Scan snapshot of {}:", client.GetCharacterName().Handle()));
+    clientData.scanCache.emplace_back(std::format(L"Scan snapshot of {}:", client.GetCharacterId().Handle()));
     clientData.scanCache.emplace_back(std::format(L"Ship: {}", FLHook::GetInfocardManager()->GetInfoName(ship.GetArchetype().Handle()->idsName)));
 
     auto* shipEqManager = ship.GetEquipmentManager().Handle();
@@ -160,7 +160,7 @@ void TrafficControlPlugin::OnTradelaneStart(ClientId client, const XGoTradelane&
             SystemId clientSystem = notifiedClient.first.GetSystemId().Handle();
             notifiedClient.first.Message(
                 std::format(L"{} has entered tradelane in {} system, sector {}",
-                            client.GetCharacterName().Handle(),
+                            client.GetCharacterId().Handle(),
                             clientSystem.GetName().Handle(),
                             clientSystem.PositionToSectorCoord(notifiedClient.first.GetShip().Handle().GetPositionAndOrientation().Handle().first).Handle()));
         }

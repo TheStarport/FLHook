@@ -115,7 +115,7 @@ namespace Plugins
         for (auto& client : FLHook::Clients())
         {
             auto system = client.id.GetSystemId().Unwrap();
-            if (client.characterName.empty() || system != config.targetSystem)
+            if (!client.characterId || system != config.targetSystem)
             {
                 continue;
             }
@@ -126,12 +126,12 @@ namespace Plugins
                 continue;
             }
 
-            auto ship = shipRaw.value();
+            auto* ship = shipRaw.value();
 
             // clang-format off
             players.append(B_MDOC(
                 B_KVP("clientId", static_cast<int>(client.id.GetValue())),
-                B_KVP("playerName", StringUtils::wstos(client.characterName)),
+                B_KVP("playerName", StringUtils::wstos(client.characterId.GetValue())),
                 B_KVP("shipNick", InternalApi::HashLookup(ship->archId.GetValue())),
                 B_KVP("shipName", StringUtils::wstos(FLHook::GetInfocardManager()->GetInfoName(ship->idsName)))
             ));
@@ -201,7 +201,7 @@ namespace Plugins
         {
             return;
         }
-        
+
         int value = static_cast<int>(data->second.returnBase.GetValue());
         B_ARR commodityArray;
         for (auto& entry : data->second.storedCargo)

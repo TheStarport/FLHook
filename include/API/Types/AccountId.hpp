@@ -1,4 +1,5 @@
 #pragma once
+#include "CharacterId.hpp"
 
 class DLL AccountId final
 {
@@ -11,7 +12,7 @@ class DLL AccountId final
         explicit AccountId() = default;
 
         static std::optional<AccountId> GetAccountFromClient(ClientId client);
-        static std::optional<AccountId> GetAccountFromCharacterName(std::wstring_view characterName);
+        static std::optional<AccountId> GetAccountFromCharacterName(const CharacterId& characterName);
         static std::optional<AccountId> GetAccountFromAccountId(std::wstring_view accountId);
 
         bool operator==(const AccountId& acc) const { return accountId == acc.accountId; }

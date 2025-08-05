@@ -32,7 +32,7 @@ namespace Plugins
             for (const auto& [issuer, target, cash, end] : bounties)
             {
                 (void)client.Message(std::format(L"Kill {} and earn {} credits ({} minutes left)",
-                                                 issuer.GetCharacterName().Unwrap(),
+                                                 issuer.GetCharacterId().Unwrap(),
                                                  cash,
                                                  (end - TimeUtils::UnixTime<std::chrono::seconds>()) / 60));
             }
@@ -117,7 +117,7 @@ namespace Plugins
                     (void)bountyIter->issuer.AddCash(bountyIter->cash);
 
                     (void)FLHook::MessageUniverse(
-                        std::format(L"{} was not hunted down and earned {} credits.", bountyIter->target.GetCharacterName().Handle(), bountyIter->cash));
+                        std::format(L"{} was not hunted down and earned {} credits.", bountyIter->target.GetCharacterId().Handle(), bountyIter->cash));
                     bountyIter = bounty.erase(bountyIter);
                 }
                 else
@@ -133,10 +133,10 @@ namespace Plugins
      */
     void BountyHuntPlugin::BillCheck(const ClientId client, const ClientId killer)
     {
-        auto victimName = client.GetCharacterName().Unwrap();
+        auto victimName = client.GetCharacterId().Unwrap();
         if (!killer || client == killer)
         {
-            (void)FLHook::MessageUniverse(std::format(L"The hunt for {} still goes on.", client.GetCharacterName().Unwrap()));
+            (void)FLHook::MessageUniverse(std::format(L"The hunt for {} still goes on.", client.GetCharacterId().Unwrap()));
             return;
         }
         const auto bountyRewards = ClearPlayerOfBounties(client);
@@ -147,7 +147,7 @@ namespace Plugins
             reward += payout;
         }
         (void)killer.AddCash(reward);
-        auto killerName = killer.GetCharacterName().Unwrap();
+        auto killerName = killer.GetCharacterId().Unwrap();
         (void)FLHook::MessageUniverse(std::format(L"{} has killed {} and earned {} credits", killerName, victimName, reward));
     }
 
@@ -167,7 +167,7 @@ namespace Plugins
         }
 
         const auto refunds = ClearPlayerOfBounties(client);
-        (void)FLHook::MessageUniverse(std::format(L"The coward {} has fled. Issuers of this bounty have been refunded.", client.GetCharacterName().Unwrap()));
+        (void)FLHook::MessageUniverse(std::format(L"The coward {} has fled. Issuers of this bounty have been refunded.", client.GetCharacterId().Unwrap()));
 
         for (const auto& [client, refund] : refunds)
         {

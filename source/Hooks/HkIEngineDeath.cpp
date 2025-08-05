@@ -43,8 +43,7 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, Destro
     ClientId victimClientId;
     if (destroyType == DestroyType::Vanish || !(victimClientId = ClientId(ship->cship()->GetOwnerPlayer())).IsValidClientId())
     {
-        static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(
-            ship, destroyType, killerId);
+        static_cast<IShipDestroyType>(iShipVTable.GetOriginal(static_cast<ushort>(IShipInspectVTable::ObjectDestroyed)))(ship, destroyType, killerId);
         return;
     }
 
@@ -62,7 +61,7 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, Destro
     const auto& msgConfig = FLHook::GetConfig()->chatConfig.msgStyle;
     std::wstring deathMessage;
 
-    std::wstring_view victimName = victimClientId.GetCharacterName().Handle();
+    std::wstring_view victimName = victimClientId.GetCharacterId().Handle().GetValue();
     // If killed by another player
     if (!dmgList)
     {
@@ -98,7 +97,7 @@ void __fastcall IEngineHook::ShipDestroy(Ship* ship, DamageList* dmgList, Destro
         }
         else
         {
-            std::wstring_view view = killerClientId.GetCharacterName().Unwrap();
+            std::wstring_view view = killerClientId.GetCharacterId().Unwrap().GetValue();
             deathMessage = std::vformat(msgConfig.deathMsgTextPlayerKill, std::make_wformat_args(victimName, killType, view));
         }
     }
@@ -172,8 +171,7 @@ void __fastcall IEngineHook::GuidedDestroy(Guided* guided, void* edx, DestroyTyp
     CallPlugins(&Plugin::OnGuidedDestroy, guided, destroyType, killerId.AsShip());
 
     using IGuidedDestroyType = void(__thiscall*)(Guided*, DestroyType, Id);
-    static_cast<IGuidedDestroyType>(iGuidedVTable.GetOriginal(static_cast<ushort>(IGuidedInspectVTable::ObjectDestroyed)))(
-        guided, destroyType, killerId);
+    static_cast<IGuidedDestroyType>(iGuidedVTable.GetOriginal(static_cast<ushort>(IGuidedInspectVTable::ObjectDestroyed)))(guided, destroyType, killerId);
 }
 
 void IEngineHook::SendDeathMessage(const std::wstring& msg, SystemId systemId, ClientId clientVictim, ClientId clientKiller)

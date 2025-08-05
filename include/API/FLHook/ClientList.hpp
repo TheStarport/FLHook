@@ -9,7 +9,7 @@ struct ClientData
         Character* characterData = nullptr;
         ClientId id;
         DbAccount* account = nullptr;
-        std::wstring_view characterName{};
+        CharacterId characterId{};
         PlayerData* playerData = nullptr;
         bool isValid = false;
         bool usingFlufClientHook = false;

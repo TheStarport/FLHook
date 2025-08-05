@@ -368,8 +368,7 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
         return LoginReturnCode::InvalidUsernamePassword;
     }
 
-    if (account.account.banned && account.account.scheduledUnbanDate &&
-        account.account.scheduledUnbanDate <= TimeUtils::UnixTime<std::chrono::seconds>())
+    if (account.account.banned && account.account.scheduledUnbanDate && account.account.scheduledUnbanDate <= TimeUtils::UnixTime<std::chrono::seconds>())
     {
         account.account.banned = false;
         AccountId::GetAccountFromAccountId(StringUtils::stows(account.account._id)).value().UnBan();
@@ -656,7 +655,7 @@ void UpdateCharacterCache(PlayerData* pd, CharacterData* cd)
 bool AccountManager::OnPlayerSave(PlayerData* pd)
 {
     auto& client = FLHook::GetClient(ClientId(pd->clientId));
-    if (client.characterName.empty() || !pd->systemId)
+    if (!client.characterId || !pd->systemId)
     {
         return true;
     }
@@ -667,7 +666,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     auto playerMapCache = pd->characterMap.find(client.playerData->charFile);
     if (playerMapCache == pd->characterMap.end())
     {
-        ERROR("Fetching Base Status failed for {{characterName}}", { "characterName", client.characterName });
+        ERROR("Fetching Base Status failed for {{characterName}}", { "characterName", client.characterId });
         return true;
     }
 
@@ -677,7 +676,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     auto mdataIter = mdataBST->find(pd->clientId);
     if (mdataIter == mdataBST->end())
     {
-        ERROR("Fetching mPlayer data failed for {{characterName}}", { "characterName", client.characterName });
+        ERROR("Fetching mPlayer data failed for {{characterName}}", { "characterName", client.characterId });
         return true;
     }
 
@@ -778,7 +777,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     character.collisionGroups.clear();
     character.baseCollisionGroups.clear();
 
-    character.characterName = StringUtils::wstos(client.characterName);
+    character.characterName = StringUtils::wstos(client.characterId.GetValue());
     character.shipHash = pd->shipArchetype;
     character.money = pd->money;
     character.killCount = pd->numKills;

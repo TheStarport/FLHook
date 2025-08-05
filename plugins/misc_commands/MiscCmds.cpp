@@ -52,7 +52,7 @@ namespace Plugins
         }
 
         // output
-        client.Message(std::format(L"{} - {}", targetClient.GetCharacterName().Handle(), targetShipArchName));
+        client.Message(std::format(L"{} - {}", targetClient.GetCharacterId().Handle(), targetShipArchName));
         client.Message(std::format(L"{} - {}", targetId, target.GetReputation().Handle().GetAffiliation().Handle().GetName().Handle()));
         client.Message(std::format(L"System - {}", target.GetSystem().Handle().GetName().Handle()));
         client.Message(std::format(L"Finished bounty scan at {}", TimeUtils::CurrentDateTimeString()));

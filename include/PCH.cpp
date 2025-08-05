@@ -39,7 +39,7 @@ ClientId TransformArg(const std::wstring_view s, const size_t paramNumber)
 
     for (auto& client : FLHook::Clients())
     {
-        if (client.characterName == s)
+        if (client.characterId.GetValue() == s)
         {
             return client.id;
         }
