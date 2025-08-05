@@ -2,6 +2,7 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/TaskScheduler.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 TaskScheduler::TaskScheduler()
 {

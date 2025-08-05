@@ -2,6 +2,7 @@
 
 #include "Utils/Detour.hpp"
 
+class Plugin;
 class IEngineHook;
 class DLL ResourceManager final
 {
@@ -64,7 +65,7 @@ class DLL ResourceManager final
         const inline static auto findIObjFunc = reinterpret_cast<FindIObjInSystem>(0x6D0C840);
         const inline static auto CObjListFind = reinterpret_cast<CObjListFunc>(0x62AE690);
         const inline static auto removeCObjNode = reinterpret_cast<RemoveCobjFromVector>(0x62AF830);
-        
+
         inline static std::unordered_map<CObject*, CObjNode*> cMineMap;
         inline static std::unordered_map<CObject*, CObjNode*> cCmMap;
         inline static std::unordered_map<CObject*, CObjNode*> cBeamMap;
@@ -134,8 +135,8 @@ class DLL ResourceManager final
 
         inline static std::unordered_map<uint, ClientId> npcToLastAttackingPlayerMap;
         inline static std::unordered_map<Plugin*, std::vector<Id>> spawnedIdsPerPlugin;
-    public:
 
+    public:
         struct DLL SpaceObjectBuilder
         {
                 struct Fuse

@@ -3,6 +3,8 @@
 #include "API/InternalApi.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "FLCore/FLCoreRemoteClient.h"
 #include "Utils/Detour.hpp"
 
 Action<void> InternalApi::FMsgEncodeXml(std::wstring_view xml, char* buffer, const uint size, uint& ret)

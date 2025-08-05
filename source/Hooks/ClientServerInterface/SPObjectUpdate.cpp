@@ -3,7 +3,11 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "API/Utils/Logger.hpp"
+
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 bool SPObjUpdateInner(const SSPObjUpdateInfo& ui, ClientId client)
 {

@@ -3,6 +3,8 @@
 #include "API/FLHook/ClientList.hpp"
 #include "Tax.hpp"
 
+#include "Defs/FLHookConfig.hpp"
+
 using namespace Plugins;
 
 void TaxPlugin::RemoveTax(const Tax& toRemove)

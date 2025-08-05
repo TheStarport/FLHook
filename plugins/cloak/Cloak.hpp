@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/Plugin.hpp"
 #include "Core/Commands/AbstractAdminCommandProcessor.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
@@ -130,7 +131,7 @@ namespace Plugins
             void OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList) override;
             void OnPlayerLaunch(ClientId client, const ShipId& ship) override;
 
-            #ifdef CLOAK_PLUGIN
+#ifdef CLOAK_PLUGIN
             // clang-format off
             inline static const std::array<CommandInfo<CloakPlugin>, 2> commands =
             {
@@ -152,7 +153,7 @@ namespace Plugins
             // clang-format on
 
             SetupAdminCommandHandler(CloakPlugin, adminCommands);
-            #endif
+#endif
         public:
             explicit CloakPlugin(const PluginInfo& info);
 

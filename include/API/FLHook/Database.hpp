@@ -91,12 +91,3 @@ class DLL DatabaseQuery
 
         void ConcludeQuery(bool commitChanges);
 };
-
-enum class MongoResult
-{
-    UnknownFailure,
-    FindFailure,
-    MatchButNoChange,
-    Success,
-    PerformedSynchronously,
-};

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/Plugin.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 enum class Permissions

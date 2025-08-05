@@ -3,6 +3,7 @@
 #include "API/Types/ShipId.hpp"
 
 #include "API/FLHook/ResourceManager.hpp"
+#include "FLCore/FLCoreRemoteClient.h"
 
 #include <glm/gtc/quaternion.hpp>
 
@@ -10,7 +11,7 @@
     auto ship = std::dynamic_pointer_cast<CShip>(value.lock()); \
     if (!ship)                                                  \
     {                                                           \
-        return { cpp::fail(Error::InvalidEquipment) };              \
+        return { cpp::fail(Error::InvalidEquipment) };          \
     }
 
 ShipId::ShipId(const uint val) { value = FLHook::GetResourceManager()->Get<CShip>(val); }
@@ -272,7 +273,7 @@ Action<void> ShipId::Relocate(std::optional<Vector> pos, const std::optional<Mat
             targetPos.x += currPos.x;
             targetPos.y += currPos.y;
             targetPos.z += currPos.z;
-            pos = {targetPos};
+            pos = { targetPos };
         }
 
         FLPACKET_LAUNCH launch;

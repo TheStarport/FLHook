@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/Plugin.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 #include <httplib.h>
@@ -147,10 +148,10 @@ namespace Plugins
             /**
              * @brief Used to return from the arena system.
              */
-            concurrencpp::result<void> UserCmdJump(ClientId client, std::optional<SystemId> system );
+            concurrencpp::result<void> UserCmdJump(ClientId client, std::optional<SystemId> system);
             concurrencpp::result<void> UserCmdJumpList(ClientId client);
             concurrencpp::result<void> UserCmdJumpStop(ClientId client);
-            concurrencpp::result<void> UserCmdJumpSectors(ClientId client, std::optional<SystemId> system );
+            concurrencpp::result<void> UserCmdJumpSectors(ClientId client, std::optional<SystemId> system);
             concurrencpp::result<void> UserCmdJumpBlind(ClientId client);
             concurrencpp::result<void> UserCmdCanJump(ClientId client, SystemId targetSystem);
             concurrencpp::result<void> UserCmdCanBeacon(ClientId client, ClientId targetClient);
@@ -167,8 +168,8 @@ namespace Plugins
             void OnRequestCancel(ClientId client, EventRequestType eventType, const ShipId& ship, const ObjectId& dockTarget, const uint unk1) override;
             void OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList) override;
             void OnSystemSwitchOutPacketAfter(ClientId client, FLPACKET_SYSTEM_SWITCH_OUT& packet) override;
-            
-            #ifdef HYPERJUMP_PLUGIN
+
+#ifdef HYPERJUMP_PLUGIN
             // clang-format off
             inline static const std::array<CommandInfo<HyperjumpPlugin>, 10> commands =
             {
@@ -186,8 +187,8 @@ namespace Plugins
                 }
             };
             SetupUserCommandHandler(HyperjumpPlugin, commands);
-            // clang-format on
-            #endif
+// clang-format on
+#endif
 
         public:
             explicit HyperjumpPlugin(const PluginInfo& info);

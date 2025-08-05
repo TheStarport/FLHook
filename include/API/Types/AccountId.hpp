@@ -1,6 +1,6 @@
 #pragma once
-#include "CharacterId.hpp"
 
+class CharacterId;
 class DLL AccountId final
 {
         std::string accountId;

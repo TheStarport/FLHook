@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/Plugin.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 namespace Plugins
@@ -68,8 +69,8 @@ namespace Plugins
                     bool f1 = false;
             };
 
-            concurrencpp::result<void>UserCmdTax(ClientId client, std::wstring_view taxAmount);
-            concurrencpp::result<void>UserCmdPay(ClientId client);
+            concurrencpp::result<void> UserCmdTax(ClientId client, std::wstring_view taxAmount);
+            concurrencpp::result<void> UserCmdPay(ClientId client);
             void RemoveTax(const Tax& toRemove);
             void FiveSecondTimer();
 
@@ -93,4 +94,4 @@ namespace Plugins
             explicit TaxPlugin(const PluginInfo& info);
             ~TaxPlugin() override;
     };
-}
+} // namespace Plugins

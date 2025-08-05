@@ -4,14 +4,13 @@
 
 #include <bsoncxx/oid.hpp>
 #include <bsoncxx/builder/basic/document.hpp>
-#include <API/FLHook/BsonHelper.hpp>
 
-#include "SystemId.hpp"
+#include <API/FLHook/BsonHelper.hpp>
 #include <FLCore/Common/EquipDesc.hpp>
 #include <FLCore/Common/MiscStructs.hpp>
 
 // Cargo is a namespace in Freelancer, appended with FL to avoid name conflicts
-DLL struct FLCargo
+struct DLL FLCargo
 {
         FLCargo() = default;
         FLCargo(int i, ushort u, float f, bool b)

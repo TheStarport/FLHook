@@ -4,6 +4,10 @@
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 void IServerImplHook::LaunchCompleteInner(BaseId, const ShipId& shipId)
 {

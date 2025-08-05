@@ -3,6 +3,9 @@
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 void __stdcall IServerImplHook::JumpInComplete(SystemId systemId, Id shipId)
 {

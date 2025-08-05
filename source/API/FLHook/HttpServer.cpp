@@ -3,6 +3,9 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/HttpServer.hpp"
 #include "API/InternalApi.hpp"
+#include "API/FLHook/Plugin.hpp"
+#include "Core/PluginManager.hpp"
+#include "Defs/FLHookConfig.hpp"
 
 #include <Psapi.h>
 #include <bsoncxx/json.hpp>

@@ -30,6 +30,7 @@
 #include <string>
 #include <thread>
 #include <tuple>
+#include <unordered_set>
 #include <unordered_map>
 #include <utility>
 #include <variant>
@@ -71,7 +72,6 @@ using namespace std::chrono_literals;
 #include "Utils/Utils.hpp"
 
 #include "API/Types/Id.hpp"
-
 #include "API/Types/ClientId.hpp"
 #include "API/Types/SystemId.hpp"
 #include "API/Types/GoodId.hpp"
@@ -79,27 +79,15 @@ using namespace std::chrono_literals;
 #include "API/Types/RepGroupId.hpp"
 #include "API/Types/RepId.hpp"
 #include "API/Types/ShipId.hpp"
-
 #include "API/Types/BaseId.hpp"
 #include "API/Types/ObjectId.hpp"
 #include "API/Types/EquipmentId.hpp"
-
 #include "API/Types/CharacterId.hpp"
 
 #include "API/Utils/Reflection.hpp" // For reflectiong custom types with rfl
-#include "FLCore/Common.hpp"
-#include "FLCore/FLCoreDALib.h"
-#include "FLCore/FLCoreServer.h"
-
-#include "FLCore/FLCoreRemoteClient.h"
-
 #include "API/Utils/TransformArgs.hpp"
 
-#include "Defs/SehException.hpp"
-
-#include "Defs/FLHookConfig.hpp"
-
-#include "Core/PluginManager.hpp"
+#include "API/Utils/Logger.hpp"
 
 namespace Json
 {

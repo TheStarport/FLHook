@@ -4,6 +4,11 @@
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
+
 void __stdcall IServerImplHook::MineAsteroid(SystemId systemId, const Vector& pos, Id crateId, Id lootId, uint count, ClientId client)
 {
     TRACE("IServerImplHook::MineAsteroid systemId={{systemId}} crateId={{crateId}} lootId={{lootId}} count={{count}} clientId={{clientId}}",

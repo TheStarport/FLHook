@@ -1,12 +1,14 @@
 #pragma once
 
-#include "API/FLHook/Database.hpp"
 #include "API/Utils/Action.hpp"
 
 #include <concurrencpp/concurrencpp.h>
 #include <API/FLHook/BsonHelper.hpp>
 
 class AccountId;
+class GoodId;
+enum class MongoResult;
+class RepGroupId;
 struct ClientData;
 class DLL CharacterId final
 {

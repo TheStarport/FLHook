@@ -5,9 +5,6 @@
 
 #include <concurrencpp/concurrencpp.h>
 
-#include "BaseId.hpp"
-#include "SystemId.hpp"
-
 #include <FLCore/Common/Packets.hpp>
 #include <FLCore/Server.hpp>
 #include <FLCore/FLCoreServer.h>
@@ -179,7 +176,6 @@ class AccountManager
         static concurrencpp::result<bool> ClearCharacterTransferCode(std::wstring charName);
         static concurrencpp::result<bool> SetCharacterTransferCode(std::wstring client, std::wstring transferCode);
         static concurrencpp::result<std::wstring> CheckCharnameTaken(ClientId client, std::wstring newName);
-        static concurrencpp::result<void> Rename(std::wstring currName, std::wstring newName);
         static void ClearClientInfo(ClientId clientId);
         static void __fastcall LoadPlayerMData(MPlayerDataSaveStruct* mdata, void* edx, INI_Reader* ini);
         static void InitContentDLLDetours();

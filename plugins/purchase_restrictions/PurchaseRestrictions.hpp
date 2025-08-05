@@ -1,6 +1,5 @@
 #pragma once
-
-
+#include "API/FLHook/Plugin.hpp"
 
 namespace Plugins
 {

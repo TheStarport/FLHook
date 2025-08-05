@@ -10,6 +10,11 @@
 #define CRONCPP_IS_CPP17
 #include "croncpp.h"
 
+#include "API/FLHook/Plugin.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Exceptions/StopProcessingException.hpp"
+
 std::shared_ptr<Timer> Timer::AddCron(const std::function<void()>& function, const std::wstring_view cronExpression)
 {
     auto ptr = std::make_shared<Timer>();

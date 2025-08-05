@@ -5,6 +5,7 @@
 #include "API/Types/AccountId.hpp"
 
 #include "API/FLHook/BsonHelper.hpp"
+#include "Defs/FLHookConfig.hpp"
 
 AccountId::operator bool() const { return accountId.empty(); }
 

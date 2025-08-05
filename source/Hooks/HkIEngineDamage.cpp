@@ -2,8 +2,9 @@
 
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/ResourceManager.hpp"
-#include "Core/ClientServerInterface.hpp"
 #include "Core/IEngineHook.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Core/PluginManager.hpp"
 
 #include <magic_enum.hpp>
 
@@ -92,7 +93,8 @@ void __fastcall IEngineHook::SolarColGrpDestroy(Solar* solar, void* edx, CArchGr
 {
     CallPlugins(&Plugin::OnSolarColGrpDestroy, solar, colGrp, fate, dmgList, killParent);
     using ISolarColGrpDestroyType = void(__thiscall*)(Solar*, CArchGroup*, DamageEntry::SubObjFate, DamageList*, bool);
-    static_cast<ISolarColGrpDestroyType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::ColGrpDeath)))(solar, colGrp, fate, dmgList, killParent);
+    static_cast<ISolarColGrpDestroyType>(iSolarVTable.GetOriginal(static_cast<ushort>(ISolarInspectVTable::ColGrpDeath)))(
+        solar, colGrp, fate, dmgList, killParent);
 }
 
 void __fastcall IEngineHook::ShipEquipDmg(Ship* ship, void* edx, CAttachedEquip* equip, float damage, DamageList* dmgList)
@@ -174,9 +176,8 @@ void __fastcall IEngineHook::ShipRadiationDamage(Ship* ship, void* edx, float de
 
     float dmgMultiplier = 1.0f;
 
-    using IZoneGetDistanceFunc = float(__thiscall*)(Universe::IZone*, Vector& pos);
+    using IZoneGetDistanceFunc = float(__thiscall*)(Universe::IZone*, Vector & pos);
     IZoneGetDistanceFunc GetZoneDistance = (IZoneGetDistanceFunc)FLHook::Offset(FLHook::BinaryType::Common, AddressList::CommonIZoneGetDistance);
-
 
     if (zd.distanceScaling != 0.0f)
     {

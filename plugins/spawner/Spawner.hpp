@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/Plugin.hpp"
 #include "API/FLHook/ResourceManager.hpp"
 #include "Core/Commands/AbstractAdminCommandProcessor.hpp"
 

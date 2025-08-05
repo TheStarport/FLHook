@@ -4,6 +4,7 @@
 
 #include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/HttpServer.hpp"
+#include "API/FLHook/Plugin.hpp"
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
@@ -11,6 +12,8 @@
 #include "Core/FLHook.hpp"
 #include "Core/CrashCatcher.hpp"
 #include "Core/IpResolver.hpp"
+#include "Core/PluginManager.hpp"
+#include "Defs/FLHookConfig.hpp"
 
 void IServerImplHook::ServerReady()
 {

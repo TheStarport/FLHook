@@ -5,6 +5,10 @@
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/FLHook.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
+#include "FLCore/FLCoreDALib.h"
 
 bool IServerImplHook::OnConnectInner(ClientId client)
 {

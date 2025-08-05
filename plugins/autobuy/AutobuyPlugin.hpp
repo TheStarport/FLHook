@@ -2,6 +2,7 @@
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "API/FLHook/Plugin.hpp"
 
 namespace Plugins
 {
@@ -68,7 +69,6 @@ namespace Plugins
                     int launcherStackingLimit;
             };
 
-
             struct AmmoDataSpecial
             {
                     Id ammoId;
@@ -129,8 +129,8 @@ namespace Plugins
             void CheckforStackables(ClientId client);
             void LoadPlayerAutobuy(ClientId client);
             std::unordered_map<Id, PlayerAmmoData> GetAmmoLimits(ClientId client);
-            void AddEquipToCart(const Archetype::Launcher* launcher, const EquipDescList* cargo, std::map<Id, AutobuyCartItem>& cart,
-                                AutobuyCartItem& item, const std::wstring_view& desc);
+            void AddEquipToCart(const Archetype::Launcher* launcher, const EquipDescList* cargo, std::map<Id, AutobuyCartItem>& cart, AutobuyCartItem& item,
+                                const std::wstring_view& desc);
 
         public:
             explicit AutobuyPlugin(const PluginInfo& info);

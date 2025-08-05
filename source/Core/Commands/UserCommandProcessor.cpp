@@ -9,10 +9,9 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
-#include "API/InternalApi.hpp"
 #include "API/Utils/Random.hpp"
-
-#include <Core/Commands/UserCommandProcessor.hpp>
+#include "Core/PluginManager.hpp"
+#include "Core/Commands/UserCommandProcessor.hpp"
 
 std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(const ClientId triggeringClient, const std::wstring_view clientStr,
                                                                                const std::wstring_view commandStr)

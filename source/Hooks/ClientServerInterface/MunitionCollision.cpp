@@ -5,6 +5,11 @@
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
+
 void __stdcall IServerImplHook::SpMunitionCollision(const SSPMunitionCollisionInfo& mci, ClientId client)
 {
     TRACE("IServerImplHook::SpMunitionCollision client={{client}}", { "client", client });

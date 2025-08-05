@@ -8,6 +8,10 @@
 #include "API/Utils/Logger.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/IEngineHook.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 void IServerImplHook::CharacterSelectInnerAfter([[maybe_unused]] const CHARACTER_ID& charId, ClientId client)
 {

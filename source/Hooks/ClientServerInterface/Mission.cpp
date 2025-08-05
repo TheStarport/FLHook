@@ -4,6 +4,11 @@
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
+
 void __stdcall IServerImplHook::AbortMission(ClientId client, uint unk1)
 {
     TRACE("IServerImplHook::AbortMission client={{client}}", { "client", client });

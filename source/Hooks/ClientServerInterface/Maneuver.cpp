@@ -2,7 +2,10 @@
 
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
-#include "API/Utils/Logger.hpp"
+
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 void __stdcall IServerImplHook::SetManeuver(ClientId client, const XSetManeuver& sm)
 {

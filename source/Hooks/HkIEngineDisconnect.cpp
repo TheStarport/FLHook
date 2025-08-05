@@ -3,6 +3,9 @@
 #include "API/FLHook/ClientList.hpp"
 #include "Core/IEngineHook.hpp"
 #include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 bool __stdcall IEngineHook::DisconnectPacketSent(ClientId client)
 {

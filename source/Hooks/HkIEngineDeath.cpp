@@ -5,6 +5,8 @@
 #include "API/InternalApi.hpp"
 #include "API/Utils/Random.hpp"
 #include "Core/IEngineHook.hpp"
+#include "Core/PluginManager.hpp"
+#include "Defs/FLHookConfig.hpp"
 
 std::wstring SetSizeToSmall(const std::wstring& dataFormat) { return dataFormat.substr(0, 8) + L"90"; }
 

@@ -5,6 +5,11 @@
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
+
 void IServerImplHook::NpcSpinProtection(const SSPObjCollisionInfo& oci, ClientId client)
 {
     static uint dummy;

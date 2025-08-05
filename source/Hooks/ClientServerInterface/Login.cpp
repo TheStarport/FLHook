@@ -4,11 +4,13 @@
 #include "API/FLHook/InfocardManager.hpp"
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
-#include "Core/ClientServerInterface.hpp"
-
-#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
+#include "Core/ClientServerInterface.hpp"
 #include "Core/IpResolver.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 void IServerImplHook::LoginInnerAfter(const SLoginInfo& li, ClientId client)
 {

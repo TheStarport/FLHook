@@ -4,6 +4,7 @@
 #include "API/FLHook/ResourceManager.hpp"
 #include "Hyperjump.hpp"
 #include "../cloak/Cloak.hpp"
+#include "Core/PluginManager.hpp"
 
 namespace Plugins
 {
@@ -71,7 +72,7 @@ namespace Plugins
     void HyperjumpPlugin::ProcessExpiringJumpHoles()
     {
         auto currTime = TimeUtils::UnixTime();
-        for (auto jumpObj = jumpObjData.begin();jumpObj != jumpObjData.end();)
+        for (auto jumpObj = jumpObjData.begin(); jumpObj != jumpObjData.end();)
         {
             if (currTime < jumpObj->second.lastUntil)
             {
@@ -87,7 +88,7 @@ namespace Plugins
             }
             else
             {
-                for (auto ship = jumpObj->second.dockingQueue.begin();ship!= jumpObj->second.dockingQueue.end();)
+                for (auto ship = jumpObj->second.dockingQueue.begin(); ship != jumpObj->second.dockingQueue.end();)
                 {
                     auto shipId = ShipId(ship->GetValue());
                     if (!shipId)

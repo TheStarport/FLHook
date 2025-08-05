@@ -2,6 +2,8 @@
 #include "API/FLHook/Database.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "PCH.hpp"
+#include "Core/PluginManager.hpp"
+#include "Defs/FLHookConfig.hpp"
 
 #include <API/FLHook/AccountManager.hpp>
 #include <Defs/Database/DbAccount.hpp>
@@ -388,16 +390,6 @@ concurrencpp::result<cpp::result<void, std::wstring>> AccountManager::UpdateAcco
     THREAD_MAIN;
     cpp::result<void, std::wstring> ret; // success object - usually we would `return {};` for this, but concurrencpp...
     co_return ret;
-}
-
-concurrencpp::result<void> AccountManager::Rename(std::wstring currName, std::wstring newName)
-{
-    const auto charUpdateDoc =
-        B_MDOC(B_KVP("$set",
-                     B_MDOC(B_KVP("characterName", StringUtils::wstos(newName)),
-                            B_KVP("lastRenameTimestamp",
-                                  bsoncxx::types::b_date{ static_cast<std::chrono::milliseconds>(TimeUtils::UnixTime<std::chrono::milliseconds>()) }))));
-    co_await AccountManager::UpdateCharacter(currName, charUpdateDoc, "renaming character");
 }
 
 concurrencpp::result<bool> AccountManager::ClearCharacterTransferCode(std::wstring charName)

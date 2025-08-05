@@ -7,6 +7,7 @@
 
 #include "API/InternalApi.hpp"
 #include "API/Utils/Random.hpp"
+#include "FLCore/FLCoreRemoteClient.h"
 #include "FLCore/Common/Globals.hpp"
 
 template <typename T>

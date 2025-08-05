@@ -2,10 +2,12 @@
 
 #include "API/FLHook/ClientList.hpp"
 #include "API/InternalApi.hpp"
-#include "API/Utils/Logger.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
-// called when chat-text is being sent to a player, we reformat it (/setchatfont)
+// TODO: Burn all code related to custom chat formatting and move to a client hook
 
 void __stdcall IServerImplHook::SendChat(ClientId client, ClientId clientTo, uint size, void* rdl)
 {

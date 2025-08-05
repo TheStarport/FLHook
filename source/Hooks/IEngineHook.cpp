@@ -2,8 +2,11 @@
 
 #include "Core/IEngineHook.hpp"
 
-#include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/ResourceManager.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 IEngineHook::CallAndRet::CallAndRet(void* toCall, void* ret)
 {

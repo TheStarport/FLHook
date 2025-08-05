@@ -3,10 +3,17 @@
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 void __stdcall IServerImplHook::SetVisitedState(ClientId client, uint objHash, int state)
 {
-    TRACE("IServerImplHook::SetVisitedState clientId={{clientId}} objHash={{objHash}} state={{state}}", { "clientId", client }, { "objHash", std::to_wstring(objHash) }, { "state", std::to_wstring(state) });
+    TRACE("IServerImplHook::SetVisitedState clientId={{clientId}} objHash={{objHash}} state={{state}}",
+          { "clientId", client },
+          { "objHash", std::to_wstring(objHash) },
+          { "state", std::to_wstring(state) });
 
     if (const auto skip = CallPlugins(&Plugin::OnSetVisitedState, client, objHash, state); !skip)
     {

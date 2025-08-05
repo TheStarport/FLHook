@@ -3,6 +3,7 @@
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/PluginManager.hpp"
 
 void __stdcall IServerImplHook::ReqSetCash(int cash, ClientId client)
 {

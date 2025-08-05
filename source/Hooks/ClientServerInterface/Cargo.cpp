@@ -4,6 +4,7 @@
 #include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
+#include "Core/PluginManager.hpp"
 
 void __stdcall IServerImplHook::SpScanCargo(const uint& unk1, const uint& unk2, uint unk3)
 {
@@ -40,7 +41,10 @@ void __stdcall IServerImplHook::ReqAddItem(uint goodId, const char* hardpoint, i
 
 void __stdcall IServerImplHook::ReqRemoveItem(ushort slotId, int count, ClientId client)
 {
-    TRACE("IServerImplHook::ReqRemoveItem slotId={{slotId}},count={{count}},clientId={{clientId}}", { "slotId", slotId }, { "count", count }, { "clientId", client });
+    TRACE("IServerImplHook::ReqRemoveItem slotId={{slotId}},count={{count}},clientId={{clientId}}",
+          { "slotId", slotId },
+          { "count", count },
+          { "clientId", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestRemoveItem, client, slotId, count); !skip)
     {
@@ -55,13 +59,14 @@ void __stdcall IServerImplHook::ReqModifyItem(ushort slotId, const char* hardpoi
 {
     std::wstring hp = StringUtils::stows(hardpoint);
 
-    TRACE("IServerImplHook::ReqModifyItem goodId={{goodId}}, hardpoint={{hardpoint}}, count={{count}}, status={{status}}, mounted={{mounted}}, client={{client}}",
-          { "goodId", slotId },
-          { "hardpoint", hardpoint },
-          { "count", count },
-          { "status", status },
-          { "mounted", mounted },
-          { "client", client });
+    TRACE(
+        "IServerImplHook::ReqModifyItem goodId={{goodId}}, hardpoint={{hardpoint}}, count={{count}}, status={{status}}, mounted={{mounted}}, client={{client}}",
+        { "goodId", slotId },
+        { "hardpoint", hardpoint },
+        { "count", count },
+        { "status", status },
+        { "mounted", mounted },
+        { "client", client });
 
     if (const auto skip = CallPlugins(&Plugin::OnRequestModifyItem, client, slotId, std::wstring_view(hp), count, status, mounted); !skip)
     {

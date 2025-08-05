@@ -1,13 +1,13 @@
-#include "Wardrobe.hpp"
 #include "PCH.hpp"
 
+#include "Wardrobe.hpp"
 #include "API/FLHook/ClientList.hpp"
 
 namespace Plugins
 {
     WardrobePlugin::WardrobePlugin(const PluginInfo& info) : Plugin(info) {}
 
-    concurrencpp::result<void>WardrobePlugin::UserCmdShowWardrobe(ClientId client, const std::wstring_view param)
+    concurrencpp::result<void> WardrobePlugin::UserCmdShowWardrobe(ClientId client, const std::wstring_view param)
     {
         if (StringUtils::ToLower(param) == L"head")
         {
@@ -33,7 +33,7 @@ namespace Plugins
         co_return;
     }
 
-    concurrencpp::result<void>WardrobePlugin::UserCmdChangeCostume(ClientId client, const std::wstring_view type, const std::wstring_view costume)
+    concurrencpp::result<void> WardrobePlugin::UserCmdChangeCostume(ClientId client, const std::wstring_view type, const std::wstring_view costume)
     {
         if (type.empty() || costume.empty())
         {
@@ -73,7 +73,8 @@ namespace Plugins
         co_return;
     }
 
-    concurrencpp::result<void>WardrobePlugin::UserCmdHandle(ClientId client, const std::wstring_view command, const std::wstring_view param, const std::wstring_view param2)
+    concurrencpp::result<void> WardrobePlugin::UserCmdHandle(ClientId client, const std::wstring_view command, const std::wstring_view param,
+                                                             const std::wstring_view param2)
     {
         // Check character is in base
         if (!client.IsDocked())

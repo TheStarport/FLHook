@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/Plugin.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 namespace Plugins
@@ -206,7 +207,7 @@ namespace Plugins
             std::unordered_map<uint, SpeedCheck> topSpeedWatch;
 
             Archetype::Explosion* shieldExplosion;
-            
+
             bool usedBatts;
 
             bool armorEnabled;
@@ -229,8 +230,8 @@ namespace Plugins
 
             void OnShipDespawn(Ship* ship) override;
             void OnShipDestroy(Ship* ship, DamageList* dmgList, ShipId killerId) override;
-            void OnMineDestroy(Mine * mine, DestroyType& destroyType, ShipId killerId) override;
-            void OnGuidedDestroy(Guided * guided, DestroyType& destroyType, ShipId killerId) override;
+            void OnMineDestroy(Mine* mine, DestroyType& destroyType, ShipId killerId) override;
+            void OnGuidedDestroy(Guided* guided, DestroyType& destroyType, ShipId killerId) override;
 
             void OnShipMunitionHit(Ship* ship, MunitionImpactData* impact, DamageList* dmgList) override;
             void OnShipMunitionHitAfter(Ship* ship, MunitionImpactData* impact, DamageList* dmgList) override;

@@ -2,6 +2,14 @@
 
 #include "Core/FLHook.hpp"
 #include "Core/IEngineHook.hpp"
+#include "Core/MemoryManager.hpp"
+#include "Core/Commands/AdminCommandProcessor.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Core/AddressList.hpp"
+#include "Core/IpResolver.hpp"
+#include "Core/ClientServerInterface.hpp"
+#include "Core/CrashCatcher.hpp"
+#include "Core/ExceptionHandler.hpp"
 
 #include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
@@ -10,28 +18,16 @@
 #include "API/FLHook/PersonalityHelper.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
 #include "API/InternalApi.hpp"
-#include "API/Utils/Logger.hpp"
-#include "Core/MemoryManager.hpp"
-
-#include "Core/Commands/AdminCommandProcessor.hpp"
-#include "Defs/FLHookConfig.hpp"
-
-#include "Core/AddressList.hpp"
-#include "Core/IpResolver.hpp"
-
-#include "Core/ClientServerInterface.hpp"
-#include "Exceptions/InvalidParameterException.hpp"
-
 #include "API/FLHook/Plugin.hpp"
 #include "API/Utils/ZoneUtilities.hpp"
-
 #include "API/Exceptions/InvalidClientException.hpp"
 #include "API/FLHook/HttpServer.hpp"
 #include "API/FLHook/ResourceManager.hpp"
-#include "Core/CrashCatcher.hpp"
+#include "API/Utils/PerfTimer.hpp"
+
+#include "Exceptions/InvalidParameterException.hpp"
 
 #include <cpptrace/basic.hpp>
-#include "API/Utils/PerfTimer.hpp"
 
 // ReSharper disable CppClangTidyClangDiagnosticCastFunctionTypeStrict
 const st6_malloc_t st6_malloc = reinterpret_cast<const st6_malloc_t>(GetProcAddress(GetModuleHandleA("msvcrt.dll"), "malloc"));

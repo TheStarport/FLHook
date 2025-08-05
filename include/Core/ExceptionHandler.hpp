@@ -1,6 +1,9 @@
 #pragma once
 
+#include "Defs/SehException.hpp"
+
 class IpResolver;
+class PluginManager;
 class ExceptionHandler final
 {
         friend FLHook;

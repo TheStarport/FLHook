@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/Plugin.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 namespace Plugins
@@ -66,7 +67,7 @@ namespace Plugins
             void CheckIfPlayerFled(ClientId client);
 
             // User Commands
-            concurrencpp::result<void>UserCmdBountyHunt(ClientId client, ClientId target, uint prize, uint time);
+            concurrencpp::result<void> UserCmdBountyHunt(ClientId client, ClientId target, uint prize, uint time);
 
             inline static const std::array<CommandInfo<BountyHuntPlugin>, 1> commands = { { AddCommand(
                 BountyHuntPlugin, Cmds(L"/bountyhunt", L"/bh"), UserCmdBountyHunt, L"/bountyhunt <targetId> <prize> [time]",

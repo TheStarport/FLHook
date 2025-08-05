@@ -6,6 +6,9 @@
 
 #include <mongocxx/pool.hpp>
 
+class CDPServer;
+class CDPClientProxy;
+class IClientImpl;
 class TaskScheduler;
 class InternalApi;
 class IServerImplHook;

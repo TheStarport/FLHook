@@ -4,6 +4,7 @@
 
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
+#include "Defs/FLHookConfig.hpp"
 
 namespace Plugins
 {

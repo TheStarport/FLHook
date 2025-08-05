@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/Plugin.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 namespace Plugins
@@ -47,7 +48,8 @@ namespace Plugins
                     bool loser;
             };
 
-            /// @brief A struct to hold a Free-For-All competition. This holds the contestants, how much it costs to enter, and the total pot to be won by the eventual winner
+            /// @brief A struct to hold a Free-For-All competition. This holds the contestants, how much it costs to enter, and the total pot to be won by the
+            /// eventual winner
             struct FreeForAll
             {
                     std::unordered_map<ClientId, Contestant> contestants;
@@ -61,11 +63,11 @@ namespace Plugins
             std::unordered_map<SystemId, FreeForAll> freeForAlls;
 
             // User Commands.
-            concurrencpp::result<void>UserCmdStartFreeForAll(ClientId client, uint amount);
-            concurrencpp::result<void>UserCmdAcceptFFA(ClientId client);
-            concurrencpp::result<void>UserCmdDuel(ClientId client, uint amount);
-            concurrencpp::result<void>UserCmdAcceptDuel(ClientId client);
-            concurrencpp::result<void>UserCmdCancel(ClientId client);
+            concurrencpp::result<void> UserCmdStartFreeForAll(ClientId client, uint amount);
+            concurrencpp::result<void> UserCmdAcceptFFA(ClientId client);
+            concurrencpp::result<void> UserCmdDuel(ClientId client, uint amount);
+            concurrencpp::result<void> UserCmdAcceptDuel(ClientId client);
+            concurrencpp::result<void> UserCmdCancel(ClientId client);
 
             inline static const std::array<CommandInfo<BettingPlugin>, 5> commands = {
                 { AddCommand(BettingPlugin, Cmds(L"/ffa"sv), UserCmdStartFreeForAll, L"/ffa",

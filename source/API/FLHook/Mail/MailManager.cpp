@@ -5,10 +5,7 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
-
-
-
-
+#include "Defs/FLHookConfig.hpp"
 
 concurrencpp::result<void> MailManager::InformOnlineUsersOfNewMail(
     std::vector<rfl::Variant<bsoncxx::oid, std::string>> accountIdOrCharacterNames) // NOLINT(*-unnecessary-value-param)
@@ -20,8 +17,8 @@ concurrencpp::result<void> MailManager::InformOnlineUsersOfNewMail(
     {
         for (const auto& client : clients)
         {
-            if ((!variant.index() && client.characterData->_id.value() == rfl::get<0>(variant)) ||
-                (variant.index() && client.account->_id == rfl::get<1>(variant)))
+            if ((!variant.index() && client.characterData->_id.value() == rfl::get<bsoncxx::oid>(variant)) ||
+                (variant.index() && client.account->_id == rfl::get<std::string>(variant)))
             {
                 // Character is online, message them now!
                 (void)client.id.Message(std::format(L"You have received {} mail.", variant.index() ? L"character" : L"account"));

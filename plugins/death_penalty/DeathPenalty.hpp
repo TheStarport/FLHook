@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/Plugin.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
 namespace Plugins
@@ -82,7 +83,7 @@ namespace Plugins
             float GetShipFractionOverride(ClientId client);
             void PenalizeDeath(ClientId client, ClientId killerId);
             /// @brief /dp command. Shows information about death penalty
-            concurrencpp::result<void>UserCmdDeathPenalty(ClientId client, std::wstring_view param);
+            concurrencpp::result<void> UserCmdDeathPenalty(ClientId client, std::wstring_view param);
 
             // clang-format off
             inline static const std::array<CommandInfo<DeathPenaltyPlugin>, 1> commands =

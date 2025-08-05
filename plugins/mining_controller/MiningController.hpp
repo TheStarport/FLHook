@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/Plugin.hpp"
 #include "Core/Commands/AbstractAdminCommandProcessor.hpp"
 #include "Core/FlufInfocardHelper.hpp"
 
@@ -12,7 +13,7 @@ namespace Plugins
      * This plugin controls economy related logic. With clienthook support allows for separated buy/sell prices.
      * It also overrides loot-dropping logic
      */
-    class MiningControllerPlugin final : public Plugin, public FlufInfocardHelper//, public AbstractAdminCommandProcessor
+    class MiningControllerPlugin final : public Plugin, public FlufInfocardHelper //, public AbstractAdminCommandProcessor
     {
 
             struct MiningNodeInfo
@@ -198,7 +199,6 @@ namespace Plugins
             void OnCargoJettison(ClientId client, const XJettisonCargo& cargo) override;
             void OnSolarColGrpDestroy(Solar* solar, CArchGroup* colGrp, DamageEntry::SubObjFate fate, DamageList* dmgList, bool killParented) override;
 
-
             // clang-format off
             //inline static const std::array<AdminCommandInfo<MiningControllerPlugin>, 1> commands =
             //{
@@ -208,7 +208,7 @@ namespace Plugins
             //};
             // clang-format on
 
-            //SetupAdminCommandHandler(MiningControllerPlugin, commands);
+            // SetupAdminCommandHandler(MiningControllerPlugin, commands);
 
         public:
             explicit MiningControllerPlugin(const PluginInfo& info);

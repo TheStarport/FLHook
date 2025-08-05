@@ -8,6 +8,10 @@
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/IEngineHook.hpp"
 
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
+
 void IServerImplHook::PlayerLaunchInner(const ShipId& shipId, ClientId client)
 {
     TryHook

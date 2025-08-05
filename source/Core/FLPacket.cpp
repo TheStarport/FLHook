@@ -2,6 +2,8 @@
 
 #include "Defs/FLPacket.hpp"
 
+#include "FLCore/FLCoreDALib.h"
+
 // TODO: BURN
 
 // Common packets are being sent from server to client and from client to server.

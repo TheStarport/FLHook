@@ -12,6 +12,10 @@
 
 #include "API/FLHook/AccountManager.hpp"
 #include "Core/FLPatch.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 std::vector<FLPatch> patches;
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "API/FLHook/Plugin.hpp"
 #include "Core/Commands/AbstractAdminCommandProcessor.hpp"
 
 namespace Plugins
@@ -31,7 +32,7 @@ namespace Plugins
              * or solar will spawn at a random coordinate near the user's location.
              */
 
-            concurrencpp::result<void>AdminCmdCreateNpc(ClientId client);
+            concurrencpp::result<void> AdminCmdCreateNpc(ClientId client);
 
             // npc_spawn [group] [npc_class] [?count] [?system] [?coordinates] [?rank] [?delay] [?message]
 

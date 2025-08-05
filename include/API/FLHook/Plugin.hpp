@@ -3,6 +3,7 @@
 #include "Defs/Structs.hpp"
 
 #include "API/FLHook/BsonHelper.hpp"
+#include "FLCore/FLCoreRemoteClient.h"
 
 struct FlufPayload;
 constexpr auto CurrentMajorVersion = PluginMajorVersion::V05;
@@ -16,6 +17,7 @@ namespace httplib
 {
     class Server;
 }
+
 struct DLL Timer
 {
         friend IServerImplHook;
@@ -203,7 +205,7 @@ class DLL Plugin
 
         virtual void OnShipDropAllCargo(Ship* ship, const char* hardPoint, DamageList* dmgList) {}
 
-        Aft(void, OnShipMunitionHit, (Ship* ship, MunitionImpactData* munition, DamageList* dmgList));
+        Aft(void, OnShipMunitionHit, (Ship * ship, MunitionImpactData* munition, DamageList* dmgList));
 
         virtual void OnShipHullDmg(Ship* ship, float& damage, DamageList* dmgList) {}
         virtual void OnSolarHullDmg(Solar* solar, float& damage, DamageList* dmgList) {}
@@ -220,10 +222,10 @@ class DLL Plugin
         virtual void OnShipEnergyDmg(Ship* ship, float& damage, DamageList* dmgList) {}
 
         virtual void OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList) {}
-        virtual void OnGuidedExplosionHit(Guided* guided, ExplosionDamageEvent* explosion, DamageList* dmgList){}
-        virtual void OnSolarExplosionHit(Solar* solar, ExplosionDamageEvent* explosion, DamageList* dmgList){}
+        virtual void OnGuidedExplosionHit(Guided* guided, ExplosionDamageEvent* explosion, DamageList* dmgList) {}
+        virtual void OnSolarExplosionHit(Solar* solar, ExplosionDamageEvent* explosion, DamageList* dmgList) {}
 
-        virtual void OnShipFuse(Ship*, uint fuseCause, uint& fuseId, ushort sId, float radius, float fuseLifetime){}
+        virtual void OnShipFuse(Ship*, uint fuseCause, uint& fuseId, ushort sId, float radius, float fuseLifetime) {}
 
         virtual void OnCELauncherFireAfter(CELauncher* launcher, const Vector& pos, FireResult) {}
         virtual int OnGetAmmoCapacity(CShip* ship, Id ammoArch) { return 0; }

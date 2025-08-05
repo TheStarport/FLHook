@@ -1,16 +1,18 @@
 #include "PCH.hpp"
 
 #include "API/FLHook/ClientList.hpp"
-#include "API/FLHook/InfocardManager.hpp"
 #include "API/InternalApi.hpp"
 #include "API/Utils/FlufPayload.hpp"
 
-#include "API/Utils/Logger.hpp"
 #include "API/Utils/PerfTimer.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "Core/Commands/AdminCommandProcessor.hpp"
 #include "Core/Commands/UserCommandProcessor.hpp"
 #include "Exceptions/InvalidParameterException.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 std::wstring ReplaceExclamationMarkWithClientId(std::wstring commandString, uint clientId)
 {

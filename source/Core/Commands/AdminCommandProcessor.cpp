@@ -7,8 +7,10 @@
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
 #include "API/FLHook/InfocardManager.hpp"
-#include "API/FLHook/ResourceManager.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Defs/Database/MongoResult.hpp"
 
 // TODO: General, a lot of these functions are agnostic about whether or not the player is online and thus has a clientId, so along with the player database
 // rework a lot of these functions need to be reworked to account for that.

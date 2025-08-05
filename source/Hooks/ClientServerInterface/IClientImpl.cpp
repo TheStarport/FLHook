@@ -1,6 +1,11 @@
 #include "PCH.hpp"
 
 #include "Core/ClientServerInterface.hpp"
+#include "Defs/FLHookConfig.hpp"
+#include "Core/ExceptionHandler.hpp"
+#include "Core/PluginManager.hpp"
+#include "Exceptions/StopProcessingException.hpp"
+#include "FLCore/FLCoreDALib.h"
 
 // TODO: Do a pass on all the logging within this file. A lot of it does not make sense or logs unhelpful information
 
@@ -104,7 +109,8 @@ bool IClientImpl::Send_FLPACKET_COMMON_GOTRADELANE(uint client, XGoTradelane& tl
 
 bool IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE(uint client, uint shipId, uint archTradelane1, uint archTradelane2)
 {
-    TRACE("IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE client={{client}} shipId={{shipId}} archTradeLane1={{archTradeLane1}} archTradeLane2={{archTradeLane2}}",
+    TRACE("IClientImpl::Send_FLPACKET_COMMON_STOPTRADELANE client={{client}} shipId={{shipId}} archTradeLane1={{archTradeLane1}} "
+          "archTradeLane2={{archTradeLane2}}",
           { "client", client },
           { "shipId", shipId },
           { "archTradeLane1", archTradelane1 },
@@ -726,7 +732,10 @@ bool IClientImpl::Send_FLPACKET_SERVER_LAUNCH(uint client, FLPACKET_LAUNCH& laun
 
 bool IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint client, bool response, uint shipId)
 {
-    TRACE("IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP client={{client}} response={{response}} shipId={{shipId}}", { "client", client }, { "response", response }, { "shipId", shipId });
+    TRACE("IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP client={{client}} response={{response}} shipId={{shipId}}",
+          { "client", client },
+          { "response", response },
+          { "shipId", shipId });
 
     auto [retVal, skip] = CallPlugins<bool>(&PacketInterface::OnRequestCreateShipResponsePacket, ClientId(client), response, ShipId(shipId));
 
@@ -1046,7 +1055,10 @@ bool IClientImpl::Send_FLPACKET_COMMON_SET_WEAPON_GROUP(uint client, uint unk1, 
 
 bool IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE(uint client, uint objHash, int state)
 {
-    TRACE("IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE client={{client}} objHash={{objHash}} state={{state}}", { "client", client }, { "objHash", objHash }, { "state", state });
+    TRACE("IClientImpl::Send_FLPACKET_COMMON_SET_VISITED_STATE client={{client}} objHash={{objHash}} state={{state}}",
+          { "client", client },
+          { "objHash", objHash },
+          { "state", state });
 
     bool retVal;
     CallClientPreamble { retVal = Send_FLPACKET_COMMON_SET_VISITED_STATE(client, objHash, state); }

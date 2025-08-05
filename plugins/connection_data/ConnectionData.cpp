@@ -6,6 +6,7 @@
 #include "ConnectionData.hpp"
 
 #include "API/FLHook/ClientList.hpp"
+#include "FLCore/FLCoreDALib.h"
 
 namespace Plugins
 {
@@ -346,7 +347,7 @@ namespace Plugins
     /** @ingroup Condata
      * @brief Gets called when the player types /ping
      */
-    concurrencpp::result<void>ConnectionDataPlugin::UserCmdPing(ClientId client)
+    concurrencpp::result<void> ConnectionDataPlugin::UserCmdPing(ClientId client)
     {
         if (!config.allowPing)
         {
@@ -359,7 +360,7 @@ namespace Plugins
         co_return;
     }
 
-    concurrencpp::result<void>ConnectionDataPlugin::UserCmdPingTarget(ClientId client)
+    concurrencpp::result<void> ConnectionDataPlugin::UserCmdPingTarget(ClientId client)
     {
         if (!config.allowPing)
         {
@@ -383,7 +384,7 @@ namespace Plugins
     /** @ingroup Condata
      * @brief Process admin commands.
      */
-    concurrencpp::result<void>ConnectionDataPlugin::AdminCmdGetStats(ClientId admin)
+    concurrencpp::result<void> ConnectionDataPlugin::AdminCmdGetStats(ClientId admin)
     {
         PlayerData* playerData = nullptr;
         while ((playerData = Players.traverse_active(playerData)))

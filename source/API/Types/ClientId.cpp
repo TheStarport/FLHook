@@ -6,7 +6,9 @@
 #include "API/InternalApi.hpp"
 #include "API/Utils/PathHelper.hpp"
 #include "Core/FLHook.hpp"
+#include "Defs/FLHookConfig.hpp"
 #include "Defs/FLPacket.hpp"
+#include "FLCore/FLCoreDALib.h"
 
 #define ClientCheck                                   \
     if (!IsValidClientId())                           \

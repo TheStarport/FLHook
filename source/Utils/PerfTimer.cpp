@@ -1,6 +1,7 @@
 ﻿#include "PCH.hpp"
 
 #include "API/Utils/PerfTimer.hpp"
+#include "Defs/FLHookConfig.hpp"
 
 PerfTimer::PerfTimer(std::wstring_view func, int64 warn) : function(func), warning(warn) {}
 

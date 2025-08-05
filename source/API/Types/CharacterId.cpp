@@ -6,6 +6,9 @@
 #include "API/FLHook/Database.hpp"
 #include "API/Types/CharacterId.hpp"
 
+#include "Defs/FLHookConfig.hpp"
+#include "Defs/Database/MongoResult.hpp"
+
 #define RET_SUCCESS \
     co_return Action<MongoResult> { MongoResult::Success }
 

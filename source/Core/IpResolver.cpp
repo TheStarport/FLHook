@@ -3,8 +3,11 @@
 #include <ws2tcpip.h>
 
 #include "Core/IpResolver.hpp"
-
+#include "Defs/FLHookConfig.hpp"
 #include "API/FLHook/ClientList.hpp"
+
+#include "Core/ExceptionHandler.hpp"
+#include "Exceptions/StopProcessingException.hpp"
 
 void IpResolver::ThreadResolver()
 {
