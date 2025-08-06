@@ -82,6 +82,8 @@ namespace Plugins
         client.SaveChar();
 
         PropagatePlayerInfo(client);
+
+        client.Message(L"Set infocard");
         co_return;
     }
 
