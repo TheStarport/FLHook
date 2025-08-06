@@ -251,41 +251,6 @@ concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId c
     IServerImplHook::DelayedLogin(li, client);
 }
 
-concurrencpp::result<std::wstring> AccountManager::CheckCharnameTaken(ClientId client, const std::wstring newName)
-{
-    THREAD_BACKGROUND;
-
-    std::wstring err;
-    const auto db = FLHook::GetDbClient();
-    try
-    {
-        const auto config = FLHook::GetConfig();
-        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(newName)));
-
-        if (const auto checkCharNameDoc = charactersCollection.find_one(findCharDoc.view()); checkCharNameDoc.has_value())
-        {
-            err = L"Name already taken!";
-        }
-        else if (auto character = AccountManager::GetCurrentCharacterData(client); !character)
-        {
-            err = L"Error fetching the character, contact staff!";
-        }
-        else
-        {
-            character->characterName = StringUtils::wstos(newName);
-        }
-    }
-    catch (mongocxx::exception& ex)
-    {
-        ERROR("Error checking for taken name {{character}} {{ex}}", { "character", client.GetCharacterId().Unwrap() }, { "ex", ex.what() });
-        err = L"Error while contacting database, contact staff!";
-    }
-
-    THREAD_MAIN;
-    co_return err;
-}
-
 concurrencpp::result<bool> AccountManager::UpdateCharacter(std::wstring charName, bsoncxx::v_noabi::document::value charUpdateDoc, std::string logDescription)
 {
     THREAD_BACKGROUND;
@@ -390,18 +355,6 @@ concurrencpp::result<cpp::result<void, std::wstring>> AccountManager::UpdateAcco
     THREAD_MAIN;
     cpp::result<void, std::wstring> ret; // success object - usually we would `return {};` for this, but concurrencpp...
     co_return ret;
-}
-
-concurrencpp::result<bool> AccountManager::ClearCharacterTransferCode(std::wstring charName)
-{
-    const auto charUpdateDoc = B_MDOC(B_KVP("$unset", B_MDOC(B_KVP("characterTransferCode", ""))));
-    co_return AccountManager::UpdateCharacter(charName, charUpdateDoc, "clearing character transfer code");
-}
-
-concurrencpp::result<bool> AccountManager::SetCharacterTransferCode(std::wstring charName, std::wstring transferCode)
-{
-    const auto charUpdateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("characterTransferCode", StringUtils::wstos(transferCode)))));
-    co_return AccountManager::UpdateCharacter(charName, charUpdateDoc, "setting character transfer code");
 }
 
 concurrencpp::result<bool> AccountManager::SaveSavedMsgs(std::wstring charName, std::array<std::string, 10> presetMsgs)

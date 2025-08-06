@@ -40,15 +40,18 @@ std::optional<AccountId> AccountId::GetAccountFromClient(const ClientId client)
     return acc;
 }
 
-std::optional<AccountId> AccountId::GetAccountFromCharacterName(const CharacterId& characterName)
+concurrencpp::result<std::optional<AccountId>> AccountId::GetAccountFromCharacterName(const CharacterId& characterName)
 {
+    const CharacterId characterId = characterName;
+    THREAD_MAIN;
+
     for (const auto& client : FLHook::Clients())
     {
-        if (client.characterId == characterName && client.account)
+        if (client.characterId == characterId && client.account)
         {
             AccountId acc;
             acc.accountId = client.account->_id;
-            return acc;
+            co_return acc;
         }
     }
 
@@ -56,24 +59,28 @@ std::optional<AccountId> AccountId::GetAccountFromCharacterName(const CharacterI
 
     const auto config = FLHook::GetConfig();
     auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-    const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterName.GetValue())));
+    const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(characterId.GetValue())));
 
     mongocxx::options::find options;
     options.projection(B_MDOC(B_KVP("accountId", 1)));
 
+    THREAD_BACKGROUND;
+
     const auto character = charactersCollection.find_one(findCharDoc.view(), options);
     if (!character.has_value())
     {
-        return std::nullopt;
+        co_return std::nullopt;
     }
 
     AccountId acc;
     acc.accountId = character.value()["accountId"].get_string();
-    return acc;
+    co_return acc;
 }
 
-std::optional<AccountId> AccountId::GetAccountFromAccountId(const std::wstring_view accountId)
+concurrencpp::result<std::optional<AccountId>> AccountId::GetAccountFromAccountId(const std::wstring_view accountId)
 {
+    THREAD_MAIN;
+
     auto accountIdString = StringUtils::wstos(accountId);
     for (const auto& client : FLHook::Clients())
     {
@@ -81,7 +88,7 @@ std::optional<AccountId> AccountId::GetAccountFromAccountId(const std::wstring_v
         {
             AccountId acc;
             acc.accountId = client.account->_id;
-            return acc;
+            co_return acc;
         }
     }
 
@@ -94,15 +101,17 @@ std::optional<AccountId> AccountId::GetAccountFromAccountId(const std::wstring_v
     mongocxx::options::find options;
     options.projection(B_MDOC(B_KVP("_id", 1)));
 
+    THREAD_BACKGROUND;
+
     const auto databaseAccount = accountsCollection.find_one(findAccDoc.view(), options);
     if (!databaseAccount.has_value())
     {
-        return std::nullopt;
+        co_return std::nullopt;
     }
 
     AccountId acc;
     acc.accountId = databaseAccount.value()["_id"].get_string();
-    return acc;
+    co_return acc;
 }
 
 std::string_view AccountId::GetValue() const { return accountId; }
@@ -132,7 +141,7 @@ bool AccountId::IsAdmin() const
     return false;
 }
 
-Action<void> AccountId::UnBan() const
+concurrencpp::result<Action<void>> AccountId::UnBan() const
 {
     const auto db = FLHook::GetDbClient();
 
@@ -150,7 +159,7 @@ Action<void> AccountId::UnBan() const
     return { {} };
 }
 
-Action<void> AccountId::Ban(const uint tempBanDays) const
+concurrencpp::result<Action<void>> AccountId::Ban(const uint tempBanDays) const
 {
     const auto db = FLHook::GetDbClient();
     const auto config = FLHook::GetConfig();
@@ -169,33 +178,41 @@ Action<void> AccountId::Ban(const uint tempBanDays) const
         banUpdateDoc = permaBanDoc.view();
     }
 
+    THREAD_BACKGROUND;
     if (const auto responseDoc = accountsCollection.update_one(findAccDoc.view(), banUpdateDoc.view()); responseDoc->modified_count() == 0)
     {
         // TODO: Err
-        return { {} };
+        co_return Action<void>{ {} };
     }
+
+    THREAD_MAIN;
 
     if (const auto client = IsOnline(); client)
     {
-        (void)client->id.Kick();
+        co_return client->id.Kick();
     }
 
-    return { {} };
+    co_return Action<void>{ {} };
 }
 
-Action<void> AccountId::DeleteCharacter(const std::wstring_view name) const
+concurrencpp::result<Action<void>> AccountId::DeleteCharacter(const std::wstring_view name) const
 {
+    auto banTarget = std::wstring{ name };
+
+    THREAD_MAIN;
     if (const auto client = IsOnline(); client)
     {
         (void)client->id.Kick();
     }
+
+    THREAD_BACKGROUND;
 
     const auto db = FLHook::GetDbClient();
     const auto config = FLHook::GetConfig();
     auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
     auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
 
-    const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(name)));
+    const auto findCharDoc = B_MDOC(B_KVP("characterName", StringUtils::wstos(banTarget)));
 
     mongocxx::options::find_one_and_delete deleteOptions;
     deleteOptions.projection(B_MDOC(B_KVP("_id", 1)));
@@ -203,7 +220,8 @@ Action<void> AccountId::DeleteCharacter(const std::wstring_view name) const
     const auto foundCharDoc = charactersCollection.find_one_and_delete(findCharDoc.view(), deleteOptions);
     if (!foundCharDoc.has_value())
     {
-        return { {} };
+        // TODO: err
+        co_return Action<void>{ {} };
     }
 
     const auto findAccDoc = B_MDOC(B_KVP("_id", accountId));
@@ -211,10 +229,11 @@ Action<void> AccountId::DeleteCharacter(const std::wstring_view name) const
 
     if (const auto updateResponse = accountsCollection.update_one(findAccDoc.view(), updateAccDoc.view()); updateResponse->modified_count() == 0)
     {
-        return { {} };
+        // TODO: Change return type to mongo result
+        co_return Action<void>{ {} };
     }
 
-    return { {} };
+    co_return Action<void>{ {} };
 }
 
 Action<bool> AccountId::HasRole(const std::wstring_view role) const

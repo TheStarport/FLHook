@@ -173,9 +173,6 @@ class AccountManager
         static concurrencpp::result<void> DeleteCharacter(ClientId client, std::wstring characterCode, CHARACTER_ID cid);
         static concurrencpp::result<void> Login(SLoginInfo li, ClientId client);
         static concurrencpp::result<bool> SaveSavedMsgs(std::wstring charName, std::array<std::string, 10> presetMsgs);
-        static concurrencpp::result<bool> ClearCharacterTransferCode(std::wstring charName);
-        static concurrencpp::result<bool> SetCharacterTransferCode(std::wstring client, std::wstring transferCode);
-        static concurrencpp::result<std::wstring> CheckCharnameTaken(ClientId client, std::wstring newName);
         static void ClearClientInfo(ClientId clientId);
         static void __fastcall LoadPlayerMData(MPlayerDataSaveStruct* mdata, void* edx, INI_Reader* ini);
         static void InitContentDLLDetours();

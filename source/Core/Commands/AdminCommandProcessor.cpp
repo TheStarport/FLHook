@@ -121,7 +121,7 @@ concurrencpp::result<void> AdminCommandProcessor::KickPlayer(ClientId client, Cl
 
 concurrencpp::result<void> AdminCommandProcessor::BanPlayer(ClientId client, CharacterId characterName)
 {
-    const auto account = AccountId::GetAccountFromCharacterName(characterName);
+    const auto account = co_await AccountId::GetAccountFromCharacterName(characterName);
     if (!account.has_value())
     {
         client.MessageErr(std::format(L"Unable to find account from character: {}", characterName));
@@ -135,31 +135,35 @@ concurrencpp::result<void> AdminCommandProcessor::BanPlayer(ClientId client, Cha
 
 concurrencpp::result<void> AdminCommandProcessor::TempbanPlayer(ClientId client, CharacterId characterName, uint durationInDays)
 {
-    const auto account = AccountId::GetAccountFromCharacterName(characterName);
+    const auto account = co_await AccountId::GetAccountFromCharacterName(characterName);
     if (!account.has_value())
     {
+        THREAD_MAIN;
+
         client.MessageErr(std::format(L"Unable to find account from character: {}", characterName));
         co_return;
     }
 
-    account->Ban(durationInDays);
+    co_await account->Ban(durationInDays);
+    // TODO: Validate it was successful
+    THREAD_MAIN;
     client.Message(std::format(L"{} has been successfully banned for {} days.", characterName, durationInDays));
     co_return;
 }
 
 concurrencpp::result<void> AdminCommandProcessor::UnBanPlayer(ClientId client, CharacterId characterName)
 {
-    const auto account = AccountId::GetAccountFromCharacterName(characterName);
+    const auto account = co_await AccountId::GetAccountFromCharacterName(characterName);
     if (!account.has_value())
     {
+        THREAD_MAIN;
         client.Message(std::format(L"Unable to find account from character: {}", characterName));
         co_return;
     }
 
-    THREAD_BACKGROUND;
-    (void)account->UnBan();
-    THREAD_MAIN;
+    account->UnBan();
 
+    THREAD_MAIN;
     client.Message(std::format(L"{} has been successfully unbanned.", characterName));
     co_return;
 }
@@ -858,7 +862,7 @@ concurrencpp::result<void> AdminCommandProcessor::Help(ClientId client, std::opt
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::SetAccTransferCode(ClientId client, std::wstring_view characterNameView, std::wstring_view code)
+concurrencpp::result<void> AdminCommandProcessor::SetCharacterTransferCode(ClientId client, CharacterId character, std::wstring_view code)
 {
     if (code.length() == 0)
     {
@@ -866,61 +870,21 @@ concurrencpp::result<void> AdminCommandProcessor::SetAccTransferCode(ClientId cl
         co_return;
     }
 
-    std::string stackAllocatedCharacterName = StringUtils::wstos(characterNameView);
-    std::wstring stackAllocatedCode = std::wstring(code);
-
-    THREAD_BACKGROUND;
-
-    const auto config = FLHook::GetConfig();
-    const auto dbClient = FLHook::GetDbClient();
-    auto charactersCollection = dbClient->database(config->database.dbName).collection(config->database.charactersCollection);
-
-    const auto findCharacterDoc = B_MDOC(B_KVP("characterName", stackAllocatedCharacterName));
-
-    const auto characterResult = charactersCollection.find_one(findCharacterDoc.view());
-    if (!characterResult.has_value())
-    {
-        THREAD_MAIN;
-        client.MessageErr(L"Provided character name not found");
-        co_return;
-    }
-
-    const auto findCharactersDoc = B_MDOC(B_KVP("accountId", characterResult->find("accountId")->get_string()));
-
-    for (auto cursor = charactersCollection.find(findCharactersDoc.view()); const auto& doc : cursor)
-    {
-        std::string targetCharacter = std::string(doc.find("characterName")->get_string().value);
-        if (targetCharacter.empty())
-        {
-            continue;
-        }
-
-        std::wstring targetWideCharacter = StringUtils::stows(targetCharacter);
-
-        if (stackAllocatedCode == L"none")
-        {
-            if (AccountManager::ClearCharacterTransferCode(targetWideCharacter))
-            {
-                (void)client.Message(std::format(L"OK Transferchar code cleared on {}", targetWideCharacter));
-            }
-            else
-            {
-                (void)client.MessageErr(std::format(L"Database error encountered whilst clearing transferchar code on {}", targetWideCharacter));
-            }
-        }
-        else
-        {
-            if (AccountManager::SetCharacterTransferCode(targetWideCharacter, stackAllocatedCode))
-            {
-                (void)client.Message(std::format(L"OK Transferchar code set to {} on {}", stackAllocatedCode, targetWideCharacter));
-            }
-            else
-            {
-                (void)client.MessageErr(std::format(L"Database error encountered whilst setting transferchar code on {}", targetWideCharacter));
-            }
-        }
-    }
+    auto stackAllocatedCode = std::wstring(code);
+    const auto result = (co_await character.SetTransferCode(code)).Handle();
 
     THREAD_MAIN;
-    co_return;
+
+    if (result == MongoResult::Success)
+    {
+        client.ToastMessage(L"Code Set", std::format(L"Character transfer code has been set to {}", stackAllocatedCode));
+    }
+    else if (result == MongoResult::MatchButNoChange)
+    {
+        client.ToastMessage(L"Same Code", L"Character already had this code set.", ToastType::Warning);
+    }
+    else
+    {
+        client.ToastMessage(L"Failure", L"Failed to set character transfer code", ToastType::Error);
+    }
 }

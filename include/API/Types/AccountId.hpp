@@ -12,8 +12,8 @@ class DLL AccountId final
         explicit AccountId() = default;
 
         static std::optional<AccountId> GetAccountFromClient(ClientId client);
-        static std::optional<AccountId> GetAccountFromCharacterName(const CharacterId& characterName);
-        static std::optional<AccountId> GetAccountFromAccountId(std::wstring_view accountId);
+        static concurrencpp::result<std::optional<AccountId>> GetAccountFromCharacterName(const CharacterId& characterName);
+        static concurrencpp::result<std::optional<AccountId>> GetAccountFromAccountId(std::wstring_view accountId);
 
         bool operator==(const AccountId& acc) const { return accountId == acc.accountId; }
         explicit operator bool() const;
@@ -24,9 +24,9 @@ class DLL AccountId final
         [[nodiscard]]
         bool IsAdmin() const;
 
-        Action<void> UnBan() const;
-        Action<void> Ban(uint tempBanDays = 0) const;
-        Action<void> DeleteCharacter(std::wstring_view name) const;
+        concurrencpp::result<Action<void>> UnBan() const;
+        concurrencpp::result<Action<void>> Ban(uint tempBanDays = 0) const;
+        concurrencpp::result<Action<void>> DeleteCharacter(std::wstring_view name) const;
 
         Action<bool> HasRole(std::wstring_view role) const;
 };

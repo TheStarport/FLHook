@@ -25,7 +25,9 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         concurrencpp::result<void> InvitePlayer(ClientId client, ClientId otherClient);
         concurrencpp::result<void> LeaveGroup(ClientId client);
         concurrencpp::result<void> FactionInvite(ClientId client, std::wstring_view factionTag);
-        concurrencpp::result<void> TransferCharacter(ClientId client, std::wstring_view cmd, std::wstring_view param1, std::wstring_view param2);
+        concurrencpp::result<void> MigrateCharacterSetCode(ClientId client, std::wstring_view code);
+        concurrencpp::result<void> MigrateCharacterClearCode(ClientId client);
+        concurrencpp::result<void> MigrateCharacterTransfer(ClientId client, CharacterId targetCharacter, std::wstring_view code);
         // concurrencpp::result<void>DeleteMail(std::wstring_view mailID, std::wstring_view readOnlyDel);
         // concurrencpp::result<void>ReadMail(uint mailId);
         // concurrencpp::result<void>ListMail(int pageNumber, std::wstring_view unread);
@@ -39,7 +41,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         concurrencpp::result<void> Help(ClientId client, std::optional<int> page);
 
         // clang-format off
-        inline static const std::array<CommandInfo<UserCommandProcessor>, 30> commands = {
+        inline static const std::array<CommandInfo<UserCommandProcessor>, 32> commands = {
             {
                 AddCommand(UserCommandProcessor, Cmds( L"/id"sv ), GetSelfClientId, L"/id", L"Prints your client id"),
                 AddCommand(UserCommandProcessor, Cmds( L"/ids"sv ), GetClientIds, L"/ids", L"Lists all the players and their internal client id numbers."),
@@ -81,7 +83,9 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
                 AddCommand(UserCommandProcessor, Cmds( L"/coin"sv ), Coin, L"/coin", L"Tosses a coin, heads or tails."),
                 AddCommand(UserCommandProcessor, Cmds( L"/dice"sv ), Dice, L"/dice [numOfSides]", L"Rolls the dice with specified amount of sides, 6 if unspecified"),
                 AddCommand(UserCommandProcessor, Cmds( L"/droprep"sv ), DropRep, L"/droprep", L"Removes your affiliation if you have one"),
-                AddCommand(UserCommandProcessor, Cmds( L"/transferchar"sv ), TransferCharacter, L"/transferchar [setcode <code>|transfer <char> <code>|clearcode]", L"Set the character move code, or use the previously set code to transfer said character into current account"),
+                AddCommand(UserCommandProcessor, Cmds( L"/migratechar clear"sv), MigrateCharacterClearCode, L"/migratechar clear", L"Clears the character transfer code if it is set"),
+                AddCommand(UserCommandProcessor, Cmds( L"/migratechar setcode"sv, L"/set movecharcode"sv), MigrateCharacterSetCode, L"/migratechar setcode <code>", L"Set the code on this character for the purpose of moving to another account"),
+                AddCommand(UserCommandProcessor, Cmds( L"/migratechar transfer"sv, L"/movechar"sv), MigrateCharacterTransfer, L"/migratechar transfer <character> <code>", L"Move this character to another account"),
                 AddCommand(UserCommandProcessor, Cmds( L"/help"sv, L"/h"sv, L"/?"sv), Help, L"/help [page]", L"Provides indepth help information")
             }
         };

@@ -13,6 +13,8 @@
 #include "Core/PluginManager.hpp"
 #include "Core/Commands/UserCommandProcessor.hpp"
 
+#include "Defs/Database/MongoResult.hpp"
+
 std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(const ClientId triggeringClient, const std::wstring_view clientStr,
                                                                                const std::wstring_view commandStr)
 {
@@ -360,6 +362,7 @@ concurrencpp::result<void> UserCommandProcessor::ShowSavedMsgs(const ClientId cl
 
 concurrencpp::result<void> UserCommandProcessor::IgnoreUser(const ClientId client, const std::wstring_view ignoredUser, const std::wstring_view flags)
 {
+    // TODO: Replace Ignore commands with 'mute' commands for temporary suppression
     static const std::wstring errorMsg =
         L"Error: Invalid parameters\n"
         L"Usage: /ignore <charname> [<flags>]\n"
@@ -393,11 +396,11 @@ concurrencpp::result<void> UserCommandProcessor::IgnoreUser(const ClientId clien
         }
     }
 
-    if (flags.find_first_of(L"i") == std::wstring::npos && !AccountId::GetAccountFromCharacterName(CharacterId{ ignoredUser }).has_value())
+    /*if (flags.find_first_of(L"i") == std::wstring::npos && !AccountId::GetAccountFromCharacterName(CharacterId{ ignoredUser }).has_value())
     {
         (void)client.Message(L"Target character not found");
         co_return;
-    }
+    }*/
 
     auto& info = client.GetData();
     if (info.ignoreInfoList.size() >= FLHook::GetConfig()->userCommands.userCmdMaxIgnoreList)
@@ -545,28 +548,29 @@ concurrencpp::result<void> UserCommandProcessor::GetSelfClientId(ClientId client
 
 concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, const std::wstring_view newName)
 {
+    const std::wstring newNameStr = newName.data();
     const auto& [renameCost, cooldown] = FLHook::GetConfig()->rename;
 
-    if (newName.empty() || newName == client.GetCharacterId().Unwrap().GetValue())
+    if (newNameStr.empty() || newNameStr == client.GetCharacterId().Unwrap().GetValue())
     {
         client.ToastMessage(L"Bad Name", L"A new name, that is not your current one, must be provided.", ToastType::Error);
         co_return;
     }
 
-    if (newName.find(L' ') != std::wstring_view::npos)
+    if (newNameStr.find(L' ') != std::wstring_view::npos)
     {
         (void)client.MessageErr(L"No whitespaces allowed.");
         co_return;
     }
 
-    if (newName.length() > 23)
+    if (newNameStr.length() > 23)
     {
         (void)client.MessageErr(L"Name too long, max 23 characters allowed");
         co_return;
     }
 
     // Ban any name that is numeric and might interfere with commands
-    if (const auto numeric = StringUtils::Cast<uint>(newName); numeric < 10000 && numeric != 0)
+    if (const auto numeric = StringUtils::Cast<uint>(newNameStr); numeric < 10000 && numeric != 0)
     {
         (void)client.MessageErr(L"Names that are strictly numerical must be at least 5 digits.");
         co_return;
@@ -601,20 +605,11 @@ concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, c
         }
     }
 
-    std::wstring newNameStr = newName.data();
-
-    auto errMsg = co_await AccountManager::CheckCharnameTaken(client, newNameStr);
-    if (!errMsg.empty())
-    {
-        (void)client.MessageErr(errMsg);
-        co_return;
-    }
-
     auto currCharacter = client.GetCharacterId().Handle();
 
     if (renameCost)
     {
-        const auto currentCash = (co_await client.GetCharacterId().Handle().GetCash()).Handle();
+        const auto currentCash = client.GetCash().Handle();
 
         if (currentCash < renameCost)
         {
@@ -622,8 +617,6 @@ concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, c
             client.ToastMessage(L"Insufficient money!", L"You don't have enough money.", ToastType::Error);
             co_return;
         }
-
-        (co_await currCharacter.RemoveCash(renameCost)).Handle();
     }
 
     THREAD_MAIN;
@@ -632,7 +625,13 @@ concurrencpp::result<void> UserCommandProcessor::Rename(const ClientId client, c
     co_await FLHook::GetTaskScheduler()->Delay(5s);
     client.Kick();
     co_await FLHook::GetTaskScheduler()->Delay(0.5s);
-    (co_await currCharacter.Rename(newNameStr)).Handle();
+    const auto result = (co_await currCharacter.Rename(newNameStr)).Handle();
+
+    if (renameCost && result == MongoResult::Success)
+    {
+        auto newCharacter = CharacterId{ newNameStr };
+        (co_await currCharacter.RemoveCash(renameCost)).Handle();
+    }
 }
 
 concurrencpp::result<void> UserCommandProcessor::InvitePlayer(const ClientId client, const ClientId otherClient)
@@ -692,75 +691,63 @@ concurrencpp::result<void> UserCommandProcessor::FactionInvite(const ClientId cl
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::TransferCharacter(const ClientId client, const std::wstring_view cmd, const std::wstring_view param1,
-                                                                   const std::wstring_view param2)
+concurrencpp::result<void> UserCommandProcessor::MigrateCharacterSetCode(const ClientId client, const std::wstring_view code)
 {
-    const auto db = FLHook::GetDbClient();
-    if (cmd == L"clearcode")
+    auto transferCode = std::wstring{ code };
+    const auto character = client.GetCharacterId().Handle();
+    const auto result = (co_await character.SetTransferCode(code)).Handle();
+
+    THREAD_MAIN;
+
+    if (result == MongoResult::Success)
     {
-        const std::wstring charName = client.GetCharacterId().Handle().GetValue().data();
-        if (co_await AccountManager::ClearCharacterTransferCode(charName))
-        {
-            (void)client.Message(L"Character transfer code cleared");
-        }
-        else
-        {
-            (void)client.MessageErr(L"Failed to clear character transfer code");
-        }
+        client.ToastMessage(L"Code Set", std::format(L"Character transfer code has been set to {}", transferCode));
     }
-    else if (cmd == L"setcode")
+    else if (result == MongoResult::MatchButNoChange)
     {
-        const std::wstring charName = client.GetCharacterId().Handle().GetValue().data();
-        if (param1.size() == 0)
-        {
-            (void)client.Message(L"Usage: /transferchar setcode <code>");
-            co_return;
-        }
-        const std::wstring newCharCode = param1.data();
-        if (co_await AccountManager::SetCharacterTransferCode(charName, newCharCode))
-        {
-            (void)client.Message(L"Character transfer code set");
-        }
-        else
-        {
-            (void)client.MessageErr(L"Failed to set character transfer code");
-        }
-    }
-    else if (cmd == L"transfer")
-    {
-        if (client.GetData().account->characters.size() >= 5) // TODO: This number is WRONG
-        {
-            (void)client.Message(L"This account cannot hold more characters");
-            co_return;
-        }
-
-        if (param1.size() == 0 || param2.size() == 0)
-        {
-            (void)client.Message(L"Usage: /transferchar transfer <char> <code>");
-            co_return;
-        }
-
-        const AccountId accountId = client.GetAccount().Handle();
-
-        const std::wstring charName = std::wstring(param1);
-        const std::wstring charCode = std::wstring(param2);
-
-        // TODO REIMPLEMENT USING CHARACTER ID
-        /*if (const auto err = co_await AccountManager::TransferCharacter(accountId, charName, charCode); !err.empty())
-        {
-            (void)client.MessageErr(err);
-        }
-        else
-        {
-            (void)client.Kick(L"Transferring the character.", 3);
-        }*/
+        client.ToastMessage(L"Same Code", L"Character already had this code set.", ToastType::Warning);
     }
     else
     {
-        client.Message(L"Usage: /transferchar [setcode <code>|transfer <char> <code>|clearcode]");
+        client.ToastMessage(L"Failure", L"Failed to set character transfer code", ToastType::Error);
+    }
+}
+
+concurrencpp::result<void> UserCommandProcessor::MigrateCharacterClearCode(ClientId client)
+{
+    const auto character = client.GetCharacterId().Handle();
+    const auto result = (co_await character.ClearTransferCode()).Handle();
+    THREAD_MAIN;
+
+    if (result == MongoResult::Success)
+    {
+        client.ToastMessage(L"Code Cleared", L"Character transfer code cleared");
+    }
+    else if (result == MongoResult::MatchButNoChange)
+    {
+        client.ToastMessage(L"No Code", L"Character had not transfer code set", ToastType::Warning);
+    }
+    else
+    {
+        client.ToastMessage(L"Failure", L"Failed to clear character transfer code", ToastType::Error);
+    }
+}
+
+concurrencpp::result<void> UserCommandProcessor::MigrateCharacterTransfer(ClientId client, CharacterId targetCharacter, std::wstring_view code)
+{
+    const auto transferCode = std::wstring{ code };
+    const auto currentCharacter = client.GetCharacterId().Handle();
+    const auto currentAccount = AccountId::GetAccountFromClient(client);
+
+    if (!currentAccount)
+    {
+        THREAD_MAIN;
+        client.ToastMessage(L"Failure", L"Could not find current character.", ToastType::Error);
+        co_return;
     }
 
-    co_return;
+    (co_await targetCharacter.Transfer(*currentAccount, transferCode)).Handle();
+    // No need to send any messages, transfer will kick if successful or message on failure for us
 }
 
 /*concurrencpp::result<void>UserCommandProcessor::DeleteMail(const std::wstring_view mailID, const std::wstring_view readOnlyDel)

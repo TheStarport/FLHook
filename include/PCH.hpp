@@ -66,6 +66,8 @@ using namespace std::chrono_literals;
 #include <wildcards.hpp.in>
 #undef __clang__
 
+#include <concurrencpp/concurrencpp.h>
+
 #include "API/Utils/Action.hpp"
 #include "Core/Templates/Macros.hpp"
 #include "Defs/Enums.hpp"
