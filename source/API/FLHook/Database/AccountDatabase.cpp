@@ -178,7 +178,6 @@ concurrencpp::result<void> AccountManager::LoginInternal(SLoginInfo li, const Cl
             auto& charRef = accounts[client.GetValue()].characters[charFileName] = character;
 
             charRef.characterDocument = doc;
-            client.GetData().characterData = &charRef; // TODO this seems questionable - can't the user select any of them?
         }
         session.commit_transaction();
         accounts[client.GetValue()].loginSuccess = true;

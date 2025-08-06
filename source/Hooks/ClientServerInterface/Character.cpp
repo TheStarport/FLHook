@@ -81,9 +81,10 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
 
     auto prevCharName = FLHook::GetClient(client).characterId;
 
-    const auto& data = AccountManager::accounts[client.GetValue()].characters.at(cid.charFilename);
+    auto& data = AccountManager::accounts[client.GetValue()].characters.at(cid.charFilename);
     // TODO what if the client tries to pick a character that isn't on this account
     FLHook::GetClient(client).characterId = CharacterId{ data.wideCharacterName };
+    client.GetData().characterData = &data;
 
     auto charName = CharacterId{ StringUtils::stows(static_cast<const char*>(cid.charFilename)) };
     bool skip = false;
@@ -164,7 +165,7 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
     TRACE("IServerImplHook::DestroyCharacter client={{client}}", { "client", client });
 
     auto& account = AccountManager::accounts.at(client.GetValue());
-    std::lock_guard lock{account.mutex};
+    std::lock_guard lock{ account.mutex };
 
     const std::string charCodeString = cid.charFilename;
     auto character = account.characters.find(charCodeString);
