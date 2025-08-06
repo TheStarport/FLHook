@@ -53,10 +53,10 @@ struct MPlayerDataSaveStruct
         bool canTL;                          // 52
         uint padding51;                      // 56
         st6::list<TLException> tlExceptions; // 60
-        FlMap<uint, uint> killedShips;       // 72
-        FlMap<uint, uint> rmCompleted;       // 92
-        FlMap<uint, uint> rmAborted;         // 112
-        FlMap<uint, uint> rmFailed;          // 132
+        st6::map<uint, uint> killedShips;    // 72
+        st6::map<uint, uint> rmCompleted;    // 92
+        st6::map<uint, uint> rmAborted;      // 112
+        st6::map<uint, uint> rmFailed;       // 132
         float totalCashEarned;               // 156
         float totalTimePlayed;               // 160
         st6::vector<uint> visitedSystems;    // 164
@@ -141,8 +141,6 @@ class AccountManager
         using OnPlayerSaveType = bool(__fastcall*)(PlayerData* data);
         using PlayerDbGetAccountByCharNameType = CAccount*(__fastcall*)(PlayerDB* data, void* edx, st6::wstring& charName);
         using OnCreateNewCharacterType = bool(__fastcall*)(PlayerData* data, void* edx, SCreateCharacterInfo* character);
-        using FlMapVisitErase = uint*(__thiscall*)(FlMap<uint, char>&, FlMap<uint, char>::Node*&, FlMap<uint, char>::Node*, FlMap<uint, char>::Node*);
-        using FlMapVisitInsert = FlMap<uint, char>::Node*(__thiscall*)(FlMap<uint, char>& visitMap, FlMap<uint, char>::Node* node, const uint& key);
 
         inline static std::unique_ptr<FunctionDetour<DbInitType>> dbInitDetour;
         inline static std::unique_ptr<FunctionDetour<LoadMDataType>> loadPlayerMDataDetour;
@@ -165,8 +163,6 @@ class AccountManager
         static void InitContentDLLDetours();
 
         inline static GetFLNameT getFlName;
-        inline static FlMapVisitErase flMapVisitErase;
-        inline static FlMapVisitInsert flMapVisitInsert;
         PlayerDbLoadUserDataAssembly loadUserDataAssembly;
 
     public:

@@ -110,16 +110,10 @@ void AccountManager::ConvertCharacterToVanillaData(CharacterData* data, const Ch
     memcpy(data->voice, character.voice.c_str(), character.voice.size() + 1);
     data->voiceLen = character.voice.size() + 1;
 
-    FlMap<uint, char>::Node* insertNode = nullptr;
-    FlMap<uint, char>::Node* beginNode = *data->visits.begin();
-    FlMap<uint, char>::Node* endNode = *data->visits.end();
-
-    AccountManager::flMapVisitErase(data->visits, insertNode, beginNode, endNode);
-    insertNode = insertNode->parent;
-    for (auto& [objectId, visitFlag] : character.visits)
+    data->visits.clear();
+    for (const auto& [objectId, visitFlag] : character.visits)
     {
-        insertNode = AccountManager::flMapVisitInsert(data->visits, insertNode, objectId);
-        insertNode->left->data = visitFlag;
+        data->visits[static_cast<uint>(objectId)] = static_cast<char>(visitFlag);
     }
 }
 
@@ -357,7 +351,7 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
     }
 }
 
-using CreateCharacterLoadingData = void*(__thiscall*)(FlMap<CHARACTER_ID, CharacterData>* data, const char* buffer);
+using CreateCharacterLoadingData = void*(__thiscall*)(st6::map<CHARACTER_ID, CharacterData>* data, const char* buffer);
 CreateCharacterLoadingData createCharacterLoadingData = reinterpret_cast<CreateCharacterLoadingData>(0x77090);
 
 AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(PlayerData* data, const uint clientId)
@@ -666,8 +660,8 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         return true;
     }
 
-    auto* characterData = *pd->characterMap.find(pd->charFile.charFilename);
-    UpdateCharacterCache(pd, &characterData->data);
+    auto characterData = pd->characterMap.find(pd->charFile.charFilename);
+    UpdateCharacterCache(pd, &characterData->second);
 
     auto playerMapCache = pd->characterMap.find(client.playerData->charFile);
     if (playerMapCache == pd->characterMap.end())
@@ -677,7 +671,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     }
 
     static DWORD contentModule = DWORD(GetModuleHandleA("content.dll")) + 0x130BBC;
-    static auto mdataBST = reinterpret_cast<FlMap<uint, MPlayerDataSaveStruct*>*>(contentModule);
+    static auto* mdataBST = reinterpret_cast<st6::map<uint, MPlayerDataSaveStruct*>*>(contentModule);
 
     auto mdataIter = mdataBST->find(pd->clientId);
     if (mdataIter == mdataBST->end())
@@ -686,7 +680,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         return true;
     }
 
-    auto mdata = *mdataIter.value();
+    auto* mdata = mdataIter->second;
 
     auto& account = accounts[pd->clientId];
     std::unique_lock lock{ account.mutex };
@@ -754,19 +748,19 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     character.randomMissionsFailed.clear();
     for (auto iterBST : mdata->killedShips)
     {
-        character.shipTypesKilled[std::to_string(iterBST->key)] = iterBST->data;
+        character.shipTypesKilled[std::to_string(iterBST.first)] = iterBST.second;
     }
     for (auto iterBST : mdata->rmCompleted)
     {
-        character.randomMissionsCompleted[std::to_string(iterBST->key)] = iterBST->data;
+        character.randomMissionsCompleted[std::to_string(iterBST.first)] = iterBST.second;
     }
     for (auto iterBST : mdata->rmAborted)
     {
-        character.randomMissionsAborted[std::to_string(iterBST->key)] = iterBST->data;
+        character.randomMissionsAborted[std::to_string(iterBST.first)] = iterBST.second;
     }
     for (auto iterBST : mdata->rmFailed)
     {
-        character.randomMissionsFailed[std::to_string(iterBST->key)] = iterBST->data;
+        character.randomMissionsFailed[std::to_string(iterBST.first)] = iterBST.second;
     }
 
     character.totalCashEarned = mdata->totalCashEarned;
@@ -776,7 +770,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     // for (auto visit = pd->visitEntries.begin(); visit != pd->visitEntries.end(); ++visit)
     for (auto visit : pd->visitEntries)
     {
-        character.visits.emplace_back(std::array{ static_cast<int>(visit->key), static_cast<int>(visit->data) });
+        character.visits.emplace_back(std::array{ static_cast<int>(visit.first), static_cast<int>(visit.second) });
     }
     character.equipment.clear();
     character.baseEquipment.clear();
@@ -863,7 +857,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         }
     }
 
-    for (const auto& equip : playerMapCache.value()->baseEquipAndCargo)
+    for (const auto& equip : playerMapCache->second.baseEquipAndCargo)
     {
         Equipment equipment = {};
         FLCargo cargo = {};
@@ -893,7 +887,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     {
         character.collisionGroups.insert({ std::to_string(col.id), col.health });
     }
-    for (const auto& col : playerMapCache.value()->baseCollisionGroups)
+    for (const auto& col : playerMapCache->second.baseCollisionGroups)
     {
         character.baseCollisionGroups.insert({ std::to_string(col.id), col.health });
     }
@@ -915,7 +909,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     }
 
     // Update the character kept in the account cache.
-    ConvertCharacterToVanillaData(&characterData->data, character, pd->clientId);
+    ConvertCharacterToVanillaData(&characterData->second, character, pd->clientId);
 
     lock.unlock();
     FLHook::GetTaskScheduler()->ScheduleTask(SaveCharacterInternal, client.id, &account, &character, false);
@@ -1052,9 +1046,6 @@ AccountManager::AccountManager()
 
     const auto serverOffset = reinterpret_cast<DWORD>(GetModuleHandleA("server.dll"));
     getFlName = reinterpret_cast<GetFLNameT>(FLHook::Offset(FLHook::BinaryType::Server, AddressList::GetFlName));
-
-    flMapVisitErase = FlMapVisitErase(serverOffset + 0x77540);
-    flMapVisitInsert = FlMapVisitInsert(serverOffset + 0x7C600);
 
     createCharacterLoadingData = reinterpret_cast<CreateCharacterLoadingData>(reinterpret_cast<DWORD>(createCharacterLoadingData) + serverOffset);
 

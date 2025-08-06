@@ -317,9 +317,9 @@ ResourceManager::SpaceObjectBuilder& ResourceManager::SpaceObjectBuilder::WithRa
         {
             if (currentIndex == randomGroupIndex)
             {
-                if (!excludeStoryFactions || std::ranges::find(GameData::storyFactions, listItem.key()) == GameData::storyFactions.end())
+                if (!excludeStoryFactions || std::ranges::find(GameData::storyFactions, listItem->first) == GameData::storyFactions.end())
                 {
-                    rep = std::string(listItem.value()->name);
+                    rep = std::string(listItem->second.name);
                 }
 
                 break;

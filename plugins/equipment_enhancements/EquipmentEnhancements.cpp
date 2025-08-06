@@ -64,19 +64,19 @@ namespace Plugins
         }
 
         auto shieldResistIter = GameData::shieldResistMap.find(weaponType.GetValue());
-        if (shieldResistIter == GameData::shieldResistMap.end() || !shieldResistIter.key())
+        if (shieldResistIter == GameData::shieldResistMap.end() || !shieldResistIter->first)
         {
             return 1.0f;
         }
 
-        auto shieldResistMap2 = shieldResistIter.value();
-        auto shieldResistIter2 = shieldResistMap2->find(shield->highestToughnessShieldGenArch->shieldTypeId);
-        if (shieldResistIter2 == shieldResistMap2->end() || !shieldResistIter2.key())
+        auto& shieldResistMap2 = shieldResistIter->second;
+        auto shieldResistIter2 = shieldResistMap2.find(shield->highestToughnessShieldGenArch->shieldTypeId);
+        if (shieldResistIter2 == shieldResistMap2.end() || !shieldResistIter2->second)
         {
             return 1.0f;
         }
 
-        return *shieldResistIter2.value();
+        return shieldResistIter2->second;
     }
 
     void EquipmentEnhancementsPlugin::OnSpRequestUseItem(ClientId client, const SSPUseItem& p1)
@@ -520,9 +520,7 @@ namespace Plugins
                 continue;
             }
 
-            shipGunData[ship->id][gun->SubObjId] = { burstGunDataIter->second.magSize,
-                                                                burstGunDataIter->second.magSize,
-                                                                burstGunDataIter->second.reloadTime };
+            shipGunData[ship->id][gun->SubObjId] = { burstGunDataIter->second.magSize, burstGunDataIter->second.magSize, burstGunDataIter->second.reloadTime };
         }
     }
 
@@ -600,7 +598,7 @@ namespace Plugins
     }
 
     void EquipmentEnhancementsPlugin::OnShipMunitionHit(Ship* ship, MunitionImpactData* impact, DamageList* dmgList)
-    { 
+    {
         FetchShipArmor(ship->cobj->archetype->archId);
         FetchWeaponData(impact->munitionArch->archId);
         armorEnabled = true;
@@ -706,7 +704,6 @@ namespace Plugins
         {
             currMunitionData = &weaponData->second;
         }
-
     }
 
     void EquipmentEnhancementsPlugin::FetchShipArmor(Id shipHash)

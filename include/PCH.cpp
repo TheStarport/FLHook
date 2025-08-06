@@ -253,14 +253,14 @@ RepGroupId TransformArg(std::wstring_view s, size_t paramNumber)
     const auto& im = FLHook::GetInfocardManager();
     for (const auto group : GameData::repGroups)
     {
-        if (auto name = im->GetInfoName(group->data.nameIds); wildcards::match(name, s))
+        if (auto name = im->GetInfoName(group.second.nameIds); wildcards::match(name, s))
         {
-            return RepGroupId(group->key);
+            return RepGroupId(group.first);
         }
 
-        if (auto name = im->GetInfoName(group->data.shortNameIds); wildcards::match(name, s))
+        if (auto name = im->GetInfoName(group.second.shortNameIds); wildcards::match(name, s))
         {
-            return RepGroupId(group->key);
+            return RepGroupId(group.first);
         }
     }
 

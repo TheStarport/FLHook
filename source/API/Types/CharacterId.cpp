@@ -47,8 +47,7 @@ Action<MongoResult> CharacterId::UpdateCharacterDocument(std::string_view name, 
     try
     {
         const auto update = query.UpdateFromCollection(DatabaseCollection::Character, findCharDoc, updateDoc);
-        auto e = update.matched_count();
-        auto ee = update.modified_count();
+        const auto newDoc = query.FindFromCollection(DatabaseCollection::Character, findCharDoc);
 
         query.ConcludeQuery(true);
 
@@ -60,6 +59,20 @@ Action<MongoResult> CharacterId::UpdateCharacterDocument(std::string_view name, 
         if (update.modified_count() == 0)
         {
             return { MongoResult::MatchButNoChange };
+        }
+
+        const auto targetCharacterCode = CharacterId{ StringUtils::stows(name) }.GetCharacterCode();
+        const auto accountId = newDoc->find("accountId")->get_string().value;
+        for (auto& account : AccountManager::accounts)
+        {
+            std::scoped_lock lock{ account.mutex };
+
+            // If the updated character's account is currently logged in we need to update their character cache
+            if (account.account._id == accountId)
+            {
+                account.characters[targetCharacterCode] = Character{ newDoc->view() };
+                break;
+            }
         }
 
         return { MongoResult::Success };
@@ -165,6 +178,7 @@ concurrencpp::result<Action<MongoResult>> CharacterId::Delete() const
         // Check if the account connected was online and update in memory
         for (auto& account : AccountManager::accounts)
         {
+            std::scoped_lock lock{ account.mutex };
             auto character = account.characters.find(characterIdStr);
             if (character == account.characters.end())
             {
