@@ -7,8 +7,6 @@
 #include "Exceptions/StopProcessingException.hpp"
 #include "FLCore/FLCoreDALib.h"
 
-// TODO: Do a pass on all the logging within this file. A lot of it does not make sense or logs unhelpful information
-
 bool IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON(uint client, XFireWeaponInfo& fwi)
 {
     TRACE("IClientImpl::Send_FLPACKET_COMMON_FIREWEAPON client={{client}}", { "client", client });
@@ -90,8 +88,6 @@ bool IClientImpl::Send_FLPACKET_COMMON_SETTARGET(uint client, XSetTarget& st)
 
 void IClientImpl::unknown_6(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("IClientImpl::unknown_6 client={{client}}", { "client", client });
-
     CallClientPreamble { unknown_6(client, unk1); }
     CallClientPostamble;
 }
@@ -616,8 +612,6 @@ bool IClientImpl::Send_FLPACKET_SERVER_CREATECOUNTER(uint client, FLPACKET_UNKNO
 
 void IClientImpl::unknown_53(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("IClientImpl::unknown_53 client={{client}}", { "client", client });
-
     CallClientPreamble { unknown_53(client, unk1); }
     CallClientPostamble;
 }
@@ -752,8 +746,6 @@ bool IClientImpl::Send_FLPACKET_SERVER_REQUESTCREATESHIPRESP(uint client, bool r
 
 void IClientImpl::unknown_63(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("IClientImpl::unknown_63 client={{client}}", { "client", client });
-
     CallClientPreamble { unknown_63(client, unk1); }
     CallClientPostamble;
 }
@@ -810,8 +802,6 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETREPUTATION(uint client, FLPACKET_SETRE
 
 void IClientImpl::unknown_68(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("IClientImpl::unknown_68 client={{client}}", { "client", client });
-
     CallClientPreamble { unknown_68(client, unk1); }
     CallClientPostamble;
 }
@@ -875,8 +865,6 @@ bool IClientImpl::Send_FLPACKET_SERVER_SET_MISSION_MESSAGE(uint client, FLPACKET
 
 void IClientImpl::unknown_72(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("IClientImpl::unknown_72 client={{client}}", { "client", client });
-
     CallClientPreamble { unknown_72(client, unk1); }
     CallClientPostamble;
 }
@@ -898,8 +886,6 @@ bool IClientImpl::Send_FLPACKET_SERVER_SETMISSIONOBJECTIVES(uint client, uint un
 
 void IClientImpl::unknown_74(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("IClientImpl::unknown_74 client={{client}}", { "client", client });
-
     CallClientPreamble { unknown_74(client, unk1); }
     CallClientPostamble;
 }
@@ -983,8 +969,6 @@ bool IClientImpl::Send_FLPACKET_SERVER_REQUEST_RETURNED(uint& client, uint shipI
 
 void IClientImpl::unknown_85(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("IClientImpl::unknown_85 client={{client}}", { "client", client });
-
     CallClientPreamble { unknown_85(client, unk1); }
     CallClientPostamble;
 }
@@ -1023,17 +1007,12 @@ bool IClientImpl::Send_FLPACKET_SERVER_BURNFUSE(uint client, FLPACKET_BURNFUSE& 
 
 void IClientImpl::unknown_89(uint client, FLPACKET_UNKNOWN* unk1)
 {
-    TRACE("IClientImpl::unknown_89 client={{client}}", { "client", client });
-    ;
-
     CallClientPreamble { unknown_89(client, unk1); }
     CallClientPostamble;
 }
 
 void IClientImpl::unknown_90(uint client)
 {
-    TRACE("IClientImpl::unknown_90 client={{client}}", { "client", client });
-
     CallClientPreamble { unknown_90(client); }
     CallClientPostamble;
 }
@@ -1368,8 +1347,6 @@ void IClientImpl::unknown_123(uint client, uint unk1, uint unk2, uint unk3, uint
 
 void IClientImpl::unknown_124(uint client)
 {
-    TRACE("IClientImpl::unknown_124 client={{client}}", { "client", client });
-
     CallClientPreamble { unknown_124(client); }
     CallClientPostamble;
 }
