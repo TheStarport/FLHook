@@ -96,6 +96,7 @@ struct NewPlayerTemplate
 
 struct AccountData
 {
+        std::mutex mutex;
         CAccount* internalAccount;
         DbAccount account;
         std::unordered_map<std::string, Character> characters;
@@ -155,8 +156,17 @@ class AccountManager
 
         static CAccount* __fastcall PlayerDbGetCAccountByCharacterName(PlayerDB* playerDb, void* edx, st6::wstring& charName);
 
-        inline static GetFLNameT getFlName;
+        static bool SaveCharacterInternal(ClientId client, AccountData* account, Character* newCharacter, bool isNewCharacter);
+        static void OnCreateNewCharacterCopy(PlayerData* data, SCreateCharacterInfo characterInfo);
+        static concurrencpp::result<void> LoginInternal(SLoginInfo li, ClientId client);
+        static void ClearClientInfo(ClientId clientId);
+        static void __fastcall LoadPlayerMData(MPlayerDataSaveStruct* mdata, void* edx, INI_Reader* ini);
+        static void ConvertCharacterToVanillaData(CharacterData* data, const Character& character, uint clientId);
+        static void InitContentDLLDetours();
 
+        inline static GetFLNameT getFlName;
+        inline static FlMapVisitErase flMapVisitErase;
+        inline static FlMapVisitInsert flMapVisitInsert;
         PlayerDbLoadUserDataAssembly loadUserDataAssembly;
 
     public:
@@ -169,15 +179,7 @@ class AccountManager
         AccountManager& operator=(const AccountManager&) = delete;
         ~AccountManager() = default;
 
-        static bool SaveCharacter(ClientId client, Character& newCharacter, bool isNewCharacter);
-        static void OnCreateNewCharacterCopy(PlayerData* data, SCreateCharacterInfo characterInfo);
-        static concurrencpp::result<void> Login(SLoginInfo li, ClientId client);
         static concurrencpp::result<bool> SaveSavedMsgs(std::wstring charName, std::array<std::string, 10> presetMsgs);
-        static void ClearClientInfo(ClientId clientId);
-        static void __fastcall LoadPlayerMData(MPlayerDataSaveStruct* mdata, void* edx, INI_Reader* ini);
-        static void InitContentDLLDetours();
         static Character* GetCurrentCharacterData(ClientId);
         static Character* GetCurrentCharacterData(ClientId, std::wstring_view characterName);
-        inline static FlMapVisitErase flMapVisitErase;
-        inline static FlMapVisitInsert flMapVisitInsert;
 };

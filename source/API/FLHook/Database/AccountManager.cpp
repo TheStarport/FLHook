@@ -7,7 +7,7 @@
 
 #include <uuid.h>
 
-void ConvertCharacterToVanillaData(CharacterData* data, const Character& character, uint clientId)
+void AccountManager::ConvertCharacterToVanillaData(CharacterData* data, const Character& character, uint clientId)
 {
     const std::wstring wCharName = StringUtils::stows(character.characterName);
     data->name = reinterpret_cast<const ushort*>(wCharName.c_str());
@@ -589,6 +589,8 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
     loadData->interfaceState = 3;
 
     auto& account = accounts[data->clientId];
+    std::unique_lock lock{ account.mutex };
+
     static std::array<char, 512> characterFileNameBuffer;
     std::memset(characterFileNameBuffer.data(), 0, characterFileNameBuffer.size());
     getFlName(characterFileNameBuffer.data(), characterInfo->charname);
@@ -597,7 +599,10 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
     ConvertVanillaDataToCharacter(loadData, character);
     character.accountId = account.account._id;
 
-    bool creationSuccessful = SaveCharacter(ClientId(data->clientId), character, true);
+    // Unlock early because SaveCharacterInternal will also try and lock
+    lock.unlock();
+
+    const bool creationSuccessful = SaveCharacterInternal(ClientId(data->clientId), &account, &character, true);
     CreateNewCharacterCallback(*characterInfo, ClientId(data->clientId), creationSuccessful);
     return creationSuccessful;
 }
@@ -683,7 +688,9 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 
     auto mdata = *mdataIter.value();
 
-    auto& character = accounts[pd->clientId].characters.at(pd->charFile.charFilename);
+    auto& account = accounts[pd->clientId];
+    std::unique_lock lock{ account.mutex };
+    auto& character = account.characters.at(pd->charFile.charFilename);
 
     character.basesVisited.clear();
     character.jumpHolesVisited.clear();
@@ -910,7 +917,8 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     // Update the character kept in the account cache.
     ConvertCharacterToVanillaData(&characterData->data, character, pd->clientId);
 
-    FLHook::GetTaskScheduler()->ScheduleTask(SaveCharacter, client.id, character, false);
+    lock.unlock();
+    FLHook::GetTaskScheduler()->ScheduleTask(SaveCharacterInternal, client.id, &account, &character, false);
     return true;
 }
 

@@ -128,6 +128,6 @@ void __stdcall IServerImplHook::Login(const SLoginInfo& li, ClientId client)
 
     if (const auto skip = CallPlugins(&Plugin::OnLogin, client, li); !skip)
     {
-        FLHook::GetTaskScheduler()->ScheduleTask(AccountManager::Login, li, client);
+        FLHook::GetTaskScheduler()->ScheduleTask(AccountManager::LoginInternal, li, client);
     }
 }

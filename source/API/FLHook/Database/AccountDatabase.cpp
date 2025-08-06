@@ -2,6 +2,7 @@
 #include "API/FLHook/Database.hpp"
 #include "Core/ClientServerInterface.hpp"
 #include "PCH.hpp"
+#include "Core/IpResolver.hpp"
 #include "Core/PluginManager.hpp"
 #include "Defs/FLHookConfig.hpp"
 
@@ -10,8 +11,10 @@
 #include <mongocxx/exception/error_code.hpp>
 #include <mongocxx/exception/write_exception.hpp>
 
-bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, const bool isNewCharacter)
+bool AccountManager::SaveCharacterInternal(ClientId client, AccountData* account, Character* newCharacter, const bool isNewCharacter)
 {
+    std::scoped_lock lock(account->mutex);
+
     const auto db = FLHook::GetDbClient();
     auto session = db->start_session();
     session.start_transaction();
@@ -20,7 +23,7 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
     {
         const auto config = FLHook::GetConfig();
         auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-        auto findCharDoc = B_MDOC(B_KVP("characterName", newCharacter.characterName));
+        auto findCharDoc = B_MDOC(B_KVP("characterName", newCharacter->characterName));
 
         if (isNewCharacter)
         {
@@ -31,9 +34,9 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
             }
         }
 
-        auto wideCharacterName = StringUtils::stows(newCharacter.characterName);
+        auto wideCharacterName = StringUtils::stows(newCharacter->characterName);
         B_DOC document;
-        newCharacter.ToBson(document);
+        newCharacter->ToBson(document);
 
         CallPlugins(&Plugin::OnCharacterSave, client, wideCharacterName, document);
 
@@ -47,8 +50,8 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
                 throw mongocxx::write_exception(make_error_code(mongocxx::error_code::k_server_response_malformed), "Unable to upsert a character.");
             }
 
-            newCharacter._id = insertedDoc->inserted_id().get_oid().value;
-            const auto findAccDoc = B_MDOC(B_KVP("_id", newCharacter.accountId));
+            newCharacter->_id = insertedDoc->inserted_id().get_oid().value;
+            const auto findAccDoc = B_MDOC(B_KVP("_id", newCharacter->accountId));
             const auto charUpdateDoc = B_MDOC(B_KVP("$push", B_MDOC(B_KVP("characters", insertedDoc->inserted_id()))));
 
             auto accountCollection = db->database(config->database.dbName)[config->database.accountsCollection];
@@ -70,7 +73,7 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
         session.commit_transaction();
 
         char buf[50];
-        getFlName(buf, newCharacter.wideCharacterName.c_str());
+        getFlName(buf, newCharacter->wideCharacterName.c_str());
 
         auto& character = accounts[client.GetValue()].characters.at(buf);
         character.characterDocument = document.extract();
@@ -82,22 +85,22 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
     {
         if (isNewCharacter)
         {
-            ERROR("Error while creating character: {{character}} {{ex}}", { "ex", ex.what() }, { "character", newCharacter.characterName });
+            ERROR("Error while creating character: {{character}} {{ex}}", { "ex", ex.what() }, { "character", newCharacter->characterName });
         }
         else
         {
-            ERROR("Error while updating character: {{character}} {{ex}}", { "ex", ex.what() }, { "character", newCharacter.characterName });
+            ERROR("Error while updating character: {{character}} {{ex}}", { "ex", ex.what() }, { "character", newCharacter->characterName });
         }
     }
     catch (mongocxx::exception& ex)
     {
         if (isNewCharacter)
         {
-            ERROR("Error while creating character: {{character}} {{ex}}", { "ex", ex.what() }, { "character", newCharacter.characterName });
+            ERROR("Error while creating character: {{character}} {{ex}}", { "ex", ex.what() }, { "character", newCharacter->characterName });
         }
         else
         {
-            ERROR("Error while updating character: {{character}} {{ex}}", { "ex", ex.what() }, { "character", newCharacter.characterName });
+            ERROR("Error while updating character: {{character}} {{ex}}", { "ex", ex.what() }, { "character", newCharacter->characterName });
         }
     }
     session.abort_transaction();
@@ -105,7 +108,7 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
 }
 
 // ReSharper disable once CppPassValueParameterByConstReference
-concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId client)
+concurrencpp::result<void> AccountManager::LoginInternal(SLoginInfo li, const ClientId client)
 {
     std::wstring wideAccountId = li.account;
     accounts[client.GetValue()].loginSuccess = false;

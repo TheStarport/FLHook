@@ -164,6 +164,8 @@ void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, Client
     TRACE("IServerImplHook::DestroyCharacter client={{client}}", { "client", client });
 
     auto& account = AccountManager::accounts.at(client.GetValue());
+    std::lock_guard lock{account.mutex};
+
     const std::string charCodeString = cid.charFilename;
     auto character = account.characters.find(charCodeString);
     if (character == account.characters.end())
