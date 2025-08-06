@@ -104,60 +104,6 @@ bool AccountManager::SaveCharacter(ClientId client, Character& newCharacter, con
     return false;
 }
 
-concurrencpp::result<void> AccountManager::DeleteCharacter(const ClientId client, const std::wstring characterCode, CHARACTER_ID cid)
-{
-    THREAD_BACKGROUND;
-
-    auto db = FLHook::GetDbClient();
-    auto session = db->start_session();
-    session.start_transaction();
-
-    auto& account = accounts.at(client.GetValue());
-    std::string charCodeString = StringUtils::wstos(characterCode);
-    std::string charName = account.characters.at(charCodeString).characterName;
-    std::wstring wideCharName = StringUtils::stows(charName);
-    try
-    {
-        const auto config = FLHook::GetConfig();
-        // TODO: Handle soft deletes
-        auto accountsCollection = db->database(config->database.dbName)[config->database.accountsCollection];
-        auto charactersCollection = db->database(config->database.dbName)[config->database.charactersCollection];
-
-        mongocxx::options::find_one_and_delete deleteOptions;
-        deleteOptions.projection(B_MDOC(B_KVP("accountId", 1)));
-
-        const auto findDoc = B_MDOC(B_KVP("characterName", charName));
-        const auto ret = charactersCollection.find_one_and_delete(findDoc.view(), deleteOptions);
-        if (!ret.has_value())
-        {
-            throw std::runtime_error("Character deletion failed! Unable to find and delete character.");
-        }
-
-        auto oid = ret->view()["_id"].get_oid();
-        const auto findAcc = B_MDOC(B_KVP("_id", ret->view()["accountId"].get_string()));
-        const auto deleteCharacter = B_MDOC(B_KVP("$pull", B_MDOC(B_KVP("characters", oid))));
-        if (auto deleteResult = accountsCollection.update_one(findAcc.view(), deleteCharacter.view());
-            !deleteResult.has_value() || deleteResult.value().modified_count() == 0)
-        {
-            throw std::runtime_error("Removing of character id from account failed.");
-        }
-
-        session.commit_transaction();
-        account.characters.erase(charCodeString);
-        account.internalAccount->numberOfCharacters = account.characters.size();
-        INFO("Successfully hard deleted character: {{characterName}}", { "characterName", wideCharName });
-
-        THREAD_MAIN;
-
-        IServerImplHook::DestroyCharacterCallback(client, cid);
-    }
-    catch (std::exception& ex)
-    {
-        session.abort_transaction();
-        ERROR("Error hard deleting character {{character}} {{ex}}", { "character", wideCharName }, { "ex", ex.what() });
-    }
-}
-
 // ReSharper disable once CppPassValueParameterByConstReference
 concurrencpp::result<void> AccountManager::Login(SLoginInfo li, const ClientId client)
 {

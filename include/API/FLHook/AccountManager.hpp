@@ -115,6 +115,7 @@ class AccountManager
         friend FLHook;
         friend IServerImplHook;
         friend Database;
+        friend CharacterId;
         inline static AccountManager* instance = nullptr;
 
         inline static NewPlayerTemplate newPlayerTemplate;
@@ -170,7 +171,6 @@ class AccountManager
 
         static bool SaveCharacter(ClientId client, Character& newCharacter, bool isNewCharacter);
         static void OnCreateNewCharacterCopy(PlayerData* data, SCreateCharacterInfo characterInfo);
-        static concurrencpp::result<void> DeleteCharacter(ClientId client, std::wstring characterCode, CHARACTER_ID cid);
         static concurrencpp::result<void> Login(SLoginInfo li, ClientId client);
         static concurrencpp::result<bool> SaveSavedMsgs(std::wstring charName, std::array<std::string, 10> presetMsgs);
         static void ClearClientInfo(ClientId clientId);

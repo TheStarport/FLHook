@@ -1,4 +1,5 @@
 #pragma once
+#include "API/Types/ClientId.hpp"
 
 class FLHook;
 class AccountManager;
@@ -49,7 +50,7 @@ class IServerImplHook
         static void __stdcall CharacterSelect(const CHARACTER_ID& cid, ClientId client);
         static void __stdcall CreateNewCharacter(const SCreateCharacterInfo& createCharacterInfo, ClientId client);
         static void __stdcall DestroyCharacter(const CHARACTER_ID& unk1, ClientId client);
-        static void DestroyCharacterCallback(ClientId client, CHARACTER_ID cid);
+        static concurrencpp::result<void> DestroyCharacterAsync(ClientId client, CharacterId character, CHARACTER_ID cid);
         static void __stdcall RequestRankLevel(ClientId client, uint unk1, int unk2);
         static void __stdcall RequestPlayerStats(ClientId client, uint unk1, int unk2);
         static bool CharacterInfoReqInner(ClientId client, bool);

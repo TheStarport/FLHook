@@ -141,22 +141,42 @@ void __stdcall IServerImplHook::CreateNewCharacter(const SCreateCharacterInfo& c
 }
 
 // ReSharper disable twice CppPassValueParameterByConstReference
-void IServerImplHook::DestroyCharacterCallback(const ClientId client, CHARACTER_ID cid)
+concurrencpp::result<void> IServerImplHook::DestroyCharacterAsync(const ClientId client, CharacterId character, CHARACTER_ID cid)
 {
-    CallServerPreamble { Server.DestroyCharacter(cid, client.GetValue()); }
-    CallServerPostamble(true, );
+    const static auto serverDestroyCharacter = [](ClientId client, const CharacterId& character, const CHARACTER_ID& cid)
+    {
+        CallServerPreamble { Server.DestroyCharacter(cid, client.GetValue()); }
+        CallServerPostamble(true, );
+        CallPlugins(&Plugin::OnCharacterDeleteAfter, client, character);
+    };
+
+    if (auto result = co_await character.Delete(); result.HasError())
+    {
+        co_return;
+    }
+
+    THREAD_MAIN;
+    serverDestroyCharacter(client, character, cid);
 }
 
 void __stdcall IServerImplHook::DestroyCharacter(const CHARACTER_ID& cid, ClientId client)
 {
     TRACE("IServerImplHook::DestroyCharacter client={{client}}", { "client", client });
 
-    const std::wstring charName = StringUtils::stows(static_cast<const char*>(cid.charFilename));
+    auto& account = AccountManager::accounts.at(client.GetValue());
+    const std::string charCodeString = cid.charFilename;
+    auto character = account.characters.find(charCodeString);
+    if (character == account.characters.end())
+    {
+        return;
+    }
 
-    if (const auto skip = CallPlugins(&Plugin::OnCharacterDelete, client, std::wstring_view(charName)); !skip)
+    auto characterId = CharacterId{ character->second.wideCharacterName };
+
+    if (const auto skip = CallPlugins(&Plugin::OnCharacterDelete, client, characterId); !skip)
     {
         CHARACTER_ID cidCopy = cid;
-        FLHook::GetTaskScheduler()->ScheduleTask(AccountManager::DeleteCharacter, client, charName, cidCopy);
+        FLHook::GetTaskScheduler()->ScheduleTask(DestroyCharacterAsync, client, characterId, cidCopy);
     }
 }
 

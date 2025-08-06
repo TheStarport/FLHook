@@ -109,6 +109,18 @@ ClientData* CharacterId::GetOnlineData() const
     return nullptr;
 }
 
+std::string CharacterId::GetCharacterCode() const
+{
+    if (characterName.empty())
+    {
+        return {};
+    }
+
+    char charNameBuf[50];
+    AccountManager::getFlName(charNameBuf, characterName.c_str());
+    return charNameBuf;
+}
+
 concurrencpp::result<Action<MongoResult>> CharacterId::Delete() const
 {
     const std::string characterNameStr = StringUtils::wstos(characterName);
@@ -130,17 +142,41 @@ concurrencpp::result<Action<MongoResult>> CharacterId::Delete() const
             co_return Action<MongoResult>{ cpp::fail(Error::CharacterNameNotFound) };
         }
 
-        const auto findAccDoc = B_MDOC(B_KVP("_id", charDoc.view()["accountId"].get_string().value));
-        const auto updateDoc = B_MDOC(B_KVP("$pull", B_MDOC(B_KVP("characters", charDoc.view()["_id"].get_oid().value))));
+        auto accountId = charDoc.view()["accountId"].get_string().value;
+        auto charOid = charDoc.view()["_id"].get_oid().value;
+        const auto findAccDoc = B_MDOC(B_KVP("_id", accountId));
+        const auto updateDoc = B_MDOC(B_KVP("$pull", B_MDOC(B_KVP("characters", charOid))));
         const auto updateResult = query.UpdateFromCollection(DatabaseCollection::Accounts, findAccDoc, updateDoc);
 
-        if (updateResult.modified_count() != 1)
+        query.ConcludeQuery(true);
+        if (updateResult.matched_count() == 0)
         {
-            query.ConcludeQuery(false);
-            co_return Action<MongoResult>{ cpp::fail(Error::DatabaseError) };
+            co_return Action<MongoResult>{ cpp::fail(Error::CharacterNameNotFound) };
         }
 
-        query.ConcludeQuery(true);
+        if (updateResult.modified_count() == 0)
+        {
+            co_return Action<MongoResult>{ MongoResult::MatchButNoChange };
+        }
+
+        THREAD_MAIN;
+
+        auto characterIdStr = GetCharacterCode();
+        // Check if the account connected was online and update in memory
+        for (auto& account : AccountManager::accounts)
+        {
+            auto character = account.characters.find(characterIdStr);
+            if (character == account.characters.end())
+            {
+                continue;
+            }
+
+            std::erase_if(account.account.characters, [&charOid](const bsoncxx::oid& oid) { return oid == charOid; });
+            account.characters.erase(character);
+            account.internalAccount->numberOfCharacters--;
+            break;
+        }
+
         RET_SUCCESS;
     }
     catch (mongocxx::exception& ex)

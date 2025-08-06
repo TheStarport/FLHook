@@ -269,7 +269,7 @@ class DLL Plugin
         Aft(void, OnCharacterInfoRequest, (ClientId client, bool unk1));
         Aft(void, OnCharacterSelect, (ClientId client));
         Aft(void, OnCharacterCreation, (ClientId client, const SCreateCharacterInfo& info));
-        Aft(void, OnCharacterDelete, (ClientId client, std::wstring_view charName));
+        Aft(void, OnCharacterDelete, (ClientId client, const CharacterId& character));
         virtual void OnCharacterSave(ClientId client, std::wstring_view charName, B_DOC& document) {};
         Aft(void, OnRequestShipArch, (ClientId client, ArchId arch));
         Aft(void, OnRequestHullStatus, (ClientId client, float status));

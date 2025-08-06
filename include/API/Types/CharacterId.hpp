@@ -29,6 +29,7 @@ class DLL CharacterId final
         [[nodiscard]]
         ClientData* GetOnlineData() const;
 
+        std::string GetCharacterCode() const;
         concurrencpp::result<Action<MongoResult>> Delete() const;
         concurrencpp::result<Action<MongoResult>> Transfer(AccountId targetAccount, std::wstring_view transferCode) const;
         concurrencpp::result<Action<MongoResult>> SetTransferCode(std::wstring_view code) const;
