@@ -44,11 +44,11 @@ namespace Plugins
             inline static const std::array<CommandInfo<WarehousePlugin>, 5> commands =
             {
                 {
-                    AddCommand(WarehousePlugin, Cmds(L"/wh listitems"), UserCmdListItems, L"/wh listitems", L""),
-                    AddCommand(WarehousePlugin, Cmds(L"/wh deposit"), UserCmdDeposit, L"/wh deposit <itemNr>", L""),
-                    AddCommand(WarehousePlugin, Cmds(L"/wh withdraw"), UserCmdWithdraw, L"/wh withdraw <itemNr>", L""),
-                    AddCommand(WarehousePlugin, Cmds(L"/wh listbases"), UserCmdListBasesWithItems, L"/wh listbases", L""),
-                    AddCommand(WarehousePlugin, Cmds(L"/wh liststored"), UserCmdListStored, L"/wh liststored [base]", L""),
+                    AddCommand(WarehousePlugin, Cmds(L"/wh listitems"), UserCmdListItems, L"/wh listitems", L"TODO"),
+                    AddCommand(WarehousePlugin, Cmds(L"/wh deposit"), UserCmdDeposit, L"/wh deposit <itemNr>", L"TODO"),
+                    AddCommand(WarehousePlugin, Cmds(L"/wh withdraw"), UserCmdWithdraw, L"/wh withdraw <itemNr>", L"TODO"),
+                    AddCommand(WarehousePlugin, Cmds(L"/wh listbases"), UserCmdListBasesWithItems, L"/wh listbases", L"TODO"),
+                    AddCommand(WarehousePlugin, Cmds(L"/wh liststored"), UserCmdListStored, L"/wh liststored [base]", L"TODO"),
                  }
             };
             // clang-format on

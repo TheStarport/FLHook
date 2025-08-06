@@ -97,11 +97,11 @@ namespace Plugins
 
             const inline static std::array<CommandInfo<TrafficControlPlugin>, 6> commands = {
                 {
-                 AddCommand(TrafficControlPlugin, Cmds(L"/net switch"), UserCmdNetSwitch, L"/net switch [networkName]", L""),
-                 AddCommand(TrafficControlPlugin, Cmds(L"/net list"), UserCmdNetList, L"/net list", L""),
-                 AddCommand(TrafficControlPlugin, Cmds(L"/net"), UserCmdNet, L"/net <setting> <on|off>", L""),
-                 AddCommand(TrafficControlPlugin, Cmds(L"/nodock info"), UserCmdNodockInfo, L"/nodock info", L""),
-                 AddCommand(TrafficControlPlugin, Cmds(L"/nodock"), UserCmdNodock, L"/nodock", L""),
+                 AddCommand(TrafficControlPlugin, Cmds(L"/net switch"), UserCmdNetSwitch, L"/net switch [networkName]", L"TODO"),
+                 AddCommand(TrafficControlPlugin, Cmds(L"/net list"), UserCmdNetList, L"/net list", L"TODO"),
+                 AddCommand(TrafficControlPlugin, Cmds(L"/net"), UserCmdNet, L"/net <setting> <on|off>", L"TODO"),
+                 AddCommand(TrafficControlPlugin, Cmds(L"/nodock info"), UserCmdNodockInfo, L"/nodock info", L"TODO"),
+                 AddCommand(TrafficControlPlugin, Cmds(L"/nodock"), UserCmdNodock, L"/nodock", L"TODO"),
                  AddCommand(TrafficControlPlugin, Cmds(L"/police"), UserCmdPoliceSiren, L"/police", L"Activate a police siren on your ship"),
                  }
             }; // namespace Plugins
