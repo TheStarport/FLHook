@@ -367,7 +367,37 @@ namespace Plugins
         co_return;
     }
 
-    concurrencpp::result<void> CloakPlugin::AdminCmdCloak(ClientId client) { co_return; }
+    concurrencpp::result<void> CloakPlugin::AdminCmdCloak(ClientId client) {
+        if (!client.InSpace())
+        {
+            client.MessageErr(L"Not in space");
+            co_return;
+        }
+
+        auto infoIter = clientCloakData.find(client);
+
+        if (infoIter == clientCloakData.end())
+        {
+            client.MessageErr(L"Cloaking device not available");
+            co_return;
+        }
+
+        auto& info = infoIter->second;
+
+        auto ship = client.GetShip().Handle();
+        uint type = ship.GetArchetype().Handle()->archType;
+
+        info.admin = true;
+
+        switch (info.cloakState)
+        {
+            case CloakState::Off: SetState(client, CloakState::On); break;
+            case CloakState::On: SetState(client, CloakState::Off); break;
+            case CloakState::Charging: SetState(client, CloakState::Off); break;
+        }
+
+        co_return;
+    }
 
     void CloakPlugin::OnClearClientInfo(ClientId client)
     {
