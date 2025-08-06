@@ -252,6 +252,7 @@ namespace Plugins
         if (!client.InSpace())
         {
             client.MessageErr(L"Not in space");
+            co_return;
         }
 
         auto infoIter = clientCloakData.find(client);
