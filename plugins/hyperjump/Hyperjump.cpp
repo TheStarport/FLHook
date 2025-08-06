@@ -130,7 +130,7 @@ namespace Plugins
             }
             // TODO: add charge fuses and jump fuses
 
-            AddOneShotTimer([this, jd] { SpawnJumpHole(jd->first); }, jd->second.jumpDriveInfo->spawnDelay);
+            AddOneShotTimer([this, jd] { SpawnJumpHole(jd->first); }, std::chrono::milliseconds{ jd->second.jumpDriveInfo->spawnDelay });
 
             jd = clientData.erase(jd);
         }
@@ -699,7 +699,7 @@ namespace Plugins
                                          client.GetCharacterId().Handle(),
                                          config.beaconRequestTimeout / 1000));
 
-        AddOneShotTimer([this, targetClient] { BeaconRequestTimeout(targetClient); }, config.beaconRequestTimeout);
+        AddOneShotTimer([this, targetClient] { BeaconRequestTimeout(targetClient); }, std::chrono::milliseconds{ config.beaconRequestTimeout });
     }
 
     concurrencpp::result<void> HyperjumpPlugin::UserCmdAcceptBeacon(ClientId client)
@@ -794,8 +794,8 @@ namespace Plugins
     {
         LoadJsonWithValidation(Config, config, "config/hyperjump.json");
 
-        AddTimer([this] { ProcessChargingJumpDrives(); }, 1000);
-        AddTimer([this] { ProcessExpiringJumpHoles(); }, 1000);
+        AddTimer([this] { ProcessChargingJumpDrives(); }, 1s);
+        AddTimer([this] { ProcessExpiringJumpHoles(); }, 1s);
 
         return true;
     }

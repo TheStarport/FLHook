@@ -161,7 +161,7 @@ namespace Plugins
 
             ///////////////////////////////////////////////////////////////
             // update loss data
-            if (con.lossList.size() >= (config.lossKickFrame / LossInterval))
+            if (con.lossList.size() >= (config.lossKickFrame / LossInterval.count()))
             {
                 // calculate average loss
                 con.averageLoss = 0;
@@ -174,7 +174,7 @@ namespace Plugins
             }
 
             // remove old lossdata
-            while (con.lossList.size() >= (config.lossKickFrame / LossInterval))
+            while (con.lossList.size() >= (config.lossKickFrame / LossInterval.count()))
             {
                 con.lossList.pop_back();
             }
@@ -307,7 +307,7 @@ namespace Plugins
         }
 
         response += L"Loss: ";
-        if (con.lossList.size() < (config.lossKickFrame / LossInterval))
+        if (con.lossList.size() < (config.lossKickFrame / LossInterval.count()))
         {
             response += L"n/a ";
         }
@@ -433,8 +433,8 @@ namespace Plugins
 
     ConnectionDataPlugin::ConnectionDataPlugin(const PluginInfo& info) : Plugin(info)
     {
-        AddTimer([this] { TimerCheckKick(); }, 1000);
-        AddTimer([this] { TimerUpdatePingData(); }, 1000);
+        AddTimer([this] { TimerCheckKick(); }, 1s);
+        AddTimer([this] { TimerUpdatePingData(); }, 1s);
         AddTimer([this] { TimerUpdateLossData(); }, LossInterval);
     }
 

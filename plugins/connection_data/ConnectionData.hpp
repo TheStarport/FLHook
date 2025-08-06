@@ -4,7 +4,7 @@
 #include "Core/Commands/AbstractAdminCommandProcessor.hpp"
 #include "Core/Commands/AbstractUserCommandProcessor.hpp"
 
-constexpr int LossInterval = 4;
+constexpr auto LossInterval = 4ms;
 
 namespace Plugins
 {

@@ -26,9 +26,12 @@ struct DLL Timer
         int64 lastTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
         std::optional<std::function<void(std::shared_ptr<Timer>)>> callback;
 
-        static std::shared_ptr<Timer> Add(const std::function<void()>& function, uint intervalInMs);
-        static std::shared_ptr<Timer> AddOneShot(const std::function<void()>& function, uint intervalInMs,
-                                                 const std::optional<std::function<void(std::shared_ptr<Timer>)>>& callback = std::nullopt);
+        static std::shared_ptr<Timer> Add(const std::function<void()>& function,
+                                          const rfl::Variant<std::chrono::milliseconds, std::chrono::seconds, std::chrono::minutes, std::chrono::hours>& time);
+        static std::shared_ptr<Timer> AddOneShot(
+            const std::function<void()>& function,
+            const rfl::Variant<std::chrono::milliseconds, std::chrono::seconds, std::chrono::minutes, std::chrono::hours>& time,
+            const std::optional<std::function<void(std::shared_ptr<Timer>)>>& callback = std::nullopt);
 
         /**
          *
@@ -123,11 +126,16 @@ class DLL Plugin
             return weakPlugin;
         }
 
-        void AddTimer(const std::function<void()>& function, const uint intervalInMs) { timers.emplace(Timer::Add(function, intervalInMs)); }
-
-        void AddOneShotTimer(const std::function<void()>& function, const uint intervalInMs)
+        void AddTimer(const std::function<void()>& function,
+                      const rfl::Variant<std::chrono::milliseconds, std::chrono::seconds, std::chrono::minutes, std::chrono::hours>& time)
         {
-            timers.emplace(Timer::AddOneShot(function, intervalInMs, [this](const std::shared_ptr<Timer>& timer) { timers.erase(timer); }));
+            timers.emplace(Timer::Add(function, time));
+        }
+
+        void AddOneShotTimer(const std::function<void()>& function,
+                             const rfl::Variant<std::chrono::milliseconds, std::chrono::seconds, std::chrono::minutes, std::chrono::hours>& time)
+        {
+            timers.emplace(Timer::AddOneShot(function, time, [this](const std::shared_ptr<Timer>& timer) { timers.erase(timer); }));
         }
 
         /**

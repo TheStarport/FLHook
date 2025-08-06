@@ -163,7 +163,7 @@ namespace Plugins
     void QuestingPlugin::OnServerStartupAfter()
     {
         // Every second check in with the quests to see if any need to progress
-        AddTimer([this] { CurrentStageTimer(); }, 1000);
+        AddTimer([this] { CurrentStageTimer(); }, 1s);
     }
     void QuestingPlugin::OnBaseEnterAfter(BaseId base, const ClientId client)
     {

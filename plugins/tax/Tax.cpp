@@ -179,7 +179,7 @@ bool TaxPlugin::OnLoadSettings()
 
 TaxPlugin::TaxPlugin(const PluginInfo& info) : Plugin(info)
 {
-    timer = Timer::Add([this] { FiveSecondTimer(); }, 5000);
+    timer = Timer::Add([this] { FiveSecondTimer(); }, 5s);
 }
 TaxPlugin::~TaxPlugin() { Timer::Remove(timer); }
 

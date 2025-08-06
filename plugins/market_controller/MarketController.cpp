@@ -82,7 +82,7 @@ namespace Plugins
 
     MarketControllerPlugin::MarketControllerPlugin(const PluginInfo& info) : Plugin(info)
     {
-        AddTimer([this] { ProcessPendingLootDrops(); }, 1000);
+        AddTimer([this] { ProcessPendingLootDrops(); }, 1s);
     }
 
     void MarketControllerPlugin::LoadGameData()
@@ -591,7 +591,6 @@ namespace Plugins
         }
     }
 
-    
     TractorFailureCode MarketControllerPlugin::OnTractorVerifyTarget(CETractor* tractor, CLoot* loot, TractorFailureCode originalValue)
     {
         returnCode = ReturnCode::SkipAll;

@@ -733,9 +733,9 @@ namespace Plugins
 
     MiningControllerPlugin::MiningControllerPlugin(const PluginInfo& info) : Plugin(info), FlufInfocardHelper()
     {
-        AddTimer([this] { SaveZoneStatusToDb(); }, 120000);
-        AddTimer([this] { DestroyPendingNodes(); }, 30000);
-        AddTimer([this] { SpawnNewNodes(); }, 1000);
+        AddTimer([this] { SaveZoneStatusToDb(); }, 12s);
+        AddTimer([this] { DestroyPendingNodes(); }, 3s);
+        AddTimer([this] { SpawnNewNodes(); }, 1s);
     }
 
 } // namespace Plugins

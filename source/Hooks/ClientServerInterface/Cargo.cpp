@@ -96,7 +96,7 @@ void __stdcall IServerImplHook::JettisonCargo(ClientId client, const XJettisonCa
                 pub::Save(client.GetValue(), 1);
             }
         },
-        3000);
+        3s);
 
     CallPlugins(&Plugin::OnCargoJettisonAfter, client, jc);
 }

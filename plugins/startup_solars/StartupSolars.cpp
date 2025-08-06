@@ -177,7 +177,7 @@ namespace Plugins
 
     void StartupSolarsPlugin::OnServerStartupAfter()
     {
-        AddTimer([this] { OnSpawnTimerElapsed(); }, 1000 * 60); // Once a minute
+        AddTimer([this] { OnSpawnTimerElapsed(); }, 1min); // Once a minute
 
         for (const auto& [name, group] : config.groups)
         {

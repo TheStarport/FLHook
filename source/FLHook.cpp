@@ -124,7 +124,7 @@ FLHook::FLHook()
         }
     }
 
-    Timer::Add(std::bind_front(&TaskScheduler::ProcessTasks, taskScheduler), 1);
+    Timer::Add(std::bind_front(&TaskScheduler::ProcessTasks, taskScheduler), 1s);
 
     PatchClientImpl();
 
@@ -285,10 +285,10 @@ bool FLHook::OnServerStart()
         InitHookExports();
 
         // Setup timers
-        Timer::Add(ProcessPendingCommands, 50);
-        Timer::Add(TimerCheckKick, 50);
-        Timer::Add(OneSecondTimer, 1000);
-        Timer::Add(IpResolver::TimerCheckResolveResults, 100);
+        Timer::Add(ProcessPendingCommands, 50ms);
+        Timer::Add(TimerCheckKick, 50ms);
+        Timer::Add(OneSecondTimer, 1s);
+        Timer::Add(IpResolver::TimerCheckResolveResults, 100ms);
 
         ZoneUtilities::Init();
     }

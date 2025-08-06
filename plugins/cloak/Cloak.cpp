@@ -367,7 +367,8 @@ namespace Plugins
         co_return;
     }
 
-    concurrencpp::result<void> CloakPlugin::AdminCmdCloak(ClientId client) {
+    concurrencpp::result<void> CloakPlugin::AdminCmdCloak(ClientId client)
+    {
         if (!client.InSpace())
         {
             client.MessageErr(L"Not in space");
@@ -545,7 +546,7 @@ namespace Plugins
             }
             cloak.second.usableClasses.set(value);
         }
-        AddTimer([this] { ProcessFuel(); }, 1000);
+        AddTimer([this] { ProcessFuel(); }, 1s);
 
         return true;
     }
@@ -558,7 +559,7 @@ namespace Plugins
             return;
         }
 
-        AddOneShotTimer([this, client, ship, cloakIter] { SendUncloakPacket(client, ship.spaceId, cloakIter->second.cloakSlot); }, 100);
+        AddOneShotTimer([this, client, ship, cloakIter] { SendUncloakPacket(client, ship.spaceId, cloakIter->second.cloakSlot); }, 100ms);
     }
 
     void CloakPlugin::OnSpRequestUseItem(ClientId client, const SSPUseItem& item)
@@ -627,7 +628,7 @@ namespace Plugins
         clientInfo->second.disableJumpFuelConsumption = true;
         ClientId client = player.Value();
 
-        AddOneShotTimer([this, client] { EnableFuelConsumption(client); }, 30000);
+        AddOneShotTimer([this, client] { EnableFuelConsumption(client); }, 30s);
     }
 
     void CloakPlugin::OnShipExplosionHit(Ship* ship, ExplosionDamageEvent* explosion, DamageList* dmgList)

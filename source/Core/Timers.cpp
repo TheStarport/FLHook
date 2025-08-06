@@ -37,12 +37,15 @@ std::shared_ptr<Timer> Timer::AddCron(const std::function<void()>& function, con
     return ptr;
 }
 
-std::shared_ptr<Timer> Timer::Add(const std::function<void()>& function, const uint intervalInMs)
+std::shared_ptr<Timer> Timer::Add(const std::function<void()>& function,
+                                  const rfl::Variant<std::chrono::milliseconds, std::chrono::seconds, std::chrono::minutes, std::chrono::hours>& time)
 {
-    // TODO: Use chrono:: instead of uint
+    std::chrono::milliseconds msTime;
+    rfl::visit([&msTime](const auto& s) { msTime = std::chrono::duration_cast<std::chrono::milliseconds>(s); }, time);
+
     auto ptr = std::make_shared<Timer>();
     ptr->func = function;
-    ptr->interval = intervalInMs;
+    ptr->interval = msTime.count();
     timers.emplace(ptr);
 
     return ptr;
@@ -55,12 +58,16 @@ void Timer::Remove(const std::shared_ptr<Timer>& timer)
     cronTimers.erase(timer);
 }
 
-std::shared_ptr<Timer> Timer::AddOneShot(const std::function<void()>& function, const uint intervalInMs,
+std::shared_ptr<Timer> Timer::AddOneShot(const std::function<void()>& function,
+                                         const rfl::Variant<std::chrono::milliseconds, std::chrono::seconds, std::chrono::minutes, std::chrono::hours>& time,
                                          const std::optional<std::function<void(std::shared_ptr<Timer>)>>& callback)
 {
+    std::chrono::milliseconds msTime;
+    rfl::visit([&msTime](const auto& s) { msTime = std::chrono::duration_cast<std::chrono::milliseconds>(s); }, time);
+
     std::shared_ptr<Timer> timer = std::make_shared<Timer>();
     timer->func = function;
-    timer->interval = intervalInMs;
+    timer->interval = msTime.count();
     timer->lastTime = TimeUtils::UnixTime<std::chrono::milliseconds>();
     timer->callback = callback;
     oneShotTimers.emplace(timer);
