@@ -378,8 +378,6 @@ namespace Plugins
         keysToRemove.clear();
     }
 
-    void EquipmentEnhancementsPlugin::OnClearClientInfo(ClientId client) {} // TODO:check }
-
     bool EquipmentEnhancementsPlugin::VerifyEngines(ClientId client)
     {
         auto& ship = client.GetData().ship;

@@ -220,7 +220,6 @@ namespace Plugins
 
             bool OnLoadSettings() override;
             void OnServerUpdateAfter() override;
-            void OnClearClientInfo(ClientId client) override;
             bool VerifyEngines(ClientId client);
             void OnPlayerLaunchAfter(ClientId client, const ShipId& ship) override;
             void OnCShipInitAfter(CShip* ship) override;
