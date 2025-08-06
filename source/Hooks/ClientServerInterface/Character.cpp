@@ -79,18 +79,28 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
 {
     TRACE("IServerImplHook::CharacterSelect client={{client}}", { "client", client });
 
-    auto prevCharName = FLHook::GetClient(client).characterId;
+    auto prevCharacterCode = FLHook::GetClient(client).characterId.GetCharacterCode();
 
-    auto& data = AccountManager::accounts[client.GetValue()].characters.at(cid.charFilename);
-    // TODO what if the client tries to pick a character that isn't on this account
-    FLHook::GetClient(client).characterId = CharacterId{ data.wideCharacterName };
-    client.GetData().characterData = &data;
+    auto& account = AccountManager::accounts[client.GetValue()];
+    auto characterData = account.characters.find(cid.charFilename);
+    if (characterData == account.characters.end())
+    {
+        WARN("Player ({{account}}) tried to select {{character}} which they did not own",
+             { "account", account.account._id },
+             { "character", std::string(cid.charFilename) });
 
-    auto charName = CharacterId{ StringUtils::stows(static_cast<const char*>(cid.charFilename)) };
+        client.Kick();
+        return;
+    }
+
+    FLHook::GetClient(client).characterId = CharacterId{ characterData->second.wideCharacterName };
+    client.GetData().characterData = &characterData->second;
+
+    const auto charFileName = static_cast<const char*>(cid.charFilename);
     bool skip = false;
 
     auto& info = client.GetData();
-    if (charName != prevCharName)
+    if (charFileName != prevCharacterCode)
     {
         Server.AbortMission(client.GetValue(), 0);
         info.playerData->missionId = 0;
@@ -116,7 +126,7 @@ void __stdcall IServerImplHook::CharacterSelect(const CHARACTER_ID& cid, ClientI
         CallServerPostamble(true, );
     }
 
-    if (charName != prevCharName)
+    if (charFileName != prevCharacterCode)
     {
         CharacterSelectInnerAfter(cid, client);
         CallPlugins(&Plugin::OnCharacterSelectAfter, client);
