@@ -152,11 +152,10 @@ concurrencpp::result<Action<void>> AccountId::UnBan() const
 
     if (const auto responseDoc = accountsCollection.update_one(findAccDoc.view(), updateDoc.view()); responseDoc->modified_count() == 0)
     {
-        // TODO: Err
-        return { {} };
+        co_return Action<void>{ cpp::fail(Error::AccountNotFound) };
     }
 
-    return { {} };
+    co_return Action<void>{ {} };
 }
 
 concurrencpp::result<Action<void>> AccountId::Ban(const uint tempBanDays) const
@@ -181,8 +180,7 @@ concurrencpp::result<Action<void>> AccountId::Ban(const uint tempBanDays) const
     THREAD_BACKGROUND;
     if (const auto responseDoc = accountsCollection.update_one(findAccDoc.view(), banUpdateDoc.view()); responseDoc->modified_count() == 0)
     {
-        // TODO: Err
-        co_return Action<void>{ {} };
+        co_return Action<void>{ cpp::fail(Error::AccountNotFound) };
     }
 
     THREAD_MAIN;
@@ -220,8 +218,7 @@ concurrencpp::result<Action<void>> AccountId::DeleteCharacter(const std::wstring
     const auto foundCharDoc = charactersCollection.find_one_and_delete(findCharDoc.view(), deleteOptions);
     if (!foundCharDoc.has_value())
     {
-        // TODO: err
-        co_return Action<void>{ {} };
+        co_return Action<void>{ cpp::fail(Error::CharacterNameNotFound) };
     }
 
     const auto findAccDoc = B_MDOC(B_KVP("_id", accountId));
