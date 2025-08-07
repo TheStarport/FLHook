@@ -60,12 +60,6 @@ using namespace std::chrono_literals;
 #include <rfl/bson.hpp>
 #include <rfl/json.hpp>
 
-// Due to a bug in the wildcard library, it falsly assumes clang as a requirement for certain features
-// Without these, it fails to compile when using certain patterns or wstrings. For this reason, we fool it into working.
-#define __clang__ // NOLINT(*-reserved-identifier)
-#include <wildcards.hpp.in>
-#undef __clang__
-
 #include <concurrencpp/concurrencpp.h>
 
 #include "API/Utils/Action.hpp"

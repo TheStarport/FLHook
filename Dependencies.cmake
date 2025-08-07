@@ -13,9 +13,6 @@ function(TARGET_DEPENDENCIES PROJ)
     target_include_directories(${PROJ} PRIVATE ${SDK_PATH}/include)
     target_include_directories(${PROJ} PRIVATE ${SDK_PATH}/vendor)
 
-    # Add Wildcards submodule
-    target_include_directories(${PROJ} PRIVATE ${VENDOR}/wildcards/include)
-
     # Add CPP Result submodule
     target_include_directories(${PROJ} PRIVATE ${VENDOR}/result/include)
 
@@ -45,7 +42,7 @@ function(TARGET_DEPENDENCIES PROJ)
     find_package(zstd REQUIRED)
     target_link_libraries(${PROJ} PUBLIC concurrentqueue::concurrentqueue cpptrace::cpptrace croncpp::croncpp glm::glm httplib::httplib
             magic_enum::magic_enum openssl::openssl spdlog::spdlog stduuid::stduuid xbyak::xbyak zstd::libzstd_static)
-    
+
     # Lua
     find_package(lua CONFIG REQUIRED)
     find_package(sol2 CONFIG REQUIRED)

@@ -80,7 +80,7 @@ Action<MongoResult> CharacterId::UpdateCharacterDocument(std::string_view name, 
     catch (mongocxx::exception& ex)
     {
         query.ConcludeQuery(false);
-        return { cpp::fail(Error::CharacterNameNotFound) };
+        return { cpp::fail(Error::DatabaseError) };
     }
 }
 

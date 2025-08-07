@@ -9,6 +9,8 @@
 #include "Core/ExceptionHandler.hpp"
 #include "Exceptions/StopProcessingException.hpp"
 
+// TODO: Investigate if this is still needed and burn IpResolver if no longer required
+
 void IpResolver::ThreadResolver()
 {
     TryHook
@@ -67,7 +69,7 @@ void IpResolver::TimerCheckResolveResults()
             // check if banned
             for (const auto config = FLHook::GetConfig(); const auto& ban : config->bans.banWildcardsAndIPs)
             {
-                if (wildcards::match(hostname, ban))
+                if (StringUtils::WildcardMatch(hostname, ban))
                 {
                     // AddKickLog(ip.client, StringUtils::wstos(std::format(L"IP/hostname ban({} matches {})", ip.hostname.c_str(), ban.c_str())));
                     if (config->bans.banAccountOnMatch)

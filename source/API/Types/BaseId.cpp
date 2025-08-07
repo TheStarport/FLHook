@@ -28,7 +28,7 @@ BaseId::BaseId(const std::wstring_view baseName, const bool isWildCard)
     {
         if (isWildCard)
         {
-            if (auto name = im->GetInfoName(base->baseIdS); wildcards::match(name, baseName))
+            if (auto name = im->GetInfoName(base->baseIdS); StringUtils::WildcardMatch(name, baseName))
             {
                 value = base->baseId.GetValue();
                 return;
