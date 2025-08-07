@@ -457,7 +457,7 @@ namespace Plugins
             if (raceIter->second.loopable)
             {
                 client.MessageErr(L"Invalid loop count!");
-                client.MessageErr(L"Usage: /race solo <lapCount> [raceNum]");
+                client.MessageErr(std::format(L"Usage: ", GET_USER_CMD_USAGE(RacingPlugin::UserCmdRaceSolo)));
                 co_return;
             }
             loopCount = 1;
