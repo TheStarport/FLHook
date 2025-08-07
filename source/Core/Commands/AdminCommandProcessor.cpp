@@ -677,10 +677,17 @@ concurrencpp::result<void> AdminCommandProcessor::Chase(ClientId client, const C
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::Beam(ClientId client, ClientId target, BaseId base)
+concurrencpp::result<void> AdminCommandProcessor::Beam(const ClientId client, const ClientId target, StrToEnd baseStr)
 {
+    const auto base = BaseId(baseStr.end, true);
+    if (!base)
+    {
+        client.ToastMessage(L"Failure", std::format(L"Could not find base '{}'", baseStr.end), ToastType::Error);
+        co_return;
+    }
+
     target.Beam(base).Handle();
-    client.Message(std::format(L"{} beamed to {}", target.GetCharacterId().Handle(), base.GetName().Handle()));
+    client.ToastMessage(L"Beam Successful", std::format(L"{} beamed to {}", target.GetCharacterId().Handle(), base.GetName().Handle()));
     co_return;
 }
 

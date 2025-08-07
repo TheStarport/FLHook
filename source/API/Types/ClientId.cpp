@@ -460,10 +460,10 @@ const std::array BannedBases = {
     CreateID("[gd_im_silver_miner]"),  CreateID("[gd_im_water_miner]"),
     CreateID("[rh_m_diamond_miner]"),  CreateID("intro3_base"),
     CreateID("intro2_base"),           CreateID("intro1_base"),
-    CreateID("st03b_01_base"),         CreateID("st02_01_base"),
-    CreateID("st01_02_base"),          CreateID("iw02_03_base"),
-    CreateID("rh02_07_base"),          CreateID("li04_06_base"),
-    CreateID("li01_15_base"),
+    CreateID("intro4_base"),           CreateID("st03b_01_base"),
+    CreateID("st02_01_base"),          CreateID("st01_02_base"),
+    CreateID("iw02_03_base"),          CreateID("rh02_07_base"),
+    CreateID("li04_06_base"),          CreateID("li01_15_base"),
 };
 
 Action<void> ClientId::Beam(const BaseId base) const
