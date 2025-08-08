@@ -2,6 +2,7 @@
 
 #include "PCH.hpp"
 
+#include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
 #include "API/Types/CharacterId.hpp"

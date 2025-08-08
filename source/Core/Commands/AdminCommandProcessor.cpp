@@ -4,6 +4,7 @@
 
 #include "Core/Commands/AdminCommandProcessor.hpp"
 
+#include "API/FLHook/AccountManager.hpp" // TODO: Swap account manager updates to use AccountId
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
 #include "API/FLHook/InfocardManager.hpp"
