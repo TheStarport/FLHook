@@ -13,9 +13,6 @@
 #include "Defs/FLHookConfig.hpp"
 #include "Defs/Database/MongoResult.hpp"
 
-// TODO: General, a lot of these functions are agnostic about whether or not the player is online and thus has a clientId, so along with the player database
-// rework a lot of these functions need to be reworked to account for that.
-
 std::optional<concurrencpp::result<void>> AdminCommandProcessor::ProcessCommand(ClientId user, const AllowedContext currentContext, std::wstring_view cmd,
                                                                                 std::vector<std::wstring_view>& paramVector)
 {
@@ -224,6 +221,7 @@ concurrencpp::result<void> AdminCommandProcessor::SendUniverseMessage(ClientId c
 
 concurrencpp::result<void> AdminCommandProcessor::ListCargo(ClientId client, const ClientId target)
 {
+    // TODO: Move this to using CharacterId for the target
     const auto cargo = target.GetEquipCargo().Handle();
     std::wstring res;
 
@@ -242,16 +240,25 @@ concurrencpp::result<void> AdminCommandProcessor::ListCargo(ClientId client, con
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::AddCargo(ClientId client, ClientId target, GoodInfo* good, std::optional<uint> optCount,
+concurrencpp::result<void> AdminCommandProcessor::AddCargo(ClientId client, CharacterId targetCharacter, GoodInfo* good, std::optional<uint> optCount,
                                                            std::optional<bool> optMission)
 {
     bool mission = optMission.value_or(false);
-    bool count = optCount.value_or(1);
-    target.GetShip().Handle().AddCargo(good->goodId, count, mission).Handle();
-
-    const auto& im = FLHook::GetInfocardManager();
-    client.Message(std::format(L"{} units of {} has been added to {}'s cargo", count, im->GetInfoName(good->idsName), target.GetCharacterId().Handle()));
-
+    uint count = optCount.value_or(1);
+    auto result = (co_await targetCharacter.AddCargo(GoodId(good->goodId), count, 1.0f, mission)).Handle();
+    switch (result)
+    {
+        case MongoResult::PerformedSynchronously:
+        case MongoResult::Success:
+            client.Message(std::format(
+                L"{} units of {} has been added to {}'s cargo",
+                count,
+                FLHook::GetInfocardManager()->GetInfoName(good->idsName),
+                targetCharacter
+            ));
+            break;
+        default: break;
+    }
     co_return;
 }
 

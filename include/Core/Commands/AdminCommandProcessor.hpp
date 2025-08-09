@@ -20,7 +20,8 @@ class AdminCommandProcessor final : public Singleton<AdminCommandProcessor>, pub
         concurrencpp::result<void> SendSystemMessage(ClientId client, SystemId system, const std::wstring_view text);
         concurrencpp::result<void> SendUniverseMessage(ClientId client, std::wstring_view text);
         concurrencpp::result<void> ListCargo(ClientId client, const ClientId target);
-        concurrencpp::result<void> AddCargo(ClientId client, ClientId target, GoodInfo* good, std::optional<uint> count, std::optional<bool> mission);
+        concurrencpp::result<void> AddCargo(ClientId client, CharacterId targetCharacter, GoodInfo* good, std::optional<uint> count,
+                                            std::optional<bool> mission);
         concurrencpp::result<void> RenameChar(ClientId client, CharacterId targetCharacter, std::wstring_view newName);
         concurrencpp::result<void> DeleteChar(ClientId client, CharacterId characterName);
         concurrencpp::result<void> GetPlayerInfo(ClientId client, const ClientId target);
