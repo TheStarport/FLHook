@@ -362,11 +362,12 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
         return LoginReturnCode::InvalidUsernamePassword;
     }
 
+    ClientId(clientId).GetData().account = &account.account;
+
     if (account.account.banned && account.account.scheduledUnbanDate && account.account.scheduledUnbanDate <= TimeUtils::UnixTime<std::chrono::seconds>())
     {
         account.account.banned = false;
-        // TODO: Handle unbanning account
-        // AccountId::GetAccountFromAccountId(StringUtils::stows(account.account._id)).value().UnBan();
+        AccountId::GetAccountFromClient(ClientId(clientId)).value().UnBan();
     }
 
     if (account.account.banned)
@@ -378,8 +379,6 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
     {
         return LoginReturnCode::AlreadyLoggedIn;
     }
-
-    ClientId(clientId).GetData().account = &account.account;
 
     for (auto& character : account.characters)
     {
