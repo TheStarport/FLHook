@@ -449,23 +449,6 @@ Action<void> ClientId::SetPvpKills(const uint killAmount) const
     return { {} };
 }
 
-// TODO: This should more accessible throughout the plugin and configurable
-const std::array BannedBases = {
-    CreateID("br_m_beryllium_miner"),  CreateID("[br_m_hydrocarbon_miner]"),
-    CreateID("[br_m_niobium_miner]"),  CreateID("[co_khc_copper_miner]"),
-    CreateID("[co_khc_cobalt_miner]"), CreateID("[co_kt_hydrocarbon_miner]"),
-    CreateID("[co_shi_h-fuel_miner]"), CreateID("[co_shi_water_miner]"),
-    CreateID("[co_ti_water_miner]"),   CreateID("[gd_gm_h-fuel_miner]"),
-    CreateID("[gd_im_oxygen_miner]"),  CreateID("[gd_im_copper_miner]"),
-    CreateID("[gd_im_silver_miner]"),  CreateID("[gd_im_water_miner]"),
-    CreateID("[rh_m_diamond_miner]"),  CreateID("intro3_base"),
-    CreateID("intro2_base"),           CreateID("intro1_base"),
-    CreateID("intro4_base"),           CreateID("st03b_01_base"),
-    CreateID("st02_01_base"),          CreateID("st01_02_base"),
-    CreateID("iw02_03_base"),          CreateID("rh02_07_base"),
-    CreateID("li04_06_base"),          CreateID("li01_15_base"),
-};
-
 Action<void> ClientId::Beam(const BaseId base) const
 {
     ClientCheck;
@@ -475,9 +458,13 @@ Action<void> ClientId::Beam(const BaseId base) const
         return { cpp::fail(Error::PlayerNotInSpace) };
     }
 
-    if (std::ranges::find(BannedBases, base.GetValue()) != BannedBases.end())
+    // TODO: Is there some trick we can pull to have the bannedBases config hashed during loading, so this code becomes a simple set contains check?
+    for (auto bannedBase : FLHook::GetConfig()->general.bannedBases)
     {
-        return { cpp::fail(Error::InvalidBase) };
+        if (CreateID(bannedBase.c_str()) == base.GetValue())
+        {
+            return { cpp::fail(Error::InvalidBase) };
+        }
     }
 
     const SystemId sysId = Players[value].systemId;

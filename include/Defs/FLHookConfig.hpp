@@ -119,6 +119,36 @@ struct DLL FLHookConfig final
 
                 //! Vector of systems where players can't deal damage to one another.
                 std::unordered_set<SystemId> noPvPSystems;
+
+                //! List of bases to which players cannot be beamed. The default set is the bases which will crash the game if you land on one.
+                std::unordered_set<std::string> bannedBases = {
+                        "br_m_beryllium_miner",
+                        "[br_m_hydrocarbon_miner]",
+                        "[br_m_niobium_miner]",
+                        "[co_khc_copper_miner]",
+                        "[co_khc_cobalt_miner]",
+                        "[co_kt_hydrocarbon_miner]",
+                        "[co_shi_h-fuel_miner]",
+                        "[co_shi_water_miner]",
+                        "[co_ti_water_miner]",
+                        "[gd_gm_h-fuel_miner]",
+                        "[gd_im_oxygen_miner]",
+                        "[gd_im_copper_miner]",
+                        "[gd_im_silver_miner]",
+                        "[gd_im_water_miner]",
+                        "[rh_m_diamond_miner]",
+                        "intro3_base",
+                        "intro2_base",
+                        "intro1_base",
+                        "intro4_base",
+                        "st03b_01_base",
+                        "st02_01_base",
+                        "st01_02_base",
+                        "iw02_03_base",
+                        "rh02_07_base",
+                        "li04_06_base",
+                        "li01_15_base",
+                };
         };
 
         struct GameFixes final
