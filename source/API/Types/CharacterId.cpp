@@ -290,8 +290,9 @@ concurrencpp::result<Action<MongoResult>> CharacterId::Transfer(AccountId target
     }
 
     // TODO: Unhardcode maximum character count!
-    if (newAccountDoc->find("characters")->get_array().value.length() >= 5)
+    if (newAccountDoc->find("characters")->get_array().value.length() > INT8_MAX)
     {
+        // We get away with this check being *after* the changes due to the lack of commiting the database changes until the very end
         query.ConcludeQuery(false);
         co_return Action<MongoResult>{ cpp::fail(Error::AccountHasTooManyCharacters) };
     }
