@@ -21,6 +21,7 @@ class DLL SystemId
         explicit SystemId(std::wstring_view nickName, bool isInfoCardName = false);
 
         SystemId() : value(0) {}
+        explicit operator uint() const noexcept { return value; }
         bool operator==(const SystemId &next) const { return value == next.value; }
         bool operator<(const SystemId &right) const { return value < right.value; }
         explicit operator bool() const;

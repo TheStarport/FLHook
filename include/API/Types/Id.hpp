@@ -15,6 +15,7 @@ class DLL Id
         explicit Id(const std::string_view nickName);
 
         Id() : value(0) {}
+        explicit operator uint() const noexcept { return value; }
         bool operator==(const Id& next) const { return value == next.value; }
         bool operator<(const Id& next) const { return value < next.value; }
         explicit operator bool() const { return value; };

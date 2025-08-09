@@ -15,6 +15,7 @@ class DLL RepId final
         explicit RepId() = default;
         ~RepId() = default;
 
+        explicit operator int() const noexcept { return value; }
         bool operator==(const RepId& next) const { return value == next.value; }
         explicit operator bool() const;
 

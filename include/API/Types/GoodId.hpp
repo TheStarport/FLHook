@@ -7,7 +7,6 @@
 
 struct GoodInfo;
 
-// All methods associated with ClientId will return a failure of Invalid clientId if the client Id is not an active client or outside acceptable range (1 -255)
 class DLL GoodId
 {
         GoodInfo* value = nullptr;

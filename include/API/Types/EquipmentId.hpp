@@ -18,7 +18,6 @@ namespace Archetype
     struct ShieldBattery;
     struct CloakingDevice;
 } // namespace Archetype
-// TODO: Allow assigning to uint variables without the need to extract GetValue explicitly
 class Id;
 class DLL EquipmentId
 {
@@ -28,12 +27,13 @@ class DLL EquipmentId
         explicit EquipmentId(uint val);
         explicit EquipmentId(Id val);
         EquipmentId() = default;
+        explicit operator uint() const noexcept { return value->archId.GetValue(); }
         bool operator==(const EquipmentId next) const { return value == next.value; }
         bool operator<(const EquipmentId& right) const;
         EquipmentId& operator=(const EquipmentId& right) = default;
         explicit operator bool() const;
 
-        // Returns the underlying value of the ClientId, it is generally recommended to not use this.
+        // Returns the underlying value of the EquipmentId, it is generally recommended to not use this.
         [[nodiscard]]
         Archetype::Root* GetValue() const
         {

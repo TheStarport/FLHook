@@ -9,6 +9,7 @@ class DLL GroupId final
         explicit GroupId() = default;
         ~GroupId() = default;
 
+        explicit operator uint() const noexcept { return value; }
         bool operator==(const GroupId& next) const { return value == next.value; }
         explicit operator bool() const { return value != 0; }
 
