@@ -921,6 +921,10 @@ Character::Character(B_VIEW view)
                     }
                     break;
                 }
+            case Hash("lastOnlineTime"):
+                {
+                    lastOnlineTime = element.get_int64().value;
+                }
             default: break;
         }
     }
@@ -1214,4 +1218,6 @@ void Character::ToBson(B_DOC& document)
         }
         document.append(B_KVP("presetMsgs", arr));
     }
+
+    document.append(B_KVP("lastOnlineTime", lastOnlineTime));
 }

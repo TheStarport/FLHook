@@ -92,6 +92,7 @@ struct Character
         int shipHash = 0;
         int system = 0;
         float totalTimePlayed = 0.f;
+        int64 lastOnlineTime;
         Costume baseCostume;
         Costume commCostume;
         std::vector<FLCargo> cargo;

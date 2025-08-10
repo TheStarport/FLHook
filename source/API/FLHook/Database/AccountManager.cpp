@@ -8,12 +8,33 @@
 
 #include <uuid.h>
 
+#define FILETIME_CONVERSION_PERIODS 116444736000000000 // number of 100ns periods between 1601-01-01 and 1970-01-01
+
+FILETIME AccountManager::FileTimeFromUnix(int64 time)
+{
+    uint64 fulltime = time * pow(10, 7) + FILETIME_CONVERSION_PERIODS;
+    return FILETIME{
+        (uint)(fulltime & UINT32_MAX),
+        (uint)(fulltime >> 32)
+    };
+}
+
+int64 AccountManager::FileTimeToUnix(FILETIME val)
+{
+    int64 high = val.dwHighDateTime;
+    high <<= 32;
+    auto fulltime = high | val.dwLowDateTime;
+    return (fulltime - FILETIME_CONVERSION_PERIODS) / pow(10, 7);
+}
+
 void AccountManager::ConvertCharacterToVanillaData(CharacterData* data, const Character& character, uint clientId)
 {
     const std::wstring wCharName = StringUtils::stows(character.characterName);
     data->name = reinterpret_cast<const ushort*>(wCharName.c_str());
 
-    // TODO: figure out last time online
+    FILETIME lastOnlineTime = AccountManager::FileTimeFromUnix(character.lastOnlineTime);
+    data->datetimeHigh = lastOnlineTime.dwHighDateTime;
+    data->datetimeLow = lastOnlineTime.dwLowDateTime;
 
     data->shipHash = character.shipHash;
     data->money = character.money;
@@ -272,6 +293,8 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
     character.system = data->system;
     character.rank = data->rank;
     character.interfaceState = data->interfaceState;
+
+    character.lastOnlineTime = AccountManager::FileTimeToUnix(FILETIME{ data->datetimeLow, data->datetimeHigh });
 
     character.commCostume = data->commCostume;
     character.baseCostume = data->baseCostume;
@@ -750,6 +773,11 @@ void UpdateCharacterCache(PlayerData* pd, CharacterData* cd)
     cd->numOfFailedMissions = pd->numMissionFailures;
     cd->hullStatus = pd->relativeHealth;
 
+    auto now = TimeUtils::UnixTime<std::chrono::seconds>();
+    FILETIME lastOnlineTime = AccountManager::FileTimeFromUnix(now);
+    cd->datetimeHigh = lastOnlineTime.dwHighDateTime;
+    cd->datetimeLow = lastOnlineTime.dwLowDateTime;
+
     cd->currentEquipAndCargo = pd->equipAndCargo.equip;
     cd->currentCollisionGroups = pd->collisionGroupDesc;
 
@@ -924,6 +952,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     character.missionSuccessCount = pd->numMissionSuccesses;
     character.missionFailureCount = pd->numMissionFailures;
     character.hullStatus = pd->relativeHealth;
+    character.lastOnlineTime = TimeUtils::UnixTime<std::chrono::seconds>();
 
     if (pd->exitedBase && !pd->shipId)
     {

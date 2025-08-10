@@ -187,4 +187,7 @@ class AccountManager
         static concurrencpp::result<bool> SaveSavedMsgs(std::wstring charName, std::array<std::string, 10> presetMsgs);
         static Character* GetCurrentCharacterData(ClientId);
         static Character* GetCurrentCharacterData(ClientId, std::wstring_view characterName);
+
+        static FILETIME FileTimeFromUnix(int64 time);
+        static int64 FileTimeToUnix(FILETIME val);
 };
