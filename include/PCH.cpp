@@ -55,13 +55,20 @@ Archetype::Ship* TransformArg(const std::wstring_view s, const size_t paramNumbe
     const std::string str = StringUtils::wstos(std::wstring(s));
     auto ship = Archetype::GetShip(CreateID(str.c_str()));
 
-    if (!ship)
-    {
-        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"ship nickname"));
+    if (ship) {
+        return ship;
     }
-    // TODO: find ship by IDSName
 
-    return ship;
+    const auto& im = FLHook::GetInfocardManager();
+    for (auto gameDataShip : GameData::ships)
+    {
+        if (auto name = im->GetInfoName(gameDataShip.second->idsName); StringUtils::WildcardMatch(name, s))
+        {
+            return gameDataShip.second;
+        }
+    }
+
+    throw InvalidParameterException(s, paramNumber, std::wstring_view(L"ship display name (potentially including wildcard) or ship nickname"));
 }
 OptionalTransformArg(Archetype::Ship*);
 
@@ -71,14 +78,21 @@ Archetype::Equipment* TransformArg(const std::wstring_view s, const size_t param
     const std::string str = StringUtils::wstos(std::wstring(s));
     auto equipment = Archetype::GetEquipment(CreateID(str.c_str()));
 
-    if (!equipment)
+    if (equipment)
     {
-        throw InvalidParameterException(s, paramNumber, std::wstring_view(L"equipment nickname"));
+        return equipment;
     }
 
-    // TODO: find ship by IDSName
+    const auto& im = FLHook::GetInfocardManager();
+    for (auto gameDataEquipment : GameData::equipment)
+    {
+        if (auto name = im->GetInfoName(gameDataEquipment.second->idsName); StringUtils::WildcardMatch(name, s))
+        {
+            return gameDataEquipment.second;
+        }
+    }
 
-    return equipment;
+    throw InvalidParameterException(s, paramNumber, std::wstring_view(L"equipment display name (potentially including wildcard) or equipment nickname"));
 }
 OptionalTransformArg(Archetype::Equipment*);
 
