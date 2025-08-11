@@ -32,7 +32,7 @@ public class Character
     [BsonElement("rot")]
     public float[]? Rot { get; set; }
 
-    [BsonElement("interface")]
+    [BsonElement("interfaceState")]
     public int InterfaceState { get; set; }
 
     [BsonElement("hullStatus")]
@@ -56,13 +56,13 @@ public class Character
     [BsonElement("currentRoom")]
     public int CurrentRoom { get; set; }
 
-    [BsonElement("numOfKills")]
+    [BsonElement("killCount")]
     public int KillCount { get; set; }
 
-    [BsonElement("numOfFailedMissions")]
+    [BsonElement("missionFailureCount")]
     public int MissionFailureCount { get; set; }
 
-    [BsonElement("numOfSuccessMissions")]
+    [BsonElement("missionSuccessCount")]
     public int MissionSuccessCount { get; set; }
 
     [BsonElement("voice")]

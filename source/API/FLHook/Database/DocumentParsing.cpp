@@ -189,7 +189,7 @@ Character::Character(B_VIEW view)
             case Hash("pos"):
                 {
                     int counter = 0;
-                    for (auto var : element.get_array().value)
+                    for (auto& var : element.get_array().value)
                     {
                         pos[counter++] = static_cast<float>(var.get_double().value);
                     }
@@ -198,7 +198,7 @@ Character::Character(B_VIEW view)
             case Hash("rot"):
                 {
                     int counter = 0;
-                    for (auto var : element.get_array().value)
+                    for (auto& var : element.get_array().value)
                     {
                         rot[counter++] = static_cast<float>(var.get_double().value);
                     }
