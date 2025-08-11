@@ -163,7 +163,7 @@ public static class CharacterProcessor
                 case "pos":
                     if (entry.Count >= 3)
                     {
-                        character.Pos = new Vector3(entry[0].ToSingle(), entry[1].ToSingle(), entry[2].ToSingle());
+                        character.Pos = [entry[0].ToSingle(), entry[1].ToSingle(), entry[2].ToSingle()];
                     }
                     break;
                 case "ship_archetype":
@@ -172,7 +172,7 @@ public static class CharacterProcessor
                 case "rotate":
                     if (entry.Count >= 3)
                     {
-                        character.Rot = new Vector3(entry[0].ToSingle(), entry[1].ToSingle(), entry[2].ToSingle());
+                        character.Rot = [entry[0].ToSingle(), entry[1].ToSingle(), entry[2].ToSingle()];
                     }
                     break;
                 case "base":
@@ -202,7 +202,7 @@ public static class CharacterProcessor
 
                     var equipment = new Equipment()
                     {
-                        EquipmentId = item,
+                        ArchId = item,
                         HardPoint = string.IsNullOrWhiteSpace(hp) ? "BAY" : hp,
                         Health = health
                     };
@@ -232,7 +232,7 @@ public static class CharacterProcessor
 
                     var cargo = new Cargo()
                     {
-                        CargoId = item,
+                        ArchId = item,
                         Amount = amount,
                         Health = health,
                         IsMissionCargo = isMission,
@@ -360,9 +360,6 @@ public static class CharacterProcessor
                     }
                     break;
                 }
-                case "total_cash_earned":
-                    character.TotalCashEarned = Math.Max(entry.Count > 0 ? entry[0].ToInt64() : 0, 0);
-                    break;
                 case "total_time_played":
                     character.TotalTimePlayed = Math.Max(entry.Count > 0 ? entry[0].ToInt32() : 0, 0);
                     break;

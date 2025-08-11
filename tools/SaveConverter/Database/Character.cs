@@ -27,10 +27,10 @@ public class Character
     public string? RepGroup { get; set; }
 
     [BsonElement("pos")]
-    public Vector3? Pos { get; set; }
+    public float[]? Pos { get; set; }
 
     [BsonElement("rot")]
-    public Vector3? Rot { get; set; }
+    public float[]? Rot { get; set; }
 
     [BsonElement("interface")]
     public int InterfaceState { get; set; }
@@ -75,10 +75,7 @@ public class Character
     public int System { get; set; }
 
     [BsonElement("totalTimePlayed")]
-    public int TotalTimePlayed { get; set; }
-    
-    [BsonElement("totalCashEarned")]
-    public long TotalCashEarned { get; set; }
+    public float TotalTimePlayed { get; set; }
 
     [BsonElement("baseCostume")]
     public Costume? BaseCostume { get; set; }

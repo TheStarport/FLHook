@@ -6,8 +6,8 @@ namespace FLHook.SaveConverter.Database;
 [BsonNoId]
 public class Cargo
 {
-    [BsonElement("cargoId")]
-    public int CargoId { get; set; }
+    [BsonElement("archId")]
+    public int ArchId { get; set; }
 
     [BsonElement("amount")] 
     public int Amount { get; set; }

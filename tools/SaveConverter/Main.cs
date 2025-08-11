@@ -164,8 +164,8 @@ var charTotal = CharactersSkipped + CharactersProcessed;
 logger.Information("Finished processing accounts");
 logger.Information("Processed {processed}/{total} accounts ({percent}%)", AccountsProcessed, accounts.Count, (float)AccountsProcessed / accounts.Count * 100f);
 logger.Information("Processed {processed}/{total} characters ({percent}%)", CharactersProcessed, charTotal, (float)CharactersProcessed / charTotal * 100f);
-logger.Information("Skipped {count} accounts ({percent})", AccountsSkipped, (float)AccountsSkipped / accounts.Count * 100f);
-logger.Information("Skipped {count} characters ({percent}", CharactersSkipped, (float)CharactersSkipped / charTotal * 100f);
+logger.Information("Skipped {count} accounts ({percent}%)", AccountsSkipped, (float)AccountsSkipped / accounts.Count * 100f);
+logger.Information("Skipped {count} characters ({percent}%)", CharactersSkipped, (float)CharactersSkipped / charTotal * 100f);
 
 return 0;
 

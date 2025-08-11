@@ -6,10 +6,10 @@ namespace FLHook.SaveConverter.Database;
 [BsonNoId]
 public class Equipment
 {
-    [BsonElement("equipId")] 
-    public int EquipmentId { get; set; }
+    [BsonElement("archId")] 
+    public int ArchId { get; set; }
 
-    [BsonElement("hardPoint")] 
+    [BsonElement("hp")] 
     public required string HardPoint { get; set; }
 
     [BsonElement("health")] 
