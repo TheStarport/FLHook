@@ -242,7 +242,7 @@ Character::Character(B_VIEW view)
                         auto doc = tl.get_document().value;
                         TradeLaneException exception{};
 
-                        for (auto el : doc)
+                        for (auto& el : doc)
                         {
                             if (std::string_view key = el.key(); key == "startRingId")
                             {
@@ -261,7 +261,7 @@ Character::Character(B_VIEW view)
             case Hash("dockExceptions"):
                 {
                     dockExceptions = std::vector<int>{};
-                    for (auto baseId : element.get_array().value)
+                    for (auto& baseId : element.get_array().value)
                     {
                         dockExceptions->emplace_back(baseId.get_int32().value);
                     }
@@ -364,17 +364,14 @@ Character::Character(B_VIEW view)
                         {
                             commCostume.rightHand = static_cast<uint>(el.get_int32().value);
                         }
-                        else if (key == "accessory")
+                        else if (key == "accessories")
                         {
                             int counter = 0;
                             for (auto& acc : el.get_array().value)
                             {
                                 commCostume.accessory[counter++] = static_cast<uint>(acc.get_int32().value);
                             }
-                        }
-                        else if (key == "accessories")
-                        {
-                            commCostume.accessories = el.get_int32().value;
+                            commCostume.accessories = counter;
                         }
                     }
                     break;
