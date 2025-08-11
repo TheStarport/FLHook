@@ -648,7 +648,7 @@ concurrencpp::result<Action<RepGroupId>> CharacterId::GetAffiliation() const
     THREAD_BACKGROUND;
 
     const auto character = GetCharacterDocument(characterNameStr).Handle();
-    auto value = character.find("affiliation");
+    auto value = character.find("repGroup");
     if (value == character.end())
     {
         co_return Action<RepGroupId>{ cpp::fail(Error::NoAffiliation) };
