@@ -2,10 +2,6 @@
 
 #include "API/FLHook/AccountManager.hpp"
 
-
-
-
-
 DbAccount::DbAccount(const B_VIEW view)
 {
     for (auto& element : view)
@@ -33,7 +29,10 @@ DbAccount::DbAccount(const B_VIEW view)
                 }
             case Hash("scheduledUnbanDate"):
                 {
-                    scheduledUnbanDate = element.get_int64();
+                    if (element.type() == bsoncxx::type::k_int64)
+                    {
+                        scheduledUnbanDate = element.get_int64();
+                    }
                     break;
                 }
             case Hash("gameRoles"):
@@ -561,7 +560,7 @@ Character::Character(B_VIEW view)
                     for (auto& el : element.get_array().value)
                     {
                         auto array = el.get_array().value;
-                        visits.emplace_back( std::array{array[0].get_int32().value, array[1].get_int32().value});
+                        visits.emplace_back(std::array{ array[0].get_int32().value, array[1].get_int32().value });
                     }
                     break;
                 }
@@ -681,8 +680,7 @@ Character::Character(B_VIEW view)
                     }
                     break;
                 }
-            default:
-                break;
+            default: break;
         }
     }
 
@@ -810,8 +808,7 @@ void Character::ToBson(B_DOC& document)
         B_ARR arr;
         for (const auto& [archId, hardPoint, health] : equipment)
         {
-            arr.append(
-                B_MDOC(B_KVP("archId", archId), B_KVP("hp", hardPoint), B_KVP("health", health)));
+            arr.append(B_MDOC(B_KVP("archId", archId), B_KVP("hp", hardPoint), B_KVP("health", health)));
         }
         document.append(B_KVP("equipment", arr));
     }
@@ -820,8 +817,7 @@ void Character::ToBson(B_DOC& document)
         B_ARR arr;
         for (const auto& [archId, hardPoint, health] : baseEquipment)
         {
-            arr.append(
-                B_MDOC(B_KVP("archId", archId), B_KVP("hp", hardPoint), B_KVP("health", health)));
+            arr.append(B_MDOC(B_KVP("archId", archId), B_KVP("hp", hardPoint), B_KVP("health", health)));
         }
         document.append(B_KVP("baseEquipment", arr));
     }
