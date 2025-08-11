@@ -42,7 +42,7 @@ public static class AccountProcessor
         return accountStr.Replace("\0", "");
     }
 
-    public static async Task ProcessAccount(string accStr, List<string> characterFiles, DatabaseClient client)
+    public static async Task ProcessAccount(string accStr, List<string> characterFiles, DatabaseClient client, bool banned)
     {
         var characters = characterFiles.Select(x => CharacterProcessor.ProcessCharacter(x, accStr)).OfType<Character>().ToList();
         if (characters.Count is 0)
@@ -67,6 +67,11 @@ public static class AccountProcessor
                 Characters = ids,
                 Id = accStr,
             };
+
+            if (banned)
+            {
+                account.ScheduledUnbanDate = DateTimeOffset.UtcNow.AddYears(100).ToUnixTimeSeconds();
+            }
 
             await accountCollection.InsertOneAsync(account);
             Interlocked.Increment(ref Program.AccountsProcessed);

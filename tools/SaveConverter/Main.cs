@@ -148,8 +148,10 @@ var itemsDone = 0;
 float percentDone = 0;
 foreach (var kvp in accounts)
 {
+    bool isBanned = File.Exists(Path.Join(kvp.Value.Item1, "banned"));
+    
     logger.Information("Processing account directory: {dir}, found {count} characters", kvp.Value.Item1, kvp.Value.Item2.Count);
-    await AccountProcessor.ProcessAccount(kvp.Key, kvp.Value.Item2, client);
+    await AccountProcessor.ProcessAccount(kvp.Key, kvp.Value.Item2, client, isBanned);
 
     itemsDone++;
     var percent = (float)itemsDone / accounts.Count * 100f;
