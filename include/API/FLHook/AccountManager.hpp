@@ -123,6 +123,7 @@ class AccountManager
 
         inline static std::array<AccountData, MaxClientId + 1> accounts;
         inline static std::unordered_set<std::string, StringHash> loggedInAccounts;
+        static constexpr uint characterLimit = 127;
 
         enum class LoginReturnCode
         {

@@ -26,7 +26,6 @@ void AccountManager::ConvertCharacterToVanillaData(CharacterData* data, const Ch
     data->currentRoom = character.currentRoom;
     data->system = character.system;
     data->rank = character.rank;
-    data->affiliation = character.affiliation;
     data->interfaceState = character.interfaceState;
 
     data->baseCostume = character.baseCostume;
@@ -266,7 +265,6 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
     character.currentRoom = data->currentRoom;
     character.system = data->system;
     character.rank = data->rank;
-    character.affiliation = data->affiliation;
     character.interfaceState = data->interfaceState;
 
     character.commCostume = data->commCostume;
@@ -367,15 +365,16 @@ AccountManager::LoginReturnCode __stdcall AccountManager::AccountLoginInternal(P
 
     ClientId(clientId).GetData().account = &account.account;
 
-    if (account.account.banned && account.account.scheduledUnbanDate && account.account.scheduledUnbanDate <= TimeUtils::UnixTime<std::chrono::seconds>())
+    if (account.account.scheduledUnbanDate)
     {
-        account.account.banned = false;
-        AccountId::GetAccountFromClient(ClientId(clientId)).value().UnBan();
-    }
-
-    if (account.account.banned)
-    {
-        return LoginReturnCode::Banned;
+        if (account.account.scheduledUnbanDate <= TimeUtils::UnixTime<std::chrono::seconds>())
+        {
+            AccountId::GetAccountFromClient(ClientId(clientId)).value().UnBan();
+        }
+        else
+        {
+            return LoginReturnCode::Banned;
+        }
     }
 
     if (loggedInAccounts.contains(account.account._id))
@@ -518,12 +517,17 @@ void CreateNewCharacterCallback(const SCreateCharacterInfo& createCharacterInfo,
 
 bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx, SCreateCharacterInfo* characterInfo)
 {
+    if (data->characterMap.size() >= characterLimit)
+    {
+        return false;
+    }
+
     const auto db = NewChar::TheDB;
 
-    const auto package = db->FindPackage(characterInfo->package);
+    const auto base = db->FindBase(characterInfo->base);
     const auto faction = db->FindFaction(characterInfo->nickName);
     const auto pilot = db->FindPilot(characterInfo->pilot);
-    const auto base = db->FindBase(characterInfo->base);
+    const auto package = db->FindPackage(characterInfo->package);
 
     if (!package || !faction || !pilot || !base)
     {
@@ -826,23 +830,30 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     Reputation::Vibe::Get(pd->reputation, affiliation, rank, relationCount, relations.data(), firstName, secondName, name);
     if (relationCount)
     {
+        TString<16> nickname;
         for (const auto& [hash, reputation] : relations)
         {
             if (!hash)
             {
                 continue;
             }
-            TString<16> nickname;
+
             if (Reputation::get_nickname(nickname, hash) == -1)
             {
                 continue;
             }
+
             std::string nicknameStr = { nickname.data, static_cast<uint>(nickname.len) };
             character.reputation.insert({ nicknameStr, reputation });
         }
 
         character.rank = rank;
-        character.affiliation = affiliation;
+        character.repGroup = std::nullopt;
+
+        if (affiliation && Reputation::get_nickname(nickname, affiliation) != -1)
+        {
+            character.repGroup = std::string{ nickname.data, static_cast<uint>(nickname.len) };
+        }
     }
 
     for (const auto& equip : pd->equipAndCargo.equip)
@@ -1089,6 +1100,12 @@ AccountManager::AccountManager()
     // Patch out folder creation in create account
     MemUtils::NopAddress(serverOffset + 0x72499, 0x6D5252C - 0x6D52499);
     MemUtils::NopAddress(serverOffset + 0x725A6, 0x6D525FE - 0x6D525A6);
+
+    // Double size of visit packet
+    auto remoteClient = DWORD(GetModuleHandleA("remoteclient.dll"));
+    std::array<byte, 2> visitPatch = { 0x90, 0x01 };
+    MemUtils::WriteProcMem(remoteClient + 0x96E9, visitPatch.data(), visitPatch.size());
+    MemUtils::WriteProcMem(remoteClient + 0x9708, visitPatch.data(), visitPatch.size());
 
     MemUtils::PatchCallAddr(serverOffset, 0x72697, CreateAccountInitFromFolderBypass);
 

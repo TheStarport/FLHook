@@ -6,7 +6,6 @@ struct DbAccount
 {
         std::string _id;
         std::vector<bsoncxx::oid> characters;
-        bool banned = false;
         std::optional<int64> scheduledUnbanDate = 0;
         int64 cash = 0;
         std::optional<std::vector<std::string>> gameRoles;

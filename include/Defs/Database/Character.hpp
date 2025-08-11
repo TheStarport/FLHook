@@ -72,7 +72,6 @@ struct Character
         std::wstring wideCharacterName;
         int money = 0;
         int rank = 0;
-        int affiliation = 0;
         std::optional<std::string> repGroup;
         Vector pos;
         Vector rot;

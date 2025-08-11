@@ -17,11 +17,6 @@ DbAccount::DbAccount(const B_VIEW view)
                     }
                     break;
                 }
-            case Hash("banned"):
-                {
-                    banned = element.get_bool();
-                    break;
-                }
             case Hash("cash"):
                 {
                     cash = element.get_int64();
@@ -37,6 +32,11 @@ DbAccount::DbAccount(const B_VIEW view)
                 }
             case Hash("gameRoles"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     gameRoles = std::vector<std::string>{};
                     for (auto id : element.get_array().value)
                     {
@@ -46,6 +46,11 @@ DbAccount::DbAccount(const B_VIEW view)
                 }
             case Hash("webRoles"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     webRoles = std::vector<std::string>{};
                     for (auto id : element.get_array().value)
                     {
@@ -55,21 +60,41 @@ DbAccount::DbAccount(const B_VIEW view)
                 }
             case Hash("hashedToken"):
                 {
+                    if (element.type() != bsoncxx::type::k_string)
+                    {
+                        break;
+                    }
+
                     hashedToken = element.get_string();
                     break;
                 }
             case Hash("username"):
                 {
+                    if (element.type() != bsoncxx::type::k_string)
+                    {
+                        break;
+                    }
+
                     username = element.get_string();
                     break;
                 }
             case Hash("passwordHash"):
                 {
+                    if (element.type() != bsoncxx::type::k_string)
+                    {
+                        break;
+                    }
+
                     passwordHash = element.get_string();
                     break;
                 }
             case Hash("salt"):
                 {
+                    if (element.type() != bsoncxx::type::k_binary)
+                    {
+                        break;
+                    }
+
                     salt = std::vector<byte>{};
                     auto [subType, size, bytes] = element.get_binary();
                     for (auto i = 0; i < size; ++i)
@@ -85,7 +110,6 @@ DbAccount::DbAccount(const B_VIEW view)
 void DbAccount::ToBson(B_DOC& document) const
 {
     document.append(B_KVP("_id", _id));
-    document.append(B_KVP("banned", banned));
     document.append(B_KVP("cash", cash));
 
     {
@@ -168,26 +192,41 @@ Character::Character(B_VIEW view)
                 }
             case Hash("money"):
                 {
+                    if (element.type() != bsoncxx::type::k_int32)
+                    {
+                        break;
+                    }
+
                     money = element.get_int32().value;
                     break;
                 }
             case Hash("rank"):
                 {
+                    if (element.type() != bsoncxx::type::k_int32)
+                    {
+                        break;
+                    }
+
                     rank = element.get_int32().value;
-                    break;
-                }
-            case Hash("affiliation"):
-                {
-                    affiliation = element.get_int32().value;
                     break;
                 }
             case Hash("repGroup"):
                 {
+                    if (element.type() != bsoncxx::type::k_string)
+                    {
+                        break;
+                    }
+
                     repGroup = element.get_string().value;
                     break;
                 }
             case Hash("pos"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     int counter = 0;
                     for (auto& var : element.get_array().value)
                     {
@@ -197,6 +236,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("rot"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     int counter = 0;
                     for (auto& var : element.get_array().value)
                     {
@@ -206,36 +250,71 @@ Character::Character(B_VIEW view)
                 }
             case Hash("voice"):
                 {
+                    if (element.type() != bsoncxx::type::k_string)
+                    {
+                        break;
+                    }
+
                     voice = element.get_string().value;
                     break;
                 }
             case Hash("interfaceState"):
                 {
+                    if (element.type() != bsoncxx::type::k_int32)
+                    {
+                        break;
+                    }
+
                     interfaceState = element.get_int32().value;
                     break;
                 }
             case Hash("hullStatus"):
                 {
+                    if (element.type() != bsoncxx::type::k_double)
+                    {
+                        break;
+                    }
+
                     hullStatus = static_cast<float>(element.get_double().value);
                     break;
                 }
             case Hash("baseHullStatus"):
                 {
+                    if (element.type() != bsoncxx::type::k_double)
+                    {
+                        break;
+                    }
+
                     baseHullStatus = static_cast<float>(element.get_double().value);
                     break;
                 }
             case Hash("canDock"):
                 {
+                    if (element.type() != bsoncxx::type::k_bool)
+                    {
+                        break;
+                    }
+
                     canDock = element.get_bool().value;
                     break;
                 }
             case Hash("canTradeLane"):
                 {
+                    if (element.type() != bsoncxx::type::k_bool)
+                    {
+                        break;
+                    }
+
                     canTradeLane = element.get_bool().value;
                     break;
                 }
             case Hash("tlExceptions"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     tlExceptions = std::vector<TradeLaneException>{};
                     for (auto& tl : element.get_array().value)
                     {
@@ -260,6 +339,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("dockExceptions"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     dockExceptions = std::vector<int>{};
                     for (auto& baseId : element.get_array().value)
                     {
@@ -269,51 +353,101 @@ Character::Character(B_VIEW view)
                 }
             case Hash("lastDockedBase"):
                 {
+                    if (element.type() != bsoncxx::type::k_int32)
+                    {
+                        break;
+                    }
+
                     lastDockedBase = element.get_int32().value;
                     break;
                 }
             case Hash("currentBase"):
                 {
+                    if (element.type() != bsoncxx::type::k_int32)
+                    {
+                        break;
+                    }
+
                     currentBase = element.get_int32().value;
                     break;
                 }
             case Hash("currentRoom"):
                 {
+                    if (element.type() != bsoncxx::type::k_int32)
+                    {
+                        break;
+                    }
+
                     currentRoom = element.get_int32().value;
                     break;
                 }
             case Hash("killCount"):
                 {
+                    if (element.type() != bsoncxx::type::k_int32)
+                    {
+                        break;
+                    }
+
                     killCount = element.get_int32().value;
                     break;
                 }
             case Hash("missionFailureCount"):
                 {
+                    if (element.type() != bsoncxx::type::k_int32)
+                    {
+                        break;
+                    }
+
                     missionFailureCount = element.get_int32().value;
                     break;
                 }
             case Hash("missionSuccessCount"):
                 {
+                    if (element.type() != bsoncxx::type::k_int32)
+                    {
+                        break;
+                    }
+
                     missionSuccessCount = element.get_int32().value;
                     break;
                 }
             case Hash("shipHash"):
                 {
+                    if (element.type() != bsoncxx::type::k_int32)
+                    {
+                        break;
+                    }
+
                     shipHash = element.get_int32().value;
                     break;
                 }
             case Hash("system"):
                 {
+                    if (element.type() != bsoncxx::type::k_int32)
+                    {
+                        break;
+                    }
+
                     system = element.get_int32().value;
                     break;
                 }
             case Hash("totalTimePlayed"):
                 {
+                    if (element.type() != bsoncxx::type::k_double)
+                    {
+                        break;
+                    }
+
                     totalTimePlayed = static_cast<float>(element.get_double().value);
                     break;
                 }
             case Hash("baseCostume"):
                 {
+                    if (element.type() != bsoncxx::type::k_document)
+                    {
+                        break;
+                    }
+
                     for (auto& el : element.get_document().value)
                     {
                         if (std::string_view key = el.key(); key == "head")
@@ -346,6 +480,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("commCostume"):
                 {
+                    if (element.type() != bsoncxx::type::k_document)
+                    {
+                        break;
+                    }
+
                     for (auto& el : element.get_document().value)
                     {
                         if (std::string_view key = el.key(); key == "head")
@@ -378,6 +517,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("cargo"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     cargo = std::vector<FLCargo>{};
                     for (auto& item : element.get_array().value)
                     {
@@ -410,6 +554,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("baseCargo"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     baseCargo = std::vector<FLCargo>{};
                     for (auto& item : element.get_array().value)
                     {
@@ -442,6 +591,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("equipment"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     equipment = std::vector<Equipment>{};
                     for (auto& item : element.get_array().value)
                     {
@@ -470,6 +624,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("baseEquipment"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     baseEquipment = std::vector<Equipment>{};
                     for (auto& item : element.get_array().value)
                     {
@@ -498,6 +657,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("collisionGroups"):
                 {
+                    if (element.type() != bsoncxx::type::k_document)
+                    {
+                        break;
+                    }
+
                     for (auto& el : element.get_document().value)
                     {
                         collisionGroups[std::string(el.key())] = static_cast<float>(el.get_double().value);
@@ -506,6 +670,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("baseCollisionGroups"):
                 {
+                    if (element.type() != bsoncxx::type::k_document)
+                    {
+                        break;
+                    }
+
                     for (auto& el : element.get_document().value)
                     {
                         baseCollisionGroups[std::string(el.key())] = static_cast<float>(el.get_double().value);
@@ -514,6 +683,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("reputation"):
                 {
+                    if (element.type() != bsoncxx::type::k_document)
+                    {
+                        break;
+                    }
+
                     for (auto& el : element.get_document().value)
                     {
                         reputation[std::string(el.key())] = static_cast<float>(el.get_double().value);
@@ -522,6 +696,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("shipTypesKilled"):
                 {
+                    if (element.type() != bsoncxx::type::k_document)
+                    {
+                        break;
+                    }
+
                     for (auto& el : element.get_document().value)
                     {
                         shipTypesKilled[std::string(el.key())] = el.get_int32().value;
@@ -530,6 +709,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("randomMissionsCompleted"):
                 {
+                    if (element.type() != bsoncxx::type::k_document)
+                    {
+                        break;
+                    }
+
                     for (auto& el : element.get_document().value)
                     {
                         randomMissionsCompleted[std::string(el.key())] = el.get_int32().value;
@@ -538,6 +722,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("randomMissionsAborted"):
                 {
+                    if (element.type() != bsoncxx::type::k_document)
+                    {
+                        break;
+                    }
+
                     for (auto& el : element.get_document().value)
                     {
                         randomMissionsAborted[std::string(el.key())] = el.get_int32().value;
@@ -546,6 +735,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("randomMissionsFailed"):
                 {
+                    if (element.type() != bsoncxx::type::k_document)
+                    {
+                        break;
+                    }
+
                     for (auto& el : element.get_document().value)
                     {
                         randomMissionsFailed[std::string(el.key())] = el.get_int32().value;
@@ -554,6 +748,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("visits"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     for (auto& el : element.get_array().value)
                     {
                         auto array = el.get_array().value;
@@ -563,6 +762,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("systemsVisited"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     systemsVisited = std::vector<int>{};
                     for (auto& baseId : element.get_array().value)
                     {
@@ -572,6 +776,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("basesVisited"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     basesVisited = std::vector<int>{};
                     for (auto& baseId : element.get_array().value)
                     {
@@ -581,6 +790,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("npcVisits"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     npcVisits = std::vector<NpcVisit>{};
                     for (auto& vnpc : element.get_array().value)
                     {
@@ -613,6 +827,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("jumpHolesVisited"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     jumpHolesVisited = std::vector<int>{};
                     for (auto& jumpHoleId : element.get_array().value)
                     {
@@ -622,6 +841,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("rumorsReceived"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     rumorsReceived = std::vector<RumorData>{};
                     for (auto& rumorData : element.get_array().value)
                     {
@@ -646,6 +870,11 @@ Character::Character(B_VIEW view)
                 }
             case Hash("weaponGroups"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     for (auto& el : element.get_document().value)
                     {
                         auto group = weaponGroups[std::string(el.key())] = {};
@@ -658,16 +887,31 @@ Character::Character(B_VIEW view)
                 }
             case Hash("lastRenameTimestamp"):
                 {
+                    if (element.type() != bsoncxx::type::k_int64)
+                    {
+                        break;
+                    }
+
                     lastRenameTimestamp = element.get_date().to_int64();
                     break;
                 }
             case Hash("characterTransferCode"):
                 {
+                    if (element.type() != bsoncxx::type::k_string)
+                    {
+                        break;
+                    }
+
                     characterTransferCode = element.get_string().value;
                     break;
                 }
             case Hash("presetMsgs"):
                 {
+                    if (element.type() != bsoncxx::type::k_array)
+                    {
+                        break;
+                    }
+
                     presetMsgs = std::array<std::string, 10>{};
                     uint i = 0;
                     for (auto& message : element.get_array().value)
@@ -711,7 +955,6 @@ void Character::ToBson(B_DOC& document)
     document.append(B_KVP("characterName", characterName));
     document.append(B_KVP("money", money));
     document.append(B_KVP("rank", rank));
-    document.append(B_KVP("affiliation", affiliation));
 
     if (repGroup.has_value())
     {
