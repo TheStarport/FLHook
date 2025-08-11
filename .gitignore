@@ -47,6 +47,8 @@ CMakePresets.json
 *.json
 *.fb
 *.xml
+bin/
+obj/
 
 # IDE Files
 *.iml
