@@ -50,8 +50,6 @@ struct Equipment
         int archId;
         std::string hardPoint;
         float health;
-        short amount;
-        bool mounted;
 };
 
 struct TradeLaneException
@@ -95,7 +93,6 @@ struct Character
         int shipHash = 0;
         int system = 0;
         float totalTimePlayed = 0.f;
-        float totalCashEarned = 0.f;
         Costume baseCostume;
         Costume commCostume;
         std::vector<FLCargo> cargo;

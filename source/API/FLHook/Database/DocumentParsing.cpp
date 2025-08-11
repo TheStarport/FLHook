@@ -313,11 +313,6 @@ Character::Character(B_VIEW view)
                     totalTimePlayed = static_cast<float>(element.get_double().value);
                     break;
                 }
-            case Hash("totalCashEarned"):
-                {
-                    totalCashEarned = static_cast<float>(element.get_double().value);
-                    break;
-                }
             case Hash("baseCostume"):
                 {
                     for (auto& el : element.get_document().value)
@@ -338,17 +333,14 @@ Character::Character(B_VIEW view)
                         {
                             baseCostume.rightHand = static_cast<uint>(el.get_int32().value);
                         }
-                        else if (key == "accessory")
+                        else if (key == "accessories")
                         {
                             int counter = 0;
-                            for (auto acc : el.get_array().value)
+                            for (auto& acc : el.get_array().value)
                             {
                                 baseCostume.accessory[counter++] = static_cast<uint>(acc.get_int32().value);
                             }
-                        }
-                        else if (key == "accessories")
-                        {
-                            baseCostume.accessories = el.get_int32().value;
+                            baseCostume.accessories = counter;
                         }
                     }
                     break;
@@ -376,7 +368,7 @@ Character::Character(B_VIEW view)
                         else if (key == "accessory")
                         {
                             int counter = 0;
-                            for (auto acc : el.get_array().value)
+                            for (auto& acc : el.get_array().value)
                             {
                                 commCostume.accessory[counter++] = static_cast<uint>(acc.get_int32().value);
                             }
@@ -396,7 +388,7 @@ Character::Character(B_VIEW view)
                         auto doc = item.get_document().value;
                         FLCargo cargoItem{};
 
-                        for (auto el : doc)
+                        for (auto& el : doc)
                         {
                             if (std::string_view key = el.key(); key == "archId")
                             {
@@ -428,7 +420,7 @@ Character::Character(B_VIEW view)
                         auto doc = item.get_document().value;
                         FLCargo cargoItem{};
 
-                        for (auto el : doc)
+                        for (auto& el : doc)
                         {
                             if (std::string_view key = el.key(); key == "archId")
                             {
@@ -460,27 +452,19 @@ Character::Character(B_VIEW view)
                         auto doc = item.get_document().value;
                         Equipment eq;
 
-                        for (auto el : doc)
+                        for (auto& el : doc)
                         {
                             if (std::string_view key = el.key(); key == "archId")
                             {
                                 eq.archId = el.get_int32().value;
                             }
-                            else if (key == "hardPoint")
+                            else if (key == "hp")
                             {
                                 eq.hardPoint = el.get_string().value;
                             }
                             else if (key == "health")
                             {
                                 eq.health = static_cast<float>(el.get_double().value);
-                            }
-                            else if (key == "mounted")
-                            {
-                                eq.mounted = el.get_bool().value;
-                            }
-                            else if (key == "amount")
-                            {
-                                eq.amount = static_cast<short>(el.get_int32().value);
                             }
                         }
 
@@ -496,27 +480,19 @@ Character::Character(B_VIEW view)
                         auto doc = item.get_document().value;
                         Equipment eq;
 
-                        for (auto el : doc)
+                        for (auto& el : doc)
                         {
                             if (std::string_view key = el.key(); key == "archId")
                             {
                                 eq.archId = el.get_int32().value;
                             }
-                            else if (key == "hardpoint")
+                            else if (key == "hp")
                             {
                                 eq.hardPoint = el.get_string().value;
                             }
                             else if (key == "health")
                             {
                                 eq.health = static_cast<float>(el.get_double().value);
-                            }
-                            else if (key == "mounted")
-                            {
-                                eq.mounted = el.get_bool().value;
-                            }
-                            else if (key == "amount")
-                            {
-                                eq.amount = static_cast<short>(el.get_int32().value);
                             }
                         }
 
@@ -550,7 +526,7 @@ Character::Character(B_VIEW view)
                 }
             case Hash("shipTypesKilled"):
                 {
-                    for (auto el : element.get_document().value)
+                    for (auto& el : element.get_document().value)
                     {
                         shipTypesKilled[std::string(el.key())] = el.get_int32().value;
                     }
@@ -656,7 +632,7 @@ Character::Character(B_VIEW view)
                         auto doc = rumorData.get_document().value;
                         RumorData rumor{};
 
-                        for (auto el : doc)
+                        for (auto& el : doc)
                         {
                             if (std::string_view key = el.key(); key == "rumorIds")
                             {
@@ -674,10 +650,10 @@ Character::Character(B_VIEW view)
                 }
             case Hash("weaponGroups"):
                 {
-                    for (auto el : element.get_document().value)
+                    for (auto& el : element.get_document().value)
                     {
                         auto group = weaponGroups[std::string(el.key())] = {};
-                        for (auto weapon : el.get_array().value)
+                        for (auto& weapon : el.get_array().value)
                         {
                             group.emplace_back(weapon.get_string().value);
                         }
@@ -784,43 +760,32 @@ void Character::ToBson(B_DOC& document)
     document.append(B_KVP("shipHash", shipHash));
     document.append(B_KVP("system", system));
     document.append(B_KVP("totalTimePlayed", totalTimePlayed));
-    document.append(B_KVP("totalCashEarned", totalCashEarned));
     // clang-format off
+    
+    B_ARR baseAccessories;
+    for (int i = 0; i != baseCostume.accessories; i++)
+    {
+        baseAccessories.append(static_cast<int>(baseCostume.accessory[i]));
+    }
     document.append(B_KVP("baseCostume", B_MDOC(
         B_KVP("head", static_cast<int>(baseCostume.head)),
         B_KVP("body", static_cast<int>(baseCostume.body)),
         B_KVP("leftHand", static_cast<int>(baseCostume.leftHand)),
         B_KVP("rightHand", static_cast<int>(baseCostume.rightHand)),
-        B_KVP("accessories", static_cast<int>(baseCostume.accessories)),
-        B_KVP("accessory", B_MARR(
-            static_cast<int>(baseCostume.accessory[0]),
-            static_cast<int>(baseCostume.accessory[1]),
-            static_cast<int>(baseCostume.accessory[2]),
-            static_cast<int>(baseCostume.accessory[3]),
-            static_cast<int>(baseCostume.accessory[4]),
-            static_cast<int>(baseCostume.accessory[5]),
-            static_cast<int>(baseCostume.accessory[6]),
-            static_cast<int>(baseCostume.accessory[7])
-            ))
-        )));
+        B_KVP("accessories", baseAccessories))
+        ));
 
+    B_ARR commAccessories;
+    for (int i = 0; i != commCostume.accessories; i++)
+    {
+        commAccessories.append(static_cast<int>(commCostume.accessory[i]));
+    }
     document.append(B_KVP("commCostume", B_MDOC(
         B_KVP("head", static_cast<int>(commCostume.head)),
         B_KVP("body", static_cast<int>(commCostume.body)),
         B_KVP("leftHand", static_cast<int>(commCostume.leftHand)),
         B_KVP("rightHand", static_cast<int>(commCostume.rightHand)),
-        B_KVP("accessories", static_cast<int>(commCostume.accessories)),
-        B_KVP("accessory", B_MARR(
-            static_cast<int>(commCostume.accessory[0]),
-            static_cast<int>(commCostume.accessory[1]),
-            static_cast<int>(commCostume.accessory[2]),
-            static_cast<int>(commCostume.accessory[3]),
-            static_cast<int>(commCostume.accessory[4]),
-            static_cast<int>(commCostume.accessory[5]),
-            static_cast<int>(commCostume.accessory[6]),
-            static_cast<int>(commCostume.accessory[7])
-            ))
-        )));
+        B_KVP("accessories", commAccessories))));
     // clang-format on
 
     {
@@ -843,20 +808,20 @@ void Character::ToBson(B_DOC& document)
 
     {
         B_ARR arr;
-        for (const auto& [archId, hardPoint, health, amount, mounted] : equipment)
+        for (const auto& [archId, hardPoint, health] : equipment)
         {
             arr.append(
-                B_MDOC(B_KVP("archId", archId), B_KVP("hardPoint", hardPoint), B_KVP("health", health), B_KVP("mounted", mounted), B_KVP("amount", amount)));
+                B_MDOC(B_KVP("archId", archId), B_KVP("hp", hardPoint), B_KVP("health", health)));
         }
         document.append(B_KVP("equipment", arr));
     }
 
     {
         B_ARR arr;
-        for (const auto& [archId, hardPoint, health, amount, mounted] : baseEquipment)
+        for (const auto& [archId, hardPoint, health] : baseEquipment)
         {
             arr.append(
-                B_MDOC(B_KVP("archId", archId), B_KVP("hardPoint", hardPoint), B_KVP("health", health), B_KVP("mounted", mounted), B_KVP("amount", amount)));
+                B_MDOC(B_KVP("archId", archId), B_KVP("hp", hardPoint), B_KVP("health", health)));
         }
         document.append(B_KVP("baseEquipment", arr));
     }

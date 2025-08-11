@@ -57,8 +57,8 @@ void AccountManager::ConvertCharacterToVanillaData(CharacterData* data, const Ch
     equipDesc.id = data->equipIdEnumerator.CreateEquipID();                  \
     equipDesc.archId = Id(equip.archId);                                     \
     equipDesc.health = equip.health;                                         \
-    equipDesc.mounted = equip.mounted;                                       \
-    equipDesc.count = equip.amount;                                          \
+    equipDesc.mounted = true;                                                \
+    equipDesc.count = 1;                                                     \
     equipDesc.hardPoint.value = StringAlloc(equip.hardPoint.c_str(), false); \
     list.push_back(equipDesc);
 
@@ -201,7 +201,6 @@ void __fastcall AccountManager::LoadPlayerMData(MPlayerDataSaveStruct* mdata, vo
         }
     }
 
-    mdata->totalCashEarned = character.totalCashEarned;
     mdata->totalTimePlayed = character.totalTimePlayed;
 
     for (auto system : character.systemsVisited)
@@ -286,7 +285,7 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
         {
             continue;
         }
-        std::string nicknameStr = { nickname.data, nickname.len };
+        std::string nicknameStr = { nickname.data, static_cast<uint>(nickname.len) };
         character.reputation.insert({ nicknameStr, reputation });
     }
 
@@ -304,7 +303,6 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
         {
             equipment.archId = equip.archId.GetValue();
             equipment.health = equip.health;
-            equipment.mounted = equip.mounted;
             equipment.hardPoint = equip.hardPoint.value;
             character.equipment.emplace_back(equipment);
         }
@@ -329,7 +327,6 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
         {
             equipment.archId = equip.archId.GetValue();
             equipment.health = equip.health;
-            equipment.mounted = equip.mounted;
             equipment.hardPoint = equip.hardPoint.value;
             character.baseEquipment.emplace_back(equipment);
         }
@@ -768,7 +765,6 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         character.randomMissionsFailed[std::to_string(iterBST.first)] = iterBST.second;
     }
 
-    character.totalCashEarned = mdata->totalCashEarned;
     character.totalTimePlayed = mdata->totalTimePlayed;
 
     character.visits.clear();
@@ -841,7 +837,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
             {
                 continue;
             }
-            std::string nicknameStr = { nickname.data, nickname.len };
+            std::string nicknameStr = { nickname.data, static_cast<uint>(nickname.len) };
             character.reputation.insert({ nicknameStr, reputation });
         }
 
@@ -861,8 +857,6 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
             equipment.archId = equip.archId.GetValue();
             equipment.hardPoint = equip.hardPoint.value;
             equipment.health = equip.health;
-            equipment.amount = equip.count;
-            equipment.mounted = equip.mounted;
             character.equipment.emplace_back(equipment);
         }
         else
@@ -887,8 +881,6 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
             equipment.archId = equip.archId.GetValue();
             equipment.hardPoint = equip.hardPoint.value;
             equipment.health = equip.health;
-            equipment.amount = equip.count;
-            equipment.mounted = equip.mounted;
             character.baseEquipment.emplace_back(equipment);
         }
         else
