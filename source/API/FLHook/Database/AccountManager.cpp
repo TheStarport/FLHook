@@ -38,7 +38,7 @@ void AccountManager::ConvertCharacterToVanillaData(CharacterData* data, const Ch
     for (const auto& [factionHash, rep] : character.reputation)
     {
         Reputation::Relation relation{};
-        relation.hash = CreateID(factionHash.c_str());
+        relation.hash = MakeId(factionHash.c_str());
         relation.reputation = rep;
         data->repList.push_back(relation);
     }
@@ -281,7 +281,13 @@ void ConvertVanillaDataToCharacter(CharacterData* data, Character& character)
 
     for (const auto& [hash, reputation] : data->repList)
     {
-        character.reputation.insert({ std::to_string(hash), reputation });
+        TString<16> nickname;
+        if (Reputation::get_nickname(nickname, hash) == -1)
+        {
+            continue;
+        }
+        std::string nicknameStr = { nickname.data, nickname.len };
+        character.reputation.insert({ nicknameStr, reputation });
     }
 
     character.equipment.clear();
@@ -822,13 +828,26 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
     std::vector<Reputation::Relation> relations;
     relations.resize(Reputation::group_count());
     Reputation::Vibe::Get(pd->reputation, affiliation, rank, relationCount, relations.data(), firstName, secondName, name);
-    for (const auto& [hash, reputation] : relations)
+    if (relationCount)
     {
-        character.reputation.insert({ std::to_string(hash), reputation });
-    }
+        for (const auto& [hash, reputation] : relations)
+        {
+            if (!hash)
+            {
+                continue;
+            }
+            TString<16> nickname;
+            if (Reputation::get_nickname(nickname, hash) == -1)
+            {
+                continue;
+            }
+            std::string nicknameStr = { nickname.data, nickname.len };
+            character.reputation.insert({ nicknameStr, reputation });
+        }
 
-    character.rank = rank;
-    character.affiliation = affiliation;
+        character.rank = rank;
+        character.affiliation = affiliation;
+    }
 
     for (const auto& equip : pd->equipAndCargo.equip)
     {
