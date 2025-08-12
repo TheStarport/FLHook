@@ -4,6 +4,7 @@
 
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
+#include "FLCore/Common/Globals.hpp"
 
 #include <uuid.h>
 
@@ -192,6 +193,7 @@ void __fastcall AccountManager::LoadPlayerMData(MPlayerDataSaveStruct* mdata, vo
             mdata->tlExceptions.push_back({ static_cast<uint>(startRing), static_cast<uint>(nextRing) });
         }
     }
+
     if (character.dockExceptions.has_value())
     {
         for (auto dockException : character.dockExceptions.value())
@@ -202,23 +204,27 @@ void __fastcall AccountManager::LoadPlayerMData(MPlayerDataSaveStruct* mdata, vo
 
     mdata->totalTimePlayed = character.totalTimePlayed;
 
-    for (auto system : character.systemsVisited)
+    for (const auto system : character.systemsVisited)
     {
         mdata->visitedSystems.push_back(system);
     }
-    for (auto base : character.basesVisited)
+
+    for (const auto base : character.basesVisited)
     {
         mdata->visitedBases.push_back(base);
     }
-    for (auto jumpHole : character.jumpHolesVisited)
+
+    for (const auto jumpHole : character.jumpHolesVisited)
     {
         mdata->visitedHoles.push_back(jumpHole);
     }
-    for (auto vnpc : character.npcVisits)
+
+    for (const auto& vnpc : character.npcVisits)
     {
         mdata->visitedNPCs.push_back(
             { static_cast<uint>(vnpc.baseId), static_cast<uint>(vnpc.id), vnpc.interactionCount, static_cast<VNpc::NpcMissionStatus>(vnpc.missionStatus) });
     }
+
     for (auto [rumorIDS, rumorPriority] : character.rumorsReceived)
     {
         mdata->receivedRumors.push_back({ static_cast<uint>(rumorIDS), static_cast<uint>(rumorPriority) });
@@ -522,7 +528,7 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
         return false;
     }
 
-    const auto db = NewChar::TheDB;
+    auto* const db = NewChar::TheDB;
 
     const auto base = db->FindBase(characterInfo->base);
     const auto faction = db->FindFaction(characterInfo->nickName);
@@ -546,7 +552,7 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
 
     loadData->name = reinterpret_cast<unsigned short*>(characterInfo->charname);
 
-    const auto costDesc = GetCostumeDescriptions();
+    const auto* const costDesc = GetCostumeDescriptions();
     costDesc->get_costume(pilot->body.c_str(), loadData->baseCostume);
     costDesc->get_costume(pilot->comm.c_str(), loadData->commCostume);
     if (pilot->voice.empty())
@@ -559,6 +565,43 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
         strcpy_s(loadData->voice, pilot->voice.c_str());
         loadData->voiceLen = pilot->voice.size() + 1; // +1 for null terminator
     }
+
+    if (!newPlayerTemplate.initialRep.empty())
+    {
+        uint factionHash = MakeId(newPlayerTemplate.initialRep.c_str());
+        if (newPlayerTemplate.initialRep == "%%FACTION%%")
+        {
+            factionHash = MakeId(faction->repGroup.c_str());
+        }
+
+        // ReSharper disable once CppUseElementsView
+        for (auto [hash, group] : GameData::repGroups)
+        {
+            float attitude = 0.f;
+            Reputation::get_feelings_towards(factionHash, hash, attitude);
+
+            Reputation::Relation relation{ hash, attitude };
+            loadData->repList.push_back(relation);
+        }
+    }
+
+    for (auto& [id, rep] : newPlayerTemplate.reputationOverrides)
+    {
+        Reputation::Relation relation{ MakeId(id.c_str()), rep };
+        loadData->repList.push_back(relation);
+    }
+
+    for (auto& [obj, flag] : newPlayerTemplate.visitValues)
+    {
+        loadData->visits[obj] = static_cast<char>(flag);
+    }
+
+    if (newPlayerTemplate.rank > 0)
+    {
+        loadData->rank = newPlayerTemplate.rank;
+    }
+
+    loadData->money = newPlayerTemplate.money.value_or(0);
 
     if (newPlayerTemplate.hasPackage)
     {
@@ -585,6 +628,7 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
     {
         loadData->shipHash = newPlayerTemplate.ship;
     }
+
     loadData->equipIdEnumerator.currSID += loadData->currentEquipAndCargo.size();
     loadData->interfaceState = 3;
 
@@ -858,13 +902,11 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 
     for (const auto& equip : pd->equipAndCargo.equip)
     {
-        Equipment equipment = {};
-        FLCargo cargo = {};
-
         bool isCommodity = false;
         pub::IsCommodity(equip.archId.GetValue(), isCommodity);
         if (!isCommodity)
         {
+            Equipment equipment = {};
             equipment.archId = equip.archId.GetValue();
             equipment.hardPoint = equip.hardPoint.value;
             equipment.health = equip.health;
@@ -872,6 +914,7 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         }
         else
         {
+            FLCargo cargo = {};
             cargo.archId = equip.archId.GetValue();
             cargo.health = equip.health;
             cargo.isMissionCargo = equip.mission;
@@ -882,13 +925,11 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
 
     for (const auto& equip : playerMapCache->second.baseEquipAndCargo)
     {
-        Equipment equipment = {};
-        FLCargo cargo = {};
-
         bool isCommodity = false;
         pub::IsCommodity(equip.archId.GetValue(), isCommodity);
         if (!isCommodity)
         {
+            Equipment equipment = {};
             equipment.archId = equip.archId.GetValue();
             equipment.hardPoint = equip.hardPoint.value;
             equipment.health = equip.health;
@@ -896,6 +937,8 @@ bool AccountManager::OnPlayerSave(PlayerData* pd)
         }
         else
         {
+            FLCargo cargo = {};
+
             cargo.archId = equip.archId.GetValue();
             cargo.health = equip.health;
             cargo.isMissionCargo = equip.mission;
