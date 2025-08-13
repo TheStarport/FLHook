@@ -33,7 +33,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
         // concurrencpp::result<void>ListMail(int pageNumber, std::wstring_view unread);
         concurrencpp::result<void> GiveCash(ClientId client, CharacterId targetCharacter, std::wstring_view amount);
         concurrencpp::result<void> Time(ClientId client);
-        concurrencpp::result<void> Dice(ClientId client, uint sidesOfDice);
+        concurrencpp::result<void> Dice(ClientId client, std::wstring_view dice);
         concurrencpp::result<void> Coin(ClientId client);
         concurrencpp::result<void> Value(ClientId client);
         concurrencpp::result<void> Pos(ClientId client);
@@ -81,7 +81,7 @@ class UserCommandProcessor final : public Singleton<UserCommandProcessor>, publi
                 AddCommand(UserCommandProcessor, Cmds( L"/value"sv ), Value, L"/value", L"Prints the current total worth of the character"),
                 AddCommand(UserCommandProcessor, Cmds( L"/pos"sv ), Pos, L"/pos", L"Prints your current position and orientation in space"),
                 AddCommand(UserCommandProcessor, Cmds( L"/coin"sv ), Coin, L"/coin", L"Tosses a coin, heads or tails."),
-                AddCommand(UserCommandProcessor, Cmds( L"/dice"sv ), Dice, L"/dice [numOfSides]", L"Rolls the dice with specified amount of sides, 6 if unspecified"),
+                AddCommand(UserCommandProcessor, Cmds( L"/dice"sv, L"/roll"sv), Dice, L"/dice [numOfSides]", L"Rolls the dice with specified amount of sides, 6 if unspecified"),
                 AddCommand(UserCommandProcessor, Cmds( L"/droprep"sv ), DropRep, L"/droprep", L"Removes your affiliation if you have one"),
                 AddCommand(UserCommandProcessor, Cmds( L"/migratechar clear"sv), MigrateCharacterClearCode, L"/migratechar clear", L"Clears the character transfer code if it is set"),
                 AddCommand(UserCommandProcessor, Cmds( L"/migratechar setcode"sv, L"/set movecharcode"sv), MigrateCharacterSetCode, L"/migratechar setcode <code>", L"Set the code on this character for the purpose of moving to another account"),

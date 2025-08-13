@@ -15,6 +15,8 @@
 
 #include "Defs/Database/MongoResult.hpp"
 
+#include <regex>
+
 std::optional<concurrencpp::result<void>> UserCommandProcessor::ProcessCommand(const ClientId triggeringClient, const std::wstring_view clientStr,
                                                                                const std::wstring_view commandStr)
 {
@@ -1003,24 +1005,98 @@ concurrencpp::result<void> UserCommandProcessor::Pos(const ClientId client)
     co_return;
 }
 
-concurrencpp::result<void> UserCommandProcessor::Dice(const ClientId client, uint sidesOfDice)
+enum diceOperation
 {
-    // TODO: Support for more than 1 dice, e.g. 6d10
-    if (!sidesOfDice)
-    {
-        sidesOfDice = 6;
-    }
+    ADD,
+    SUBTRACT,
+    NONE
+};
 
-    uint result = Random::Uniform(1u, sidesOfDice);
-    const std::wstring msg = std::format(L"{} has rolled {} out of {}", client.GetCharacterId().Handle(), result, sidesOfDice);
+concurrencpp::result<void> UserCommandProcessor::Dice(const ClientId client, std::wstring_view dice)
+{
+    std::regex expr("(\\d{1,2})[Dd](\\d{1,3})(([+\\-*])?(\\d{1,5}))?");
+    std::smatch sm;
 
-    if (client.IsDocked())
+    std::string s = StringUtils::wstos(std::wstring(dice));
+    // If the regex finds a match denoting the correct roll format, run the randomized numbers
+    if (std::regex_search(s, sm, expr))
     {
-        client.ToastMessage(std::format(L"1d{} Dice Roll", sidesOfDice), msg);
+        // Smatch index [1] represents the roll count
+        int rollCount = std::stoi(sm[1].str().c_str());
+
+        // Smatch index [2] represents the dice count
+        int diceCount = std::stoi(sm[2].str().c_str());
+
+        // Smatch index [3] represents any modifier numeric value. This is set ONLY if we are using a mod-operation
+        int modifierValue;
+
+        diceOperation operation;
+        if (sm[3].str().find("+") == 0)
+        {
+            operation = diceOperation::ADD;
+            modifierValue = std::stoi(sm[5].str().c_str());
+        }
+        else if (sm[3].str().find("-") == 0)
+        {
+            operation = diceOperation::SUBTRACT;
+            modifierValue = std::stoi(sm[5].str().c_str());
+        }
+        else
+        {
+            operation = diceOperation::NONE;
+        }
+
+        std::string diceResultSteps = "";
+        uint number = 0;
+
+        for (int i = 0; i < rollCount; i++)
+        {
+            int randValue = (rand() % diceCount) + 1;
+
+            // If we have a modifier, apply it
+            if (operation == diceOperation::ADD)
+            {
+                number += (randValue + modifierValue);
+                diceResultSteps.append("(").append(std::to_string(randValue)).append(" + ").append(std::to_string(modifierValue).append(")"));
+            }
+            else if (operation == diceOperation::SUBTRACT)
+            {
+                number += (randValue - modifierValue);
+                diceResultSteps.append("(").append(std::to_string(randValue)).append(" - ").append(std::to_string(modifierValue).append(")"));
+            }
+            else
+            {
+                number += randValue;
+                diceResultSteps.append("(").append(std::to_string(randValue)).append(")");
+            }
+
+            // Are we not on the last value? Keep the string pretty by adding another +
+            if (i < rollCount - 1)
+            {
+                diceResultSteps.append(" + ");
+            }
+        }
+
+        // Print the results
+        client.MessageLocal(std::format(
+            L"{} rolled {} with the formula {}",
+            client.GetCharacterId().Handle().GetValue(),
+            StringUtils::stows(std::to_string(number)),
+            StringUtils::stows(sm[0].str().c_str())
+        ));
+
+        // Only print the steps taken if less than 10 dice was rolled.
+        if (rollCount < 10)
+        {
+            client.MessageLocal(StringUtils::stows(diceResultSteps));
+        }
     }
     else
     {
-        client.MessageLocal(msg);
+        client.Message(L"Usage: (NumDice) d (DiceSides) [+-] (Modifier)");
+        client.Message(L"Examples: /roll 1d20 -- Roll 1, 20 sided die");
+        client.Message(L"          /roll 1d8+4 -- Roll 1, 8 sided die and add 8");
+        client.Message(L"          /roll 4d20+2 -- Roll 4, 20 sided dice, adding 2 to each die rolled");
     }
 
     co_return;
