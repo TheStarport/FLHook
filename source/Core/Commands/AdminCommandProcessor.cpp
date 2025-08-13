@@ -142,8 +142,8 @@ concurrencpp::result<void> AdminCommandProcessor::TempbanPlayer(ClientId client,
         co_return;
     }
 
-    co_await account->Ban(durationInDays);
-    // TODO: Validate it was successful
+    (co_await account->Ban(durationInDays)).Handle();
+
     THREAD_MAIN;
     client.Message(std::format(L"{} has been successfully banned for {} days.", characterName, durationInDays));
     co_return;
