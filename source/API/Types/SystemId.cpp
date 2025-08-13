@@ -13,13 +13,43 @@
         return { cpp::fail(Error::InvalidSystem) }; \
     }
 
-SystemId::SystemId(std::wstring_view nickName, bool isInfoCardName)
+SystemId::SystemId(std::wstring_view nickName, const bool isWildCard)
 {
-    if (!isInfoCardName)
+    const std::string str = StringUtils::wstos(std::wstring(nickName));
+    auto system = Universe::get_system(CreateID(str.c_str()));
+
+    if (system)
     {
-        value = CreateID(StringUtils::wstos(std::wstring(nickName)).c_str());
+        value = system->id.GetValue();
+        return;
     }
-    // TODO: Construct systemID from the infocard name.
+
+    const auto& im = FLHook::GetInfocardManager();
+    system = Universe::GetFirstSystem();
+    do
+    {
+        if (isWildCard)
+        {
+            if (auto name = im->GetInfoName(system->idsName); StringUtils::WildcardMatch(name, nickName))
+            {
+                value = system->id.GetValue();
+                return;
+            }
+        }
+        else
+        {
+            if (auto name = im->GetInfoName(system->idsName); name == nickName)
+            {
+                value = system->id.GetValue();
+                return;
+            }
+        }
+
+        system = Universe::GetNextSystem();
+    }
+    while (system);
+
+    value = 0;
 }
 SystemId::operator bool() const { return value != 0 && Universe::get_system(value) != nullptr; }
 
