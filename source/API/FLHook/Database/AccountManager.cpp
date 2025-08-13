@@ -453,7 +453,7 @@ void AccountManager::LoadNewPlayerFLInfo()
         {
             if (!strcmp(ini.get_value_string(0), "%%MONEY%%"))
             {
-                newPlayerTemplate.money = -1;
+                newPlayerTemplate.money = std::nullopt;
             }
             else
             {
@@ -510,6 +510,77 @@ void AccountManager::LoadNewPlayerFLInfo()
     {
         ERROR("Missing %%PACKAGE%% from mpnewplayer.fl. If the package is missing any data from a valid save file, "
               "new characters can cause server and client crashes.");
+    }
+
+    ini.close();
+    if (!ini.open("..\\DATA\\CHARACTERS\\newcharacter.ini", false))
+    {
+        return;
+    }
+
+    while (ini.read_header())
+    {
+        if (!ini.is_header("Faction"))
+        {
+            continue;
+        }
+
+        uint visitList = 0;
+        uint faction = 0;
+        while (ini.read_value())
+        {
+            if (ini.is_value("visit_list"))
+            {
+                visitList = CreateID(ini.get_value_string());
+            }
+            else if (ini.is_value("nickname"))
+            {
+                faction = CreateID(ini.get_value_string());
+            }
+        }
+
+        if (visitList && faction)
+        {
+            factionVisitListMapping[faction] = visitList;
+        }
+    }
+
+    ini.close();
+
+    if (!ini.open("..\\DATA\\CHARACTERS\\visitlists.ini", false))
+    {
+        return;
+    }
+
+    while (ini.read_header())
+    {
+        if (!ini.is_header("VisitList"))
+        {
+            continue;
+        }
+
+        uint nickname = 0;
+        NewPlayerTemplate::VisitList list;
+        while (ini.read_value())
+        {
+            if (ini.is_value("nickname"))
+            {
+                nickname = CreateID(ini.get_value_string());
+            }
+            else if (ini.is_value("faction"))
+            {
+                list.factions.emplace(MakeId(ini.get_value_string()));
+            }
+            else if (ini.is_value("visit"))
+            {
+                list.visits.emplace(CreateID(ini.get_value_string(0)), static_cast<char>(ini.get_value_int(0)));
+            }
+        }
+
+        if (nickname)
+        {
+            visitLists[nickname] = list;
+        }
     }
 }
 
@@ -575,7 +646,7 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
         }
 
         // ReSharper disable once CppUseElementsView
-        for (auto [hash, group] : GameData::repGroups)
+        for (auto& [hash, group] : GameData::repGroups)
         {
             float attitude = 0.f;
             Reputation::get_feelings_towards(factionHash, hash, attitude);
@@ -594,6 +665,24 @@ bool __fastcall AccountManager::OnCreateNewCharacter(PlayerData* data, void* edx
     for (auto& [obj, flag] : newPlayerTemplate.visitValues)
     {
         loadData->visits[obj] = static_cast<char>(flag);
+    }
+
+    if (auto factionVisitKey = factionVisitListMapping.find(faction->nickname); factionVisitKey != factionVisitListMapping.end())
+    {
+        const auto& visitList = visitLists.find(factionVisitKey->second);
+        if (visitList != visitLists.end())
+        {
+            for (auto& visitFaction : visitList->second.factions)
+            {
+                // 65 is the flag for a known faction
+                loadData->visits[visitFaction] = 65;
+            }
+
+            for (auto& [visit, flag] : visitList->second.visits)
+            {
+                loadData->visits[visit] = flag;
+            }
+        }
     }
 
     if (newPlayerTemplate.rank > 0)

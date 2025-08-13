@@ -92,6 +92,12 @@ struct NewPlayerTemplate
         std::vector<EquipDesc> cargo;
 
         uint ship = 0;
+
+        struct VisitList
+        {
+                std::unordered_set<uint> factions;
+                std::unordered_map<uint, char> visits;
+        };
 };
 
 struct AccountData
@@ -120,6 +126,8 @@ class AccountManager
         inline static AccountManager* instance = nullptr;
 
         inline static NewPlayerTemplate newPlayerTemplate;
+        inline static std::unordered_map<uint, NewPlayerTemplate::VisitList> visitLists;
+        inline static std::unordered_map<uint, uint> factionVisitListMapping;
 
         inline static std::array<AccountData, MaxClientId + 1> accounts;
         inline static std::unordered_set<std::string, StringHash> loggedInAccounts;
