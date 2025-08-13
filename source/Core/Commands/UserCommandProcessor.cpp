@@ -104,7 +104,16 @@ concurrencpp::result<void> UserCommandProcessor::SetDieMessage(const ClientId cl
     }
 
     auto dieMsgVal = StringUtils::wstos(magic_enum::enum_name(dieMsg));
-    // TODO REIMPLEMENT ACCOUNT SAVING Database::SaveValueOnAccount(client.GetAccount().Handle(), "dieMsg", { dieMsgVal });
+    auto ret = co_await AccountManager::UpdateAccount(
+        std::wstring(client.GetCharacterId().Handle().GetValue()),
+        B_MDOC(B_KVP("$set", B_MDOC(B_KVP("dieMsg", dieMsgVal)))),
+        "setting dieMsg"
+    );
+    if (ret.has_error())
+    {
+        client.MessageErr(std::format(L"Got error saving to dabase: {}", ret.error()));
+        co_return;
+    }
 
     auto& info = client.GetData();
     info.dieMsg = dieMsg;
