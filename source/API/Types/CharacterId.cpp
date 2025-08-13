@@ -8,6 +8,7 @@
 #include "API/Types/CharacterId.hpp"
 
 #include "Defs/FLHookConfig.hpp"
+#include "Defs/Database/Character.hpp"
 #include "Defs/Database/MongoResult.hpp"
 
 #define RET_SUCCESS \
@@ -392,6 +393,56 @@ concurrencpp::result<Action<MongoResult>> CharacterId::SetCash(int cash) const
 
     const auto updateDoc = B_MDOC(B_KVP("$set", B_MDOC(B_KVP("money", cash))));
     co_return UpdateCharacterDocument(characterNameStr, updateDoc);
+}
+
+concurrencpp::result<Action<std::vector<FLCargo>>> CharacterId::GetEquipCargo() const
+{
+    THREAD_MAIN;
+    const std::string characterNameStr = StringUtils::wstos(characterName);
+
+    std::vector<FLCargo> allResults;
+
+    if (const auto* data = GetOnlineData())
+    {
+        for (auto item : Players[data->id.GetValue()].equipAndCargo.equip)
+        {
+            allResults.push_back(FLCargo(item.archId.GetValue(), item.count, item.health, item.mission));
+        }
+        co_return Action<std::vector<FLCargo>>{ allResults };
+    }
+
+    THREAD_BACKGROUND;
+
+    auto query = FLHook::GetDatabase()->BeginDatabaseQuery();
+    auto result = query.FindFromCollection(DatabaseCollection::Character, B_MDOC(B_KVP("characterName", characterNameStr)));
+    if (!result.has_value())
+    {
+        query.ConcludeQuery(false);
+        co_return Action<std::vector<FLCargo>>{ cpp::fail(Error::CharacterNameNotFound) };
+    }
+
+    for (auto item : result->find("cargo")->get_array().value)
+    {
+        auto itemDoc = item.get_document().value;
+
+        allResults.push_back(FLCargo(itemDoc.find("archId")->get_int32().value,
+                                     itemDoc.find("amount")->get_int32().value,
+                                     itemDoc.find("health")->get_double().value,
+                                     itemDoc.find("isMissionCargo")->get_bool().value));
+    }
+
+    for (auto item : result->find("equipment")->get_array().value)
+    {
+        auto itemDoc = item.get_document().value;
+
+        allResults.push_back(FLCargo(itemDoc.find("archId")->get_int32().value,
+                                     1,
+                                     itemDoc.find("health")->get_double().value,
+                                     false));
+    }
+
+    query.ConcludeQuery(false);
+    co_return Action<std::vector<FLCargo>>{ allResults };
 }
 
 concurrencpp::result<Action<MongoResult>> CharacterId::AddCargo(GoodId good, uint count, float health, bool mission) const

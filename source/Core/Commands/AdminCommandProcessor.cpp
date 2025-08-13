@@ -219,20 +219,14 @@ concurrencpp::result<void> AdminCommandProcessor::SendUniverseMessage(ClientId c
     co_return;
 }
 
-concurrencpp::result<void> AdminCommandProcessor::ListCargo(ClientId client, const ClientId target)
+concurrencpp::result<void> AdminCommandProcessor::ListCargo(ClientId client, const CharacterId targetCharacter)
 {
-    // TODO: Move this to using CharacterId for the target
-    const auto cargo = target.GetEquipCargo().Handle();
+    const auto cargo = (co_await targetCharacter.GetEquipCargo()).Handle();
     std::wstring res;
 
-    for (auto& item : cargo->equip)
+    for (auto item : cargo)
     {
-        if (item.mounted)
-        {
-            continue;
-        }
-
-        res += std::format(L"id={} archid={} count={} mission={} \n", item.id, item.archId, item.count, item.mission ? 1 : 0);
+        res += std::format(L"archid={} count={} mission={} \n", (uint)item.archId, item.amount, item.isMissionCargo ? 1 : 0);
     }
 
     client.Message(res);

@@ -5,6 +5,8 @@
 #include <concurrencpp/concurrencpp.h>
 #include <API/FLHook/BsonHelper.hpp>
 
+#include <Defs/Database/Character.hpp>
+
 class AccountId;
 class GoodId;
 enum class MongoResult;
@@ -39,6 +41,7 @@ class DLL CharacterId final
         concurrencpp::result<Action<MongoResult>> AddCash(int cash) const;
         concurrencpp::result<Action<MongoResult>> RemoveCash(int cash) const;
         concurrencpp::result<Action<MongoResult>> SetCash(int cash) const;
+        concurrencpp::result<Action<std::vector<FLCargo>>> GetEquipCargo() const;
         concurrencpp::result<Action<MongoResult>> AddCargo(GoodId good, uint count = 1, float health = 1.0f, bool mission = true) const;
         concurrencpp::result<Action<MongoResult>> RemoveCargo(GoodId good, uint count = 1) const;
         concurrencpp::result<Action<MongoResult>> SetPosition(Vector pos) const;
