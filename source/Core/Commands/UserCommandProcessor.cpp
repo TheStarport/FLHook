@@ -8,6 +8,7 @@
 #include "API/FLHook/AccountManager.hpp"
 #include "API/FLHook/ClientList.hpp"
 #include "API/FLHook/Database.hpp"
+#include "API/FLHook/InfocardManager.hpp"
 #include "API/FLHook/TaskScheduler.hpp"
 #include "API/Utils/Random.hpp"
 #include "Core/PluginManager.hpp"
@@ -1147,17 +1148,16 @@ concurrencpp::result<void> UserCommandProcessor::MarkTarget(const ClientId clien
     auto charName = client.GetCharacterId().Handle();
     auto targetName = otherPlayer.GetCharacterId().Handle();
 
-    // std::wstring message1 = std::format(L"Target: {}", targetName);
+    std::wstring message1 = std::format(L"Target: {}", targetName);
     const std::wstring message2 = std::format(L"{} has set {} as group target.", charName, targetName);
 
-    // std::wstring_view msgView1 = message1;
     std::wstring_view msgView2 = message2;
 
     FmtStr caption(0, nullptr);
     caption.begin_mad_lib(526999);
     caption.end_mad_lib();
     group.ForEachGroupMember(
-        [msgView2, targetShip](const ClientId& groupMemberClientId)
+        [message1, caption, msgView2, targetShip](const ClientId& groupMemberClientId)
         {
             if (const uint groupMemShip = Players[groupMemberClientId.GetValue()].shipId; !groupMemShip || groupMemShip == targetShip)
             {
@@ -1165,10 +1165,10 @@ concurrencpp::result<void> UserCommandProcessor::MarkTarget(const ClientId clien
             }
 
             (void)groupMemberClientId.Message(msgView2);
-            // TODO: Reintroduce when IDS override clienthook is made
-            // HkChangeIDSString(gm->iClientID, 526999, message1);
 
-            // pub::Player::DisplayMissionMessage(groupMemberClientId.GetValue(), caption, MissionMessageType::MissionMessageType_Type2, true);
+            FLHook::GetInfocardManager()->OverrideInfocard(526999, message1, true, groupMemberClientId);
+
+            pub::Player::DisplayMissionMessage(groupMemberClientId.GetValue(), caption, MissionMessageType::Type2, true);
 
             if (groupMemberClientId.GetData().markedTarget)
             {
