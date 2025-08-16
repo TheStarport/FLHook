@@ -108,14 +108,6 @@ Action<std::pair<float, float>> BaseId::GetBaseHealth() const
     return { std::make_pair(curHealth, maxHealth) };
 }
 
-Action<std::pair<std::wstring_view, std::wstring_view>> BaseId::GetDescription() const
-{
-    ValidBaseCheck;
-
-    // TODO: Get internal description of base
-    return { {} };
-}
-
 Action<std::vector<uint>> BaseId::GetItemsForSale() const
 {
     ValidBaseCheck;

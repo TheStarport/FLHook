@@ -213,7 +213,6 @@ void LuaHelper::InitialiseDefaultLuaState(sol::state* lua)
     ClsFunc(GetAffiliation);
     ClsFunc(GetName);
     ClsFunc(GetBaseHealth);
-    ClsFunc(GetDescription);
     ClsFunc(GetItemsForSale);
     ClsFunc(GetCommodityPrice);
     ClsFunc(GetDockedPlayers);

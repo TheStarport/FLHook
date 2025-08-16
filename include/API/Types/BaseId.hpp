@@ -34,8 +34,6 @@ class DLL BaseId
         [[nodiscard]]
         Action<std::pair<float, float>> GetBaseHealth() const;
         [[nodiscard]]
-        Action<std::pair<std::wstring_view, std::wstring_view>> GetDescription() const;
-        [[nodiscard]]
         Action<std::vector<uint>> GetItemsForSale() const;
         [[nodiscard]]
         Action<float> GetCommodityPrice(GoodId goodId) const;
