@@ -1168,7 +1168,7 @@ concurrencpp::result<void> UserCommandProcessor::MarkTarget(const ClientId clien
 
             FLHook::GetInfocardManager()->OverrideInfocard(526999, message1, true, groupMemberClientId);
 
-            pub::Player::DisplayMissionMessage(groupMemberClientId.GetValue(), caption, MissionMessageType::Type2, true);
+            pub::Player::DisplayMissionMessage(groupMemberClientId.GetValue(), caption, MissionMessageType::Type2, false);
 
             if (groupMemberClientId.GetData().markedTarget)
             {
