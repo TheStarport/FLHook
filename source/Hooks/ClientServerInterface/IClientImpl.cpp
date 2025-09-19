@@ -806,36 +806,37 @@ void IClientImpl::unknown_68(uint client, FLPACKET_UNKNOWN* unk1)
     CallClientPostamble;
 }
 
-bool IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(uint client, uint unk1, uint unk2, uint unk3, uint unk4, uint unk5, uint unk6, uint unk7, uint unk8, uint unk9,
-                                                uint unk10, uint unk11, uint unk12, uint unk13, uint unk14, uint unk15, uint unk16, uint unk17, uint unk18,
-                                                uint unk19, uint unk20, uint unk21, uint unk22)
+bool IClientImpl::Send_FLPACKET_SERVER_SENDCOMM(uint client, uint senderObjId, uint receiverObjId, uint voice, uint head, uint body, uint leftHand,
+                                                uint rightHand, uint accessory1, uint accessory2, uint accessory3, uint accessory4, uint accessory5,
+                                                uint accessory6, uint accessory7, uint accessory8, uint accessories, uint name, uint* lines,
+                                                uint lineCount, uint commType, float radioSilenceAfter, bool openBroadcast)
 {
     bool retVal;
     CallClientPreamble
     {
         retVal = Send_FLPACKET_SERVER_SENDCOMM(client,
-                                               unk1,
-                                               unk2,
-                                               unk3,
-                                               unk4,
-                                               unk5,
-                                               unk6,
-                                               unk7,
-                                               unk8,
-                                               unk9,
-                                               unk10,
-                                               unk11,
-                                               unk12,
-                                               unk13,
-                                               unk14,
-                                               unk15,
-                                               unk16,
-                                               unk17,
-                                               unk18,
-                                               unk19,
-                                               unk20,
-                                               unk21,
-                                               unk22);
+                                               senderObjId,
+                                               receiverObjId,
+                                               voice,
+                                               head,
+                                               body,
+                                               leftHand,
+                                               rightHand,
+                                               accessory1,
+                                               accessory2,
+                                               accessory3,
+                                               accessory4,
+                                               accessory5,
+                                               accessory6,
+                                               accessory7,
+                                               accessory8,
+                                               accessories,
+                                               name,
+                                               lines,
+                                               lineCount,
+                                               commType,
+                                               radioSilenceAfter,
+                                               openBroadcast);
     }
     CallClientPostamble;
 }
