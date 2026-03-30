@@ -23,7 +23,7 @@ myst-parser==4.0.0
 packaging==24.2
 patch-ng==1.18.1
 pipreqs==0.4.13
-Pygments==2.18.0
+Pygments==2.20.0
 python-dateutil==2.9.0.post0
 PyYAML==6.0.2
 requests==2.32.4
