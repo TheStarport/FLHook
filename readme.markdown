@@ -1,13 +1,23 @@
 # FLHook - A Server Improvement for Freelancer
-[![Build](https://github.com/fl-devs/FLHook/actions/workflows/release.yml/badge.svg)](https://github.com/fl-devs/FLHook/releases/latest/download/Release.zip) [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.com/invite/c6wtsBk) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/fl-devs/FLHook/graphs/commit-activity) 
-
-
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-no-red.svg)](https://github.com/fl-devs/FLHook/graphs/commit-activity) 
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=bugs)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=code_smells)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=ncloc)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=alert_status)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fl-devs_FLHook&branch=master&metric=security_rating)](https://sonarcloud.io/dashboard?id=fl-devs_FLHook&branch=master)
+
+
+> [!IMPORTANT]  
+> After many years, FLHook development has ceased. In recent times work on Freelancer has mostly been focused
+> on another project, [FLUF](https://codeberg.org/TheStarport/FLUF), which is intended to be a replacement to the
+> unfinished FLHook 5, and a combined Client/Server framework with native UI support rather than reliance on
+> text commands.
+>
+> While FLHook itself is no longer being developed, it exists here for anyone to look at an use (within the GPL3
+> license terms, of course). Feel free to fork it and do as you please.
+>
+> Many thanks to all those who helped and contributed over the years.
 
 ## What is FLHook?
 FLHook is a server-side extension utility for Freelancer (2003) that proviudes a framework for running custom commands
